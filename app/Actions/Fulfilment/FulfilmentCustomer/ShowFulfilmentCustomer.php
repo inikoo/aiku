@@ -115,15 +115,12 @@ class ShowFulfilmentCustomer extends OrgAction
                             'button' => [
                                 [
                                     'type'    => 'button',
-                                    'style'   => 'primary',
-                                    'tooltip' => __('Create new delivery order'),
-                                    'label'   => __('Delivery Pallet'),
-                                    'options' => [
-                                        'warehouses' => WarehouseResource::collection($fulfilmentCustomer->fulfilment->warehouses)
-                                    ],
+                                    'style'   => 'create',
+                                    'tooltip' => __('Create new pallet return'),
+                                    'label'   => __('Pallet return'),
                                     'route'   => [
                                         'method'     => 'post',
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
+                                        'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
                                         'parameters' => [$fulfilmentCustomer->id]
                                     ]
                                 ],
@@ -143,12 +140,15 @@ class ShowFulfilmentCustomer extends OrgAction
                         ],
                         [
                             'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('Create new return'),
-                            'label'   => __('new return'),
+                            'style'   => 'primary',
+                            'tooltip' => __('Create new delivery order'),
+                            'label'   => __('New Delivery Pallet'),
+                            'options' => [
+                                'warehouses' => WarehouseResource::collection($fulfilmentCustomer->fulfilment->warehouses)
+                            ],
                             'route'   => [
                                 'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
+                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
                                 'parameters' => [$fulfilmentCustomer->id]
                             ]
                         ],

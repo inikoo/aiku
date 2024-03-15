@@ -30,11 +30,7 @@ class StoreStoredItemToStoredItemReturn extends OrgAction
     public function handle(StoredItemReturn $storedItemReturn, array $modelData): StoredItemReturn
     {
         foreach (Arr::get($modelData, 'stored_items') as $storedItem) {
-            $storedItemReturn->items()->syncWithoutDetaching([
-                $storedItem => [
-                    'quantity' => 0
-                ],
-            ]);
+            $storedItemReturn->items()->sync($storedItem);
         }
 
         return $storedItemReturn;
