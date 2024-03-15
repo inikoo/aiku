@@ -7,7 +7,7 @@
 
 namespace App\Actions\CRM\Appointment;
 
-use App\Actions\Auth\User\Login;
+use App\Actions\CRM\WebUser\Retina\Login;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\AsCommand;

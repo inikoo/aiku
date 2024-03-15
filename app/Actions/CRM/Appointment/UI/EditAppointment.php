@@ -7,7 +7,6 @@
 
 namespace App\Actions\CRM\Appointment\UI;
 
-use App\Actions\CRM\Customer\UI\GetCustomerOptions;
 use App\Actions\InertiaAction;
 use App\Enums\CRM\Appointment\AppointmentEventEnum;
 use App\Enums\CRM\Appointment\AppointmentTypeEnum;
