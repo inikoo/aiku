@@ -7,7 +7,6 @@
 
 namespace App\Models\Fulfilment;
 
-use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\StoredItemReturn\StoredItemReturnStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Warehouse;
@@ -19,41 +18,44 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
+ * App\Models\Fulfilment\StoredItemReturn
+ *
  * @property int $id
- * * @property int $group_id
- * * @property int $organisation_id
- * * @property string $slug
- * * @property string $ulid
- * * @property int $fulfilment_customer_id
- * * @property int $fulfilment_id
- * * @property int|null $warehouse_id
- * * @property string|null $customer_reference
- * * @property string $reference
- * * @property int $number_pallets
- * * @property int $number_pallet_stored_items
- * * @property int $number_stored_items
- * * @property PalletReturnStateEnum $state
- * * @property \Illuminate\Support\Carbon|null $in_process_at
- * * @property \Illuminate\Support\Carbon|null $submitted_at
- * * @property \Illuminate\Support\Carbon|null $confirmed_at
- * * @property \Illuminate\Support\Carbon|null $in_delivery_at
- * * @property \Illuminate\Support\Carbon|null $received_at
- * * @property \Illuminate\Support\Carbon|null $done_at
- * * @property string|null $dispatched_at
- * * @property string|null $date
- * * @property array|null $data
- * * @property \Illuminate\Support\Carbon|null $created_at
- * * @property \Illuminate\Support\Carbon|null $updated_at
- * * @property \Illuminate\Support\Carbon|null $deleted_at
- * * @property string|null $delete_comment
- * * @property-read Customer|null $customer
- * * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
- * * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
- * * @property-read Organisation $organisation
- * * @property-read \App\Models\Fulfilment\StoredItem $items
- * * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
- * * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * * @property-read Warehouse|null $warehouse
+ * @property int $group_id
+ * @property int $organisation_id
+ * @property string $slug
+ * @property string $ulid
+ * @property int $fulfilment_customer_id
+ * @property int $fulfilment_id
+ * @property int|null $warehouse_id
+ * @property string|null $customer_reference
+ * @property string $reference
+ * @property int $number_pallets
+ * @property int $number_pallet_stored_items
+ * @property int $number_stored_items
+ * @property StoredItemReturnStateEnum $state
+ * @property \Illuminate\Support\Carbon|null $in_process_at
+ * @property \Illuminate\Support\Carbon|null $submitted_at
+ * @property \Illuminate\Support\Carbon|null $confirmed_at
+ * @property \Illuminate\Support\Carbon|null $picking_at
+ * @property \Illuminate\Support\Carbon|null $picked_at
+ * @property \Illuminate\Support\Carbon|null $dispatched_at
+ * @property \Illuminate\Support\Carbon|null $cancel_at
+ * @property string|null $date
+ * @property array|null $data
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $deleted_at
+ * @property string|null $delete_comment
+ * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
+ * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $items
+ * @property-read Organisation $organisation
+ * @property-read Warehouse|null $warehouse
+ * @method static \Illuminate\Database\Eloquent\Builder|StoredItemReturn newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|StoredItemReturn newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|StoredItemReturn query()
+ * @mixin \Eloquent
  */
 
 class StoredItemReturn extends Model

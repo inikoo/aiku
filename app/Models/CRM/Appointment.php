@@ -21,17 +21,20 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\CRM\Appointment
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property string|null $slug
  * @property string $name
  * @property int $shop_id
  * @property int $customer_id
- * @property int|null $organisation_user_id
  * @property \Illuminate\Support\Carbon $schedule_at
  * @property string|null $description
  * @property AppointmentStateEnum $state
  * @property AppointmentTypeEnum $type
  * @property AppointmentEventEnum $event
  * @property string $event_address
+ * @property string|null $deleted_at
+ * @property string|null $delete_comment
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\CRM\Customer $customer
@@ -39,20 +42,6 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|Appointment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Appointment newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Appointment query()
- * @method static \Illuminate\Database\Eloquent\Builder|Appointment whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Appointment whereCustomerId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Appointment whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Appointment whereEvent($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Appointment whereEventAddress($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Appointment whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Appointment whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Appointment whereOrganisationUserId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Appointment whereScheduleAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Appointment whereShopId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Appointment whereSlug($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Appointment whereState($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Appointment whereType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Appointment whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Appointment extends Model

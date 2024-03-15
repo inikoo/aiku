@@ -65,14 +65,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_pallet_deliveries_state_submitted
  * @property int $number_pallet_deliveries_state_confirmed
  * @property int $number_pallet_deliveries_state_received
+ * @property int $number_pallet_deliveries_state_not_received
  * @property int $number_pallet_deliveries_state_booked_in
  * @property int $number_pallet_returns
  * @property int $number_pallet_returns_state_in_process
  * @property int $number_pallet_returns_state_submitted
  * @property int $number_pallet_returns_state_confirmed
- * @property int $number_pallet_returns_state_in_delivery
- * @property int $number_pallet_returns_state_received
- * @property int $number_pallet_returns_state_done
+ * @property int $number_pallet_returns_state_picking
+ * @property int $number_pallet_returns_state_picked
+ * @property int $number_pallet_returns_state_dispatched
+ * @property int $number_pallet_returns_state_cancel
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -82,11 +84,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read Group $group
  * @property-read Organisation $organisation
- * @property-read \App\Models\Fulfilment\StoredItemReturn $storedItemReturn
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletDelivery> $palletDeliveries
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletReturn> $palletReturns
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemReturn> $storedItemReturns
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
  * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer newQuery()

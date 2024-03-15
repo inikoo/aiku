@@ -39,10 +39,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $in_process_at
  * @property \Illuminate\Support\Carbon|null $submitted_at
  * @property \Illuminate\Support\Carbon|null $confirmed_at
- * @property \Illuminate\Support\Carbon|null $in_delivery_at
- * @property \Illuminate\Support\Carbon|null $received_at
- * @property \Illuminate\Support\Carbon|null $done_at
- * @property string|null $dispatched_at
+ * @property \Illuminate\Support\Carbon|null $picking_at
+ * @property \Illuminate\Support\Carbon|null $picked_at
+ * @property \Illuminate\Support\Carbon|null $dispatched_at
+ * @property \Illuminate\Support\Carbon|null $cancel_at
  * @property string|null $date
  * @property array|null $data
  * @property \Illuminate\Support\Carbon|null $created_at
