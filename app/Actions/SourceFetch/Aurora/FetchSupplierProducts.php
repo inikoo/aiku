@@ -25,10 +25,7 @@ class FetchSupplierProducts extends FetchAction
 
         if ($supplierProductData = $organisationSource->fetchSupplierProduct($organisationSourceId)) {
 
-
-
-
-            print_r($supplierProductData['supplierProduct']);
+            // print_r($supplierProductData['supplierProduct']);
             if ($baseSupplierProduct=SupplierProduct::withTrashed()
                 ->where(
                     'source_slug',
@@ -87,6 +84,9 @@ class FetchSupplierProducts extends FetchAction
         return DB::connection('aurora')
             ->table('Supplier Part Dimension as spp')
             ->select('Supplier Part Key as source_id')
+
+            ->where('Supplier Part Status', ['Available','NoAvailable'])
+
             ->where('spp.aiku_ignore', 'No')
             ->orderBy('source_id');
     }
@@ -96,6 +96,9 @@ class FetchSupplierProducts extends FetchAction
         return DB::connection('aurora')
             ->table('Supplier Part Dimension as spp')
             ->select('Supplier Part Key as source_id')
+
+            ->where('Supplier Part Status', ['Available','NoAvailable'])
+
             ->where('spp.aiku_ignore', 'No')
             ->count();
     }
