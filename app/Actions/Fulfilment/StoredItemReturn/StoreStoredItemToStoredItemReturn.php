@@ -30,12 +30,29 @@ class StoreStoredItemToStoredItemReturn extends OrgAction
 
     public function handle(StoredItemReturn $storedItemReturn, array $modelData): StoredItemReturn
     {
-        $storedItemReturn->items()->syncWithoutDetaching(Arr::get($modelData, 'stored_items'));
-
-        foreach ($modelData['stored_items'] as $key => $storedItem) {
-            /** @var StoredItem $storedItem */
+        foreach (Arr::get($modelData, 'stored_items') as $key => $storedItem) {
+            /** @var StoredItem $storedItemModel */
             $storedItemModel = StoredItem::find($key);
-            $storedItemModel->pallets()->detach([$key]);
+            $quantity        = $storedItemModel->pallets()->sum('quantity') - $storedItem['quantity'];
+
+            $storedItemModel->pallets()->sync([
+                $key => [
+                    'quantity' => $quantity
+                ]
+            ]);
+
+            if((int) $quantity === 0) {
+                $storedItemModel->delete();
+            }
+        }
+
+        foreach (Arr::get($modelData, 'stored_items') as $key => $storedItem) {
+            $quantity = $storedItemReturn->items()->where('stored_item_id', $key)->sum('quantity');
+            $storedItemReturn->items()->syncWithoutDetaching([
+                $key => [
+                    'quantity' => $storedItem['quantity'] + $quantity
+                ]
+            ]);
         }
 
         return $storedItemReturn;
@@ -58,7 +75,8 @@ class StoreStoredItemToStoredItemReturn extends OrgAction
     public function rules(): array
     {
         return [
-            'stored_items' => ['required', 'array']
+            'stored_items'            => ['required', 'array'],
+            'stored_items.*.quantity' => ['required', 'integer', 'min:1']
         ];
     }
 

@@ -8,7 +8,6 @@
 namespace App\Actions\Fulfilment\StoredItemReturn\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
@@ -286,11 +285,11 @@ class ShowStoredItemReturn extends OrgAction
                 'data' => StoredItemReturnResource::make($storedItemReturn),
 
                 StoredItemReturnTabsEnum::ITEMS->value => $this->tab == StoredItemReturnTabsEnum::ITEMS->value ?
-                    fn () => StoredItemResource::collection(IndexStoredItems::run($storedItemReturn, 'stored_items'))
-                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItems::run($storedItemReturn, 'stored_items'))),
+                    fn () => StoredItemResource::collection(IndexStoredItemReturnStoredItems::run($storedItemReturn, 'stored_items'))
+                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItemReturnStoredItems::run($storedItemReturn, 'stored_items'))),
             ]
         )->table(
-            IndexStoredItems::make()->tableStructure(
+            IndexStoredItemReturnStoredItems::make()->tableStructure(
                 $storedItemReturn
             )
         );

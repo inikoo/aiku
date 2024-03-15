@@ -109,6 +109,6 @@ class StoredItemReturn extends Model
 
     public function items(): BelongsToMany
     {
-        return $this->belongsToMany(StoredItem::class, 'stored_item_return_stored_items');
+        return $this->belongsToMany(StoredItem::class, 'stored_item_return_stored_items')->withPivot('quantity');
     }
 }
