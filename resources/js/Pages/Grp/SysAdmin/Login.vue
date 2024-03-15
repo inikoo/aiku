@@ -66,7 +66,7 @@ onMounted(async () => {
         </div>
 
         <div class="space-y-2">
-            <Button full @click.prevent="submit" :loading="isLoading" label="Sign in" />
+            <Button full @click.prevent="submit" :loading="isLoading" label="Sign in" type="indigo"/>
         </div>
     </form>
 
