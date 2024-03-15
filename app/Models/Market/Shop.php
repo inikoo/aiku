@@ -90,6 +90,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $prospects_sender_email_id
  * @property-read \App\Models\Market\ShopAccountingStats|null $accountingStats
  * @property-read Collection<int, Address> $addresses
+ * @property-read Collection<int, Appointment> $appointments
  * @property-read Country $country
  * @property-read \App\Models\Market\ShopCRMStats|null $crmStats
  * @property-read Currency $currency

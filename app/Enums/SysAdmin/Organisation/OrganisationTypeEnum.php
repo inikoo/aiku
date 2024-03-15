@@ -25,4 +25,20 @@ enum OrganisationTypeEnum: string
         ];
     }
 
+    public static function typeIcon(): array
+    {
+        return [
+            'shop' => [
+                'tooltip' => __('Shop'),
+                'icon'    => 'fal fa-store',
+
+            ],
+            'agent'  => [
+                'tooltip' => __('Agent'),
+                'icon'    => 'fal fa-people-arrows',
+
+            ],
+        ];
+    }
+
 }

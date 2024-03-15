@@ -81,6 +81,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $prospects_sender_email_id
  * @property mixed $settings
  * @property-read Collection<int, Address> $addresses
+ * @property-read Collection<int, \App\Models\CRM\Appointment> $appointments
  * @property-read Collection<int, CustomerClient> $clients
  * @property-read FulfilmentCustomer|null $fulfilmentCustomer
  * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders

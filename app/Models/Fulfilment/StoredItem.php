@@ -38,17 +38,16 @@ use App\Models\Inventory\Location;
  * @property StoredItemStateEnum $state
  * @property StoredItemTypeEnum $type
  * @property int $fulfilment_customer_id
- * @property int|null $location_id
  * @property string $notes
  * @property bool $return_requested
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
  * @property string|null $received_at
  * @property string|null $booked_in_at
  * @property string|null $settled_at
  * @property array $data
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer

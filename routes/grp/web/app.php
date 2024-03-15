@@ -12,9 +12,9 @@ Route::middleware(["auth"])->group(function () {
     Route::get('/', function () {
         return redirect('/dashboard');
     });
-    Route::prefix("orgs")
-        ->name("orgs.")
-        ->group(__DIR__."/orgs.php");
+    Route::prefix("organisations")
+        ->name("organisations.")
+        ->group(__DIR__."/organisations.php");
     Route::prefix("dashboard")
         ->name("dashboard.")
         ->group(__DIR__."/dashboard.php");

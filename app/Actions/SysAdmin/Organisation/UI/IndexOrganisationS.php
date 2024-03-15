@@ -8,7 +8,8 @@
 namespace App\Actions\SysAdmin\Organisation\UI;
 
 use App\Actions\InertiaAction;
-use App\Http\Resources\SysAdmin\Organisation\OrganisationResource;
+use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -21,7 +22,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexOrganisation extends InertiaAction
+class IndexOrganisationS extends InertiaAction
 {
     /**
      * @var \App\Models\SysAdmin\Group
@@ -33,7 +34,7 @@ class IndexOrganisation extends InertiaAction
         $this->elementGroups =
             [
                 'status' => [
-                    'label'    => __('Status'),
+                    'label'    => __('Type'),
                     'elements' => ['active' => __('Active'), 'suspended' => __('Suspended')],
                     'engine'   => function ($query, $elements) {
                         $query->where('users.status', array_pop($elements) === 'active');
@@ -98,16 +99,16 @@ class IndexOrganisation extends InertiaAction
                             'tooltip' => __('new organisation'),
                             'label'   => __('organisation'),
                             'route'   => [
-                                'name'       => 'grp.orgs.create',
+                                'name'       => 'grp.organisations.create',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ]
                         ] : null
                     ]
                 )
+                ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('slug');
+                ->defaultSort('code');
         };
     }
 
@@ -125,7 +126,7 @@ class IndexOrganisation extends InertiaAction
 
     public function jsonResponse(LengthAwarePaginator $organisations): AnonymousResourceCollection
     {
-        return OrganisationResource::collection($organisations);
+        return OrganisationsResource::collection($organisations);
     }
 
 
@@ -135,22 +136,22 @@ class IndexOrganisation extends InertiaAction
             'Org/Organisations',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('organisation'),
+                'title'       => __('organisations'),
                 'pageHead'    => [
-                    'title'   => __('organisation'),
+                    'title'   => __('organisations'),
                     'actions' => [
                         $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'create',
                             'label' => __('organisation'),
                             'route' => [
-                                'name'       => 'grp.orgs.create',
-                                'parameters' => array_values(request()->route()->originalParameters())
+                                'name'       => 'grp.organisations.create',
+                                'parameters' => []
                             ]
                         ] : false
                     ]
                 ],
-                'data'        => OrganisationResource::collection($organisations),
+                'data'        => OrganisationsResource::collection($organisations),
             ]
         )->table($this->tableStructure($this->group));
     }
@@ -163,9 +164,23 @@ class IndexOrganisation extends InertiaAction
         return $this->handle(app('group'));
     }
 
-    public function getBreadcrumbs($suffix = null): array
+    public function getBreadcrumbs(): array
     {
-        return [];
+        return
+            array_merge(
+                ShowDashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'grp.organisations.index'
+                            ],
+                            'label'  => __('organisations'),
+                        ]
+                    ]
+                ]
+            );
     }
 
 

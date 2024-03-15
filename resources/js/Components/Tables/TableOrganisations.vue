@@ -17,7 +17,7 @@ const props = defineProps<{
 
 function orgRoute(org) {
     switch (route().current()) {
-        case 'grp.orgs.index':
+        case 'grp.organisations.index':
             return route(
                 'grp.org.dashboard.show',
                 [org.slug]);

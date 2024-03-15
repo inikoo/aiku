@@ -7,8 +7,8 @@
 
 namespace App\Actions\CRM\Appointment;
 
-use App\Models\Auth\OrganisationUser;
 use App\Models\CRM\Appointment;
+use App\Models\SysAdmin\User;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -22,10 +22,10 @@ class AssignAppointmentUser
 
     public string $commandSignature = 'appointment:assign {appointment} {user}';
 
-    public function handle(Appointment $appointment, OrganisationUser $organisationUser): Model
+    public function handle(Appointment $appointment, User $user): Model
     {
         $appointment->update([
-            'organisation_user_id' => $organisationUser->id
+            'organisation_user_id' => $user->id
         ]);
 
         // TODO: Maybe will need notification later for user who assigned
@@ -36,14 +36,14 @@ class AssignAppointmentUser
     /**
      * @throws Throwable
      */
-    public function asController(Appointment $appointment, OrganisationUser $organisationUser): Model
+    public function asController(Appointment $appointment, User $user): Model
     {
-        return $this->handle($appointment, $organisationUser);
+        return $this->handle($appointment, $user);
     }
 
     public function asCommand(Command $command): int
     {
-        $user        = OrganisationUser::where('username', $command->argument('user'))->first();
+        $user        = User::where('username', $command->argument('user'))->first();
         $appointment = Appointment::findOrFail($command->argument('appointment'));
 
         $this->handle($appointment, $user);

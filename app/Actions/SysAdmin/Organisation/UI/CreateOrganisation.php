@@ -130,7 +130,7 @@ class CreateOrganisation extends InertiaAction
     public function getBreadcrumbs(): array
     {
         return array_merge(
-            IndexOrganisation::make()->getBreadcrumbs(),
+            IndexOrganisationS::make()->getBreadcrumbs(),
             [
                 [
                     'type'          => 'creatingModel',
