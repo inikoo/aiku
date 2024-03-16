@@ -9,6 +9,7 @@ namespace App\Actions\SysAdmin\Organisation\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SysAdmin\Group;
@@ -22,7 +23,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexOrganisationS extends InertiaAction
+class IndexOrganisations extends InertiaAction
 {
     /**
      * @var \App\Models\SysAdmin\Group
@@ -59,6 +60,7 @@ class IndexOrganisationS extends InertiaAction
         }
 
         $queryBuilder = QueryBuilder::for(Organisation::class);
+        $queryBuilder->where('type',OrganisationTypeEnum::SHOP);
 
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -105,7 +107,6 @@ class IndexOrganisationS extends InertiaAction
                         ] : null
                     ]
                 )
-                ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');

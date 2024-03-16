@@ -7,8 +7,8 @@
  */
 
 use App\Actions\SysAdmin\Organisation\UI\CreateOrganisation;
-use App\Actions\SysAdmin\Organisation\UI\IndexOrganisationS;
+use App\Actions\SysAdmin\Organisation\UI\IndexOrganisations;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', IndexOrganisationS::class)->name('index');
+Route::get('/', IndexOrganisations::class)->name('index');
 Route::get('/create', CreateOrganisation::class)->name('create');
