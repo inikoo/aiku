@@ -28,8 +28,8 @@ class CreatePayment extends InertiaAction
                     'cancelCreate' => [
                         'route' => [
                             'name' => match ($request->route()->getName()) {
-                                'grp.accounting.payment-accounts.show.payments.create' => 'grp.accounting.payment-accounts.show',
-                                default                                                => preg_replace('/create$/', 'index', $request->route()->getName())
+                                'grp.org.accounting.payment-accounts.show.payments.create' => 'grp.org.accounting.payment-accounts.show',
+                                default                                                    => preg_replace('/create$/', 'index', $request->route()->getName())
                             },
                             'parameters' => array_values($request->route()->originalParameters())
                         ]

@@ -17,34 +17,58 @@ use Illuminate\Support\Facades\DB;
 
 class FetchSupplierProducts extends FetchAction
 {
-    public string $commandSignature = 'fetch:supplier-products {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:supplier-products {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new}  {--d|db_suffix=}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?SupplierProduct
     {
-
         if ($supplierProductData = $organisationSource->fetchSupplierProduct($organisationSourceId)) {
+            //print_r($supplierProductData['supplierProduct']);
 
-            // print_r($supplierProductData['supplierProduct']);
-            if ($baseSupplierProduct=SupplierProduct::withTrashed()
+            $found          =false;
+            $supplierProduct=null;
+            if ($baseSupplierProduct = SupplierProduct::withTrashed()
                 ->where(
                     'source_slug',
                     $supplierProductData['supplierProduct']['source_slug']
                 )
                 ->first()) {
-
-
-                if($supplierProduct = SupplierProduct::withTrashed()->where('source_id', $supplierProductData['supplierProduct']['source_id'])
+                $found=true;
+                if ($supplierProduct = SupplierProduct::withTrashed()->where('source_id', $supplierProductData['supplierProduct']['source_id'])
                     ->first()) {
                     $supplierProduct = UpdateSupplierProduct::make()->action(
                         supplierProduct: $supplierProduct,
-                        modelData:       $supplierProductData['supplierProduct'],
-                        skipHistoric:    true,
+                        modelData: $supplierProductData['supplierProduct'],
+                        skipHistoric: true,
                         hydratorsDelay: $this->hydrateDelay
                     );
                 }
 
-            } else {
+
+                if (!$supplierProduct) {
+                    $sourceData = explode(':', $baseSupplierProduct->source_id);
+                    if ($sourceData[0] == $organisationSource->getOrganisation()->id) {
+                        print_r($supplierProductData['supplierProduct']);
+                        dd("Error supplier product has same code in same org");
+                    }
+                }
+            }
+
+            if ($baseSupplierProduct = SupplierProduct::withTrashed()
+                ->where(
+                    'source_slug',
+                    $supplierProductData['supplierProduct']['source_slug_inter_org']
+                )
+                ->where('organisation_id', '!=', $organisationSource->getOrganisation()->id)
+                ->first()) {
+                $found=true;
+
+
+            }
+
+
+
+            if(!$found) {
 
                 $supplierProduct = StoreSupplierProduct::make()->action(
                     supplier: $supplierProductData['supplier'],
@@ -58,22 +82,27 @@ class FetchSupplierProducts extends FetchAction
             $tradeUnit = $supplierProductData['trade_unit'];
 
 
-
-            if($supplierProduct) {
+            if ($supplierProduct) {
                 SyncSupplierProductTradeUnits::run($supplierProduct, [
                     $tradeUnit->id => [
                         'package_quantity' => $supplierProductData['supplierProduct']['units_per_pack']
                     ]
                 ]);
+
+                $sourceData = explode(':', $supplierProduct->source_id);
+                DB::connection('aurora')->table('Supplier Part Dimension')
+                    ->where('Supplier Part Key', $sourceData[1])
+                    ->update(['aiku_id' => $supplierProduct->id]);
+
+                return $supplierProduct;
             } else {
-                print_r($baseSupplierProduct);
-                dd('errrrorrrr');
+                $sourceData = explode(':', $baseSupplierProduct->source_id);
+                DB::connection('aurora')->table('Supplier Part Dimension')
+                    ->where('Supplier Part Key', $sourceData[1])
+                    ->update(['aiku_id' => $baseSupplierProduct->id]);
+
+                return $baseSupplierProduct;
             }
-
-
-
-
-            return $supplierProduct;
         }
 
         return null;
@@ -81,25 +110,37 @@ class FetchSupplierProducts extends FetchAction
 
     public function getModelsQuery(): Builder
     {
-        return DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Supplier Part Dimension as spp')
-            ->select('Supplier Part Key as source_id')
+            ->leftJoin('Part Dimension', 'Part SKU', 'Supplier Part Part SKU')
+            ->leftJoin('Supplier Dimension as sd', 'Supplier Key', 'Supplier Part Supplier Key')
+            ->select('Supplier Part Key as source_id');
+        if ($this->onlyNew) {
+            $query->whereNull('spp.aiku_id');
+        }
 
-            ->where('Supplier Part Status', ['Available','NoAvailable'])
-
+        return $query->where('Supplier Part Status', ['Available', 'NoAvailable'])
+            ->where('Part Status', '!=', 'Not In Use')
             ->where('spp.aiku_ignore', 'No')
+            ->where('sd.aiku_ignore', 'No')
             ->orderBy('source_id');
     }
 
     public function count(): ?int
     {
-        return DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Supplier Part Dimension as spp')
-            ->select('Supplier Part Key as source_id')
+            ->leftJoin('Part Dimension', 'Part SKU', 'Supplier Part Part SKU')
+            ->leftJoin('Supplier Dimension as sd', 'Supplier Key', 'Supplier Part Supplier Key')
+            ->select('Supplier Part Key as source_id');
+        if ($this->onlyNew) {
+            $query->whereNull('spp.aiku_id');
+        }
 
-            ->where('Supplier Part Status', ['Available','NoAvailable'])
-
+        return $query->where('Supplier Part Status', ['Available', 'NoAvailable'])
+            ->where('Part Status', '!=', 'Not In Use')
             ->where('spp.aiku_ignore', 'No')
+            ->where('sd.aiku_ignore', 'No')
             ->count();
     }
 }

@@ -5,37 +5,20 @@
   -->
 
 <script setup>
-import {Head, Link} from '@inertiajs/vue3';
-import PageHeading from '@/Components/Headings/PageHeading.vue';
-import Table from '@/Components/Table/Table.vue';
-import { capitalize } from "@/Composables/capitalize"
+import { Head } from "@inertiajs/vue3";
+import PageHeading from "@/Components/Headings/PageHeading.vue";
 
-defineProps(['payment_service_providers', 'title', 'pageHead']);
+import { capitalize } from "@/Composables/capitalize";
+import TablePaymentServiceProviders from "@/Components/Tables/Grp/Accounting/TablePaymentServiceAccounts.vue";
+
+defineProps(["data", "title", "pageHead"]);
 
 </script>
 
 <template>
     <!--suppress HtmlRequiredTitleElement -->
-    <Head :title="capitalize(title)"/>
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
-    <Table :resource="payment_service_providers" class="mt-5">
-
-
-        <template #cell(code)="{ item: payment_service_provider }">
-            <Link :href="route('grp.accounting.payment-service-providers.show',[payment_service_provider['slug']])">
-                {{ payment_service_provider['slug'] }}
-            </Link>
-        </template>
-        <template #cell(number_accounts)="{ item: payment_service_provider }">
-            <Link :href="route('grp.accounting.payment-service-providers.show.payment-accounts.index',[payment_service_provider['slug']])">
-                {{ payment_service_provider['number_accounts'] }}
-            </Link>
-        </template>
-        <template #cell(number_payments)="{ item: payment_service_provider }">
-            <Link :href="route('grp.accounting.payment-service-providers.show.payments.index',[payment_service_provider['slug']])">
-                {{ payment_service_provider['number_payments'] }}
-            </Link>
-        </template>
-    </Table>
+    <TablePaymentServiceProviders :data="data" />
 </template>
 

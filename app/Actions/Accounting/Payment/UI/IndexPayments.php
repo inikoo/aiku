@@ -10,7 +10,7 @@ namespace App\Actions\Accounting\Payment\UI;
 use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\UI\ShowPaymentServiceProvider;
 use App\Actions\InertiaAction;
-use App\Actions\UI\Accounting\AccountingDashboard;
+use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Payment;
@@ -181,7 +181,7 @@ class IndexPayments extends InertiaAction
                 'pageHead'    => [
                     'title'     => __('payments'),
                     'container' => match ($routeName) {
-                        'grp.accounting.shops.show.payments.index' => [
+                        'grp.org.accounting.shops.show.payments.index' => [
                             'icon'    => ['fal', 'fa-store-alt'],
                             'tooltip' => __('Shop'),
                             'label'   => Str::possessive($routeParameters['shop']->name)
@@ -217,30 +217,30 @@ class IndexPayments extends InertiaAction
         };
 
         return match ($routeName) {
-            'grp.accounting.shops.show.payments.index' =>
+            'grp.org.accounting.shops.show.payments.index' =>
             array_merge(
-                AccountingDashboard::make()->getBreadcrumbs('grp.accounting.shops.show.dashboard', $routeParameters),
+                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.shops.show.dashboard', $routeParameters),
                 $headCrumb()
             ),
-            'grp.accounting.payments.index' =>
+            'grp.org.accounting.payments.index' =>
             array_merge(
-                AccountingDashboard::make()->getBreadcrumbs('grp.accounting.dashboard', []),
+                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', []),
                 $headCrumb()
             ),
-            'grp.accounting.payment-service-providers.show.payments.index' =>
+            'grp.org.accounting.payment-service-providers.show.payments.index' =>
             array_merge(
                 (new ShowPaymentServiceProvider())->getBreadcrumbs($routeParameters['paymentServiceProvider']),
                 $headCrumb()
             ),
-            'grp.accounting.payment-service-providers.show.payment-accounts.show.payments.index' =>
+            'grp.org.accounting.payment-service-providers.show.payment-accounts.show.payments.index' =>
             array_merge(
-                (new ShowPaymentAccount())->getBreadcrumbs('grp.accounting.payment-service-providers.show.payment-accounts.show', $routeParameters),
+                (new ShowPaymentAccount())->getBreadcrumbs('grp.org.accounting.payment-service-providers.show.payment-accounts.show', $routeParameters),
                 $headCrumb()
             ),
 
-            'grp.accounting.payment-accounts.show.payments.index' =>
+            'grp.org.accounting.payment-accounts.show.payments.index' =>
             array_merge(
-                (new ShowPaymentAccount())->getBreadcrumbs('grp.accounting.payment-accounts.show', $routeParameters),
+                (new ShowPaymentAccount())->getBreadcrumbs('grp.org.accounting.payment-accounts.show', $routeParameters),
                 $headCrumb()
             ),
 

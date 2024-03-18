@@ -75,6 +75,6 @@ class StorePaymentServiceProvider extends OrgAction
 
     public function htmlResponse(PaymentServiceProvider $paymentServiceProvider): RedirectResponse
     {
-        return Redirect::route('grp.accounting.payment-service-providers.show', $paymentServiceProvider->slug);
+        return Redirect::route('grp.org.accounting.payment-service-providers.show', $paymentServiceProvider->slug);
     }
 }

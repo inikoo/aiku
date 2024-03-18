@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     use HasPaymentStats;
 
-    public function up()
+    public function up(): void
     {
         Schema::create('payment_service_provider_stats', function (Blueprint $table) {
             $table->increments('id');
@@ -28,7 +28,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('payment_service_provider_stats');
     }

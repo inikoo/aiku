@@ -12,7 +12,7 @@ use App\Actions\Accounting\PaymentAccount\UI\IndexPaymentAccounts;
 use App\Actions\Accounting\PaymentServiceProvider\GetPaymentServiceProviderShowcase;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
-use App\Actions\UI\Accounting\AccountingDashboard;
+use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\UI\PaymentServiceProviderTabsEnum;
 use App\Http\Resources\Accounting\PaymentAccountResource;
 use App\Http\Resources\Accounting\PaymentResource;
@@ -75,17 +75,17 @@ class ShowPaymentServiceProvider extends InertiaAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'grp.accounting.payment-service-providers.remove',
+                                'name'       => 'grp.org.accounting.payment-service-providers.remove',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false
                     ], */
                     'meta'  => [
                         [
-                            'name'     => trans_choice('account | accounts', $paymentServiceProvider->stats->number_accounts),
-                            'number'   => $paymentServiceProvider->stats->number_accounts,
+                            'name'     => trans_choice('account | accounts', $paymentServiceProvider->stats->number_payment_accounts),
+                            'number'   => $paymentServiceProvider->stats->number_payment_accounts,
                             'href'     => [
-                                'grp.accounting.payment-service-providers.show.payment-accounts.index',
+                                'grp.org.accounting.payment-service-providers.show.payment-accounts.index',
                                 $paymentServiceProvider->slug
                             ],
                             'leftIcon' => [
@@ -97,7 +97,7 @@ class ShowPaymentServiceProvider extends InertiaAction
                             'name'     => trans_choice('payment | payments', $paymentServiceProvider->stats->number_payments),
                             'number'   => $paymentServiceProvider->stats->number_payments,
                             'href'     => [
-                                'grp.accounting.payment-service-providers.show.payments.index',
+                                'grp.org.accounting.payment-service-providers.show.payments.index',
                                 $paymentServiceProvider->slug
                             ],
                             'leftIcon' => [
@@ -154,7 +154,7 @@ class ShowPaymentServiceProvider extends InertiaAction
                 modelOperations: [
                      'createLink' => $this->canEdit ? [
                          'route' => [
-                            'name'       => 'grp.accounting.payment-service-providers.show.payments.create',
+                            'name'       => 'grp.org.accounting.payment-service-providers.show.payments.create',
                             'parameters' => array_values($request->route()->originalParameters())
                          ],
                          'label' => __('payment')
@@ -167,7 +167,7 @@ class ShowPaymentServiceProvider extends InertiaAction
             //            modelOperations: [
             //                'createLink' => $this->canEdit ? [
             //                    'route' => [
-            //                        'name'       => 'grp.accounting.payment-service-providers.show.payment-accounts.create',
+            //                        'name'       => 'grp.org.accounting.payment-service-providers.show.payment-accounts.create',
             //                        'parameters' => array_values($request->route()->originalParameters())
             //                    ],
             //                    'label' => __('payment account')
@@ -184,20 +184,20 @@ class ShowPaymentServiceProvider extends InertiaAction
     public function getBreadcrumbs(PaymentServiceProvider $paymentServiceProvider, $suffix = null): array
     {
         return array_merge(
-            AccountingDashboard::make()->getBreadcrumbs('grp.accounting.dashboard', []),
+            ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', []),
             [
                 [
                     'type'           => 'modelWithIndex',
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.accounting.payment-service-providers.index',
+                                'name' => 'grp.org.accounting.payment-service-providers.index',
                             ],
                             'label' => __('providers')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.accounting.payment-service-providers.show',
+                                'name'       => 'grp.org.accounting.payment-service-providers.show',
                                 'parameters' => [$paymentServiceProvider->slug]
                             ],
                             'label' => $paymentServiceProvider->slug,
@@ -228,7 +228,7 @@ class ShowPaymentServiceProvider extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'grp.accounting.payment-service-providers.show'=> [
+            'grp.org.accounting.payment-service-providers.show'=> [
                 'label'=> $paymentServiceProvider->code,
                 'route'=> [
                     'name'      => $routeName,

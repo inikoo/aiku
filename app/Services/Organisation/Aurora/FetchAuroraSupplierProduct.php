@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 class FetchAuroraSupplierProduct extends FetchAurora
 {
     use WithAuroraParsers;
+
     protected function parseModel(): void
     {
 
@@ -31,7 +32,6 @@ class FetchAuroraSupplierProduct extends FetchAurora
         if ($supplierDeletedAt) {
             $supplierSourceSlug .= '-deleted';
         }
-
 
 
         $supplier = $this->parseSupplier($supplierSourceSlug);
@@ -83,8 +83,12 @@ class FetchAuroraSupplierProduct extends FetchAurora
             default => strtolower($this->auroraModelData->{'Part Stock Status'})
         };
 
-        $partReference=$this->cleanTradeUnitReference($this->auroraModelData->{'Part Reference'});
-        $sourceSlug   =$supplier->source_slug.':'.Str::kebab(strtolower($partReference));
+        $partReference      = $this->cleanTradeUnitReference($this->auroraModelData->{'Part Reference'});
+        $sourceSlugInterOrg = $supplier->source_slug.':'.$this->auroraModelData->{'Supplier Part Packages Per Carton'}.':'.$this->auroraModelData->{'Part Units Per Package'}.':'.Str::kebab(strtolower($partReference));
+
+
+        $sourceSlug = $supplier->source_slug.':'.Str::kebab(strtolower($partReference));
+
 
 
         $name= $this->auroraModelData->{'Supplier Part Description'};

@@ -20,8 +20,8 @@ import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Components/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import TablePayments from "@/Components/Tables/TablePayments.vue";
-import TablePaymentAccounts from "@/Components/Tables/TablePaymentAccounts.vue";
+import TablePayments from "@/Components/Tables/Grp/Accounting/TablePayments.vue";
+import TablePaymentAccounts from "@/Components/Tables/Grp/Accounting/TablePaymentAccounts.vue";
 import { capitalize } from "@/Composables/capitalize"
 import TableHistories from "@/Components/Tables/TableHistories.vue";
 

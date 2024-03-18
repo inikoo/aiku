@@ -9,7 +9,7 @@ namespace App\Actions\Accounting\PaymentAccount\UI;
 
 use App\Actions\Accounting\PaymentServiceProvider\UI\ShowPaymentServiceProvider;
 use App\Actions\InertiaAction;
-use App\Actions\UI\Accounting\AccountingDashboard;
+use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\PaymentAccountResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentAccount;
@@ -100,7 +100,7 @@ class IndexPaymentAccounts extends InertiaAction
                             'tooltip' => __('new payment account'),
                             'label'   => __('payment account'),
                             'route'   => [
-                                'name'       => 'grp.accounting.payment-accounts.create',
+                                'name'       => 'grp.org.accounting.payment-accounts.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : null
@@ -172,13 +172,13 @@ class IndexPaymentAccounts extends InertiaAction
                             'style' => 'create',
                             'label' => __('payment account'),
                             'route' => [
-                                'name'       => 'grp.accounting.payment-accounts.create',
+                                'name'       => 'grp.org.accounting.payment-accounts.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false
                     ],
                     'container' => match ($routeName) {
-                        'grp.accounting.shops.show.payment-accounts.index' => [
+                        'grp.org.accounting.shops.show.payment-accounts.index' => [
                             'icon'    => ['fal', 'fa-store-alt'],
                             'tooltip' => __('Shop'),
                             'label'   => Str::possessive($routeParameters['shop']->name)
@@ -216,17 +216,17 @@ class IndexPaymentAccounts extends InertiaAction
         };
 
         return match ($routeName) {
-            'grp.accounting.shops.show.payment-accounts.index' =>
+            'grp.org.accounting.shops.show.payment-accounts.index' =>
             array_merge(
-                AccountingDashboard::make()->getBreadcrumbs('grp.accounting.shops.show.dashboard', $routeParameters),
+                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.shops.show.dashboard', $routeParameters),
                 $headCrumb($routeParameters)
             ),
-            'grp.accounting.payment-accounts.index' =>
+            'grp.org.accounting.payment-accounts.index' =>
             array_merge(
-                AccountingDashboard::make()->getBreadcrumbs('grp.accounting.dashboard', []),
+                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', []),
                 $headCrumb()
             ),
-            'grp.accounting.payment-service-providers.show.payment-accounts.index' =>
+            'grp.org.accounting.payment-service-providers.show.payment-accounts.index' =>
             array_merge(
                 ShowPaymentServiceProvider::make()->getBreadcrumbs(
                     $routeParameters

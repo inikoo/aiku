@@ -8,6 +8,7 @@
 namespace App\Actions\UI\Accounting;
 
 use App\Actions\Market\Shop\UI\ShowShop;
+use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Market\Shop;
@@ -18,60 +19,71 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class AccountingDashboard
+class ShowAccountingDashboard extends OrgAction
 {
     use AsAction;
     use WithInertia;
 
 
-    public function handle($scope)
-    {
-        return $scope;
-    }
+    private Organisation|Shop $scope;
+
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("accounting.view");
+        if ($this->scope instanceof Organisation) {
+            return $request->user()->hasPermissionTo("accounting.{$this->scope->id}.view");
+        }
+
+        return false;
     }
 
 
-    public function inOrganisation(): Organisation
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): ActionRequest
     {
-        return $this->handle(app('currentTenant'));
+        $this->scope = $organisation;
+        $this->initialisation($organisation, $request);
+
+        return $request;
     }
 
-    public function inShop(Shop $shop): Shop
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): ActionRequest
     {
-        return $this->handle($shop);
+        $this->scope = $shop;
+        $this->initialisationFromShop($shop, $request);
+
+        return $request;
     }
 
 
-    public function htmlResponse(Organisation|Shop $scope, ActionRequest $request): Response
+    public function htmlResponse(ActionRequest $request): Response
     {
         $container = null;
         $scopeType = 'Organisation';
-        if (class_basename($scope) == 'Shop') {
+        if (class_basename($this->scope) == 'Shop') {
             $scopeType = 'Shop';
             $container = [
                 'icon'    => ['fal', 'fa-store-alt'],
                 'tooltip' => __('Shop'),
-                'label'   => Str::possessive($scope->name)
+                'label'   => Str::possessive($this->scope->name)
             ];
         }
 
+        $parameters = $request->route()->originalParameters();
 
         return Inertia::render(
             'Accounting/AccountingDashboard',
             [
-                'breadcrumbs'  => $this->getBreadcrumbs(
+                'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'        => __('accounting'),
-                'pageHead'     => [
+                'title'       => __('accounting'),
+                'pageHead'    => [
                     'title'     => __('accounting'),
                     'container' => $container
                 ],
+
+
                 'flatTreeMaps' =>
                     match ($scopeType) {
                         'Shop' => [
@@ -80,27 +92,36 @@ class AccountingDashboard
                                 [
                                     'name'  => __('accounts'),
                                     'icon'  => ['fal', 'fa-money-check-alt'],
-                                    'href'  => ['grp.accounting.shops.show.payment-accounts.index', $scope->slug],
+                                    'href'  => [
+                                        'name'       => 'grp.org.accounting.shops.show.payment-accounts.index',
+                                        'parameters' => $parameters
+                                    ],
                                     'index' => [
-                                        'number' => $scope->accountingStats->number_payment_accounts
+                                        'number' => $this->scope->accountingStats->number_payment_accounts
                                     ]
 
                                 ],
                                 [
                                     'name'  => __('payments'),
                                     'icon'  => ['fal', 'fa-coins'],
-                                    'href'  => ['grp.accounting.shops.show.payments.index', $scope->slug],
+                                    'href'  => [
+                                        'name'       => 'grp.org.accounting.shops.show.payments.index',
+                                        'parameters' => $parameters
+                                    ],
                                     'index' => [
-                                        'number' => $scope->accountingStats->number_payments
+                                        'number' => $this->scope->accountingStats->number_payments
                                     ]
 
                                 ],
                                 [
                                     'name'  => __('invoices'),
                                     'icon'  => ['fal', 'fa-file-invoice-dollar'],
-                                    'href'  => ['grp.accounting.shops.show.invoices.index', $scope->slug],
+                                    'href'  => [
+                                        'name'       => 'grp.org.accounting.shops.show.invoices.index',
+                                        'parameters' => $parameters
+                                    ],
                                     'index' => [
-                                        'number' => $scope->accountingStats->number_invoices
+                                        'number' => $this->scope->accountingStats->number_invoices
                                     ]
 
                                 ],
@@ -111,17 +132,23 @@ class AccountingDashboard
                             [
 
                                 [
-                                    'name'  => __('accounts'),
-                                    'icon'  => ['fal', 'fa-money-check-alt'],
-                                    'href'  => ['grp.accounting.payment-accounts.index'],
-                                    'index' => [
-                                        'number' => $scope->accountingStats->number_payment_accounts
+                                    'name'         => __('accounts'),
+                                    'icon'         => ['fal', 'fa-money-check-alt'],
+                                    'href'         => [
+                                        'name'       => 'grp.org.accounting.payment-accounts.index',
+                                        'parameters' => $parameters
+                                    ],
+                                    'index'        => [
+                                        'number' => $this->scope->accountingStats->number_payment_accounts
                                     ],
                                     'rightSubLink' => [
                                         'tooltip'    => __('payment methods'),
                                         'icon'       => ['fal', 'fa-cash-register'],
                                         'labelStyle' => 'bordered',
-                                        'href'       => ['grp.accounting.payment-service-providers.index'],
+                                        'href'       => [
+                                            'name'       => 'grp.org.accounting.payment-service-providers.index',
+                                            'parameters' => $parameters
+                                        ],
 
                                     ]
 
@@ -129,18 +156,25 @@ class AccountingDashboard
                                 [
                                     'name'  => __('payments'),
                                     'icon'  => ['fal', 'fa-coins'],
-                                    'href'  => ['grp.accounting.payments.index'],
+                                    'href'  => [
+                                        'name'       => 'grp.org.accounting.payments.index',
+                                        'parameters' => $parameters
+                                    ],
                                     'index' => [
-                                        'number' => $scope->accountingStats->number_payments
+                                        'number' => $this->scope->accountingStats->number_payments
                                     ]
+
 
                                 ],
                                 [
                                     'name'  => __('invoices'),
                                     'icon'  => ['fal', 'fa-file-invoice-dollar'],
-                                    'href'  => ['grp.accounting.invoices.index'],
+                                    'href'  => [
+                                        'name'       => 'grp.org.accounting.invoices.index',
+                                        'parameters' => $parameters
+                                    ],
                                     'index' => [
-                                        'number' => $scope->accountingStats->number_invoices
+                                        'number' => $this->scope->accountingStats->number_invoices
                                     ]
 
                                 ],
@@ -157,7 +191,7 @@ class AccountingDashboard
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return match ($routeName) {
-            'grp.accounting.shops.show.dashboard' =>
+            'grp.org.accounting.shops.show.dashboard' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
                 [
@@ -165,7 +199,7 @@ class AccountingDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.accounting.shops.show.dashboard',
+                                'name'       => 'grp.org.accounting.shops.show.dashboard',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('accounting'),
@@ -181,7 +215,8 @@ class AccountingDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'grp.accounting.dashboard'
+                                'name'       => 'grp.org.accounting.dashboard',
+                                'parameters' => $routeParameters
                             ],
                             'label' => __('accounting'),
                         ]

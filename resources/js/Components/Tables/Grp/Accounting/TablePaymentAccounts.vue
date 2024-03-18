@@ -21,15 +21,15 @@ function paymentAccountRoute(paymentAccount: PaymentAccount) {
             return route(
                 'shops.show.accounting.payment-accounts.show',
                 [paymentAccount.shop_slug, paymentAccount.slug]);
-        case 'grp.accounting.payment-service-providers.show':
-        case 'grp.accounting.payment-service-providers.show.payment-accounts.index':
+        case 'grp.org.accounting.payment-service-providers.show':
+        case 'grp.org.accounting.payment-service-providers.show.payment-accounts.index':
             return route(
-                'grp.accounting.payment-service-providers.show.payment-accounts.show',
+                'grp.org.accounting.payment-service-providers.show.payment-accounts.show',
                 [paymentAccount.payment_service_providers_slug, paymentAccount.slug]);
-        case 'grp.accounting.payment-accounts.index':
+        case 'grp.org.accounting.payment-accounts.index':
         default:
             return route(
-                'grp.accounting.payment-accounts.show',
+                'grp.org.accounting.payment-accounts.show',
                 [paymentAccount.slug]);
 
     }
@@ -39,16 +39,16 @@ function paymentAccountRoute(paymentAccount: PaymentAccount) {
 function paymentsRoute(paymentAccount: PaymentAccount) {
     switch (route().current()) {
 
-        case 'grp.accounting.payment-service-providers.show.payment-accounts.index':
+        case 'grp.org.accounting.payment-service-providers.show.payment-accounts.index':
             return route(
-                'grp.accounting.payment-service-providers.show.payment-accounts.show.payments.index',
+                'grp.org.accounting.payment-service-providers.show.payment-accounts.show.payments.index',
                 [paymentAccount.payment_service_providers_slug, paymentAccount.slug]);
-        case 'grp.accounting.payment-accounts.index':
+        case 'grp.org.accounting.payment-accounts.index':
             return route(
-                'grp.accounting.payment-accounts.show.payments.index',
+                'grp.org.accounting.payment-accounts.show.payments.index',
                 [paymentAccount.slug]);
         default:
-            return route('grp.accounting.payments.index');
+            return route('grp.org.accounting.payments.index');
     }
 
 }

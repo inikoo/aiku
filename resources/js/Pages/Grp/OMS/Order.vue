@@ -13,7 +13,7 @@ import {
     faDollarSign, faEnvelope, faFileInvoiceDollar,
     faPaperclip, faRoad, faStickyNote, faTag, faThList, faTruck, faUserTag
 } from '@fal';
-import TablePayments from "@/Components/Tables/TablePayments.vue";
+import TablePayments from "@/Components/Tables/Grp/Accounting/TablePayments.vue";
 import TableInvoices from "@/Components/Tables/TableInvoices.vue";
 import TableDeliveryNotes from "@/Components/Tables/TableDeliveryNotes.vue";
 import ModelDetails from "@/Components/ModelDetails.vue";
