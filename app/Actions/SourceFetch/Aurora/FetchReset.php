@@ -53,8 +53,13 @@ class FetchReset
                 $command->line("🏃 org: $organisation->slug ");
                 $this->setAuroraConnection($databaseName);
 
-                DB::connection('aurora')->table('pika_fetch')->truncate();
-                DB::connection('aurora')->table('pika_fetch_error')->truncate();
+
+                if(!app()->environment('staging')) {
+                    DB::connection('aurora')->table('pika_fetch')->truncate();
+                    DB::connection('aurora')->table('pika_fetch_error')->truncate();
+                }
+
+
 
 
                 $this->timeStart    = microtime(true);
