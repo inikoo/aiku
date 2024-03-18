@@ -59,12 +59,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\GroupFulfilmentStat> $fulfilmentStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Guest> $guests
  * @property-read \App\Models\SysAdmin\GroupHumanResourcesStats|null $humanResourcesStats
+ * @property-read \App\Models\SysAdmin\GroupInventoryStats|null $inventoryStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $josPositions
  * @property-read \App\Models\Media\Media|null $logo
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Mailroom> $mailrooms
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $organisations
- * @property-read \App\Models\SysAdmin\GroupProcurementStats|null $procurementStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \App\Models\SysAdmin\GroupSalesStats|null $salesStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StockFamily> $stockFamilies
@@ -155,20 +155,21 @@ class Group extends Model implements HasMedia
     {
         return $this->hasOne(GroupSalesStats::class);
     }
-    public function procurementStats(): HasOne
-    {
-        return $this->hasOne(GroupProcurementStats::class);
-    }
+
     public function sysadminStats(): HasOne
     {
         return $this->hasOne(GroupSysAdminStats::class);
+    }
+
+    public function inventoryStats(): HasOne
+    {
+        return $this->hasOne(GroupInventoryStats::class);
     }
 
     public function supplyChainStats(): HasOne
     {
         return $this->hasOne(GroupSupplyChainStats::class);
     }
-
     public function organisations(): HasMany
     {
         return $this->hasMany(Organisation::class);

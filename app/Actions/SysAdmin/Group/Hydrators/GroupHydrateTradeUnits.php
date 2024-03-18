@@ -29,7 +29,7 @@ class GroupHydrateTradeUnits
     public function handle(Group $group): void
     {
 
-        $group->supplyChainStats()->update(
+        $group->inventoryStats()->update(
             [
                 'number_trade_units' => $group->tradeUnits()->count()
             ]

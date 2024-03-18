@@ -9,10 +9,10 @@ namespace App\Actions\SysAdmin\Group;
 
 use App\Actions\HydrateModel;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateGuests;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplyChain;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInventory;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateJobPositions;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrganisations;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProcurement;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplyChain;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateTradeUnits;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateUsers;
 use App\Actions\Traits\WithNormalise;
@@ -32,8 +32,8 @@ class HydrateGroup extends HydrateModel
         GroupHydrateGuests::run($group);
         GroupHydrateJobPositions::run($group);
         GroupHydrateOrganisations::run($group);
-        GroupHydrateProcurement::run($group);
         GroupHydrateSupplyChain::run($group);
+        GroupHydrateInventory::run($group);
         GroupHydrateTradeUnits::run($group);
         GroupHydrateUsers::run($group);
 

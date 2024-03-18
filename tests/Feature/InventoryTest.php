@@ -228,7 +228,7 @@ test('create stock', function () {
     ]);
 
     expect($stock)->toBeInstanceOf(Stock::class)
-        ->and($this->group->supplyChainStats->number_stocks)->toBe(1);
+        ->and($this->group->inventoryStats->number_stocks)->toBe(1);
 
     return $stock->fresh();
 });
@@ -264,7 +264,7 @@ test('create another stock', function () {
         []
     );
     expect($stock)->toBeInstanceOf(Stock::class)
-        ->and($this->group->supplyChainStats->number_stocks)->toBe(2);
+        ->and($this->group->inventoryStats->number_stocks)->toBe(2);
 
     return $stock->fresh();
 });

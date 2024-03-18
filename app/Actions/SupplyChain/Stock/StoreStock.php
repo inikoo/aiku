@@ -11,7 +11,7 @@ namespace App\Actions\SupplyChain\Stock;
 use App\Actions\GrpAction;
 use App\Actions\SupplyChain\Stock\Hydrators\StockHydrateUniversalSearch;
 use App\Actions\SupplyChain\StockFamily\Hydrators\StockFamilyHydrateStocks;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplyChain;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInventory;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
 use App\Models\SysAdmin\Group;
@@ -29,7 +29,7 @@ class StoreStock extends GrpAction
         /** @var Stock $stock */
         $stock = $group->stocks()->create($modelData);
         $stock->stats()->create();
-        GroupHydrateSupplyChain::dispatch($group);
+        GroupHydrateInventory::dispatch($group);
         if ($stock->stock_family_id) {
             StockFamilyHydrateStocks::dispatch($stock->stockFamily)->delay($this->hydratorsDelay);
         }

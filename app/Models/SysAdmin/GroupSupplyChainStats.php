@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 23 Apr 2023 11:32:21 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Mon, 15 May 2023 17:09:29 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -18,50 +18,51 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int $group_id
- * @property int $number_trade_units
- * @property int $number_warehouses
- * @property int $number_warehouse_areas
- * @property int $number_locations
- * @property int $number_locations_state_operational
- * @property int $number_locations_state_broken
- * @property int $number_empty_locations
- * @property int $number_locations_no_stock_slots
- * @property string $stock_value
- * @property int $number_stock_families
- * @property int $number_stock_families_state_in_process
- * @property int $number_stock_families_state_active
- * @property int $number_stock_families_state_discontinuing
- * @property int $number_stock_families_state_discontinued
- * @property int $number_stocks
- * @property int $number_stocks_state_in_process
- * @property int $number_stocks_state_active
- * @property int $number_stocks_state_discontinuing
- * @property int $number_stocks_state_discontinued
- * @property int $number_stocks_quantity_status_excess
- * @property int $number_stocks_quantity_status_ideal
- * @property int $number_stocks_quantity_status_low
- * @property int $number_stocks_quantity_status_critical
- * @property int $number_stocks_quantity_status_out_of_stock
- * @property int $number_stocks_quantity_status_error
- * @property int $number_deliveries
- * @property int $number_deliveries_type_order
- * @property int $number_deliveries_type_replacement
- * @property int $number_deliveries_state_submitted
- * @property int $number_deliveries_state_picker_assigned
- * @property int $number_deliveries_state_picking
- * @property int $number_deliveries_state_picked
- * @property int $number_deliveries_state_packing
- * @property int $number_deliveries_state_packed
- * @property int $number_deliveries_state_finalised
- * @property int $number_deliveries_state_dispatched
- * @property int $number_deliveries_cancelled_at_state_submitted
- * @property int $number_deliveries_cancelled_at_state_picker_assigned
- * @property int $number_deliveries_cancelled_at_state_picking
- * @property int $number_deliveries_cancelled_at_state_picked
- * @property int $number_deliveries_cancelled_at_state_packing
- * @property int $number_deliveries_cancelled_at_state_packed
- * @property int $number_deliveries_cancelled_at_state_finalised
- * @property int $number_deliveries_cancelled_at_state_dispatched
+ * @property int $number_agents Total number agens active+archived
+ * @property int $number_active_agents Active agents, status=true
+ * @property int $number_archived_agents Archived agents, status=false
+ * @property int $number_suppliers Active + Archived  suppliers
+ * @property int $number_active_suppliers Active suppliers, status=true
+ * @property int $number_archived_suppliers Archived suppliers status=false
+ * @property int $number_suppliers_in_agents Active + Archived suppliers
+ * @property int $number_active_suppliers_in_agents Active suppliers, status=true
+ * @property int $number_archived_suppliers_in_agents Archived suppliers status=false
+ * @property int $number_supplier_products Number supplier products (all excluding discontinued)
+ * @property int $number_supplier_deliveries Number supplier deliveries (all excluding discontinued)
+ * @property int $supplier_products_count Number supplier products
+ * @property int $number_supplier_products_state_creating
+ * @property int $number_supplier_products_state_active
+ * @property int $number_supplier_products_state_discontinuing
+ * @property int $number_supplier_products_state_discontinued
+ * @property int $number_supplier_products_stock_quantity_status_excess
+ * @property int $number_supplier_products_stock_quantity_status_ideal
+ * @property int $number_supplier_products_stock_quantity_status_low
+ * @property int $number_supplier_products_stock_quantity_status_critical
+ * @property int $number_supplier_products_stock_quantity_status_out_of_stock
+ * @property int $number_supplier_products_stock_quantity_status_no_applicable
+ * @property int $number_purchase_orders Number purchase orders (except cancelled and failed)
+ * @property int $number_open_purchase_orders Number purchase orders (except creating, settled)
+ * @property int $number_purchase_orders_state_creating
+ * @property int $number_purchase_orders_state_submitted
+ * @property int $number_purchase_orders_state_confirmed
+ * @property int $number_purchase_orders_state_manufactured
+ * @property int $number_purchase_orders_state_dispatched
+ * @property int $number_purchase_orders_state_received
+ * @property int $number_purchase_orders_state_checked
+ * @property int $number_purchase_orders_state_settled
+ * @property int $number_purchase_orders_status_processing
+ * @property int $number_purchase_orders_status_settled_placed
+ * @property int $number_purchase_orders_status_settled_no_received
+ * @property int $number_purchase_orders_status_settled_cancelled
+ * @property int $number_deliveries Number supplier deliveries (except cancelled)
+ * @property int $number_supplier_deliveries_state_creating
+ * @property int $number_supplier_deliveries_state_dispatched
+ * @property int $number_supplier_deliveries_state_received
+ * @property int $number_supplier_deliveries_state_checked
+ * @property int $number_supplier_deliveries_state_settled
+ * @property int $number_supplier_deliveries_status_processing
+ * @property int $number_supplier_deliveries_status_settled_placed
+ * @property int $number_supplier_deliveries_status_settled_cancelled
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group

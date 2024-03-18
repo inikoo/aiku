@@ -9,7 +9,7 @@ namespace App\Actions\SupplyChain\StockFamily;
 
 use App\Actions\GrpAction;
 use App\Actions\SupplyChain\StockFamily\Hydrators\StockFamilyHydrateUniversalSearch;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplyChain;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInventory;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Inventory\StockFamilyResource;
 use App\Models\SupplyChain\StockFamily;
@@ -29,7 +29,7 @@ class UpdateStockFamily extends GrpAction
         StockFamilyHydrateUniversalSearch::dispatch($stockFamily);
 
         if ($stockFamily->wasChanged('state')) {
-            GroupHydrateSupplyChain::dispatch(group());
+            GroupHydrateInventory::dispatch(group());
         }
 
         return $stockFamily;
