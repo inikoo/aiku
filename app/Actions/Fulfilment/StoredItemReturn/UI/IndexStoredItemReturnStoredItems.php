@@ -115,13 +115,8 @@ class IndexStoredItemReturnStoredItems extends OrgAction
         )->table($this->tableStructure($storedItems));
     }
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
 
-        return $this->handle(app('currentTenant'));
-    }
-
+    /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
