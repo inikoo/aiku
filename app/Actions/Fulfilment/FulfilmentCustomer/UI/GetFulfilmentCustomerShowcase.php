@@ -11,7 +11,7 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
-use App\Http\Resources\Sales\CustomerResource;
+use App\Http\Resources\Sales\CustomersResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -22,7 +22,7 @@ class GetFulfilmentCustomerShowcase
     public function handle(FulfilmentCustomer $fulfilmentCustomer): array
     {
         return [
-            'customer'            => CustomerResource::make($fulfilmentCustomer->customer)->getArray(),
+            'customer'            => CustomersResource::make($fulfilmentCustomer->customer)->getArray(),
             'fulfilment_customer' => FulfilmentCustomerResource::make($fulfilmentCustomer)->getArray(),
             'updateRoute'         => [
                 'name'       => 'grp.models.fulfilment-customer.update',

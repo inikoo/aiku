@@ -15,7 +15,7 @@ use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
 use App\Actions\Helpers\TaxNumber\UpdateTaxNumber;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Sales\CustomerResource;
+use App\Http\Resources\Sales\CustomersResource;
 use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -188,8 +188,8 @@ class UpdateCustomer extends OrgAction
     }
 
 
-    public function jsonResponse(Customer $customer): CustomerResource
+    public function jsonResponse(Customer $customer): CustomersResource
     {
-        return new CustomerResource($customer);
+        return new CustomersResource($customer);
     }
 }

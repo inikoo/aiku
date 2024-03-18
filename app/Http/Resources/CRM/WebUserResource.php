@@ -7,7 +7,7 @@
 
 namespace App\Http\Resources\CRM;
 
-use App\Http\Resources\Sales\CustomerResource;
+use App\Http\Resources\Sales\CustomersResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -24,7 +24,7 @@ class WebUserResource extends JsonResource
             'email'      => $this->email,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'customer'   => CustomerResource::make($this->customer),
+            'customer'   => CustomersResource::make($this->customer),
 
         ];
     }

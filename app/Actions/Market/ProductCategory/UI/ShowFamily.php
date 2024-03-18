@@ -17,7 +17,7 @@ use App\Enums\UI\DepartmentTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Market\DepartmentResource;
 use App\Http\Resources\Market\ProductResource;
-use App\Http\Resources\Sales\CustomerResource;
+use App\Http\Resources\Sales\CustomersResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
 use Inertia\Inertia;
@@ -105,8 +105,8 @@ class ShowFamily extends InertiaAction
                     : Inertia::lazy(fn () => GetProductCategoryShowcase::run($family)),
 
                 DepartmentTabsEnum::CUSTOMERS->value => $this->tab == DepartmentTabsEnum::CUSTOMERS->value ?
-                    fn () => CustomerResource::collection(IndexCustomers::run($family))
-                    : Inertia::lazy(fn () => CustomerResource::collection(IndexCustomers::run($family))),
+                    fn () => CustomersResource::collection(IndexCustomers::run($family))
+                    : Inertia::lazy(fn () => CustomersResource::collection(IndexCustomers::run($family))),
                 DepartmentTabsEnum::MAILSHOTS->value => $this->tab == DepartmentTabsEnum::MAILSHOTS->value ?
                     fn () => MailshotResource::collection(IndexMailshots::run($family))
                     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($family))),

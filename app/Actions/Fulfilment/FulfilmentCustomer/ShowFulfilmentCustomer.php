@@ -27,7 +27,7 @@ use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\Fulfilment\StoredItemReturnsResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\Mail\DispatchedEmailResource;
-use App\Http\Resources\Sales\CustomerResource;
+use App\Http\Resources\Sales\CustomersResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -225,9 +225,9 @@ class ShowFulfilmentCustomer extends OrgAction
     }
 
 
-    public function jsonResponse(Customer $fulfilmentCustomer): CustomerResource
+    public function jsonResponse(Customer $fulfilmentCustomer): CustomersResource
     {
-        return new CustomerResource($fulfilmentCustomer);
+        return new CustomersResource($fulfilmentCustomer);
     }
 
     public function getBreadcrumbs(array $routeParameters): array

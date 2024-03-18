@@ -11,7 +11,7 @@ use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 
 use App\Enums\Market\Shop\ShopTypeEnum;
-use App\Http\Resources\Sales\CustomerResource;
+use App\Http\Resources\Sales\CustomersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
@@ -50,7 +50,6 @@ class IndexCustomers extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-
         $this->initialisationFromShop($shop, $request);
         $this->parent = $shop;
 
@@ -97,13 +96,15 @@ class IndexCustomers extends OrgAction
         return $queryBuilder
             ->defaultSort('customers.slug')
             ->select([
+                'customers.location',
                 'reference',
                 'customers.id',
                 'customers.name',
                 'customers.slug',
                 'shops.code as shop_code',
                 'shops.slug as shop_slug',
-                'number_active_clients'
+                'number_active_clients',
+                'customers.created_at'
             ])
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
             ->leftJoin('shops', 'shops.id', 'shop_id')
@@ -191,8 +192,11 @@ class IndexCustomers extends OrgAction
                     ]
                     */
                 )
-                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'location', label: __('location'), canBeHidden: false, searchable: true)
+                ->column(key: 'created_at', label: __('since'), canBeHidden: false, sortable: true, searchable: true);
+
             if (class_basename($parent) == 'Shop' and $parent->type == 'dropshipping') {
                 $table->column(key: 'number_active_clients', label: __('clients'), canBeHidden: false, sortable: true);
             }
@@ -201,7 +205,7 @@ class IndexCustomers extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
     {
-        return CustomerResource::collection($customers);
+        return CustomersResource::collection($customers);
     }
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
@@ -232,7 +236,7 @@ class IndexCustomers extends OrgAction
                         'title' => __('customer')
                     ]
                 ],
-                'data'        => CustomerResource::collection($customers),
+                'data'        => CustomersResource::collection($customers),
 
             ]
         )->table($this->tableStructure($this->parent));
@@ -254,7 +258,6 @@ class IndexCustomers extends OrgAction
         };
 
         return match ($routeName) {
-
             'grp.org.shops.show.crm.customers.index' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs(

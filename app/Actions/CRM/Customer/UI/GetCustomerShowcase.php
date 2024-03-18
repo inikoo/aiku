@@ -7,7 +7,7 @@
 
 namespace App\Actions\CRM\Customer\UI;
 
-use App\Http\Resources\Sales\CustomerResource;
+use App\Http\Resources\Sales\CustomersResource;
 use App\Models\CRM\Customer;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -19,7 +19,7 @@ class GetCustomerShowcase
     {
         return [
 
-               'data'=> CustomerResource::make($customer)->getArray()
+               'data'=> CustomersResource::make($customer)->getArray()
 
 
         ];
