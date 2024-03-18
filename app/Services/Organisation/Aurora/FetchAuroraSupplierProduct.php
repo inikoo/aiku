@@ -17,8 +17,7 @@ class FetchAuroraSupplierProduct extends FetchAurora
 
     protected function parseModel(): void
     {
-
-        if($this->auroraModelData->aiku_ignore=='Yes') {
+        if ($this->auroraModelData->aiku_ignore == 'Yes') {
             return;
         }
 
@@ -37,35 +36,35 @@ class FetchAuroraSupplierProduct extends FetchAurora
         $supplier = $this->parseSupplier($supplierSourceSlug);
 
 
-        if(!$supplier) {
+        if (!$supplier) {
             return;
         }
 
 
-        $tradeUnitReference  = $this->cleanTradeUnitReference($this->auroraModelData->{'Part Reference'});
-        $tradeUnitSlug       = Str::lower($tradeUnitReference);
+        $tradeUnitReference = $this->cleanTradeUnitReference($this->auroraModelData->{'Part Reference'});
+        $tradeUnitSlug      = Str::lower($tradeUnitReference);
 
-        $this->parsedData['trade_unit']=$this->parseTradeUnit(
+        $this->parsedData['trade_unit'] = $this->parseTradeUnit(
             $tradeUnitSlug,
             $this->auroraModelData->{'Part SKU'}
         );
 
 
-        $this->parsedData['supplier'] =$supplier;
+        $this->parsedData['supplier'] = $supplier;
 
-        $data       = [];
-        $settings   = [];
+        $data     = [];
+        $settings = [];
 
         $status = true;
         if ($this->auroraModelData->{'Supplier Part Status'} == 'NoAvailable') {
             $status = false;
         }
         $state = match ($this->auroraModelData->{'Supplier Part Status'}) {
-            'Discontinued', 'NoAvailable' =>SupplierProductStateEnum::DISCONTINUED,
-            default        => SupplierProductStateEnum::ACTIVE,
+            'Discontinued', 'NoAvailable' => SupplierProductStateEnum::DISCONTINUED,
+            default => SupplierProductStateEnum::ACTIVE,
         };
 
-        if ($state==SupplierProductStateEnum::DISCONTINUED) {
+        if ($state == SupplierProductStateEnum::DISCONTINUED) {
             $status = false;
         }
 
@@ -90,15 +89,15 @@ class FetchAuroraSupplierProduct extends FetchAurora
         $sourceSlug = $supplier->source_slug.':'.Str::kebab(strtolower($partReference));
 
 
-
-        $name= $this->auroraModelData->{'Supplier Part Description'};
-        if($name=='') {
-            $name=$this->auroraModelData->{'Supplier Part Reference'};
+        $name = $this->auroraModelData->{'Supplier Part Description'};
+        if ($name == '') {
+            $name = $this->auroraModelData->{'Supplier Part Reference'};
         }
 
 
-        $code=$this->auroraModelData->{'Supplier Part Reference'};
-        $code=str_replace('&', 'and', $code);
+        $code = $this->auroraModelData->{'Supplier Part Reference'};
+        $code = str_replace('&', 'and', $code);
+        $code =$this->cleanTradeUnitReference($code);
 
         $this->parsedData['supplierProduct'] =
             [
@@ -114,11 +113,12 @@ class FetchAuroraSupplierProduct extends FetchAurora
                 'state'                 => $state,
                 'stock_quantity_status' => $stock_quantity_status,
 
-                'data'        => $data,
-                'settings'    => $settings,
-                'created_at'  => $created_at,
-                'source_slug' => $sourceSlug,
-                'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Supplier Part Key'}
+                'data'                  => $data,
+                'settings'              => $settings,
+                'created_at'            => $created_at,
+                'source_slug'           => $sourceSlug,
+                'source_slug_inter_org' => $sourceSlugInterOrg,
+                'source_id'             => $this->organisation->id.':'.$this->auroraModelData->{'Supplier Part Key'}
             ];
     }
 

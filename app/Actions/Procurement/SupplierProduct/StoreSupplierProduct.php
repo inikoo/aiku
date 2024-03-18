@@ -22,7 +22,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreSupplierProduct extends GrpAction
 {
-    public bool $skipHistoric  = false;
+    public bool $skipHistoric = false;
     private int $supplier_id;
 
     public function authorize(ActionRequest $request): bool
@@ -36,13 +36,11 @@ class StoreSupplierProduct extends GrpAction
 
     public function handle(Supplier $supplier, array $modelData): SupplierProduct
     {
-
         data_set($modelData, 'group_id', $supplier->group_id);
 
         if ($supplier->agent_id) {
             $modelData['agent_id'] = $supplier->agent_id;
         }
-
 
 
         /** @var SupplierProduct $supplierProduct */
@@ -72,28 +70,31 @@ class StoreSupplierProduct extends GrpAction
     public function rules(): array
     {
         return [
-            'code'        => ['required',
-                              'max:64',
-                              new AlphaDashDotSpaceSlashParenthesis(),
-                              Rule::notIn(['export', 'create', 'upload']),
-                              new IUnique(
-                                  table: 'supplier_products',
-                                  extraConditions: [
-                                      ['column' => 'supplier_id', 'value' => $this->supplier_id],
-                                  ]
-                              ),
+            'code'                   => [
+                'required',
+                'max:64',
+                new AlphaDashDotSpaceSlashParenthesis(),
+                Rule::notIn(['export', 'create', 'upload']),
+                new IUnique(
+                    table: 'supplier_products',
+                    extraConditions: [
+                        ['column' => 'supplier_id', 'value' => $this->supplier_id],
+                    ]
+                ),
 
-                ],
-            'name'        => ['required',  'string', 'max:255'],
-            'cost'        => ['required'],
-            'source_id'   => ['sometimes', 'nullable', 'string'],
-            'source_slug' => ['sometimes', 'nullable', 'string'],
+            ],
+            'name'                   => ['required', 'string', 'max:255'],
+            'cost'                   => ['required'],
+            'source_id'              => ['sometimes', 'nullable', 'string'],
+            'source_slug'            => ['sometimes', 'nullable', 'string'],
+            'source_slug_inter_org'  => ['sometimes', 'nullable', 'string'],
+            'source_organisation_id' => ['sometimes', 'nullable'],
         ];
     }
 
     public function action(Supplier $supplier, array $modelData, bool $skipHistoric = false, int $hydratorsDelay = 0): SupplierProduct
     {
-        $this->supplier_id    =$supplier->id;
+        $this->supplier_id    = $supplier->id;
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->skipHistoric   = $skipHistoric;
