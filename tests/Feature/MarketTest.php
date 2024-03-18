@@ -44,7 +44,7 @@ test('create shop', function () {
     $user = $this->guest->user;
     $user->refresh();
 
-    expect($user->getAllPermissions()->count())->toBe(21)
+    expect($user->getAllPermissions()->count())->toBe(23)
         ->and($user->hasAllRoles(["shop-admin-$shop->id"]))->toBe(true);
 
 

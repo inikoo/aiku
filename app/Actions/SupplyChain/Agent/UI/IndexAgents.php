@@ -9,9 +9,10 @@ namespace App\Actions\SupplyChain\Agent\UI;
 
 use App\Actions\GrpAction;
 use App\Actions\UI\SupplyChain\ShowSupplyChainDashboard;
-use App\Http\Resources\Procurement\MarketplaceAgentResource;
+use App\Http\Resources\Procurement\AgentResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
+use App\Models\SysAdmin\Group;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -23,12 +24,37 @@ use App\Services\QueryBuilder;
 
 class IndexAgents extends GrpAction
 {
+    protected function getElementGroups(Group $group): array
+    {
+        return
+            [
+                'status' => [
+                    'label'    => __('Status'),
+                    'elements' => [
+                        'active'    =>
+                            [
+                                __('Active'),
+                                $group->supplyChainStats->number_active_agents
+                            ],
+                        'suspended' => [
+                            __('Suspended'),
+                            $group->supplyChainStats->number_archived_agents
+                        ]
+                    ],
+                    'engine'   => function ($query, $elements) {
+                        $query->where('status', array_pop($elements) === 'active');
+                    }
+
+                ],
+            ];
+    }
+
     public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('agents.code', $value)
-                    ->orWhereAnyWordStartWith('agents.name', $value);
+                $query->whereStartWith('organisations.code', $value)
+                    ->orWhereAnyWordStartWith('organisations.name', $value);
             });
         });
 
@@ -38,29 +64,30 @@ class IndexAgents extends GrpAction
 
         $queryBuilder=QueryBuilder::for(Agent::class);
 
-        /*
-        foreach ($this->elementGroups as $key => $elementGroup) {
+
+        foreach ($this->getElementGroups($this->group) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
-                prefix: $prefix,
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine']
+                engine: $elementGroup['engine'],
+                prefix: $prefix
             );
         }
-        */
+
 
 
         return $queryBuilder
+            ->leftJoin('organisations', 'organisation_id', 'organisations.id')
             ->leftJoin('agent_stats', 'agent_stats.agent_id', '=', 'agents.id')
-            ->defaultSort('agents.code')
-            ->select(['code', 'name', 'slug', 'number_suppliers', 'number_supplier_products', 'location'])
+            ->defaultSort('organisations.code')
+            ->select(['organisations.code', 'name', 'agents.slug', 'number_suppliers', 'number_supplier_products', 'location'])
             ->allowedFilters([$globalSearch])
             ->allowedSorts(['code', 'name', 'number_suppliers', 'number_supplier_products'])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent, $prefix=null): Closure
+    public function tableStructure(Group $parent, $prefix=null): Closure
     {
         return function (InertiaTable $table) use ($parent, $prefix) {
 
@@ -70,6 +97,14 @@ class IndexAgents extends GrpAction
                     ->pageName($prefix.'Page');
             }
 
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
+
 
             $table
                 ->withGlobalSearch()
@@ -77,7 +112,7 @@ class IndexAgents extends GrpAction
                     [
                         'title'       => __('no agents'),
                         'description' => $this->canEdit ? __('Get started by creating a new agent.') : null,
-                        'count'       => $parent->procurementStats->number_agents,
+                        'count'       => $parent->supplyChainStats->number_agents,
                         'action'      => $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -89,11 +124,7 @@ class IndexAgents extends GrpAction
                         ] : null
                     ]
                 )
-                ->column(key: 'adoption', label: [
-                    'type'   => 'icon',
-                    'data'   => ['fal','fa-yin-yang'],
-                    'tooltip'=> __('adoption')
-                ], canBeHidden: false)
+
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'location', label: __('location'), canBeHidden: false)
@@ -117,12 +148,10 @@ class IndexAgents extends GrpAction
         return $this->handle();
     }
 
-
     public function jsonResponse(LengthAwarePaginator $agent): AnonymousResourceCollection
     {
-        return MarketplaceAgentResource::collection($agent);
+        return AgentResource::collection($agent);
     }
-
 
     public function htmlResponse(LengthAwarePaginator $agent, ActionRequest $request): Response
     {
@@ -148,7 +177,7 @@ class IndexAgents extends GrpAction
                         ] : false,
                     ]
                 ],
-                'data'        => MarketplaceAgentResource::collection($agent),
+                'data'        => AgentResource::collection($agent),
             ]
         )->table($this->tableStructure($this->group));
     }

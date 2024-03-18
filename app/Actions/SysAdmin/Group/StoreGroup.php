@@ -35,10 +35,10 @@ class StoreGroup
         app()->instance('group', $group);
         SeedGroupPermissions::run($group);
 
-        $group->procurementStats()->create();
+        $group->supplyChainStats()->create();
         $group->sysadminStats()->create();
         $group->humanResourcesStats()->create();
-        $group->supplyChainStats()->create();
+        $group->inventoryStats()->create();
         $group->crmStats()->create();
         $group->accountingStats()->create();
         $group->salesStats()->create(

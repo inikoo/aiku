@@ -70,8 +70,6 @@ class IndexUsers extends InertiaAction
             ];
     }
 
-
-
     public function handle(Group $group, $prefix = null): LengthAwarePaginator
     {
         $this->group  = $group;

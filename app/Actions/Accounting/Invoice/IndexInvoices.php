@@ -8,7 +8,7 @@
 namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Accounting\AccountingDashboard;
+use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\InvoiceResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
@@ -112,7 +112,7 @@ class IndexInvoices extends InertiaAction
                 'pageHead'    => [
                     'title'     => __('invoices'),
                     'container' => match ($routeName) {
-                        'grp.accounting.shops.show.invoices.index' => [
+                        'grp.org.accounting.shops.show.invoices.index' => [
                             'icon'    => ['fal', 'fa-store-alt'],
                             'tooltip' => __('Shop'),
                             'label'   => Str::possessive($routeParameters['shop']->name)
@@ -162,14 +162,14 @@ class IndexInvoices extends InertiaAction
         };
 
         return match ($routeName) {
-            'grp.accounting.shops.show.invoices.index' =>
+            'grp.org.accounting.shops.show.invoices.index' =>
             array_merge(
-                AccountingDashboard::make()->getBreadcrumbs('grp.accounting.shops.show.dashboard', $routeParameters),
+                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.shops.show.dashboard', $routeParameters),
                 $headCrumb()
             ),
-            'grp.accounting.invoices.index' =>
+            'grp.org.accounting.invoices.index' =>
             array_merge(
-                AccountingDashboard::make()->getBreadcrumbs('grp.accounting.dashboard', []),
+                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', []),
                 $headCrumb()
             ),
 

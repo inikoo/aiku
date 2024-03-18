@@ -12,7 +12,7 @@ use App\Actions\Procurement\HistoricSupplierProduct\StoreHistoricSupplierProduct
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Actions\Procurement\SupplierProduct\Hydrators\SupplierProductHydrateUniversalSearch;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSuppliers;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProcurement;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplyChain;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Rules\AlphaDashDotSpaceSlashParenthesis;
@@ -64,7 +64,7 @@ class StoreSupplierProduct extends GrpAction
         SupplierProductHydrateUniversalSearch::dispatch($supplierProduct);
 
 
-        GroupHydrateProcurement::dispatch($supplier->group)->delay($this->hydratorsDelay);
+        GroupHydrateSupplyChain::dispatch($supplier->group)->delay($this->hydratorsDelay);
 
         return $supplierProduct;
     }

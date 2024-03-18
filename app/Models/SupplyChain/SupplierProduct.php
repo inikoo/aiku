@@ -59,6 +59,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_slug
+ * @property string|null $source_slug_inter_org
  * @property string|null $source_id
  * @property SupplierProductQuantityStatusEnum $quantity_status
  * @property-read \App\Models\SupplyChain\Agent|null $agent

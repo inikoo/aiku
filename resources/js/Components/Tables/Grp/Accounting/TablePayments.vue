@@ -20,7 +20,7 @@ function palletsRoute(pallet: PalletCustomer) {
 
         default:
             return route(
-                'grp.accounting.pallets.index',
+                'grp.org.accounting.pallets.index',
                 [pallet.slug])
     }
 

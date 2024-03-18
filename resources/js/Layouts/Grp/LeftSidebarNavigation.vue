@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { onMounted } from "vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faConveyorBeltAlt, faChevronDown, faPalletAlt } from "@fal"
+import { faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faConveyorBeltAlt, faChevronDown, faPalletAlt, faAbacus } from "@fal"
 import { useLayoutStore } from "@/Stores/layout.js"
 // import NavigationExpandable from '@//Layouts/NavigationExpandable.vue'
 import NavigationSimple from '@/Layouts/Grp/NavigationSimple.vue'
@@ -15,7 +15,9 @@ import { generateNavigationName, generateCurrentString } from '@/Composables/use
 
 import { get } from "lodash"
 import NavigationGroup from "./NavigationGroup.vue"
-library.add(faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faUsersCog, faInventory, faConveyorBeltAlt, faChevronDown, faPalletAlt)
+library.add(faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faUsersCog, faInventory, faConveyorBeltAlt, faChevronDown, faPalletAlt,
+faAbacus
+)
 
 const layout = useLayoutStore()
 

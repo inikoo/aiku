@@ -79,7 +79,7 @@ test('create fulfilment shop', function () {
     $user = $this->adminGuest->user;
     $user->refresh();
 
-    expect($user->getAllPermissions()->count())->toBe(19)
+    expect($user->getAllPermissions()->count())->toBe(21)
         ->and($user->hasAllRoles(["fulfilment-shop-supervisor-{$shop->fulfilment->id}"]))->toBe(true)
         ->and($user->hasAllRoles(["shop-admin-$shop->id"]))->toBe(false)
         ->and($shop->fulfilment->number_warehouses)->toBe(1);

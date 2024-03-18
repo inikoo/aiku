@@ -33,8 +33,8 @@ test('create agent', function () {
     );
 
     expect($agent)->toBeInstanceOf(Agent::class)
-        ->and($this->group->procurementStats->number_agents)->toBe(1)
-        ->and($this->group->procurementStats->number_archived_agents)->toBe(0);
+        ->and($this->group->supplyChainStats->number_agents)->toBe(1)
+        ->and($this->group->supplyChainStats->number_archived_agents)->toBe(0);
 
 
 
@@ -50,8 +50,8 @@ test('create another agent', function () {
     );
 
     expect($agent)->toBeInstanceOf(Agent::class)
-        ->and($this->group->procurementStats->number_agents)->toBe(2)
-        ->and($this->group->procurementStats->number_archived_agents)->toBe(0);
+        ->and($this->group->supplyChainStats->number_agents)->toBe(2)
+        ->and($this->group->supplyChainStats->number_archived_agents)->toBe(0);
 
     return $agent;
 });
@@ -64,7 +64,7 @@ test('create independent supplier', function () {
     );
     expect($supplier)->toBeInstanceOf(Supplier::class)
         ->and($supplier->agent_id)->toBeNull()
-        ->and($this->group->procurementStats->number_suppliers)->toBe(1);
+        ->and($this->group->supplyChainStats->number_suppliers)->toBe(1);
 
 
     return $supplier;
@@ -77,14 +77,14 @@ test('create independent supplier 2', function () {
     );
     expect($supplier)->toBeInstanceOf(Supplier::class)
         ->and($supplier->agent_id)->toBeNull()
-        ->and($this->group->procurementStats->number_suppliers)->toBe(2);
+        ->and($this->group->supplyChainStats->number_suppliers)->toBe(2);
 
 
     return $supplier;
 });
 
 test('number independent supplier should be two', function () {
-    $this->assertEquals(2, $this->group->procurementStats->number_suppliers);
+    $this->assertEquals(2, $this->group->supplyChainStats->number_suppliers);
 });
 
 test('create supplier in agent', function ($agent) {

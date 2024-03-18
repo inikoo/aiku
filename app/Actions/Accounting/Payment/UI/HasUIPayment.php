@@ -10,7 +10,7 @@ namespace App\Actions\Accounting\Payment\UI;
 use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\UI\ShowPaymentServiceProvider;
 use App\Actions\OMS\Order\UI\ShowOrder;
-use App\Actions\UI\Accounting\AccountingDashboard;
+use App\Actions\UI\Accounting\ShowAccountingDashboard;
 
 trait HasUIPayment
 {
@@ -77,23 +77,23 @@ trait HasUIPayment
                     ]
                 )
             ),
-            'grp.accounting.payments.show' => array_merge(
-                AccountingDashboard::make()->getBreadcrumbs('grp.accounting.dashboard', []),
+            'grp.org.accounting.payments.show' => array_merge(
+                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', []),
                 $headCrumb([$routeParameters['payment']->slug])
             ),
-            'grp.accounting.payment-service-provider.show.payments.show' => array_merge(
+            'grp.org.accounting.payment-service-provider.show.payments.show' => array_merge(
                 (new ShowPaymentServiceProvider())
                     ->getBreadcrumbs($routeParameters['payment']->paymentAccount->paymentServiceProvider),
                 $headCrumb([$routeParameters['payment']->paymentAccount->paymentServiceProvider->slug, $routeParameters['payment']->slug])
             ),
-            'grp.accounting.payment-accounts.show.payments.show' => array_merge(
+            'grp.org.accounting.payment-accounts.show.payments.show' => array_merge(
                 (new ShowPaymentAccount())
-                    ->getBreadcrumbs('grp.accounting.payment-accounts.show', $routeParameters['payment']->paymentAccount),
+                    ->getBreadcrumbs('grp.org.accounting.payment-accounts.show', $routeParameters['payment']->paymentAccount),
                 $headCrumb([$routeParameters['payment']->paymentAccount->slug, $routeParameters['payment']->slug])
             ),
-            'grp.accounting.payment-service-provider.show.payment-accounts.show.payments.show' => array_merge(
+            'grp.org.accounting.payment-service-provider.show.payment-accounts.show.payments.show' => array_merge(
                 (new ShowPaymentAccount())
-                    ->getBreadcrumbs('grp.accounting.payment-service-provider.show.payment-accounts.show', $routeParameters['payment']->paymentAccount),
+                    ->getBreadcrumbs('grp.org.accounting.payment-service-provider.show.payment-accounts.show', $routeParameters['payment']->paymentAccount),
                 $headCrumb(
                     [
                         $routeParameters['payment']->paymentAccount->paymentServiceProvider->slug,

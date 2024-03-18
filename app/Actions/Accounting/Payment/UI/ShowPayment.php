@@ -133,11 +133,11 @@ class ShowPayment extends InertiaAction
     {
         $previous=Payment::where('reference', '<', $payment->reference)->when(true, function ($query) use ($payment, $request) {
             switch ($request->route()->getName()) {
-                case 'grp.accounting.payment-accounts.show.payments.show':
+                case 'grp.org.accounting.payment-accounts.show.payments.show':
                     $query->where('payments.payment_account_id', $payment->payment_account_id);
                     break;
-                case 'grp.accounting.payment-service-providers.show.payment-accounts.show.payments.show':
-                case 'grp.accounting.payment-service-providers.show.payments.show':
+                case 'grp.org.accounting.payment-service-providers.show.payment-accounts.show.payments.show':
+                case 'grp.org.accounting.payment-service-providers.show.payments.show':
                     $query->where('payment_accounts.payment_account_id', $payment->paymentAccount->payment_service_provider_id);
                     break;
 
@@ -152,11 +152,11 @@ class ShowPayment extends InertiaAction
     {
         $next=Payment::where('reference', '>', $payment->reference)->when(true, function ($query) use ($payment, $request) {
             switch ($request->route()->getName()) {
-                case 'grp.accounting.payment-accounts.show.payments.show':
+                case 'grp.org.accounting.payment-accounts.show.payments.show':
                     $query->where('payments.payment_account_id', $payment->paymentAccount->id);
                     break;
-                case 'grp.accounting.payment-service-providers.show.payment-accounts.show.payments.show':
-                case 'grp.accounting.payment-service-providers.show.payments.show':
+                case 'grp.org.accounting.payment-service-providers.show.payment-accounts.show.payments.show':
+                case 'grp.org.accounting.payment-service-providers.show.payments.show':
                     $query->where('payment_accounts.payment_account_id', $payment->paymentAccount->payment_service_provider_id);
                     break;
 
@@ -172,7 +172,7 @@ class ShowPayment extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'grp.accounting.payments.show'=> [
+            'grp.org.accounting.payments.show'=> [
                 'label'=> $payment->reference,
                 'route'=> [
                     'name'      => $routeName,
@@ -182,7 +182,7 @@ class ShowPayment extends InertiaAction
 
                 ]
             ],
-            'grp.accounting.payment-accounts.show.payments.show' => [
+            'grp.org.accounting.payment-accounts.show.payments.show' => [
                 'label'=> $payment->reference,
                 'route'=> [
                     'name'      => $routeName,
@@ -193,7 +193,7 @@ class ShowPayment extends InertiaAction
 
                 ]
             ],
-            'grp.accounting.payment-service-providers.show.payments.show'=> [
+            'grp.org.accounting.payment-service-providers.show.payments.show'=> [
                 'label'=> $payment->reference,
                 'route'=> [
                     'name'      => $routeName,
@@ -204,7 +204,7 @@ class ShowPayment extends InertiaAction
 
                 ]
             ],
-            'grp.accounting.payment-service-providers.show.payment-accounts.show.payments.show' => [
+            'grp.org.accounting.payment-service-providers.show.payment-accounts.show.payments.show' => [
                 'label'=> $payment->reference,
                 'route'=> [
                     'name'      => $routeName,

@@ -1,14 +1,14 @@
 <?php
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Mon, 21 February 2023 17:54:17 Malaga, Spain
+ *  Created: Tue, 21 February 2023 17:54:17 Malaga, Spain
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Accounting\PaymentServiceProvider\UI;
 
-use App\Actions\InertiaAction;
-use App\Actions\UI\Accounting\AccountingDashboard;
+use App\Actions\OrgAction;
+use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\PaymentServiceProviderResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -23,8 +23,10 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexPaymentServiceProviders extends InertiaAction
+class IndexPaymentServiceProviders extends OrgAction
 {
+    private Organisation|Shop $scope;
+
     public function handle(Organisation|Shop $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -39,6 +41,11 @@ class IndexPaymentServiceProviders extends InertiaAction
         }
 
         $queryBuilder=QueryBuilder::for(PaymentServiceProvider::class);
+
+        $queryBuilder->where('organisation_id', $this->organisation->id);
+
+
+        /*
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
@@ -47,10 +54,11 @@ class IndexPaymentServiceProviders extends InertiaAction
                 prefix: $prefix
             );
         }
+        */
 
         return $queryBuilder
             ->defaultSort('payment_service_providers.code')
-            ->select(['code', 'slug', 'number_accounts', 'number_payments'])
+            ->select(['code', 'slug', 'number_payment_accounts', 'number_payments'])
             ->leftJoin('payment_service_provider_stats', 'payment_service_providers.id', 'payment_service_provider_stats.payment_service_provider_id')
             ->when(true, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Shop') {
@@ -61,7 +69,7 @@ class IndexPaymentServiceProviders extends InertiaAction
 
                 }
             })
-            ->allowedSorts(['code', 'number_accounts', 'number_payments'])
+            ->allowedSorts(['code', 'number_payment_accounts', 'number_payments'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -79,19 +87,20 @@ class IndexPaymentServiceProviders extends InertiaAction
                 ->withGlobalSearch()
                 ->defaultSort('code')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_accounts', label: __('accounts'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_payment_accounts', label: __('accounts'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_payments', label: __('payments'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('accounting.edit');
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('accounting.view')
-            );
+
+        if ($this->scope instanceof Organisation) {
+            $this->canEdit=$request->user()->hasPermissionTo("accounting.{$this->scope->id}.edit");
+            return $request->user()->hasPermissionTo("accounting.{$this->scope->id}.view");
+        }
+
+        return false;
     }
 
 
@@ -101,18 +110,18 @@ class IndexPaymentServiceProviders extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $paymentServiceProviders): Response
+    public function htmlResponse(LengthAwarePaginator $paymentServiceProviders, ActionRequest $request): Response
     {
         return Inertia::render(
             'Accounting/PaymentServiceProviders',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('Payment Service Providers'),
                 'pageHead'    => [
                     'title' => __('Payment Service Providers'),
 
                 ],
-                'payment_service_providers' => PaymentServiceProviderResource::collection($paymentServiceProviders),
+                'data' => PaymentServiceProviderResource::collection($paymentServiceProviders),
 
 
             ]
@@ -120,28 +129,32 @@ class IndexPaymentServiceProviders extends InertiaAction
     }
 
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
-        return $this->handle(app('currentTenant'));
+        $this->scope=$organisation;
+        $this->initialisation($organisation, $request);
+        return $this->handle($organisation);
     }
 
-    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->scope=$shop;
+        $this->initialisationFromShop($shop, $request);
         return $this->handle($shop);
     }
 
-    public function getBreadcrumbs($suffix=null): array
+    public function getBreadcrumbs(array $routeParameters, $suffix=null): array
     {
+
         return array_merge(
-            AccountingDashboard::make()->getBreadcrumbs('grp.accounting.dashboard', []),
+            ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
             [
                  [
                      'type'   => 'simple',
                      'simple' => [
                          'route' => [
-                             'name' => 'grp.accounting.payment-service-providers.index',
+                             'name'      => 'grp.org.accounting.payment-service-providers.index',
+                             'parameters'=> $routeParameters
                          ],
                          'label' => __('providers'),
                          'icon'  => 'fal fa-bars',

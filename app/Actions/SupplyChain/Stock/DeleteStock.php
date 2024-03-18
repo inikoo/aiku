@@ -8,7 +8,7 @@
 namespace App\Actions\SupplyChain\Stock;
 
 use App\Actions\SupplyChain\StockFamily\Hydrators\StockFamilyHydrateStocks;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplyChain;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInventory;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithOrganisationArgument;
 use App\Models\SupplyChain\Stock;
@@ -28,7 +28,7 @@ class DeleteStock
         $stock = $this->update($stock, $deletedData, ['data']);
         //Todo: PKA-18
         if (!$skipHydrate) {
-            GroupHydrateSupplyChain::dispatch(group());
+            GroupHydrateInventory::dispatch(group());
             if ($stock->stock_family_id) {
                 StockFamilyHydrateStocks::dispatch($stock->stockFamily);
             }

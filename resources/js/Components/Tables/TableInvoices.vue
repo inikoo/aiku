@@ -23,7 +23,7 @@ function invoiceRoute(invoice: Invoice) {
                 [invoice.slug, invoice.slug]);
         default:
             return route(
-                'grp.accounting.invoices.show',
+                'grp.org.accounting.invoices.show',
                 [invoice.slug]);
     }
 }

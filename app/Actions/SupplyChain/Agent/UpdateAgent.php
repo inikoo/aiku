@@ -9,7 +9,7 @@ namespace App\Actions\SupplyChain\Agent;
 
 use App\Actions\GrpAction;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateUniversalSearch;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProcurement;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplyChain;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
 use App\Actions\Traits\WithActionUpdate;
@@ -42,7 +42,7 @@ class UpdateAgent extends GrpAction
                 OrganisationHydrateProcurement::dispatch($organisation);
             }
 
-            GroupHydrateProcurement::run($this->group);
+            GroupHydrateSupplyChain::run($this->group);
         }
 
         AgentHydrateUniversalSearch::dispatch($agent);

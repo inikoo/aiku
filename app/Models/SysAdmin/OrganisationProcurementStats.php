@@ -18,11 +18,14 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int $organisation_id
- * @property int $number_agents Active agents, status=true
+ * @property int $number_agents Total number agens active+archived
+ * @property int $number_active_agents Active agents, status=true
  * @property int $number_archived_agents Archived agents, status=false
- * @property int $number_suppliers Active suppliers, status=true
+ * @property int $number_suppliers Active + Archived  suppliers
+ * @property int $number_active_suppliers Active suppliers, status=true
  * @property int $number_archived_suppliers Archived suppliers status=false
- * @property int $number_suppliers_in_agents Active suppliers, status=true
+ * @property int $number_suppliers_in_agents Active + Archived suppliers
+ * @property int $number_active_suppliers_in_agents Active suppliers, status=true
  * @property int $number_archived_suppliers_in_agents Archived suppliers status=false
  * @property int $number_supplier_products Number supplier products (all excluding discontinued)
  * @property int $number_supplier_deliveries Number supplier deliveries (all excluding discontinued)

@@ -24,12 +24,12 @@ use App\Services\QueryBuilder;
 
 class IndexAgents extends InertiaAction
 {
-    public function handle($prefix=null): LengthAwarePaginator
+    public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('agents.code', 'ILIKE', "%$value%")
-                    ->orWhere('agents.name', 'ILIKE', "%$value%");
+                $query->whereStartWith('organisations.code', $value)
+                    ->orWhereAnyWordStartWith('organisations.name', $value);
             });
         });
 
@@ -37,7 +37,7 @@ class IndexAgents extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(AgentOrganisation::class);
+        $queryBuilder = QueryBuilder::for(AgentOrganisation::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
@@ -48,8 +48,9 @@ class IndexAgents extends InertiaAction
         }
 
         return $queryBuilder
-            ->defaultSort('agents.code')
-            ->select(['code', 'name', 'slug', 'location', 'number_suppliers', 'number_purchase_orders', 'number_supplier_products'])
+            ->defaultSort('organisations.code')
+            ->leftJoin('organisations', 'organisation_id', 'organisations.id')
+            ->select(['organisations.code', 'name', 'slug', 'location', 'number_suppliers', 'number_purchase_orders', 'number_supplier_products'])
             ->leftJoin('agents', 'agents.id', 'agent_organisation.agent_id')
             ->leftJoin('agent_stats', 'agent_stats.agent_id', 'agents.id')
             ->where('agent_organisation.organisation_id', app('currentTenant')->id)
@@ -58,7 +59,7 @@ class IndexAgents extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($prefix=null): Closure
+    public function tableStructure($prefix = null): Closure
     {
         return function (InertiaTable $table) use ($prefix) {
             if ($prefix) {
@@ -79,7 +80,7 @@ class IndexAgents extends InertiaAction
                             'tooltip' => __('new agent'),
                             'label'   => __('agent'),
                             'route'   => [
-                                'name'       => 'grp.procurement.agents.create',
+                                'name' => 'grp.procurement.agents.create',
 
                             ]
                         ] : null
@@ -109,6 +110,7 @@ class IndexAgents extends InertiaAction
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request)->withTab(AgentTabsEnum::values());
+
         return $this->handle();
     }
 
@@ -121,7 +123,6 @@ class IndexAgents extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $agents, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'Procurement/Agents',
             [
@@ -133,7 +134,7 @@ class IndexAgents extends InertiaAction
                         'title' => __('website'),
                         'icon'  => 'fal fa-people-arrows'
                     ],
-                    'actions'=> [
+                    'actions' => [
                         $this->canEdit && $request->route()->getName() == 'grp.procurement.agents.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',

@@ -48,7 +48,7 @@ Route::prefix("agents")->name("agents.")->group(
     function () {
         Route::get('', IndexAgents::class)->name('index');
         Route::get('create', CreateAgent::class)->name('create');
-
+        Route::get('{agent}', ShowAgent::class)->name('show');
     }
 );
 

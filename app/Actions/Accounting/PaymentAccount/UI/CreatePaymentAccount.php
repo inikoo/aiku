@@ -33,7 +33,7 @@ class CreatePaymentAccount extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.accounting.payment-accounts.index',
+                                'name'       => 'grp.org.accounting.payment-accounts.index',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]

@@ -36,6 +36,10 @@ Route::prefix("procurement")
     ->name("procurement.")
     ->group(__DIR__."/procurement.php");
 
+Route::prefix("accounting")
+    ->name("accounting.")
+    ->group(__DIR__."/accounting.php");
+
 /*
 
 Route::prefix("crm")
@@ -82,9 +86,7 @@ Route::prefix("dispatch")
     ->name("dispatch.")
     ->group(__DIR__."/dispatch.php");
 
-Route::prefix("accounting")
-    ->name("accounting.")
-    ->group(__DIR__."/accounting.php");
+
 Route::prefix("marketing")
     ->name("marketing.")
     ->group(__DIR__."/marketing.php");

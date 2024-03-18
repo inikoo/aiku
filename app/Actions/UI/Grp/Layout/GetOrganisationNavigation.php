@@ -308,12 +308,13 @@ class GetOrganisationNavigation
 
         if ($user->hasPermissionTo("accounting.$organisation->id.view")) {
             $navigation['accounting'] = [
-                'scope' => 'shops',
-                'label' => __('Accounting'),
-                'icon'  => ['fal', 'fa-abacus'],
-                'route' => [
-                    'all'      => 'grp.accounting.dashboard',
-                    'selected' => 'grp.accounting.dashboard',
+                'root'    => 'grp.org.accounting',
+                'scope'   => 'shops',
+                'label'   => __('Accounting'),
+                'icon'    => ['fal', 'fa-abacus'],
+                'route'   => [
+                    'name'       => 'grp.org.accounting.dashboard',
+                    'parameters' => [$organisation->slug],
                 ],
 
 
@@ -322,34 +323,14 @@ class GetOrganisationNavigation
                         [
                             'label' => __('Payment accounts'),
                             'icon'  => ['fal', 'fa-money-check-alt'],
-                            'root'  => 'grp.accounting.payment-accounts.',
+                            'root'  => 'grp.org.accounting.payment-accounts.',
                             'route' => [
-                                'name' => 'grp.accounting.payment-accounts.index',
+                                'name'       => 'grp.org.accounting.payment-accounts.index',
+                                'parameters' => [$organisation->slug],
 
                             ]
                         ],
-                        [
-                            'label'   => __('customers'),
-                            'tooltip' => __('Customers'),
-                            'icon'    => ['fal', 'fa-user'],
-                            'root'    => 'grp.org.shops.show.crm.customers.',
-                            'route'   => [
-                                'all'      => ['grp.org.shops.show.crm.customers.index'],
-                                'selected' => ['grp.org.shops.show.crm.customers.index'],
 
-                            ]
-                        ],
-                        [
-                            'label'   => __('prospects'),
-                            'tooltip' => __('Prospects'),
-                            'icon'    => ['fal', 'fa-user-plus'],
-                            'root'    => 'grp.org.shops.show.crm.prospects.',
-                            'route'   => [
-                                'all'      => ['grp.org.shops.show.crm.prospects.index'],
-                                'selected' => ['grp.crm.shops.show.prospects.index'],
-
-                            ]
-                        ],
                     ],
                 ]
             ];

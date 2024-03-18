@@ -13,7 +13,7 @@ use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateUniversalSearch;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\SupplyChain\Supplier\AttachAgentSupplierToOrganisations;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProcurement;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplyChain;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Group;
@@ -63,7 +63,7 @@ class StoreSupplier extends GrpAction
         $supplier->save();
         $supplier->refresh();
 
-        GroupHydrateProcurement::run($group);
+        GroupHydrateSupplyChain::run($group);
 
 
         if ($supplier->agent_id) {
