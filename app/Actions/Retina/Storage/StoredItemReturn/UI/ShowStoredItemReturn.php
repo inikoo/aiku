@@ -240,19 +240,12 @@ class ShowStoredItemReturn extends RetinaAction
 
                 'storedItemRoute' => [
                     'index' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-item-returns.stored-items.booked-in.index',
-                        'parameters' => [
-                            'organisation'       => $storedItemReturn->organisation->slug,
-                            'fulfilment'         => $storedItemReturn->fulfilment->slug,
-                            'fulfilmentCustomer' => $storedItemReturn->fulfilmentCustomer->slug
-                        ]
+                        'name'       => 'retina.storage.stored-item-returns.booked-in.index',
+                        'parameters' => []
                     ],
                     'store' => [
-                        'name'       => 'grp.models.fulfilment-customer.stored-item-return.stored-item.store',
+                        'name'       => 'retina.storage.stored-item-returns.stored-item.store',
                         'parameters' => [
-                            'organisation'       => $storedItemReturn->organisation->slug,
-                            'fulfilment'         => $storedItemReturn->fulfilment->slug,
-                            'fulfilmentCustomer' => $storedItemReturn->fulfilmentCustomer->id,
                             'storedItemReturn'   => $storedItemReturn->slug
                         ]
                     ]

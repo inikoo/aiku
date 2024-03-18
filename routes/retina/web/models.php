@@ -20,6 +20,7 @@ use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
+use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemReturn;
 use App\Actions\UI\Retina\Profile\UpdateProfile;
 use Illuminate\Support\Facades\Route;
 
@@ -51,3 +52,4 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
 });
 
 Route::post('stored-items', [StoreStoredItem::class, 'fromRetina'])->name('stored-items.store');
+Route::post('stored-item-returns', [StoreStoredItemReturn::class, 'fromRetina'])->name('stored-item-returns.store');

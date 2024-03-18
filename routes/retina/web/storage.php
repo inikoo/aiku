@@ -8,6 +8,8 @@
 
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\PalletReturn\IndexStoredPallets;
+use App\Actions\Fulfilment\StoredItem\UI\IndexBookedInStoredItems;
+use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemToStoredItemReturn;
 use App\Actions\Retina\Storage\Pallet\UI\IndexPallets;
 use App\Actions\Retina\Storage\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Retina\Storage\PalletDelivery\UI\ShowPalletDelivery;
@@ -38,6 +40,8 @@ Route::get('pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->nam
 Route::get('stored-items', IndexStoredItems::class)->name('stored-items.index');
 
 Route::prefix('stored-item-returns')->as('stored-item-returns.')->group(function () {
+    Route::get('booked-in-stored-items', [IndexBookedInStoredItems::class, 'fromRetina'])->name('booked-in.index');
     Route::get('stored-items', IndexStoredItemReturns::class)->name('index');
     Route::get('{storedItemReturn}', ShowStoredItemReturn::class)->name('show');
+    Route::post('{storedItemReturn}/stored-item', [StoreStoredItemToStoredItemReturn::class, 'fromRetina'])->name('stored-item.store');
 });

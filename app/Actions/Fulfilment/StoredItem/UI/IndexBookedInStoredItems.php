@@ -11,6 +11,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
+use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
@@ -77,6 +78,11 @@ class IndexBookedInStoredItems extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($request->user() instanceof WebUser) {
+            // TODO: Raul please do the permission for the web user
+            return true;
+        }
+
         $this->canEdit = $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
 
         return
@@ -122,6 +128,16 @@ class IndexBookedInStoredItems extends OrgAction
         $this->initialisation($request);
 
         return $this->handle(app('currentTenant'));
+    }
+
+    public function fromRetina(StoredItemReturn $storedItemReturn, ActionRequest $request): LengthAwarePaginator
+    {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+
+        $this->initialisation($request->get('website')->organisation, $request);
+        return $this->handle($storedItemReturn);
     }
 
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
