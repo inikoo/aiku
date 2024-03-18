@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { get, defaultTo, fromPairs, before } from "lodash"
 import axios from "axios"
-import { onMounted, ref, defineProps } from "vue"
+import { onMounted, ref, defineProps, defineExpose } from "vue"
 import { useForm,router } from "@inertiajs/vue3"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { notify } from "@kyvg/vue3-notification"
@@ -20,6 +20,7 @@ const props = defineProps<{
 	saveRoute: routeType
 	descriptor: object
 	beforeSubmit:Function
+	onFilterDatalist:Function
 }>()
 
 const emits = defineEmits()
@@ -43,14 +44,14 @@ const getData = async () => {
 			route(props.dataRoute.name, props.dataRoute.parameters),
 			{ params: { [`${props.descriptor.key}_filter[global]`]: tableFilter.search } } // Changed from { search: tableFilter.filter }
 		)
-		console.log(response.data.data)
-		dataList.value = response.data.data
+		let finaldata = response.data.data
+		if(props.onFilterDatalist) finaldata = props.onFilterDatalist(finaldata)
+		dataList.value = finaldata
 		loading.value = false
 	} catch (error) {
-		console.log("error", error)
 		loading.value = false
 		notify({
-			title: error.response.statusText,
+			title: 'failed to get data',
 			text: error.message,
 			type: "error",
 		})
@@ -95,6 +96,13 @@ const onSubmitPallet = async () => {
 }
 
 onMounted(getData)
+
+defineExpose({
+	dataList,
+    loading,
+	tableFilter,
+})
+
 </script>
 
 <template>

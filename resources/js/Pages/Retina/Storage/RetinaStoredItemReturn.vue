@@ -21,6 +21,8 @@ import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import StoredItemReturnDescriptor from "@/Components/PalletReturn/Descriptor/StoredItemReturn"
 import TableReturn from '@/Components/PalletReturn/tablePalletReturn.vue'
 import TableStoredItemReturnStoredItems from "@/Components/Tables/TableStoredItemReturnStoredItems.vue";
+import FieldEditableTable from "@/Components/FieldEditableTable.vue"
+import tablePalletReturn from "@/Components/PalletReturn/tablePalletReturn.vue"
 
 const props = defineProps<{
     title: string
@@ -49,6 +51,20 @@ const component = computed(() => {
     return components[currentTab.value]
 })
 
+const onFilterDatalist=(data)=>{
+    return data.filter((item)=>item.total_quantity > 0)
+}
+
+
+const submitDataStoredItem = (formData, list) => {
+    const finalValue = {};
+    for (let v of formData) {
+        const dataSelected = list.find((item) => item.id == v);
+        finalValue[v] = { quantity : dataSelected.total_quantity}
+    }
+    return finalValue;
+};
+
 
 watch(
     props,
@@ -57,6 +73,7 @@ watch(
     },
     { deep: true }
 )
+
 
 </script>
 
@@ -84,7 +101,21 @@ watch(
                 :saveRoute="storedItemRoute.store"
                 @onClose="() => openModal = false"
                 :descriptor="StoredItemReturnDescriptor"
-            />
+                :onFilterDatalist="onFilterDatalist"
+                :beforeSubmit="submitDataStoredItem"
+            >
+            <template #column-quantity="{ data : dataColumn }">
+                <FieldEditableTable 
+                    :data="dataColumn.columnData"  
+                    fieldName="total_quantity" 
+                    placeholder="Enter pallet Quantity"
+                    type="number"
+                    @input="(e)=>dataColumn.columnData.total_quantity = e"
+                    :min="1"
+                    :max="dataColumn.columnData.max_quantity"
+                />
+              </template>
+            </TableReturn>
         </div>
     </Modal>
 </template>

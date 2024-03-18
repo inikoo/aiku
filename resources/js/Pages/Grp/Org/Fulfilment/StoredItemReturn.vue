@@ -50,8 +50,11 @@
       return components[currentTab.value]
   })
 
+  const onFilterDatalist=(data)=>{
+    return data.filter((item)=>item.total_quantity > 0)
+}
+
   const submitDataStoredItem = (formData, list) => {
-    console.log(list)
     const finalValue = {};
     for (let v of formData) {
         const dataSelected = list.find((item) => item.id == v);
@@ -96,6 +99,7 @@
                   @onClose="() => openModal = false"
                   :descriptor="StoredItemReturnDescriptor"
                   :beforeSubmit="submitDataStoredItem"
+                  :onFilterDatalist="onFilterDatalist"
               >
               <template #column-quantity="{ data : dataColumn }">
                 <FieldEditableTable 
@@ -105,7 +109,7 @@
                     type="number"
                     @input="(e)=>dataColumn.columnData.total_quantity = e"
                     :min="1"
-                    :max="dataColumn.columnData.total_quantity"
+                    :max="dataColumn.columnData.max_quantity"
                 />
               </template>
               </TableReturn>
