@@ -16,7 +16,7 @@ use App\Actions\Traits\WithWebUserMeta;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\UI\CustomerTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
-use App\Http\Resources\Sales\CustomerResource;
+use App\Http\Resources\Sales\CustomersResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
@@ -151,9 +151,9 @@ class ShowCustomer extends OrgAction
     }
 
 
-    public function jsonResponse(Customer $customer): CustomerResource
+    public function jsonResponse(Customer $customer): CustomersResource
     {
-        return new CustomerResource($customer);
+        return new CustomersResource($customer);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array

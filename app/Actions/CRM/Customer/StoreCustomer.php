@@ -164,9 +164,9 @@ class StoreCustomer extends OrgAction
             'language_id' => ['nullable', 'exists:languages,id'],
             'data'        => ['sometimes', 'array'],
             'source_id'   => ['sometimes', 'nullable', 'string'],
-
-            'deleted_at' => ['sometimes', 'nullable', 'date'],
-            'password'   =>
+            'created_at'  => ['sometimes', 'nullable', 'date'],
+            'deleted_at'  => ['sometimes', 'nullable', 'date'],
+            'password'    =>
                 [
                     'sometimes',
                     'required',

@@ -16,7 +16,7 @@ use App\Actions\OMS\Order\UI\IndexOrders;
 use App\Enums\UI\ProductTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Market\ProductResource;
-use App\Http\Resources\Sales\CustomerResource;
+use App\Http\Resources\Sales\CustomersResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Market\Product;
 use App\Models\Market\Shop;
@@ -109,8 +109,8 @@ class ShowProduct extends InertiaAction
                     : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($product))),
 
                 ProductTabsEnum::CUSTOMERS->value => $this->tab == ProductTabsEnum::CUSTOMERS->value ?
-                    fn () => CustomerResource::collection(IndexCustomers::run($product))
-                    : Inertia::lazy(fn () => CustomerResource::collection(IndexCustomers::run($product))),
+                    fn () => CustomersResource::collection(IndexCustomers::run($product))
+                    : Inertia::lazy(fn () => CustomersResource::collection(IndexCustomers::run($product))),
 
                 ProductTabsEnum::MAILSHOTS->value => $this->tab == ProductTabsEnum::MAILSHOTS->value ?
                     fn () => MailshotResource::collection(IndexMailshots::run($product))

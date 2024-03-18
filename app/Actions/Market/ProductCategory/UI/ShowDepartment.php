@@ -20,7 +20,7 @@ use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Market\DepartmentResource;
 use App\Http\Resources\Market\FamilyResource;
 use App\Http\Resources\Market\ProductResource;
-use App\Http\Resources\Sales\CustomerResource;
+use App\Http\Resources\Sales\CustomersResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
 use Inertia\Inertia;
@@ -105,13 +105,13 @@ class ShowDepartment extends InertiaAction
                     : Inertia::lazy(fn () => GetProductCategoryShowcase::run($department)),
 
                 DepartmentTabsEnum::CUSTOMERS->value => $this->tab == DepartmentTabsEnum::CUSTOMERS->value ?
-                    fn () => CustomerResource::collection(
+                    fn () => CustomersResource::collection(
                         IndexCustomers::run(
                             parent: $department->shop,
                             prefix: 'customers'
                         )
                     )
-                    : Inertia::lazy(fn () => CustomerResource::collection(
+                    : Inertia::lazy(fn () => CustomersResource::collection(
                         IndexCustomers::run(
                             parent: $department->shop,
                             prefix: 'customers'
