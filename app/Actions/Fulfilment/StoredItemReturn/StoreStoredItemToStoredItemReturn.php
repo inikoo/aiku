@@ -42,7 +42,7 @@ class StoreStoredItemToStoredItemReturn extends OrgAction
             ]);
 
             if((int) $quantity === 0) {
-                $storedItemModel->delete();
+                $storedItemModel->pallets()->detach([$key]);
             }
         }
 

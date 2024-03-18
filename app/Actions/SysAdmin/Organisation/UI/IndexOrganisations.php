@@ -60,7 +60,7 @@ class IndexOrganisations extends InertiaAction
         }
 
         $queryBuilder = QueryBuilder::for(Organisation::class);
-        $queryBuilder->where('type',OrganisationTypeEnum::SHOP);
+        $queryBuilder->where('type', OrganisationTypeEnum::SHOP);
 
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
