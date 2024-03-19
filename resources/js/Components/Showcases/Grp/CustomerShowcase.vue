@@ -5,20 +5,14 @@
   -->
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref } from 'vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import CustomerShowcaseStats from '@/Components/Showcases/Grp/CustomerShowcaseStats.vue'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faCheckCircle } from '@fas'
-import { faCircle } from '@fal'
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { router } from "@inertiajs/vue3"
+
 import { routeType } from '@/types/route'
 import { PalletCustomer, PieCustomer } from '@/types/Pallet'
 import { trans } from 'laravel-vue-i18n'
-
-library.add(faCheckCircle, faCircle)
-
+import TabSelector from '@/Components/Elements/TabSelector.vue'
 
 const props = defineProps<{
     data: {
@@ -41,7 +35,6 @@ const props = defineProps<{
     tab: string
 }>()
 
-
 // Tabs radio: v-model
 const radioValue = ref<string[]>(Object.keys(props.data.fulfilment_customer.radioTabs).filter(key => props.data.fulfilment_customer.radioTabs[key]))
 
@@ -61,60 +54,13 @@ const optionRadio = [
     },
 ]
 
-// Tabs radio: loading state
-const radioLoading = reactive<{[key: string]: boolean}>({
-    pallets_storage: false,
-    items_storage: false,
-    dropshipping: false
-})
-
-// Tabs radio: on click radio
-const onClickRadio = async (value: string) => {
-
-    // If value already selected
-    if (radioValue.value.includes(value)) {
-        // If value is more than 1 then able to delete
-        if (radioValue.value.length > 1) {
-            radioLoading[value] = true
-            router.patch(route(props.data.updateRoute.name, props.data.updateRoute.parameters), {
-                [value]: false
-            }, {
-                onFinish: () => radioLoading[value] = false
-            })
-
-            const index = radioValue.value.indexOf(value)
-            radioValue.value.splice(index, 1)
-        }
-    } else {
-        radioLoading[value] = true
-        // If value didn't selected
-        router.patch(route(props.data.updateRoute.name, props.data.updateRoute.parameters), {
-            [value]: true
-        }, {
-            onFinish: () => radioLoading[value] = false
-        })
-
-        radioValue.value.push(value)
-    }
-    
-}
-
 </script>
 
 <template>
 
     <!-- Section: Radio -->
-    <div class="px-8 mt-4 flex gap-x-2">
-        <button v-for="radio in optionRadio"
-            @click.prevent="(e) => onClickRadio(radio.value)"
-            class="rounded-lg w-fit px-3 py-2 select-none cursor-pointer border disabled:bg-gray-300 disabled:cursor-default"
-            :disabled="radioLoading[radio.value]"  
-        >
-            <FontAwesomeIcon v-if="radioLoading[radio.value]" icon='fad fa-spinner-third' class='animate-spin text-gray-700' fixed-width aria-hidden='true' />
-            <FontAwesomeIcon v-else-if="radioValue.includes(radio.value)" icon='fas fa-check-circle' class='text-lime-500' fixed-width aria-hidden='true' />
-            <FontAwesomeIcon v-else icon='fal fa-circle' class='text-lime-600' fixed-width aria-hidden='true' />
-            {{ radio.label }}
-        </button>
+    <div class="px-8 mt-4">
+        <TabSelector :optionRadio="optionRadio" :radioValue="radioValue" :updateRoute="data.updateRoute"/>
     </div>
 
     <!-- Section: Stats box -->
