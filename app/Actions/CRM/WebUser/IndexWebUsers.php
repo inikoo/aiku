@@ -49,6 +49,8 @@ class IndexWebUsers extends OrgAction
 
         $queryBuilder = QueryBuilder::for(WebUser::class);
 
+
+
         if ($parent instanceof Customer) {
             $queryBuilder->where('customer_id', $parent->id);
         } elseif ($parent instanceof FulfilmentCustomer) {
@@ -114,7 +116,7 @@ class IndexWebUsers extends OrgAction
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
                 ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
+              // ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('username');
         };
     }

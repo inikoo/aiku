@@ -123,6 +123,7 @@ class StorePalletDelivery extends OrgAction
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function action(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, $modelData): PalletDelivery
     {
         $this->action = true;

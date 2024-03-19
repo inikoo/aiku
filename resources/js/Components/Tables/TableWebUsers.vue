@@ -5,35 +5,41 @@
   -->
 
 <script setup lang="ts">
-import {Link} from '@inertiajs/vue3';
-import Table from '@/Components/Table/Table.vue';
-import {WebUser} from "@/types/web-user";
+import { Link } from "@inertiajs/vue3";
+import Table from "@/Components/Table/Table.vue";
+import { WebUser } from "@/types/web-user";
 
 const props = defineProps<{
     data: object,
-    tab?:string
-}>()
+    tab?: string
+}>();
 
+
+console.log(props.data);
 
 function webUserRoute(webUser: WebUser) {
-    console.log(route().current())
-    console.log(route().params)
+    console.log(route().current());
     switch (route().current()) {
-        case 'grp.org.fulfilments.show.crm.customers.show.web-users.index':
+        case "grp.org.fulfilments.show.crm.customers.show.web-users.index":
             return route(
-                'grp.org.fulfilments.show.crm.customers.show.web-users.show',
+                "grp.org.fulfilments.show.crm.customers.show.web-users.show",
                 [route().params.organisation, route().params.fulfilment, route().params.fulfilmentCustomer, webUser.slug]
             );
 
-        case 'grp.org.shops.show.web.webUsers.index':
+        case "grp.org.shops.show.web.webUsers.index":
             return route(
-                'grp.org.shops.show.web.webUsers.show',
+                "grp.org.shops.show.web.webUsers.show",
                 [route().params.organisation, route().params.shop, webUser.slug]
             );
-        case 'grp.org.fulfilments.show.web.webUsers.index':
+        case "grp.org.fulfilments.show.web.webUsers.index":
             return route(
-                'grp.org.fulfilments.show.web.webUsers.show',
+                "grp.org.fulfilments.show.web.webUsers.show",
                 [route().params.organisation, route().params.fulfilment, webUser.slug]);
+
+        case  "grp.org.shops.show.web.websites.show":
+            return route(
+                "grp.org.shops.show.web.websites.show.web-users.show",
+                [route().params.organisation, route().params.shop, route().params.website, webUser.slug]);
     }
 }
 
@@ -43,12 +49,12 @@ function webUserRoute(webUser: WebUser) {
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(username)="{ item: webUser }">
             <Link :href="webUserRoute(webUser)" class="specialUnderline">
-                {{ webUser['username'] }}
+                {{ webUser["username"] }}
             </Link>
         </template>
 
         <template #cell(is_root)="{ item: webUser }">
-            {{ webUser['is_root'] }}
+            {{ webUser["is_root"] }}
         </template>
 
     </Table>
