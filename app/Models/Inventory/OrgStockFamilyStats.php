@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * App\Models\Inventory\OrgStockFamilyStats
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property int $org_stock_family_id
  * @property int $number_org_stocks
  * @property int $number_org_stocks_state_in_process

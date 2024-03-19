@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\CRM\Prospect\Tags;
+namespace App\Actions\Inventory\Location\Tags;
 
 use App\Actions\Helpers\Tag\Hydrators\TagHydrateProspects;
 use App\Actions\Helpers\Tag\Hydrators\TagHydrateSubjects;

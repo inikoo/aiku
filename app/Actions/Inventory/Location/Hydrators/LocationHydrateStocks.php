@@ -17,6 +17,7 @@ class LocationHydrateStocks
 
 
     private Location $location;
+
     public function __construct(Location $location)
     {
         $this->location = $location;
@@ -30,13 +31,19 @@ class LocationHydrateStocks
 
     public function handle(Location $location): void
     {
-        $numberStockSlots = $location->orgStocks()->count();
-        $stats            = [
-            'number_org_stock_slots' => $numberStockSlots,
+        $location->update(
+            [
+                'has_stock_slots'        => $location->orgStocks()->where('dropshipping_pipe', false)->count() > 0,
+                'has_dropshipping_slots' => $location->orgStocks()->where('dropshipping_pipe', false)->count() > 0
+            ]
+        );
+
+
+        $stats = [
+            'number_org_stock_slots' => $location->orgStocks()->count()
         ];
 
         $location->stats()->update($stats);
-
     }
 
 }

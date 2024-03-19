@@ -23,7 +23,12 @@ class StoreOrgStockFamily extends OrgAction
 
         /** @var OrgStockFamily $orgStockFamily */
         $orgStockFamily = $stockFamily->orgStockFamilies()->create($modelData);
-        $orgStockFamily->stats()->create();
+        $orgStockFamily->stats()->create(
+            [
+                'group_id'        => $organisation->group_id,
+                'organisation_id' => $organisation->id,
+            ]
+        );
 
 
         return $orgStockFamily;

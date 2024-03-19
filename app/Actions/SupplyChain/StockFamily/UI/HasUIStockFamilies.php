@@ -17,7 +17,7 @@ trait HasUIStockFamilies
             (new ShowInventoryDashboard())->getBreadcrumbs(),
             [
                 'grp.oms.stock-families.index' => [
-                    'route'      => 'grp.org.inventory.stock-families.index',
+                    'route'      => 'grp.org.inventory.org-stock-families.index',
                     'modelLabel' => [
                         'label' => __('families')
                     ],

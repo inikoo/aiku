@@ -10,7 +10,7 @@ namespace App\Actions\Inventory\OrgStock\UI;
 use App\Actions\OrgAction;
 use App\Actions\SupplyChain\StockFamily\UI\ShowStockFamily;
 use App\Actions\UI\Inventory\ShowInventoryDashboard;
-use App\Http\Resources\Inventory\StockResource;
+use App\Http\Resources\Inventory\OrgStocksResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\OrgStockFamily;
@@ -31,29 +31,29 @@ class IndexOrgStocks extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.view");
-
-
+        return $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.view");
     }
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($organisation, $request);
-        $this->parent    = $organisation;
-        return $this->handle(parent:  $organisation);
+        $this->parent = $organisation;
+
+        return $this->handle(parent: $organisation);
     }
 
     public function inStockFamily(Organisation $organisation, OrgStockFamily $orgStockFamily, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($organisation, $request);
-        $this->parent    = $orgStockFamily;
-        return $this->handle(parent:  $orgStockFamily);
+        $this->parent = $orgStockFamily;
+
+        return $this->handle(parent: $orgStockFamily);
     }
 
 
-    public function handle(OrgStockFamily|Organisation $parent, $prefix=null): LengthAwarePaginator
+    public function handle(OrgStockFamily|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -66,7 +66,7 @@ class IndexOrgStocks extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(OrgStock::class);
+        $queryBuilder = QueryBuilder::for(OrgStock::class);
 
         /*
          foreach ($this->elementGroups as $key => $elementGroup) {
@@ -82,16 +82,17 @@ class IndexOrgStocks extends OrgAction
 
         return $queryBuilder
             ->defaultSort('stocks.code')
-
             ->select([
                 'stock_families.slug as family_slug',
                 'stock_families.code as family_code',
                 'stocks.code',
+                'stocks.name',
                 'stocks.slug',
                 'stocks.description',
                 'stocks.unit_value',
                 'number_locations',
-                'quantity_in_locations'])
+                'quantity_in_locations'
+            ])
             ->leftJoin('stocks', 'org_stocks.stock_id', 'stocks.id')
             ->leftJoin('org_stock_stats', 'org_stock_stats.org_stock_id', 'org_stocks.id')
             ->leftJoin('org_stock_families', 'org_stock_families.id', 'org_stocks.org_stock_family_id')
@@ -103,16 +104,16 @@ class IndexOrgStocks extends OrgAction
                     $query->where('org_stocks.organisation_id', $parent->id);
                 }
             })
-            ->allowedSorts(['code', 'family_code','description', 'unit_value'])
+            ->allowedSorts(['code', 'family_code', 'description', 'unit_value'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent, ?array $modelOperations = null, $prefix=null): Closure
+    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
-            if($prefix) {
+            if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
@@ -138,27 +139,25 @@ class IndexOrgStocks extends OrgAction
                         default => null
                     }
                 )
-                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'code', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'family_code', label: __('family'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'description', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'unit_value', label: __('unit value'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'unit_value', label: __('unit value'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'stock', label: __('stock'), canBeHidden: false, sortable: true, searchable: true);
+
         };
     }
 
 
-
     public function jsonResponse(LengthAwarePaginator $stocks): AnonymousResourceCollection
     {
-        return StockResource::collection($stocks);
+        return OrgStocksResource::collection($stocks);
     }
 
     public function htmlResponse(LengthAwarePaginator $stocks, ActionRequest $request): Response
     {
-
-
-
-        $scope        = $this->parent;
-        $container    =null;
+        $scope     = $this->parent;
+        $container = null;
         if (class_basename($scope) == 'StockFamily') {
             $container = [
                 'icon'    => ['fal', 'fa-boxes-alt'],
@@ -166,8 +165,9 @@ class IndexOrgStocks extends OrgAction
                 'label'   => Str::possessive($scope->name)
             ];
         }
+
         return Inertia::render(
-            'Inventory/OrgStocks',
+            'Org/Inventory/OrgStocks',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -175,20 +175,20 @@ class IndexOrgStocks extends OrgAction
                 ),
                 'title'       => __("SKUs"),
                 'pageHead'    => [
-                    'title'        => __("SKUs"),
-                    'container'    => $container,
-                    'iconRight'    => [
+                    'title'      => __("SKUs"),
+                    'container'  => $container,
+                    'iconRight'  => [
                         'icon'  => ['fal', 'fa-box'],
                         'title' => __('SKU')
                     ],
-                    'actions_xx'=> [
+                    'actions_xx' => [
                         $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new SKU'),
                             'label'   => __('SKU'),
                             'route'   => match ($request->route()->getName()) {
-                                'grp.org.inventory.stock-families.show.stocks.index' => [
+                                'grp.org.inventory.org-stock-families.show.stocks.index' => [
                                     'name'       => 'inventory.stock-families.show.stocks.create',
                                     'parameters' => array_values($request->route()->originalParameters())
                                 ],
@@ -200,7 +200,7 @@ class IndexOrgStocks extends OrgAction
                         ] : false,
                     ]
                 ],
-                'data'  => StockResource::collection($stocks),
+                'data'        => OrgStocksResource::collection($stocks),
 
             ]
         )->table($this->tableStructure($this->parent));
@@ -224,9 +224,8 @@ class IndexOrgStocks extends OrgAction
         };
 
 
-
         return match ($routeName) {
-            'grp.org.inventory.stocks.index' =>
+            'grp.org.inventory.org-stocks.index' =>
             array_merge(
                 ShowInventoryDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(

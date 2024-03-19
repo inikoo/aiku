@@ -29,6 +29,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->unsignedInteger('source_stock_id')->nullable();
             $table->unsignedInteger('source_location_id')->nullable();
+            $table->boolean('dropshipping_pipe')->default(false)->index();
             $table->unique(['org_stock_id', 'location_id']);
         });
     }

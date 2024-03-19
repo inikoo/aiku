@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * App\Models\Inventory\OrgStockStats
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property int $org_stock_id
  * @property int $number_locations
  * @property \Illuminate\Support\Carbon|null $created_at

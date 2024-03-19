@@ -36,8 +36,6 @@ trait HasInventoryStats
             $table->unsignedInteger('number_stocks_quantity_status_'.$stockQuantityStatus->snake())->default(0);
         }
 
-
-
         $table->unsignedInteger('number_deliveries')->default(0);
         $table->unsignedInteger('number_deliveries_type_order')->default(0);
         $table->unsignedInteger('number_deliveries_type_replacement')->default(0);

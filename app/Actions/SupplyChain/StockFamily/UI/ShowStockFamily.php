@@ -14,7 +14,7 @@ use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Enums\UI\StockFamilyTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\StockFamilyResource;
-use App\Http\Resources\Inventory\StockResource;
+use App\Http\Resources\Inventory\OrgStockResource;
 use App\Models\SupplyChain\StockFamily;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -109,13 +109,13 @@ class ShowStockFamily extends InertiaAction
                     : Inertia::lazy(fn () => GetStockFamilyShowcase::run($stockFamily)),
                 StockFamilyTabsEnum::STOCK->value => $this->tab == StockFamilyTabsEnum::STOCK->value
                     ?
-                    fn () => StockResource::collection(
+                    fn () => OrgStockResource::collection(
                         IndexOrgStocks::run(
                             parent: $stockFamily,
                             prefix: 'stocks'
                         )
                     )
-                    : Inertia::lazy(fn () => StockResource::collection(
+                    : Inertia::lazy(fn () => OrgStockResource::collection(
                         IndexOrgStocks::run(
                             parent: $stockFamily,
                             prefix: 'stocks'

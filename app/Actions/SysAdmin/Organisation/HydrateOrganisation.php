@@ -18,6 +18,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePaymentServiceProviders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProspects;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStocks;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouse;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWeb;
 use App\Actions\Traits\WithNormalise;
@@ -43,6 +44,7 @@ class HydrateOrganisation extends HydrateModel
         OrganisationHydrateWeb::run($organisation);
         OrganisationHydrateProspects::run($organisation);
         OrganisationHydrateJobPositions::run($organisation);
+        OrganisationHydrateStocks::run($organisation);
     }
 
 

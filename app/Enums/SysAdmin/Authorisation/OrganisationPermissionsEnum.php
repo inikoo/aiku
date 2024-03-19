@@ -14,7 +14,6 @@ enum OrganisationPermissionsEnum: string
     case ORG_BUSINESS_INTELLIGENCE = 'org-business-intelligence';
 
 
-
     case ACCOUNTING      = 'accounting';
     case ACCOUNTING_EDIT = 'accounting.edit';
     case ACCOUNTING_VIEW = 'accounting.view';
@@ -28,9 +27,9 @@ enum OrganisationPermissionsEnum: string
     case PROCUREMENT_VIEW = 'procurement.view';
 
 
-    case INVENTORIES      = 'inventories';
-    case INVENTORIES_EDIT = 'inventories.edit';
-    case INVENTORIES_VIEW = 'inventories.view';
+    case INVENTORY      = 'inventory';
+    case INVENTORY_EDIT = 'inventory.edit';
+    case INVENTORY_VIEW = 'inventory.view';
 
 
     case SHOPS      = 'shops';

@@ -17,9 +17,9 @@ enum WarehousePermissionsEnum: string
 
     case WAREHOUSE_VIEW = 'warehouses.view';
 
-    case INVENTORY      = 'inventory';
-    case INVENTORY_EDIT = 'inventory.edit';
-    case INVENTORY_VIEW = 'inventory.view';
+    case STOCKS      = 'stocks';
+    case STOCKS_EDIT = 'stocks.edit';
+    case STOCKS_VIEW = 'stocks.view';
 
 
     case DISPATCHING      = 'dispatching';
@@ -36,7 +36,7 @@ enum WarehousePermissionsEnum: string
 
 
     case SUPERVISOR_WAREHOUSES        = 'supervisor-warehouses';
-    case SUPERVISOR_INVENTORY         = 'supervisor-inventory';
+    case SUPERVISOR_STOCKS            = 'supervisor-stocks';
     case SUPERVISOR_DISPATCHING       = 'supervisor-dispatching';
 
     case SUPERVISOR_FULFILMENT       = 'supervisor-fulfilment';

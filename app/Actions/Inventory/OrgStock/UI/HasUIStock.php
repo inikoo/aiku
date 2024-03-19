@@ -17,12 +17,12 @@ trait HasUIStock
         return array_merge(
             (new ShowInventoryDashboard())->getBreadcrumbs(),
             [
-                'grp.org.inventory.stocks.show' => [
-                    'route'           => 'grp.org.inventory.stocks.show',
+                'grp.org.inventory.org-stocks.show' => [
+                    'route'           => 'grp.org.inventory.org-stocks.show',
                     'routeParameters' => $stock->id,
                     'name'            => $stock->code,
                     'index'           => [
-                        'route'   => 'grp.org.inventory.stocks.index',
+                        'route'   => 'grp.org.inventory.org-stocks.index',
                         'overlay' => __('stocks list')
                     ],
                     'modelLabel'      => [

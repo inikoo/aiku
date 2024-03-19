@@ -11,7 +11,6 @@ use App\Actions\Helpers\Tag\Hydrators\TagHydrateSubjects;
 use App\Actions\CRM\Prospect\Tags\Hydrators\TagHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Models\Helpers\Tag;
-use App\Models\CRM\Prospect;
 use App\Models\Inventory\Location;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
@@ -75,7 +74,7 @@ class SyncTagsLocation extends OrgAction
         return $this->handle($location, $this->trimTags($this->validateAttributes()));
     }
 
-    public function action(Prospect $location, array $modelData): Location
+    public function action(Location $location, array $modelData): Location
     {
         $this->asAction = true;
         $this->setRawAttributes($modelData);

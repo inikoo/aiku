@@ -44,26 +44,26 @@ use Spatie\Tags\HasTags;
  * @property bool $is_empty
  * @property float|null $max_weight
  * @property float|null $max_volume
- * @property array $data
- * @property Carbon|null $audited_at
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
- * @property string|null $source_id
  * @property bool $allow_stocks
  * @property bool $allow_dropshipping
  * @property bool $allow_fulfilment
  * @property bool $has_stock_slots
  * @property bool $has_dropshipping_slots
  * @property bool $has_fulfilment
+ * @property array $data
+ * @property Carbon|null $audited_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\Inventory\LostAndFoundStock> $lostAndFoundStocks
  * @property-read Collection<int, \App\Models\Inventory\OrgStock> $orgStocks
  * @property-read Organisation $organisation
  * @property-read Collection<int, Pallet> $pallets
+ * @property Collection<int, \Spatie\Tags\Tag> $tags
  * @property-read \App\Models\Inventory\LocationStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
- * @property-read \App\Models\Helpers\Tag|null $tags
  * @property-read \App\Models\Inventory\Warehouse $warehouse
  * @property-read \App\Models\Inventory\WarehouseArea|null $warehouseArea
  * @method static \Database\Factories\Inventory\LocationFactory factory($count = null, $state = [])
@@ -71,7 +71,12 @@ use Spatie\Tags\HasTags;
  * @method static Builder|Location newQuery()
  * @method static Builder|Location onlyTrashed()
  * @method static Builder|Location query()
+ * @method static Builder|Location withAllTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static Builder|Location withAllTagsOfAnyType($tags)
+ * @method static Builder|Location withAnyTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static Builder|Location withAnyTagsOfAnyType($tags)
  * @method static Builder|Location withTrashed()
+ * @method static Builder|Location withoutTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
  * @method static Builder|Location withoutTrashed()
  * @mixin Eloquent
  */

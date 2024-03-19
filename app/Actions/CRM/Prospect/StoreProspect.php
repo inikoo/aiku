@@ -8,7 +8,7 @@
 namespace App\Actions\CRM\Prospect;
 
 use App\Actions\CRM\Prospect\Hydrators\ProspectHydrateUniversalSearch;
-use App\Actions\CRM\Prospect\Tags\SyncTagsLocation;
+use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\Helpers\Query\HydrateModelTypeQueries;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateProspects;
 use App\Actions\OrgAction;
@@ -39,6 +39,8 @@ class StoreProspect extends OrgAction
     use WithCheckCanContactByEmail;
     use WithCheckCanContactByPhone;
 
+
+    private bool $strict=true;
 
     public function handle(Shop $shop, array $modelData): Prospect
     {
@@ -95,7 +97,7 @@ class StoreProspect extends OrgAction
         HydrateModelTypeQueries::dispatch('Prospect')->delay(now()->addSeconds(2));
 
         if ($tags && count($tags)) {
-            SyncTagsLocation::make()->action($prospect, ['tags' => $tags, 'type' => 'crm']);
+            SyncTagsProspect::make()->action($prospect, ['tags' => $tags, 'type' => 'crm']);
         }
 
         return $prospect;

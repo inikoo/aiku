@@ -27,7 +27,12 @@ class StoreOrgStock extends OrgAction
 
         /** @var OrgStock $orgStock */
         $orgStock = $stock->orgStocks()->create($modelData);
-        $orgStock->stats()->create();
+        $orgStock->stats()->create(
+            [
+                'group_id'        => $organisation->group_id,
+                'organisation_id' => $organisation->id,
+            ]
+        );
 
         if ($stockFamily = $stock->stockFamily) {
             if (!$orgStockFamily = $stockFamily->orgStockFamilies()->where('organisation_id', $organisation->id)->first()) {
@@ -64,12 +69,12 @@ class StoreOrgStock extends OrgAction
     public function htmlResponse(Stock $stock): RedirectResponse
     {
         if (!$stock->stock_family_id) {
-            return Redirect::route('grp.org.inventory.stock-families.show.stocks.show', [
+            return Redirect::route('grp.org.inventory.org-stock-families.show.stocks.show', [
                 $stock->stockFamily->slug,
                 $stock->slug
             ]);
         } else {
-            return Redirect::route('grp.org.inventory.stocks.show', [
+            return Redirect::route('grp.org.inventory.org-stocks.show', [
                 $stock->slug
             ]);
         }

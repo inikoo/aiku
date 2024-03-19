@@ -7,7 +7,7 @@
 
 
 use App\Actions\CRM\Prospect\StoreProspect;
-use App\Actions\CRM\Prospect\Tags\SyncTagsLocation;
+use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
 use App\Actions\Mail\Mailshot\StoreMailshot;
 use App\Enums\Mail\Mailshot\MailshotTypeEnum;
@@ -107,7 +107,7 @@ test('update prospect tags', function ($prospect) {
     $modelData = [
         'tags' => ['seo', 'social'],
     ];
-    $prospect = SyncTagsLocation::make()->action(prospect: $prospect, modelData: $modelData);
+    $prospect = SyncTagsProspect::make()->action(prospect: $prospect, modelData: $modelData);
     expect($prospect)->toBeInstanceOf(Prospect::class)->and($prospect->tags->count())->toBe(2);
     return $prospect;
 })->depends('create 2nd prospect');

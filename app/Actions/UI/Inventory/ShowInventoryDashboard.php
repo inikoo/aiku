@@ -10,7 +10,6 @@ namespace App\Actions\UI\Inventory;
 use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
-use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -24,12 +23,13 @@ class ShowInventoryDashboard extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.view");
+        return $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.view");
     }
 
 
     public function asController(Organisation $organisation, ActionRequest $request): ActionRequest
     {
+
         $this->initialisation($organisation, $request);
 
         return $request;
@@ -41,92 +41,8 @@ class ShowInventoryDashboard extends OrgAction
         $routeParameters = $request->route()->originalParameters();
 
 
-
-        if ($this->organisation->inventoryStats->number_warehouses == 1) {
-            $warehouse          = Warehouse::first();
-            $warehousesNode     = [
-                'name' => __('warehouse'),
-                'icon' => ['fal', 'fa-warehouse'],
-                'href' => [
-                    'name'       => 'grp.org.warehouses.show.infrastructure.dashboard',
-                    'parameters' => [
-                        'organisation' => $this->organisation->slug,
-                        'warehouse'    => $warehouse->slug
-                    ]
-                ],
-
-            ];
-            $warehouseAreasNode = [
-                'name'      => __('warehouses areas'),
-                'shortName' => __('areas'),
-                'icon'      => ['fal', 'fa-map-signs'],
-                'href'      => [
-                    'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.index',
-                    'parameters' => [
-                        'organisation' => $this->organisation->slug,
-                        'warehouse'    => $warehouse->slug
-                    ]
-                ],
-                'index'     => [
-                    'number' => $this->organisation->inventoryStats->number_warehouse_areas
-                ]
-            ];
-            $locationsNode      = [
-                'name'  => __('locations'),
-                'icon'  => ['fal', 'fa-inventory'],
-                'href'  => [
-                    'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
-                    'parameters' => [
-                        'organisation' => $this->organisation->slug,
-                        'warehouse'    => $warehouse->slug
-                    ]
-                ],
-                'index' => [
-                    'number' => $this->organisation->inventoryStats->number_locations
-                ]
-
-            ];
-        } else {
-            $warehousesNode     = [
-                'name'  => __('warehouses'),
-                'icon'  => ['fal', 'fa-warehouse'],
-                'href'  => [
-                    'name'       => 'grp.org.warehouses.index',
-                    'parameters' => $routeParameters
-                ],
-                'index' => [
-                    'number' => $this->organisation->inventoryStats->number_warehouses
-                ]
-            ];
-            $warehouseAreasNode = [
-                'name'      => __('warehouses areas'),
-                'shortName' => __('areas'),
-                'icon'      => ['fal', 'fa-map-signs'],
-                'href'      => [
-                    'name'       => 'grp.org.inventory.warehouse-areas.index',
-                    'parameters' => $routeParameters
-                ],
-                'index'     => [
-                    'number' => $this->organisation->inventoryStats->number_warehouse_areas
-                ]
-            ];
-            $locationsNode      = [
-                'name'  => __('locations'),
-                'icon'  => ['fal', 'fa-inventory'],
-                'href'  => [
-                    'name'       => 'grp.org.inventory.locations.index',
-                    'parameters' => $routeParameters
-                ],
-                'index' => [
-                    'number' => $this->organisation->inventoryStats->number_locations
-                ]
-
-            ];
-        }
-
-
         return Inertia::render(
-            'Org/Warehouse/Inventory/InventoryDashboard',
+            'Org/Inventory/InventoryDashboard',
             [
                 'breadcrumbs'  => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'        => __('inventory'),
@@ -134,11 +50,6 @@ class ShowInventoryDashboard extends OrgAction
                     'title' => __('inventory'),
                 ],
                 'flatTreeMaps' => [
-                    // [
-                    //     $warehousesNode,
-                    //     $warehouseAreasNode,
-                    //     $locationsNode
-                    // ],
                     [
                         [
                             'name'  => __('SKUs families'),

@@ -23,7 +23,7 @@ function stockRoute(stock: Stock) {
                 [stock.family_slug,stock.slug]);
         default:
             return route(
-                'grp.org.inventory.stocks.show',
+                'grp.org.inventory.org-stocks.show',
                 [
                     route().params['organisation'],
                     stock.slug
@@ -39,7 +39,7 @@ function stockFamilyRoute(stock: Stock) {
                 [stock.family_slug]);
         default:
             return route(
-                'grp.org.inventory.stock-families.show',
+                'grp.org.inventory.org-stock-families.show',
                 [
                     route().params['organisation'],
                     stock.family_slug

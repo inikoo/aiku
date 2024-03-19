@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int|null $source_stock_id
  * @property int|null $source_location_id
+ * @property bool $dropshipping_pipe
  * @property-read \App\Models\Inventory\Location $location
  * @property-read \App\Models\Inventory\OrgStock $orgStock
  * @method static \Illuminate\Database\Eloquent\Builder|LocationOrgStock newModelQuery()

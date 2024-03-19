@@ -9,7 +9,7 @@ namespace App\Actions\SupplyChain\Stock\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\SupplyChain\StockFamily\UI\IndexStockFamilies;
-use App\Http\Resources\Inventory\StockResource;
+use App\Http\Resources\Inventory\OrgStockResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
@@ -161,7 +161,7 @@ class IndexStocks extends InertiaAction
 
     public function jsonResponse(LengthAwarePaginator $stocks): AnonymousResourceCollection
     {
-        return StockResource::collection($stocks);
+        return OrgStockResource::collection($stocks);
     }
 
     public function htmlResponse(LengthAwarePaginator $stocks, ActionRequest $request): Response
@@ -212,7 +212,7 @@ class IndexStocks extends InertiaAction
                         ] : false,
                     ]
                 ],
-                'data'  => StockResource::collection($stocks),
+                'data'  => OrgStockResource::collection($stocks),
 
             ]
         )->table($this->tableStructure($this->parent));

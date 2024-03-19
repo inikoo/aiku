@@ -10,7 +10,7 @@ namespace App\Actions\SupplyChain\Stock;
 use App\Actions\GrpAction;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Inventory\StockResource;
+use App\Http\Resources\Inventory\OrgStockResource;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
 use App\Rules\AlphaDashDot;
@@ -89,8 +89,8 @@ class UpdateStock extends GrpAction
     }
 
 
-    public function jsonResponse(Stock $stock): StockResource
+    public function jsonResponse(Stock $stock): OrgStockResource
     {
-        return new StockResource($stock);
+        return new OrgStockResource($stock);
     }
 }
