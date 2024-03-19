@@ -105,9 +105,9 @@ class IndexLocations extends OrgAction
                     'allow_stocks',
                     'allow_fulfilment',
                     'allow_dropshipping',
-                    'has_stocks',
+                    'has_stock_slots',
                     'has_fulfilment',
-                    'has_dropshipping',
+                    'has_dropshipping_slots',
                     'warehouses.slug as warehouse_slug',
                     'warehouse_areas.slug as warehouse_area_slug',
                     'warehouse_area_id'

@@ -23,14 +23,14 @@ class LocationsResource extends JsonResource
 
         return [
 
-            'slug'               => $location->slug,
-            'code'               => $location->code,
-            'allow_stocks'       => $location->allow_stocks,
-            'allow_fulfilment'   => $location->allow_fulfilment,
-            'allow_dropshipping' => $location->allow_dropshipping,
-            'has_stocks'         => $location->has_stocks,
-            'has_fulfilment'     => $location->has_fulfilment,
-            'has_dropshipping'   => $location->has_dropshipping,
+            'slug'                   => $location->slug,
+            'code'                   => $location->code,
+            'allow_stocks'           => $location->allow_stocks,
+            'allow_fulfilment'       => $location->allow_fulfilment,
+            'allow_dropshipping'     => $location->allow_dropshipping,
+            'has_stock_slots'        => $location->has_stock_slots,
+            'has_fulfilment'         => $location->has_fulfilment,
+            'has_dropshipping_slots' => $location->has_dropshipping_slots,
 
             'quantity' => $this->whenPivotLoaded(new LocationOrgStock(), function () {
                 return $this->pivot->quantity;
