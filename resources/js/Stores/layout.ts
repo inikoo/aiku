@@ -98,10 +98,10 @@ export const useLayoutStore = defineStore("layout", {
 
     getters: {
         isShopPage: (state) => {
-            return (state.currentRoute).includes('grp.org.shops.show.')
+            return (state.currentRoute).includes('grp.org.shops.')
         },
         isFulfilmentPage: (state) => {
-            return (state.currentRoute).includes('grp.org.fulfilments.show.')
+            return (state.currentRoute).includes('grp.org.fulfilments.')
         },
         // liveUsersWithoutMe: (state) => state.liveUsers.filter((liveUser, keyUser) => keyUser != layout.user.id )
     },

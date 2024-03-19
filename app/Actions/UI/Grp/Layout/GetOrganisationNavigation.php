@@ -58,19 +58,16 @@ class GetOrganisationNavigation
                 'label' => __('Shops'),
                 'scope' => 'shops',
                 'icon'  => ['fal', 'fa-store-alt'],
-
+                'root'  => 'grp.org.shops.index',
                 'route' => [
                     'name'       => 'grp.org.shops.index',
                     'parameters' => [$organisation->slug],
                 ],
-
                 'topMenu' => [
                     'subSections' => [
-
                         [
                             'label'   => __('dashboard'),
                             'tooltip' => __('Dashboard'),
-
                         ]
                     ]
                 ]
@@ -88,22 +85,17 @@ class GetOrganisationNavigation
         if ($user->hasPermissionTo("fulfilments.$organisation->id.view")) {
             $navigation['fulfilments_index'] = [
                 'label' => __('Fulfilment shops'),
-
-
-                'icon' => ['fal', 'fa-store-alt'],
-
+                'root'  => 'grp.org.fulfilments.index',
+                'icon'  => ['fal', 'fa-store-alt'],
                 'route' => [
                     'name'       => 'grp.org.fulfilments.index',
                     'parameters' => [$organisation->slug],
                 ],
-
                 'topMenu' => [
-
                     'subSections' => [
                         [
                             'label'   => __('dashboard'),
                             'tooltip' => __('Dashboard'),
-
                         ]
                     ]
                 ]
@@ -124,21 +116,18 @@ class GetOrganisationNavigation
         if ($user->hasPermissionTo("warehouses.$organisation->id.view")) {
             $navigation['warehouses_index'] = [
                 'label' => __('Warehouses'),
-
                 'scope' => 'warehouses',
                 'icon'  => ['fal', 'fa-warehouse-alt'],
-
+                'root'  => 'grp.org.warehouses.index',
                 'route' => [
                     'name'       => 'grp.org.warehouses.index',
                     'parameters' => [$organisation->slug],
                 ],
-
                 'topMenu' => [
                     'links' => [
                         [
                             'label'   => __('dashboard'),
                             'tooltip' => __('Dashboard'),
-
                         ]
                     ]
                 ]

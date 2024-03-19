@@ -89,15 +89,14 @@ const label = {
                 </div>
 
                 <div class="flex items-center w-full justify-between pr-6 space-x-3 border-b border-gray-200">
-
                     <!-- Section: Dropdown + subsections -->
                     <div class="flex items-center gap-x-2 pl-2">
                         <!-- Section: Dropdown -->
                         <div v-if="
                             layoutStore.group
                             || (layoutStore.organisations.data?.length > 1 ? true : false)
-                            || layoutStore.organisations.data?.find(organisation => organisation.slug == layoutStore.currentParams.organisation) && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('shops')
-                            || layoutStore.navigation.org?.[layoutStore.currentParams.organisation]?.warehouses_navigation && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouse')
+                            || (layoutStore.organisations.data?.find(organisation => organisation.slug == layoutStore.currentParams.organisation) && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('shops'))
+                            || (layoutStore.navigation.org?.[layoutStore.currentParams.organisation]?.warehouses_navigation && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouse'))
                         "
                         class="flex border border-gray-300 rounded-md">
                             <!-- Dropdown: Organisations -->
