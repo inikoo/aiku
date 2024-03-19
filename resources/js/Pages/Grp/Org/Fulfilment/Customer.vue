@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3'
+import { Head, useForm, usePage } from '@inertiajs/vue3'
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -18,7 +18,7 @@ import ModelDetails from "@/Components/ModelDetails.vue"
 import TablePallets from "@/Components/Tables/TablePallets.vue"
 import TableStoredItemReturn from "@/Components/Tables/TableStoredItemReturn.vue"
 import { useTabChange } from "@/Composables/tab-change"
-import { computed, defineAsyncComponent, ref } from "vue"
+import { computed, defineAsyncComponent, inject, onMounted, onUnmounted, ref } from "vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import TablePalletDeliveries from '@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveries.vue'
 import Popover from '@/Components/Popover.vue'
@@ -31,6 +31,7 @@ import axios from 'axios'
 import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue"
 
 import { faStickyNote, faPallet, faUser, faNarwhal, faTruckCouch, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading } from '@fal'
+import { notify } from '@kyvg/vue3-notification'
 library.add( faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading )
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
@@ -109,6 +110,23 @@ const warehouseChange = (value) => {
     warehouseValue.value = value
 }
 
+const layout = inject('layout')
+
+// console.log('eeew', layout.user.id)
+onMounted(() => {
+    window.Echo.private(`grp.${layout.group.id}.fulfilmentCustomer.${layout.user.id}`).listen('.PalletDelivery', (e) => {
+        // console.log('emits from Retina', e)
+        notify({
+            title: e.data.title,
+            text: e.data.text,
+            type: "info"
+        })
+    })
+})
+
+onUnmounted(() => {
+    window.Echo.private(`grp.${layout.group.id}.fulfilmentCustomer.${layout.user.id}`).stopListening('.PalletDelivery')
+})
 
 </script>
 
