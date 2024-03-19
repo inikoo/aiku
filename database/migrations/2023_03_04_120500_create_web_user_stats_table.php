@@ -15,8 +15,8 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('web_user_stats', function (Blueprint $table) {
-            $table->smallIncrements('id');
-            $table->unsignedSmallInteger('web_user_id')->index();
+            $table->increments('id');
+            $table->unsignedInteger('web_user_id')->index();
             $table->foreign('web_user_id')->references('id')->on('web_users');
             $table=$this->userStats($table);
             $table->timestampsTz();
