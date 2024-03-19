@@ -22,7 +22,7 @@ class LocationsResource extends JsonResource
         $location = $this;
 
         return [
-
+            'id'                     => $location->id,
             'slug'                   => $location->slug,
             'code'                   => $location->code,
             'allow_stocks'           => $location->allow_stocks,

@@ -17,6 +17,7 @@ import Multiselect from '@vueform/multiselect'
 const props = defineProps<{
     data: {},
     tab?: string,
+    tagRoute?: object
 }>()
 
 interface tag {
@@ -59,7 +60,7 @@ const tagsListTemp = ref<tag[]>(props.tagsList || [])
 const addNewTag = async (option: tag) => {
     // console.log(option)
     try {
-        const response: any = await axios.post(route('org.models.prospect.tag.store'),
+        const response: any = await axios.post(route('grp.models.location.tag.store', 1),
             {name: option.name},
             {
                 headers: {"Content-Type": "multipart/form-data"},
@@ -82,7 +83,7 @@ const addNewTag = async (option: tag) => {
 // On update data Tags (add tag or delete tag)
 const updateTagItemTable = async (idTag: number[], idData: number) => {
     try {
-        const response = await axios.post(route('org.models.prospect.tag.attach', idData),
+        const response = await axios.patch(route('grp.models.location.tag.attach', idData),
             { tags: idTag },
         )
     } catch (error: any) {

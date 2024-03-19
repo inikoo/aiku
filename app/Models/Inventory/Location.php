@@ -27,6 +27,7 @@ use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Spatie\Tags\HasTags;
 
 /**
  * App\Models\Inventory\Location
@@ -81,6 +82,7 @@ class Location extends Model implements Auditable
     use HasUniversalSearch;
     use HasFactory;
     use HasHistory;
+    use HasTags;
 
     protected $casts = [
         'data'       => 'array',

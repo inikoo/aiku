@@ -22,12 +22,13 @@ class LocationResource extends JsonResource
         $location = $this;
 
         return [
-
+            'id'       => $location->id,
             'slug'     => $location->slug,
             'code'     => $location->code,
             'quantity' => $this->whenPivotLoaded(new LocationOrgStock(), function () {
                 return $this->pivot->quantity;
             }),
+            'tags'     => $location->tags()->pluck('slug')->toArray(),
         ];
     }
 }

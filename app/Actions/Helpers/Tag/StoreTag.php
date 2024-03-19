@@ -8,21 +8,22 @@
 namespace App\Actions\Helpers\Tag;
 
 use App\Actions\CRM\Prospect\Tags\Hydrators\TagHydrateUniversalSearch;
+use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCrmTags;
 use App\Http\Resources\Tag\TagResource;
 use App\Models\Helpers\Tag;
+use App\Models\Inventory\Location;
 use App\Models\Market\Shop;
 use Illuminate\Http\RedirectResponse;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreTag
+class StoreTag extends OrgAction
 {
     use AsAction;
     use WithAttributes;
 
-    private bool $asAction = false;
     private Shop $parent;
 
 
@@ -50,11 +51,9 @@ class StoreTag
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->asAction) {
-            return true;
-        }
+        $this->canEdit = $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("crm.prospects.edit");
+        return $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.edit");
     }
 
     public function rules(): array
@@ -79,10 +78,11 @@ class StoreTag
     }
 
 
-    public function inProspect(ActionRequest $request): Tag
+    public function inLocation(Location $location, ActionRequest $request): Tag
     {
         $this->fillFromRequest($request);
-        $this->fill(['type' => 'crm']);
+        $this->fill(['type' => 'inventory']);
+        $this->initialisationFromWarehouse($location->warehouse, $request);
 
         return $this->handle($this->validateAttributes());
     }

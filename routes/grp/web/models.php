@@ -37,6 +37,7 @@ use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
 use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemReturn;
 use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemToStoredItemReturn;
 use App\Actions\Fulfilment\StoredItemReturn\UpdateStateStoredItemReturn;
+use App\Actions\Helpers\Tag\StoreTag;
 use App\Actions\HumanResources\Employee\DeleteEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
@@ -45,6 +46,7 @@ use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Actions\HumanResources\Workplace\UpdateWorkplace;
 use App\Actions\Inventory\Location\ImportLocation;
 use App\Actions\Inventory\Location\StoreLocation;
+use App\Actions\Inventory\Location\Tags\SyncTagsLocation;
 use App\Actions\Inventory\WarehouseArea\ImportWarehouseArea;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
@@ -146,6 +148,9 @@ Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function ()
     Route::patch('pallet/{pallet:id}/undo-not-received', [UpdatePalletNotReceived::class, 'undo'])->name('pallet.undo-not-received')->withoutScopedBindings();
 
 });
+
+Route::patch('location/{location:id}/tags', SyncTagsLocation::class)->name('location.tag.attach');
+Route::post('location/{location:id}/tags', [StoreTag::class, 'inLocation'])->name('location.tag.store');
 
 Route::name('warehouse-area.')->prefix('warehouse-area/{warehouseArea:id}')->group(function () {
     Route::post('location/upload', [ImportLocation::class, 'inWarehouseArea'])->name('location.upload');
