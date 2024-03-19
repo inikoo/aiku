@@ -11,6 +11,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
+use App\Events\BroadcastFulfilmentCustomerNotification;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -64,6 +65,12 @@ class StorePalletDelivery extends OrgAction
         $palletDelivery = $fulfilmentCustomer->palletDeliveries()->create($modelData);
 
         HydrateFulfilmentCustomer::dispatch($fulfilmentCustomer);
+        BroadcastFulfilmentCustomerNotification::dispatch(
+            $palletDelivery->group,
+            $palletDelivery,
+            'Pallet Delivery Created',
+            'Pallet Delivery has been created.'
+        );
 
         return $palletDelivery;
     }

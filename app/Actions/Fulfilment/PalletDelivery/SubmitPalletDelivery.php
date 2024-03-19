@@ -11,10 +11,10 @@ use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Actions\UI\SendNotification;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
+use App\Events\BroadcastFulfilmentCustomerNotification;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\PalletDelivery;
@@ -42,8 +42,9 @@ class SubmitPalletDelivery extends OrgAction
         }
 
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
-        SendNotification::run(
+        BroadcastFulfilmentCustomerNotification::dispatch(
             $palletDelivery->group,
+            $palletDelivery,
             'Pallet Delivery Submitted',
             'Pallet Delivery has been submitted.'
         );
