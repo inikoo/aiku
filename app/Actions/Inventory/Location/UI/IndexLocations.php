@@ -171,6 +171,7 @@ class IndexLocations extends OrgAction
                     }
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'locations', label: __('locations'), canBeHidden: false, sortable: false, searchable: true)
                 ->defaultSort('code');
         };
     }

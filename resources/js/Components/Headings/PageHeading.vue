@@ -143,7 +143,7 @@ const originUrl = location.origin
                                             :iconRight="action.iconRight"
                                             :key="`ActionButton${button.label}${button.style}`" :tooltip="button.tooltip"
                                             class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
-                                            :class="{'rounded-l-md ': index === 0, 'rounded-r-md ': index === action.button?.length - 1}"    
+                                            :class="{'rounded-l-md': index === 0, 'rounded-r-md ': index === action.button?.length - 1}"    
                                         >
                                         </Button>
                                     </Link>
