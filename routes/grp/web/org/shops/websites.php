@@ -5,6 +5,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\CRM\WebUser\IndexWebUsers;
+use App\Actions\CRM\WebUser\ShowWebUser;
 use App\Actions\Web\Webpage\UI\IndexWebpages;
 use App\Actions\Web\Website\UI\CreateWebsite;
 use App\Actions\Web\Website\UI\EditWebsite;
@@ -27,6 +29,9 @@ Route::prefix('{website}')
             ->group(function () {
                 Route::get('/webpages', IndexWebpages::class)->name('webpages.index');
                 //   Route::get('/webpages/{webpage}', ShowWebpage::class)->name('webpages.index');
+                Route::get('/web-users', IndexWebUsers::class)->name('web-users.index');
+                Route::get('/web-users/{webUser}', ShowWebUser::class)->name('web-users.show');
+
             });
 
 

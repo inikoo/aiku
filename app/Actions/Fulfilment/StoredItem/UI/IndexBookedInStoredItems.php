@@ -123,13 +123,6 @@ class IndexBookedInStoredItems extends OrgAction
         )->table($this->tableStructure($storedItems));
     }
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
-
-        return $this->handle(app('currentTenant'));
-    }
-
     public function fromRetina(StoredItemReturn $storedItemReturn, ActionRequest $request): LengthAwarePaginator
     {
         /** @var FulfilmentCustomer $fulfilmentCustomer */
@@ -140,6 +133,7 @@ class IndexBookedInStoredItems extends OrgAction
         return $this->handle($storedItemReturn);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request);

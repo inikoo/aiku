@@ -8,23 +8,25 @@
 namespace App\Http\Resources\CRM;
 
 use App\Http\Resources\Sales\CustomersResource;
+use App\Models\CRM\WebUser;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/**
- * @property mixed $email
- * @property mixed $created_at
- * @property mixed $updated_at
- * @property \App\Models\CRM\Customer $customer
- */
 class WebUserResource extends JsonResource
 {
     public function toArray($request): array
     {
+        /** @var WebUser $webUser */
+        $webUser = $this;
+
         return [
-            'email'      => $this->email,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'customer'   => CustomersResource::make($this->customer),
+            'slug'       => $webUser->slug,
+            'username'   => $webUser->email,
+            'status'     => $webUser->status,
+            'email'      => $webUser->email,
+            'is_root'    => $webUser->is_root,
+            'created_at' => $webUser->created_at,
+            'updated_at' => $webUser->updated_at,
+            'customer'   => CustomersResource::make($webUser->customer),
 
         ];
     }
