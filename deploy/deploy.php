@@ -23,7 +23,7 @@ task('deploy:set-release', function () {
 });
 
 set('shared_dirs', ['storage','private']);
-set('shared_files', ['.env','aurora_migration_base.sh']);
+set('shared_files', ['.env','aurora_migration_base.sh','reset_db.sh']);
 desc('Deploys your project');
 task('deploy', [
     'deploy:prepare',
