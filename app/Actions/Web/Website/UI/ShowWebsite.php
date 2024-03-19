@@ -15,7 +15,7 @@ use App\Actions\OrgAction;
 use App\Actions\Web\HasWorkshopAction;
 use App\Enums\UI\WebsiteTabsEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
-use App\Http\Resources\CRM\WebUserResource;
+use App\Http\Resources\CRM\WebUsersResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Web\WebsiteResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -118,15 +118,15 @@ class ShowWebsite extends OrgAction
 
                 WebsiteTabsEnum::SHOWCASE->value => $this->tab == WebsiteTabsEnum::SHOWCASE->value ? WebsiteResource::make($website)->getArray() : Inertia::lazy(fn () => WebsiteResource::make($website)->getArray()),
 
-                WebsiteTabsEnum::USERS->value     => $this->tab == WebsiteTabsEnum::USERS->value
+                WebsiteTabsEnum::WEB_USERS->value     => $this->tab == WebsiteTabsEnum::WEB_USERS->value
                     ?
-                    WebUserResource::collection(
+                    WebUsersResource::collection(
                         IndexWebUsers::run(
                             parent: $website,
                             prefix: 'web_users'
                         )
                     )
-                    : Inertia::lazy(fn () => WebUserResource::collection(
+                    : Inertia::lazy(fn () => WebUsersResource::collection(
                         IndexWebUsers::run(
                             parent: $website,
                             prefix: 'web_users'
