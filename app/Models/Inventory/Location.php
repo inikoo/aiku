@@ -49,6 +49,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property bool $allow_stocks
+ * @property bool $allow_dropshipping
+ * @property bool $allow_fulfilment
+ * @property bool $has_stock_slots
+ * @property bool $has_dropshipping_slots
+ * @property bool $has_fulfilment
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\Inventory\LostAndFoundStock> $lostAndFoundStocks
  * @property-read Collection<int, \App\Models\Inventory\OrgStock> $orgStocks

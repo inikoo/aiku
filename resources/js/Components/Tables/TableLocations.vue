@@ -105,6 +105,13 @@ const updateTagItemTable = async (idTag: number[], idData: number) => {
             </Link>
         </template>
 
+        <template #cell(scope)="{ item: location }">
+           Stocks: {{location['allow_stocks']}} {{location['has_stock_slots']}}
+            Dropshipping: {{location['allow_dropshipping']}} : {{location['has_dropshipping_slots']}}
+            Fulfilment: {{location['allow_fulfilment']}} {{location['has_fulfilment']}}
+
+        </template>
+
         <!-- Multiselect -->
         <template #cell(locations)="{ item }">
             <div class="min-w-[200px]">

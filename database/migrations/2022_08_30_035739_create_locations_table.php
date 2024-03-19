@@ -30,6 +30,12 @@ return new class () extends Migration {
             $table->boolean('is_empty')->default(true);
             $table->double('max_weight')->nullable();
             $table->double('max_volume')->nullable();
+            //$table->boolean('allow_stocks')->default(true);
+            //$table->boolean('allow_dropshipping')->default(true);
+            //$table->boolean('allow_fulfilment')->default(true);
+            //$table->boolean('has_stock_slots')->default(false);
+            //$table->boolean('has_dropshipping_slots')->default(false);
+            //$table->boolean('has_fulfilment')->default(false);
             $table->jsonb('data');
             $table->dateTimeTz('audited_at')->nullable();
             $table->timestampsTz();

@@ -12,7 +12,7 @@ use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 use App\Actions\OrgAction;
 use App\Enums\UI\WarehouseAreaTabsEnum;
 use App\Enums\UI\WarehouseTabsEnum;
-use App\Http\Resources\Inventory\LocationResource;
+use App\Http\Resources\Inventory\LocationsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -40,14 +40,11 @@ class IndexLocations extends OrgAction
     {
         $this->canEdit = $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.edit");
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.edit")
-            );
+        return $request->user()->hasPermissionTo("inventories.{$this->organisation->id}.edit");
     }
 
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $warehouse;
@@ -56,6 +53,7 @@ class IndexLocations extends OrgAction
         return $this->handle(parent: $warehouse);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouseArea(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $warehouseArea;
@@ -73,6 +71,7 @@ class IndexLocations extends OrgAction
         return $this->handle(parent: $warehouseArea);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function fromPallet(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Pallet $pallet, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $pallet->warehouse;
@@ -103,6 +102,12 @@ class IndexLocations extends OrgAction
                     'locations.id',
                     'locations.code',
                     'locations.slug',
+                    'allow_stocks',
+                    'allow_fulfilment',
+                    'allow_dropshipping',
+                    'has_stock_slots',
+                    'has_fulfilment',
+                    'has_dropshipping_slots',
                     'warehouses.slug as warehouse_slug',
                     'warehouse_areas.slug as warehouse_area_slug',
                     'warehouse_area_id'
@@ -171,6 +176,7 @@ class IndexLocations extends OrgAction
                     }
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'scope', label: __('scope'), canBeHidden: false)
                 ->column(key: 'locations', label: __('locations'), canBeHidden: false, sortable: false, searchable: true)
                 ->defaultSort('code');
         };
@@ -179,10 +185,13 @@ class IndexLocations extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $locations): AnonymousResourceCollection
     {
-        return LocationResource::collection($locations);
+        return LocationsResource::collection($locations);
     }
 
 
+    /**
+     * @throws \Exception
+     */
     public function htmlResponse(LengthAwarePaginator $locations, ActionRequest $request): Response
     {
         $scope     = $this->parent;
@@ -223,50 +232,50 @@ class IndexLocations extends OrgAction
                             $request->route()->getName() == 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.index'
                         )
                             ? [
-                                'type'   => 'buttonGroup',
-                                'key'    => 'upload-add',
-                                'button' => [
-                                    [
-                                        'type'  => 'button',
-                                        'style' => 'primary',
-                                        'icon'  => ['fal', 'fa-upload'],
-                                        'label' => 'upload',
-                                        'route' => match ($this->parent::class) {
-                                            Warehouse::class => [
-                                                'name'       => 'grp.models.warehouse.location.upload',
-                                                'parameters' => [
-                                                    $this->parent->id
-                                                ]
-                                            ],
-                                            WarehouseArea::class => [
-                                                'name'       => 'grp.models.warehouse-area.location.upload',
-                                                'parameters' => [
-                                                    $this->parent->id
-                                                ]
-                                            ],
-                                            default => throw new \Exception('Unexpected match value')
-                                        }
-                                    ],
-                                    [
-                                        'type'  => 'button',
-                                        'style' => 'create',
-                                        'label' => __('location'),
-                                        'route' => match ($request->route()->getName()) {
-                                            'grp.org.warehouses.show.infrastructure.locations.index' => [
-                                                'name'       => 'grp.org.warehouses.show.infrastructure.locations.create',
-                                                'parameters' => array_values($request->route()->originalParameters())
-                                            ],
-                                            default => [
-                                                'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.create',
-                                                'parameters' => array_values($request->route()->originalParameters())
+                            'type'   => 'buttonGroup',
+                            'key'    => 'upload-add',
+                            'button' => [
+                                [
+                                    'type'  => 'button',
+                                    'style' => 'primary',
+                                    'icon'  => ['fal', 'fa-upload'],
+                                    'label' => 'upload',
+                                    'route' => match ($this->parent::class) {
+                                        Warehouse::class => [
+                                            'name'       => 'grp.models.warehouse.location.upload',
+                                            'parameters' => [
+                                                $this->parent->id
                                             ]
-                                        }
-                                    ]
+                                        ],
+                                        WarehouseArea::class => [
+                                            'name'       => 'grp.models.warehouse-area.location.upload',
+                                            'parameters' => [
+                                                $this->parent->id
+                                            ]
+                                        ],
+                                        default => throw new \Exception('Unexpected match value')
+                                    }
+                                ],
+                                [
+                                    'type'  => 'button',
+                                    'style' => 'create',
+                                    'label' => __('location'),
+                                    'route' => match ($request->route()->getName()) {
+                                        'grp.org.warehouses.show.infrastructure.locations.index' => [
+                                            'name'       => 'grp.org.warehouses.show.infrastructure.locations.create',
+                                            'parameters' => array_values($request->route()->originalParameters())
+                                        ],
+                                        default => [
+                                            'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.create',
+                                            'parameters' => array_values($request->route()->originalParameters())
+                                        ]
+                                    }
                                 ]
-                            ] : null
+                            ]
+                        ] : null
                     ]
                 ],
-                'data'        => LocationResource::collection($locations),
+                'data'        => LocationsResource::collection($locations),
 
             ]
         )->table($this->tableStructure($this->parent));
