@@ -13,6 +13,7 @@ use App\Actions\Inventory\OrgStock\UpdateOrgStock;
 use App\Actions\SupplyChain\Stock\StoreStock;
 use App\Actions\SupplyChain\Stock\SyncStockTradeUnits;
 use App\Actions\SupplyChain\Stock\UpdateStock;
+use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\Stock;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
@@ -66,7 +67,7 @@ class FetchStocks extends FetchAction
 
             $organisation = $organisationSource->getOrganisation();
 
-            /** @var \App\Models\Inventory\OrgStock $orgStock */
+            /** @var OrgStock $orgStock */
             if ($orgStock = $organisation->orgStocks()->where('source_id', $stockData['stock']['source_id'])->first()) {
                 $orgStock = UpdateOrgStock::make()->action(
                     orgStock: $orgStock,

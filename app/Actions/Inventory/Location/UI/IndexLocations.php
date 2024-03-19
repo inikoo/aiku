@@ -275,6 +275,18 @@ class IndexLocations extends OrgAction
                         ] : null
                     ]
                 ],
+
+                'tagRoute'   => [
+                    'store' => [
+                        'name'       => 'grp.models.location.tag.store',
+                        'parameters' => []
+                    ],
+                    'update' => [
+                        'name'       => 'grp.models.location.tag.attach',
+                        'parameters' => []
+                    ],
+                ],
+
                 'data'        => LocationsResource::collection($locations),
 
             ]
