@@ -13,6 +13,10 @@ import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
 import Tag from '@/Components/Tag.vue'
 import Multiselect from '@vueform/multiselect'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faBox, faHandHoldingBox, faPallet } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faBox, faHandHoldingBox, faPallet)
 
 const props = defineProps<{
     data: {},
@@ -99,20 +103,40 @@ const updateTagItemTable = async (idTag: number[], idData: number) => {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+        <!-- Column: Code -->
         <template #cell(code)="{ item: location }">
             <Link :href="locationRoute(location)" class="specialUnderline">
                 {{ location['code'] }}
             </Link>
         </template>
 
+        <!-- Column: Scope -->
         <template #cell(scope)="{ item: location }">
-           Stocks: {{location['allow_stocks']}} {{location['has_stock_slots']}}
-            Dropshipping: {{location['allow_dropshipping']}} : {{location['has_dropshipping_slots']}}
-            Fulfilment: {{location['allow_fulfilment']}} {{location['has_fulfilment']}}
+            <div class="flex">
+                <div v-tooltip="location.allow_stocks ? 'Allow stock' : 'No stock'" class="px-1 py-0.5">
+                    <FontAwesomeIcon icon='fal fa-box' fixed-width aria-hidden='true'
+                        :class="[location.allow_stocks ? location.has_stock_slots ? 'text-green-500' : 'text-green-500/50' : location.has_stock_slots ? 'text-red-500' : 'text-gray-400']"
+                    />
+                </div>
+                <div v-tooltip="location.allow_stocks ? 'Allow dropshipping' : 'No dropshipping'" class="px-1 py-0.5">
+                    <FontAwesomeIcon icon='fal fa-hand-holding-box' class='' fixed-width aria-hidden='true'
+                        :class="[location.allow_dropshipping ? location.has_dropshipping_slots ? 'text-green-500' : 'text-green-500/50' : location.has_dropshipping_slots ? 'text-red-500' : 'text-gray-400']"
+                    />
+                </div>
+                <div v-tooltip="location.allow_stocks ? 'Allow fulfilment' : 'No fulfilment'" class="px-1 py-0.5">
+                    <FontAwesomeIcon icon='fal fa-pallet' class='' fixed-width aria-hidden='true'
+                        :class="[location.allow_fulfilment ? location.has_fulfilment ? 'text-green-500' : 'text-green-500/50' : location.has_fulfilment ? 'text-red-500' : 'text-gray-400']"
+                    />
+                </div>
+            </div>
+
+            <!-- Stocks: {{ location.allow_stocks }} {{ location.has_stock_slots }}
+            Dropshipping: {{ location.allow_dropshipping }} : {{ location.has_dropshipping_slots }}
+            Fulfilment: {{ location.allow_fulfilment }} {{ location.has_fulfilment }} -->
 
         </template>
 
-        <!-- Multiselect -->
+        <!-- Column: Locations -->
         <template #cell(locations)="{ item }">
             <div class="min-w-[200px]">
                 <Multiselect v-model="item.tags"
