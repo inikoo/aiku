@@ -12,6 +12,7 @@ use App\Actions\Procurement\SupplierProduct\SyncSupplierProductTradeUnits;
 use App\Actions\Procurement\SupplierProduct\UpdateSupplierProduct;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Services\Organisation\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -23,18 +24,20 @@ class FetchSupplierProducts extends FetchAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?SupplierProduct
     {
         if ($supplierProductData = $organisationSource->fetchSupplierProduct($organisationSourceId)) {
-            //print_r($supplierProductData['supplierProduct']);
+            // print_r($supplierProductData['supplierProduct']);
 
-            $found          =false;
-            $supplierProduct=null;
+            $found           = false;
+            $supplierProduct = null;
             if ($baseSupplierProduct = SupplierProduct::withTrashed()
                 ->where(
                     'source_slug',
                     $supplierProductData['supplierProduct']['source_slug']
                 )
                 ->first()) {
-                $found=true;
-                if ($supplierProduct = SupplierProduct::withTrashed()->where('source_id', $supplierProductData['supplierProduct']['source_id'])
+                $found = true;
+
+                if ($supplierProduct = SupplierProduct::withTrashed()
+                    ->where('source_id', $supplierProductData['supplierProduct']['source_id'])
                     ->first()) {
                     $supplierProduct = UpdateSupplierProduct::make()->action(
                         supplierProduct: $supplierProduct,
@@ -48,34 +51,42 @@ class FetchSupplierProducts extends FetchAction
                 if (!$supplierProduct) {
                     $sourceData = explode(':', $baseSupplierProduct->source_id);
                     if ($sourceData[0] == $organisationSource->getOrganisation()->id) {
-                        print_r($supplierProductData['supplierProduct']);
+                        // print_r($supplierProductData['supplierProduct']);
+                        // print_r($baseSupplierProduct);
                         dd("Error supplier product has same code in same org");
                     }
                 }
             }
 
-            if ($baseSupplierProduct = SupplierProduct::withTrashed()
-                ->where(
-                    'source_slug',
-                    $supplierProductData['supplierProduct']['source_slug_inter_org']
-                )
-                ->where('organisation_id', '!=', $organisationSource->getOrganisation()->id)
-                ->first()) {
-                $found=true;
-
-
+            if (!$found) {
+                if ($baseSupplierProduct = SupplierProduct::withTrashed()
+                    ->where(
+                        'source_slug',
+                        $supplierProductData['supplierProduct']['source_slug_inter_org']
+                    )
+                    ->where('source_organisation_id', '!=', $organisationSource->getOrganisation()->id)
+                    ->first()) {
+                    $found = true;
+                }
             }
 
 
+            if (!$found) {
+                $supplierProductData['supplierProduct']['source_organisation_id'] = $organisationSource->getOrganisation()->id;
 
-            if(!$found) {
+                try {
 
-                $supplierProduct = StoreSupplierProduct::make()->action(
-                    supplier: $supplierProductData['supplier'],
-                    modelData: $supplierProductData['supplierProduct'],
-                    skipHistoric: true,
-                    hydratorsDelay: $this->hydrateDelay
-                );
+                    $supplierProduct = StoreSupplierProduct::make()->action(
+                        supplier: $supplierProductData['supplier'],
+                        modelData: $supplierProductData['supplierProduct'],
+                        skipHistoric: true,
+                        hydratorsDelay: $this->hydrateDelay
+                    );
+                } catch (Exception $e) {
+
+                    $this->recordError($organisationSource, $e, $supplierProductData['supplierProduct'], 'SupplierProduct');
+                    return null;
+                }
             }
 
 
@@ -144,3 +155,10 @@ class FetchSupplierProducts extends FetchAction
             ->count();
     }
 }
+
+//todo
+// sk resin-22C https://sk.aurora.systems/part/5982 sp ignored plase pu tit manually
+// sk  [source_slug_inter_org] => crafts:1:1:tbmkg-20b  [source_id] => 2:19159
+// sk [source_slug_inter_org] => crafts:1:1:tbmkg-24l [source_id] => 2:19163
+// sk [source_slug_inter_org] => crafts:1:1:tbmkg-24m [source_id] => 2:20382
+// [source_slug_inter_org] => crafts:1:1:tbmkg-53mb [source_id] => 2:20383

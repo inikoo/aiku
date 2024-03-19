@@ -43,6 +43,7 @@ return new class () extends Migration {
             $table->softDeletesTz();
             $table->string('source_slug')->index()->nullable();
             $table->string('source_slug_inter_org')->index()->nullable();
+            $table->string('source_organisation_id')->index()->nullable();
             $table->string('source_id')->nullable()->unique();
             $table->unique(['supplier_id', 'code']);
         });
