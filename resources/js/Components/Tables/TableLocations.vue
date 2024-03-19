@@ -50,6 +50,12 @@ function locationRoute(location: Location) {
                 {{ location['code'] }}
             </Link>
         </template>
+
+        <template #cell(scope)="{ item: location }">
+           Stocks: {{location['allow_stocks']}} {{location['has_stocks']}}
+            Fulfilment: {{location['allow_fulfilment']}} {{location['has_fulfilment']}}
+            Dropshipping: {{location['allow_dropshipping']}} : {{location['has_dropshipping']}}
+        </template>
     </Table>
 </template>
 

@@ -7,30 +7,27 @@
 
 namespace App\Http\Resources\Inventory;
 
+use App\Models\Inventory\Location;
 use App\Models\Inventory\LocationOrgStock;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property string $code
  * @property mixed $pivot
- * @property int $id
- * @property string $slug
- * @property string $warehouse_slug
- * @property string $warehouse_area_slug
  */
 class LocationResource extends JsonResource
 {
     public function toArray($request): array
     {
+        /** @var Location $location */
+        $location = $this;
+
         return [
-            'id'       => $this->id,
-            'slug'     => $this->slug,
-            'code'     => $this->code,
+
+            'slug'     => $location->slug,
+            'code'     => $location->code,
             'quantity' => $this->whenPivotLoaded(new LocationOrgStock(), function () {
                 return $this->pivot->quantity;
             }),
-            'warehouse_slug'     => $this->warehouse_slug,
-            'warehouse_area_slug'=> $this->warehouse_area_slug,
         ];
     }
 }
