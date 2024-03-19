@@ -27,7 +27,7 @@ trait HasFulfilmentAssetsAuthorisation
             $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
-        } elseif ($this->parent instanceof Warehouse  or $this->parent instanceof Location) {
+        } elseif ($this->parent instanceof Warehouse or $this->parent instanceof Location) {
             $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.edit");
 
             return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.view");
