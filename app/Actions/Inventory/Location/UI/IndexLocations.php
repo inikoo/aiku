@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Enums\UI\WarehouseAreaTabsEnum;
 use App\Enums\UI\WarehouseTabsEnum;
 use App\Http\Resources\Inventory\LocationsResource;
+use App\Http\Resources\Tag\TagResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -31,6 +32,7 @@ use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
+use Spatie\Tags\Tag;
 
 class IndexLocations extends OrgAction
 {
@@ -286,7 +288,7 @@ class IndexLocations extends OrgAction
                         'parameters' => []
                     ],
                 ],
-
+                'tags'        => TagResource::collection(Tag::all()),
                 'data'        => LocationsResource::collection($locations),
 
             ]
