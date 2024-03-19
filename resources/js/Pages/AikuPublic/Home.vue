@@ -91,14 +91,14 @@ const faqs = [
                     <div class="hidden sm:mb-8 sm:flex sm:justify-center">
                         <div
                             class="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-400 ring-1 ring-white/10 hover:ring-white/20">
-                            Learm more about our warehouse. <a href="#" class="font-semibold text-white"><span
+                            Learm more about our Aiku. <a href="#" class="font-semibold text-white"><span
                                     class="absolute inset-0" aria-hidden="true" />Read more <span
                                     aria-hidden="true">&rarr;</span></a>
                         </div>
                     </div>
                     <div class="text-center">
-                        <h1 class="text-4xl font-bold tracking-tight text-white sm:text-6xl">
-                            Secure Storage Solutions for Your Products.
+                        <h1 class="text-4xl font-medium tracking-tight text-white sm:text-6xl">
+                            <span class="font-bold">Aiku</span> help you against Warehouse solutions.
                         </h1>
                         <p class="mt-6 leading-8 text-gray-300">
                             Discover our warehouse facilities designed to safeguard your inventory with top-notch security and customizable storage options.
@@ -142,7 +142,7 @@ const faqs = [
         </div>
 
         <!-- Feature section -->
-        <div class="mt-32">
+        <!-- <div class="mt-32">
             <div class="mx-auto max-w-7xl px-6 lg:px-8">
                 <div class="mx-auto max-w-2xl sm:text-center">
                     <h2 class="text-base font-semibold leading-7 text-indigo-600">All-Inclusive Solutions</h2>
@@ -180,10 +180,10 @@ const faqs = [
                     </div>
                 </dl>
             </div>
-        </div>
+        </div> -->
 
         <!-- Testimonial section -->
-        <div class="relative z-10 mt-32 bg-gray-900 pb-20 sm:mt-56 sm:pb-24 xl:pb-0">
+        <!-- <div class="relative z-10 mt-32 bg-gray-900 pb-20 sm:mt-56 sm:pb-24 xl:pb-0">
             <div class="absolute inset-0 overflow-hidden" aria-hidden="true">
                 <div class="absolute left-[calc(50%-19rem)] top-[calc(50%-36rem)] transform-gpu blur-3xl">
                     <div class="aspect-[1097/1023] w-[68.5625rem] bg-gradient-to-r from-[#ff4694] to-[#776fff] opacity-25"
@@ -222,10 +222,10 @@ const faqs = [
                     </figure>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- Pricing section -->
-        <div class="relative isolate mt-32 bg-white px-6 sm:mt-56 lg:px-8">
+        <!-- <div class="relative isolate mt-32 bg-white px-6 sm:mt-56 lg:px-8">
             <div class="absolute inset-x-0 -top-3 -z-10 transform-gpu overflow-hidden px-36 blur-3xl"
                 aria-hidden="true">
                 <div class="mx-auto aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30"
@@ -265,10 +265,10 @@ const faqs = [
                         started today</a>
                 </div>
             </div>
-        </div>
+        </div> -->
 
         <!-- FAQ section -->
-        <div class="mx-auto mt-32 max-w-7xl px-6 sm:mt-56 lg:px-8 pb-8">
+        <!-- <div class="mx-auto mt-32 max-w-7xl px-6 sm:mt-56 lg:px-8 pb-8">
             <div class="mx-auto max-w-4xl divide-y divide-gray-900/10">
                 <h2 class="text-2xl font-bold leading-10 tracking-tight text-gray-900">Frequently asked questions</h2>
                 <dl class="mt-10 space-y-6 divide-y divide-gray-900/10">
@@ -288,6 +288,6 @@ const faqs = [
                     </Disclosure>
                 </dl>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>
