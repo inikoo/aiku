@@ -63,6 +63,7 @@ use Spatie\Tags\HasTags;
  * @property-read Collection<int, Pallet> $pallets
  * @property-read \App\Models\Inventory\LocationStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
+ * @property-read \App\Models\Helpers\Tag|null $tags
  * @property-read \App\Models\Inventory\Warehouse $warehouse
  * @property-read \App\Models\Inventory\WarehouseArea|null $warehouseArea
  * @method static \Database\Factories\Inventory\LocationFactory factory($count = null, $state = [])

@@ -28,7 +28,7 @@ class LocationResource extends JsonResource
             'quantity' => $this->whenPivotLoaded(new LocationOrgStock(), function () {
                 return $this->pivot->quantity;
             }),
-            'tags'     => $location->tags()->pluck('slug')->toArray(),
+            'tags'     => $location->tags,
         ];
     }
 }
