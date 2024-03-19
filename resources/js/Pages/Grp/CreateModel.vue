@@ -47,6 +47,8 @@ const props = defineProps<{
     }
 }>()
 
+console.log(props)
+
 const getComponent = (componentName: string) => {
     const components: any = {
         'input': Input,
@@ -196,7 +198,7 @@ onMounted(() => {
                 <!-- Button -->
                 <div class="pt-5 border-t-2 border-orange-500">
                     <div class="flex justify-end">
-                        <Button type="submit" :disabled="form.processing" :style="'primary'" size="m" icon="fas fa-save">
+                        <Button type="submit" :disabled="form.processing" :style="'primary'" size="m" icon="fas fa-save" @click="handleFormSubmit">
                             {{ trans('Save') }}
                         </Button>
                     </div>
