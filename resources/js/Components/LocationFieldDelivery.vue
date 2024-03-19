@@ -56,7 +56,6 @@ const onSaveError = (errorValue: any) => {
                 <div class="w-[250px]">
                     <span class="text-xs px-1 my-2">Location: </span>
                     <div>
-                    {{ location.location_id }}
                         <SelectQuery
                             :urlRoute="route(locationRoute?.name, locationRoute?.parameters)"
                             :value="location"

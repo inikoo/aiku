@@ -126,7 +126,7 @@ class ShowFulfilmentCustomer extends OrgAction
                                 ],
                                 [
                                     'type'    => 'button',
-                                    'style'   => 'primary',
+                                    'style'   => 'create',
                                     'tooltip' => __('Return new stored item return'),
                                     'label'   => __('Stored Item Return'),
                                     'route'   => [
@@ -140,7 +140,7 @@ class ShowFulfilmentCustomer extends OrgAction
                         ],
                         [
                             'type'    => 'button',
-                            'style'   => 'primary',
+                            'style'   => 'create',
                             'tooltip' => __('Create new delivery order'),
                             'label'   => __('New Delivery Pallet'),
                             'options' => [

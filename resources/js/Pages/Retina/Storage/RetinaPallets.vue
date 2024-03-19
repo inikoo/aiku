@@ -10,8 +10,8 @@ import Multiselect from "@vueform/multiselect"
 import { Link } from "@inertiajs/vue3"
 import RetinaTablePallets from "@/Components/Tables/RetinaTablePallets.vue"
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, } from "@headlessui/vue"
-import { faStickyNote, faPallet, faUser, faNarwhal, faTruckCouch, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane } from '@fal'
-library.add( faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane )
+import { faStickyNote, faPallet, faUser, faNarwhal, faTruckCouch, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faShare } from '@fal'
+library.add( faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faShare )
 
 const props = defineProps<{
     title: string,
@@ -88,9 +88,9 @@ const warehouseChange = (value) => {
             <div v-else>
                 <Link :href="route(action.action.route?.name, action.action.route?.parameters)" :method="'post'"
                     :as="'button'">
-                <Button :style="action.action.style" :label="action.action.label" :icon="action.action.icon"
-                    :iconRight="action.action.iconRight" :key="`ActionButton${action.action.label}${action.action.style}`"
-                    :tooltip="action.action.tooltip" />
+                    <Button :style="action.action.style" :label="action.action.label" :icon="action.action.icon"
+                        :iconRight="action.action.iconRight" :key="`ActionButton${action.action.label}${action.action.style}`"
+                        :tooltip="action.action.tooltip" />
                 </Link>
             </div>
 

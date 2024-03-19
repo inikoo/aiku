@@ -20,55 +20,55 @@ const props = defineProps<{
 }>()
 
 
-function palletRoute(pallet: Pallet) {
-    switch (route().current()) {
-        case 'grp.org.fulfilments.show.operations.pallets.index':
-            return route(
-                'grp.org.fulfilments.show.operations.pallets.show',
-                [
-                    route().params['organisation'],
-                    route().params['fulfilment'],
-                    pallet['slug']
-                ])
-        case 'grp.org.warehouses.show.fulfilment.pallets.index':
-            return route(
-                'grp.org.warehouses.show.fulfilment.pallets.show',
-                [
-                    route().params['organisation'],
-                    route().params['warehouse'],
-                    pallet['slug']
-                ])
+// function palletRoute(pallet: Pallet) {
+//     switch (route().current()) {
+//         case 'grp.org.fulfilments.show.operations.pallets.index':
+//             return route(
+//                 'grp.org.fulfilments.show.operations.pallets.show',
+//                 [
+//                     route().params['organisation'],
+//                     route().params['fulfilment'],
+//                     pallet['slug']
+//                 ])
+//         case 'grp.org.warehouses.show.fulfilment.pallets.index':
+//             return route(
+//                 'grp.org.warehouses.show.fulfilment.pallets.show',
+//                 [
+//                     route().params['organisation'],
+//                     route().params['warehouse'],
+//                     pallet['slug']
+//                 ])
 
-        case 'grp.org.warehouses.show.infrastructure.locations.show':
-            return route(
-                'grp.org.warehouses.show.infrastructure.locations.show.pallets.show',
-                [
-                    route().params['organisation'],
-                    route().params['warehouse'],
-                    route().params['location'],
-                    pallet['slug']
-                ])
-        case 'grp.org.fulfilments.show.crm.customers.show':
-            return route(
-                'grp.org.fulfilments.show.crm.customers.show.pallets.show',
-                [
-                    route().params['organisation'],
-                    route().params['fulfilment'],
-                    route().params['fulfilmentCustomer'],
-                    pallet['slug']
-                ])
+//         case 'grp.org.warehouses.show.infrastructure.locations.show':
+//             return route(
+//                 'grp.org.warehouses.show.infrastructure.locations.show.pallets.show',
+//                 [
+//                     route().params['organisation'],
+//                     route().params['warehouse'],
+//                     route().params['location'],
+//                     pallet['slug']
+//                 ])
+//         case 'grp.org.fulfilments.show.crm.customers.show':
+//             return route(
+//                 'grp.org.fulfilments.show.crm.customers.show.pallets.show',
+//                 [
+//                     route().params['organisation'],
+//                     route().params['fulfilment'],
+//                     route().params['fulfilmentCustomer'],
+//                     pallet['slug']
+//                 ])
 
-        default:
-            return []
-    }
-}
+//         default:
+//             return []
+//     }
+// }
 
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(reference)="{ item: pallet }">
-            <Link :href="palletRoute(pallet)" class="specialUnderline">
+            <Link :href="'palletRoute(pallet)'" class="specialUnderline">
                 {{ pallet['reference'] }}
             </Link>
         </template>

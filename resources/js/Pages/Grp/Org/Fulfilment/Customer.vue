@@ -36,24 +36,24 @@ library.add( faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvo
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
-    title: string,
-    pageHead: object,
+    title: string
+    pageHead: {}
     tabs: {
         current: string
-        navigation: object
+        navigation: {}
     }
-    showcase?: object
-    invoices?: object
-    pallets?: object
-    stored_items?: object
-    stored_item_returns?: object
-    dispatched_emails?: object
-    pallet_deliveries?: object
-    pallet_returns?: object
+    showcase?: {}
+    invoices?: {}
+    pallets?: {}
+    stored_items?: {}
+    stored_item_returns?: {}
+    dispatched_emails?: {}
+    pallet_deliveries?: {}
+    pallet_returns?: {}
 }>()
 
 let currentTab = ref(props.tabs.current)
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
+const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
 
@@ -144,9 +144,9 @@ const warehouseChange = (value) => {
             <div v-else>
                 <Link :href="route(action.action.route?.name, action.action.route?.parameters)" :method="'post'"
                     :as="'button'">
-                <Button :style="action.action.style" :label="action.action.label" :icon="action.action.icon"
-                    :iconRight="action.action.iconRight" :key="`ActionButton${action.action.label}${action.action.style}`"
-                    :tooltip="action.action.tooltip" />
+                    <Button :style="action.action.style" :label="action.action.label" :icon="action.action.icon"
+                        :iconRight="action.action.iconRight" :key="`ActionButton${action.action.label}${action.action.style}`"
+                        :tooltip="action.action.tooltip" />
                 </Link>
             </div>
 

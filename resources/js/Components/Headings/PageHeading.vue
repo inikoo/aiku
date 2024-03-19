@@ -131,14 +131,20 @@ const originUrl = location.origin
                         
                         <!-- ButtonGroup -->
                         <slot v-if="action.type == 'buttonGroup'" :name="`button-group-${action.key}`" :action="{ action }">
-                            <div class="rounded-md flex" :class="[(action.button?.length || 0) > 2 ? 'ring-1 ring-gray-400' : '']">
-                                <slot v-for="button in action.button" :name="'button-group-' + kebabCase(button.label)" :action="{ button }">
+                            <div class="rounded-md flex" :class="[(action.button?.length || 0) > 1 ? 'shadow' : '']">
+                                <slot v-for="(button, index) in action.button" :name="'button-group-' + kebabCase(button.label)" :action="{ button }">
                                     <Link
                                         :href="`${route(button.route.name, button.route.parameters)}`" class=""
                                         :method="button.route.method ?? 'get'"
+                                        as="button"
                                     >
-                                        <Button :style="button.style" :label="button.label" :icon="button.icon"  :iconRight="action.iconRight" :key="`ActionButton${button.label}${button.style}`" :tooltip="button.tooltip"
-                                            class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0">
+                                        <Button :style="button.style" :label="button.label"
+                                            :icon="button.icon"
+                                            :iconRight="action.iconRight"
+                                            :key="`ActionButton${button.label}${button.style}`" :tooltip="button.tooltip"
+                                            class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
+                                            :class="{'rounded-l-md ': index === 0, 'rounded-r-md ': index === action.button?.length - 1}"    
+                                        >
                                         </Button>
                                     </Link>
                                 </slot>
