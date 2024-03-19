@@ -24,7 +24,7 @@ Route::get('/dashboard', ShowStorageDashboard::class)->name('dashboard');
 
 Route::prefix('pallet-deliveries')->as('pallet-deliveries.')->group(function () {
     Route::get('', IndexPalletDeliveries::class)->name('index');
-    Route::get('{palletDelivery}', ShowPalletDelivery::class, )->name('show');
+    Route::get('{palletDelivery}', ShowPalletDelivery::class)->name('show');
     Route::get('{palletDelivery}/pallets/{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('pallets.show');
 });
 
