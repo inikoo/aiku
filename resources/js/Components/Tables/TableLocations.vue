@@ -19,9 +19,12 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faBox, faHandHoldingBox, faPallet)
 
 const props = defineProps<{
-    data: {},
-    tab?: string,
-    tagRoute?: object
+    data: {
+        // tagsList: {}[]
+        tags: tag[]
+    },
+    tab?: string
+    tagRoute?: {}
 }>()
 
 interface tag {
@@ -57,12 +60,10 @@ function locationRoute(location: Location) {
 
 }
 
-const tagsListTemp = ref<tag[]>(props.tagsList || [])
-// const maxId = ref(Math.max(...tagsListTemp.value.map(item => item.id)))
+const tagsListTemp = ref<tag[]>(props.data.tags || ["ee", 'cxz'])
 
 // Add new Tag
 const addNewTag = async (option: tag) => {
-    // console.log(option)
     try {
         const response: any = await axios.post(route('grp.models.location.tag.store', 1),
             {name: option.name},
@@ -70,8 +71,7 @@ const addNewTag = async (option: tag) => {
                 headers: {"Content-Type": "multipart/form-data"},
             }
         )
-        // console.log(response.data)
-        // maxId.value++
+        
         tagsListTemp.value.push(response.data.data)  // (manipulation) Add new data to reactive data
         return option
     } catch (error: any) {
@@ -140,6 +140,14 @@ const updateTagItemTable = async (idTag: number[], idData: number) => {
         <!-- Column: Locations -->
         <template #cell(locations)="{ item }">
             <div class="min-w-[200px]">
+                <!-- <div v-if="true" class="flex gap-x-1 gap-y-1.5 mb-2">
+                    <Tag v-for="tag in item.tags"
+                        :label="tag"
+                        :stringToColor="true"
+                        size="sm"
+                    />
+                </div> -->
+                
                 <Multiselect v-model="item.tags"
                     :key="item.id"
                     mode="tags"
@@ -156,6 +164,7 @@ const updateTagItemTable = async (idTag: number[], idData: number) => {
                     :options="tagsListTemp"
                     noResultsText="No one left. Type to add new one."
                     appendNewTag
+                    :showOptions="false"
                 >
                     <template #tag="{ option, handleTagRemove, disabled }: {option: tag, handleTagRemove: Function, disabled: boolean}">
                         <div class="px-0.5 py-[3px]">

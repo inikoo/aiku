@@ -18,11 +18,13 @@ use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Http\Resources\Inventory\WarehouseAreaResource;
 use App\Http\Resources\Inventory\WarehouseResource;
+use App\Http\Resources\Tag\TagResource;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\Tags\Tag;
 use Lorisleiva\Actions\ActionRequest;
 
 class ShowWarehouse extends OrgAction
@@ -122,6 +124,9 @@ class ShowWarehouse extends OrgAction
 
 
                 ],
+
+                'tags'        => TagResource::collection(Tag::all())->pluck('slug')->toArray(),
+
                 WarehouseTabsEnum::SHOWCASE->value => $this->tab == WarehouseTabsEnum::SHOWCASE->value ?
                     fn () => GetWarehouseShowcase::run($warehouse)
                     : Inertia::lazy(fn () => GetWarehouseShowcase::run($warehouse)),
