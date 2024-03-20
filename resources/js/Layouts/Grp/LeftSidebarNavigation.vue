@@ -92,10 +92,15 @@ const iconList: { [key: string]: string } = {
                     <template v-if="itemKey == 'warehouses_navigation' && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length">
                         <!-- If: Warehouses length is 1 -->
                         <template v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length === 1">
-                            <NavigationGroup
+                            <!-- <NavigationGroup
                                 :orgNav="orgNav"
                                 :itemKey="generateNavigationName(itemKey)"
                                 :icon="iconList[generateNavigationName(itemKey)] || ''"
+                            /> -->
+                            
+                            <NavigationSimple v-for="nav, navKey in Object.values(orgNav)[0]"
+                                :nav="nav"
+                                :navKey="navKey"
                             />
                         </template>
 
