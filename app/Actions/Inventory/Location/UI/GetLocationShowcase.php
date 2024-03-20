@@ -23,6 +23,15 @@ class GetLocationShowcase
                 'number_org_stock_slots'    => $location->stats->number_org_stock_slots,
                 'empty_stock_slots'         => $location->stats->number_empty_stock_slots,
             ],
+            'updateRoute' => [
+                'name'       => 'grp.models.location.update',
+                'parameters' => [$location->id]
+            ],
+            'radioTabs' => [
+                'allow_stocks'       => $location->allow_stocks,
+                'allow_fulfilment'   => $location->allow_fulfilment,
+                'allow_dropshipping' => $location->allow_dropshipping,
+            ],
         ];
     }
 }

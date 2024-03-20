@@ -7,6 +7,8 @@
 
 namespace App\Http\Resources\Inventory;
 
+use App\Http\Resources\Tag\TagResource;
+use App\Models\Helpers\Tag;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\LocationOrgStock;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -29,6 +31,7 @@ class LocationResource extends JsonResource
                 return $this->pivot->quantity;
             }),
             'tags'     => $location->tags->pluck('slug')->toArray(),
+            'tagsList' => TagResource::collection(Tag::all())
         ];
     }
 }

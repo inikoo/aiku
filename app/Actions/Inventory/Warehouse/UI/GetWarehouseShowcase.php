@@ -18,9 +18,7 @@ class GetWarehouseShowcase
     public function handle(Warehouse $warehouse): array
     {
         return [
-            [
 
-            ]
         ];
     }
 }

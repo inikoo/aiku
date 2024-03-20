@@ -71,7 +71,7 @@ const addNewTag = async (option: tag) => {
                 headers: {"Content-Type": "multipart/form-data"},
             }
         )
-        
+
         tagsListTemp.value.push(response.data.data)  // (manipulation) Add new data to reactive data
         return option
     } catch (error: any) {
@@ -102,7 +102,7 @@ const updateTagItemTable = async (idTag: number[], idData: number) => {
 
 </script>
 
-<template>
+<template><pre>{{ data }}</pre>
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Code -->
         <template #cell(code)="{ item: location }">
@@ -147,7 +147,7 @@ const updateTagItemTable = async (idTag: number[], idData: number) => {
                         size="sm"
                     />
                 </div> -->
-                
+
                 <Multiselect v-model="item.tags"
                     :key="item.id"
                     mode="tags"

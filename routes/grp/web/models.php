@@ -47,6 +47,8 @@ use App\Actions\HumanResources\Workplace\UpdateWorkplace;
 use App\Actions\Inventory\Location\ImportLocation;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\Tags\SyncTagsLocation;
+use App\Actions\Inventory\Location\UpdateLocation;
+use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\ImportWarehouseArea;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
@@ -139,6 +141,7 @@ Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function
 });
 
 Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function () {
+    Route::patch('{warehouse}', UpdateWarehouse::class)->name('warehouse.update');
     Route::post('areas/upload', [ImportWarehouseArea::class, 'inWarehouse'])->name('warehouse-areas.upload');
 
     Route::post('location/upload', [ImportLocation::class, 'inWarehouse'])->name('location.upload');
@@ -148,6 +151,8 @@ Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function ()
     Route::patch('pallet/{pallet:id}/undo-not-received', [UpdatePalletNotReceived::class, 'undo'])->name('pallet.undo-not-received')->withoutScopedBindings();
 
 });
+
+Route::patch('location/{location:id}', UpdateLocation::class)->name('location.update');
 
 Route::patch('location/{location:id}/tags', SyncTagsLocation::class)->name('location.tag.attach');
 Route::post('location/{location:id}/tags', [StoreTag::class, 'inLocation'])->name('location.tag.store');

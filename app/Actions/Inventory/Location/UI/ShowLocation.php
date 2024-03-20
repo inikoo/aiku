@@ -82,6 +82,20 @@ class ShowLocation extends OrgAction
             ];
         }
 
+        $navigation = LocationTabsEnum::navigation();
+
+        if (!$location->allow_stocks) {
+            unset($navigation[LocationTabsEnum::STOCKS->value]);
+            unset($navigation[LocationTabsEnum::STOCK_MOVEMENTS->value]);
+        }
+        if (!$location->allow_fulfilment) {
+            unset($navigation[LocationTabsEnum::PALLETS->value]);
+        }
+        if (!$location->allow_dropshipping) {
+            unset($navigation[LocationTabsEnum::PALLETS->value]);
+            unset($navigation[LocationTabsEnum::STOCKS->value]);
+            unset($navigation[LocationTabsEnum::STOCK_MOVEMENTS->value]);
+        }
 
         return Inertia::render(
             'Org/Warehouse/Location',

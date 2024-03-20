@@ -44,6 +44,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property string $name
  * @property WarehouseStateEnum $state
+ * @property bool $allow_stock
+ * @property bool $allow_fulfilment
+ * @property bool $allow_dropshipping
  * @property array $settings
  * @property array $data
  * @property Carbon|null $created_at

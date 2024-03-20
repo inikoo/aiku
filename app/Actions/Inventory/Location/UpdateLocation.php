@@ -60,6 +60,9 @@ class UpdateLocation extends OrgAction
                     ]
                 ),
             ],
+            'allow_stocks'           => ['sometimes', 'required', 'boolean'],
+            'allow_fulfilment'       => ['sometimes', 'required', 'boolean'],
+            'allow_dropshipping'     => ['sometimes', 'required', 'boolean']
         ];
     }
 

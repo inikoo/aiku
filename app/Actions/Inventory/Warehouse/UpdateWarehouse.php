@@ -51,9 +51,11 @@ class UpdateWarehouse extends OrgAction
                                ['column' => 'id', 'value' => $this->warehouse->id, 'operation' => '!=']
                            ]
                        ),],
-            'name'      => ['sometimes', 'required', 'max:250', 'string'],
-            'state'     => ['sometimes', Rule::enum(WarehouseStateEnum::class)],
-
+            'name'               => ['sometimes', 'required', 'max:250', 'string'],
+            'state'              => ['sometimes', Rule::enum(WarehouseStateEnum::class)],
+            'allow_stock'        => ['sometimes', 'required', 'boolean'],
+            'allow_fulfilment'   => ['sometimes', 'required', 'boolean'],
+            'allow_dropshipping' => ['sometimes', 'required', 'boolean']
         ];
     }
 
