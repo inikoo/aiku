@@ -47,7 +47,7 @@ export const useHeadlineText = () => {
 // 2-3: Navigation and box (bg & text color)
 // 4-5: Button and mini-box (bg & text color)
 export const useColorTheme = [
-    ['#4f46e5', '#f3f4f6', '#A9D1E4', '#4f46e5', '#FFD700', '#000000'],  // Deep Sea Serenity 
+    ['#4f46e5', '#f3f4f6', '#A9D1E4', '#4f46e5', '#4f46e5', '#f3f4f6'],  // Deep Sea Serenity 
     ['#E5F2F0', '#332925', '#38674F', '#E5F2F0', '#F5D9B9', '#332925'],  // Nature's Embrace
     ['#FFFFFF', '#333333', '#F28B00', '#333333', '#D6C7E2', '#333333'],  // Modern Brights 
     ['#F8F8F8', '#000000', '#2F4F4F', '#F8F8F8', '#424242', '#000000'],  // Classic Sophistication 
