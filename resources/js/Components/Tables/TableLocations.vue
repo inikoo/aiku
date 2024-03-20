@@ -5,24 +5,24 @@
   -->
 
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3'
+import { Link, router } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
 import { Location } from "@/types/location"
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
 import Tag from '@/Components/Tag.vue'
 import Multiselect from '@vueform/multiselect'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faBox, faHandHoldingBox, faPallet } from '@fal'
+import { faBox, faHandHoldingBox, faPallet, faPencil } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faBox, faHandHoldingBox, faPallet)
+library.add(faBox, faHandHoldingBox, faPallet, faPencil)
 
 const props = defineProps<{
     data: {
         // tagsList: {}[]
-        tags: tag[]
     },
+    tags: tag[]
     tab?: string
     tagRoute?: {}
 }>()
@@ -57,18 +57,18 @@ function locationRoute(location: Location) {
                 'grp.org.locations.show',
                 [route().params['organisation'], location.slug])
     }
-
 }
 
-const tagsListTemp = ref<tag[]>(props.data.tags || ["ee", 'cxz'])
+const tagsListTemp = ref<tag[]>(props.tags)
+const onEditLocation = ref(false)
 
 // Add new Tag
 const addNewTag = async (option: tag) => {
     try {
         const response: any = await axios.post(route('grp.models.location.tag.store', 1),
-            {name: option.name},
+            { name: option.name },
             {
-                headers: {"Content-Type": "multipart/form-data"},
+                headers: { "Content-Type": "multipart/form-data" },
             }
         )
 
@@ -85,10 +85,17 @@ const addNewTag = async (option: tag) => {
 }
 
 // On update data Tags (add tag or delete tag)
-const updateTagItemTable = async (idTag: number[], idData: number) => {
+const updateTagItemTable = async (tags: string[], idLocation: number) => {
     try {
-        const response = await axios.patch(route('grp.models.location.tag.attach', idData),
-            { tags: idTag },
+        await axios.patch(route('grp.models.location.tag.attach', idLocation),
+            { tags: tags },
+        )
+
+        // Refetch the data of Table to update the item.tags (v-model doesn't work)
+        router.reload(
+            {
+                only: ['data']
+            }
         )
     } catch (error: any) {
         notify({
@@ -100,14 +107,25 @@ const updateTagItemTable = async (idTag: number[], idData: number) => {
     }
 }
 
+onMounted(() => {
+    if (typeof window !== 'undefined') {
+        document.addEventListener('keydown', (e) => e.keyCode == 27 ? onEditLocation.value = false : '')
+    }
+})
+
+onUnmounted(() => {
+    document.removeEventListener('keydown', () => false)
+})
+
 </script>
 
-<template><pre>{{ data }}</pre>
+<template>
+    <!-- <pre>{{ tags }}</pre> -->
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Code -->
         <template #cell(code)="{ item: location }">
             <Link :href="locationRoute(location)" class="specialUnderline">
-                {{ location['code'] }}
+                {{ location.code }}
             </Link>
         </template>
 
@@ -119,12 +137,12 @@ const updateTagItemTable = async (idTag: number[], idData: number) => {
                         :class="[location.allow_stocks ? location.has_stock_slots ? 'text-green-500' : 'text-green-500/50' : location.has_stock_slots ? 'text-red-500' : 'text-gray-400']"
                     />
                 </div>
-                <div v-tooltip="location.allow_stocks ? 'Allow dropshipping' : 'No dropshipping'" class="px-1 py-0.5">
+                <div v-tooltip="location.allow_dropshipping ? 'Allow dropshipping' : 'No dropshipping'" class="px-1 py-0.5">
                     <FontAwesomeIcon icon='fal fa-hand-holding-box' class='' fixed-width aria-hidden='true'
                         :class="[location.allow_dropshipping ? location.has_dropshipping_slots ? 'text-green-500' : 'text-green-500/50' : location.has_dropshipping_slots ? 'text-red-500' : 'text-gray-400']"
                     />
                 </div>
-                <div v-tooltip="location.allow_stocks ? 'Allow fulfilment' : 'No fulfilment'" class="px-1 py-0.5">
+                <div v-tooltip="location.allow_fulfilment ? 'Allow fulfilment' : 'No fulfilment'" class="px-1 py-0.5">
                     <FontAwesomeIcon icon='fal fa-pallet' class='' fixed-width aria-hidden='true'
                         :class="[location.allow_fulfilment ? location.has_fulfilment ? 'text-green-500' : 'text-green-500/50' : location.has_fulfilment ? 'text-red-500' : 'text-gray-400']"
                     />
@@ -140,43 +158,59 @@ const updateTagItemTable = async (idTag: number[], idData: number) => {
         <!-- Column: Locations -->
         <template #cell(locations)="{ item }">
             <div class="min-w-[200px] relative p-0">
-                <!-- <div v-if="true" class="flex gap-x-1 gap-y-1.5 mb-2">
-                    <Tag v-for="tag in item.tags"
-                        :label="tag"
-                        :stringToColor="true"
-                        size="sm"
-                    />
-                </div> -->
-
-                <Multiselect v-model="item.tags"
-                    :key="item.id"
-                    mode="tags"
-                    placeholder="Select the tag"
-                    valueProp="name"
-                    trackBy="name"
-                    label="name"
-                    @change="(idTag) => (updateTagItemTable(idTag, item.id))"
-                    :close-on-select="false"
-                    :searchable="true"
-                    :create-option="true"
-                    :on-create="addNewTag"
-                    :caret="false"
-                    :options="tagsListTemp"
-                    noResultsText="No one left. Type to add new one."
-                    appendNewTag
-                >
-                    <template #tag="{ option, handleTagRemove, disabled }: {option: tag, handleTagRemove: Function, disabled: boolean}">
-                        <div class="px-0.5 py-[3px]">
-                            <Tag
-                                :label="option.name"
-                                :closeButton="true"
-                                :stringToColor="true"
-                                size="sm"
-                                @onClose="(event) => handleTagRemove(option, event)"
-                            />
-                        </div>
+                <div v-if="onEditLocation !== item.slug" class="flex gap-x-1 gap-y-1.5 mb-2">
+                    <template v-if="item.tags.length">
+                        <Tag v-for="tag in item.tags"
+                            :label="tag"
+                            :stringToColor="true"
+                            size="sm"
+                        />
                     </template>
-                </Multiselect>
+                    <div v-else class="italic text-gray-400">
+                        No tags
+                    </div>
+
+                    <!-- Icon: pencil -->
+                    <div class="flex items-center px-1" @click="() => onEditLocation = item.slug">
+                        <FontAwesomeIcon icon='fal fa-pencil' class='text-gray-400 text-lg cursor-pointer hover:text-gray-500' fixed-width aria-hidden='true' />
+                    </div>
+                </div>
+                
+                <div v-else>
+                    <Multiselect v-model="item.tags"
+                        :key="item.id"
+                        mode="tags"
+                        placeholder="Select the tag"
+                        valueProp="name"
+                        trackBy="name"
+                        label="name"
+                        @change="(tags) => (updateTagItemTable(tags, item.id))"
+                        :close-on-select="false"
+                        :searchable="true"
+                        :create-option="true"
+                        :on-create="addNewTag"
+                        :caret="false"
+                        :options="tagsListTemp"
+                        noResultsText="No one left. Type to add new one."
+                        appendNewTag
+                    >
+                        <template #tag="{ option, handleTagRemove, disabled }: {option: tag, handleTagRemove: Function, disabled: boolean}">
+                            <div class="px-0.5 py-[3px]">
+                                <Tag
+                                    :label="option.name"
+                                    :closeButton="true"
+                                    :stringToColor="true"
+                                    size="sm"
+                                    @onClose="(event) => handleTagRemove(option, event)"
+                                />
+                            </div>
+                        </template>
+                    </Multiselect>
+
+                    <div class="text-gray-400 italic">
+                        Press Esc to finish edit or <span @click="() => onEditLocation = false" class="hover:text-gray-500 cursor-pointer">click here</span>.
+                    </div>
+                </div>
             </div>
         </template>
     </Table>
