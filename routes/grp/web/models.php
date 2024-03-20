@@ -141,7 +141,7 @@ Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function
 });
 
 Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function () {
-    Route::patch('{warehouse}', UpdateWarehouse::class)->name('warehouse.update');
+    Route::patch('/', UpdateWarehouse::class)->name('warehouse.update');
     Route::post('areas/upload', [ImportWarehouseArea::class, 'inWarehouse'])->name('warehouse-areas.upload');
 
     Route::post('location/upload', [ImportLocation::class, 'inWarehouse'])->name('location.upload');
