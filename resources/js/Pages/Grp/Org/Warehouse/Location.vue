@@ -33,6 +33,7 @@ const props = defineProps<{
     history?: {}
     stocks?: {}
     pallets?: {}
+    showcase: {}
 }>()
 
 let currentTab = ref(props.tabs.current || route().v().query.tab || "showcase")
@@ -51,9 +52,7 @@ const component = computed(() => {
 
 </script>
 
-<!--suppress HtmlUnknownAttribute -->
 <template>
-    <!--suppress HtmlRequiredTitleElement -->
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>

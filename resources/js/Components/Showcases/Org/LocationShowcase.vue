@@ -11,8 +11,11 @@ const props = defineProps<{
     }
 }>()
 
+// console.log('rrrr', props.data)
+
 // Tabs radio: v-model
-const radioValue = ref<string[]>(Object.keys(props.data.radioTabs).filter(key => props.data.radioTabs[key]))
+// const radioValue = ref<string[]>(Object.keys(props.data.radioTabs).filter(key => props.data.radioTabs[key]))
+const radioValue = ref<string[]>(props.data?.radioTabs ? Object.keys(props.data.radioTabs).filter(key => props.data.radioTabs[key]) : ['allow_stocks', 'allow_fulfilment', 'allow_dropshipping'])
 
 // Tabs radio: options
 const optionRadio = [
@@ -25,7 +28,7 @@ const optionRadio = [
         label: 'Allow fulfilment'
     },
     {
-        value: 'allow_droshipping',
+        value: 'allow_dropshipping',
         label: 'Allow dropshipping'
     },
 ]
@@ -43,10 +46,11 @@ onMounted(() => {
 </script>
 
 <template>
+    {{ data }}
     <div class="w-full grid grid-cols-2">
         <!-- Section: Radio -->
         <div class="px-8 mt-4">
-            <TabSelector :optionRadio="optionRadio" :radioValue="radioValue" :updateRoute="data.updateRoute"/>
+            <TabSelector :optionRadio="optionRadio" :radioValue="radioValue" :updateRoute="data?.updateRoute"/>
         </div>
 
         <!-- Section: Barcode -->

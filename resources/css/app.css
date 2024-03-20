@@ -39,26 +39,27 @@
         hover:[background-size:100%_100%]
         focus:[background-size:100%_100%] px-1;
     } */
+    
+    .qwezxc {
+        /* For debug element */
+        @apply border border-red-500
+    }
+
+    .zxcqwe {
+        /* For debug element */
+        @apply border border-green-500
+    }
+
+    .asdzxc {
+        /* For debug element */
+        @apply ring-2 ring-offset-2 ring-red-500
+    }
 }
 
 /* .prose a { @apply specialUnderline } */
 
 
 
-.qwezxc {
-    /* For debug element */
-    @apply border border-red-500
-}
-
-.zxcqwe {
-    /* For debug element */
-    @apply border border-green-500
-}
-
-.asdzxc {
-    /* For debug element */
-    @apply ring-2 ring-offset-2 ring-red-500
-}
 
 
 * {
