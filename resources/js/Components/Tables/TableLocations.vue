@@ -139,7 +139,7 @@ const updateTagItemTable = async (idTag: number[], idData: number) => {
 
         <!-- Column: Locations -->
         <template #cell(locations)="{ item }">
-            <div class="min-w-[200px]">
+            <div class="min-w-[200px] relative p-0">
                 <!-- <div v-if="true" class="flex gap-x-1 gap-y-1.5 mb-2">
                     <Tag v-for="tag in item.tags"
                         :label="tag"
@@ -164,7 +164,6 @@ const updateTagItemTable = async (idTag: number[], idData: number) => {
                     :options="tagsListTemp"
                     noResultsText="No one left. Type to add new one."
                     appendNewTag
-                    :showOptions="false"
                 >
                     <template #tag="{ option, handleTagRemove, disabled }: {option: tag, handleTagRemove: Function, disabled: boolean}">
                         <div class="px-0.5 py-[3px]">
@@ -187,19 +186,27 @@ const updateTagItemTable = async (idTag: number[], idData: number) => {
 
 <style lang="scss">
 .multiselect-tags-search {
-    @apply focus:outline-none focus:ring-0
+    @apply focus:outline-none focus:ring-0 focus:border-none h-full #{!important}
 }
 
 .multiselect.is-active {
     @apply shadow-none
 }
 
-.multiselect-tag {
-    @apply bg-gradient-to-r from-lime-300 to-lime-200 hover:bg-lime-400 ring-1 ring-lime-500 text-lime-600
+// .multiselect-tag {
+//     @apply bg-gradient-to-r from-lime-300 to-lime-200 hover:bg-lime-400 ring-1 ring-lime-500 text-lime-600
+// }
+
+.multiselect-tags-search-wrapper {
+    @apply mb-0 #{!important}
 }
 
 .multiselect-tags {
-    @apply m-0.5
+    @apply my-0.5 #{!important}
+}
+
+.multiselect-tags-search {
+    @apply px-1 #{!important}
 }
 
 .multiselect-tag-remove-icon {
