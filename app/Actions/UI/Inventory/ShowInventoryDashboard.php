@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\SysAdmin\Organisation;
+use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -76,10 +77,32 @@ class ShowInventoryDashboard extends OrgAction
 
                         ]
                     ]
-                ]
+                ],
+                'dashboardStats'     => $this->getDashboardStats(),
 
             ]
         );
+    }
+
+    public function getDashboardStats(): array
+    {
+        $stats = [];
+
+        $stats['stock'] = [
+            'label' => __('Stocks'),
+            'count' => $this->organisation->inventoryStats->number_stocks
+        ];
+
+        foreach (OrgStockStateEnum::cases() as $case) {
+            $stats['stock']['cases'][$case->value] = [
+                'value' => $case->value,
+                'icon'  => OrgStockStateEnum::stateIcon()[$case->value],
+                'count' => OrgStockStateEnum::count($this->organisation)[$case->value],
+                'label' => OrgStockStateEnum::labels()[$case->value]
+            ];
+        }
+
+        return $stats;
     }
 
 

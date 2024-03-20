@@ -14,8 +14,8 @@ const props = defineProps<{
 // console.log('rrrr', props.data)
 
 // Tabs radio: v-model
-// const radioValue = ref<string[]>(Object.keys(props.data.radioTabs).filter(key => props.data.radioTabs[key]))
-const radioValue = ref<string[]>(props.data?.radioTabs ? Object.keys(props.data.radioTabs).filter(key => props.data.radioTabs[key]) : ['allow_stocks', 'allow_fulfilment', 'allow_dropshipping'])
+const radioValue = ref<string[]>(Object.keys(props.data.radioTabs).filter(key => props.data.radioTabs[key]))
+// const radioValue = ref<string[]>(props.data?.radioTabs ? Object.keys(props.data.radioTabs).filter(key => props.data.radioTabs[key]) : ['allow_stocks', 'allow_fulfilment', 'allow_dropshipping'])
 
 // Tabs radio: options
 const optionRadio = [
