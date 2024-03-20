@@ -8,7 +8,7 @@
 namespace App\Actions\CRM\Prospect;
 
 use App\Actions\CRM\Prospect\Hydrators\ProspectHydrateUniversalSearch;
-use App\Actions\CRM\Prospect\Tags\SyncTagsCustomer;
+use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\Helpers\Query\HydrateModelTypeQueries;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateProspects;
 use App\Actions\OrgAction;
@@ -97,7 +97,7 @@ class StoreProspect extends OrgAction
         HydrateModelTypeQueries::dispatch('Prospect')->delay(now()->addSeconds(2));
 
         if ($tags && count($tags)) {
-            SyncTagsCustomer::make()->action($prospect, ['tags' => $tags, 'type' => 'crm']);
+            SyncTagsProspect::make()->action($prospect, ['tags' => $tags, 'type' => 'crm']);
         }
 
         return $prospect;

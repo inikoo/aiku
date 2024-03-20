@@ -24,6 +24,9 @@ return new class () extends Migration {
             $table->string('state')->index()->default(WarehouseStateEnum::IN_PROCESS->value);
             $table->jsonb('settings');
             $table->jsonb('data');
+            $table->boolean('allow_stocks')->default(true);
+            $table->boolean('allow_fulfilment')->default(true);
+            $table->boolean('allow_dropshipping')->default(true);
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
