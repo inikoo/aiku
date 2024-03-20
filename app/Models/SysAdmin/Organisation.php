@@ -94,7 +94,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Fulfilment> $fulfilments
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\OrganisationHumanResourcesStats|null $humanResourcesStats
- * @property-read \App\Models\SysAdmin\OrganisationInventoryStats|null $inventoryStats
+ * @property-read \App\Models\SysAdmin\OrganisationInventoryStats|null $orgStocksStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $josPositions
  * @property-read Language $language
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Location> $locations
