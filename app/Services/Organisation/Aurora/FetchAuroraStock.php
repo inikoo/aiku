@@ -76,7 +76,7 @@ class FetchAuroraStock extends FetchAurora
             },
 
 
-            'quantity_status' => match ($this->auroraModelData->{'Part Status'}) {
+            'quantity_status' => match ($this->auroraModelData->{'Part Stock Status'}) {
                 'Surplus'      => 'excess',
                 'Optimal'      => 'ideal',
                 'Low'          => 'low',
