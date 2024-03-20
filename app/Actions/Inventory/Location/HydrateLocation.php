@@ -20,8 +20,8 @@ class HydrateLocation extends HydrateModel
 
     public function handle(Location $location): void
     {
-        LocationHydrateStocks::run($location);
-        LocationHydrateStockValue::run($location);
+        LocationHydrateStocks::dispatch($location);
+        LocationHydrateStockValue::dispatch($location);
     }
 
 
