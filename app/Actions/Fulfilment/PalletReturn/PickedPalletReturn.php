@@ -10,7 +10,6 @@ namespace App\Actions\Fulfilment\PalletReturn;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -28,12 +27,6 @@ class PickedPalletReturn extends OrgAction
     {
         $modelData[PalletReturnStateEnum::PICKED->value.'_at']   = now();
         $modelData['state']                                      = PalletReturnStateEnum::PICKED;
-
-        foreach ($palletReturn->pallets as $pallet) {
-            $pallet->update([
-                'state' => PalletStateEnum::SUBMITTED
-            ]);
-        }
 
         HydrateFulfilmentCustomer::dispatch($palletReturn->fulfilmentCustomer);
 
