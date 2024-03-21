@@ -122,7 +122,9 @@ enum PalletStateEnum: string
             'not-received' => $stats->number_pallets_state_not_received,
             'received'     => $stats->number_pallets_state_received,
             'booked-in'    => $stats->number_pallets_state_booked_in,
-            'settled'      => $stats->number_pallets_state_settled
+            'settled'      => $stats->number_pallets_state_settled,
+            'picked'       => 0,
+            'not-picked'   => 0
         ];
     }
 
