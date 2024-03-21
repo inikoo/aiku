@@ -11,6 +11,7 @@ const props = defineProps<{
     data: {
         stored_item: {
             total_quantity: number
+            slug: string
         }
         pieData: {
             stats: {
@@ -87,7 +88,7 @@ const options = {
                 <div class="sm:flex-auto">
                     <!-- <h1 class="font-semibold leading-6">Pallets <span class="font-light">({{ data.pieData.stats.length }})</span></h1> -->
                     <p class="text-sm font-light">
-                        A list of pallets that contain item <span class="font-semibold">{{ 'Gelas' }}</span>
+                        A list of pallets that contain item <span class="font-semibold">{{ data.stored_item.slug }}</span>
                     </p>
                 </div>
                 <!-- <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">

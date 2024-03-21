@@ -242,6 +242,7 @@ watch(() => props.data, (newValue) => {
                             <span class="text-xs px-1 my-2">{{ trans('Reference') }}: </span>
                             <div>
                                 <PureInput v-model="formAddPallet.customer_reference"
+                                    autofocus
                                     placeholder="Reference"
                                     @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)"    
                                 />
