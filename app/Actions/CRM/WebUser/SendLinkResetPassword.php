@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Auth\User;
+namespace App\Actions\CRM\WebUser;
 
 use App\Actions\Mail\Ses\SendSesEmail;
 use App\Models\CRM\WebUser;

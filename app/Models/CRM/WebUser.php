@@ -7,7 +7,7 @@
 
 namespace App\Models\CRM;
 
-use App\Actions\Auth\User\SendLinkResetPassword;
+use App\Actions\CRM\WebUser\SendLinkResetPassword;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\Market\Shop;
