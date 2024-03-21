@@ -7,6 +7,7 @@
 
 namespace App\Models\CRM;
 
+use App\Actions\Auth\User\SendLinkResetPassword;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\Market\Shop;
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
@@ -82,6 +84,7 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
 {
     use IsUserable;
     use HasPermissions;
+    use Notifiable;
 
 
     public function getSlugOptions(): SlugOptions
@@ -124,6 +127,11 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
         'data'     => '{}',
         'settings' => '{}',
     ];
+
+    public function sendPasswordResetNotification($token): void
+    {
+        SendLinkResetPassword::run($token, $this);
+    }
 
     public function shop(): BelongsTo
     {

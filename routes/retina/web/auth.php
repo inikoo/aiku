@@ -6,6 +6,7 @@
  */
 
 
+use App\Actions\Auth\User\UpdateWebUserPasswordViaEmail;
 use App\Actions\CRM\WebUser\Retina\Login;
 use App\Actions\CRM\WebUser\Retina\Logout;
 use App\Actions\CRM\WebUser\Retina\Register;
@@ -13,6 +14,8 @@ use App\Actions\CRM\WebUser\Retina\UI\ShowLogin;
 use App\Actions\CRM\WebUser\Retina\UI\ShowRegister;
 use App\Actions\CRM\WebUser\Retina\UI\ShowResetWebUserPassword;
 use App\Actions\CRM\WebUser\Retina\UpdateWebUserPassword;
+use App\Actions\SysAdmin\User\UI\ShowResetUserPassword;
+use App\Actions\UI\Public\Auth\PasswordResetLink;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest:retina')->group(function () {
@@ -21,6 +24,10 @@ Route::middleware('guest:retina')->group(function () {
     Route::get('register', ShowRegister::class)->name('register');
     Route::post('register', Register::class)->name('register.store');
 
+    Route::get('reset/password', ShowResetUserPassword::class)->name('reset-password.edit');
+    Route::post('reset/password', PasswordResetLink::class)->name('password.email');
+
+    Route::patch('reset/password/email', UpdateWebUserPasswordViaEmail::class)->name('reset-password.email.update');
 });
 
 Route::middleware('retina-auth:retina')->group(function () {
