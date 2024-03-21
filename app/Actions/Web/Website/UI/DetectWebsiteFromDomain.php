@@ -7,6 +7,7 @@
 
 namespace App\Actions\Web\Website\UI;
 
+use App\Exceptions\IrisWebsiteNotFound;
 use App\Models\Web\Website;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -14,13 +15,19 @@ class DetectWebsiteFromDomain
 {
     use AsAction;
 
+    /**
+     * @throws \App\Exceptions\IrisWebsiteNotFound
+     */
     public function handle($domain): Website
     {
         if(app()->environment('staging')) {
-            $domain = str_replace('staging.', '', $domain);
+            $domain = str_replace('canaryx.', '', $domain);
         }
         /** @var Website $website */
-        $website= Website::where('domain', $domain)->firstOrFail();
+        $website= Website::where('domain', $domain)->first();
+        if(!$website) {
+            throw IrisWebsiteNotFound::make();
+        }
         return $website;
     }
 
