@@ -24,7 +24,7 @@ Route::middleware('guest:retina')->group(function () {
     Route::get('register', ShowRegister::class)->name('register');
     Route::post('register', Register::class)->name('register.store');
 
-    Route::get('reset/password', ShowResetUserPassword::class)->name('reset-password.edit');
+    Route::get('email-reset-password', ShowResetUserPassword::class)->name('email.reset-password.edit');
     Route::post('reset/password', PasswordResetLink::class)->name('password.email');
 
     Route::patch('reset/password/email', UpdateWebUserPasswordViaEmail::class)->name('reset-password.email.update');
