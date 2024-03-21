@@ -17,9 +17,7 @@ class SendLinkResetPassword
 {
     use AsAction;
 
-    /**
-     * @throws \PHPMailer\PHPMailer\Exception
-     */
+
     public function handle(string $token, WebUser $webUser): void
     {
         $url = route('retina.email.reset-password.show', [
