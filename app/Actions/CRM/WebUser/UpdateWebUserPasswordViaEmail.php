@@ -8,11 +8,12 @@
 namespace App\Actions\Auth\User;
 
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\Auth\User;
+use App\Models\CRM\WebUser;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
+use Symfony\Component\HttpFoundation\Response;
 
 class UpdateWebUserPasswordViaEmail
 {
@@ -20,7 +21,7 @@ class UpdateWebUserPasswordViaEmail
 
     private bool $asAction = false;
 
-    public function handle(User $user, array $modelData): User
+    public function handle(WebUser $user, array $modelData): WebUser
     {
         data_set($modelData, 'reset_password', false);
         return $this->update($user, $modelData, 'settings');
@@ -40,7 +41,7 @@ class UpdateWebUserPasswordViaEmail
     {
         $request->validate();
 
-        \Illuminate\Support\Facades\Password::broker()->reset(
+        \Illuminate\Support\Facades\Password::broker('web_user')->reset(
             $request->only('email', 'password', 'token'),
             function ($user, $password) {
                 $this->handle($user, [
@@ -51,7 +52,7 @@ class UpdateWebUserPasswordViaEmail
         );
     }
 
-    public function action(User $user, $objectData): User
+    public function action(WebUser $user, $objectData): WebUser
     {
         $this->asAction = true;
         $this->setRawAttributes($objectData);
@@ -60,9 +61,10 @@ class UpdateWebUserPasswordViaEmail
         return $this->handle($user, $validatedData);
     }
 
-    public function htmlResponse(): \Symfony\Component\HttpFoundation\Response
+    public function htmlResponse(): Response
     {
         Session::put('reloadLayout', '1');
-        return Inertia::location(route('customer.dashboard.show'));
+
+        return Inertia::location(route('retina.dashboard.show'));
     }
 }

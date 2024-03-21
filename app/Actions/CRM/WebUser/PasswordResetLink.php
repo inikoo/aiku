@@ -23,7 +23,7 @@ class PasswordResetLink
      */
     public function handle(ActionRequest $request): void
     {
-        $status = Password::broker()->sendResetLink(
+        $status = Password::broker('web-users')->sendResetLink(
             $request->only('email')
         );
 
@@ -44,7 +44,7 @@ class PasswordResetLink
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email', 'exists:users'],
+            'email' => ['required', 'email', 'exists:web_users'],
         ];
     }
 
