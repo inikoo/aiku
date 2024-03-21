@@ -56,9 +56,10 @@ const submit = () => {
         </div>
 
         <div class="flex items-center justify-center mt-8">
-            <Button @click="() => submit()" :disabled="form.processing">
-                Email Password Reset Link
-            </Button>
+            <Button @click="() => submit()"
+                :loading="form.processing"
+                label="Email Password Reset Link"
+                type="indigo" />
         </div>
     </form>
 </template>

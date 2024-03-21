@@ -17,7 +17,7 @@ class ShowPasswordResetLink
 
     public function handle(): Response
     {
-        return Inertia::render('Public/Auth/ForgotPassword', [
+        return Inertia::render('Auth/ResetUserPassword', [
             'status' => session('status'),
         ]);
     }
