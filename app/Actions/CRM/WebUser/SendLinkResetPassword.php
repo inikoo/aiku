@@ -22,7 +22,7 @@ class SendLinkResetPassword
      */
     public function handle(string $token, WebUser $webUser): void
     {
-        $url = route('retina.reset-password.edit', [
+        $url = route('retina.email.reset-password.show', [
             'token' => $token,
             'email' => $webUser->email
         ]);
