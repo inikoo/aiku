@@ -112,7 +112,8 @@ class ShowPalletReturn extends OrgAction
                             'button' => [
                                 [
                                     'type'  => 'button',
-                                    'style' => 'create',
+                                    'style' => 'tertiary',
+                                    'icon'  => 'fal fa-plus',
                                     'label' => __('add pallet'),
                                     'route' => [
                                         'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.store',
