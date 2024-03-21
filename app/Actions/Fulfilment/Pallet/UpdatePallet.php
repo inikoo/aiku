@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\Pallet\Hydrators\HydrateStatePallet;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -29,7 +30,11 @@ class UpdatePallet extends OrgAction
 
     public function handle(Pallet $pallet, array $modelData): Pallet
     {
-        return $this->update($pallet, $modelData, ['data']);
+        $pallet = $this->update($pallet, $modelData, ['data']);
+
+        HydrateStatePallet::run($pallet);
+
+        return $pallet;
     }
 
     public function authorize(ActionRequest $request): bool
