@@ -55,7 +55,7 @@ onMounted(async () => {
             <label for="password" class="block text-sm font-medium text-gray-700"> {{ trans('Password') }} </label>
             <div class="mt-1 flex flex-col rounded-md shadow-sm">
                 <LoginPassword :showProcessing="false" id="password" name="password" :form="form" fieldName="password" @keydown.enter="submit" placeholder="********"/>
-                <Link href="/app/resetpassword" class="text-xs mt-2 italic text-gray-600 hover:underline cursor-pointer">Forgot password?</Link>
+                <Link href="/app/email-reset-password" class="text-xs mt-2 italic text-gray-600 hover:underline cursor-pointer">Forgot password?</Link>
             </div>
         </div>
 

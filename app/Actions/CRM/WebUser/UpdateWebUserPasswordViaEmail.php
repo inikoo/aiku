@@ -41,7 +41,7 @@ class UpdateWebUserPasswordViaEmail
     {
         $request->validate();
 
-        \Illuminate\Support\Facades\Password::broker('web_user')->reset(
+        \Illuminate\Support\Facades\Password::broker('web-users')->reset(
             $request->only('email', 'password', 'token'),
             function ($user, $password) {
                 $this->handle($user, [
