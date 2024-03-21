@@ -142,6 +142,9 @@ const sidebarOpen = ref(false)
 
 .specialUnderlineSecondary {
     background: v-bind('`linear-gradient(to top, ${layout.app.theme[4]}, ${layout.app.theme[4] + "AA"})`');
+    &:hover, &:focus {
+        color: v-bind('`${layout.app.theme[5]}`');
+    }
 
     @apply focus:ring-0 focus:outline-none focus:border-none
     bg-no-repeat [background-position:0%_100%]

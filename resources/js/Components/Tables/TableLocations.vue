@@ -156,7 +156,7 @@ onUnmounted(() => {
         </template>
 
         <!-- Column: Locations -->
-        <template #cell(locations)="{ item }">
+        <template #cell(tags)="{ item }">
             <div class="min-w-[200px] relative p-0">
                 <div v-if="onEditLocation !== item.slug" class="flex gap-x-1 gap-y-1.5 mb-2">
                     <template v-if="item.tags.length">

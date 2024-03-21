@@ -9,7 +9,7 @@ import Table from "@/Components/Table/Table.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faTrashAlt, faPaperPlane } from "@far"
-import { faSignOutAlt } from "@fal"
+import { faSignOutAlt, faTimes, faShare, faCross } from "@fal"
 import { Link } from "@inertiajs/vue3"
 import Tag from "@/Components/Tag.vue"
 import TagPallete from '@/Components/TagPallete.vue'
@@ -17,7 +17,7 @@ import TagPallete from '@/Components/TagPallete.vue'
 import Icon from "@/Components/Icon.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue'
 
-library.add(faTrashAlt, faSignOutAlt, faPaperPlane)
+library.add(faTrashAlt, faSignOutAlt, faTimes, faShare, faCross, faPaperPlane)
 const props = defineProps<{
     data: {}
     tab?: string
@@ -31,6 +31,7 @@ function customerRoute(pallet: object) {
 </script>
 
 <template>
+    <!-- <pre>{{data}}</pre> -->
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: State -->
 		<template #cell(state)="{ item: palletDelivery }">
@@ -59,11 +60,32 @@ function customerRoute(pallet: object) {
         </template>
 
         <!-- Column: Actions -->
-        <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in-process'">
-            <div>
+        <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in-process' || props.state == 'picking'">
+            <div v-if="props.state == 'in-process'">
                 <Link as="div" :href="customerRoute(pallet)" method="delete">
-                    <!-- <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" /> -->
                     <Button icon="fal fa-trash-alt" type="negative" />
+                </Link>
+            </div>
+
+            <!-- State: Pick or not-picked -->
+            <div v-if="props.state == 'picking'" class="flex gap-x-1 ">
+                <Link v-if="pallet.state !== 'not-picked'" as="div"
+                    :href="route(pallet.updateRoute.name, pallet.updateRoute.parameters)"
+                    :data="{state: 'not-picked'}"
+                    method="patch"
+                    v-tooltip="`Set as not picked`"
+                >
+                    <Button icon="fal fa-times" type="negative" />
+                    <!-- <FontAwesomeIcon icon='fal fa-times' class='' fixed-width aria-hidden='true' /> -->
+                </Link>
+
+                <Link v-if="pallet.state !== 'picked'" as="div"
+                    :href="route(pallet.updateRoute.name, pallet.updateRoute.parameters)"
+                    :data="{state: 'picked'}"
+                    method="patch"
+                    v-tooltip="`Set as picked`"    
+                >
+                    <Button icon="fal fa-check" type="positive" />
                 </Link>
             </div>
         </template>

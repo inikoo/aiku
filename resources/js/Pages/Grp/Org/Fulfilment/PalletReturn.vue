@@ -23,10 +23,10 @@ import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletR
 
 const props = defineProps<{
     title: string
-    tabs: object
-    pallets?: object
-    data?: object
-    history?: object
+    tabs: {}
+    pallets?: {}
+    data?: {}
+    history?: {}
     pageHead: PageHeadingTypes
     updateRoute: routeType
     uploadRoutes: routeType

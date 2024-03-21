@@ -111,7 +111,8 @@ class ShowStoredItemReturn extends OrgAction
                             'button' => [
                                 [
                                     'type'  => 'button',
-                                    'style' => 'create',
+                                    'style' => 'tertiary',
+                                    'icon'  => 'fal fa-plus',
                                     'label' => __('add stored item'),
                                     'route' => [
                                         'name'       => 'grp.models.fulfilment-customer.stored-item-return.stored-item.store',
@@ -128,7 +129,7 @@ class ShowStoredItemReturn extends OrgAction
                         $storedItemReturn->items()->count() > 0 ? [
                             'type'    => 'button',
                             'style'   => 'save',
-                            'tooltip' => __('submit'),
+                            'tooltip' => __('Submit'),
                             'label'   => __('submit'),
                             'key'     => 'action',
                             'route'   => [
