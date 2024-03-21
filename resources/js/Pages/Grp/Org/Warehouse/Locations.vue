@@ -17,9 +17,12 @@ import { ref } from "vue"
 library.add(faWarehouse, faMapSigns)
 
 const props = defineProps<{
-    data: {}
     title: string
     pageHead: {}
+    data: {}
+    tags: {
+        data: {}
+    }
 }>()
 
 const dataModal = ref({ isModalOpen: false })
@@ -39,7 +42,7 @@ const onUploadOpen = (action) => {
         </template>
     </PageHeading>
     
-    <TableLocations :data="data" />
+    <TableLocations :data="data" :tags="tags.data" />
 
     <UploadExcel
         :propName="'locations'"

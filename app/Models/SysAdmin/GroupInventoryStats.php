@@ -35,33 +35,24 @@ use Illuminate\Support\Carbon;
  * @property int $number_stocks
  * @property int $number_stocks_state_in_process
  * @property int $number_stocks_state_active
- * @property int $number_stocks_state_discontinuing
  * @property int $number_stocks_state_discontinued
- * @property int $number_stocks_quantity_status_excess
- * @property int $number_stocks_quantity_status_ideal
- * @property int $number_stocks_quantity_status_low
- * @property int $number_stocks_quantity_status_critical
- * @property int $number_stocks_quantity_status_out_of_stock
- * @property int $number_stocks_quantity_status_error
  * @property int $number_deliveries
  * @property int $number_deliveries_type_order
  * @property int $number_deliveries_type_replacement
- * @property int $number_deliveries_state_submitted
- * @property int $number_deliveries_state_picker_assigned
+ * @property int $number_deliveries_state_on_hold
  * @property int $number_deliveries_state_picking
  * @property int $number_deliveries_state_picked
  * @property int $number_deliveries_state_packing
  * @property int $number_deliveries_state_packed
  * @property int $number_deliveries_state_finalised
- * @property int $number_deliveries_state_dispatched
- * @property int $number_deliveries_cancelled_at_state_submitted
- * @property int $number_deliveries_cancelled_at_state_picker_assigned
+ * @property int $number_deliveries_state_settled
+ * @property int $number_deliveries_cancelled_at_state_on_hold
  * @property int $number_deliveries_cancelled_at_state_picking
  * @property int $number_deliveries_cancelled_at_state_picked
  * @property int $number_deliveries_cancelled_at_state_packing
  * @property int $number_deliveries_cancelled_at_state_packed
  * @property int $number_deliveries_cancelled_at_state_finalised
- * @property int $number_deliveries_cancelled_at_state_dispatched
+ * @property int $number_deliveries_cancelled_at_state_settled
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
