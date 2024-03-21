@@ -27,6 +27,9 @@ enum PalletStateEnum: string
     case BOOKED_IN    = 'booked-in';
     case SETTLED      = 'settled';
 
+    case PICKED       = 'picked';
+    case NOT_PICKED   = 'not-picked';
+
 
     public static function labels(): array
     {
@@ -38,6 +41,9 @@ enum PalletStateEnum: string
             'booked-in'    => __('Booked in'),
             'not-received' => __('Not Received'),
             'settled'      => __('Settled'),
+
+            'picked'      => __('Picked'),
+            'not-picked'  => __('Not Picked'),
         ];
     }
 
@@ -85,6 +91,18 @@ enum PalletStateEnum: string
                 'icon'    => 'fal fa-sign-out-alt',
                 'class'   => 'text-gray-400',
                 'color'   => 'gray'
+            ],
+            'picked'      => [
+                'tooltip' => __('Picked'),
+                'icon'    => 'fal fa-check',
+                'class'   => 'text-green-400',
+                'color'   => 'green'
+            ],
+            'not-picked'      => [
+                'tooltip' => __('Not Picked'),
+                'icon'    => 'fal fa-cross',
+                'class'   => 'text-red-400',
+                'color'   => 'red'
             ]
         ];
     }
