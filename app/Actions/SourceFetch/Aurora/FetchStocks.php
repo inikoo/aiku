@@ -13,6 +13,7 @@ use App\Actions\Inventory\OrgStock\UpdateOrgStock;
 use App\Actions\SupplyChain\Stock\StoreStock;
 use App\Actions\SupplyChain\Stock\SyncStockTradeUnits;
 use App\Actions\SupplyChain\Stock\UpdateStock;
+use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\Stock;
 use App\Services\Organisation\SourceOrganisationService;
@@ -65,31 +66,30 @@ class FetchStocks extends FetchAction
             $effectiveStock = $stock ?? $baseStock;
 
 
-            $organisation = $organisationSource->getOrganisation();
+            if($stock && $stock->state != StockStateEnum::IN_PROCESS) {
+                $organisation = $organisationSource->getOrganisation();
 
-            /** @var OrgStock $orgStock */
-            if ($orgStock = $organisation->orgStocks()->where('source_id', $stockData['stock']['source_id'])->first()) {
-                $orgStock = UpdateOrgStock::make()->action(
-                    orgStock: $orgStock,
-                    modelData: $stockData['stock'],
-                    hydratorDelay: 30
-                );
-            } else {
-                $orgStock = StoreOrgStock::make()->action(
-                    organisation: $organisationSource->getOrganisation(),
-                    stock: $effectiveStock,
-                    modelData: $stockData['stock'],
-                    hydratorDelay: 30
-                );
+                /** @var OrgStock $orgStock */
+                if ($orgStock = $organisation->orgStocks()->where('source_id', $stockData['stock']['source_id'])->first()) {
+                    $orgStock = UpdateOrgStock::make()->action(
+                        orgStock: $orgStock,
+                        modelData: $stockData['org_stock'],
+                        hydratorDelay: 30
+                    );
+                } else {
+                    $orgStock = StoreOrgStock::make()->action(
+                        organisation: $organisationSource->getOrganisation(),
+                        stock: $effectiveStock,
+                        modelData: $stockData['org_stock'],
+                        hydratorDelay: 30
+                    );
+                }
+
+                $sourceData = explode(':', $stockData['stock']['source_id']);
+
+                $locationsData = $organisationSource->fetchLocationStocks($sourceData[1]);
+                SyncOrgStockLocations::run($orgStock, $locationsData['stock_locations']);
             }
-
-            $sourceData = explode(':', $stockData['stock']['source_id']);
-
-            $locationsData = $organisationSource->fetchLocationStocks($sourceData[1]);
-
-
-            SyncOrgStockLocations::run($orgStock, $locationsData['stock_locations']);
-
 
             return $stock;
         }

@@ -33,9 +33,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $org_stock_family_id
  * @property int|null $customer_id
  * @property string $slug
- * @property string $state_in_organisation
  * @property bool $is_sellable_in_organisation
  * @property bool $is_raw_material_in_organisation
+ * @property OrgStockStateEnum $state
  * @property OrgStockQuantityStatusEnum|null $quantity_status
  * @property string|null $quantity_in_locations stock quantity in units
  * @property string $value_in_locations
@@ -48,7 +48,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $discontinued_in_organisation_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
- * @property OrgStockStateEnum $state
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\Location> $locations
  * @property-read \App\Models\Inventory\OrgStockFamily|null $orgStockFamily
  * @property-read Organisation $organisation

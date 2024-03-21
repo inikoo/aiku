@@ -44,11 +44,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property string $name
  * @property WarehouseStateEnum $state
- * @property bool $allow_stock
- * @property bool $allow_fulfilment
- * @property bool $allow_dropshipping
  * @property array $settings
  * @property array $data
+ * @property bool $allow_stocks
+ * @property bool $allow_fulfilment
+ * @property bool $allow_dropshipping
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at

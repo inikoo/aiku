@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
+use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Enums\SupplyChain\Stock\StockTradeUnitCompositionEnum;
 use App\Stubs\Migrations\HasAssetCodeDescription;
 use Illuminate\Database\Migrations\Migration;
@@ -25,7 +25,10 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('stock_family_id')->index()->nullable();
             $table->foreign('stock_family_id')->references('id')->on('stock_families');
             $table->string('trade_unit_composition')->default(StockTradeUnitCompositionEnum::MATCH->value)->nullable();
-            $table->string('state')->default(OrgStockStateEnum::IN_PROCESS->value)->index();
+            $table->string('state')->default(StockStateEnum::IN_PROCESS->value)->index();
+
+
+
             $table->boolean('sellable')->default(1)->index();
             $table->boolean('raw_material')->default(0)->index();
             $table->string('barcode')->index()->nullable();

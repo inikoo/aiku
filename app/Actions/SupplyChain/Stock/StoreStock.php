@@ -12,6 +12,7 @@ use App\Actions\GrpAction;
 use App\Actions\SupplyChain\Stock\Hydrators\StockHydrateUniversalSearch;
 use App\Actions\SupplyChain\StockFamily\Hydrators\StockFamilyHydrateStocks;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInventory;
+use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
 use App\Models\SysAdmin\Group;
@@ -58,6 +59,7 @@ class StoreStock extends GrpAction
             'stock_family_id' => ['sometimes', 'nullable', 'exists:stock_families,id'],
             'source_id'       => ['sometimes', 'nullable', 'string'],
             'source_slug'     => ['sometimes', 'nullable', 'string'],
+            'state'           => ['sometimes', 'nullable', Rule::enum(StockStateEnum::class)],
         ];
     }
 

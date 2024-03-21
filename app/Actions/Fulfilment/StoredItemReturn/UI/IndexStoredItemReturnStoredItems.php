@@ -69,6 +69,7 @@ class IndexStoredItemReturnStoredItems extends OrgAction
                 )
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'action', label: __(''), canBeHidden: false)
                 ->defaultSort('slug');
         };
     }

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasInventoryStats;
+
     public function up(): void
     {
         Schema::create('group_inventory_stats', function (Blueprint $table) {
@@ -19,7 +20,9 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedInteger('number_trade_units')->default(0);
-            $table= $this->inventoryStats($table);
+            $table = $this->warehousesStats($table);
+            $table = $this->stocksStats($table);
+            $table = $this->deliveryNoteStats($table);
             $table->timestampsTz();
         });
     }

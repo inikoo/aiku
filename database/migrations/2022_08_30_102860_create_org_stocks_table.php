@@ -31,10 +31,9 @@ return new class () extends Migration {
             $table->foreign('customer_id')->references('id')->on('customers')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
 
-            $table->string('state_in_organisation')->default(OrgStockStateEnum::IN_PROCESS->value)->index();
             $table->boolean('is_sellable_in_organisation')->default(1)->index();
             $table->boolean('is_raw_material_in_organisation')->default(0)->index();
-
+            $table->string('state')->default(OrgStockStateEnum::ACTIVE->value)->index();
             $table->string('quantity_status')->nullable()->index();
 
             $table->decimal('quantity_in_locations', 16, 3)->nullable()->default(0)->comment('stock quantity in units');

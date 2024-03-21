@@ -19,7 +19,9 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('organisation_id');
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
-            $table= $this->inventoryStats($table);
+            $table = $this->warehousesStats($table);
+            $table = $this->orgStocksStats($table);
+            $table = $this->deliveryNoteStats($table);
             $table->timestampsTz();
         });
     }

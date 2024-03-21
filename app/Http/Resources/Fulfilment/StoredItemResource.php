@@ -42,6 +42,21 @@ class StoredItemResource extends JsonResource
             'total_quantity'=> $storedItem->pallets?->sum('pivot.quantity'),
             'max_quantity'  => $storedItem->pallets?->sum('pivot.quantity'),
             'pallet_name'   => $storedItem->pallets()->pluck('reference')->implode(', '),
+            'deleteRoute'   => match (request()->routeIs('retina.*')) {
+                true => [
+                    'name'       => 'retina.models.stored-item.delete',
+                    'parameters' => [
+                        'storedItem' => $storedItem->id
+                    ]
+                ],
+                default => [
+                    'name'       => 'grp.models.fulfilment-customer.stored-item-return.stored-item.delete',
+                    'parameters' => [
+                        'fulfilmentCustomer' => $storedItem->fulfilmentCustomer->id,
+                        'storedItemReturn'   => $storedItem->id
+                    ]
+                ]
+            }
         ];
     }
 }

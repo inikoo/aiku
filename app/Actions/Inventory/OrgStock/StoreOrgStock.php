@@ -10,11 +10,14 @@ namespace App\Actions\Inventory\OrgStock;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateUniversalSearch;
 use App\Actions\Inventory\OrgStockFamily\StoreOrgStockFamily;
 use App\Actions\OrgAction;
+use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
+use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreOrgStock extends OrgAction
@@ -52,7 +55,8 @@ class StoreOrgStock extends OrgAction
     public function rules(ActionRequest $request): array
     {
         return [
-
+            'state'           => ['sometimes', 'nullable', Rule::enum(OrgStockStateEnum::class)],
+            'quantity_status' => ['sometimes', 'nullable', Rule::enum(OrgStockQuantityStatusEnum::class)],
         ];
     }
 

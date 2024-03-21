@@ -9,6 +9,7 @@ namespace App\Services\Organisation\Aurora;
 
 use App\Actions\SourceFetch\Aurora\FetchStockFamilies;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
+use App\Enums\SupplyChain\Stock\StockStateEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -41,7 +42,6 @@ class FetchAuroraStock extends FetchAurora
         }
 
 
-
         $this->parsedData['stock'] = [
             'name'            => $name,
             'stock_family_id' => $this->getStockFamilyId($this->auroraModelData->{'Part SKU'}),
@@ -56,10 +56,33 @@ class FetchAuroraStock extends FetchAurora
                     :
                     null,
             'state'           => match ($this->auroraModelData->{'Part Status'}) {
+                'In Use' => StockStateEnum::ACTIVE,
+                'Discontinuing', 'Not In Use' => StockStateEnum::DISCONTINUED,
+                'In Process' => StockStateEnum::IN_PROCESS,
+            },
+
+
+            'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
+            'source_slug' => $sourceSlug
+        ];
+
+        $this->parsedData['org_stock'] = [
+
+            'state' => match ($this->auroraModelData->{'Part Status'}) {
                 'In Use'        => OrgStockStateEnum::ACTIVE,
                 'Discontinuing' => OrgStockStateEnum::DISCONTINUING,
-                'In Process'    => OrgStockStateEnum::IN_PROCESS,
                 'Not In Use'    => OrgStockStateEnum::DISCONTINUED,
+                default         => null
+            },
+
+
+            'quantity_status' => match ($this->auroraModelData->{'Part Stock Status'}) {
+                'Surplus'      => 'excess',
+                'Optimal'      => 'ideal',
+                'Low'          => 'low',
+                'Critical'     => 'critical',
+                'Out_Of_Stock' => 'out-of-stock',
+                'Error'        => 'error',
             },
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
             'source_slug'     => $sourceSlug
