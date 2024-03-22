@@ -349,11 +349,41 @@ class GetOrganisationNavigation
                 'topMenu' => [
                     'subSections' => [
                         [
-                            'label' => __('Payment accounts'),
+                            'label' => __('Providers'),
+                            'icon'  => ['fal', 'fa-cash-register'],
+                            'root'  => 'grp.org.accounting.payment-service-providers.',
+                            'route' => [
+                                'name'       => 'grp.org.accounting.payment-service-providers.index',
+                                'parameters' => [$organisation->slug],
+
+                            ]
+                        ],
+                        [
+                            'label' => __('Accounts'),
                             'icon'  => ['fal', 'fa-money-check-alt'],
                             'root'  => 'grp.org.accounting.payment-accounts.',
                             'route' => [
                                 'name'       => 'grp.org.accounting.payment-accounts.index',
+                                'parameters' => [$organisation->slug],
+
+                            ]
+                        ],
+                        [
+                            'label' => __('Payments'),
+                            'icon'  => ['fal', 'fa-coins'],
+                            'root'  => 'grp.org.accounting.payments.',
+                            'route' => [
+                                'name'       => 'grp.org.accounting.payments.index',
+                                'parameters' => [$organisation->slug],
+
+                            ]
+                        ],
+                        [
+                            'label' => __('Invoices'),
+                            'icon'  => ['fal', 'fa-file-invoice-dollar'],
+                            'root'  => 'grp.org.accounting.invoices.',
+                            'route' => [
+                                'name'       => 'grp.org.accounting.invoices.index',
                                 'parameters' => [$organisation->slug],
 
                             ]

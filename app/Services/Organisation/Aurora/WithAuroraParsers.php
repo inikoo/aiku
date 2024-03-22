@@ -406,7 +406,8 @@ trait WithAuroraParsers
     {
         $paymentServiceProvider = PaymentServiceProvider::where('source_id', $sourceId)->first();
         if (!$paymentServiceProvider) {
-            $paymentServiceProvider = FetchPaymentServiceProviders::run($this->organisationSource, $sourceId);
+            $sourceData             = explode(':', $sourceId);
+            $paymentServiceProvider = FetchPaymentServiceProviders::run($this->organisationSource, $sourceData[1]);
         }
 
         return $paymentServiceProvider;
@@ -416,7 +417,8 @@ trait WithAuroraParsers
     {
         $paymentAccount = PaymentAccount::where('source_id', $sourceId)->first();
         if (!$paymentAccount) {
-            $paymentAccount = FetchPaymentAccounts::run($this->organisationSource, $sourceId);
+            $sourceData     = explode(':', $sourceId);
+            $paymentAccount = FetchPaymentAccounts::run($this->organisationSource, $sourceData[1]);
         }
 
         return $paymentAccount;
@@ -529,50 +531,192 @@ trait WithAuroraParsers
         $reference = str_replace(')', '-', $reference);
 
         $normalizeChars = array(
-            'Š'=> 'S', 'š'=>'s', 'Ð'=>'Dj','Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A',
-            'Å'=> 'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E', 'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I',
-            'Ï'=> 'I', 'Ñ'=>'N', 'Ń'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U', 'Ú'=>'U',
-            'Û'=> 'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss','à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a',
-            'å'=> 'a', 'æ'=>'a', 'ç'=>'c', 'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i',
-            'ï'=> 'i', 'ð'=>'o', 'ñ'=>'n', 'ń'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o', 'ö'=>'o', 'ø'=>'o', 'ù'=>'u',
-            'ú'=> 'u', 'û'=>'u', 'ü'=>'u', 'ý'=>'y', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y', 'ƒ'=>'f',
-            'ă'=> 'a', 'î'=>'i', 'â'=>'a', 'ș'=>'s', 'ț'=>'t', 'Ă'=>'A', 'Î'=>'I', 'Â'=>'A', 'Ș'=>'S', 'Ț'=>'T','č'=>'c'
+            'Š' => 'S',
+            'š' => 's',
+            'Ð' => 'Dj',
+            'Ž' => 'Z',
+            'ž' => 'z',
+            'À' => 'A',
+            'Á' => 'A',
+            'Â' => 'A',
+            'Ã' => 'A',
+            'Ä' => 'A',
+            'Å' => 'A',
+            'Æ' => 'A',
+            'Ç' => 'C',
+            'È' => 'E',
+            'É' => 'E',
+            'Ê' => 'E',
+            'Ë' => 'E',
+            'Ì' => 'I',
+            'Í' => 'I',
+            'Î' => 'I',
+            'Ï' => 'I',
+            'Ñ' => 'N',
+            'Ń' => 'N',
+            'Ò' => 'O',
+            'Ó' => 'O',
+            'Ô' => 'O',
+            'Õ' => 'O',
+            'Ö' => 'O',
+            'Ø' => 'O',
+            'Ù' => 'U',
+            'Ú' => 'U',
+            'Û' => 'U',
+            'Ü' => 'U',
+            'Ý' => 'Y',
+            'Þ' => 'B',
+            'ß' => 'Ss',
+            'à' => 'a',
+            'á' => 'a',
+            'â' => 'a',
+            'ã' => 'a',
+            'ä' => 'a',
+            'å' => 'a',
+            'æ' => 'a',
+            'ç' => 'c',
+            'è' => 'e',
+            'é' => 'e',
+            'ê' => 'e',
+            'ë' => 'e',
+            'ì' => 'i',
+            'í' => 'i',
+            'î' => 'i',
+            'ï' => 'i',
+            'ð' => 'o',
+            'ñ' => 'n',
+            'ń' => 'n',
+            'ò' => 'o',
+            'ó' => 'o',
+            'ô' => 'o',
+            'õ' => 'o',
+            'ö' => 'o',
+            'ø' => 'o',
+            'ù' => 'u',
+            'ú' => 'u',
+            'û' => 'u',
+            'ü' => 'u',
+            'ý' => 'y',
+            'ý' => 'y',
+            'þ' => 'b',
+            'ÿ' => 'y',
+            'ƒ' => 'f',
+            'ă' => 'a',
+            'î' => 'i',
+            'â' => 'a',
+            'ș' => 's',
+            'ț' => 't',
+            'Ă' => 'A',
+            'Î' => 'I',
+            'Â' => 'A',
+            'Ș' => 'S',
+            'Ț' => 'T',
+            'č' => 'c'
         );
 
-        $reference=str_replace('_-_', '-', $reference);
-        $reference=str_replace('_+_', '-', $reference);
-        $reference=  strtr($reference, $normalizeChars);
+        $reference = str_replace('_-_', '-', $reference);
+        $reference = str_replace('_+_', '-', $reference);
+        $reference = strtr($reference, $normalizeChars);
 
         return str_replace('--', '-', $reference);
     }
 
     public function cleanWebpageCode($string): string
     {
-        $string=str_replace(' ', '_', $string);
-        $string=str_replace('/', '_', $string);
-        $string=str_replace('&', '_', $string);
-        $string=str_replace('(', '_', $string);
-        $string=str_replace(')', '_', $string);
-        $string=str_replace('!', '_', $string);
-        $string=str_replace('?', '_', $string);
+        $string = str_replace(' ', '_', $string);
+        $string = str_replace('/', '_', $string);
+        $string = str_replace('&', '_', $string);
+        $string = str_replace('(', '_', $string);
+        $string = str_replace(')', '_', $string);
+        $string = str_replace('!', '_', $string);
+        $string = str_replace('?', '_', $string);
 
 
         $normalizeChars = array(
-            'Š'=> 'S', 'š'=>'s', 'Ð'=>'Dj','Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A',
-            'Å'=> 'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E', 'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I',
-            'Ï'=> 'I', 'Ñ'=>'N', 'Ń'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U', 'Ú'=>'U',
-            'Û'=> 'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss','à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a',
-            'å'=> 'a', 'æ'=>'a', 'ç'=>'c', 'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i',
-            'ï'=> 'i', 'ð'=>'o', 'ñ'=>'n', 'ń'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o', 'ö'=>'o', 'ø'=>'o', 'ù'=>'u',
-            'ú'=> 'u', 'û'=>'u', 'ü'=>'u', 'ý'=>'y', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y', 'ƒ'=>'f',
-            'ă'=> 'a', 'î'=>'i', 'â'=>'a', 'ș'=>'s', 'ț'=>'t', 'Ă'=>'A', 'Î'=>'I', 'Â'=>'A', 'Ș'=>'S', 'Ț'=>'T','č'=>'c'
+            'Š' => 'S',
+            'š' => 's',
+            'Ð' => 'Dj',
+            'Ž' => 'Z',
+            'ž' => 'z',
+            'À' => 'A',
+            'Á' => 'A',
+            'Â' => 'A',
+            'Ã' => 'A',
+            'Ä' => 'A',
+            'Å' => 'A',
+            'Æ' => 'A',
+            'Ç' => 'C',
+            'È' => 'E',
+            'É' => 'E',
+            'Ê' => 'E',
+            'Ë' => 'E',
+            'Ì' => 'I',
+            'Í' => 'I',
+            'Î' => 'I',
+            'Ï' => 'I',
+            'Ñ' => 'N',
+            'Ń' => 'N',
+            'Ò' => 'O',
+            'Ó' => 'O',
+            'Ô' => 'O',
+            'Õ' => 'O',
+            'Ö' => 'O',
+            'Ø' => 'O',
+            'Ù' => 'U',
+            'Ú' => 'U',
+            'Û' => 'U',
+            'Ü' => 'U',
+            'Ý' => 'Y',
+            'Þ' => 'B',
+            'ß' => 'Ss',
+            'à' => 'a',
+            'á' => 'a',
+            'â' => 'a',
+            'ã' => 'a',
+            'ä' => 'a',
+            'å' => 'a',
+            'æ' => 'a',
+            'ç' => 'c',
+            'è' => 'e',
+            'é' => 'e',
+            'ê' => 'e',
+            'ë' => 'e',
+            'ì' => 'i',
+            'í' => 'i',
+            'î' => 'i',
+            'ï' => 'i',
+            'ð' => 'o',
+            'ñ' => 'n',
+            'ń' => 'n',
+            'ò' => 'o',
+            'ó' => 'o',
+            'ô' => 'o',
+            'õ' => 'o',
+            'ö' => 'o',
+            'ø' => 'o',
+            'ù' => 'u',
+            'ú' => 'u',
+            'û' => 'u',
+            'ü' => 'u',
+            'ý' => 'y',
+            'ý' => 'y',
+            'þ' => 'b',
+            'ÿ' => 'y',
+            'ƒ' => 'f',
+            'ă' => 'a',
+            'î' => 'i',
+            'â' => 'a',
+            'ș' => 's',
+            'ț' => 't',
+            'Ă' => 'A',
+            'Î' => 'I',
+            'Â' => 'A',
+            'Ș' => 'S',
+            'Ț' => 'T',
+            'č' => 'c'
         );
 
-        return  strtr($string, $normalizeChars);
-
-
-
-
+        return strtr($string, $normalizeChars);
     }
 
 

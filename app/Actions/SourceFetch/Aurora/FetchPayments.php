@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchPayments extends FetchAction
 {
-    public string $commandSignature = 'fetch:payments {organisations?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:payments {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new}  {--d|db_suffix=}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Payment
@@ -24,17 +24,19 @@ class FetchPayments extends FetchAction
         if ($paymentData = $organisationSource->fetchPayment($organisationSourceId)) {
             if ($payment = Payment::where('source_id', $paymentData['payment']['source_id'])
                 ->first()) {
-                $payment = UpdatePayment::run(
+                $payment = UpdatePayment::make()->action(
                     payment: $payment,
-                    modelData: $paymentData['payment']
+                    modelData: $paymentData['payment'],
+                    hydratorsDelay: $this->hydrateDelay
                 );
                 $this->markAuroraModel($payment);
             } else {
                 if ($paymentData['customer']) {
-                    $payment = StorePayment::run(
+                    $payment = StorePayment::make()->action(
                         customer: $paymentData['customer'],
                         paymentAccount: $paymentData['paymentAccount'],
-                        modelData: $paymentData['payment']
+                        modelData: $paymentData['payment'],
+                        hydratorsDelay: $this->hydrateDelay
                     );
 
                     $this->markAuroraModel($payment);
@@ -50,21 +52,32 @@ class FetchPayments extends FetchAction
 
     public function markAuroraModel(Payment $payment): void
     {
+        $sourceData = explode(':', $payment->source_id);
+
         DB::connection('aurora')->table('Payment Dimension')
-            ->where('Payment Key', $payment->source_id)
+            ->where('Payment Key', $sourceData[1])
             ->update(['aiku_id' => $payment->id]);
     }
 
     public function getModelsQuery(): Builder
     {
-        return DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Payment Dimension')
-            ->select('Payment Key as source_id')
-            ->orderBy('source_id');
+            ->select('Payment Key as source_id');
+        if ($this->onlyNew) {
+            $query->whereNull('spp.aiku_id');
+        }
+
+        return $query->orderBy('source_id');
     }
 
     public function count(): ?int
     {
-        return DB::connection('aurora')->table('Payment Dimension')->count();
+        $query = DB::connection('aurora')->table('Payment Dimension');
+        if ($this->onlyNew) {
+            $query->whereNull('spp.aiku_id');
+        }
+
+        return $query->count();
     }
 }

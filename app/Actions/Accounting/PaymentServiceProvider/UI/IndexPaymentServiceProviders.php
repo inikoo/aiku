@@ -40,7 +40,13 @@ class IndexPaymentServiceProviders extends OrgAction
 
         $queryBuilder = QueryBuilder::for(PaymentServiceProvider::class);
 
-        $queryBuilder->where('organisation_id', $this->organisation->id);
+
+        if($parent instanceof Organisation) {
+            $queryBuilder->where('organisation_id', $parent->id);
+        } else {
+            $queryBuilder->where('shop_id', $parent->id);
+        }
+
 
 
         /*

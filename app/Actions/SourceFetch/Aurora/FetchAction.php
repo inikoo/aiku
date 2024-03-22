@@ -142,7 +142,8 @@ class FetchAction
             'fetch:prospects',
             'fetch:deleted-customers',
             'fetch:webpages',
-            'fetch:supplier-products'
+            'fetch:supplier-products',
+            'fetch:payments',
         ])) {
             $this->onlyNew = (bool)$command->option('only_new');
         }

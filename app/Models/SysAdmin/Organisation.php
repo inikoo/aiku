@@ -268,7 +268,7 @@ class Organisation extends Model implements HasMedia
 
     public function accountsServiceProvider(): PaymentServiceProvider
     {
-        return PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::ACCOUNT)->first();
+        return PaymentServiceProvider::where('organisation_id', $this->id)->where('type', PaymentServiceProviderTypeEnum::ACCOUNT)->first();
     }
 
     public function group(): BelongsTo

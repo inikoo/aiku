@@ -36,14 +36,17 @@ import {
     faUserPlus,
     faBox,
     faBoxesAlt,
-    faMoneyCheckAlt
+    faMoneyCheckAlt,
+    faCashRegister,
+    faCoins,
+    faFileInvoiceDollar
 } from "@fal";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { useTruncate } from "@/Composables/useTruncate";
 import MenuTopRight from "@/Layouts/Grp/MenuTopRight.vue";
 
 library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus,
-    faBox, faBoxesAlt, faMoneyCheckAlt
+    faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar
 );
 
 const props = defineProps<{

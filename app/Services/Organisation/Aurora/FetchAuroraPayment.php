@@ -16,6 +16,9 @@ class FetchAuroraPayment extends FetchAurora
 {
     protected function parseModel(): void
     {
+
+        print_r($this->auroraModelData);
+
         $data = [];
 
         if ($this->auroraModelData->{'Payment Currency Exchange Rate'} and
@@ -49,22 +52,21 @@ class FetchAuroraPayment extends FetchAurora
 
         $this->parsedData['payment'] = [
 
-            'payment_account_id' => $this->parsedData['paymentAccount']->id,
             'reference'          => $this->auroraModelData->{'Payment Transaction ID'},
             'amount'             => $this->auroraModelData->{'Payment Transaction Amount'},
             'oc_amount'          => $this->auroraModelData->{'Payment Transaction Amount'} * $this->auroraModelData->{'Payment Currency Exchange Rate'},
             'data'               => $data,
             'currency_id'        => $this->parseCurrencyID($this->auroraModelData->{'Payment Currency Code'}),
 
-            'source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Payment Key'},
             'date'         => $this->parseDate($this->auroraModelData->{'Payment Last Updated Date'}),
             'created_at'   => $this->parseDate($this->auroraModelData->{'Payment Created Date'}),
             'completed_at' => $this->parseDate($this->auroraModelData->{'Payment Completed Date'}),
 
             'cancelled_at' => $this->parseDate($this->auroraModelData->{'Payment Cancelled Date'}),
 
-            'state'  => $state,
-            'status' => $status,
+            'state'        => $state,
+            'status'       => $status,
+            'source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Payment Key'},
 
 
         ];
