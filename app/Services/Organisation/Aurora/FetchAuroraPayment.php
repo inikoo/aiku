@@ -64,8 +64,9 @@ class FetchAuroraPayment extends FetchAurora
 
             'cancelled_at' => $this->parseDate($this->auroraModelData->{'Payment Cancelled Date'}),
 
-            'state'  => $state,
-            'status' => $status,
+            'state'        => $state,
+            'status'       => $status,
+            'source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Payment Key'},
 
 
         ];

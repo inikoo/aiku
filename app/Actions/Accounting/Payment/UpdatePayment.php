@@ -40,9 +40,9 @@ class UpdatePayment extends OrgAction
     }
     public function action(Payment $payment, array $modelData, int $hydratorsDelay = 0): Payment
     {
-        $this->asAction=true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->asAction        =true;
+        $this->hydratorsDelay  = $hydratorsDelay;
+        $this->initialisationFromShop($payment->shop, $modelData);
 
         return $this->handle($payment, $this->validatedData);
     }

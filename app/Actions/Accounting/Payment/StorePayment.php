@@ -24,11 +24,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StorePayment extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
-
-    private bool $asAction = false;
-
     public function handle(Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
     {
         data_set($modelData, 'group_id', $customer->group_id);

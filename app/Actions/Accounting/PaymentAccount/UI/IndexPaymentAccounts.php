@@ -8,7 +8,7 @@
 namespace App\Actions\Accounting\PaymentAccount\UI;
 
 use App\Actions\Accounting\PaymentServiceProvider\UI\ShowPaymentServiceProvider;
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\PaymentAccountResource;
 use App\InertiaTable\InertiaTable;
@@ -26,9 +26,11 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexPaymentAccounts extends InertiaAction
+class IndexPaymentAccounts extends OrgAction
 {
-    public function handle(Shop|Organisation|PaymentServiceProvider $parent, $prefix=null): LengthAwarePaginator
+    private Organisation|Shop|PaymentServiceProvider $parent;
+
+    public function handle(Shop|Organisation|PaymentServiceProvider $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -41,7 +43,18 @@ class IndexPaymentAccounts extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(PaymentAccount::class);
+        $queryBuilder = QueryBuilder::for(PaymentAccount::class);
+
+        if ($parent instanceof Organisation) {
+            $queryBuilder->where('payment_accounts.organisation_id', $parent->id);
+        } elseif ($parent instanceof PaymentServiceProvider) {
+            $queryBuilder->where('payment_service_provider_id', $parent->id);
+        } elseif ($parent instanceof Shop) {
+            $queryBuilder->leftJoin('payment_account_shop', 'payment_account_shop.payment_account_id', 'payment_accounts.id');
+            $queryBuilder->where('payment_account_shop.shop_id', $parent->id);
+        }
+
+        /*
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
@@ -50,6 +63,7 @@ class IndexPaymentAccounts extends InertiaAction
                 prefix: $prefix
             );
         }
+        */
 
         return $queryBuilder
             ->defaultSort('payment_accounts.code')
@@ -67,9 +81,9 @@ class IndexPaymentAccounts extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(?array $modelOperations = null, $prefix=null): Closure
+    public function tableStructure(Shop|Organisation|PaymentServiceProvider $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -79,10 +93,12 @@ class IndexPaymentAccounts extends InertiaAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
+                    $parent instanceof PaymentServiceProvider ?
+
                     [
                         'title'       => __('no payment accounts'),
                         'description' => $this->canEdit ? __('Get started by creating a new payment account.') : null,
-                        'count'       => app('currentTenant')->stats->number_employees,
+                        'count'       => $parent->stats->number_payment_accounts,
                         'action'      => $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -90,10 +106,10 @@ class IndexPaymentAccounts extends InertiaAction
                             'label'   => __('payment account'),
                             'route'   => [
                                 'name'       => 'grp.org.accounting.payment-accounts.create',
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'parameters' => $parent->organisation->slug
                             ]
                         ] : null
-                    ]
+                    ] : null
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
@@ -103,33 +119,31 @@ class IndexPaymentAccounts extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('accounting.edit');
-
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('accounting.view')
-            );
+        $this->canEdit = $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
+        return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
     }
 
 
-    public function inOrganisation(ActionRequest $request): LengthAwarePaginator
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
-
-        return $this->handle(app('currentTenant'));
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request);
+        return $this->handle($organisation);
     }
 
-    public function inPaymentServiceProvider(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): LengthAwarePaginator
+    public function inPaymentServiceProvider(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->parent=$paymentServiceProvider;
+        $this->initialisation($organisation, $request);
 
         return $this->handle($paymentServiceProvider);
     }
 
-    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->parent = $shop;
+        $this->initialisationFromShop($shop, $request);
 
         return $this->handle($shop);
     }
