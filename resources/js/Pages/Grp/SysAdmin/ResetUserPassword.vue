@@ -1,6 +1,6 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3'
-import LayoutRetinaAuth from '@/Layouts/RetinaAuth.vue'
+import LayoutGrpAuth from '@/Layouts/GrpAuth.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import PureInput from '@/Components/Pure/PureInput.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -9,7 +9,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faArrowLeft)
 
 
-defineOptions({ layout: LayoutRetinaAuth })
+defineOptions({ layout: LayoutGrpAuth })
 defineProps({
     status: {
         type: String,

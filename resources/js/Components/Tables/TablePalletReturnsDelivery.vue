@@ -16,6 +16,9 @@ import TagPallete from '@/Components/TagPallete.vue'
 
 import Icon from "@/Components/Icon.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue'
+import { inject } from 'vue'
+
+const layout = inject('layout')
 
 library.add(faTrashAlt, faSignOutAlt, faTimes, faShare, faCross, faPaperPlane)
 const props = defineProps<{
@@ -68,7 +71,7 @@ function customerRoute(pallet: object) {
             </div>
 
             <!-- State: Pick or not-picked -->
-            <div v-if="props.state == 'picking'" class="flex gap-x-1 ">
+            <div v-if="props.state == 'picking' && layout.app.name == 'Aiku'" class="flex gap-x-1 ">
                 <Link v-if="pallet.state !== 'not-picked'" as="div"
                     :href="route(pallet.updateRoute.name, pallet.updateRoute.parameters)"
                     :data="{state: 'not-picked'}"

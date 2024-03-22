@@ -67,11 +67,11 @@ const props = defineProps<{
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(reference)="{ item: pallet }">
+        <!-- <template #cell(reference)="{ item: pallet }">
             <Link :href="'palletRoute(pallet)'" class="specialUnderline">
                 {{ pallet['reference'] }}
             </Link>
-        </template>
+        </template> -->
 
         <template #cell(state)="{ item: pallet }">
             <Icon v-if="pallet['state_icon']" :data="pallet['state_icon']" class="px-1" />

@@ -20,7 +20,7 @@ const props = defineProps<{
     title: string
     pageHead: {}
     data: {}
-    tags: {
+    tagsList: {
         data: {}
     }
 }>()
@@ -42,7 +42,7 @@ const onUploadOpen = (action) => {
         </template>
     </PageHeading>
     
-    <TableLocations :data="data" :tags="tags.data" />
+    <TableLocations :data="data" :tagsList="tagsList.data" />
 
     <UploadExcel
         :propName="'locations'"

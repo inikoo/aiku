@@ -23,6 +23,7 @@ const props = defineProps<{
 }>()
 
 function palletDeliveryRoute(palletDelivery: PalletDelivery) {
+    console.log(route().current())
     switch (route().current()) {
         case 'grp.org.warehouses.show.fulfilment.pallet-deliveries.index':
             return route(
@@ -34,10 +35,27 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
                 ])
         case 'grp.org.fulfilments.show.operations.pallet-deliveries.index':
             return route(
-                'grp.org.fulfilments.show.operations.pallet-deliveries.show',
+                'grp.org.warehouses.show.fulfilment.pallet-deliveries.show',
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],
+                    palletDelivery.slug
+                ])
+        case 'grp.org.warehouses.show.fulfilment.pallet-returns.index':
+            return route(
+                'grp.org.warehouses.show.fulfilment.pallet-returns.show',
+                [
+                    route().params['organisation'],
+                    route().params['warehouse'],
+                    palletDelivery.slug
+                ])
+        case 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.index':
+            return route(
+                'grp.org.fulfilments.show.crm.customers.show.pallet-returns.show',
+                [
+                    route().params['organisation'],
+                    route().params['fulfilment'],
+                    route().params['fulfilmentCustomer'],
                     palletDelivery.slug
                 ])
         default:

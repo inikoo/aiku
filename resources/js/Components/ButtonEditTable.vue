@@ -41,6 +41,7 @@ const handleClick = () => {
         route(props.data[props.routeName].name, props.data[props.routeName].parameters),
         props.dataToSubmit,
         {
+            preserveScroll: true,
             onStart: () => { loadingState.value = true },
             onSuccess: () => { emits('onSuccess') },
             onError: errors => {
