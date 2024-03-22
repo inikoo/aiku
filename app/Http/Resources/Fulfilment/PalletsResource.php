@@ -31,8 +31,8 @@ class PalletsResource extends JsonResource
             'location_id'            => $pallet->location?->id,
             'state_label'            => $pallet->state->labels()[$pallet->state->value],
             'state_icon'             => $pallet->state->stateIcon()[$pallet->state->value],
-            'stored_items'           => StoredItemResource::collection($pallet->storedItems),
-            'stored_items_quantity'  => (int) $pallet->storedItems()->first()?->pivot?->quantity,
+            'stored_items'           => $pallet->storedItems()->pluck('reference')->implode(', '),
+            'stored_items_quantity'  => (int) $pallet->storedItems()->sum('quantity'),
             'updateRoute'            => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet.update',
