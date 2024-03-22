@@ -26,7 +26,7 @@ createInertiaApp(
         resolve: name => {
             const pages = import.meta.glob('./Pages/Retina/**/*.vue', { eager: true })
             let page = pages[`./Pages/Retina/${name}.vue`]
-            if(!page) console.warn('File', name, 'is not exist')
+            if(!page) console.warn('File', `./Pages/Retina/${name}.vue`, 'is not exist')
             page.default.layout = page.default.layout || Layout
             return page
         },
