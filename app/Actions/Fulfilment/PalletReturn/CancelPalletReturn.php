@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\PalletReturn;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\CRM\WebUser;
@@ -28,6 +29,8 @@ class CancelPalletReturn extends OrgAction
     {
         $modelData[PalletReturnStateEnum::CANCEL->value.'_at']    = now();
         $modelData['state']                                       = PalletReturnStateEnum::CANCEL;
+
+        $palletReturn->pallets()->update(['status' => PalletStatusEnum::IN_PROCESS]);
 
         HydrateFulfilmentCustomer::dispatch($palletReturn->fulfilmentCustomer);
 

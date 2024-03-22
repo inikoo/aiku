@@ -17,7 +17,7 @@ class ShowResetWebUserPassword
 
     public function handle(): Response
     {
-        return Inertia::render('Auth/ResetWebUserPassword');
+        return Inertia::render('Auth/SetNewPassword');
     }
 
 }

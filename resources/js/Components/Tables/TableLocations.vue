@@ -20,9 +20,8 @@ library.add(faBox, faHandHoldingBox, faPallet, faPencil)
 
 const props = defineProps<{
     data: {
-        // tagsList: {}[]
     },
-    tags: tag[]
+    tagsList: tag[]
     tab?: string
     tagRoute?: {}
 }>()
@@ -31,7 +30,7 @@ interface tag {
     id: number
     slug: string
     name: string
-    type: boolean
+    type: string
 }
 
 function locationRoute(location: Location) {
@@ -59,28 +58,28 @@ function locationRoute(location: Location) {
     }
 }
 
-const tagsListTemp = ref<tag[]>(props.tags)
+const tagsListTemp = ref<tag[]>(props.tagsList)
 const onEditLocation = ref(false)
 
 // Add new Tag
-const addNewTag = async (option: tag) => {
+const addNewTag = async (option: tag, idLocation: number) => {
+    // console.log('option', option, idLocation)
     try {
-        const response: any = await axios.post(route('grp.models.location.tag.store', 1),
+        const response: any = await axios.post(route('grp.models.location.tag.store', idLocation),
             { name: option.name },
             {
                 headers: { "Content-Type": "multipart/form-data" },
             }
         )
-
         tagsListTemp.value.push(response.data.data)  // (manipulation) Add new data to reactive data
-        return option
+        // return option
     } catch (error: any) {
         notify({
             title: "Failed to add new tag",
             text: error,
             type: "error"
         })
-        return false
+        // return false
     }
 }
 
@@ -94,7 +93,7 @@ const updateTagItemTable = async (tags: string[], idLocation: number) => {
         // Refetch the data of Table to update the item.tags (v-model doesn't work)
         router.reload(
             {
-                only: ['data']
+                only: ['locations']
             }
         )
     } catch (error: any) {
@@ -120,7 +119,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <!-- <pre>{{ tags }}</pre> -->
+    <!-- <pre>{{ tagsListTemp }}</pre> -->
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Code -->
         <template #cell(code)="{ item: location }">
@@ -181,14 +180,14 @@ onUnmounted(() => {
                         :key="item.id"
                         mode="tags"
                         placeholder="Select the tag"
-                        valueProp="name"
-                        trackBy="name"
+                        valueProp="slug"
+                        trackBy="slug"
                         label="name"
                         @change="(tags) => (updateTagItemTable(tags, item.id))"
                         :close-on-select="false"
                         :searchable="true"
                         :create-option="true"
-                        :on-create="addNewTag"
+                        :on-create="(tag: tag) => addNewTag(tag, item.id)"
                         :caret="false"
                         :options="tagsListTemp"
                         noResultsText="No one left. Type to add new one."
@@ -207,7 +206,7 @@ onUnmounted(() => {
                         </template>
                     </Multiselect>
 
-                    <div class="text-gray-400 italic">
+                    <div class="text-gray-400 italic text-xs">
                         Press Esc to finish edit or <span @click="() => onEditLocation = false" class="hover:text-gray-500 cursor-pointer">click here</span>.
                     </div>
                 </div>

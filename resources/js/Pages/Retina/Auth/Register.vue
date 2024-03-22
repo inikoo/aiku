@@ -92,7 +92,7 @@ watch(() => form.password_confirmation, () => {
         </div> -->
 
         <div class="space-y-2">
-            <Button full @click.prevent="submit" :loading="isLoading" label="Register"> </Button>
+            <Button full @click.prevent="submit" disabled :loading="isLoading" label="Register"> </Button>
             <p class="text-gray-600">Already have an account? <Link as="span" :href="route('retina.login.show')" class="cursor-pointer font-bold hover:underline">Login</Link></p>
         </div>
     </form>

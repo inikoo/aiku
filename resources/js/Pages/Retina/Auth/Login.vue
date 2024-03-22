@@ -53,7 +53,7 @@ onMounted(async () => {
 
         <div>
             <label for="password" class="block text-sm font-medium text-gray-700"> {{ trans('Password') }} </label>
-            <div class="mt-1 flex flex-col rounded-md shadow-sm">
+            <div class="mt-1 flex flex-col rounded-md">
                 <LoginPassword :showProcessing="false" id="password" name="password" :form="form" fieldName="password" @keydown.enter="submit" placeholder="********"/>
                 <Link href="/app/email-reset-password" class="text-xs mt-2 italic text-gray-600 hover:underline cursor-pointer">Forgot password?</Link>
             </div>
@@ -67,8 +67,10 @@ onMounted(async () => {
         </div>
 
         <div class="space-y-2">
-            <Button full @click.prevent="submit" :loading="isLoading" label="Sign in"  type="indigo"/>
-            <p class="text-gray-600">Don't have account yet? <Link as="span" :href="route('retina.register')" class="cursor-pointer font-bold hover:underline">Sign up</Link></p>
+            <Button full @click.prevent="submit" :loading="isLoading" label="Sign in"  
+                class="bg-indigo-700 hover:bg-slate-600 border border-slate-500 text-teal-50 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
+            />
+            <!-- <p class="text-gray-600">Don't have account yet? <Link as="span" :href="route('retina.register')" class="cursor-pointer font-bold hover:underline">Sign up</Link></p> -->
         </div>
     </form>
 
