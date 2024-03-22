@@ -28,12 +28,14 @@ const props = defineProps<{
         current: string
         navigation: {}
     }
+    tagsList: {
+        data: {}[]
+    }
     title: string
     dashboard?: {}
     warehouse_areas?: {}
     locations?: {
         data: []
-        tags: {}[]
     }
     history: {}
 }>()
@@ -63,5 +65,5 @@ const component = computed(() => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :tab="currentTab" :data="props[currentTab]"></component>
+    <component :is="component" :tab="currentTab" :data="props[currentTab]" :tagsList="tagsList.data"></component>
 </template>

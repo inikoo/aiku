@@ -24,6 +24,8 @@ use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use App\Http\Resources\Tag\TagResource;
+use App\Models\Helpers\Tag;
 
 class ShowWarehouse extends OrgAction
 {
@@ -119,9 +121,8 @@ class ShowWarehouse extends OrgAction
 
                     'current'    => $this->tab,
                     'navigation' => WarehouseTabsEnum::navigation(),
-
-
                 ],
+                'tagsList'      => TagResource::collection(Tag::all()),
 
                 WarehouseTabsEnum::SHOWCASE->value => $this->tab == WarehouseTabsEnum::SHOWCASE->value ?
                     fn () => GetWarehouseShowcase::run($warehouse)
