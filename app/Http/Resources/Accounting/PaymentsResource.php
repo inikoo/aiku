@@ -21,14 +21,12 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $payment_accounts_slug
  *
  */
-class PaymentResource extends JsonResource
+class PaymentsResource extends JsonResource
 {
     public function toArray($request): array
     {
         return array(
             'slug'                           => $this->slug,
-            'payment_service_providers_slug' => $this->payment_service_providers_slug,
-            'payment_accounts_slug'          => $this->payment_accounts_slug,
             'status'                         => $this->status,
             'date'                           => $this->date,
             'reference'                      => $this->reference,

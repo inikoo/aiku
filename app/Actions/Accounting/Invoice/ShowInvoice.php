@@ -14,7 +14,7 @@ use App\Actions\UI\WithInertia;
 use App\Enums\UI\CustomerTabsEnum;
 use App\Enums\UI\InvoiceTabsEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
-use App\Http\Resources\Accounting\PaymentResource;
+use App\Http\Resources\Accounting\PaymentsResource;
 use App\Models\Accounting\Invoice;
 use App\Models\Market\Shop;
 use Inertia\Inertia;
@@ -85,8 +85,8 @@ class ShowInvoice extends InertiaAction
                     : Inertia::lazy(fn () => GetInvoiceShowcase::run($this->invoice)),
 
                 InvoiceTabsEnum::PAYMENTS->value => $this->tab == InvoiceTabsEnum::PAYMENTS->value ?
-                    fn () => PaymentResource::collection(IndexPayments::run($this->invoice))
-                    : Inertia::lazy(fn () => PaymentResource::collection(IndexPayments::run($this->invoice))),
+                    fn () => PaymentsResource::collection(IndexPayments::run($this->invoice))
+                    : Inertia::lazy(fn () => PaymentsResource::collection(IndexPayments::run($this->invoice))),
 
 
 

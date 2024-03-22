@@ -14,7 +14,7 @@ use App\Actions\InertiaAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\UI\PaymentAccountTabsEnum;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
-use App\Http\Resources\Accounting\PaymentResource;
+use App\Http\Resources\Accounting\PaymentsResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -122,13 +122,13 @@ class ShowPaymentAccount extends InertiaAction
                 ],
 
                 PaymentAccountTabsEnum::PAYMENTS->value => $this->tab == PaymentAccountTabsEnum::PAYMENTS->value ?
-                    fn () => PaymentResource::collection(
+                    fn () => PaymentsResource::collection(
                         IndexPayments::run(
                             parent: $this->paymentAccount,
                             prefix: 'payments'
                         )
                     )
-                    : Inertia::lazy(fn () => PaymentResource::collection(
+                    : Inertia::lazy(fn () => PaymentsResource::collection(
                         IndexPayments::run(
                             parent: $this->paymentAccount,
                             prefix: 'payments'

@@ -5,23 +5,24 @@
   -->
 
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3'
-import Table from '@/Components/Table/Table.vue'
-import { PalletCustomer } from '@/types/Pallet'
+import { Link } from "@inertiajs/vue3";
+import Table from "@/Components/Table/Table.vue";
+import { Payment } from "@/types/Payment";
 
 const props = defineProps<{
     data: object,
     tab?: string
-}>()
+}>();
 
 
-function palletsRoute(pallet: PalletCustomer) {
+function paymentsRoute(payment: Payment) {
+    console.log(route().current());
     switch (route().current()) {
 
-        default:
+        case "grp.org.accounting.payments.index":
             return route(
-                'grp.org.accounting.pallets.index',
-                [pallet.slug])
+                "grp.org.accounting.payments.show",
+                [route().params["organisation"], payment.slug]);
     }
 
 }
@@ -29,9 +30,9 @@ function palletsRoute(pallet: PalletCustomer) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(reference)="{ item: pallet }">
-            <Link :href="palletsRoute(pallet)">
-                {{ pallet['reference'] }}
+        <template #cell(reference)="{ item: payment }">
+            <Link :href="paymentsRoute(payment)">
+                {{ payment["reference"] }}
             </Link>
         </template>
     </Table>

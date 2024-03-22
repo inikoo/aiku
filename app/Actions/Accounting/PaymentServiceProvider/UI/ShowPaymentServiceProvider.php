@@ -15,7 +15,7 @@ use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\UI\PaymentServiceProviderTabsEnum;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
-use App\Http\Resources\Accounting\PaymentResource;
+use App\Http\Resources\Accounting\PaymentsResource;
 use App\Http\Resources\Accounting\PaymentServiceProvidersResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -117,13 +117,13 @@ class ShowPaymentServiceProvider extends OrgAction
 
                 PaymentServiceProviderTabsEnum::PAYMENTS->value => $this->tab == PaymentServiceProviderTabsEnum::PAYMENTS->value
                     ?
-                    fn () => PaymentResource::collection(
+                    fn () => PaymentsResource::collection(
                         IndexPayments::run(
                             parent: $paymentServiceProvider,
                             prefix: 'payments'
                         )
                     )
-                    : Inertia::lazy(fn () => PaymentResource::collection(
+                    : Inertia::lazy(fn () => PaymentsResource::collection(
                         IndexPayments::run(
                             parent: $paymentServiceProvider,
                             prefix: 'payments'
