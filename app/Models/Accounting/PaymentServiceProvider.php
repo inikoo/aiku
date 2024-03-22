@@ -33,6 +33,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property PaymentServiceProviderTypeEnum $type
  * @property string $code
  * @property string $slug
+ * @property string $name
  * @property array $data
  * @property string|null $last_used_at
  * @property Carbon|null $created_at

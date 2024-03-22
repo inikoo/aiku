@@ -32,34 +32,54 @@ function paymentAccountRoute(paymentAccount: PaymentAccount) {
 
 }
 
+function providersRoute(paymentAccount: PaymentAccount) {
+    console.log(route().current())
+    switch (route().current()) {
+
+
+        case 'grp.org.accounting.payment-accounts.index':
+            return route(
+                'grp.org.accounting.payment-service-providers.show',
+                [route().params['organisation'],paymentAccount.slug]);
+
+    }
+}
+
 function paymentsRoute(paymentAccount: PaymentAccount) {
     switch (route().current()) {
 
         case 'grp.org.accounting.payment-service-providers.show.payment-accounts.index':
             return route(
                 'grp.org.accounting.payment-service-providers.show.payment-accounts.show.payments.index',
-                [paymentAccount.payment_service_providers_slug, paymentAccount.slug]);
+                [paymentAccount.payment_service_providers_slug, paymentAccount.payment_service_provider_slug]);
         case 'grp.org.accounting.payment-accounts.index':
             return route(
                 'grp.org.accounting.payment-accounts.show.payments.index',
                 [route().params['organisation'],paymentAccount.slug]);
 
     }
-
 }
+
+
 </script>
 
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: paymentAccount }">
-            <Link :href="paymentAccountRoute(paymentAccount)">
+            <Link :href="paymentAccountRoute(paymentAccount)" class="specialUnderline">
                 {{ paymentAccount['code'] }}
             </Link>
         </template>
 
+        <template #cell(payment_service_provider_code)="{ item: paymentAccount }">
+            <Link :href="providersRoute(paymentAccount)" class="specialUnderlineSecondary">
+                {{ paymentAccount['payment_service_provider_code'] }}
+            </Link>
+        </template>
+
         <template #cell(number_payments)="{ item: paymentAccount }">
-            <Link :href="paymentsRoute(paymentAccount)">
+            <Link :href="paymentsRoute(paymentAccount)" class="specialUnderlineSecondary">
                 {{ paymentAccount['number_payments'] }}
             </Link>
         </template>

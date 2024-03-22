@@ -99,7 +99,8 @@ class StoreOrganisation
                 organisation: $organisation,
                 modelData: [
                     'type' => PaymentServiceProviderTypeEnum::ACCOUNT->value,
-                    'code' => $organisation->slug.'-accounts'
+                    'code' => $organisation->slug.'-accounts',
+                    'name' => "Internal accounts ($organisation->slug)",
                 ]
             );
         }

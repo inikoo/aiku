@@ -51,6 +51,8 @@ use Illuminate\Support\Carbon;
  * @property int $number_pallets_state_not_received
  * @property int $number_pallets_state_booked_in
  * @property int $number_pallets_state_settled
+ * @property int $number_pallets_state_picked
+ * @property int $number_pallets_state_not_picked
  * @property int $number_pallets_status_in_process
  * @property int $number_pallets_status_storing
  * @property int $number_pallets_status_damaged

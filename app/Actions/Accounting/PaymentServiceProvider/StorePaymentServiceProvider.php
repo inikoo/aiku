@@ -53,6 +53,11 @@ class StorePaymentServiceProvider extends OrgAction
                     ]
                 ),
             ],
+            'name'      => [
+                'required',
+                'max:255',
+                'string',
+            ],
             'type'      => ['required', Rule::in(PaymentServiceProviderTypeEnum::values())],
             'source_id' => ['sometimes', 'string'],
         ];

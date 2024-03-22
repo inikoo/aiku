@@ -9,7 +9,7 @@ namespace App\Actions\Accounting\PaymentServiceProvider\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
-use App\Http\Resources\Accounting\PaymentServiceProviderResource;
+use App\Http\Resources\Accounting\PaymentServiceProvidersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Market\Shop;
@@ -30,7 +30,7 @@ class IndexPaymentServiceProviders extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('payment_service_providers.code', $value)
-                    ->orWhereAnyWordStartWith('payment_service_providers.data', $value);
+                    ->orWhereAnyWordStartWith('payment_service_providers.name', $value);
             });
         });
 
@@ -44,7 +44,8 @@ class IndexPaymentServiceProviders extends OrgAction
         if($parent instanceof Organisation) {
             $queryBuilder->where('organisation_id', $parent->id);
         } else {
-            $queryBuilder->where('shop_id', $parent->id);
+            $queryBuilder->leftJoin('payment_service_provider_shop', 'payment_service_providers.id', 'payment_service_provider_shop.payment_service_provider_id');
+            $queryBuilder->where('payment_service_provider_shop.shop_id', $parent->id);
         }
 
 
@@ -62,15 +63,10 @@ class IndexPaymentServiceProviders extends OrgAction
 
         return $queryBuilder
             ->defaultSort('payment_service_providers.code')
-            ->select(['code', 'slug', 'number_payment_accounts', 'number_payments'])
+            ->select(['code', 'slug', 'number_payment_accounts', 'number_payments','name'])
             ->leftJoin('payment_service_provider_stats', 'payment_service_providers.id', 'payment_service_provider_stats.payment_service_provider_id')
-            ->when(true, function ($query) use ($parent) {
-                if (class_basename($parent) == 'Shop') {
-                    $query->leftJoin('payment_service_provider_shop', 'payment_service_providers.id', 'payment_service_provider_shop.payment_service_provider_id');
-                    $query->where('payment_service_provider_shop.shop_id', $parent->id);
-                }
-            })
-            ->allowedSorts(['code', 'number_payment_accounts', 'number_payments'])
+
+            ->allowedSorts(['code', 'number_payment_accounts', 'number_payments','name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -88,6 +84,7 @@ class IndexPaymentServiceProviders extends OrgAction
                 ->withGlobalSearch()
                 ->defaultSort('code')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_payment_accounts', label: __('accounts'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_payments', label: __('payments'), canBeHidden: false, sortable: true, searchable: true);
         };
@@ -102,7 +99,7 @@ class IndexPaymentServiceProviders extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $paymentServiceProviders): AnonymousResourceCollection
     {
-        return PaymentServiceProviderResource::collection($paymentServiceProviders);
+        return PaymentServiceProvidersResource::collection($paymentServiceProviders);
     }
 
 
@@ -117,7 +114,7 @@ class IndexPaymentServiceProviders extends OrgAction
                     'title' => __('Payment Service Providers'),
 
                 ],
-                'data'        => PaymentServiceProviderResource::collection($paymentServiceProviders),
+                'data'        => PaymentServiceProvidersResource::collection($paymentServiceProviders),
 
 
             ]

@@ -13,7 +13,7 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\UI\PaymentAccountTabsEnum;
-use App\Http\Resources\Accounting\PaymentAccountResource;
+use App\Http\Resources\Accounting\PaymentAccountsResource;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Accounting\PaymentAccount;
@@ -154,9 +154,9 @@ class ShowPaymentAccount extends InertiaAction
     }
 
 
-    public function jsonResponse(PaymentAccount $paymentAccount): PaymentAccountResource
+    public function jsonResponse(PaymentAccount $paymentAccount): PaymentAccountsResource
     {
-        return new PaymentAccountResource($paymentAccount);
+        return new PaymentAccountsResource($paymentAccount);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array

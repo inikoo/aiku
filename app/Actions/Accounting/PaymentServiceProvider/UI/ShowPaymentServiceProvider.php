@@ -14,9 +14,9 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\UI\PaymentServiceProviderTabsEnum;
-use App\Http\Resources\Accounting\PaymentAccountResource;
+use App\Http\Resources\Accounting\PaymentAccountsResource;
 use App\Http\Resources\Accounting\PaymentResource;
-use App\Http\Resources\Accounting\PaymentServiceProviderResource;
+use App\Http\Resources\Accounting\PaymentServiceProvidersResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\SysAdmin\Organisation;
@@ -131,13 +131,13 @@ class ShowPaymentServiceProvider extends OrgAction
                     )),
                 PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value => $this->tab == PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value
                     ?
-                    fn () => PaymentAccountResource::collection(
+                    fn () => PaymentAccountsResource::collection(
                         IndexPaymentAccounts::run(
                             parent: $paymentServiceProvider,
                             prefix: 'payment_accounts'
                         )
                     )
-                    : Inertia::lazy(fn () => PaymentAccountResource::collection(
+                    : Inertia::lazy(fn () => PaymentAccountsResource::collection(
                         IndexPaymentAccounts::run(
                             parent: $paymentServiceProvider,
                             prefix: 'payment_accounts'
@@ -177,9 +177,9 @@ class ShowPaymentServiceProvider extends OrgAction
         ))
         ->table(IndexHistory::make()->tableStructure());
     }
-    public function jsonResponse(PaymentServiceProvider $paymentServiceProvider): PaymentServiceProviderResource
+    public function jsonResponse(PaymentServiceProvider $paymentServiceProvider): PaymentServiceProvidersResource
     {
-        return new PaymentServiceProviderResource($paymentServiceProvider);
+        return new PaymentServiceProvidersResource($paymentServiceProvider);
     }
     public function getBreadcrumbs(PaymentServiceProvider $paymentServiceProvider, $suffix = null): array
     {

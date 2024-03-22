@@ -9,7 +9,7 @@ namespace App\Actions\Accounting\PaymentServiceProvider;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Accounting\PaymentServiceProviderResource;
+use App\Http\Resources\Accounting\PaymentServiceProvidersResource;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
@@ -54,6 +54,12 @@ class UpdatePaymentServiceProvider extends OrgAction
                     ]
                 ),
             ],
+            'name'      => [
+                'sometimes',
+                'required',
+                'max:255',
+                'string',
+            ],
         ];
     }
 
@@ -74,8 +80,8 @@ class UpdatePaymentServiceProvider extends OrgAction
         return $this->handle($paymentServiceProvider, $this->validatedData);
     }
 
-    public function jsonResponse(PaymentServiceProvider $paymentServiceProvider): PaymentServiceProviderResource
+    public function jsonResponse(PaymentServiceProvider $paymentServiceProvider): PaymentServiceProvidersResource
     {
-        return new PaymentServiceProviderResource($paymentServiceProvider);
+        return new PaymentServiceProvidersResource($paymentServiceProvider);
     }
 }

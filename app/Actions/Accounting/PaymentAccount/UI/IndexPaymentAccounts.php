@@ -10,7 +10,7 @@ namespace App\Actions\Accounting\PaymentAccount\UI;
 use App\Actions\Accounting\PaymentServiceProvider\UI\ShowPaymentServiceProvider;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
-use App\Http\Resources\Accounting\PaymentAccountResource;
+use App\Http\Resources\Accounting\PaymentAccountsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -72,10 +72,14 @@ class IndexPaymentAccounts extends OrgAction
                 'payment_accounts.name',
                 'number_payments',
                 'payment_accounts.slug as slug',
+                'payment_service_providers.slug as payment_service_provider_slug',
+                'payment_service_providers.name as payment_service_provider_name',
+                'payment_service_providers.code as payment_service_provider_code',
+
             ])
             ->leftJoin('payment_account_stats', 'payment_accounts.id', 'payment_account_stats.payment_account_id')
             ->leftJoin('payment_service_providers', 'payment_service_provider_id', 'payment_service_providers.id')
-            ->allowedSorts(['code', 'name', 'number_payments'])
+            ->allowedSorts(['code', 'name', 'number_payments','payment_service_provider_code'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -95,24 +99,30 @@ class IndexPaymentAccounts extends OrgAction
                 ->withEmptyState(
                     $parent instanceof PaymentServiceProvider ?
 
-                    [
-                        'title'       => __('no payment accounts'),
-                        'description' => $this->canEdit ? __('Get started by creating a new payment account.') : null,
-                        'count'       => $parent->stats->number_payment_accounts,
-                        'action'      => $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new payment account'),
-                            'label'   => __('payment account'),
-                            'route'   => [
-                                'name'       => 'grp.org.accounting.payment-accounts.create',
-                                'parameters' => $parent->organisation->slug
-                            ]
+                        [
+                            'title'       => __('no payment accounts'),
+                            'description' => $this->canEdit ? __('Get started by creating a new payment account.') : null,
+                            'count'       => $parent->stats->number_payment_accounts,
+                            'action'      => $this->canEdit ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new payment account'),
+                                'label'   => __('payment account'),
+                                'route'   => [
+                                    'name'       => 'grp.org.accounting.payment-accounts.create',
+                                    'parameters' => $parent->organisation->slug
+                                ]
+                            ] : null
                         ] : null
-                    ] : null
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+
+            if (!$parent instanceof PaymentServiceProvider) {
+                $table->column(key: 'payment_service_provider_code', label: __('provider'), canBeHidden: false, sortable: true, searchable: true);
+            }
+
+            $table->column(key: 'number_payments', label: __('payments'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }
@@ -120,6 +130,7 @@ class IndexPaymentAccounts extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
+
         return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
     }
 
@@ -128,12 +139,13 @@ class IndexPaymentAccounts extends OrgAction
     {
         $this->parent = $organisation;
         $this->initialisation($organisation, $request);
+
         return $this->handle($organisation);
     }
 
     public function inPaymentServiceProvider(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$paymentServiceProvider;
+        $this->parent = $paymentServiceProvider;
         $this->initialisation($organisation, $request);
 
         return $this->handle($paymentServiceProvider);
@@ -150,7 +162,7 @@ class IndexPaymentAccounts extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $paymentAccounts): AnonymousResourceCollection
     {
-        return PaymentAccountResource::collection($paymentAccounts);
+        return PaymentAccountsResource::collection($paymentAccounts);
     }
 
 
@@ -191,7 +203,7 @@ class IndexPaymentAccounts extends OrgAction
 
 
                 ],
-                'data'        => PaymentAccountResource::collection($paymentAccounts),
+                'data'        => PaymentAccountsResource::collection($paymentAccounts),
 
 
             ]
