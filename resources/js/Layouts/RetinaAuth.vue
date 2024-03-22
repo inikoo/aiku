@@ -27,7 +27,7 @@ if (usePage().props.language) {
         </div>
 
         <div class="mt-8 mx-auto md:w-full max-w-md">
-            <div class="relative bg-white/65 py-8 px-4 shadow rounded-lg md:px-10">
+            <div class="backdrop-blur-sm relative bg-white/65 py-8 px-4 shadow rounded-lg md:px-10">
                 <slot />
             </div>
         </div>
