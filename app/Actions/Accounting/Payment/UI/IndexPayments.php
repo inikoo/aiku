@@ -31,6 +31,8 @@ use App\Services\QueryBuilder;
 
 class IndexPayments extends OrgAction
 {
+    private Organisation|PaymentAccount|Shop|PaymentServiceProvider $parent;
+
     public function handle($parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -94,9 +96,9 @@ class IndexPayments extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Organisation|PaymentServiceProvider|PaymentAccount $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -122,6 +124,7 @@ class IndexPayments extends OrgAction
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent=$organisation;
         $this->initialisation($organisation, $request);
 
         return $this->handle($organisation);
@@ -129,6 +132,7 @@ class IndexPayments extends OrgAction
 
     public function inPaymentServiceProvider(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent=$paymentServiceProvider;
         $this->initialisation($organisation, $request);
 
         return $this->handle($paymentServiceProvider);
@@ -137,8 +141,8 @@ class IndexPayments extends OrgAction
     /** @noinspection PhpUnused */
     public function inPaymentAccount(Organisation $organisation, PaymentAccount $paymentAccount, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent=$paymentAccount;
         $this->initialisation($organisation, $request);
-
         return $this->handle($paymentAccount);
     }
 
@@ -146,15 +150,15 @@ class IndexPayments extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inPaymentAccountInPaymentServiceProvider(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, PaymentAccount $paymentAccount, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent=$paymentAccount;
         $this->initialisation($organisation, $request);
-
         return $this->handle($paymentAccount);
     }
 
     public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent=$shop;
         $this->initialisation($organisation, $request);
-
         return $this->handle($shop);
     }
 
@@ -192,7 +196,7 @@ class IndexPayments extends OrgAction
 
 
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($this->parent));
     }
 
 

@@ -31,40 +31,49 @@ function paymentServiceProviderRoute(paymentServiceAccount: PaymentServiceAccoun
   }
 
 }
-function paymentAccountRoute(paymentAccount: PaymentAccount) {
+function paymentAccountRoute(paymentServiceAccount: PaymentServiceAccount) {
     switch (route().current()) {
-        case 'shops.show.accounting.payment-accounts.index':
+        case 'grp.org.accounting.payment-service-providers.index':
             return route(
-                'shops.show.accounting.payment-accounts.show',
-                [paymentAccount.shop_slug, paymentAccount.slug]);
-        case 'grp.org.accounting.payment-service-providers.show':
-        case 'grp.org.accounting.payment-service-providers.show.payment-accounts.index':
-            return route(
-                'grp.org.accounting.payment-service-providers.show.payment-accounts.show',
-                [paymentAccount.payment_service_providers_slug, paymentAccount.slug]);
-        case 'grp.org.accounting.payment-accounts.index':
-        default:
-            return route(
-                'grp.org.accounting.payment-accounts.show',
-                [paymentAccount.slug]);
+                'grp.org.accounting.payment-service-providers.show.payment-accounts.index',
+                [
+                    route().params['organisation'],
+                    paymentServiceAccount.slug
+                ]
+            );
 
     }
 
 }
 
-function paymentsRoute(paymentAccount: PaymentAccount) {
+function paymentsRoute(paymentServiceAccount: PaymentServiceAccount) {
     switch (route().current()) {
 
         case 'grp.org.accounting.payment-service-providers.show.payment-accounts.index':
             return route(
                 'grp.org.accounting.payment-service-providers.show.payment-accounts.show.payments.index',
-                [paymentAccount.payment_service_providers_slug, paymentAccount.slug]);
+                [
+                    route().params['organisation'],
+                    route().params['paymentServiceProvider'],
+                    route().params['paymentAccount']]
+            );
         case 'grp.org.accounting.payment-accounts.index':
             return route(
                 'grp.org.accounting.payment-accounts.show.payments.index',
-                [paymentAccount.slug]);
-        default:
-            return route('grp.org.accounting.payments.index');
+                [
+                    route().params['organisation'],
+                    route().params['paymentAccount']
+                ]
+            );
+        case 'grp.org.accounting.payment-service-providers.index':
+            return route(
+                'grp.org.accounting.payment-service-providers.show.payments.index',
+                [
+                    route().params['organisation'],
+                    paymentServiceAccount.slug
+                ]
+            );
+
     }
 
 }
@@ -78,6 +87,18 @@ function paymentsRoute(paymentAccount: PaymentAccount) {
                 {{ paymentServiceProvider['slug'] }}
             </Link>
         </template>
+
+        <template #cell(number_payment_accounts)="{ item: paymentServiceProvider }">
+            <Link :href="paymentAccountRoute(paymentServiceProvider)" class="specialUnderlineSecondary">
+                {{ paymentServiceProvider['number_payment_accounts'] }}
+            </Link>
+        </template>
+        <template #cell(number_payments)="{ item: paymentServiceProvider }">
+            <Link :href="paymentsRoute(paymentServiceProvider)" class="specialUnderlineSecondary">
+                {{ paymentServiceProvider['number_payments'] }}
+            </Link>
+        </template>
+
 
     </Table>
 </template>
