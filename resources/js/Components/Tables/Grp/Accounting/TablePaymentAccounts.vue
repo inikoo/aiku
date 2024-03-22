@@ -17,20 +17,16 @@ import {PaymentAccount} from "@/types/payment-account";
 
 function paymentAccountRoute(paymentAccount: PaymentAccount) {
     switch (route().current()) {
-        case 'shops.show.accounting.payment-accounts.index':
-            return route(
-                'shops.show.accounting.payment-accounts.show',
-                [paymentAccount.shop_slug, paymentAccount.slug]);
+
         case 'grp.org.accounting.payment-service-providers.show':
         case 'grp.org.accounting.payment-service-providers.show.payment-accounts.index':
             return route(
                 'grp.org.accounting.payment-service-providers.show.payment-accounts.show',
-                [paymentAccount.payment_service_providers_slug, paymentAccount.slug]);
+                [route().params['organisation'],route().params['payment_service_provider'], paymentAccount.slug]);
         case 'grp.org.accounting.payment-accounts.index':
-        default:
             return route(
                 'grp.org.accounting.payment-accounts.show',
-                [paymentAccount.slug]);
+                [route().params['organisation'],paymentAccount.slug]);
 
     }
 
@@ -46,9 +42,8 @@ function paymentsRoute(paymentAccount: PaymentAccount) {
         case 'grp.org.accounting.payment-accounts.index':
             return route(
                 'grp.org.accounting.payment-accounts.show.payments.index',
-                [paymentAccount.slug]);
-        default:
-            return route('grp.org.accounting.payments.index');
+                [route().params['organisation'],paymentAccount.slug]);
+
     }
 
 }

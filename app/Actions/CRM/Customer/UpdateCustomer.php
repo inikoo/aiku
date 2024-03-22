@@ -29,6 +29,7 @@ class UpdateCustomer extends OrgAction
     use WithActionUpdate;
 
     private Customer $customer;
+    private bool $strict;
 
     public function handle(Customer $customer, array $modelData): Customer
     {
@@ -100,7 +101,7 @@ class UpdateCustomer extends OrgAction
         $customer = $this->update($customer, $modelData, ['data']);
 
 
-        CustomerHydrateUniversalSearch::dispatch($customer);
+        CustomerHydrateUniversalSearch::dispatch($customer)->delay($this->hydratorsDelay);
 
         return $customer;
     }
