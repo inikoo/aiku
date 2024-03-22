@@ -9,8 +9,10 @@ namespace App\Actions\CRM\WebUser;
 
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\WebUser;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,12 +39,24 @@ class UpdateWebUserPasswordViaEmail
         ];
     }
 
+    /**
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function asController(ActionRequest $request): void
     {
         $request->validate();
 
-        \Illuminate\Support\Facades\Password::broker('web-users')->reset(
-            $request->only('email', 'password', 'token'),
+        $this->handle(WebUser::where('email', $request->input('email'))->first(), [
+            'password'       => Hash::make($request->input('password')),
+            'reset_password' => false
+        ]);
+
+        /*$response = \Illuminate\Support\Facades\Password::broker('web-users')->reset(
+            [
+                'email'    => $request->input('email'),
+                'password' => $request->input('password'),
+                'token'    => bcrypt($request->input('token'))
+            ],
             function ($user, $password) {
                 $this->handle($user, [
                     'password'       => $password,
@@ -50,6 +64,10 @@ class UpdateWebUserPasswordViaEmail
                 ]);
             }
         );
+
+        \Illuminate\Support\Facades\Password::INVALID_TOKEN === $response
+            ? throw ValidationException::withMessages(['token' => 'Token has been expired.'])
+            : throw ValidationException::withMessages(['status' => 'Error while changing the password']);*/
     }
 
     public function action(WebUser $user, $objectData): WebUser
