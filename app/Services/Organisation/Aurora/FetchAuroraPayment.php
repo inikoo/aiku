@@ -17,7 +17,7 @@ class FetchAuroraPayment extends FetchAurora
     protected function parseModel(): void
     {
 
-        print_r($this->auroraModelData);
+        //print_r($this->auroraModelData);
 
         $data = [];
 
