@@ -17,8 +17,8 @@ import { Link } from "@inertiajs/vue3"
 import { get } from 'lodash'
 import axios from 'axios'
 import { PalletDelivery } from "@/types/pallet-delivery"
-import { } from '@fal'
-library.add( )
+import { faSeedling, faShare, faSpellCheck, faTruck, faCheck, faCheckDouble, faCross } from '@fal'
+library.add(faSeedling, faShare, faSpellCheck, faTruck, faCheck, faCheckDouble, faCross)
 
 
 const props = defineProps<{

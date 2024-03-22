@@ -89,9 +89,10 @@ class ShowPalletReturn extends RetinaAction
                     ] : [
                         $palletReturn->state != PalletReturnStateEnum::DISPATCHED && $palletReturn->state != PalletReturnStateEnum::CANCEL ? [
                             'type'    => 'button',
-                            'style'   => 'cancel',
+                            'style'   => 'negative',
+                            'icon'    => 'fal fa-times',
                             'tooltip' => __('cancel'),
-                            'label'   => __('cancel'),
+                            'label'   => __('cancel return'),
                             'key'     => 'action',
                             'route'   => [
                                 'method'     => 'post',

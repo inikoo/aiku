@@ -10,6 +10,7 @@ import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus } from "@fas"
+import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross } from "@fal"
 import { Link } from "@inertiajs/vue3"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Table from "@/Components/Table/Table.vue"
@@ -17,7 +18,7 @@ import Table from "@/Components/Table/Table.vue"
 import { PalletDelivery } from "@/types/pallet-delivery"
 import TagPallete from '@/Components/TagPallete.vue'
 
-library.add(faPlus)
+library.add(faPlus, faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross)
 
 const props = defineProps<{
     data: {}
