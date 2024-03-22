@@ -72,10 +72,10 @@ function handleKeyDown() {
 
 <template>
     <TransitionRoot :show="isOpen" as="template" @after-leave="query = ''" appear>
-        <Dialog as="div" class="relative z-[19]" @close="emits('close', false)">
+        <Dialog as="div" class="relative z-[21]" @close="emits('close', false)">
             <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100"
                 leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
-                <div class="fixed inset-0 bg-gray-500 bg-opacity-25 transition-opacity" />
+                <div class="fixed inset-0 bg-slate-700 bg-opacity-35 transition-opacity" />
             </TransitionChild>
             <div class="fixed inset-0 z-10 overflow-y-auto pt-20 px-12">
                 <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 scale-95"

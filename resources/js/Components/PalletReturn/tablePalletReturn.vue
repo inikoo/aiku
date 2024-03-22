@@ -18,18 +18,21 @@ library.add(faSpinnerThird, faSearch)
 const props = defineProps<{
 	dataRoute: routeType
 	saveRoute: routeType
-	descriptor: object
-	beforeSubmit:Function
-	onFilterDatalist:Function
+	descriptor: {}
+	beforeSubmit?: Function
+	onFilterDatalist?: Function
 }>()
 
-const emits = defineEmits()
+const emits = defineEmits<{
+    (e: 'onClose'): void
+}>()
+
 const dataList = ref([])
 const loading = ref(false)
 const form = useForm({ [props.descriptor.key]: [] })
 const checkedAll = ref(false)
 const tableFilter = useForm({
-	search: null,
+	search: '',
 })
 
 
@@ -37,6 +40,7 @@ const closeModal = () => {
 	emits('onClose')
 }
 
+// Method: Fetch data Pallet
 const getData = async () => {
 	loading.value = true
 	try {
@@ -51,7 +55,7 @@ const getData = async () => {
 	} catch (error) {
 		loading.value = false
 		notify({
-			title: 'failed to get data',
+			title: 'Failed to fetch data',
 			text: error.message,
 			type: "error",
 		})
@@ -75,6 +79,7 @@ const onChecked = (value) => {
 	else checkedAll.value = false
 }
 
+// Method: Submit Add Pallet
 const onSubmitPallet = async () => {
 	let eventData = form[props.descriptor.key]
     if(props.beforeSubmit) eventData = props.beforeSubmit(form[props.descriptor.key],dataList.value)
@@ -120,11 +125,14 @@ defineExpose({
 				</PureInput>
 			</div>
 		</div>
+
+        <!-- Button: Add Pallet -->
 		<div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
 			<Button :style="'create'" :label="`add ${descriptor.title}`" :disabled="!form[props.descriptor.key].length" :key="form[props.descriptor.key].length"
-				@click="onSubmitPallet"></Button>
+				@click="onSubmitPallet" />
 		</div>
 	</div>
+    
 	<div class="px-1 sm:px-1 lg:px-8">
 		<div class="mt-8 flow-root">
 			<div class="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
@@ -134,12 +142,12 @@ defineExpose({
 						<thead class="bg-gray-50">
 							<tr>
 								<th scope="col"
-									class="sticky top-0 z-10 border-b border-gray-300 bg-white bg-opacity-75 py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:pl-6 lg:pl-8">
+									class="sticky top-0 z-10 border-b border-gray-300 bg-white py-3.5 pl-4 pr-3 text-left text-sm font-semibold backdrop-blur backdrop-filter sm:pl-6 lg:pl-8">
 									<input type="checkbox" :checked="checkedAll" @change="selectAll"
 										class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600" />
 								</th>
 								<th v-for="(item, index) in descriptor.column" :key="`header-${item.key}`" scope="col"
-									class="sticky top-0 z-10 hidden border-b border-gray-300 bg-white bg-opacity-75 px-3 py-3.5 text-left text-sm font-semibold text-gray-900 backdrop-blur backdrop-filter sm:table-cell">
+									class="sticky top-0 z-10 hidden border-b border-gray-300 bg-white px-3 py-3.5 text-left text-sm font-semibold backdrop-blur backdrop-filter sm:table-cell">
 									<slot :name="`head-${item.key}`" :data="{ headData : item , index : index }">
 										{{ item.label }}
 									</slot>
@@ -149,7 +157,7 @@ defineExpose({
 						<tbody>
 							<tr v-for="(pallet, index) in dataList" :key="pallet.id">
 								<td
-									:class="[index !== dataList.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 lg:pl-8']">
+									:class="[index !== dataList.length - 1 ? 'border-b border-gray-200' : '', 'whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium sm:pl-6 lg:pl-8']">
 									<input type="checkbox" :id="pallet.id" :value="pallet.id" v-model="form[props.descriptor.key]"
 										@change="onChecked"
 										class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600" />
@@ -164,12 +172,14 @@ defineExpose({
 							</tr>
 						</tbody>
 					</table>
+
 					<div v-if="loading" class="flex justify-center items-center w-full h-full p-12">
 						<div>
 							<FontAwesomeIcon icon="fad fa-spinner-third" class="animate-spin w-6" aria-hidden="true" />
 						</div>
 					</div>
-					<div v-if="dataList.length == 0 && !loading"
+					
+                    <div v-if="dataList.length == 0 && !loading"
 						class="flex justify-center items-center w-full h-full p-12">
 						<div>
 							No Data
