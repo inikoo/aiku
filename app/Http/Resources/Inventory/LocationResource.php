@@ -31,7 +31,7 @@ class LocationResource extends JsonResource
                 return $this->pivot->quantity;
             }),
             'tags'     => $location->tags->pluck('slug')->toArray(),
-            'tagsList' => TagResource::collection(Tag::all())
+            // 'tagsList' => TagResource::collection(Tag::all())
         ];
     }
 }
