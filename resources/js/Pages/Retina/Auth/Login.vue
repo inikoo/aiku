@@ -67,7 +67,9 @@ onMounted(async () => {
         </div>
 
         <div class="space-y-2">
-            <Button full @click.prevent="submit" :loading="isLoading" label="Sign in"  type="indigo"/>
+            <Button full @click.prevent="submit" :loading="isLoading" label="Sign in"  
+                class="bg-indigo-700 hover:bg-slate-600 border border-slate-500 text-teal-50 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
+            />
             <!-- <p class="text-gray-600">Don't have account yet? <Link as="span" :href="route('retina.register')" class="cursor-pointer font-bold hover:underline">Sign up</Link></p> -->
         </div>
     </form>
