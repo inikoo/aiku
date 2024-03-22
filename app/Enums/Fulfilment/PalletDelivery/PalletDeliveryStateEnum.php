@@ -68,7 +68,7 @@ enum PalletDeliveryStateEnum: string
             'not-received'   => [
                 'tooltip' => __('Not Received'),
                 'icon'    => 'fal fa-cross',
-                'class'   => 'text-slate-500',
+                'class'   => 'text-red-500',
                 'color'   => 'slate'
             ],
             'booked-in'  => [

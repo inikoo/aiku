@@ -288,7 +288,7 @@ class IndexLocations extends OrgAction
                         'parameters' => []
                     ],
                 ],
-                'tags'        => TagResource::collection(Tag::all()),
+                'tagsList'    => TagResource::collection(Tag::all()),
                 'data'        => LocationsResource::collection($locations),
 
             ]
