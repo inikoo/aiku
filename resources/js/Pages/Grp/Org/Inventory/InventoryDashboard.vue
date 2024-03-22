@@ -4,23 +4,26 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 <script setup lang="ts">
-import { Head } from "@inertiajs/vue3"
-import PageHeading from "@/Components/Headings/PageHeading.vue"
-import FlatTreeMap from "@/Components/Navigation/FlatTreeMap.vue"
-import { library } from "@fortawesome/fontawesome-svg-core"
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { Pie } from 'vue-chartjs'
-import { trans } from "laravel-vue-i18n"
-import { faSeedling, faChair, faThumbsDown, faLaugh } from "@fal"
-import { capitalize } from "@/Composables/capitalize"
-import { useLocaleStore } from "@/Stores/locale"
-library.add(faSeedling, faChair, faThumbsDown, faLaugh)
+import { Head } from "@inertiajs/vue3";
+import PageHeading from "@/Components/Headings/PageHeading.vue";
+import FlatTreeMap from "@/Components/Navigation/FlatTreeMap.vue";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { Pie } from "vue-chartjs";
+import { trans } from "laravel-vue-i18n";
+import { faSeedling, faThumbsDown } from "@fal";
+import { faCheckCircle, faTimesCircle, faPauseCircle } from "@fas";
 
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from 'chart.js'
-import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
+import { capitalize } from "@/Composables/capitalize";
+import { useLocaleStore } from "@/Stores/locale";
 
-ChartJS.register(ArcElement, Tooltip, Legend, Colors)
-const locale = useLocaleStore()
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from "chart.js";
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
+
+library.add(faSeedling, faThumbsDown, faTimesCircle, faPauseCircle, faCheckCircle);
+
+ChartJS.register(ArcElement, Tooltip, Legend, Colors);
+const locale = useLocaleStore();
 
 const props = defineProps<{
     title: string
@@ -42,7 +45,7 @@ const props = defineProps<{
             }[]
         }
     }
-}>()
+}>();
 
 
 // Pie: options
@@ -57,15 +60,15 @@ const options = {
             // enabled: false,
             titleFont: {
                 size: 10,
-                weight: 'lighter'
+                weight: "lighter"
             },
             bodyFont: {
                 size: 11,
-                weight: 'bold'
+                weight: "bold"
             }
-        },
+        }
     }
-}
+};
 </script>
 
 <template>
@@ -82,15 +85,15 @@ const options = {
                     <!-- In Total -->
                     <div class="flex gap-x-2 items-end">
                         {{ locale.number(stats.count) }}
-                        <span class="text-sm font-medium leading-4 text-gray-500 ">{{ trans('in total') }}</span>
+                        <span class="text-sm font-medium leading-4 text-gray-500 ">{{ trans("in total") }}</span>
                     </div>
 
                     <!-- Statistic -->
                     <div class="text-sm text-gray-500 flex gap-x-5 gap-y-1 items-center flex-wrap">
                         <div v-for="sCase in stats.cases" class="flex gap-x-0.5 items-center font-normal"
-                            v-tooltip="capitalize(sCase.icon.tooltip)">
-                            <FontAwesomeIcon :icon='sCase.icon.icon' :class='sCase.icon.class' fixed-width
-                                :title="sCase.icon.tooltip" aria-hidden='true' />
+                             v-tooltip="capitalize(sCase.icon.tooltip)">
+                            <FontAwesomeIcon :icon="sCase.icon.icon" :class="sCase.icon.class" fixed-width
+                                             :title="sCase.icon.tooltip" aria-hidden="true" />
                             <span class="font-semibold">
                                 {{ locale.number(sCase.count) }}
                             </span>

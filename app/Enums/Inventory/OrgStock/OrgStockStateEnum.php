@@ -34,24 +34,24 @@ enum OrgStockStateEnum: string
     {
         return [
             'active'    => [
-                'tooltip' => __('contacted'),
-                'icon'    => 'fal fa-chair',
+                'tooltip' => __('active'),
+                'icon'    => 'fas fa-check-circle',
                 'class'   => 'text-green-500'
             ],
             'discontinuing'         => [
                 'tooltip' => __('discontinuing'),
-                'icon'    => 'fal fa-thumbs-down',
-                'class'   => 'text-gray-500'
+                'icon'    => 'fas fa-times-circle',
+                'class'   => 'text-amber-500'
             ],
             'discontinued'      => [
                 'tooltip' => __('discontinued'),
-                'icon'    => 'fal fa-laugh',
+                'icon'    => 'fas fa-times-circle',
                 'class'   => 'text-red-500'
             ],
             'suspended'      => [
                 'tooltip' => __('suspended'),
-                'icon'    => 'fal fa-pause',
-                'class'   => 'text-yellow-500'
+                'icon'    => 'fas fa-pause-circle',
+                'class'   => 'text-slate-300'
             ],
         ];
     }
@@ -61,10 +61,10 @@ enum OrgStockStateEnum: string
         $stats = $parent->inventoryStats;
 
         return [
-            'active'            => $stats->number_stocks_state_active,
-            'discontinuing'     => $stats->number_stocks_state_discontinuing,
-            'discontinued'      => $stats->number_stocks_state_discontinued,
-            'suspended'         => $stats->number_stocks_state_suspended
+            'active'            => $stats->number_org_stocks_state_active,
+            'discontinuing'     => $stats->number_org_stocks_state_discontinuing,
+            'discontinued'      => $stats->number_org_stocks_state_discontinued,
+            'suspended'         => $stats->number_org_stocks_state_suspended
         ];
     }
 }
