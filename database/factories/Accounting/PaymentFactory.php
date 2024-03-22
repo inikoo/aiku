@@ -9,8 +9,11 @@ class PaymentFactory extends Factory
     public function definition(): array
     {
         return [
-            'reference' => fake()->lexify(),
-            'amount'    => fake()->randomFloat(2)
+            'reference'   => fake()->lexify(),
+            'amount'      => fake()->randomFloat(2),
+            'oc_amount'   => fake()->randomFloat(2),
+            'currency_id' => 1,
+            'date'        => fake()->date(),
         ];
     }
 }
