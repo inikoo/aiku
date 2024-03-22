@@ -23,7 +23,7 @@ class PickedPalletReturn extends OrgAction
     use WithActionUpdate;
 
 
-    public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
+    public function handle(PalletReturn $palletReturn, array $modelData = []): PalletReturn
     {
         $modelData[PalletReturnStateEnum::PICKED->value.'_at']   = now();
         $modelData['state']                                      = PalletReturnStateEnum::PICKED;
