@@ -7,16 +7,16 @@
 <script setup lang="ts">
 import { onMounted } from "vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faConveyorBeltAlt, faChevronDown, faPalletAlt, faAbacus } from "@fal"
+import { faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, faConveyorBeltAlt,
+    faChevronDown, faPalletAlt, faAbacus,faCloudRainbow } from "@fal"
 import { useLayoutStore } from "@/Stores/layout.js"
-// import NavigationExpandable from '@//Layouts/NavigationExpandable.vue'
 import NavigationSimple from '@/Layouts/Grp/NavigationSimple.vue'
 import { generateNavigationName, generateCurrentString } from '@/Composables/useConvertString'
 
 import { get } from "lodash"
 import NavigationGroup from "./NavigationGroup.vue"
 library.add(faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faUsersCog, faInventory, faConveyorBeltAlt, faChevronDown, faPalletAlt,
-faAbacus
+faAbacus, faCloudRainbow
 )
 
 const layout = useLayoutStore()
@@ -97,8 +97,8 @@ const iconList: { [key: string]: string } = {
                                 :itemKey="generateNavigationName(itemKey)"
                                 :icon="iconList[generateNavigationName(itemKey)] || ''"
                             /> -->
-                            
-                            <NavigationSimple v-for="nav, navKey in Object.values(orgNav)[0]"
+
+                            <NavigationSimple v-for="(nav, navKey) in Object.values(orgNav)[0]"
                                 :nav="nav"
                                 :navKey="navKey"
                             />

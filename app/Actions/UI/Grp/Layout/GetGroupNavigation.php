@@ -18,6 +18,17 @@ class GetGroupNavigation
     {
         $groupNavigation = [];
 
+        if ($user->hasPermissionTo('goods.view')) {
+            $groupNavigation['goods'] = [
+                'label'   => __('Goods'),
+                'icon'    => ['fal', 'fa-cloud-rainbow'],
+                'root'    => 'grp.goods.',
+                'route'   => [
+                    'name' => 'grp.goods.dashboard'
+                ],
+
+            ];
+        }
 
         if ($user->hasPermissionTo('supply-chain.view')) {
             $groupNavigation['supply-chain'] = [
@@ -53,7 +64,9 @@ class GetGroupNavigation
             ];
         }
 
-        if ($user->hasPermissionTo('supply-chain.view')) {
+
+
+        if ($user->hasPermissionTo('goods.view')) {
             $groupNavigation['organisations'] = [
                 'label'   => __('Organisations'),
                 'icon'    => ['fal', 'fa-building'],

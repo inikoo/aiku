@@ -20,6 +20,11 @@ enum RolesEnum: string
 
     case SUPPLY_CHAIN = 'supply-chain';
 
+    case GOODS_MANAGER = 'goods-manager';
+
+    case ORGANISATIONS_MANAGER = 'organisations-manager';
+
+
     case ORG_ADMIN              = 'org-admin';
     case PROCUREMENT_CLERK      = 'procurement-clerk';
     case PROCUREMENT_SUPERVISOR = 'procurement-supervisor';
@@ -68,6 +73,8 @@ enum RolesEnum: string
             RolesEnum::WAREHOUSE_ADMIN                 => __('Warehouse admin'),
             RolesEnum::CUSTOMER_SERVICE_CLERK          => __('Customer service clerk'),
             RolesEnum::CUSTOMER_SERVICE_SUPERVISOR     => __('Customer service supervisor'),
+            RolesEnum::ORGANISATIONS_MANAGER           => __('Organisations manager'),
+            RolesEnum::GOODS_MANAGER                   => __('Goods manager'),
         };
     }
 
@@ -78,8 +85,8 @@ enum RolesEnum: string
                 GroupPermissionsEnum::GROUP_BUSINESS_INTELLIGENCE,
                 GroupPermissionsEnum::SYSADMIN,
                 GroupPermissionsEnum::SUPPLY_CHAIN,
-
-
+                GroupPermissionsEnum::ORGANISATIONS,
+                GroupPermissionsEnum::GOODS
             ],
             RolesEnum::SYSTEM_ADMIN => [
                 GroupPermissionsEnum::SYSADMIN
@@ -87,6 +94,13 @@ enum RolesEnum: string
             RolesEnum::SUPPLY_CHAIN => [
                 GroupPermissionsEnum::SUPPLY_CHAIN
             ],
+            RolesEnum::ORGANISATIONS_MANAGER => [
+                GroupPermissionsEnum::ORGANISATIONS
+            ],
+            RolesEnum::GOODS_MANAGER => [
+                GroupPermissionsEnum::GOODS
+            ],
+
             RolesEnum::ORG_ADMIN => [
                 OrganisationPermissionsEnum::ORG_BUSINESS_INTELLIGENCE,
                 OrganisationPermissionsEnum::PROCUREMENT,
@@ -174,7 +188,9 @@ enum RolesEnum: string
         return match ($this) {
             RolesEnum::SUPER_ADMIN,
             RolesEnum::SYSTEM_ADMIN,
-            RolesEnum::SUPPLY_CHAIN => 'Group',
+            RolesEnum::SUPPLY_CHAIN,
+            RolesEnum::GOODS_MANAGER,
+            RolesEnum::ORGANISATIONS_MANAGER=> 'Group',
             RolesEnum::SHOP_ADMIN,
             RolesEnum::CUSTOMER_SERVICE_CLERK,
             RolesEnum::CUSTOMER_SERVICE_SUPERVISOR,
