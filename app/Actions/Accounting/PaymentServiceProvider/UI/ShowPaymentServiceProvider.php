@@ -11,7 +11,7 @@ use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Accounting\PaymentAccount\UI\IndexPaymentAccounts;
 use App\Actions\Accounting\PaymentServiceProvider\GetPaymentServiceProviderShowcase;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\UI\PaymentServiceProviderTabsEnum;
 use App\Http\Resources\Accounting\PaymentAccountResource;
@@ -19,11 +19,12 @@ use App\Http\Resources\Accounting\PaymentResource;
 use App\Http\Resources\Accounting\PaymentServiceProviderResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowPaymentServiceProvider extends InertiaAction
+class ShowPaymentServiceProvider extends OrgAction
 {
     public function handle(PaymentServiceProvider $paymentServiceProvider): PaymentServiceProvider
     {
@@ -32,15 +33,14 @@ class ShowPaymentServiceProvider extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('accounting.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('accounting.edit');
-
-        return $request->user()->hasPermissionTo("accounting.view");
+        $this->canEdit   = $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
+        return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
     }
 
-    public function asController(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): PaymentServiceProvider
+    public function asController(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): PaymentServiceProvider
     {
-        $this->initialisation($request)->withTab(PaymentServiceProviderTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(PaymentServiceProviderTabsEnum::values());
         return $this->handle($paymentServiceProvider);
     }
 

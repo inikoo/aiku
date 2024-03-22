@@ -95,9 +95,10 @@ class StoreShop extends OrgAction
         $paymentAccount       = StorePaymentAccount::make()->action(
             $organisation->accountsServiceProvider(),
             [
-                'code' => 'accounts-'.$shop->slug,
-                'name' => 'Accounts '.$shop->code,
-                'type' => PaymentAccountTypeEnum::ACCOUNT->value
+                'code'        => 'accounts-'.$shop->slug,
+                'name'        => 'Accounts '.$shop->code,
+                'type'        => PaymentAccountTypeEnum::ACCOUNT->value,
+                'is_accounts' => true
             ]
         );
         $paymentAccount->slug = 'accounts-'.$shop->slug;
@@ -144,7 +145,6 @@ class StoreShop extends OrgAction
 
     public function afterValidator(Validator $validator): void
     {
-
         if ($this->get('type') == ShopTypeEnum::FULFILMENT->value and !$this->get('warehouses')) {
             $validator->errors()->add('warehouses', 'warehouse required');
         }
@@ -152,8 +152,6 @@ class StoreShop extends OrgAction
 
     public function action(Organisation $organisation, array $modelData): Shop
     {
-
-
         $this->asAction = true;
         $this->initialisation($organisation, $modelData);
 
@@ -245,13 +243,11 @@ class StoreShop extends OrgAction
             'language_id' => $language->id,
         ]);
 
-        if($command->option('warehouses')) {
+        if ($command->option('warehouses')) {
             $this->fill([
                 'warehouses' => $command->option('warehouses')
             ]);
         }
-
-
 
 
         try {

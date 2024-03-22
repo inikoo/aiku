@@ -23,12 +23,11 @@ class FetchOrganisations
     public function handle(SourceOrganisationService $organisationSource, Organisation $organisation): Organisation
     {
         $organisationData = $organisationSource->fetchOrganisation($organisation);
-        $organisation->update(
-            $organisationData['organisation']
-        );
+        $organisation->update($organisationData['organisation']);
         $accountsServiceProviderData = Db::connection('aurora')->table('Payment Service Provider Dimension')
             ->select('Payment Service Provider Key')
             ->where('Payment Service Provider Block', 'Accounts')->first();
+
 
         if ($accountsServiceProviderData) {
             $organisation->accountsServiceProvider()->update(

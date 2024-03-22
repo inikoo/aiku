@@ -42,7 +42,6 @@ class StoreOrganisation
 
     public function handle(Group $group, array $modelData): Organisation
     {
-
         $addressData = Arr::get($modelData, 'address');
         Arr::forget($modelData, 'address');
 
@@ -56,7 +55,6 @@ class StoreOrganisation
         SeedOrganisationJobPositions::run($organisation);
 
 
-
         if ($addressData) {
             data_set($addressData, 'owner_type', 'Organisation');
             data_set($addressData, 'owner_id', $organisation->id);
@@ -66,9 +64,6 @@ class StoreOrganisation
 
             $organisation->location = $organisation->address->getLocation();
             $organisation->save();
-
-
-
         }
         $superAdmins = $group->users()->with('roles')->get()->filter(
             fn ($user) => $user->roles->where('name', 'super-admin')->toArray()
@@ -99,13 +94,16 @@ class StoreOrganisation
         $organisation->webStats()->create();
 
 
-        StorePaymentServiceProvider::make()->action(
-            organisation: $organisation,
-            modelData: [
-                'type' => PaymentServiceProviderTypeEnum::ACCOUNT->value,
-                'code' => $organisation->slug.'-accounts'
-            ]
-        );
+        if ($organisation->type == OrganisationTypeEnum::SHOP) {
+            StorePaymentServiceProvider::make()->action(
+                organisation: $organisation,
+                modelData: [
+                    'type' => PaymentServiceProviderTypeEnum::ACCOUNT->value,
+                    'code' => $organisation->slug.'-accounts'
+                ]
+            );
+        }
+
 
         GroupHydrateOrganisations::dispatch($group);
         SetOrganisationLogo::dispatch($organisation);

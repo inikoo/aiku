@@ -56,22 +56,11 @@ class IndexPaymentAccounts extends InertiaAction
             ->select([
                 'payment_accounts.code as code',
                 'payment_accounts.name',
-                'payment_service_providers.slug as payment_service_providers_slug',
                 'number_payments',
                 'payment_accounts.slug as slug',
             ])
             ->leftJoin('payment_account_stats', 'payment_accounts.id', 'payment_account_stats.payment_account_id')
             ->leftJoin('payment_service_providers', 'payment_service_provider_id', 'payment_service_providers.id')
-            ->when(true, function ($query) use ($parent) {
-                if (class_basename($parent) == 'PaymentServiceProvider') {
-                    $query->where('payment_accounts.payment_service_provider_id', $parent->id);
-                } elseif (class_basename($parent) == 'Shop') {
-                    $query->leftJoin('payment_account_shop', 'payment_account_shop.payment_account_id', 'payment_accounts.id');
-                    $query->leftJoin('shops', 'shops.id', 'payment_account_shop.shop_id');
-                    $query->addSelect('shops.slug as shop_slug');
-                    $query->where('payment_account_shop.shop_id', $parent->id);
-                }
-            })
             ->allowedSorts(['code', 'name', 'number_payments'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
