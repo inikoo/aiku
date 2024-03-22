@@ -38,7 +38,7 @@ class FetchWebpages extends FetchAction
             } else {
                 data_set($modelData, 'parent_id', $webpageData['website']->storefront->id, overwrite: false);
                 $webpage = StoreWebpage::make()->action(
-                    website: $webpageData['website'],
+                    parent: $webpageData['website'],
                     modelData: $webpageData['webpage'],
                 );
             }

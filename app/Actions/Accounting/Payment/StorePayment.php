@@ -12,6 +12,7 @@ use App\Actions\Accounting\PaymentAccount\Hydrators\PaymentAccountHydratePayment
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydratePayments;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Market\Shop\Hydrators\ShopHydratePayments;
+use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePayments;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
@@ -20,10 +21,8 @@ use App\Models\Accounting\PaymentAccount;
 use App\Models\CRM\Customer;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StorePayment
+class StorePayment extends OrgAction
 {
     use AsAction;
     use WithAttributes;
@@ -45,10 +44,10 @@ class StorePayment
         /** @var Payment $payment */
         $payment = $paymentAccount->payments()->create($modelData);
 
-        OrganisationHydratePayments::dispatch($paymentAccount->organisation);
-        PaymentServiceProviderHydratePayments::dispatch($payment->paymentAccount->paymentServiceProvider);
-        PaymentAccountHydratePayments::dispatch($payment->paymentAccount);
-        ShopHydratePayments::dispatch($payment->shop);
+        OrganisationHydratePayments::dispatch($paymentAccount->organisation)->delay($this->hydratorsDelay);
+        PaymentServiceProviderHydratePayments::dispatch($payment->paymentAccount->paymentServiceProvider)->delay($this->hydratorsDelay);
+        PaymentAccountHydratePayments::dispatch($payment->paymentAccount)->delay($this->hydratorsDelay);
+        ShopHydratePayments::dispatch($payment->shop)->delay($this->hydratorsDelay);
 
 
         PaymentHydrateUniversalSearch::dispatch($payment);
@@ -68,20 +67,27 @@ class StorePayment
     public function rules(): array
     {
         return [
-            'reference' => ['required', 'string'],
-            'status'    => ['sometimes', 'required', Rule::in(PaymentStatusEnum::values())],
-            'state'     => ['sometimes', 'required', Rule::in(PaymentStateEnum::values())],
-            'amount'    => ['required', 'decimal:0,2']
-
+            'reference'    => ['nullable', 'string', 'max:255'],
+            'amount'       => ['required', 'decimal:0,2'],
+            'oc_amount'    => ['required', 'decimal:0,2'],
+            'data'         => ['sometimes', 'array'],
+            'currency_id'  => ['required', 'exists:currencies,id'],
+            'date'         => ['required', 'date'],
+            'created_at'   => ['sometimes', 'date'],
+            'completed_at' => ['sometimes', 'nullable', 'date'],
+            'cancelled_at' => ['sometimes', 'nullable', 'date'],
+            'status'       => ['sometimes', 'required', Rule::enum(PaymentStatusEnum::class)],
+            'state'        => ['sometimes', 'required', Rule::enum(PaymentStateEnum::class)],
+            'source_id'    => ['sometimes', 'string'],
         ];
     }
 
-    public function action(Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
+    public function action(Customer $customer, PaymentAccount $paymentAccount, array $modelData, int $hydratorsDelay = 0): Payment
     {
-        $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisationFromShop($customer->shop, $modelData);
 
-        return $this->handle($customer, $paymentAccount, $validatedData);
+        return $this->handle($customer, $paymentAccount, $this->validatedData);
     }
 }

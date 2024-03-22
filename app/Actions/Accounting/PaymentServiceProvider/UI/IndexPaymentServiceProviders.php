@@ -25,14 +25,12 @@ use App\Services\QueryBuilder;
 
 class IndexPaymentServiceProviders extends OrgAction
 {
-    private Organisation|Shop $scope;
-
-    public function handle(Organisation|Shop $parent, $prefix=null): LengthAwarePaginator
+    public function handle(Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('payment_service_providers.code', 'ILIKE', "%$value%")
-                    ->orWhere('payment_service_providers.data', 'ILIKE', "%$value%");
+                $query->whereStartWith('payment_service_providers.code', $value)
+                    ->orWhereAnyWordStartWith('payment_service_providers.data', $value);
             });
         });
 
@@ -40,7 +38,7 @@ class IndexPaymentServiceProviders extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(PaymentServiceProvider::class);
+        $queryBuilder = QueryBuilder::for(PaymentServiceProvider::class);
 
         $queryBuilder->where('organisation_id', $this->organisation->id);
 
@@ -64,9 +62,6 @@ class IndexPaymentServiceProviders extends OrgAction
                 if (class_basename($parent) == 'Shop') {
                     $query->leftJoin('payment_service_provider_shop', 'payment_service_providers.id', 'payment_service_provider_shop.payment_service_provider_id');
                     $query->where('payment_service_provider_shop.shop_id', $parent->id);
-
-
-
                 }
             })
             ->allowedSorts(['code', 'number_payment_accounts', 'number_payments'])
@@ -94,13 +89,8 @@ class IndexPaymentServiceProviders extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-
-        if ($this->scope instanceof Organisation) {
-            $this->canEdit=$request->user()->hasPermissionTo("accounting.{$this->scope->id}.edit");
-            return $request->user()->hasPermissionTo("accounting.{$this->scope->id}.view");
-        }
-
-        return false;
+        $this->canEdit = $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
+        return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
     }
 
 
@@ -121,7 +111,7 @@ class IndexPaymentServiceProviders extends OrgAction
                     'title' => __('Payment Service Providers'),
 
                 ],
-                'data' => PaymentServiceProviderResource::collection($paymentServiceProviders),
+                'data'        => PaymentServiceProviderResource::collection($paymentServiceProviders),
 
 
             ]
@@ -131,35 +121,34 @@ class IndexPaymentServiceProviders extends OrgAction
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->scope=$organisation;
         $this->initialisation($organisation, $request);
+
         return $this->handle($organisation);
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->scope=$shop;
         $this->initialisationFromShop($shop, $request);
+
         return $this->handle($shop);
     }
 
-    public function getBreadcrumbs(array $routeParameters, $suffix=null): array
+    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
-
         return array_merge(
             ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
             [
-                 [
-                     'type'   => 'simple',
-                     'simple' => [
-                         'route' => [
-                             'name'      => 'grp.org.accounting.payment-service-providers.index',
-                             'parameters'=> $routeParameters
-                         ],
-                         'label' => __('providers'),
-                         'icon'  => 'fal fa-bars',
-                     ],
-                     'suffix'=> $suffix
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => [
+                            'name'       => 'grp.org.accounting.payment-service-providers.index',
+                            'parameters' => $routeParameters
+                        ],
+                        'label' => __('providers'),
+                        'icon'  => 'fal fa-bars',
+                    ],
+                    'suffix' => $suffix
                 ],
             ]
         );

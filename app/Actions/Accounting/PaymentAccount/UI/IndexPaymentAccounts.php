@@ -8,7 +8,7 @@
 namespace App\Actions\Accounting\PaymentAccount\UI;
 
 use App\Actions\Accounting\PaymentServiceProvider\UI\ShowPaymentServiceProvider;
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\PaymentAccountResource;
 use App\InertiaTable\InertiaTable;
@@ -32,8 +32,8 @@ class IndexPaymentAccounts extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('payment_accounts.code', 'ILIKE', "%$value%")
-                    ->orWhere('payment_accounts.name', 'ILIKE', "%$value%");
+                $query->whereStartWith('payment_accounts.code', $value)
+                    ->orWhereAnyWordStartWith('payment_accounts.name', 'ILIKE', $value);
             });
         });
 
@@ -192,7 +192,7 @@ class IndexPaymentAccounts extends InertiaAction
 
 
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($this->parent));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
@@ -223,8 +223,8 @@ class IndexPaymentAccounts extends InertiaAction
             ),
             'grp.org.accounting.payment-accounts.index' =>
             array_merge(
-                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', []),
-                $headCrumb()
+                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
+                $headCrumb($routeParameters)
             ),
             'grp.org.accounting.payment-service-providers.show.payment-accounts.index' =>
             array_merge(

@@ -8,21 +8,20 @@
 namespace App\Actions\Accounting\Payment;
 
 use App\Actions\Accounting\Payment\Hydrators\PaymentHydrateUniversalSearch;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Accounting\PaymentResource;
 use App\Models\Accounting\Payment;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdatePayment
+class UpdatePayment extends OrgAction
 {
     use WithActionUpdate;
-
-    private bool $asAction=false;
 
     public function handle(Payment $payment, array $modelData): Payment
     {
         $payment = $this->update($payment, $modelData, ['data']);
-        PaymentHydrateUniversalSearch::dispatch($payment);
+        PaymentHydrateUniversalSearch::dispatch($payment)->delay($this->hydratorsDelay);
         return $payment;
     }
     public function authorize(ActionRequest $request): bool
@@ -36,16 +35,16 @@ class UpdatePayment
     public function rules(): array
     {
         return [
-            'reference'         => ['sometimes', 'required', 'unique:payments', 'between:2,64', 'alpha_dash'],
+            'reference'         => ['sometimes', 'nullable',  'max:255', 'string'],
         ];
     }
-    public function action(Payment $payment, array $modelData): Payment
+    public function action(Payment $payment, array $modelData, int $hydratorsDelay = 0): Payment
     {
         $this->asAction=true;
         $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($payment, $validatedData);
+        return $this->handle($payment, $this->validatedData);
     }
 
 
