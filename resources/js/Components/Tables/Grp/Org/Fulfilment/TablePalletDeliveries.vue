@@ -34,10 +34,18 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
                 ])
         case 'grp.org.fulfilments.show.operations.pallet-deliveries.index':
             return route(
-                'grp.org.fulfilments.show.operations.pallet-deliveries.show',
+                'grp.org.warehouses.show.fulfilment.pallet-deliveries.show',
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],
+                    palletDelivery.slug
+                ])
+        case 'grp.org.warehouses.show.fulfilment.pallet-returns.index':
+            return route(
+                'grp.org.warehouses.show.fulfilment.pallet-returns.show',
+                [
+                    route().params['organisation'],
+                    route().params['warehouse'],
                     palletDelivery.slug
                 ])
         default:
