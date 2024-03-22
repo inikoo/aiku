@@ -9,6 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Request;
 use Inertia\Inertia;
 use Throwable;
 
@@ -87,7 +88,7 @@ class Handler extends ExceptionHandler
                     'title'       => __('Service Unavailable'),
                     'description' => __('Sorry, we are doing some maintenance. Please check back soon.')
                 ],
-                default => $this->getExceptionInfo()
+                default => $this->getExceptionInfo($e)
             };
             $user=$request->user();
             if(Auth::check()) {
@@ -102,8 +103,27 @@ class Handler extends ExceptionHandler
                 );
             }
 
+            $host = Request::getHost();
+
+
+
+            if ($host == 'app.'.config('app.domain')) {
+                Inertia::setRootView('app-grp');
+                $app='grp';
+            } else {
+                $path = Request::path();
+                if (preg_match('/^app\//', $path)) {
+                    Inertia::setRootView('app-retina');
+                    $app='retina';
+                } else {
+                    Inertia::setRootView('app-iris');
+                    $app='iris';
+                }
+            }
+
+
             return Inertia::render(
-                Auth::check() ? 'Utils/ErrorInApp' : 'Utils/Error',
+                $this->getInertiaPage($e, $app),
                 $errorData
             )
                 ->toResponse($request)
@@ -117,12 +137,40 @@ class Handler extends ExceptionHandler
         return $response;
     }
 
-    public function getExceptionInfo(): array
+    public function getExceptionInfo(Throwable $e): array
     {
+        if (get_class($e) == 'App\Exceptions\IrisWebsiteNotFound') {
+            return [
+                'status'      => 404,
+                'title'       => __('Domain Not Found'),
+                'description' => __('This domain was not been configured yet.')
+            ];
+        }
+
+
+
         return [
             'status'      => 500,
             'title'       => __('Server Error'),
             'description' => __('Whoops, something went wrong on our servers.')
         ];
+    }
+
+    public function getInertiaPage(Throwable $e, string $app): string
+    {
+
+
+        if (get_class($e) == 'App\Exceptions\IrisWebsiteNotFound' and $app=='iris') {
+            return 'Errors/IrisWebsiteNotFound';
+        }
+
+        $page='Errors/Error';
+
+        if($app=='grp' or $app=='retina') {
+            $page= Auth::check() ? 'Errors/ErrorInApp' : 'Errors/Error';
+        }
+
+        return $page;
+
     }
 }

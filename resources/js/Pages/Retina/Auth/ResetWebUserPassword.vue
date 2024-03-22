@@ -23,7 +23,12 @@ const formReset = useForm({
 })
 
 const submitResetPassword = () => {
-    formReset.patch(route('retina.reset-password.update'), {})
+    // console.log('ewew', route().params.token)
+    if(route().params?.token) {
+        formReset.patch(route('retina.reset-password.email.update'), {})
+    } else {
+        formReset.patch(route('retina.reset-password.update'), {})
+    }
 }
 
 
@@ -56,7 +61,7 @@ watchEffect(() => {
             </div>
 
             <div class="flex justify-center">
-                <Button :style="isPasswordSame ? 'primary' : 'disabled'" :key="formReset.password + repeatPassword" :label="'Reset Password'" @click="submitResetPassword" class=""/>
+                <Button :style="'primary'" :disabled="!isPasswordSame || formReset.password.length == 0" :key="formReset.password + repeatPassword" :label="'Reset Password'" @click="submitResetPassword" class=""/>
             </div>
         </form>
     </div>
