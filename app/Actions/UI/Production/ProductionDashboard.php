@@ -37,8 +37,6 @@ class ProductionDashboard
 
     public function htmlResponse(): Response
     {
-        $this->validateAttributes();
-
 
         return Inertia::render(
             'Production/ProductionDashboard',

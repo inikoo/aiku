@@ -54,10 +54,10 @@ class ShowPalletReturn extends RetinaAction
                     'next'     => $this->getNext($palletReturn, $request),
                 ],
                 'pageHead' => [
-                    'title'     => __($palletReturn->reference),
+                    'title'     => $palletReturn->reference,
                     'icon'      => [
                         'icon'  => ['fal', 'fa-truck-couch'],
-                        'title' => __($palletReturn->reference)
+                        'title' => $palletReturn->reference
                     ],
                     'actions' => $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
                         [

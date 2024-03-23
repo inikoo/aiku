@@ -15,7 +15,6 @@ use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
@@ -78,15 +77,13 @@ class ShowDispatchedEmail extends InertiaAction
         return $this->handle($dispatchedEmail);
     }
 
-    public function htmlResponse(DispatchedEmail $dispatchedEmail): Response
+    public function htmlResponse(DispatchedEmail $dispatchedEmail, ActionRequest $request): Response
     {
-        $this->validateAttributes();
-
 
         return Inertia::render(
             'Mail/DispatchedEmail',
             [
-                'title'       => __($dispatchedEmail->id),
+                'title'       => $dispatchedEmail->id,
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $dispatchedEmail),
                 'pageHead'    => [
                     'icon'  => 'fal fa-coins',
@@ -99,7 +96,7 @@ class ShowDispatchedEmail extends InertiaAction
     }
 
 
-    #[Pure] public function jsonResponse(DispatchedEmail $dispatchedEmail): DispatchedEmailResource
+    public function jsonResponse(DispatchedEmail $dispatchedEmail): DispatchedEmailResource
     {
         return new DispatchedEmailResource($dispatchedEmail);
     }

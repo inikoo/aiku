@@ -35,7 +35,6 @@ class ShowSupplyChainDashboard extends GrpAction
 
     public function htmlResponse(): Response
     {
-        $this->validateAttributes();
 
         return Inertia::render(
             'SupplyChain/SupplyChainDashboard',

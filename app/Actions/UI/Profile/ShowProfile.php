@@ -36,7 +36,6 @@ class ShowProfile
 
     public function htmlResponse(User $user): Response
     {
-        $this->validateAttributes();
 
         return Inertia::render("EditModel", [
             "title"       => __("Profile"),

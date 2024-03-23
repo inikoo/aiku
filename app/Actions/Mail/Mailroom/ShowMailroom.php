@@ -43,8 +43,6 @@ class ShowMailroom extends InertiaAction
 
     public function htmlResponse(): Response
     {
-        $this->validateAttributes();
-
 
         return Inertia::render(
             'Mail/Mailroom',

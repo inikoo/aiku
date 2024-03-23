@@ -79,7 +79,7 @@ class ShowStoredItem extends OrgAction
                             'type'    => 'button',
                             'style'   => 'exit',
                             'tooltip' => __('return to customer'),
-                            'label'   => __($storedItem->status == StoredItemStatusEnum::RETURNED ? 'returned' : 'return to customer'),
+                            'label'   => $storedItem->status == StoredItemStatusEnum::RETURNED ? __('returned') : __('return to customer'),
                             'route'   => [
                                 'name'       => 'grp.fulfilment.stored-items.setReturn',
                                 'parameters' => array_values($request->route()->originalParameters())
@@ -91,7 +91,7 @@ class ShowStoredItem extends OrgAction
                             'style'   => 'negative',
                             'icon'    => 'fal fa-fragile',
                             'tooltip' => __('Set as damaged'),
-                            'label'   => __($storedItem->status == StoredItemStatusEnum::DAMAGED ? 'damaged' : 'set as damaged'),
+                            'label'   => $storedItem->status == StoredItemStatusEnum::DAMAGED ? __('damaged') : __('set as damaged'),
                             'route'   => [
                                 'name'       => 'grp.fulfilment.stored-items.setDamaged',
                                 'parameters' => array_values($request->route()->originalParameters())

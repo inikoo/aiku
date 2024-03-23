@@ -40,7 +40,6 @@ class ShowOutbox extends InertiaAction
     public function inOrganisation(Outbox $outbox, ActionRequest $request): Outbox
     {
 
-        //$this->validateAttributes();
         $this->initialisation($request);
         return $this->handle($outbox);
     }

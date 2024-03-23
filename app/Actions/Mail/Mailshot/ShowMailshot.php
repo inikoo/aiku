@@ -35,8 +35,7 @@ class ShowMailshot extends InertiaAction
 
     public function inOrganisation(Mailshot $mailshot, ActionRequest $request): Mailshot
     {
-        //
-        //$this->validateAttributes();
+
         $this->initialisation($request);
         return $this->handle($mailshot);
     }
@@ -45,7 +44,6 @@ class ShowMailshot extends InertiaAction
     public function inOutbox(Outbox $outbox, Mailshot $mailshot, ActionRequest $request): Mailshot
     {
 
-        //$this->validateAttributes();
         $this->initialisation($request);
         return $this->handle($mailshot);
     }
@@ -54,7 +52,6 @@ class ShowMailshot extends InertiaAction
     public function inMailroomInOutboxInShop(Mailroom $mailroom, Outbox $outbox, Mailshot $mailshot, ActionRequest $request): Mailshot
     {
 
-        //$this->validateAttributes();
         $this->initialisation($request);
         return $this->handle($mailshot);
     }
@@ -63,20 +60,17 @@ class ShowMailshot extends InertiaAction
     public function inMailroom(Mailroom $mailroom, Mailshot $mailshot, ActionRequest $request): Mailshot
     {
 
-        //$this->validateAttributes();
         $this->initialisation($request);
         return $this->handle($mailshot);
     }
 
-    public function htmlResponse(Mailshot $mailshot): Response
+    public function htmlResponse(Mailshot $mailshot, ActionRequest $request): Response
     {
-        //$this->validateAttributes();
-
 
         return Inertia::render(
             'Mail/Mailshot',
             [
-                'title'       => __($mailshot->id),
+                'title'       => $mailshot->id,
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $mailshot),
                 'pageHead'    => [
                     'icon'  => 'fal fa-coins',

@@ -117,7 +117,7 @@ class ShowPallet extends OrgAction
                             'type'    => 'button',
                             'style'   => 'cancel',
                             'tooltip' => __('return to customer'),
-                            'label'   => __($this->pallet->status == PalletStatusEnum::RETURNED ? 'returned' : 'return to customer'),
+                            'label'   => $this->pallet->status == PalletStatusEnum::RETURNED ? __('returned') : __('return to customer'),
                             'route'   => [
                                 'name'       => 'grp.fulfilment.stored-items.setReturn',
                                 'parameters' => array_values(request()->route()->originalParameters())
@@ -138,7 +138,7 @@ class ShowPallet extends OrgAction
                             'type'    => 'button',
                             'style'   => 'delete',
                             'tooltip' => __('set as damaged'),
-                            'label'   => __($this->pallet->status == PalletStatusEnum::DAMAGED ? 'damaged' : 'set as damaged'),
+                            'label'   => $this->pallet->status == PalletStatusEnum::DAMAGED ? __('damaged') : __('set as damaged'),
                             'route'   => [
                                 'name'       => 'grp.fulfilment.stored-items.setDamaged',
                                 'parameters' => array_values(request()->route()->originalParameters())

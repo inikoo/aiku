@@ -94,10 +94,10 @@ class ShowPalletReturn extends OrgAction
                 ],
                 'pageHead' => [
                     'container' => $container,
-                    'title'     => __($palletReturn->reference),
+                    'title'     => $palletReturn->reference,
                     'icon'      => [
                         'icon'  => ['fal', 'fa-truck-couch'],
-                        'title' => __($palletReturn->reference)
+                        'title' => $palletReturn->reference
                     ],
                     'edit' => $this->canEdit ? [
                         'route' => [

@@ -45,9 +45,14 @@ class InertiaTable
         }
     }
 
-    public static function defaultGlobalSearch(bool|string $label = 'Search on table...'): void
+    public static function defaultGlobalSearch(bool|string $label = 'default'): void
     {
-        static::$defaultGlobalSearch = $label !== false ? __($label) : false;
+
+        if($label==='default') {
+            $label=__('Search on table...');
+        }
+
+        static::$defaultGlobalSearch = $label !== false ? $label : false;
     }
 
 

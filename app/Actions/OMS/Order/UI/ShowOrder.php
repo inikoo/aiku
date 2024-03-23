@@ -73,7 +73,6 @@ class ShowOrder extends InertiaAction
 */
     public function htmlResponse(Order $order, ActionRequest $request): Response
     {
-        $this->validateAttributes();
 
 
         return Inertia::render(

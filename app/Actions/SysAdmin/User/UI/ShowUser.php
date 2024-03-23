@@ -44,7 +44,6 @@ class ShowUser extends InertiaAction
 
     public function htmlResponse(User $user, ActionRequest $request): Response
     {
-        $this->validateAttributes();
 
         return Inertia::render(
             'SysAdmin/User',
