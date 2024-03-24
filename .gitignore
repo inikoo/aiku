@@ -61,3 +61,5 @@ aurora_migration_crm.sh
 /backup_load.sh
 push.sh
 /devops/paso_au/
+/config/flare.php
+/config/ignition.php
