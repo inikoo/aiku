@@ -26,6 +26,31 @@ class GetGroupNavigation
                 'route'   => [
                     'name' => 'grp.goods.dashboard'
                 ],
+                'topMenu' => [
+                    'subSections' => [
+                        [
+                            'label' => __('SKUs families'),
+                            'icon'  => ['fal', 'fa-boxes-alt'],
+                            'root'  => 'grp.goods.stock-families.',
+                            'route' => [
+                                'name'       => 'grp.goods.stock-families.index',
+                                'parameters' => []
+
+                            ]
+                        ],
+                        [
+                            'label' => 'SKUs',
+                            'icon'  => ['fal', 'fa-box'],
+                            'root'  => 'grp.goods.stocks.',
+                            'route' => [
+                                'name'       => 'grp.goods.stocks.index',
+                                'parameters' => []
+
+                            ]
+                        ],
+
+                    ]
+                ]
 
             ];
         }
@@ -65,8 +90,7 @@ class GetGroupNavigation
         }
 
 
-
-        if ($user->hasPermissionTo('goods.view')) {
+        if ($user->hasPermissionTo('organisations.view')) {
             $groupNavigation['organisations'] = [
                 'label'   => __('Organisations'),
                 'icon'    => ['fal', 'fa-building'],

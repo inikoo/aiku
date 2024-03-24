@@ -7,8 +7,8 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\SupplyChain\StockFamily\StoreStockFamily;
-use App\Actions\SupplyChain\StockFamily\UpdateStockFamily;
+use App\Actions\Goods\StockFamily\StoreStockFamily;
+use App\Actions\Goods\StockFamily\UpdateStockFamily;
 use App\Models\SupplyChain\StockFamily;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;

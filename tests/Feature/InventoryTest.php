@@ -7,6 +7,9 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Goods\Stock\StoreStock;
+use App\Actions\Goods\Stock\SyncStockTradeUnits;
+use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Inventory\Location\AuditLocation;
 use App\Actions\Inventory\Location\StoreLocation;
@@ -21,9 +24,6 @@ use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
-use App\Actions\SupplyChain\Stock\StoreStock;
-use App\Actions\SupplyChain\Stock\SyncStockTradeUnits;
-use App\Actions\SupplyChain\StockFamily\StoreStockFamily;
 use App\Enums\Inventory\OrgStock\LostAndFoundOrgStockStateEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\Location;

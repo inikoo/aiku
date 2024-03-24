@@ -1,8 +1,10 @@
+
 <!--
-  -  Author: Raul Perusquia <raul@inikoo.com>
-  -  Created: Sat, 22 Oct 2022 18:55:18 British Summer Time, Sheffield, UK
-  -  Copyright (c) 2022, Raul A Perusquia Flores
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Sun, 24 Mar 2024 21:06:12 Malaysia Time, Mexico City, Mexico
+  - Copyright (c) 2024, Raul A Perusquia Flores
   -->
+
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';

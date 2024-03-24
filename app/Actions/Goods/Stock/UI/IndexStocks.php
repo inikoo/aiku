@@ -1,20 +1,20 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Wed, 15 Mar 2023 15:27:25 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 23 Mar 2024 12:24:25 Malaysia Time, Mexico City, Mexico
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Inventory\OrgStock\UI;
+namespace App\Actions\Goods\Stock\UI;
 
 use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
-use App\Actions\OrgAction;
-use App\Actions\UI\Inventory\ShowInventoryDashboard;
-use App\Http\Resources\Inventory\OrgStocksResource;
+use App\Actions\GrpAction;
+use App\Actions\UI\Goods\ShowGoodsDashboard;
+use App\Http\Resources\Goods\StocksResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Inventory\OrgStock;
-use App\Models\Inventory\OrgStockFamily;
-use App\Models\SysAdmin\Organisation;
+use App\Models\SupplyChain\Stock;
+use App\Models\SupplyChain\StockFamily;
+use App\Models\SysAdmin\Group;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -25,39 +25,41 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexOrgStocks extends OrgAction
+class IndexStocks extends GrpAction
 {
-    private OrgStockFamily|Organisation $parent;
+    private StockFamily|Group $parent;
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->hasPermissionTo("goods.{$this->group->id}.edit");
 
-        return $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.view");
+        return $request->user()->hasPermissionTo("goods.{$this->group->id}.view");
     }
 
-    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($organisation, $request);
-        $this->parent = $organisation;
+        $this->parent = group();
+        $this->initialisation($this->parent, $request);
 
-        return $this->handle(parent: $organisation);
+        return $this->handle($this->parent);
     }
 
-    public function inStockFamily(Organisation $organisation, OrgStockFamily $orgStockFamily, ActionRequest $request): LengthAwarePaginator
+    public function inStockFamily(StockFamily $stockFamily, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($organisation, $request);
-        $this->parent = $orgStockFamily;
+        $this->initialisation(group(), $request);
+        $this->parent = $stockFamily;
 
-        return $this->handle(parent: $orgStockFamily);
+        return $this->handle(parent: $stockFamily);
     }
 
 
-    public function handle(OrgStockFamily|Organisation $parent, $prefix = null): LengthAwarePaginator
+    public function handle(StockFamily|Group $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('stocks.code', $value)
+                    ->orWhereStartWith('stock_families.code', $value)
                     ->orWhereAnyWordStartWith('stocks.name', $value);
             });
         });
@@ -66,19 +68,25 @@ class IndexOrgStocks extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(OrgStock::class);
+        $queryBuilder = QueryBuilder::for(Stock::class);
+
+        if ($parent instanceof StockFamily) {
+            $queryBuilder->where('stock_family_id', $parent->id);
+        } else {
+            $queryBuilder->where('stocks.group_id', $this->group->id);
+        }
+
 
         /*
-         foreach ($this->elementGroups as $key => $elementGroup) {
-             $queryBuilder->whereElementGroup(
-                 prefix: $prefix,
-                 key: $key,
-                 allowedElements: array_keys($elementGroup['elements']),
-                 engine: $elementGroup['engine']
-             );
-         }
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine'],
+                prefix: $prefix
+            );
+        }
         */
-
 
         return $queryBuilder
             ->defaultSort('stocks.code')
@@ -86,31 +94,24 @@ class IndexOrgStocks extends OrgAction
                 'stock_families.slug as family_slug',
                 'stock_families.code as family_code',
                 'stocks.code',
-                'stocks.name',
                 'stocks.slug',
-                'stocks.description',
+                'stocks.name',
                 'stocks.unit_value',
-                'number_locations',
-                'quantity_in_locations'
             ])
-            ->leftJoin('stocks', 'org_stocks.stock_id', 'stocks.id')
-            ->leftJoin('org_stock_stats', 'org_stock_stats.org_stock_id', 'org_stocks.id')
-            ->leftJoin('org_stock_families', 'org_stock_families.id', 'org_stocks.org_stock_family_id')
-            ->leftJoin('stock_families', 'stock_families.id', 'org_stock_families.stock_family_id')
+            ->leftJoin('stock_stats', 'stock_stats.stock_id', 'stocks.id')
+            ->leftJoin('stock_families', 'stock_families.id', 'stocks.stock_family_id')
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'StockFamily') {
-                    $query->where('org_stocks.org_stock_family_id', $parent->id);
-                } elseif (class_basename($parent) == 'Organisation') {
-                    $query->where('org_stocks.organisation_id', $parent->id);
+                    $query->where('stocks.stock_family_id', $parent->id);
                 }
             })
-            ->allowedSorts(['code', 'family_code', 'description', 'unit_value'])
+            ->allowedSorts(['code', 'family_code', 'name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group|StockFamily $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
@@ -124,34 +125,51 @@ class IndexOrgStocks extends OrgAction
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     match (class_basename($parent)) {
-                        'Organisation' => [
+                        'Group' => [
                             'title'       => __("No SKUs found"),
-                            'description' => $this->canEdit && $parent->stats->number_stock_families == 0 ? __('Get started by creating a shop. ✨')
+                            'description' => $this->canEdit && $parent->inventoryStats->number_stock_families == 0 ? __('Get started by creating a shop. ✨')
                                 : __("In fact, is no even create a SKUs family yet 🤷🏽‍♂️"),
-                            'count'       => $parent->stats->number_stocks,
+                            'count'       => $parent->inventoryStats->number_stocks,
+                            'action'      => $this->canEdit && $parent->inventoryStats->number_stock_families == 0 ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new SKUs family'),
+                                'label'   => __('SKUs family'),
+                                'route'   => [
+                                    'name'       => 'grp.goods.stock-families.create',
+                                    'parameters' => []
+                                ]
+                            ] : null
                         ],
                         'StockFamily' => [
                             'title'       => __("No SKUs found"),
                             'description' => $this->canEdit ? __('Get started by creating a new SKU. ✨')
                                 : null,
                             'count'       => $parent->stats->number_stocks,
+                            'action'      => $this->canEdit ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new SKU'),
+                                'label'   => __('SKU'),
+                                'route'   => [
+                                    'name'       => 'inventory.stock-families.show.stocks.create',
+                                    'parameters' => [$parent->slug]
+                                ]
+                            ] : null
                         ],
                         default => null
                     }
                 )
-                ->column(key: 'code', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'family_code', label: __('family'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'unit_value', label: __('unit value'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'stock', label: __('stock'), canBeHidden: false, sortable: true, searchable: true);
-
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
 
     public function jsonResponse(LengthAwarePaginator $stocks): AnonymousResourceCollection
     {
-        return OrgStocksResource::collection($stocks);
+        return StocksResource::collection($stocks);
     }
 
     public function htmlResponse(LengthAwarePaginator $stocks, ActionRequest $request): Response
@@ -162,12 +180,12 @@ class IndexOrgStocks extends OrgAction
             $container = [
                 'icon'    => ['fal', 'fa-boxes-alt'],
                 'tooltip' => __('Stock Family'),
-                'label'   => Str::possessive($scope->name)
+                'label'   => Str::possessive($scope->code)
             ];
         }
 
         return Inertia::render(
-            'Org/Inventory/OrgStocks',
+            'Goods/Stocks',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -175,20 +193,20 @@ class IndexOrgStocks extends OrgAction
                 ),
                 'title'       => __("SKUs"),
                 'pageHead'    => [
-                    'title'      => __("SKUs"),
-                    'container'  => $container,
-                    'iconRight'  => [
+                    'title'     => __("SKUs"),
+                    'container' => $container,
+                    'iconRight' => [
                         'icon'  => ['fal', 'fa-box'],
                         'title' => __('SKU')
                     ],
-                    'actions_xx' => [
+                    'actions'   => [
                         $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new SKU'),
                             'label'   => __('SKU'),
                             'route'   => match ($request->route()->getName()) {
-                                'grp.org.inventory.org-stock-families.show.stocks.index' => [
+                                'inventory.stock-families.show.stocks.index' => [
                                     'name'       => 'inventory.stock-families.show.stocks.create',
                                     'parameters' => array_values($request->route()->originalParameters())
                                 ],
@@ -200,7 +218,7 @@ class IndexOrgStocks extends OrgAction
                         ] : false,
                     ]
                 ],
-                'data'        => OrgStocksResource::collection($stocks),
+                'data'        => StocksResource::collection($stocks),
 
             ]
         )->table($this->tableStructure($this->parent));
@@ -223,23 +241,22 @@ class IndexOrgStocks extends OrgAction
             ];
         };
 
-
         return match ($routeName) {
-            'grp.org.inventory.org-stocks.index' =>
+            'grp.goods.stocks.index' =>
             array_merge(
-                ShowInventoryDashboard::make()->getBreadcrumbs($routeParameters),
+                ShowGoodsDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name'       => $routeName,
-                        'parameters' => $routeParameters
+                        'parameters' => []
                     ],
                     $suffix
                 )
             ),
 
-            'inventory.stock-families.show.stocks.index' =>
+            'grp.goods.stock-families.show.stocks.index' =>
             array_merge(
-                ShowStockFamily::make()->getBreadcrumbs($routeParameters['stockFamily']),
+                ShowStockFamily::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,

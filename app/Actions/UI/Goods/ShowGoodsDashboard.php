@@ -27,15 +27,17 @@ class ShowGoodsDashboard extends GrpAction
     }
 
 
-    public function asController(ActionRequest $request): void
+    public function asController(ActionRequest $request): ActionRequest
     {
         $this->initialisation(app('group'), $request);
+
+        return $request;
     }
 
 
-    public function htmlResponse(): Response
+    public function htmlResponse(ActionRequest $request): Response
     {
-        $this->validateAttributes();
+        $routeParameters = $request->route()->originalParameters();
 
         return Inertia::render(
             'Goods/GoodsDashboard',
@@ -45,7 +47,34 @@ class ShowGoodsDashboard extends GrpAction
                 'pageHead'     => [
                     'title' => __('goods strategy'),
                 ],
+                'flatTreeMaps' => [
+                    [
+                        [
+                            'name'  => __('SKUs families'),
+                            'icon'  => ['fal', 'fa-boxes-alt'],
+                            'href'  => [
+                                'name'       => 'grp.goods.stock-families.index',
+                                'parameters' => []
+                            ],
+                            'index' => [
+                                'number' => $this->group->inventoryStats->number_stock_families
+                            ]
 
+                        ],
+                        [
+                            'name'  => 'SKUs',
+                            'icon'  => ['fal', 'fa-box'],
+                            'href'  => [
+                                'name'       => 'grp.goods.stocks.index',
+                                'parameters' => []
+                            ],
+                            'index' => [
+                                'number' => $this->group->inventoryStats->number_stocks
+                            ]
+
+                        ]
+                    ]
+                ],
 
 
             ]

@@ -1,12 +1,13 @@
 <!--
   -  Author: Raul Perusquia <raul@inikoo.com>
-  -  Created: Sat, 22 Oct 2022 18:55:18 British Summer Time, Sheffield, UK
+  -  Created: Mon, 24 Oct 2022 22:46:45 British Summer Time, Sheffield, UK
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
+
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableStocks from "@/Components/Tables/Grp/Goods/TableStocks.vue";
+import TableStockFamilies from "@/Components/Tables/Grp/Goods/TableStockFamilies.vue";
 import { capitalize } from "@/Composables/capitalize"
 
 const props = defineProps<{
@@ -16,12 +17,12 @@ const props = defineProps<{
 }>()
 
 
+
 </script>
 
-
 <template>
-    <Head :title="capitalize(title)" />
+    <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <TableStocks :data="data"/>
+    <TableStockFamilies :data="data" />
 </template>
 
