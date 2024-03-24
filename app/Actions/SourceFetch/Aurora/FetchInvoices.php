@@ -20,17 +20,21 @@ class FetchInvoices extends FetchAction
 {
     public string $commandSignature = 'fetch:invoices {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset}';
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Invoice
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Invoice
     {
         if ($invoiceData = $organisationSource->fetchInvoice($organisationSourceId)) {
             if ($invoice = Invoice::withTrashed()->where('source_id', $invoiceData['invoice']['source_id'])
                 ->first()) {
-                UpdateInvoice::run($invoice, $invoiceData['invoice']);
+                UpdateInvoice::make()->action(
+                    invoice: $invoice,
+                    modelData: $invoiceData['invoice'],
+                    hydratorsDelay: 60,
+                );
 
                 $currentBillingAddress = $invoice->getAddress('billing');
 
-                if ($currentBillingAddress->checksum != $invoiceData['billing_address']->getChecksum()) {
-                    $billingAddress = StoreHistoricAddress::run($invoiceData['billing_address']);
+                if ($currentBillingAddress->checksum != $invoiceData['invoice']['billing_address']->getChecksum()) {
+                    $billingAddress = StoreHistoricAddress::run($invoiceData['invoice']['billing_address']);
                     UpdateHistoricAddressToModel::run($invoice, $currentBillingAddress, $billingAddress, ['scope' => 'billing']);
                 }
 
@@ -47,10 +51,9 @@ class FetchInvoices extends FetchAction
                         unset($invoiceData['invoice']['data']['foot_note']);
                     }
 
-                    $invoice = StoreInvoice::make()->asFetch(
-                        parent:          $invoiceData['parent'],
-                        modelData:      $invoiceData['invoice'],
-                        billingAddress: $invoiceData['billing_address'],
+                    $invoice = StoreInvoice::make()->action(
+                        parent: $invoiceData['parent'],
+                        modelData: $invoiceData['invoice'],
                         hydratorsDelay: $this->hydrateDelay
                     );
                     if (in_array('transactions', $this->with)) {
@@ -71,8 +74,9 @@ class FetchInvoices extends FetchAction
 
     public function updateAurora(Invoice $invoice): void
     {
+        $sourceData = explode(':', $invoice->source_id);
         DB::connection('aurora')->table('Invoice Dimension')
-            ->where('Invoice Key', $invoice->source_id)
+            ->where('Invoice Key', $sourceData[1])
             ->update(['aiku_id' => $invoice->id]);
     }
 

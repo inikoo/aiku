@@ -14,41 +14,38 @@ class FetchAuroraInvoice extends FetchAurora
 {
     protected function parseModel(): void
     {
-        if(!$this->auroraModelData->{'Invoice Order Key'} and $this->auroraModelData->{'Invoice Total Amount'}==0) {
+        if (!$this->auroraModelData->{'Invoice Order Key'} and $this->auroraModelData->{'Invoice Total Amount'} == 0) {
             // just ignore it
             return;
         }
 
         $order = $this->parseOrder($this->auroraModelData->{'Invoice Order Key'});
-        if(!$order) {
-            $this->parsedData['parent']=$this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Invoice Customer Key'});
+        if (!$order) {
+            $this->parsedData['parent'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Invoice Customer Key'});
         } else {
-            $this->parsedData['parent']=$order;
+            $this->parsedData['parent'] = $order;
         }
-
 
 
         $data = [];
 
         $data['foot_note'] = $this->auroraModelData->{'Invoice Message'};
 
+        $billingAddressData = $this->parseAddress(prefix: 'Invoice', auAddressData: $this->auroraModelData);
 
         $this->parsedData['invoice'] = [
-            'number'     => $this->auroraModelData->{'Invoice Public ID'},
-            'type'       => strtolower($this->auroraModelData->{'Invoice Type'}),
-            'created_at' => $this->auroraModelData->{'Invoice Date'},
-            'exchange'   => $this->auroraModelData->{'Invoice Currency Exchange'},
-            'net'        => $this->auroraModelData->{'Invoice Total Net Amount'},
-            'total'      => $this->auroraModelData->{'Invoice Total Amount'},
-            'source_id'  => $this->organisation->id.':'.$this->auroraModelData->{'Invoice Key'},
-            'data'       => $data
+            'number'          => $this->auroraModelData->{'Invoice Public ID'},
+            'type'            => strtolower($this->auroraModelData->{'Invoice Type'}),
+            'created_at'      => $this->auroraModelData->{'Invoice Date'},
+            'exchange'        => $this->auroraModelData->{'Invoice Currency Exchange'},
+            'net'             => $this->auroraModelData->{'Invoice Total Net Amount'},
+            'total'           => $this->auroraModelData->{'Invoice Total Amount'},
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Invoice Key'},
+            'data'            => $data,
+            'billing_address' => new Address($billingAddressData),
+            'currency_id'     => $this->parseCurrencyID($this->auroraModelData->{'Invoice Currency'}),
 
         ];
-
-
-
-        $billingAddressData                  = $this->parseAddress(prefix: 'Invoice', auAddressData: $this->auroraModelData);
-        $this->parsedData['billing_address'] = new Address($billingAddressData);
     }
 
 
