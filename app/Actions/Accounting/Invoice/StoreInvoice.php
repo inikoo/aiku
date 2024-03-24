@@ -39,6 +39,9 @@ class StoreInvoice
         $modelData['shop_id']     = $parent->shop_id;
         $modelData['currency_id'] = $parent->shop->currency_id;
 
+        data_set($modelData, 'group_id', $parent->group_id);
+        data_set($modelData, 'organisation_id', $parent->organisation_id);
+
 
 
 
@@ -57,16 +60,6 @@ class StoreInvoice
         return $invoice;
     }
 
-    public function asFetch(
-        Customer|Order $parent,
-        array $modelData,
-        Address $billingAddress,
-        int $hydratorsDelay = 60
-    ): Invoice {
-        $this->hydratorsDelay = $hydratorsDelay;
-
-        return $this->handle($parent, $modelData, $billingAddress);
-    }
 
     public function rules(): array
     {

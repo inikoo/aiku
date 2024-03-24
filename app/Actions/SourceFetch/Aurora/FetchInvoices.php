@@ -15,7 +15,6 @@ use App\Models\Accounting\Invoice;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchInvoices extends FetchAction
 {

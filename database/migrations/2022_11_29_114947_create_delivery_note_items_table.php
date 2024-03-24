@@ -7,16 +7,18 @@
 
 use App\Enums\Dispatch\DeliveryNoteItem\DeliveryNoteItemStateEnum;
 use App\Enums\Dispatch\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    use HasGroupOrganisationRelationship;
+    public function up(): void
     {
         Schema::create('delivery_note_items', function (Blueprint $table) {
             $table->increments('id');
-
+            $table=$this->groupOrgRelationship($table);
             $table->unsignedInteger('delivery_note_id')->index();
             $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
 
@@ -45,7 +47,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('delivery_note_items');
     }

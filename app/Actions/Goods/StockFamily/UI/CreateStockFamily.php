@@ -14,7 +14,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateStockFamily extends GrpAction
 {
-
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasPermissionTo("goods.{$this->group->id}.view");
@@ -22,7 +21,7 @@ class CreateStockFamily extends GrpAction
 
     public function asController(ActionRequest $request): Response
     {
-        $this->initialisation(group(),$request);
+        $this->initialisation(group(), $request);
 
         return $this->handle();
     }

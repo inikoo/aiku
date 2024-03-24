@@ -36,6 +36,8 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Dispatch\DeliveryNote
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property string $slug
  * @property int $shop_id
  * @property int $customer_id

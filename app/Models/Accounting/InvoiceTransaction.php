@@ -20,6 +20,8 @@ use Illuminate\Support\Carbon;
  * App\Models\Accounting\InvoiceTransaction
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property int $shop_id
  * @property int $customer_id
  * @property int $order_id

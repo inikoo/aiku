@@ -36,6 +36,8 @@ use Spatie\Sluggable\HasSlug;
  * App\Models\OMS\Order
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property string $slug
  * @property int $shop_id
  * @property int $customer_id

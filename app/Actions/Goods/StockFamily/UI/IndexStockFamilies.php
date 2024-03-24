@@ -24,7 +24,6 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexStockFamilies extends GrpAction
 {
-
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo("goods.{$this->group->id}.edit");

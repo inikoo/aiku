@@ -19,8 +19,11 @@ class StoreTransaction
 
     public function handle(Order $order, array $modelData): Transaction
     {
-        $modelData['shop_id']         = $order->shop_id;
-        $modelData['customer_id']     = $order->customer_id;
+
+        data_set($modelData, 'shop_id', $order->shop_id);
+        data_set($modelData, 'customer_id', $order->customer_id);
+        data_set($modelData, 'group_id', $order->group_id);
+        data_set($modelData, 'organisation_id', $order->organisation_id);
 
         /** @var Transaction $transaction */
         $transaction = $order->transactions()->create($modelData);
