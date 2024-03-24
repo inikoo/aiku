@@ -61,7 +61,7 @@ class StoreInvoice extends OrgAction
     public function rules(): array
     {
         return [
-            'number'          => ['required', 'unique:invoices', 'numeric'],
+            'number'          => ['required', 'unique:invoices', 'max:64', 'string'],
             'currency_id'     => ['required', 'exists:currencies,id'],
             'billing_address' => ['required', new ValidAddress()],
             'type'            => ['required', Rule::enum(InvoiceTypeEnum::class)],
