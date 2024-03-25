@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Http;
 use Lorisleiva\Actions\Concerns\AsAction;
 use App\Models\Assets\Currency;
 
-class GetHistoricCurrencyExchangeCurrencyBeacon
+class FetchCurrencyExchangeCurrencyBeacon
 {
     use AsAction;
 

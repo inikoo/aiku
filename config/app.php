@@ -242,8 +242,8 @@ return [
 
 
     'currency_exchange'=> [
-        'base'     => env('EXCHANGE_BASE_CURRENCY', 'GBP'),
-        'providers'=> [
+        'pivot'     => env('EXCHANGE_PIVOT_CURRENCY', 'GBP'),
+        'providers' => [
             'currency_beacon'=> env('CURRENCY_EXCHANGE_CURRENCY_BEACON_API_KEYS')
         ]
     ],

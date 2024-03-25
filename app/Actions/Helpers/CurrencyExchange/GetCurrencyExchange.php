@@ -27,7 +27,7 @@ class GetCurrencyExchange
         if (!$currencyExchange) {
             try {
 
-                $exchangeData          = GetHistoricCurrencyExchange::run($baseCurrency, $targetCurrency);
+                $exchangeData          = FetchCurrencyExchange::run($baseCurrency, $targetCurrency);
                 $currencyExchange      = $exchangeData['exchange'] ?? null;
 
             } catch (Exception) {

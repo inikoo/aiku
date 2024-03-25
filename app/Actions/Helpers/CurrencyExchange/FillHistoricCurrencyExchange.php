@@ -27,7 +27,7 @@ class FillHistoricCurrencyExchange
 
     public function asCommand(Command $command): int
     {
-        $exchangeBaseCurrency = Currency::where('code', config('app.currency_exchange.base'))->first();
+        $exchangePivotCurrency = Currency::where('code', config('app.currency_exchange.pivot'))->first();
 
         $currencies = Currency::where('store_historic_data', true);
         if ($command->option('currency')) {
@@ -36,7 +36,7 @@ class FillHistoricCurrencyExchange
 
 
         foreach ($currencies->get() as $currency) {
-            if ($currency->id == $exchangeBaseCurrency->id) {
+            if ($currency->id == $exchangePivotCurrency->id) {
                 continue;
             }
 
@@ -56,7 +56,7 @@ class FillHistoricCurrencyExchange
 
             foreach ($dates as $date) {
                 if (!CurrencyExchange::where('currency_id', $currency->id)->where('date', $date)->exists()) {
-                    $exchangeData = GetHistoricCurrencyExchange::run($exchangeBaseCurrency, $currency, new Carbon($date));
+                    $exchangeData = FetchCurrencyExchange::run($exchangePivotCurrency, $currency, new Carbon($date));
 
 
                     $currencyValue = $exchangeData['exchange'] ?? null;
