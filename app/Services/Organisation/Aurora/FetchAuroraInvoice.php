@@ -7,7 +7,9 @@
 
 namespace App\Services\Organisation\Aurora;
 
+use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Models\Helpers\Address;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraInvoice extends FetchAurora
@@ -27,19 +29,31 @@ class FetchAuroraInvoice extends FetchAurora
         }
 
 
+
         $data = [];
 
         $data['foot_note'] = $this->auroraModelData->{'Invoice Message'};
 
         $billingAddressData = $this->parseAddress(prefix: 'Invoice', auAddressData: $this->auroraModelData);
 
+        $date = $this->parseDate($this->auroraModelData->{'Invoice Date'});
+        $date = new Carbon($date);
+
         $this->parsedData['invoice'] = [
-            'number'          => $this->auroraModelData->{'Invoice Public ID'},
-            'type'            => strtolower($this->auroraModelData->{'Invoice Type'}),
-            'created_at'      => $this->auroraModelData->{'Invoice Date'},
-            'exchange'        => $this->auroraModelData->{'Invoice Currency Exchange'},
-            'net'             => $this->auroraModelData->{'Invoice Total Net Amount'},
-            'total'           => $this->auroraModelData->{'Invoice Total Amount'},
+            'number'     => $this->auroraModelData->{'Invoice Public ID'},
+            'type'       => strtolower($this->auroraModelData->{'Invoice Type'}),
+            'created_at' => $this->auroraModelData->{'Invoice Date'},
+            'exchange'   => $this->auroraModelData->{'Invoice Currency Exchange'},
+            'net'        => $this->auroraModelData->{'Invoice Total Net Amount'},
+            'total'      => $this->auroraModelData->{'Invoice Total Amount'},
+
+            'org_exchange'   => GetHistoricCurrencyExchange::run($this->parsedData['parent']->shop->currency, $this->parsedData['parent']->organisation->currency, $date),
+            'group_exchange' => GetHistoricCurrencyExchange::run($this->parsedData['parent']->shop->currency, $this->parsedData['parent']->group->currency, $date),
+
+
+            'org_net_amount'   => $this->auroraModelData->{'Invoice Total Net Amount'} * GetHistoricCurrencyExchange::run($this->parsedData['parent']->shop->currency, $this->parsedData['parent']->organisation->currency, $date),
+            'group_net_amount' => $this->auroraModelData->{'Invoice Total Net Amount'} * GetHistoricCurrencyExchange::run($this->parsedData['parent']->shop->currency, $this->parsedData['parent']->group->currency, $date),
+
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Invoice Key'},
             'data'            => $data,
             'billing_address' => new Address($billingAddressData),

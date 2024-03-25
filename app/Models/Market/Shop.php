@@ -99,6 +99,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Market\ProductCategory> $departments
  * @property-read Fulfilment|null $fulfilment
  * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
+ * @property-read Group $group
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
  * @property-read \App\Models\Market\ShopMailStats|null $mailStats

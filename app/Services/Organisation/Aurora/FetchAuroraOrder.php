@@ -116,7 +116,7 @@ class FetchAuroraOrder extends FetchAurora
             "state"           => $state,
             "status"          => $status,
             "source_id"       => $this->auroraModelData->{'Order Key'},
-            "exchange"        => $this->auroraModelData->{'Order Currency Exchange'},
+
             "created_at"      => $this->auroraModelData->{'Order Created Date'},
             "cancelled_at"    => $cancelled_at,
             "data"            => $data

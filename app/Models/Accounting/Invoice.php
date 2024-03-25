@@ -51,6 +51,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $net
  * @property string $total
  * @property string $payment
+ * @property string $group_net_amount
+ * @property string $org_net_amount
  * @property array|null $paid_at
  * @property array $data
  * @property Carbon|null $created_at
