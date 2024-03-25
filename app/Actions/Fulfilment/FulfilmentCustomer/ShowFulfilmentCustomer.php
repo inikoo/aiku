@@ -110,42 +110,10 @@ class ShowFulfilmentCustomer extends OrgAction
                     ] : false,
                     'actions' => [
                         [
-                            'type'   => 'buttonGroup',
-                            'key'    => 'upload-add',
-                            'button' => [
-                                [
-                                    'type'    => 'button',
-                                    'style'   => 'create',
-                                    'tooltip' => __('Create new pallet return'),
-                                    'label'   => __('Pallet return'),
-                                    'route'   => [
-                                        'method'     => 'post',
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
-                                        'parameters' => [$fulfilmentCustomer->id]
-                                    ]
-                                ],
-                                [
-                                    'type'    => 'button',
-                                    'style'   => 'create',
-                                    'tooltip' => __('Return new stored item return'),
-                                    'label'   => __('Stored Item Return'),
-                                    'route'   => [
-                                        'method'     => 'post',
-                                        'name'       => 'grp.models.fulfilment-customer.stored-item-return.store',
-                                        'parameters' => [$fulfilmentCustomer->id]
-                                    ]
-                                ],
-
-                            ]
-                        ],
-                        [
                             'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('Create new delivery order'),
-                            'label'   => __('New Delivery Pallet'),
-                            'options' => [
-                                'warehouses' => WarehouseResource::collection($fulfilmentCustomer->fulfilment->warehouses)
-                            ],
+                            'style'   => 'edit',
+                            'tooltip' => __('Edit Customer'),
+                            'label'   => __('Edit Customer'),
                             'route'   => [
                                 'method'     => 'post',
                                 'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
@@ -199,12 +167,46 @@ class ShowFulfilmentCustomer extends OrgAction
             ->table(
                 IndexPalletDeliveries::make()->tableStructure(
                     $fulfilmentCustomer,
-                    prefix: CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value
+                    modelOperations:
+                        [
+                            'createLink' => [
+                                [
+                                    'type'    => 'button',
+                                    'style'   => 'create',
+                                    'tooltip' => __('Create new delivery order'),
+                                    'label'   => __('New Delivery Pallet'),
+                                    'options' => [
+                                        'warehouses' => WarehouseResource::collection($fulfilmentCustomer->fulfilment->warehouses)
+                                    ],
+                                    'route'   => [
+                                        'method'     => 'post',
+                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
+                                        'parameters' => [$fulfilmentCustomer->id]
+                                    ]
+                                ]
+                            ]
+                        ],
+                    prefix: CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value,
                 )
             )
             ->table(
                 IndexPalletReturns::make()->tableStructure(
                     $fulfilmentCustomer,
+                    modelOperations: [
+                        'createLink' => [
+                            [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('Create new pallet return'),
+                                'label'   => __('Pallet return'),
+                                'route'   => [
+                                    'method'     => 'post',
+                                    'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
+                                    'parameters' => [$fulfilmentCustomer->id]
+                                ]
+                            ]
+                        ],
+                    ],
                     prefix: CustomerFulfilmentTabsEnum::PALLET_RETURNS->value
                 )
             )->table(
@@ -214,7 +216,23 @@ class ShowFulfilmentCustomer extends OrgAction
                 )
             )->table(
                 IndexStoredItems::make()->tableStructure(
-                    parent: $fulfilmentCustomer->storedItems
+                    parent: $fulfilmentCustomer->storedItems,
+                    modelOperations:
+                    [
+                        'createLink' => [
+                           [
+                               'type'    => 'button',
+                               'style'   => 'create',
+                               'tooltip' => __('Return new stored item return'),
+                               'label'   => __('Stored Item Return'),
+                               'route'   => [
+                                   'method'     => 'post',
+                                   'name'       => 'grp.models.fulfilment-customer.stored-item-return.store',
+                                   'parameters' => [$fulfilmentCustomer->id]
+                               ]
+                           ]
+                        ],
+                    ],
                 )
             )->table(
                 IndexStoredItemReturns::make()->tableStructure(

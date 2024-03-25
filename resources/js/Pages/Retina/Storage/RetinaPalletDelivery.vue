@@ -160,7 +160,7 @@ watch(() => props.data, (newValue) => {
                 <template #button>
                     <Button :style="action.button.style" :icon="action.button.icon" :iconRight="action.button.iconRight"
                         :key="`ActionButton${action.button.label}${action.button.style}`"
-                        :tooltip="'Add multiple pallet'" class="rounded-none border-none" />
+                        :tooltip="'Add multiple pallet'" class="rounded-r-none border-none" />
                 </template>
 
                 <template #content="{ close: closed }">

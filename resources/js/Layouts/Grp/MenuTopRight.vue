@@ -43,9 +43,10 @@ const logoutAuth = () => {
         <div class="flex">
             <!-- Button: Search -->
             <button @click="showSearchDialog = !showSearchDialog" id="search"
-                class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                class="h-8 w-fit flex items-center justify-center gap-x-3 ring-1 ring-gray-300 rounded-md pl-3 pr-6 text-gray-500 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
                 <span class="sr-only">{{ trans("Search") }}</span>
-                <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-search" size="lg" />
+                <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-search" />
+                <span class="whitespace-nowrap text-gray-400 tracking-tight font-normal">Search something...</span>
                 <SearchBar :isOpen="showSearchDialog" @close="(e) => showSearchDialog = e" />
             </button>
             <!-- Button: Notifications -->
