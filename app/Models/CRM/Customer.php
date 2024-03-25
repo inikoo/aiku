@@ -26,6 +26,7 @@ use App\Models\Market\Shop;
 use App\Models\OMS\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\SupplyChain\Stock;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasPhoto;
@@ -85,6 +86,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, CustomerClient> $clients
  * @property-read FulfilmentCustomer|null $fulfilmentCustomer
  * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
+ * @property-read Group $group
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
@@ -180,6 +182,11 @@ class Customer extends Model implements HasMedia
                 );
             }
         });
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
     }
 
     public function organisation(): BelongsTo

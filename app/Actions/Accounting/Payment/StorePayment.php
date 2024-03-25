@@ -19,6 +19,7 @@ use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\CRM\Customer;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -26,15 +27,19 @@ class StorePayment extends OrgAction
 {
     public function handle(Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
     {
+        data_set($modelData, 'date', gmdate('Y-m-d H:i:s'), overwrite: false);
+
+
         data_set($modelData, 'group_id', $customer->group_id);
         data_set($modelData, 'organisation_id', $customer->organisation_id);
         data_set($modelData, 'payment_service_provider_id', $paymentAccount->payment_service_provider_id);
         data_set($modelData, 'customer_id', $customer->id);
         data_set($modelData, 'shop_id', $customer->shop_id);
         data_fill($modelData, 'currency_id', $customer->shop->currency_id);
-        data_fill($modelData, 'oc_amount', GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->currency));
-        data_fill($modelData, 'gc_amount', GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->group->currency));
-        data_fill($modelData, 'date', gmdate('Y-m-d H:i:s'));
+
+
+        data_set($modelData, 'org_amount', Arr::get($modelData, 'amount') * GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->currency), overwrite: false);
+        data_set($modelData, 'group_amount', Arr::get($modelData, 'amount') * GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->group->currency), overwrite: false);
 
         /** @var Payment $payment */
         $payment = $paymentAccount->payments()->create($modelData);
@@ -64,10 +69,11 @@ class StorePayment extends OrgAction
         return [
             'reference'    => ['nullable', 'string', 'max:255'],
             'amount'       => ['required', 'decimal:0,2'],
-            'oc_amount'    => ['required', 'decimal:0,2'],
+            'org_amount'   => ['sometimes', 'numeric'],
+            'group_amount' => ['sometimes', 'numeric'],
             'data'         => ['sometimes', 'array'],
             'currency_id'  => ['required', 'exists:currencies,id'],
-            'date'         => ['required', 'date'],
+            'date'         => ['sometimes', 'date'],
             'created_at'   => ['sometimes', 'date'],
             'completed_at' => ['sometimes', 'nullable', 'date'],
             'cancelled_at' => ['sometimes', 'nullable', 'date'],

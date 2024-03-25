@@ -22,26 +22,33 @@ class UpdatePayment extends OrgAction
     {
         $payment = $this->update($payment, $modelData, ['data']);
         PaymentHydrateUniversalSearch::dispatch($payment)->delay($this->hydratorsDelay);
+
         return $payment;
     }
+
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
 
         return $request->user()->hasPermissionTo("accounting.edit");
     }
+
     public function rules(): array
     {
         return [
-            'reference'         => ['sometimes', 'nullable',  'max:255', 'string'],
+            'reference'    => ['sometimes', 'nullable', 'max:255', 'string'],
+            'amount'       => ['sometimes', 'decimal:0,2'],
+            'org_amount'   => ['sometimes', 'numeric'],
+            'group_amount' => ['sometimes', 'numeric'],
         ];
     }
+
     public function action(Payment $payment, array $modelData, int $hydratorsDelay = 0): Payment
     {
-        $this->asAction        =true;
-        $this->hydratorsDelay  = $hydratorsDelay;
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($payment->shop, $modelData);
 
         return $this->handle($payment, $this->validatedData);
@@ -51,6 +58,7 @@ class UpdatePayment extends OrgAction
     public function asController(Payment $payment, ActionRequest $request): Payment
     {
         $request->validate();
+
         return $this->handle($payment, $request->all());
     }
 
