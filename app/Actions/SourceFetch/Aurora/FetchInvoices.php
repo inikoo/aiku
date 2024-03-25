@@ -54,7 +54,8 @@ class FetchInvoices extends FetchAction
                     $invoice = StoreInvoice::make()->action(
                         parent: $invoiceData['parent'],
                         modelData: $invoiceData['invoice'],
-                        hydratorsDelay: $this->hydrateDelay
+                        hydratorsDelay: $this->hydrateDelay,
+                        strict:false
                     );
                     if (in_array('transactions', $this->with)) {
                         $this->fetchInvoiceTransactions($organisationSource, $invoice);

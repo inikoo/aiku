@@ -17,11 +17,14 @@ use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\CRM\Customer;
 use App\Models\OMS\Order;
+use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Validation\Rule;
 
 class StoreInvoice extends OrgAction
 {
+    private bool $strict=true;
+
     public function handle(
         Customer|Order $parent,
         array $modelData,
@@ -60,8 +63,15 @@ class StoreInvoice extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'number'          => ['required', 'unique:invoices', 'max:64', 'string'],
+        $rules= [
+            'number'          => ['required', 'max:64', 'string',
+                                  new IUnique(
+                                      table: 'invoices',
+                                      extraConditions: [
+                                          ['column' => 'shop_id', 'value' => $this->shop->id],
+                                      ]
+                                  ),
+                ],
             'currency_id'     => ['required', 'exists:currencies,id'],
             'billing_address' => ['required', new ValidAddress()],
             'type'            => ['required', Rule::enum(InvoiceTypeEnum::class)],
@@ -71,14 +81,21 @@ class StoreInvoice extends OrgAction
             'source_id'       => ['sometimes', 'string'],
             'created_at'      => ['sometimes', 'date'],
             'data'            => ['sometimes', 'array'],
-
-
         ];
+
+        if(!$this->strict) {
+            $rules['number'] = ['required', 'max:64', 'string'];
+        }
+
+
+        return $rules;
+
     }
 
-    public function action(Customer|Order $parent, array $modelData, int $hydratorsDelay = 0): Invoice
+    public function action(Customer|Order $parent, array $modelData, int $hydratorsDelay = 0, bool $strict=true): Invoice
     {
         $this->asAction       = true;
+        $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($parent->shop, $modelData);
 
