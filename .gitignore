@@ -63,3 +63,4 @@ push.sh
 /devops/paso_au/
 /config/flare.php
 /config/ignition.php
+/database/seeders/datasets/currency-exchange/currency_exchanges.dump

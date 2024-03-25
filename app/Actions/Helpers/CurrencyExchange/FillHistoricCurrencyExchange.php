@@ -14,11 +14,11 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class FetchAllCurrencyExchange
+class FillHistoricCurrencyExchange
 {
     use AsAction;
 
-    public string $commandSignature = 'currency:fetch-all';
+    public string $commandSignature = 'currency:fill-historic {--c|currency=} {--f|from=}';
 
     public function getCommandDescription(): string
     {
@@ -27,17 +27,27 @@ class FetchAllCurrencyExchange
 
     public function asCommand(Command $command): int
     {
-        $usd = Currency::where('code', 'USD')->first();
+        $exchangeBaseCurrency = Currency::where('code', config('app.currency_exchange.base'))->first();
 
-        $currencies = Currency::where('store_historic_data', true)->get();
+        $currencies = Currency::where('store_historic_data', true);
+        if ($command->option('currency')) {
+            $currencies->where('code', $command->option('currency'));
+        }
 
-        foreach ($currencies as $currency) {
-            if ($currency->id == $usd->id) {
+
+        foreach ($currencies->get() as $currency) {
+            if ($currency->id == $exchangeBaseCurrency->id) {
                 continue;
             }
 
-            $startDate = new Carbon($currency->historic_data_since);
-            $endDate   = now();
+
+            if($command->option('from')) {
+                $startDate = new Carbon($command->option('from'));
+            } else {
+                $startDate = new Carbon($currency->historic_data_since);
+            }
+
+            $endDate   = Carbon::yesterday();
             $dateRange = CarbonPeriod::create($startDate, $endDate);
             $dates     = array_map(fn ($date) => $date->format('Y-m-d'), iterator_to_array($dateRange));
 
@@ -45,15 +55,18 @@ class FetchAllCurrencyExchange
 
 
             foreach ($dates as $date) {
-                if (!CurrencyExchange::where('currency', $currency->code)->where('date', $date)->exists()) {
-                    $currencyValue = GetHistoricCurrencyExchange::run($usd, $currency, new Carbon($date));
+                if (!CurrencyExchange::where('currency_id', $currency->id)->where('date', $date)->exists()) {
+                    $exchangeData = GetHistoricCurrencyExchange::run($exchangeBaseCurrency, $currency, new Carbon($date));
 
+
+                    $currencyValue = $exchangeData['exchange'] ?? null;
                     if ($currencyValue) {
                         $command->info("$date $currency->code exchange: $currencyValue");
 
                         StoreCurrencyExchange::run($currency, [
                             'exchange' => $currencyValue,
                             'date'     => $date,
+                            'source'   => $exchangeData['source'] ?? null
                         ]);
                     } else {
                         $command->error("$date $currency->code could not fetch");

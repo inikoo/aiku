@@ -7,46 +7,90 @@
 
 namespace App\Actions\Helpers\CurrencyExchange;
 
+use App\Actions\Helpers\CurrencyExchange\Providers\GetHistoricCurrencyExchangeCurrencyBeacon;
+use App\Actions\Helpers\CurrencyExchange\Providers\GetHistoricCurrencyExchangeFrankfurter;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Lorisleiva\Actions\Concerns\AsAction;
-use AmrShawky\LaravelCurrency\Facade\Currency as FetchCurrency;
 use App\Models\Assets\Currency;
 
 class GetHistoricCurrencyExchange
 {
     use AsAction;
 
-    public string $commandSignature = 'currency:historic-exchange {base_currency_code} {target_currency_code} {date}';
+    public string $commandSignature = 'currency:historic-exchange {base_currency_code} {target_currency_code} {date} {--p|provider=}';
 
-    public function handle(Currency $baseCurrency, Currency $targetCurrency, Carbon $date): float|null
+    public function handle(Currency $baseCurrency, Currency $targetCurrency, ?Carbon $date = null, string $provider = null): array
     {
-        if($baseCurrency->code==$targetCurrency) {
-            return 1;
+        if ($baseCurrency->code == $targetCurrency) {
+            return [
+                'status'   => 'success',
+                'exchange' => 1,
+                'source'   => null
+            ];
         }
 
-        return FetchCurrency::convert()
-            ->from($baseCurrency->code)
-            ->to($targetCurrency->code)
-            ->date($date->toDateString())
-            ->get();
+
+        if (!$provider) {
+            $providers = $this->getAvailableProviders();
+        } else {
+            $providers = Arr::only($this->getAvailableProviders(), $provider);
+        }
+
+        foreach ($providers as $provider) {
+
+            $exchangeData = match ($provider) {
+                'Frankfurter'    => GetHistoricCurrencyExchangeFrankfurter::run($baseCurrency, $targetCurrency, $date),
+                'CurrencyBeacon' => GetHistoricCurrencyExchangeCurrencyBeacon::run($baseCurrency, $targetCurrency, $date),
+                default          => [
+                    'status'   => 'error',
+                    'exchange' => null,
+                    'source'   => null
+                ]
+            };
+
+            if ($exchangeData['status'] == 'success') {
+                return $exchangeData;
+            }
+        }
+
+
+        return [
+            'status'   => 'error',
+            'exchange' => null,
+            'source'   => null
+        ];
     }
 
 
+    private function getAvailableProviders(): array
+    {
+        return [
+            'F'  => 'Frankfurter',
+            'CB' => 'CurrencyBeacon',
+        ];
+    }
+
     public function asCommand(Command $command): int
     {
-        $baseCurrency  =Currency::where('code', $command->argument('base_currency_code'))->firstOrFail();
-        $targetCurrency=Currency::where('code', $command->argument('target_currency_code'))->firstOrFail();
+        $baseCurrency   = Currency::where('code', $command->argument('base_currency_code'))->firstOrFail();
+        $targetCurrency = Currency::where('code', $command->argument('target_currency_code'))->firstOrFail();
 
-        if($baseCurrency->code==$targetCurrency->code) {
+        if ($baseCurrency->code == $targetCurrency->code) {
             $command->error('Same currency');
+
             return 1;
         }
 
-        $date    =new Carbon($command->argument('date'));
-        $exchange=$this->handle($baseCurrency, $targetCurrency, $date);
+        $date         = new Carbon($command->argument('date'));
+        $exchangeData = $this->handle($baseCurrency, $targetCurrency, $date, $command->option('provider'));
+        if ($exchangeData['status'] == 'error') {
+            $command->error("Could not fetch exchange rate for {$baseCurrency->code}→{$targetCurrency->code} @ {$date->toDateString()}");
 
-        $command->info("Current exchange {$baseCurrency->code}→$targetCurrency->code @ {$date->toDateString()} : $exchange");
+            return 1;
+        }
+        $command->info("Current exchange {$baseCurrency->code}→$targetCurrency->code @ {$date->toDateString()} (".$exchangeData['source'].")  : ".$exchangeData['exchange']);
 
 
         return 0;

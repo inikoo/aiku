@@ -18,7 +18,6 @@
         "ext-simplexml": "*",
         "ext-soap": "*",
         "ext-zlib": "*",
-        "amrshawky/laravel-currency": "^6.0",
         "aws/aws-php-sns-message-validator": "^1.8",
         "aws/aws-sdk-php": "^3.255",
         "aws/aws-sdk-php-laravel": "^3.8",
