@@ -39,7 +39,6 @@ class GetHistoricCurrencyExchange
         }
 
         foreach ($providers as $provider) {
-
             $exchangeData = match ($provider) {
                 'Frankfurter'    => GetHistoricCurrencyExchangeFrankfurter::run($baseCurrency, $targetCurrency, $date),
                 'CurrencyBeacon' => GetHistoricCurrencyExchangeCurrencyBeacon::run($baseCurrency, $targetCurrency, $date),
@@ -67,8 +66,8 @@ class GetHistoricCurrencyExchange
     private function getAvailableProviders(): array
     {
         return [
-            'F'  => 'Frankfurter',
             'CB' => 'CurrencyBeacon',
+            'F'  => 'Frankfurter',
         ];
     }
 
