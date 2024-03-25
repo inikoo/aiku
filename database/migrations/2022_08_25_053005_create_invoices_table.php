@@ -28,7 +28,8 @@ return new class () extends Migration {
             $table->string('type')->default(InvoiceTypeEnum::INVOICE)->index();
             $table->unsignedSmallInteger('currency_id');
             $table->foreign('currency_id')->references('id')->on('currencies');
-            $table->decimal('exchange', 16, 6)->default(1);
+            $table->decimal('group_exchange', 16, 4)->default(1);
+            $table->decimal('org_exchange', 16, 4)->default(1);
             $table->decimal('net', 16)->default(0);
             $table->decimal('total', 16)->default(0);
             $table->decimal('payment', 16)->default(0);

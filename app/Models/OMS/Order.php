@@ -61,7 +61,8 @@ use Spatie\Sluggable\HasSlug;
  * @property string $items_discounts
  * @property string $items_net
  * @property int $currency_id
- * @property string $exchange
+ * @property string $group_exchange
+ * @property string $org_exchange
  * @property string $charges
  * @property string|null $shipping
  * @property string $net

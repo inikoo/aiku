@@ -40,8 +40,9 @@ return new class () extends Migration {
             $table->decimal('quantity', 16, 3);
             $table->decimal('net', 16)->default(0);
             $table->decimal('discounts', 16)->default(0);
-
             $table->decimal('tax', 16)->default(0);
+            $table->decimal('group_exchange', 16, 4)->default(1);
+            $table->decimal('org_exchange', 16, 4)->default(1);
             $table->unsignedSmallInteger('tax_band_id')->nullable()->index();
             $table->jsonb('data');
 
