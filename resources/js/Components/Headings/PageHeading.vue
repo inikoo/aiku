@@ -121,7 +121,7 @@ const originUrl = location.origin;
 
         <!-- Section: Button and/or ButtonGroup -->
         <slot name="button" :dataPageHead="{ ...props }">
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 rounded-md">
                 <template v-for="action in data.actions">
                     <template v-if="action">
                         <!-- Button -->

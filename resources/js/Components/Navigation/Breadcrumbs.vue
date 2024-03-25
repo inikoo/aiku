@@ -131,8 +131,8 @@ router.on('navigate', (event) => {
         </ol>
 
         <!-- Popup for Breadcrumb List on Mobile -->
-        <Menu as="div" class="z-10 w-full h-8 absolute top-0 md:hidden">
-            <MenuButton class="absolute w-full h-full"></MenuButton>
+        <Menu as="div" class="z-10 w-fit h-8 absolute top-0 md:hidden">
+            <MenuButton class="absolute w-64 h-full"></MenuButton>
             <transition enter-active-class="transition ease-out duration-100"
                 enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
                 leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
@@ -201,29 +201,29 @@ router.on('navigate', (event) => {
             </transition>
         </Menu>
 
-        <div v-if="props.navigation.previous || props.navigation.next" class="grid grid-flow-col justify-end items-center pr-2 space-x-2 text-sm text-gray-700 font-semibold">
+        <div v-if="props.navigation.previous || props.navigation.next" class="h-full flex justify-end items-center pr-2 space-x-2 text-sm text-gray-700 font-semibold">
             <!-- Button: Previous -->
             <div class="flex justify-center items-center w-8">
                 <Link v-if="props.navigation.previous"
                     :href="props.navigation?.previous?.route?.name ? route(props.navigation.previous?.route.name, props.navigation.previous?.route.parameters) + urlParameter : '#'"
-                    class="rounded w-full h-full flex items-center justify-center opacity-70 hover:opacity-100 hover:cursor-pointer hover:text-indigo-900"
+                    class="rounded w-full h-full flex items-center justify-center opacity-70 hover:opacity-100 cursor-pointer hover:text-indigo-900"
                     :title="capitalize(props.navigation.previous?.label)"
                 >
                     <FontAwesomeIcon icon="fas fa-arrow-left" class="" aria-hidden="true" />
                 </Link>
-                <FontAwesomeIcon v-else icon="fas fa-arrow-left" class="opacity-20 cursor-pointer" aria-hidden="true" />
+                <FontAwesomeIcon v-else icon="fas fa-arrow-left" class="opacity-20" aria-hidden="true" />
             </div>
 
             <!-- Button: Next -->
             <div class="flex justify-center items-center w-8">
                 <Link v-if="props.navigation.next"
-                    class="rounded w-full h-full flex items-center justify-center opacity-70 hover:opacity-100 hover:cursor-pointer hover:text-indigo-900"
+                    class="rounded w-full h-full flex items-center justify-center opacity-70 hover:opacity-100 cursor-pointer hover:text-indigo-900"
                     :title="capitalize(props.navigation.next?.label)"
                     :href="props.navigation?.next?.route?.name ? route(props.navigation.next?.route.name, props.navigation.next?.route.parameters) + urlParameter : '#'"
                 >
                     <FontAwesomeIcon icon="fas fa-arrow-right" class="" aria-hidden="true" />
                 </Link>
-                <FontAwesomeIcon v-else icon="fas fa-arrow-right" class="opacity-20 cursor-pointer" aria-hidden="true" />
+                <FontAwesomeIcon v-else icon="fas fa-arrow-right" class="opacity-20" aria-hidden="true" />
             </div>
         </div>
     </nav>
