@@ -170,17 +170,19 @@ class ShowFulfilmentCustomer extends OrgAction
                     modelOperations:
                         [
                             'createLink' => [
-                                'type'    => 'button',
-                                'style'   => 'primary',
-                                'tooltip' => __('Create new delivery order'),
-                                'label'   => __('New Delivery Pallet'),
-                                'options' => [
-                                    'warehouses' => WarehouseResource::collection($fulfilmentCustomer->fulfilment->warehouses)
-                                ],
-                                'route'   => [
-                                    'method'     => 'post',
-                                    'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
-                                    'parameters' => [$fulfilmentCustomer->id]
+                                [
+                                    'type'    => 'button',
+                                    'style'   => 'primary',
+                                    'tooltip' => __('Create new delivery order'),
+                                    'label'   => __('New Delivery Pallet'),
+                                    'options' => [
+                                        'warehouses' => WarehouseResource::collection($fulfilmentCustomer->fulfilment->warehouses)
+                                    ],
+                                    'route'   => [
+                                        'method'     => 'post',
+                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
+                                        'parameters' => [$fulfilmentCustomer->id]
+                                    ]
                                 ]
                             ]
                         ],
@@ -190,17 +192,18 @@ class ShowFulfilmentCustomer extends OrgAction
             ->table(
                 IndexPalletReturns::make()->tableStructure(
                     $fulfilmentCustomer,
-                    modelOperations:
-                    [
+                    modelOperations: [
                         'createLink' => [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('Create new pallet return'),
-                            'label'   => __('Pallet return'),
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
-                                'parameters' => [$fulfilmentCustomer->id]
+                            [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('Create new pallet return'),
+                                'label'   => __('Pallet return'),
+                                'route'   => [
+                                    'method'     => 'post',
+                                    'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
+                                    'parameters' => [$fulfilmentCustomer->id]
+                                ]
                             ]
                         ],
                     ],
@@ -217,15 +220,17 @@ class ShowFulfilmentCustomer extends OrgAction
                     modelOperations:
                     [
                         'createLink' => [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('Return new stored item return'),
-                            'label'   => __('Stored Item Return'),
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.stored-item-return.store',
-                                'parameters' => [$fulfilmentCustomer->id]
-                            ]
+                           [
+                               'type'    => 'button',
+                               'style'   => 'create',
+                               'tooltip' => __('Return new stored item return'),
+                               'label'   => __('Stored Item Return'),
+                               'route'   => [
+                                   'method'     => 'post',
+                                   'name'       => 'grp.models.fulfilment-customer.stored-item-return.store',
+                                   'parameters' => [$fulfilmentCustomer->id]
+                               ]
+                           ]
                         ],
                     ],
                 )
