@@ -28,6 +28,10 @@ class FetchAuroraPayment extends FetchAurora
         }
 
 
+        $shop=$this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Payment Store Key'});
+
+
+
         $this->parsedData['paymentAccount'] = $this->parsePaymentAccount($this->organisation->id.':'.$this->auroraModelData->{'Payment Account Key'});
         $this->parsedData['customer']       = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Payment Customer Key'});
 
@@ -69,8 +73,8 @@ class FetchAuroraPayment extends FetchAurora
 
             'reference'    => $this->auroraModelData->{'Payment Transaction ID'},
             'amount'       => $this->auroraModelData->{'Payment Transaction Amount'},
-            'org_amount'   => $this->auroraModelData->{'Payment Transaction Amount'} * GetHistoricCurrencyExchange::run($customer->shop->currency, $customer->organisation->currency, $date),
-            'group_amount' => $this->auroraModelData->{'Payment Transaction Amount'} * GetHistoricCurrencyExchange::run($customer->shop->currency, $customer->group->currency, $date),
+            'org_amount'   => $this->auroraModelData->{'Payment Transaction Amount'} * GetHistoricCurrencyExchange::run($shop->currency, $shop->organisation->currency, $date),
+            'group_amount' => $this->auroraModelData->{'Payment Transaction Amount'} * GetHistoricCurrencyExchange::run($shop->currency, $shop->group->currency, $date),
             'data'         => $data,
             'currency_id'  => $this->parseCurrencyID($this->auroraModelData->{'Payment Currency Code'}),
 
