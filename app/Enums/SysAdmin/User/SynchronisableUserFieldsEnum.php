@@ -16,10 +16,7 @@ enum SynchronisableUserFieldsEnum: string
     case USERNAME         = 'username';
     case PASSWORD         = 'password';
     case LEGACY_PASSWORD  = 'legacy_password';
-    case EMAIL            = 'email';
-    case NAME             = 'contact_name';
     case AUTH_TYPE        = 'auth_type';
-    case ABOUT            = 'about';
     case AVATAR           = 'avatar_id';
 
 }
