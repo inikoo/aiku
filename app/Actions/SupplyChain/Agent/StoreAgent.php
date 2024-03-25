@@ -48,13 +48,14 @@ class StoreAgent extends GrpAction
                 'language_id' => Arr::get($modelData, 'language_id'),
                 'timezone_id' => Arr::get($modelData, 'timezone_id'),
                 'country_id'  => Arr::get($modelData, 'country_id'),
-                'address'     => Arr::get($modelData, 'address')
+                'address'     => Arr::get($modelData, 'address'),
+                'created_at'  => Arr::get($modelData, 'created_at'),
             ]
         );
 
 
         /** @var Agent $agent */
-        $agent = $organisation->agent()->create(Arr::only($modelData, ['source_id', 'source_slug', 'group_id']));
+        $agent = $organisation->agent()->create(Arr::only($modelData, ['created_at','source_id', 'source_slug', 'group_id']));
         $agent->stats()->create();
 
 
@@ -91,6 +92,7 @@ class StoreAgent extends GrpAction
             'timezone_id' => ['required', 'exists:timezones,id'],
             'source_id'   => ['sometimes', 'nullable', 'string'],
             'source_slug' => ['sometimes', 'nullable', 'string'],
+            'created_at'  => ['sometimes',  'date'],
         ];
     }
 
