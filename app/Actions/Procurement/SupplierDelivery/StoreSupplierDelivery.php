@@ -29,6 +29,8 @@ class StoreSupplierDelivery
     public function handle(Organisation $organisation, Agent|Supplier $parent, array $modelData): SupplierDelivery
     {
         data_set($modelData, 'organisation_id', $organisation->id);
+        data_set($modelData, 'group_id', $organisation->group_id);
+
         /** @var SupplierDelivery $supplierDelivery */
         $supplierDelivery = $parent->supplierDeliveries()->create($modelData);
 

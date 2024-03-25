@@ -75,7 +75,6 @@ class StoreInvoice extends OrgAction
             'currency_id'     => ['required', 'exists:currencies,id'],
             'billing_address' => ['required', new ValidAddress()],
             'type'            => ['required', Rule::enum(InvoiceTypeEnum::class)],
-            'exchange'        => ['required', 'numeric'],
             'net'             => ['required', 'numeric'],
             'total'           => ['required', 'numeric'],
             'source_id'       => ['sometimes', 'string'],
