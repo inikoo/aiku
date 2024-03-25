@@ -50,18 +50,20 @@ class CreateFulfilmentCustomer extends OrgAction
                     'blueprint' => $this->getBlueprint($fulfilment->shop),
 
                     'route'     => [
-                        'name'     => 'grp.models.shop.customer.store',
-                        'arguments'=> [$fulfilment->id]
+                        'name'      => 'grp.models.org.shop.customer.store',
+                        'parameters'=> [
+                            'organisation' => $fulfilment->organisation->slug,
+                            'shop'         => $fulfilment->shop->slug
+                        ]
                     ]
                 ]
-
             ]
         );
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
 
 

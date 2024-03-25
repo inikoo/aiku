@@ -141,7 +141,22 @@ class IndexFulfilmentCustomers extends OrgAction
                     'iconRight' => [
                         'icon'  => ['fal', 'fa-user'],
                         'title' => __('customer')
-                    ]
+                    ],
+                    'actions' => [
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('New Customer'),
+                            'label'   => __('New Customer'),
+                            'route'   => [
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.create',
+                                'parameters' => [
+                                    $this->fulfilment->organisation->slug,
+                                    $this->fulfilment->slug
+                                ]
+                            ]
+                        ],
+                    ],
                 ],
                 'data'        => FulfilmentCustomersResource::collection($customers),
 
