@@ -65,7 +65,7 @@ test('create group', function () {
 
     $group = StoreGroup::make()->action($modelData);
     expect($group)->toBeInstanceOf(Group::class)
-        ->and($group->roles()->count())->toBe(3);
+        ->and($group->roles()->count())->toBe(5);
 
     return $group;
 });
@@ -112,7 +112,7 @@ test('create organisation', function (Group $group) {
     $organisation = StoreOrganisation::make()->action($group, $modelData);
     expect($organisation)->toBeInstanceOf(Organisation::class)
         ->and($organisation->roles()->count())->toBe(7)
-        ->and($group->roles()->count())->toBe(10);
+        ->and($group->roles()->count())->toBe(12);
 
     return $organisation;
 })->depends('create group');
@@ -157,7 +157,7 @@ test('set organisation google key', function (Organisation $organisation) {
 
 
 test('roles are seeded', function () {
-    expect(Role::count())->toBe(17);
+    expect(Role::count())->toBe(19);
 });
 
 test('create guest', function (Group $group, Organisation $organisation) {

@@ -9,7 +9,7 @@ namespace App\Actions\Accounting\PaymentAccount;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Accounting\PaymentAccountResource;
+use App\Http\Resources\Accounting\PaymentAccountsResource;
 use App\Models\Accounting\PaymentAccount;
 use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
@@ -79,8 +79,8 @@ class UpdatePaymentAccount extends OrgAction
     }
 
 
-    public function jsonResponse(PaymentAccount $paymentAccount): PaymentAccountResource
+    public function jsonResponse(PaymentAccount $paymentAccount): PaymentAccountsResource
     {
-        return new PaymentAccountResource($paymentAccount);
+        return new PaymentAccountsResource($paymentAccount);
     }
 }

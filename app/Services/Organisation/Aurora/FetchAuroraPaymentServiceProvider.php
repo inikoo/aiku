@@ -41,8 +41,7 @@ class FetchAuroraPaymentServiceProvider extends FetchAurora
 
 
         $this->parsedData['paymentServiceProvider'] = [
-
-
+            'name'      => $this->auroraModelData->{'Payment Service Provider Name'},
             'code'      => $code,
             'type'      => $type,
             'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Payment Service Provider Key'},

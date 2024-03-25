@@ -15,5 +15,9 @@ export default {
             label : "Note",
             key   : 'note'
         },
+        {
+            label : "Stored items",
+            key   : 'stored_items'
+        },
     ]
 }

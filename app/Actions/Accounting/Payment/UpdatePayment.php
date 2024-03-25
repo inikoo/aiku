@@ -10,7 +10,7 @@ namespace App\Actions\Accounting\Payment;
 use App\Actions\Accounting\Payment\Hydrators\PaymentHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Accounting\PaymentResource;
+use App\Http\Resources\Accounting\PaymentsResource;
 use App\Models\Accounting\Payment;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -54,8 +54,8 @@ class UpdatePayment extends OrgAction
         return $this->handle($payment, $request->all());
     }
 
-    public function jsonResponse(Payment $payment): PaymentResource
+    public function jsonResponse(Payment $payment): PaymentsResource
     {
-        return new PaymentResource($payment);
+        return new PaymentsResource($payment);
     }
 }

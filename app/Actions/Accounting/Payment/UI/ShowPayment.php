@@ -10,7 +10,7 @@ namespace App\Actions\Accounting\Payment\UI;
 use App\Actions\InertiaAction;
 use App\Enums\UI\DepartmentTabsEnum;
 use App\Enums\UI\PaymentTabsEnum;
-use App\Http\Resources\Accounting\PaymentResource;
+use App\Http\Resources\Accounting\PaymentsResource;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -98,7 +98,7 @@ class ShowPayment extends InertiaAction
         return Inertia::render(
             'Accounting/Payment',
             [
-                'title'                                 => __($payment->id),
+                'title'                                 => $payment->id,
                 'breadcrumbs'                           => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($payment, $request),
@@ -124,9 +124,9 @@ class ShowPayment extends InertiaAction
     }
 
 
-    public function jsonResponse(Payment $payment): PaymentResource
+    public function jsonResponse(Payment $payment): PaymentsResource
     {
-        return new PaymentResource($payment);
+        return new PaymentsResource($payment);
     }
 
     public function getPrevious(Payment $payment, ActionRequest $request): ?array

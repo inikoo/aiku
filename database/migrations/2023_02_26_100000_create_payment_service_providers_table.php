@@ -20,6 +20,7 @@ return new class () extends Migration {
             $table->string('type')->index();
             $table->string('code')->index()->collation('und_ns');
             $table->string('slug')->unique()->collation('und_ns');
+            $table->string('name');
             $table->jsonb('data');
             $table->dateTimeTz('last_used_at')->nullable();
             $table->timestampsTz();

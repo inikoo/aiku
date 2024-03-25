@@ -15,7 +15,7 @@ use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\UI\OrderTabsEnum;
 use App\Http\Resources\Accounting\InvoiceResource;
-use App\Http\Resources\Accounting\PaymentResource;
+use App\Http\Resources\Accounting\PaymentsResource;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Market\Shop;
@@ -73,7 +73,6 @@ class ShowOrder extends InertiaAction
 */
     public function htmlResponse(Order $order, ActionRequest $request): Response
     {
-        $this->validateAttributes();
 
 
         return Inertia::render(
@@ -101,8 +100,8 @@ class ShowOrder extends InertiaAction
                     : Inertia::lazy(fn () => GetOrderShowcase::run($this->order)),
 
                 OrderTabsEnum::PAYMENTS->value => $this->tab == OrderTabsEnum::PAYMENTS->value ?
-                    fn () => PaymentResource::collection(IndexPayments::run($this->order))
-                    : Inertia::lazy(fn () => PaymentResource::collection(IndexPayments::run($this->order))),
+                    fn () => PaymentsResource::collection(IndexPayments::run($this->order))
+                    : Inertia::lazy(fn () => PaymentsResource::collection(IndexPayments::run($this->order))),
 
                 OrderTabsEnum::INVOICES->value => $this->tab == OrderTabsEnum::INVOICES->value ?
                     fn () => InvoiceResource::collection(IndexInvoices::run($this->order))

@@ -7,12 +7,12 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Goods\Stock\StoreStock;
+use App\Actions\Goods\Stock\SyncStockTradeUnits;
+use App\Actions\Goods\Stock\UpdateStock;
 use App\Actions\Inventory\OrgStock\StoreOrgStock;
 use App\Actions\Inventory\OrgStock\SyncOrgStockLocations;
 use App\Actions\Inventory\OrgStock\UpdateOrgStock;
-use App\Actions\SupplyChain\Stock\StoreStock;
-use App\Actions\SupplyChain\Stock\SyncStockTradeUnits;
-use App\Actions\SupplyChain\Stock\UpdateStock;
 use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\Stock;

@@ -56,7 +56,6 @@ class ShowFamily extends InertiaAction
 
     public function htmlResponse(ProductCategory $family, ActionRequest $request): Response
     {
-        //        $this->validateAttributes();
 
         return Inertia::render(
             'Market/Department',

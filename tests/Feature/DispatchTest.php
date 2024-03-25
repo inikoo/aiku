@@ -16,14 +16,15 @@ use App\Actions\Dispatch\Shipment\StoreShipment;
 use App\Actions\Dispatch\Shipment\UpdateShipment;
 use App\Actions\Dispatch\Shipper\StoreShipper;
 use App\Actions\Dispatch\Shipper\UpdateShipper;
+use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\OMS\Order\StoreOrder;
 use App\Actions\OMS\Transaction\StoreTransaction;
-use App\Actions\SupplyChain\Stock\StoreStock;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\CRM\Customer;
+use App\Models\Dispatch\DeliveryNote;
 use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
 use App\Models\OMS\Transaction;
@@ -76,6 +77,7 @@ test('create shop', function () {
 test('create customer', function ($shop) {
     $createdCustomer = StoreCustomer::make()->action($shop, Customer::factory()->definition());
     expect($createdCustomer)->toBeInstanceOf(Customer::class);
+
     return $createdCustomer;
 })->depends('create shop');
 
@@ -94,23 +96,19 @@ test('create order', function ($createdCustomer) {
 })->depends('create customer');
 
 test('create delivery note', function ($createdOrder) {
-    try {
-        $arrayData = [
-            'number' => 123456,
-            'state'  => DeliveryNoteStateEnum::SUBMITTED,
-            'status' => DeliveryNoteStatusEnum::HANDLING,
-            'email'  => 'test@email.com',
-            'phone'  => '+62081353890000',
-            'date'   => date('Y-m-d')
-        ];
+    $arrayData = [
+        'number' => 123456,
+        'state'  => DeliveryNoteStateEnum::SUBMITTED,
+        'status' => DeliveryNoteStatusEnum::HANDLING,
+        'email'  => 'test@email.com',
+        'phone'  => '+62081353890000',
+        'date'   => date('Y-m-d')
+    ];
 
-        $deliveryNote = StoreDeliveryNote::make()->action($createdOrder, $arrayData, Address::make());
+    $deliveryNote = StoreDeliveryNote::make()->action($createdOrder, $arrayData, Address::make());
+    expect($deliveryNote)->toBeInstanceOf(DeliveryNote::class)
+        ->and($deliveryNote->number)->toBe($arrayData['number']);
 
-        expect($deliveryNote->number)->toBe($arrayData['number']);
-    } catch (Throwable $e) {
-        echo $e->getMessage();
-        $deliveryNote = null;
-    }
 
     return $deliveryNote;
 })->depends('create order');

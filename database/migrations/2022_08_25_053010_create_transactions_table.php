@@ -7,6 +7,7 @@
 
 use App\Enums\OMS\Transaction\TransactionStateEnum;
 use App\Enums\OMS\Transaction\TransactionStatusEnum;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasSalesTransactionParents;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -14,10 +15,13 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasSalesTransactionParents;
+    use HasGroupOrganisationRelationship;
+
     public function up(): void
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->increments('id');
+            $table=$this->groupOrgRelationship($table);
             $table=$this->salesTransactionParents($table);
             $table->unsignedInteger('invoice_id')->nullable()->index();
             $table->foreign('invoice_id')->references('id')->on('invoices');

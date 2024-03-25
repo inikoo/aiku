@@ -20,6 +20,7 @@ import TablePalletReturnsDelivery from "@/Components/Tables/TablePalletReturnsDe
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn.ts"
+import Tag from "@/Components/Tag.vue"
 
 const props = defineProps<{
     title: string
@@ -84,7 +85,27 @@ watch(
                 :saveRoute="palletRoute.store"
 				@onClose="() => openModal = false" 
 				:descriptor="palletReturnDescriptor"
-			/>
+			>
+                <template #column-stored_items="{data}">
+                    <!-- {{ data.columnData.stored_items }} -->
+                    <div class="flex gap-x-1 flex-wrap">
+                        <template v-if="data.columnData.stored_items.length">
+                            <Tag v-for="item of data.columnData.stored_items"
+                                :label="`${item.reference} (${item.quantity})`"
+                                :closeButton="false"
+                                :stringToColor="true">
+                                <template #label>
+                                    <div class="whitespace-nowrap text-xs">
+                                        {{ item.reference }} (<span class="font-light">{{ item.quantity }}</span>)
+                                    </div>
+                                </template>
+                            </Tag>
+                        </template>
+                        <span v-else class="text-xs text-gray-400 italic">Have no stored items.</span>
+                    </div>
+                </template>
+
+            </TablePalletReturn>
         </div>
     </Modal>
 </template>

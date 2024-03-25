@@ -12,34 +12,34 @@ use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateInvoices;
+use App\Actions\OrgAction;
+use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\CRM\Customer;
-use App\Models\Helpers\Address;
 use App\Models\OMS\Order;
-use Lorisleiva\Actions\Concerns\AsAction;
+use App\Rules\ValidAddress;
+use Illuminate\Validation\Rule;
 
-class StoreInvoice
+class StoreInvoice extends OrgAction
 {
-    use AsAction;
-    public int $hydratorsDelay=0;
-
     public function handle(
         Customer|Order $parent,
         array $modelData,
-        Address $billingAddress,
     ): Invoice {
+        $billingAddress = $modelData['billing_address'];
+        unset($modelData['billing_address']);
 
 
-        if(class_basename($parent)=='Customer') {
+        if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
         } else {
             $modelData['customer_id'] = $parent->customer_id;
-
         }
         $modelData['shop_id']     = $parent->shop_id;
         $modelData['currency_id'] = $parent->shop->currency_id;
 
-
+        data_set($modelData, 'group_id', $parent->group_id);
+        data_set($modelData, 'organisation_id', $parent->organisation_id);
 
 
         /** @var \App\Models\Accounting\Invoice $invoice */
@@ -57,27 +57,31 @@ class StoreInvoice
         return $invoice;
     }
 
-    public function asFetch(
-        Customer|Order $parent,
-        array $modelData,
-        Address $billingAddress,
-        int $hydratorsDelay = 60
-    ): Invoice {
-        $this->hydratorsDelay = $hydratorsDelay;
-
-        return $this->handle($parent, $modelData, $billingAddress);
-    }
 
     public function rules(): array
     {
         return [
-            'number'      => ['required', 'unique:invoices', 'numeric'],
-            'currency_id' => ['required', 'exists:currencies,id']
+            'number'          => ['required', 'unique:invoices', 'max:64', 'string'],
+            'currency_id'     => ['required', 'exists:currencies,id'],
+            'billing_address' => ['required', new ValidAddress()],
+            'type'            => ['required', Rule::enum(InvoiceTypeEnum::class)],
+            'exchange'        => ['required', 'numeric'],
+            'net'             => ['required', 'numeric'],
+            'total'           => ['required', 'numeric'],
+            'source_id'       => ['sometimes', 'string'],
+            'created_at'      => ['sometimes', 'date'],
+            'data'            => ['sometimes', 'array'],
+
+
         ];
     }
 
-    public function action(Customer|Order $parent, array $modelData, Address $billingAddress): Invoice
+    public function action(Customer|Order $parent, array $modelData, int $hydratorsDelay = 0): Invoice
     {
-        return $this->handle($parent, $modelData, $billingAddress);
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisationFromShop($parent->shop, $modelData);
+
+        return $this->handle($parent, $this->validatedData);
     }
 }

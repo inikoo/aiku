@@ -59,9 +59,9 @@ class ShowProspectTag extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'                                   => __($tag->name),
+                'title'                                   => $tag->name,
                 'pageHead'                                => [
-                    'title'         => __($tag->name),
+                    'title'         => $tag->name,
                     'subNavigation' => $subNavigation,
                     'icon'          => [
                         'tooltip' => __('tag'),

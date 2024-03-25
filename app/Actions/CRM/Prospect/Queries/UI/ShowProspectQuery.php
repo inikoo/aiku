@@ -12,7 +12,7 @@ use App\Actions\InertiaAction;
 use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\Traits\WithProspectsSubNavigation;
-use App\Enums\UI\Organisation\ShowProspectTabsEnum;
+use App\Enums\CRM\Prospect\ShowProspectTabsEnum;
 use App\Http\Resources\CRM\ProspectsResource;
 use App\Http\Resources\Tag\TagResource;
 use App\Models\Helpers\Query;
@@ -58,9 +58,9 @@ class ShowProspectQuery extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'    => __($query->name),
+                'title'    => $query->name,
                 'pageHead' => [
-                    'title'            => __($query->name),
+                    'title'            => $query->name,
                     'subNavigation'    => $subNavigation,
                     'actions'          => [
                         $this->getEditActionIcon($request)

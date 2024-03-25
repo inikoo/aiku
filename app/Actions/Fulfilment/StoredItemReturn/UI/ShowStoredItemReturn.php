@@ -93,10 +93,10 @@ class ShowStoredItemReturn extends OrgAction
                 ],
                 'pageHead' => [
                     'container' => $container,
-                    'title'     => __($storedItemReturn->reference),
+                    'title'     => $storedItemReturn->reference,
                     'icon'      => [
                         'icon'  => ['fal', 'fa-truck-couch'],
-                        'title' => __($storedItemReturn->reference)
+                        'title' => $storedItemReturn->reference
                     ],
                     'edit' => $this->canEdit ? [
                         'route' => [

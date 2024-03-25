@@ -76,13 +76,16 @@ class FetchShops extends FetchAction
                     );
                 }
 
+
+                $sourceData  = explode(':', $shop->source_id);
                 $accountData = DB::connection('aurora')->table('Payment Account Dimension')
                     ->select('Payment Account Key')
                     ->leftJoin('Payment Account Store Bridge', 'Payment Account Store Payment Account Key', 'Payment Account Key')
                     ->where('Payment Account Block', 'Accounts')
-                    ->where('Payment Account Store Store Key', $shopData['shop']['source_id'])
+                    ->where('Payment Account Store Store Key', $sourceData[1])
                     ->first();
                 if ($accountData) {
+
                     $shop->accounts()->update(
                         [
                             'source_id' => $organisationSource->getOrganisation()->id.':'.$accountData->{'Payment Account Key'}

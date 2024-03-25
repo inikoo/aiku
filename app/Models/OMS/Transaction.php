@@ -28,6 +28,8 @@ use Illuminate\Support\Carbon;
  * App\Models\OMS\Transaction
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property int $shop_id
  * @property int $customer_id
  * @property int|null $order_id

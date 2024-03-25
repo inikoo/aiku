@@ -1,0 +1,30 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 23 Mar 2024 12:24:25 Malaysia Time, Mexico City, Mexico
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Goods\Stock\Hydrators;
+
+use App\Models\SupplyChain\Stock;
+use Lorisleiva\Actions\Concerns\AsAction;
+
+class StockHydrateUniversalSearch
+{
+    use AsAction;
+
+
+    public function handle(Stock $stock): void
+    {
+        $stock->universalSearch()->updateOrCreate(
+            [],
+            [
+                'section'     => 'supply-chain',
+                'title'       => trim($stock->code.' '.$stock->name),
+                'description' => ''
+            ]
+        );
+    }
+
+}

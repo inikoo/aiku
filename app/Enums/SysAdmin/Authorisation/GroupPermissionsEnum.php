@@ -11,15 +11,21 @@ enum GroupPermissionsEnum: string
 {
     case GROUP_BUSINESS_INTELLIGENCE = 'group-business-intelligence';
     case SYSADMIN                    = 'sysadmin';
+    case SYSADMIN_EDIT               = 'sysadmin.edit';
+    case SYSADMIN_VIEW               = 'sysadmin.view';
 
-    case SYSADMIN_EDIT = 'sysadmin.edit';
-    case SYSADMIN_VIEW = 'sysadmin.view';
+    case ORGANISATIONS      = 'organisations';
+    case ORGANISATIONS_VIEW = 'organisations.edit';
 
-    case SUPPLY_CHAIN = 'supply-chain';
+    case ORGANISATIONS_EDIT = 'organisations.view';
 
-    case SUPPLY_CHAIN_EDIT = 'supply-chain.edit';
+    case GOODS      = 'goods';
+    case GOODS_VIEW = 'goods.edit';
 
-    case SUPPLY_CHAIN_VIEW = 'supply-chain.view';
+    case GOODS_EDIT          = 'goods.view';
+    case SUPPLY_CHAIN        = 'supply-chain';
+    case SUPPLY_CHAIN_EDIT   = 'supply-chain.edit';
+    case SUPPLY_CHAIN_VIEW   = 'supply-chain.view';
 
 
     public static function getAllValues(): array

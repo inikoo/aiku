@@ -7,6 +7,9 @@
 
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
+use App\Actions\Traits\WithEnumStats;
+use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
+use App\Models\Inventory\OrgStock;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -14,6 +17,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class OrganisationHydrateStocks
 {
     use AsAction;
+    use WithEnumStats;
 
     private Organisation $organisation;
 
@@ -34,6 +38,19 @@ class OrganisationHydrateStocks
         $stats = [
             'number_stocks'                  => $organisation->orgStocks()->count(),
         ];
+
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'org_stocks',
+                field: 'state',
+                enum: OrgStockStateEnum::class,
+                models: OrgStock::class,
+                where: function ($q) use ($organisation) {
+                    $q->where('organisation_id', $organisation->id);
+                }
+            )
+        );
 
         $organisation->inventoryStats()->update($stats);
     }

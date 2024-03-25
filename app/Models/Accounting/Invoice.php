@@ -37,6 +37,8 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Accounting\Invoice
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property string $slug
  * @property string $number
  * @property int $shop_id

@@ -327,9 +327,6 @@ test('update payment account', function ($paymentAccount) {
 test(
     'create payment',
     function ($paymentAccount) {
-
-
-
         GetCurrencyExchange::shouldRun()
             //->with(42)
             ->andReturn(2);
@@ -347,25 +344,28 @@ test(
 )->depends('create payment account');
 
 test('create invoice from customer', function ($customer) {
-    $invoice = StoreInvoice::make()->action($customer, Invoice::factory()->definition(), Address::first());
-    expect($invoice->number)->toBe(00001);
+    $invoiceData = Invoice::factory()->definition();
+    data_set($invoiceData, 'billing_address', Address::first());
+    $invoice = StoreInvoice::make()->action($customer, $invoiceData);
+    expect($invoice->number)->toBe('00001');
 
     return $invoice;
 })->depends('create customer');
 
 test('update invoice from customer', function ($invoice) {
-    $invoice = UpdateInvoice::make()->action($invoice, Invoice::factory()->definition());
-    expect($invoice->number)->toBe(00001);
+    $invoice = UpdateInvoice::make()->action($invoice, [
+        'number' => '00001a'
+
+    ]);
+    expect($invoice->number)->toBe('00001a');
 })->depends('create invoice from customer');
 
 test('create invoice from order', function ($customer) {
-    $invoice = StoreInvoice::make()->action($customer, Invoice::factory()->definition(), Address::first());
-    expect($invoice->number)->toBe(00001);
+    $invoiceData = Invoice::factory()->definition();
+    data_set($invoiceData, 'billing_address', Address::first());
+    data_set($invoiceData, 'number', '00002');
+    $invoice = StoreInvoice::make()->action($customer, $invoiceData);
+    expect($invoice->number)->toBe('00002');
 
     return $invoice;
 })->depends('create order');
-
-test('update invoice from order', function ($invoice) {
-    $invoice = UpdateInvoice::make()->action($invoice, Invoice::factory()->definition());
-    expect($invoice->number)->toBe(00001);
-})->depends('create invoice from order');

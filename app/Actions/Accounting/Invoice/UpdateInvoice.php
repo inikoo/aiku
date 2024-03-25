@@ -8,36 +8,58 @@
 namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Accounting\InvoiceResource;
 use App\Models\Accounting\Invoice;
-use Illuminate\Support\Arr;
+use App\Rules\IUnique;
 
-class UpdateInvoice
+class UpdateInvoice extends OrgAction
 {
     use WithActionUpdate;
 
+
+    private Invoice $invoice;
+
     public function handle(Invoice $invoice, array $modelData): Invoice
     {
-        $invoice->update(Arr::except($modelData, ['data']));
-        $invoice->update($this->extractJson($modelData));
-
+        $invoice = $this->update($invoice, $modelData, ['data']);
         InvoiceHydrateUniversalSearch::dispatch($invoice);
 
-        return $this->update($invoice, $modelData, ['data']);
+        return $invoice;
     }
 
     public function rules(): array
     {
         return [
-            'number'      => ['sometimes', 'unique:invoices', 'numeric'],
-            'currency_id' => ['sometimes', 'required', 'exists:currencies,id']
+            'number'      => [
+                'sometimes',
+                'string',
+                'max:64',
+                new IUnique(
+                    table: 'invoices',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'id', 'value' => $this->invoice->id, 'operator' => '!=']
+                    ]
+                ),
+            ],
+            'currency_id' => ['sometimes', 'required', 'exists:currencies,id'],
+            'exchange'    => ['sometimes', 'required', 'numeric'],
+            'net'         => ['sometimes', 'required', 'numeric'],
+            'total'       => ['sometimes', 'required', 'numeric'],
         ];
     }
 
-    public function action(Invoice $invoice, array $modelData): Invoice
+    public function action(Invoice $invoice, array $modelData, int $hydratorsDelay = 0): Invoice
     {
-        return $this->handle($invoice, $modelData);
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->invoice        = $invoice;
+
+        $this->initialisationFromShop($invoice->shop, $modelData);
+
+        return $this->handle($invoice, $this->validatedData);
     }
 
     public function jsonResponse(Invoice $invoice): InvoiceResource

@@ -21,6 +21,9 @@ Route::middleware(["auth"])->group(function () {
     Route::prefix("supply-chain")
         ->name("supply-chain.")
         ->group(__DIR__."/supply-chain.php");
+    Route::prefix("goods")
+        ->name("goods.")
+        ->group(__DIR__."/goods.php");
     Route::prefix("profile")
         ->name("profile.")
         ->group(__DIR__."/profile.php");

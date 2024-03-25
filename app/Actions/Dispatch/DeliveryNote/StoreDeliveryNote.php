@@ -31,6 +31,8 @@ class StoreDeliveryNote
     ): DeliveryNote {
         $modelData['shop_id']     = $order->shop_id;
         $modelData['customer_id'] = $order->customer_id;
+        data_set($modelData, 'group_id', $order->group_id);
+        data_set($modelData, 'organisation_id', $order->organisation_id);
 
         /** @var DeliveryNote $deliveryNote */
         $deliveryNote = $order->deliveryNotes()->create($modelData);

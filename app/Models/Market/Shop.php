@@ -270,7 +270,7 @@ class Shop extends Model
 
     public function accounts(): PaymentAccount
     {
-        return $this->paymentAccounts()->where('type', PaymentAccountTypeEnum::ACCOUNT)->first();
+        return $this->paymentAccounts()->where('shop_id', $this->id)->where('type', PaymentAccountTypeEnum::ACCOUNT)->first();
     }
 
     public function outboxes(): HasMany

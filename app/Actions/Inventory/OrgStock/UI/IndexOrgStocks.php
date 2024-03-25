@@ -7,14 +7,15 @@
 
 namespace App\Actions\Inventory\OrgStock\UI;
 
+use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
 use App\Actions\OrgAction;
-use App\Actions\SupplyChain\StockFamily\UI\ShowStockFamily;
 use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Http\Resources\Inventory\OrgStocksResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\OrgStockFamily;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -23,7 +24,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexOrgStocks extends OrgAction
 {
