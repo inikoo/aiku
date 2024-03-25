@@ -53,14 +53,15 @@ class IndexStoredItems extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure($parent, $modelOperations = []): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
+        return function (InertiaTable $table) use ($parent, $modelOperations) {
             $table
                 ->name(TabsAbbreviationEnum::STORED_ITEMS->value)
                 ->pageName(TabsAbbreviationEnum::STORED_ITEMS->value.'Page')
 
                 ->withGlobalSearch()
+                ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     [
                         'title'         => __("No stored items found"),
