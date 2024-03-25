@@ -99,7 +99,7 @@ class StoreOrganisation
                 organisation: $organisation,
                 modelData: [
                     'type' => PaymentServiceProviderTypeEnum::ACCOUNT->value,
-                    'code' => $organisation->slug.'-accounts',
+                    'code' => $organisation->slug . '-accounts',
                     'name' => "Internal accounts ($organisation->slug)",
                 ]
             );
@@ -128,6 +128,7 @@ class StoreOrganisation
             'source'      => ['sometimes', 'array'],
             'type'        => ['sometimes', Rule::enum(OrganisationTypeEnum::class)],
             'address'     => ['sometimes', 'required', new ValidAddress()],
+            'created_at'  => ['sometimes', 'date'],
         ];
     }
 
