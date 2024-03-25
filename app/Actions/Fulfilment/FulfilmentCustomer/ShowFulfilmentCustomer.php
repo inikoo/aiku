@@ -172,7 +172,7 @@ class ShowFulfilmentCustomer extends OrgAction
                             'createLink' => [
                                 [
                                     'type'    => 'button',
-                                    'style'   => 'primary',
+                                    'style'   => 'create',
                                     'tooltip' => __('Create new delivery order'),
                                     'label'   => __('New Delivery Pallet'),
                                     'options' => [
