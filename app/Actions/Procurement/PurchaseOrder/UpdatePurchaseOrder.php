@@ -32,10 +32,9 @@ class UpdatePurchaseOrder
     public function rules(): array
     {
         return [
-            'number'        => ['required', 'numeric', 'unique:purchase_orders'],
-            'date'          => ['required', 'date'],
-            'currency_id'   => ['required', 'exists:currencies,id'],
-            'exchange'      => ['required', 'numeric']
+            'number'        => ['sometimes', 'numeric', 'unique:purchase_orders'],
+            'date'          => ['sometimes', 'date'],
+            'currency_id'   => ['sometimes', 'exists:currencies,id'],
         ];
     }
 

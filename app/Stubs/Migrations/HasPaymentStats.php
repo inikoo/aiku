@@ -52,13 +52,13 @@ trait HasPaymentStats
             $table->decimal('amount_refunded', 16)->default(0);
         }
 
-        $table->decimal('oc_amount', 16)->comment('organisation currency, amount_successfully_paid-amount_returned')->default(0);
-        $table->decimal('oc_amount_successfully_paid', 16)->default(0);
-        $table->decimal('oc_amount_refunded', 16)->default(0);
+        $table->decimal('org_amount', 16)->comment('organisation currency, amount_successfully_paid-amount_returned')->default(0);
+        $table->decimal('org_amount_successfully_paid', 16)->default(0);
+        $table->decimal('org_amount_refunded', 16)->default(0);
 
-        $table->decimal('gc_amount', 16)->comment('Group currency, amount_successfully_paid-amount_returned')->default(0);
-        $table->decimal('gc_amount_successfully_paid', 16)->default(0);
-        $table->decimal('gc_amount_refunded', 16)->default(0);
+        $table->decimal('group_amount', 16)->comment('Group currency, amount_successfully_paid-amount_returned')->default(0);
+        $table->decimal('group_amount_successfully_paid', 16)->default(0);
+        $table->decimal('group_amount_refunded', 16)->default(0);
 
 
         return $table;

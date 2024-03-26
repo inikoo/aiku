@@ -7,6 +7,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
 use App\Actions\Traits\WithOrganisationSource;
 use App\Models\SysAdmin\Organisation;
 use App\Services\Organisation\SourceOrganisationService;
@@ -23,7 +24,9 @@ class FetchOrganisations
     public function handle(SourceOrganisationService $organisationSource, Organisation $organisation): Organisation
     {
         $organisationData = $organisationSource->fetchOrganisation($organisation);
-        $organisation->update($organisationData['organisation']);
+
+        $organisation=UpdateOrganisation::run($organisation, $organisationData['organisation']);
+
         $accountsServiceProviderData = Db::connection('aurora')->table('Payment Service Provider Dimension')
             ->select('Payment Service Provider Key')
             ->where('Payment Service Provider Block', 'Accounts')->first();

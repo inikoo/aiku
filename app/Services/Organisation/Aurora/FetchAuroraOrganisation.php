@@ -24,10 +24,10 @@ class FetchAuroraOrganisation
 
     public function __construct(SourceOrganisationService $organisationSource)
     {
-        $this->organisationSource    = $organisationSource;
-        $this->organisation          = $organisationSource->organisation;
-        $this->parsedData            = null;
-        $this->auroraModelData       = null;
+        $this->organisationSource = $organisationSource;
+        $this->organisation       = $organisationSource->organisation;
+        $this->parsedData         = null;
+        $this->auroraModelData    = null;
     }
 
     protected function parseModel(): void

@@ -12,7 +12,6 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
 use Lorisleiva\Actions\Concerns\AsAction;
-use AmrShawky\LaravelCurrency\Facade\Currency as FetchCurrency;
 
 class GetCurrencyExchange
 {
@@ -22,17 +21,14 @@ class GetCurrencyExchange
 
     public function handle(Currency $baseCurrency, Currency $targetCurrency): float|null
     {
-        $date = now()->format('Y-m-d');
-        $key  = 'currency-exchange:'.$baseCurrency->code.'-'.$targetCurrency->code;
+        $key  = 'current-currency-exchange:'.$baseCurrency->code.'-'.$targetCurrency->code;
 
         $currencyExchange = (float)Cache::get($key);
         if (!$currencyExchange) {
             try {
-                $currencyExchange = FetchCurrency::convert()
-                    ->from($baseCurrency->code)
-                    ->to($targetCurrency->code)
-                    ->date($date)
-                    ->get();
+
+                $exchangeData          = FetchCurrencyExchange::run($baseCurrency, $targetCurrency);
+                $currencyExchange      = $exchangeData['exchange'] ?? null;
 
             } catch (Exception) {
                 return null;

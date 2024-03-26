@@ -30,6 +30,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Procurement\SupplierDelivery
  *
  * @property int $id
+ * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
  * @property int $provider_id

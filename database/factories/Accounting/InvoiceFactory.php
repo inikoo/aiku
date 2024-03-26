@@ -21,7 +21,6 @@ class InvoiceFactory extends Factory
             'number'      => '00001',
             'type'        => InvoiceTypeEnum::INVOICE,
             'currency_id' => $currency->id,
-            'exchange'    => 1,
             'net'         => 10,
             'total'       => 10,
             'payment'     => 0,

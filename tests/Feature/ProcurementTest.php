@@ -20,11 +20,20 @@ use App\Actions\Procurement\PurchaseOrder\UpdateStateToReceivedPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToSettledPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToSubmittedPurchaseOrder;
 use App\Actions\Procurement\Supplier\StoreSupplier;
+use App\Actions\Procurement\SupplierDelivery\StoreSupplierDelivery;
+use App\Actions\Procurement\SupplierDelivery\UpdateStateToCheckedSupplierDelivery;
+use App\Actions\Procurement\SupplierDelivery\UpdateStateToDispatchSupplierDelivery;
+use App\Actions\Procurement\SupplierDelivery\UpdateStateToReceivedSupplierDelivery;
+use App\Actions\Procurement\SupplierDelivery\UpdateStateToSettledSupplierDelivery;
+use App\Actions\Procurement\SupplierDeliveryItem\StoreSupplierDeliveryItem;
+use App\Actions\Procurement\SupplierDeliveryItem\StoreSupplierDeliveryItemBySelectedPurchaseOrderItem;
+use App\Actions\Procurement\SupplierDeliveryItem\UpdateStateToCheckedSupplierDeliveryItem;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
-use App\Actions\Procurement\SupplierProduct\SyncSupplierProductTradeUnits;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderItem;
+use App\Models\Procurement\SupplierDeliveryItem;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use Illuminate\Validation\ValidationException;
@@ -40,17 +49,54 @@ beforeEach(function () {
 });
 
 
+test('create independent supplier', function () {
+    $supplier = StoreSupplier::make()->action(
+        parent: $this->group,
+        modelData: Supplier::factory()->definition()
+    );
+
+    expect($supplier)->toBeInstanceOf(Supplier::class);
+
+    return $supplier;
+});
+
+test('create purchase order while no products', function ($supplier) {
+    expect(function () use ($supplier) {
+        StorePurchaseOrder::make()->action($this->organisation, $supplier, PurchaseOrder::factory()->definition());
+    })->toThrow(ValidationException::class);
+})->depends('create independent supplier');
 
 
+test('create supplier product', function ($supplier) {
+    $arrayData = [
+        'code' => 'ABC',
+        'name' => 'ABC Product',
+        'cost' => 200,
+    ];
 
-test('create purchase order independent supplier', function () {
-    $purchaseOrder = StorePurchaseOrder::make()->action($this->organisation, $supplier, PurchaseOrder::factory()->definition());
+    $supplierProduct = StoreSupplierProduct::make()->action($supplier, $arrayData);
+    expect($supplierProduct)->toBeInstanceOf(SupplierProduct::class)
+        ->and($supplierProduct->supplier_id)->toBe($supplier->id)
+        ->and($supplierProduct->code)->toBe($arrayData['code'])
+        ->and($supplierProduct->name)->toBe($arrayData['name'])
+        ->and($supplierProduct->cost)->toBeNumeric(200);
+    $supplier->refresh();
+    return $supplier;
+})->depends('create independent supplier');
+
+
+test('create purchase order independent supplier', function (Supplier $supplier) {
+    $purchaseOrderData = PurchaseOrder::factory()->definition();
+
+    $purchaseOrder = StorePurchaseOrder::make()->action($this->organisation, $supplier, $purchaseOrderData);
 
     expect($purchaseOrder)->toBeInstanceOf(PurchaseOrder::class)
-        ->and($supplier->stats->number_purchase_orders)->toBe(1);
+        ->and($supplier->stats->number_purchase_orders)->toBe(1)
+        ->and($purchaseOrder->provider_id)->toBe($supplier->id);
+
 
     return $purchaseOrder;
-})->todo();
+})->depends('create supplier product');
 
 test('add items to purchase order', function ($purchaseOrder) {
     $i = 1;
@@ -107,10 +153,7 @@ test('update quantity items in purchase order', function ($purchaseOrder) {
     expect($item)->toBeInstanceOf(PurchaseOrderItem::class)->and($item->unit_quantity)->toBe(12);
 })->depends('add items to purchase order');
 
-test('sync supplier product and trade units', function () {
-    $syncSupplierProductTradeUnit = SyncSupplierProductTradeUnits::run($supplier, [1]);
-    $this->assertModelExists($syncSupplierProductTradeUnit);
-})->todo();
+
 
 test('update purchase order', function ($agent) {
     $purchaseOrder = UpdatePurchaseOrder::make()->action($agent, PurchaseOrder::factory()->definition());
@@ -224,3 +267,83 @@ test('change state to creating from submitted purchase order', function ($purcha
     $purchaseOrder = UpdateStateToCreatingPurchaseOrder::make()->action($purchaseOrder);
     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::CREATING);
 })->depends('create purchase order independent supplier');
+
+test('create supplier delivery', function ($supplier) {
+    $arrayData = [
+        'number'    => 12345,
+        'date'      => date('Y-m-d')
+    ];
+
+    $supplierDelivery = StoreSupplierDelivery::make()->action($this->organisation, $supplier, $arrayData);
+
+    expect($supplierDelivery->provider_id)->toBe($supplier->id)
+        ->and($supplierDelivery->number)->toBeNumeric($arrayData['number'])
+        ->and($supplierDelivery->date)->toBe($arrayData['date']);
+
+    return $supplierDelivery->fresh();
+})->depends('create independent supplier');
+
+
+test('create supplier delivery items', function ($supplierDelivery) {
+
+    $supplier = StoreSupplierDeliveryItem::run($supplierDelivery, SupplierDeliveryItem::factory()->definition());
+
+    expect($supplier->supplier_delivery_id)->toBe($supplierDelivery->id);
+
+    return $supplier;
+})->depends('create supplier delivery');
+
+
+
+test('create supplier delivery items by selected purchase order', function ($supplierDelivery, $items) {
+    $supplier = StoreSupplierDeliveryItemBySelectedPurchaseOrderItem::run($supplierDelivery, $items->pluck('id')->toArray());
+    expect($supplier)->toBeArray();
+
+    return $supplier;
+})->depends('create supplier delivery', 'add items to purchase order');
+
+test('change state to dispatch from creating supplier delivery', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToDispatchSupplierDelivery::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(SupplierDeliveryStateEnum::DISPATCHED);
+})->depends('create supplier delivery');
+
+test('change state to received from dispatch supplier delivery', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToReceivedSupplierDelivery::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(SupplierDeliveryStateEnum::RECEIVED);
+})->depends('create supplier delivery');
+
+test('change state to checked from dispatch supplier delivery', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToCheckedSupplierDelivery::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(SupplierDeliveryStateEnum::CHECKED);
+})->depends('create supplier delivery');
+
+test('change state to settled from checked supplier delivery', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToSettledSupplierDelivery::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(SupplierDeliveryStateEnum::SETTLED);
+})->depends('create supplier delivery');
+
+test('change state to checked from settled supplier delivery', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToCheckedSupplierDelivery::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(SupplierDeliveryStateEnum::CHECKED);
+})->depends('create supplier delivery');
+
+test('change state to received from checked supplier delivery', function ($purchaseOrder) {
+    $purchaseOrder = UpdateStateToReceivedSupplierDelivery::make()->action($purchaseOrder);
+    expect($purchaseOrder->state)->toEqual(SupplierDeliveryStateEnum::RECEIVED);
+})->depends('create supplier delivery');
+
+test('check supplier delivery items not correct', function ($supplierDeliveryItem) {
+    $supplierDeliveryItem = UpdateStateToCheckedSupplierDeliveryItem::make()->action($supplierDeliveryItem, [
+        'unit_quantity_checked' => 2
+    ]);
+    expect($supplierDeliveryItem->supplierDelivery->state)->toEqual(SupplierDeliveryStateEnum::RECEIVED);
+})->depends('create supplier delivery items');
+
+test('check supplier delivery items all correct', function ($supplierDeliveryItems) {
+    foreach ($supplierDeliveryItems as $supplierDeliveryItem) {
+        UpdateStateToCheckedSupplierDeliveryItem::make()->action($supplierDeliveryItem, [
+            'unit_quantity_checked' => 6
+        ]);
+    }
+    expect($supplierDeliveryItems[0]->supplierDelivery->fresh()->state)->toEqual(SupplierDeliveryStateEnum::CHECKED);
+})->depends('create supplier delivery items by selected purchase order');

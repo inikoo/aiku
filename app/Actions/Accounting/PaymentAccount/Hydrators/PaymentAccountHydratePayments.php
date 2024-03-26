@@ -35,20 +35,20 @@ class PaymentAccountHydratePayments
 
     public function handle(PaymentAccount $paymentAccount): void
     {
-        $amountTenantCurrencySuccessfullyPaid = $paymentAccount->payments()
+        $amountOrganisationCurrencySuccessfullyPaid = $paymentAccount->payments()
             ->where('type', 'payment')
             ->where('status', 'success')
-            ->sum('oc_amount');
-        $amountTenantCurrencyRefunded         = $paymentAccount->payments()
+            ->sum('org_amount');
+        $amountOrganisationCurrencyRefunded         = $paymentAccount->payments()
             ->where('payments.type', 'refund')
             ->where('status', 'success')
-            ->sum('oc_amount');
+            ->sum('org_amount');
 
         $stats = [
-            'number_payments'             => $paymentAccount->payments()->count(),
-            'oc_amount'                   => $amountTenantCurrencySuccessfullyPaid + $amountTenantCurrencyRefunded,
-            'oc_amount_successfully_paid' => $amountTenantCurrencySuccessfullyPaid,
-            'oc_amount_refunded'          => $amountTenantCurrencyRefunded
+            'number_payments'                => $paymentAccount->payments()->count(),
+            'org_amount'                     => $amountOrganisationCurrencySuccessfullyPaid + $amountOrganisationCurrencyRefunded,
+            'org_amount_successfully_paid'   => $amountOrganisationCurrencySuccessfullyPaid,
+            'org_amount_refunded'            => $amountOrganisationCurrencyRefunded
         ];
 
         $stats = array_merge(

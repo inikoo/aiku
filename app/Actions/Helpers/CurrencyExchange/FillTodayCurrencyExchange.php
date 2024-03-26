@@ -12,11 +12,11 @@ use App\Models\Helpers\CurrencyExchange;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class FetchTodayCurrencyExchange
+class FillTodayCurrencyExchange
 {
     use AsAction;
 
-    public string $commandSignature = 'currency:fetch';
+    public string $commandSignature = 'currency:fill-today';
 
     public function getCommandDescription(): string
     {
@@ -25,25 +25,28 @@ class FetchTodayCurrencyExchange
 
     public function asCommand(Command $command): int
     {
-        $usd = Currency::where('code', 'USD')->first();
+        $exchangePivotCurrency = Currency::where('code', config('app.currency_exchange.pivot'))->first();
 
         $currencies = Currency::where('store_historic_data', true)->get();
 
         foreach ($currencies as $currency) {
-            if ($currency->id == $usd->id) {
+            if ($currency->id == $exchangePivotCurrency->id) {
                 continue;
             }
 
+            $date=now();
 
-            $currencyExchangeValue = GetCurrencyExchange::run($usd, $currency);
+            $exchangeData          = FetchCurrencyExchange::run($exchangePivotCurrency, $currency);
+            $currencyExchangeValue = $exchangeData['exchange'] ?? null;
             if ($currencyExchangeValue) {
-                $currencyExchange = CurrencyExchange::where('currency_id', $currency->id)->where('date', gmdate('Y-m-d'))->first();
+                $currencyExchange = CurrencyExchange::where('currency_id', $currency->id)->where('date', $date->toDateString())->first();
 
                 if ($currencyExchange) {
                     $command->info("Updating $currency->code exchange: $currencyExchangeValue");
 
                     UpdateCurrencyExchange::run($currencyExchange, [
                         'exchange' => $currencyExchangeValue,
+                        'source'   => $exchangeData['source'] ?? null,
                     ]);
                 } else {
                     $command->info("Storing $currency->code exchange: $currencyExchangeValue");
@@ -51,6 +54,7 @@ class FetchTodayCurrencyExchange
                     StoreCurrencyExchange::run($currency, [
                         'exchange' => $currencyExchangeValue,
                         'date'     => gmdate('Y-m-d'),
+                        'source'   => $exchangeData['source'] ?? null,
                     ]);
                 }
             }

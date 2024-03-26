@@ -241,4 +241,12 @@ return [
     'cloudflare_account_id' => env('CLOUDFLARE_ACCOUNT_ID'),
 
 
+    'currency_exchange'=> [
+        'pivot'     => env('EXCHANGE_PIVOT_CURRENCY', 'GBP'),
+        'providers' => [
+            'currency_beacon'=> env('CURRENCY_EXCHANGE_CURRENCY_BEACON_API_KEYS')
+        ]
+    ],
+
+
 ];

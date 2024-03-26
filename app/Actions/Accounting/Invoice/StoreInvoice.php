@@ -11,6 +11,7 @@ use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
+use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\OrgAction;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
@@ -19,11 +20,12 @@ use App\Models\CRM\Customer;
 use App\Models\OMS\Order;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 
 class StoreInvoice extends OrgAction
 {
-    private bool $strict=true;
+    private bool $strict = true;
 
     public function handle(
         Customer|Order $parent,
@@ -45,6 +47,15 @@ class StoreInvoice extends OrgAction
         data_set($modelData, 'organisation_id', $parent->organisation_id);
 
 
+        $orgExchange   = GetCurrencyExchange::run($parent->shop->currency, $parent->organisation->currency);
+        $groupExchange = GetCurrencyExchange::run($parent->shop->currency, $parent->organisation->group->currency);
+
+        data_set($modelData, 'org_exchange', $orgExchange, overwrite: false);
+        data_set($modelData, 'group_exchange', $groupExchange, overwrite: false);
+        data_set($modelData, 'org_net_amount', Arr::get($modelData, 'net') * $orgExchange, overwrite: false);
+        data_set($modelData, 'group_net_amount', Arr::get($modelData, 'net') * $groupExchange, overwrite: false);
+
+
         /** @var \App\Models\Accounting\Invoice $invoice */
         $invoice = $parent->invoices()->create($modelData);
         $invoice->stats()->create();
@@ -63,41 +74,47 @@ class StoreInvoice extends OrgAction
 
     public function rules(): array
     {
-        $rules= [
-            'number'          => ['required', 'max:64', 'string',
-                                  new IUnique(
-                                      table: 'invoices',
-                                      extraConditions: [
-                                          ['column' => 'shop_id', 'value' => $this->shop->id],
-                                      ]
-                                  ),
-                ],
-            'currency_id'     => ['required', 'exists:currencies,id'],
-            'billing_address' => ['required', new ValidAddress()],
-            'type'            => ['required', Rule::enum(InvoiceTypeEnum::class)],
-            'exchange'        => ['required', 'numeric'],
-            'net'             => ['required', 'numeric'],
-            'total'           => ['required', 'numeric'],
-            'source_id'       => ['sometimes', 'string'],
-            'created_at'      => ['sometimes', 'date'],
-            'data'            => ['sometimes', 'array'],
+        $rules = [
+            'number'           => [
+                'required',
+                'max:64',
+                'string',
+                new IUnique(
+                    table: 'invoices',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                    ]
+                ),
+            ],
+            'currency_id'      => ['required', 'exists:currencies,id'],
+            'billing_address'  => ['required', new ValidAddress()],
+            'type'             => ['required', Rule::enum(InvoiceTypeEnum::class)],
+            'net'              => ['required', 'numeric'],
+            'total'            => ['required', 'numeric'],
+            'source_id'        => ['sometimes', 'string'],
+            'created_at'       => ['sometimes', 'date'],
+            'data'             => ['sometimes', 'array'],
+            'org_exchange'     => ['sometimes', 'numeric'],
+            'group_exchange'   => ['sometimes', 'numeric'],
+            'org_net_amount'   => ['sometimes', 'numeric'],
+            'group_net_amount' => ['sometimes', 'numeric'],
         ];
 
-        if(!$this->strict) {
+        if (!$this->strict) {
             $rules['number'] = ['required', 'max:64', 'string'];
         }
 
 
         return $rules;
-
     }
 
-    public function action(Customer|Order $parent, array $modelData, int $hydratorsDelay = 0, bool $strict=true): Invoice
+    public function action(Customer|Order $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Invoice
     {
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($parent->shop, $modelData);
+
 
         return $this->handle($parent, $this->validatedData);
     }

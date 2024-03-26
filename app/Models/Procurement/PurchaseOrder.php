@@ -32,6 +32,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Procurement\PurchaseOrder
  *
  * @property int $id
+ * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
  * @property int $provider_id
@@ -50,7 +51,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $settled_at
  * @property string|null $cancelled_at
  * @property int $currency_id
- * @property string $exchange
+ * @property string $group_exchange
+ * @property string $org_exchange
  * @property int $number_of_items
  * @property float|null $gross_weight
  * @property float|null $net_weight

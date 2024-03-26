@@ -46,6 +46,8 @@ use Illuminate\Support\Carbon;
  * @property string $quantity_cancelled
  * @property string $discounts
  * @property string $net
+ * @property string $group_exchange
+ * @property string $org_exchange
  * @property int|null $tax_band_id
  * @property array $data
  * @property Carbon|null $created_at

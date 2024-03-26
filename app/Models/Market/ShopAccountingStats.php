@@ -51,12 +51,12 @@ use Illuminate\Support\Carbon;
  * @property string $amount amount_successfully_paid-amount_returned
  * @property string $amount_successfully_paid
  * @property string $amount_refunded
- * @property string $oc_amount organisation currency, amount_successfully_paid-amount_returned
- * @property string $oc_amount_successfully_paid
- * @property string $oc_amount_refunded
- * @property string $gc_amount Group currency, amount_successfully_paid-amount_returned
- * @property string $gc_amount_successfully_paid
- * @property string $gc_amount_refunded
+ * @property string $org_amount organisation currency, amount_successfully_paid-amount_returned
+ * @property string $org_amount_successfully_paid
+ * @property string $org_amount_refunded
+ * @property string $group_amount Group currency, amount_successfully_paid-amount_returned
+ * @property string $group_amount_successfully_paid
+ * @property string $group_amount_refunded
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\Market\Shop $shop

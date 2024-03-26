@@ -7,17 +7,18 @@
 
 use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStateEnum;
 use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStatusEnum;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasGroupOrganisationRelationship;
     public function up(): void
     {
         Schema::create('purchase_orders', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedSmallInteger('organisation_id');
-            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
+            $table=$this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table->unsignedInteger('provider_id')->index();
             $table->string('provider_type');
@@ -36,7 +37,8 @@ return new class () extends Migration {
             $table->dateTimeTz('cancelled_at')->nullable();
             $table->unsignedSmallInteger('currency_id');
             $table->foreign('currency_id')->references('id')->on('currencies');
-            $table->decimal('exchange', 16, 6)->default(1);
+            $table->decimal('group_exchange', 16, 4)->default(1);
+            $table->decimal('org_exchange', 16, 4)->default(1);
             $table->smallInteger('number_of_items')->default(0);
             $table->float('gross_weight', 16)->default(null)->nullable();
             $table->float('net_weight', 16)->default(null)->nullable();

@@ -34,14 +34,14 @@ class ShopHydratePayments
 
     public function handle(Shop $shop): void
     {
-        $amountTenantCurrencySuccessfullyPaid = $shop->payments()
+        $amountOrganisationCurrencySuccessfullyPaid = $shop->payments()
             ->where('type', 'payment')
             ->where('status', 'success')
-            ->sum('oc_amount');
-        $amountTenantCurrencyRefunded         = $shop->payments()
+            ->sum('org_amount');
+        $amountOrganisationCurrencyRefunded         = $shop->payments()
             ->where('type', 'refund')
             ->where('status', 'success')
-            ->sum('oc_amount');
+            ->sum('org_amount');
 
         $amountSuccessfullyPaid = $shop->payments()
             ->where('type', 'payment')
@@ -55,13 +55,13 @@ class ShopHydratePayments
 
         $stats = [
 
-            'number_payments'             => $shop->payments()->count(),
-            'amount'                      => $amountSuccessfullyPaid + $amountTenantCurrencyRefunded,
-            'amount_successfully_paid'    => $amountSuccessfullyPaid,
-            'amount_refunded'             => $amountRefunded,
-            'oc_amount'                   => $amountTenantCurrencySuccessfullyPaid + $amountTenantCurrencyRefunded,
-            'oc_amount_successfully_paid' => $amountTenantCurrencySuccessfullyPaid,
-            'oc_amount_refunded'          => $amountTenantCurrencyRefunded
+            'number_payments'              => $shop->payments()->count(),
+            'amount'                       => $amountSuccessfullyPaid + $amountOrganisationCurrencyRefunded,
+            'amount_successfully_paid'     => $amountSuccessfullyPaid,
+            'amount_refunded'              => $amountRefunded,
+            'org_amount'                   => $amountOrganisationCurrencySuccessfullyPaid + $amountOrganisationCurrencyRefunded,
+            'org_amount_successfully_paid' => $amountOrganisationCurrencySuccessfullyPaid,
+            'org_amount_refunded'          => $amountOrganisationCurrencyRefunded
 
 
         ];

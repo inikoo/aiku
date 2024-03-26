@@ -36,8 +36,8 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('currency_id');
             $table->foreign('currency_id')->references('id')->on('currencies');
             $table->decimal('amount', 12);
-            $table->decimal('oc_amount', 12)->comment('amount in tenancy currency');
-            $table->decimal('gc_amount', 12)->nullable()->comment('amount in group currency');
+            $table->decimal('group_amount', 12);
+            $table->decimal('org_amount', 12);
             $table->jsonb('data');
             $table->dateTimeTz('date')->index()->comment('Most relevant date at current state');
             $table->dateTimeTz('completed_at')->nullable();

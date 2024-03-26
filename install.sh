@@ -29,6 +29,7 @@ echo "🌱 Migrating and seeding database"
 php artisan migrate --database=backup --path=database/migrations/backup
 php artisan migrate
 php artisan db:seed
+./seed_currancy_exchanges.sh
 php artisan telescope:clear
 pg_dump -Fc -f "devops/devel/snapshots/fresh.dump" ${DB}
 echo "🏢 create group"

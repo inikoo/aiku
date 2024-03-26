@@ -7,17 +7,19 @@
 
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStatusEnum;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasGroupOrganisationRelationship;
+
     public function up(): void
     {
         Schema::create('supplier_deliveries', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedSmallInteger('organisation_id');
-            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
+            $table=$this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table->unsignedInteger('provider_id')->index();
             $table->string('provider_type');
@@ -40,7 +42,6 @@ return new class () extends Migration {
             $table->float('net_weight', 16)->default(null)->nullable();
             $table->decimal('cost_items', 16)->default(null)->nullable();
             $table->decimal('cost_extra', 16)->default(null)->nullable();
-
             $table->decimal('cost_shipping', 16)->default(null)->nullable();
             $table->decimal('cost_duties', 16)->default(null)->nullable();
             $table->decimal('cost_tax', 16)->default(0);

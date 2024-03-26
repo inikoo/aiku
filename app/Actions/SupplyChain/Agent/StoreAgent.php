@@ -36,25 +36,32 @@ class StoreAgent extends GrpAction
     public function handle(Group $group, array $modelData): Agent
     {
         data_set($modelData, 'group_id', $group->id);
+
+        $organisationData = [
+            'type'        => OrganisationTypeEnum::AGENT,
+            'name'        => Arr::get($modelData, 'name'),
+            'code'        => Arr::get($modelData, 'code'),
+            'email'       => Arr::get($modelData, 'email'),
+            'phone'       => Arr::get($modelData, 'phone'),
+            'currency_id' => Arr::get($modelData, 'currency_id'),
+            'language_id' => Arr::get($modelData, 'language_id'),
+            'timezone_id' => Arr::get($modelData, 'timezone_id'),
+            'country_id'  => Arr::get($modelData, 'country_id'),
+            'address'     => Arr::get($modelData, 'address'),
+        ];
+
+        if(Arr::exists($modelData, 'created_at')) {
+            $organisationData['created_at'] = Arr::get($modelData, 'created_at');
+        }
+
         $organisation = StoreOrganisation::make()->action(
             $group,
-            [
-                'type'        => OrganisationTypeEnum::AGENT,
-                'name'        => Arr::get($modelData, 'name'),
-                'code'        => Arr::get($modelData, 'code'),
-                'email'       => Arr::get($modelData, 'email'),
-                'phone'       => Arr::get($modelData, 'phone'),
-                'currency_id' => Arr::get($modelData, 'currency_id'),
-                'language_id' => Arr::get($modelData, 'language_id'),
-                'timezone_id' => Arr::get($modelData, 'timezone_id'),
-                'country_id'  => Arr::get($modelData, 'country_id'),
-                'address'     => Arr::get($modelData, 'address')
-            ]
+            $organisationData
         );
 
 
         /** @var Agent $agent */
-        $agent = $organisation->agent()->create(Arr::only($modelData, ['source_id', 'source_slug', 'group_id']));
+        $agent = $organisation->agent()->create(Arr::only($modelData, ['created_at', 'source_id', 'source_slug', 'group_id']));
         $agent->stats()->create();
 
 
@@ -91,6 +98,7 @@ class StoreAgent extends GrpAction
             'timezone_id' => ['required', 'exists:timezones,id'],
             'source_id'   => ['sometimes', 'nullable', 'string'],
             'source_slug' => ['sometimes', 'nullable', 'string'],
+            'created_at'  => ['sometimes', 'date'],
         ];
     }
 

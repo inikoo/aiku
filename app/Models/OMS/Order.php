@@ -16,6 +16,8 @@ use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
 use App\Models\Search\UniversalSearch;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasOrder;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -61,7 +63,8 @@ use Spatie\Sluggable\HasSlug;
  * @property string $items_discounts
  * @property string $items_net
  * @property int $currency_id
- * @property string $exchange
+ * @property string $group_exchange
+ * @property string $org_exchange
  * @property string $charges
  * @property string|null $shipping
  * @property string $net
@@ -75,7 +78,9 @@ use Spatie\Sluggable\HasSlug;
  * @property-read \App\Models\CRM\Customer $customer
  * @property-read CustomerClient|null $customerClient
  * @property-read Collection<int, DeliveryNote> $deliveryNotes
+ * @property-read Group $group
  * @property-read Collection<int, Invoice> $invoices
+ * @property-read Organisation $organisation
  * @property-read Collection<int, Payment> $payments
  * @property-read Shop $shop
  * @property-read \App\Models\OMS\OrderStats|null $stats
@@ -143,5 +148,15 @@ class Order extends Model
     public function shop(): BelongsTo
     {
         return $this->belongsTo(Shop::class);
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
     }
 }

@@ -23,7 +23,6 @@ class PurchaseOrderFactory extends Factory
             'number'        => fake()->numberBetween(100, 999),
             'date'          => fake()->date,
             'currency_id'   => $currency->id,
-            'exchange'      => 1
         ];
     }
 }

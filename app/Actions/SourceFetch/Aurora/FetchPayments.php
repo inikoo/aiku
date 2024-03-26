@@ -65,7 +65,7 @@ class FetchPayments extends FetchAction
             ->table('Payment Dimension')
             ->select('Payment Key as source_id');
         if ($this->onlyNew) {
-            $query->whereNull('spp.aiku_id');
+            $query->whereNull('aiku_id');
         }
 
         return $query->orderBy('source_id');
@@ -75,7 +75,7 @@ class FetchPayments extends FetchAction
     {
         $query = DB::connection('aurora')->table('Payment Dimension');
         if ($this->onlyNew) {
-            $query->whereNull('spp.aiku_id');
+            $query->whereNull('aiku_id');
         }
 
         return $query->count();

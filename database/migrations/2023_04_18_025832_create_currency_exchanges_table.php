@@ -13,12 +13,14 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('currency_exchanges', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedSmallInteger('currency_id');
+            $table->increments('id');
+            $table->unsignedSmallInteger('currency_id')->index();
             $table->foreign('currency_id')->references('id')->on('currencies');
-            $table->decimal('exchange');
-            $table->date('date');
+            $table->decimal('exchange', 16, 4, true);
+            $table->date('date')->index();
+            $table->string('source')->nullable()->comment('F:Frankfurter, CB:currencyBeacon, M:manual');
             $table->timestampsTz();
+            $table->unique(['currency_id', 'date']);
         });
     }
 

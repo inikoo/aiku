@@ -19,6 +19,7 @@ class PaymentServiceProviderHydratePayments
 {
     use AsAction;
     use WithEnumStats;
+
     private PaymentServiceProvider $paymentServiceProvider;
 
     public function __construct(PaymentServiceProvider $paymentServiceProvider)
@@ -33,21 +34,20 @@ class PaymentServiceProviderHydratePayments
 
     public function handle(PaymentServiceProvider $paymentServiceProvider): void
     {
-
-        $amountTenantCurrencySuccessfullyPaid = $paymentServiceProvider->payments()
+        $amountOrganisationCurrencySuccessfullyPaid = $paymentServiceProvider->payments()
             ->where('payments.type', 'payment')
             ->where('status', 'success')
-            ->sum('oc_amount');
-        $amountTenantCurrencyRefunded         = $paymentServiceProvider->payments()
+            ->sum('org_amount');
+        $amountOrganisationCurrencyRefunded         = $paymentServiceProvider->payments()
             ->where('payments.type', 'refund')
             ->where('status', 'success')
-            ->sum('oc_amount');
+            ->sum('org_amount');
 
         $stats = [
-            'number_payments'             => $paymentServiceProvider->payments()->count(),
-            'oc_amount'                   => $amountTenantCurrencySuccessfullyPaid + $amountTenantCurrencyRefunded,
-            'oc_amount_successfully_paid' => $amountTenantCurrencySuccessfullyPaid,
-            'oc_amount_refunded'          => $amountTenantCurrencyRefunded
+            'number_payments'              => $paymentServiceProvider->payments()->count(),
+            'org_amount'                   => $amountOrganisationCurrencySuccessfullyPaid + $amountOrganisationCurrencyRefunded,
+            'org_amount_successfully_paid' => $amountOrganisationCurrencySuccessfullyPaid,
+            'org_amount_refunded'          => $amountOrganisationCurrencyRefunded
         ];
 
 

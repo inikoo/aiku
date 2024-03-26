@@ -32,6 +32,7 @@ use App\Models\Mail\Outbox;
 use App\Models\Marketing\OfferCampaign;
 use App\Models\OMS\Order;
 use App\Models\Search\UniversalSearch;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
 use App\Models\Traits\HasAddresses;
@@ -98,6 +99,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Market\ProductCategory> $departments
  * @property-read Fulfilment|null $fulfilment
  * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
+ * @property-read Group $group
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
  * @property-read \App\Models\Market\ShopMailStats|null $mailStats
@@ -165,6 +167,11 @@ class Shop extends Model
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(6);
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
     }
 
     public function organisation(): BelongsTo

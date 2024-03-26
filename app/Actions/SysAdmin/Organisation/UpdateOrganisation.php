@@ -7,6 +7,7 @@
 
 namespace App\Actions\SysAdmin\Organisation;
 
+use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Organisation;
@@ -25,10 +26,10 @@ class UpdateOrganisation
         $addressData = Arr::get($modelData, 'address');
         Arr::forget($modelData, 'address');
 
-        $organisation= $this->update($organisation, $modelData, ['data', 'settings']);
+        $organisation = $this->update($organisation, $modelData, ['data', 'settings']);
 
-        if($addressData) {
-            if($organisation->address) {
+        if ($addressData) {
+            if ($organisation->address) {
                 $organisation->address()->update($addressData);
             } else {
                 data_set($addressData, 'owner_type', 'Organisation');
@@ -40,8 +41,12 @@ class UpdateOrganisation
             $organisation->save();
         }
 
-        return $organisation;
+        if ($organisation->wasChanged('created_at')) {
+            SetCurrencyHistoricFields::run($organisation->currency, $organisation->created_at);
+        }
 
+
+        return $organisation;
     }
 
 
@@ -61,7 +66,12 @@ class UpdateOrganisation
             'google_client_id'        => ['sometimes', 'string'],
             'google_client_secret'    => ['sometimes', 'string'],
             'google_drive_folder_key' => ['sometimes', 'string'],
-            'address'                 => ['sometimes', 'required', new ValidAddress()]
+            'address'                 => ['sometimes', 'required', new ValidAddress()],
+            'created_at'              => ['sometimes', 'date'],
+            'language_id'             => ['sometimes', 'exists:languages,id'],
+            'timezone_id'             => ['sometimes', 'exists:timezones,id'],
+            'currency_id'             => ['sometimes', 'exists:currencies,id'],
+            'source'                  => ['sometimes', 'array'],
         ];
     }
 

@@ -45,7 +45,6 @@ class UpdateInvoice extends OrgAction
                 ),
             ],
             'currency_id' => ['sometimes', 'required', 'exists:currencies,id'],
-            'exchange'    => ['sometimes', 'required', 'numeric'],
             'net'         => ['sometimes', 'required', 'numeric'],
             'total'       => ['sometimes', 'required', 'numeric'],
         ];

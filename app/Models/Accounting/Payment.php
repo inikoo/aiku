@@ -45,8 +45,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property PaymentSubsequentStatusEnum|null $subsequent_status
  * @property int $currency_id
  * @property string $amount
- * @property string $oc_amount amount in tenancy currency
- * @property string|null $gc_amount amount in group currency
+ * @property string $group_amount
+ * @property string $org_amount
  * @property array $data
  * @property string $date Most relevant date at current state
  * @property string|null $completed_at

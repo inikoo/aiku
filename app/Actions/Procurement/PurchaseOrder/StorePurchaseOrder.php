@@ -34,6 +34,7 @@ class StorePurchaseOrder
     {
 
         data_set($modelData, 'organisation_id', $organisation->id);
+        data_set($modelData, 'group_id', $organisation->group_id);
 
         /** @var PurchaseOrder $purchaseOrder */
         $purchaseOrder = $provider->purchaseOrders()->create($modelData);

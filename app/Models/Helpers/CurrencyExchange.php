@@ -15,12 +15,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * App\Models\Helpers\GetHistoricCurrencyExchange
+ * App\Models\Helpers\FetchCurrencyExchange
  *
  * @property int $id
  * @property int $currency_id
  * @property string $exchange
  * @property string $date
+ * @property string|null $source F:Frankfurter, A:aurora, M:manual
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Currency $currency

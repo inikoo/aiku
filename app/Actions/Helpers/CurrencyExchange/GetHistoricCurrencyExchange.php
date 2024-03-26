@@ -1,17 +1,18 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Tue, 18 Apr 2023 10:28:39 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 25 Mar 2024 22:55:09 Malaysia Time, Mexico City, Mexico
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Helpers\CurrencyExchange;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Carbon;
-use Lorisleiva\Actions\Concerns\AsAction;
-use AmrShawky\LaravelCurrency\Facade\Currency as FetchCurrency;
 use App\Models\Assets\Currency;
+use App\Models\Helpers\CurrencyExchange;
+use Illuminate\Support\Carbon;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
+use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetHistoricCurrencyExchange
 {
@@ -21,33 +22,83 @@ class GetHistoricCurrencyExchange
 
     public function handle(Currency $baseCurrency, Currency $targetCurrency, Carbon $date): float|null
     {
-        if($baseCurrency->code==$targetCurrency) {
+        $key = 'historic-currency-exchange:'.$baseCurrency->code.'-'.$targetCurrency->code.'-'.$date->toDateString();
+
+        $currencyExchange = (float)Cache::get($key);
+        if (!$currencyExchange) {
+            $currencyExchange = $this->getHistoricExchange($baseCurrency, $targetCurrency, $date);
+
+
+            if ($currencyExchange) {
+                Cache::add($key, $currencyExchange, now()->addDays(7));
+            }
+        }
+
+
+        return $currencyExchange;
+    }
+
+
+    private function getHistoricExchange(Currency $baseCurrency, Currency $targetCurrency, Carbon $date): float|null
+    {
+        if ($baseCurrency->id == $targetCurrency->id) {
             return 1;
         }
 
-        return FetchCurrency::convert()
-            ->from($baseCurrency->code)
-            ->to($targetCurrency->code)
-            ->date($date->toDateString())
-            ->get();
+
+        $baseExchange   = $this->getExchangeAgainstPivot($baseCurrency, $date);
+        $targetExchange = $this->getExchangeAgainstPivot($targetCurrency, $date);
+
+        if ($baseExchange && $targetExchange) {
+            return $targetExchange / $baseExchange;
+        }
+
+        return null;
+    }
+
+
+    private function getExchangeAgainstPivot(Currency $currency, Carbon $date)
+    {
+        $exchangePivotCurrency = Currency::where('code', config('app.currency_exchange.pivot'))->first();
+
+        if ($currency->id == $exchangePivotCurrency->id) {
+            $exchange = 1;
+        } else {
+            $currencyExchange = CurrencyExchange::where('date', $date)
+                ->where('currency_id', $currency->id)->first();
+            if ($currencyExchange) {
+                $exchange = $currencyExchange->exchange;
+            } else {
+                $exchangeData = FetchCurrencyExchange::run($exchangePivotCurrency, $currency, $date);
+                $exchange     = $exchangeData['exchange'] ?? null;
+                if ($exchange) {
+                    StoreCurrencyExchange::run($currency, [
+                        'exchange' => $exchange,
+                        'date'     => $date->toDateString(),
+                        'source'   => $exchangeData['source'] ?? null
+                    ]);
+                }
+            }
+        }
+
+        return $exchange;
     }
 
 
     public function asCommand(Command $command): int
     {
-        $baseCurrency  =Currency::where('code', $command->argument('base_currency_code'))->firstOrFail();
-        $targetCurrency=Currency::where('code', $command->argument('target_currency_code'))->firstOrFail();
+        $baseCurrency   = Currency::where('code', $command->argument('base_currency_code'))->firstOrFail();
+        $targetCurrency = Currency::where('code', $command->argument('target_currency_code'))->firstOrFail();
+        $date           = Carbon::parse($command->argument('date'));
 
-        if($baseCurrency->code==$targetCurrency->code) {
-            $command->error('Same currency');
+        $exchange = $this->handle($baseCurrency, $targetCurrency, $date);
+        if (!$exchange) {
+            $command->error("No exchange rate found for {$baseCurrency->code}→$targetCurrency->code @(".$date->toDateString().")");
+
             return 1;
         }
 
-        $date    =new Carbon($command->argument('date'));
-        $exchange=$this->handle($baseCurrency, $targetCurrency, $date);
-
-        $command->info("Current exchange {$baseCurrency->code}→$targetCurrency->code @ {$date->toDateString()} : $exchange");
-
+        $command->info("FX {$baseCurrency->code}→$targetCurrency->code @(".$date->toDateString().")  : $exchange");
 
         return 0;
     }

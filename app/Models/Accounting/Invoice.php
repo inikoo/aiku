@@ -46,10 +46,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $order_id
  * @property InvoiceTypeEnum $type
  * @property int $currency_id
- * @property string $exchange
+ * @property string $group_exchange
+ * @property string $org_exchange
  * @property string $net
  * @property string $total
  * @property string $payment
+ * @property string $group_net_amount
+ * @property string $org_net_amount
  * @property array|null $paid_at
  * @property array $data
  * @property Carbon|null $created_at
@@ -62,6 +65,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Accounting\InvoiceTransaction> $invoiceTransactions
  * @property-read Order|null $order
  * @property-read Collection<int, Order> $orders
+ * @property-write mixed $exchange
  * @property-read Shop $shop
  * @property-read \App\Models\Accounting\InvoiceStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
