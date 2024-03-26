@@ -87,6 +87,8 @@ class FetchAuroraPallet extends FetchAurora
 
         $notes=(string)$this->auroraModelData->{'Fulfilment Asset Note'};
         $notes=strip_tags($notes);
+        $notes=str_replace('&nbsp;', ' ', $notes);
+        $notes=trim($notes);
 
         $this->parsedData['pallet'] = [
             'warehouse_id'       => $warehouse->id,
