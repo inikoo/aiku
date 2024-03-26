@@ -28,6 +28,18 @@ trait StoreCustomerFields
                         'type'  => 'input',
                         'label' => __('contact name')
                     ],
+                    'email' => [
+                        'type'  => 'input',
+                        'label' => __('email')
+                    ],
+                    'phone' => [
+                        'type'  => 'input',
+                        'label' => __('phone')
+                    ],
+                    'interest' => [
+                        'type'  => 'input',
+                        'label' => __('interest')
+                    ],
                     'address'      => [
                         'type'    => 'address',
                         'label'   => __('Address'),
