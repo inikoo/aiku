@@ -65,15 +65,38 @@ function palletRoute(pallet: Pallet) {
     }
 }
 
+function fulfilmentCustomerRoute(pallet: Pallet) {
+  console.log(route().current())
+  switch (route().current()) {
+
+    case 'grp.org.fulfilments.show.operations.pallets.index':
+      return route(
+        'grp.org.fulfilments.show.crm.customers.show',
+        [
+          route().params['organisation'],
+          route().params['fulfilment'],
+          pallet['fulfilment_customer_slug']
+        ]);
+
+    default:
+      return [];
+  }
+}
+
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(referencex)="{ item: pallet }">
+        <template #cell(reference)="{ item: pallet }">
             <Link :href="palletRoute(pallet)" class="specialUnderline">
                 {{ pallet['reference'] }}
             </Link>
         </template>
+      <template #cell(fulfilment_customer_namex)="{ item: pallet }">
+        <Link :href="fulfilmentCustomerRoute(pallet)" class="specialUnderlineSecondary">
+          {{ pallet['fulfilment_customer_name'] }}
+        </Link>
+      </template>
 
         <template #cell(state)="{ item: pallet }">
             <Icon :data="pallet['state_icon']" class="px-1"/>
@@ -84,7 +107,7 @@ function palletRoute(pallet: Pallet) {
                     :stringToColor="true">
                     <template #label>
                         <div class="whitespace-nowrap text-xs">
-                            {{ item.reference }} (<span class="font-light">{{ item.quantity }}</span>)
+                            {{ item['reference'] }} (<span class="font-light">{{ item['quantity'] }}</span>)
                         </div>
                     </template>
                 </Tag>

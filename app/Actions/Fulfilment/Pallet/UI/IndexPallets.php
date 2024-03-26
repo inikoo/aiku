@@ -56,7 +56,7 @@ class IndexPallets extends OrgAction
                     $query->whereIn('pallets.status', $elements);
                 }
             ],
-            'state' => [
+            'state'  => [
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
                     PalletStateEnum::labels(),
@@ -73,7 +73,6 @@ class IndexPallets extends OrgAction
 
     public function handle(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent, $prefix = null): LengthAwarePaginator
     {
-
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('pallets.customer_reference', $value)
@@ -99,7 +98,7 @@ class IndexPallets extends OrgAction
                 $query->where('pallets.organisation_id', $parent->id);
                 break;
             case "Fulfilment":
-                $query->where('fulfilment_id', $parent->id);
+                $query->where('pallets.fulfilment_id', $parent->id);
                 break;
             case "Warehouse":
                 $query->where('warehouse_id', $parent->id);
@@ -137,9 +136,35 @@ class IndexPallets extends OrgAction
             $query->where('pallets.state', '!=', PalletStateEnum::IN_PROCESS);
         }
 
-        return $query->defaultSort('pallets.id')
-            ->leftJoin('locations', 'locations.id', 'pallets.location_id')
-            ->allowedSorts(['customer_reference', 'reference'])
+        $query->defaultSort('pallets.id')
+            ->select(
+                'pallets.id',
+                'pallets.slug',
+                'pallets.reference',
+                'pallets.customer_reference',
+                'pallets.notes',
+                'pallets.state',
+                'pallets.status',
+                'pallets.type',
+                'pallets.received_at',
+                'pallets.location_id',
+                'pallets.fulfilment_customer_id',
+                'pallets.warehouse_id',
+                'pallets.pallet_delivery_id',
+                'pallets.pallet_return_id'
+            );
+
+        if (!$parent instanceof Location) {
+            $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
+            $query->addSelect('locations.code as location_code', 'locations.slug as location_slug', 'locations.id as location_id');
+        }
+        if ($parent instanceof Fulfilment) {
+            $query->leftJoin('fulfilment_customers', 'fulfilment_customers.id', 'pallets.fulfilment_customer_id');
+            $query->leftJoin('customers', 'customers.id', 'fulfilment_customers.customer_id');
+            $query->addSelect('customers.name as fulfilment_customer_name', 'customers.slug as fulfilment_customer_slug');
+        }
+
+        return $query->allowedSorts(['customer_reference', 'reference', 'fulfilment_customer_name'])
             ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -197,7 +222,7 @@ class IndexPallets extends OrgAction
 
 
             if ($parent instanceof Organisation || $parent instanceof Fulfilment || $parent instanceof Warehouse) {
-                $table->column(key: 'customer_name', label: __('Customer'), canBeHidden: false, searchable: true);
+                $table->column(key: 'fulfilment_customer_name', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true);
             }
 
             if (($parent instanceof Organisation or $parent instanceof Fulfilment or $parent instanceof Warehouse or $parent instanceof PalletDelivery) and in_array($parent->state, [PalletDeliveryStateEnum::RECEIVED, PalletDeliveryStateEnum::BOOKED_IN]) and request(
