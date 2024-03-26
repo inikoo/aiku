@@ -7,7 +7,8 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
-use App\Actions\Fulfilment\Pallet\Hydrators\HydrateStatePallet;
+use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryStateFromItems;
+use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturnStateFromItems;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -35,10 +36,10 @@ class UpdatePallet extends OrgAction
         if($pallet->wasChanged('state')) {
 
             if($pallet->pallet_delivery_id) {
-                HydrateStatePallet::run($pallet->palletDelivery);
+                UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
             }
             if($pallet->pallet_return_id) {
-                HydrateStatePallet::run($pallet->palletReturn);
+                UpdatePalletReturnStateFromItems::run($pallet->palletReturn);
             }
         }
 
