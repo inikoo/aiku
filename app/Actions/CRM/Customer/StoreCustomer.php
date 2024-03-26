@@ -8,7 +8,7 @@
 namespace App\Actions\CRM\Customer;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateUniversalSearch;
-use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
+use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomerFromCustomer;
 use App\Actions\Helpers\Address\ParseCountryID;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
@@ -85,7 +85,7 @@ class StoreCustomer extends OrgAction
 
         $customer->stats()->create();
         if ($customer->is_fulfilment) {
-            StoreFulfilmentCustomer::run($customer, $shop);
+            StoreFulfilmentCustomerFromCustomer::run($customer, $shop);
         }
 
 

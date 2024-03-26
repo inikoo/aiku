@@ -9,6 +9,7 @@
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Prospect\ImportShopProspects;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilment;
+use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\DeletePallet;
 use App\Actions\Fulfilment\Pallet\ImportPallet;
@@ -79,6 +80,8 @@ Route::name('org.')->prefix('org/{organisation}')->group(function () {
     Route::post('/fulfilment/', StoreFulfilment::class)->name('fulfilment.store');
 
     Route::post('/shop/{shop}/customer/', StoreCustomer::class)->name('shop.customer.store');
+    Route::post('/shop/{shop}/fulfilment-customer/', StoreFulfilmentCustomer::class)->name('shop.fulfilment-customer.store');
+
 });
 
 Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->group(function () {

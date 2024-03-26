@@ -32,7 +32,16 @@ class UpdatePallet extends OrgAction
     {
         $pallet = $this->update($pallet, $modelData, ['data']);
 
-        HydrateStatePallet::run($pallet->palletReturn ?? $pallet->palletDelivery);
+        if($pallet->wasChanged('state')) {
+
+            if($pallet->pallet_delivery_id) {
+                HydrateStatePallet::run($pallet->palletDelivery);
+            }
+            if($pallet->pallet_return_id) {
+                HydrateStatePallet::run($pallet->palletReturn);
+            }
+        }
+
 
         return $pallet;
     }

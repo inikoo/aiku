@@ -10,6 +10,7 @@ namespace App\Services\Organisation\Aurora;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
+use App\Enums\Market\Shop\ShopTypeEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraPallet extends FetchAurora
@@ -18,6 +19,26 @@ class FetchAuroraPallet extends FetchAurora
     {
 
         $customer                     = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Customer Key'});
+
+        $shop=$customer->shop;
+
+
+        if(!$customer) {
+            print_r($this->auroraModelData);
+            dd("Error Customer not found");
+        }
+
+        if($shop->type!=ShopTypeEnum::FULFILMENT) {
+            print_r($this->auroraModelData);
+            dd("Error Shop not fulfilment");
+        }
+
+        if(!$customer->is_fulfilment) {
+            print_r($this->auroraModelData);
+            dd('error customer not fulfilment');
+        }
+
+
         $this->parsedData['customer'] = $customer;
 
         $warehouse = $this->parseWarehouse($this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Warehouse Key'});

@@ -19,6 +19,11 @@ class CreateFulfilmentCustomer extends OrgAction
 {
     use StoreCustomerFields;
 
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+    }
+
     public function handle(Fulfilment $fulfilment, ActionRequest $request): Response
     {
         return Inertia::render(
@@ -50,10 +55,10 @@ class CreateFulfilmentCustomer extends OrgAction
                     'blueprint' => $this->getBlueprint($fulfilment->shop),
 
                     'route'     => [
-                        'name'      => 'grp.models.org.shop.customer.store',
+                        'name'      => 'grp.models.org.shop.fulfilment-customer.store',
                         'parameters'=> [
-                            'organisation' => $fulfilment->organisation->slug,
-                            'shop'         => $fulfilment->shop->slug
+                            'organisation'       => $fulfilment->organisation->slug,
+                            'fulfilment'         => $fulfilment->id
                         ]
                     ]
                 ]
@@ -61,10 +66,7 @@ class CreateFulfilmentCustomer extends OrgAction
         );
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
-    }
+
 
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): Response

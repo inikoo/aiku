@@ -7,56 +7,92 @@
 
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
+use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\OrgAction;
-use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
-use App\Models\CRM\Customer;
+use App\Enums\CRM\Customer\CustomerStateEnum;
+use App\Enums\CRM\Customer\CustomerStatusEnum;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Market\Shop;
+use App\Models\SysAdmin\Organisation;
+use App\Rules\IUnique;
+use App\Rules\ValidAddress;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
+use Lorisleiva\Actions\ActionRequest;
 
 class StoreFulfilmentCustomer extends OrgAction
 {
-    public function handle(Customer $customer, Shop $shop): FulfilmentCustomer
+    public function authorize(ActionRequest $request): bool
     {
-        /** @var FulfilmentCustomer $customerFulfilment */
-        $customerFulfilment = $customer->fulfilmentCustomer()->create([
-            'fulfilment_id'   => $shop->fulfilment->id,
-            'group_id'        => $customer->group_id,
-            'organisation_id' => $customer->organisation_id,
-        ]);
-        $customerFulfilment->refresh();
-
-        $customerFulfilment->serialReferences()->create(
-            [
-                'model'           => SerialReferenceModelEnum::PALLET_DELIVERY,
-                'organisation_id' => $customerFulfilment->organisation->id,
-                'format'          => $customerFulfilment->slug.'-%03d'
-            ]
-        );
-
-        $customerFulfilment->serialReferences()->create(
-            [
-                'model'           => SerialReferenceModelEnum::PALLET_RETURN,
-                'organisation_id' => $customerFulfilment->organisation->id,
-                'format'          => $customerFulfilment->slug.'-%03d-return'
-            ]
-        );
-
-        $customerFulfilment->serialReferences()->create(
-            [
-                'model'           => SerialReferenceModelEnum::STORED_ITEM_RETURN,
-                'organisation_id' => $customerFulfilment->organisation->id,
-                'format'          => $customerFulfilment->slug.'-%03d-stored-item-return'
-            ]
-        );
-
-        $customerFulfilment->serialReferences()->create(
-            [
-                'model'           => SerialReferenceModelEnum::PALLET,
-                'organisation_id' => $customerFulfilment->organisation->id,
-                'format'          => $customerFulfilment->slug.'-%04d-pallet'
-            ]
-        );
-
-        return $customerFulfilment;
+        if ($this->asAction) {
+            return true;
+        }
+        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
+
+
+    public function handle(Fulfilment $fulfilment, array $modelData): FulfilmentCustomer
+    {
+
+        $customer=StoreCustomer::make()->action($fulfilment->shop, $modelData);
+
+
+
+
+        return $customer->fulfilmentCustomer;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'reference'                => ['sometimes', 'string', 'max:16'],
+            'state'                    => ['sometimes', Rule::enum(CustomerStateEnum::class)],
+            'status'                   => ['sometimes', Rule::enum(CustomerStatusEnum::class)],
+            'contact_name'             => ['nullable', 'string', 'max:255'],
+            'company_name'             => ['nullable', 'string', 'max:255'],
+            'email'                    => [
+                'nullable',
+                'string',
+                'max:255',
+                'exclude_unless:deleted_at,null',
+                new IUnique(
+                    table: 'customers',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'deleted_at', 'value' => null],
+                    ]
+                ),
+            ],
+            'phone'                    => ['nullable', 'max:255'],
+            'identity_document_number' => ['nullable', 'string'],
+            'contact_website'          => ['nullable', 'string', 'max:255'],
+            'contact_address'          => ['sometimes', new ValidAddress()],
+            'delivery_address'         => ['sometimes', 'required', new ValidAddress()],
+
+
+            'timezone_id' => ['nullable', 'exists:timezones,id'],
+            'language_id' => ['nullable', 'exists:languages,id'],
+            'data'        => ['sometimes', 'array'],
+            'source_id'   => ['sometimes', 'nullable', 'string'],
+            'created_at'  => ['sometimes', 'nullable', 'date'],
+            'deleted_at'  => ['sometimes', 'nullable', 'date'],
+            'password'    =>
+                [
+                    'sometimes',
+                    'required',
+                    app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()
+                ],
+
+        ];
+    }
+
+
+
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): FulfilmentCustomer
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment, $this->validatedData);
+    }
+
 }

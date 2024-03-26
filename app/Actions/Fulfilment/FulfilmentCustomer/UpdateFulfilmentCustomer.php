@@ -19,6 +19,7 @@ class UpdateFulfilmentCustomer extends OrgAction
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): FulfilmentCustomer
     {
+
         return $this->update($fulfilmentCustomer, $modelData, ['data']);
     }
 
