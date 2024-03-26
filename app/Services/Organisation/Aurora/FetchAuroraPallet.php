@@ -46,10 +46,8 @@ class FetchAuroraPallet extends FetchAurora
 
         $location_id = null;
         if ($this->auroraModelData->{'Fulfilment Asset Location Key'}) {
-            $location = $this->parseLocation($this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Location Key'});
-            if ($location) {
-                $location_id = $location->id;
-            }
+            $location    = $this->parseLocation($this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Location Key'});
+            $location_id = $location?->id;
         }
 
         $state  = match ($this->auroraModelData->{'Fulfilment Asset State'}) {
@@ -87,6 +85,8 @@ class FetchAuroraPallet extends FetchAurora
             $reference = null;
         }
 
+        $notes=(string)$this->auroraModelData->{'Fulfilment Asset Note'};
+        $notes=strip_tags($notes);
 
         $this->parsedData['pallet'] = [
             'warehouse_id'       => $warehouse->id,
@@ -94,7 +94,7 @@ class FetchAuroraPallet extends FetchAurora
             'status'             => $status,
             'type'               => $type,
             'customer_reference' => $reference,
-            'notes'              => (string)$this->auroraModelData->{'Fulfilment Asset Note'},
+            'notes'              => $notes,
             'created_at'         => $this->auroraModelData->{'Fulfilment Asset From'} ?? null,
             'received_at'        => $received_at,
             'source_id'          => $this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Key'},
