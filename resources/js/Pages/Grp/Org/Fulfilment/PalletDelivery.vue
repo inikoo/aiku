@@ -30,8 +30,8 @@ import { useLayoutStore } from '@/Stores/layout'
 
 // import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus } from '@fal'
-library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus)
+import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus, faFileExport } from '@fal'
+library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus, faFileExport)
 
 const props = defineProps<{
     title: string
@@ -283,6 +283,14 @@ watch(() => props.data, (newValue) => {
                 <Button @click="handleClickConfirm(action.action.route)" :style="action.action.style"
                     :label="action.action.label" :loading="loading" />
             </div>
+        </template>
+
+        <!-- Button: Export as PDF -->
+        <template #button-export-as-pdf="{ action }">
+            <a :href="route(action.action.route.name, action.action.route.parameters)" target="_blank">
+            <!-- <pre>{{ action.action }}</pre> -->
+                <Button :style="action.action.style" :icon="action.action.icon" :tooltip="action.action.tooltip" :label="action.action.label" />
+            </a>
         </template>
     </PageHeading>
 
