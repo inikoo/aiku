@@ -8,6 +8,7 @@
 use App\Actions\Fulfilment\Pallet\ReturnPalletToCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
+use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
 use App\Actions\Fulfilment\UniversalScan\ShowUniversalScan;
 use App\Actions\Inventory\Location\UI\IndexLocations;
@@ -32,5 +33,6 @@ Route::prefix("{warehouse:id}")->name("warehouses.")
             Route::get('pallets', IndexPallets::class)->name('pallets.index');
             Route::get('pallets/{pallet}', ShowPallet::class)->name('pallets.show');
             Route::patch('pallets/{pallet}/return', ReturnPalletToCustomer::class)->name('pallets.return');
+            Route::patch('pallets/{pallet}', [UpdatePallet::class, 'fromApi'])->name('pallets.update');
         });
     });
