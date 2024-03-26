@@ -11,13 +11,13 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\Concerns\AsController;
 
-class ShowResetUserPassword
+class ShowSetNewPassword
 {
     use AsController;
 
     public function handle(): Response
     {
-        return Inertia::render('Auth/ResetUserPassword');
+        return Inertia::render('Auth/SetNewPassword');
     }
 
 }

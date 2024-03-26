@@ -37,6 +37,7 @@ const submit = () => {
         Back to login
     </Link>
 
+    <!-- Section: form reset password -->
     <template v-if="!isResetLinkSent">
         <div class="text-center font-bold text-xl">Reset Password</div>
         <div class="mt-2 mb-4 text-sm text-gray-600 italic">
@@ -64,6 +65,8 @@ const submit = () => {
             </div>
         </form>
     </template>
+    
+    <!-- Section: after sent email -->
     <template v-else>
         <div class="text-center">
             <FontAwesomeIcon icon='fal fa-check-circle' class='text-green-500 text-4xl' fixed-width aria-hidden='true' />
