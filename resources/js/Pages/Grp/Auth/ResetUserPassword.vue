@@ -23,6 +23,7 @@ const formReset = useForm({
 })
 
 const submitResetPassword = () => {
+    // grp.reset-password.email.update TODO: Use this route if come from email
     formReset.patch(route('grp.reset-password.update'), {})
 }
 

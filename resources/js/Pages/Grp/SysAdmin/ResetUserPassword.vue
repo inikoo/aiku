@@ -21,7 +21,7 @@ const form = useForm({
 })
 
 const submit = () => {
-    form.post(route('retina.password.email'))
+    form.post(route('grp.password.email'))
 }
 </script>
 

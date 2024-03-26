@@ -5,10 +5,10 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\CRM\WebUser;
+namespace App\Actions\SysAdmin\User;
 
 use App\Actions\Mail\Ses\SendSesEmail;
-use App\Models\CRM\WebUser;
+use App\Models\SysAdmin\User;
 use App\Notifications\ResetPasswordNotification;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -18,14 +18,14 @@ class SendLinkResetPassword
     use AsAction;
 
 
-    public function handle(string $token, WebUser $webUser): void
+    public function handle(string $token, User $user): void
     {
-        $url = route('retina.email.reset-password.show', [
+        $url = route('grp.email.reset-password.show', [
             'token' => $token,
-            'email' => $webUser->email
+            'email' => $user->email
         ]);
 
-        $webUser->notify(new ResetPasswordNotification($url));
+        $user->notify(new ResetPasswordNotification($url));
     }
 
     public function getEmailData(string $subject, string $sender, string $email, string $html, string $url): array

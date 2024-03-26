@@ -7,6 +7,7 @@
 
 namespace App\Models\SysAdmin;
 
+use App\Actions\SysAdmin\User\SendLinkResetPassword;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\Assets\Language;
 use App\Models\Fulfilment\Fulfilment;
@@ -136,6 +137,10 @@ class User extends Authenticatable implements HasMedia, Auditable
     }
 
 
+    public function sendPasswordResetNotification($token): void
+    {
+        SendLinkResetPassword::run($token, $this);
+    }
 
     public function routeNotificationForFcm(): array
     {
