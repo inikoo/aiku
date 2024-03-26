@@ -8,7 +8,6 @@
 namespace App\Actions\SysAdmin\User;
 
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\CRM\WebUser;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
@@ -24,7 +23,7 @@ class UpdateUserPasswordViaEmail
 
     private bool $asAction = false;
 
-    public function handle(User $user, array $modelData): WebUser
+    public function handle(User $user, array $modelData): User
     {
         data_set($modelData, 'reset_password', false);
         return $this->update($user, $modelData, 'settings');
@@ -71,7 +70,7 @@ class UpdateUserPasswordViaEmail
             : throw ValidationException::withMessages(['status' => 'Error while changing the password']);*/
     }
 
-    public function action(WebUser $user, $objectData): WebUser
+    public function action(User $user, $objectData): User
     {
         $this->asAction = true;
         $this->setRawAttributes($objectData);
