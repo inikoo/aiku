@@ -181,8 +181,29 @@ class ShowPalletDelivery extends OrgAction
                 ],
                 default => []
             };
-        }
 
+            if(in_array($palletDelivery->state, [
+                PalletDeliveryStateEnum::CONFIRMED,
+                PalletDeliveryStateEnum::RECEIVED,
+                PalletDeliveryStateEnum::NOT_RECEIVED,
+                PalletDeliveryStateEnum::BOOKED_IN
+            ])) {
+                $actions[] = [
+                    'type'    => 'button',
+                    'style'   => 'export',
+                    'tooltip' => __('Export pallet delivery'),
+                    'label'   => __('export'),
+                    'key'     => 'action',
+                    'route'   => [
+                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.export',
+                        'parameters' => [
+                            'fulfilmentCustomer' => $palletDelivery->fulfilment_customer_id,
+                            'palletDelivery'     => $palletDelivery->reference
+                        ]
+                    ]
+                ];
+            }
+        }
 
         return Inertia::render(
             'Org/Fulfilment/PalletDelivery',
