@@ -83,6 +83,6 @@ class UpdateUserPasswordViaEmail
     {
         Session::put('reloadLayout', '1');
 
-        return Inertia::location(route('retina.dashboard.show'));
+        return Inertia::location(route('grp.dashboard.show'));
     }
 }
