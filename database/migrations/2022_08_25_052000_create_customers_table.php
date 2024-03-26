@@ -37,6 +37,9 @@ return new class () extends Migration {
             $table->boolean('is_fulfilment')->index()->default(false);
             $table->boolean('is_dropshipping')->index()->default(false);
             $table->jsonb('data');
+            $table->jsonb('settings');
+            $table->unsignedSmallInteger('prospects_sender_email_id')->nullable();
+            $table->foreign('prospects_sender_email_id')->references('id')->on('sender_emails');
             $table->timestampsTz();
             $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();

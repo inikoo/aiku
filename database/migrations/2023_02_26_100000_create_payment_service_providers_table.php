@@ -16,10 +16,10 @@ return new class () extends Migration {
     {
         Schema::create('payment_service_providers', function (Blueprint $table) {
             $table->smallIncrements('id');
+            $table->string('slug')->unique()->collation('und_ns');
             $table=$this->groupOrgRelationship($table);
             $table->string('type')->index();
             $table->string('code')->index()->collation('und_ns');
-            $table->string('slug')->unique()->collation('und_ns');
             $table->string('name');
             $table->jsonb('data');
             $table->dateTimeTz('last_used_at')->nullable();
