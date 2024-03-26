@@ -1,59 +1,73 @@
-<!--
-  - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Tue, 22 Aug 2023 19:44:06 Malaysia Time, Kuala Lumpur, Malaysia
-  - Copyright (c) 2023, Raul A Perusquia Flores
-  -->
+<script setup lang="ts">
+import grapesjs from 'grapesjs'
+import 'grapesjs/dist/css/grapes.min.css'
+import { ref, onMounted } from 'vue'
+import presetWebpage from 'grapesjs-preset-webpage'
+import pluginBlocksBasic from 'grapesjs-blocks-basic'  // Import all basic Blocks
+import { DescriptorBlocks } from '@/Components/CMS/Workshops/Menu/Descriptor.ts'
+import { HeroBlock1 } from '@/Components/CMS/Menu/HeroComponentList.ts'
+import { FeatureBlock1 } from '@/Components/CMS/Menu/FeatureComponentList.ts'
+import { PricingBlock1 } from '@/Components/CMS/Menu/PricingComponentList.ts'
+import { TestimonialBlock1 } from '@/Components/CMS/Menu/TestimonialComponentList.ts'
 
-  <script setup>
-  import Menu from "@/Components/CMS/Menu/index.vue"
-  import {
-      menuTypeList,
-      menuTypeDescription,
-      menuDataLayout,
-      menuDataTools,
-  } from "./Descriptor"
-  import Tools from "./Tools.vue"
-  import { useForm } from "@inertiajs/vue3"
-  import { ref, watch, defineEmits } from "vue"
-  
-  //InitialData
-  const ToolsBluprint = menuDataTools
-  const toolsValue = useForm({
-      theme: "light-theme",
-      hand: "click",
-      columnType: null,
-  })
-  const menuDataLayoutForm = useForm({ ...menuDataLayout })
-  const activeColumn = ref(null)
-  
-  const changeColumnType = (e) => {
-      const index = footerDataLayoutForm.initialColumns.findIndex((item) => item.column_id == activeColumn.value)
-      if (index != -1) {
-          if (e == "description") footerDataLayoutForm.initialColumns.splice(index, 1, menuTypeDescription())
-          if (e == "list") footerDataLayoutForm.initialColumns.splice(index, 1, menuTypeList())
-          if (e == "info") footerDataLayoutForm.initialColumns.splice(index, 1, menuTypeInfo())
-      }
-  }
-  
-  </script>
-  
-  <template>
-      <div class="bg-white">
-          <div class="p-1 border border-gray-300 overflow-y-auto overflow-x-hidden">
-              <Tools
-                  :toolsBluprint="ToolsBluprint"
-                  v-model="toolsValue"
-                  @changeColumnType="changeColumnType" />
-          </div>
-          <div
-              class="flex justify-center items-center bg-gray-200 border border-gray-300 transform scale-80 w-full">
-              <Menu
-                  :tools="toolsValue"
-                  :activeColumn="activeColumn"
-                  :menuDataLayout="menuDataLayoutForm"
-                  @changeActiveColumn="(e : string )=> activeColumn = e" />
-          </div>
-      </div>
-    <div @click="()=>console.log(menuDataLayoutForm)">set data to seee</div>
-  </template>
-  
+const canvas = ref(null)
+let editor
+
+function myPlugin(editor) {
+  // Use the API: https://grapesjs.com/docs/api/
+  editor.Blocks.add('my-first-block', {
+    label: 'Simple block',
+    content: '<div class="my-block">This is a simple block</div>',
+  });
+}
+
+onMounted(() => {
+    editor = grapesjs.init({
+        container: '#gjs',
+        fromElement: true,
+        storageManager: {
+            type: 'local',
+            autosave: true,
+            autoload: true,
+        },
+        canvas: {
+            styles: [],
+            scripts: [],
+        },
+        plugins: [presetWebpage, pluginBlocksBasic],
+        pluginsOpts: {
+            [presetWebpage]: {
+                blocksBasicOpts: {
+                    blocks: ['column1', 'column2', 'column3', 'column3-7', 'text', 'link', 'image', 'video'],
+                    flexGrid: 1,
+                },
+                blocks: ['link-block', 'quote', 'text-basic'],
+            },
+        },
+        // blockManager: {
+        //     appendTo: '#panels',
+        //     custom: true,
+        //     blocks: DescriptorBlocks,
+        // },
+    })
+
+    editor.Blocks.add(HeroBlock1.id, HeroBlock1)
+    editor.Blocks.add(FeatureBlock1.id, FeatureBlock1)
+    editor.Blocks.add(PricingBlock1.id, PricingBlock1)
+    editor.Blocks.add(TestimonialBlock1.id, TestimonialBlock1)
+
+    editor.addComponents(`<div>
+    <img src="https://path/image" />
+    <span title="foo">Hello world!!!</span>
+    </div>`);
+})
+</script>
+
+<template>
+    <div ref="canvas" id="gjs">
+    
+    </div>
+        <div id="panels">
+    </div>
+</template>
+

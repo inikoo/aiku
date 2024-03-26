@@ -85,6 +85,8 @@ const faqs = [
 
 <template>
     <Head title="Warehouse Solution" />
+    
+
     <div class="bg-white">
         <!-- Hero section -->
         <div class="relative isolate overflow-hidden bg-gray-900 pb-16 pt-14 sm:pb-20">
@@ -155,16 +157,16 @@ const faqs = [
             <div class="mx-auto max-w-7xl px-6 lg:px-8">
                 <div class="mx-auto max-w-2xl sm:text-center">
                     <h2 class="text-base font-semibold leading-7 text-indigo-600">All-Inclusive Solutions</h2>
-                    <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+                    <p class="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
                         Your Warehousing Woes, Solved.
                     </p>
                     <p class="mt-6 text-lg leading-8 text-gray-600">
                         Say goodbye to logistical headaches.
                         With our comprehensive warehouse services, we've got you covered from storage to logistics, ensuring seamless operations for your business.
                     </p>
-
                 </div>
             </div>
+            
             <div class="relative overflow-hidden pt-16">
                 <div class="mx-auto max-w-7xl px-6 lg:px-8">
                     <img src="@/../art/branding/Aiku Page.png"
@@ -175,16 +177,15 @@ const faqs = [
                     </div>
                 </div>
             </div>
+
             <div class="mx-auto mt-16 max-w-7xl px-6 sm:mt-20 md:mt-24 lg:px-8">
-                <dl
-                    class="mx-auto grid max-w-2xl grid-cols-1 gap-x-6 gap-y-10 text-base leading-7 text-gray-600 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:gap-x-8 lg:gap-y-16">
+                <dl class="mx-auto grid max-w-2xl grid-cols-1 gap-x-6 gap-y-10 text-base leading-7 text-gray-600 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:gap-x-8 lg:gap-y-16">
                     <div v-for="feature in features" :key="feature.name" class="relative pl-9">
-                        <dt class="inline font-semibold text-gray-900">
+                        <dt class="inline font-semibold">
                             <component :is="feature.icon" class="absolute left-1 top-1 h-5 w-5 text-indigo-600"
                                 aria-hidden="true" />
                             {{ feature.name }}
                         </dt>
-                        {{ ' ' }}
                         <dd class="inline">{{ feature.description }}</dd>
                     </div>
                 </dl>
@@ -199,8 +200,8 @@ const faqs = [
                         style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" />
                 </div>
             </div>
-            <div
-                class="mx-auto flex max-w-7xl flex-col items-center gap-x-8 gap-y-10 px-6 sm:gap-y-8 lg:px-8 xl:flex-row xl:items-stretch">
+
+            <div class="mx-auto flex max-w-7xl flex-col items-center gap-x-8 gap-y-10 px-6 sm:gap-y-8 lg:px-8 xl:flex-row xl:items-stretch">
                 <div class="-mt-8 w-full max-w-2xl xl:-mb-8 xl:w-96 xl:flex-none">
                     <div class="relative aspect-[2/1] h-full md:-mx-8 xl:mx-0 xl:aspect-auto">
                         <img class="absolute inset-0 h-full w-full rounded-2xl bg-gray-800 object-cover shadow-2xl"
@@ -208,6 +209,7 @@ const faqs = [
                             alt="" />
                     </div>
                 </div>
+
                 <div class="w-full max-w-2xl xl:max-w-none xl:flex-auto xl:px-16 xl:py-24">
                     <figure class="relative isolate pt-6 sm:pt-12">
                         <svg viewBox="0 0 162 128" fill="none" aria-hidden="true"
@@ -240,15 +242,17 @@ const faqs = [
                 <div class="mx-auto aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30"
                     style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)" />
             </div>
+
             <div class="mx-auto max-w-2xl text-center lg:max-w-4xl">
                 <h2 class="text-base font-semibold leading-7 text-indigo-600">Pricing</h2>
-                <p class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">The right price for you,
+                <p class="mt-2 text-4xl font-bold tracking-tight sm:text-5xl">The right price for you,
                     whoever you are</p>
             </div>
+
             <p class="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600">Qui iusto aut est earum eos
                 quae. Eligendi est at nam aliquid ad quo reprehenderit in aliquid fugiat dolorum voluptatibus.</p>
-            <div
-                class="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
+
+            <div class="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
                 <div v-for="(tier, tierIdx) in pricing" :key="tier.id"
                     :class="[tier.featured ? 'relative bg-gray-900 shadow-2xl' : 'bg-white/60 sm:mx-8 lg:mx-0', tier.featured ? '' : tierIdx === 0 ? 'rounded-t-3xl sm:rounded-b-none lg:rounded-tr-none lg:rounded-bl-3xl' : 'sm:rounded-t-none lg:rounded-tr-3xl lg:rounded-bl-none', 'rounded-3xl p-8 ring-1 ring-gray-900/10 sm:p-10']">
                     <h3 :id="tier.id"
@@ -256,7 +260,7 @@ const faqs = [
                         {{ tier.name }}</h3>
                     <p class="mt-4 flex items-baseline gap-x-2">
                         <span
-                            :class="[tier.featured ? 'text-white' : 'text-gray-900', 'text-5xl font-bold tracking-tight']">{{
+                            :class="[tier.featured ? 'text-white' : '', 'text-5xl font-bold tracking-tight']">{{
                                 tier.priceMonthly }}</span>
                         <span :class="[tier.featured ? 'text-gray-400' : 'text-gray-500', 'text-base']">/month</span>
                     </p>
@@ -279,11 +283,11 @@ const faqs = [
         <!-- FAQ section -->
         <div class="mx-auto mt-32 max-w-7xl px-6 sm:mt-56 lg:px-8 pb-8">
             <div class="mx-auto max-w-4xl divide-y divide-gray-900/10">
-                <h2 class="text-2xl font-bold leading-10 tracking-tight text-gray-900">Frequently asked questions</h2>
+                <h2 class="text-2xl font-bold leading-10 tracking-tight">Frequently asked questions</h2>
                 <dl class="mt-10 space-y-6 divide-y divide-gray-900/10">
                     <Disclosure as="div" v-for="faq in faqs" :key="faq.question" class="pt-6" v-slot="{ open }">
                         <dt>
-                            <DisclosureButton class="flex w-full items-start justify-between text-left text-gray-900">
+                            <DisclosureButton class="flex w-full items-start justify-between text-left">
                                 <span class="text-base font-semibold leading-7">{{ faq.question }}</span>
                                 <span class="ml-6 flex h-7 items-center">
                                     <FontAwesomeIcon v-if="!open" icon='fal fa-plus' class='h-6 aspect-square' fixed-width aria-hidden='true' />

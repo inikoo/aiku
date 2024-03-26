@@ -189,12 +189,13 @@ class ShowPalletDelivery extends OrgAction
                 PalletDeliveryStateEnum::BOOKED_IN
             ])) {
                 $actions[] = [
-                    'type'    => 'button',
-                    'style'   => 'export',
-                    'tooltip' => __('Export pallet delivery'),
-                    'label'   => __('export'),
-                    'key'     => 'action',
-                    'route'   => [
+                    'type'          => 'button',
+                    'style'         => 'tertiary',
+                    'icon'          => 'fal fa-file-export',
+                    'tooltip'       => __('Export pallet delivery'),
+                    'label'         => __('export as PDF'),
+                    'key'           => 'action',
+                    'route'         => [
                         'name'       => 'grp.models.fulfilment-customer.pallet-delivery.export',
                         'parameters' => [
                             'fulfilmentCustomer' => $palletDelivery->fulfilment_customer_id,
