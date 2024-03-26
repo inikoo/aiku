@@ -99,7 +99,7 @@ class UpdatePallet extends OrgAction
                 'sometimes',
                 Rule::enum(PalletTypeEnum::class)
             ],
-            'notes'              => ['nullable', 'string'],
+            'notes'              => ['nullable', 'string','max:1024'],
             'received_at'        => ['nullable', 'nullable', 'date'],
         ];
     }
