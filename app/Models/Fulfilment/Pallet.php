@@ -105,7 +105,7 @@ class Pallet extends Model
             ->generateSlugsFrom('reference')
             ->doNotGenerateSlugsOnUpdate()
             ->doNotGenerateSlugsOnCreate()
-            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(12);
+            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
     }
 
     public function scopeLocationId(Builder $query, $located): Builder
