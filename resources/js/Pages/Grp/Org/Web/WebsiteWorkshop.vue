@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import {Head} from '@inertiajs/vue3';
-import {library} from '@fortawesome/fontawesome-svg-core';
-import { faArrowAltToTop, faArrowAltToBottom, faBars,faBrowser,faCube,faPalette,faCookieBite } from '@fal';
-import PageHeading from '@/Components/Headings/PageHeading.vue';
-import { computed, ref } from "vue";
-import { useTabChange } from "@/Composables/tab-change";
-import Tabs from "@/Components/Navigation/Tabs.vue";
-import WorkshopHeader from "@/Components/CMS/Workshops/HeaderWorkshop.vue";
-import WorkshopMenu from "@/Components/CMS/Workshops/Menu/MenuWorkshop.vue";
-import WorkshopFooter from "@/Components/CMS/Workshops/Footer/FooterWorkshop.vue";
-import ColorSchemeWorkshop from "@/Components/CMS/Workshops/ColorSchemeWorkshop.vue";
+import { Head } from '@inertiajs/vue3'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faArrowAltToTop, faArrowAltToBottom, faBars, faBrowser, faCube, faPalette, faCookieBite } from '@fal'
+import PageHeading from '@/Components/Headings/PageHeading.vue'
+import { computed, ref } from "vue"
+import { useTabChange } from "@/Composables/tab-change"
+import Tabs from "@/Components/Navigation/Tabs.vue"
+import WorkshopHeader from "@/Components/CMS/Workshops/HeaderWorkshop.vue"
+import WorkshopMenu from "@/Components/CMS/Workshops/Menu/MenuWorkshop.vue"
+import WorkshopFooter from "@/Components/CMS/Workshops/Footer/FooterWorkshop.vue"
+import ColorSchemeWorkshop from "@/Components/CMS/Workshops/ColorSchemeWorkshop.vue"
 import { capitalize } from "@/Composables/capitalize"
 
 library.add(
@@ -20,25 +20,25 @@ library.add(
     faCube,
     faPalette,
     faCookieBite
-);
+)
 
 const props = defineProps<{
     title: string,
-    pageHead: object,
+    pageHead: {}
     tabs: {
-        current: string;
-        navigation: object;
+        current: string
+        navigation: {}
     }
-    color_scheme?: object;
-    header?: object;
-    menu?: object;
-    footer?: object;
-    category?: object;
-    product?: object;
+    color_scheme?: {}
+    header?: {}
+    menu?: {}
+    footer?: {}
+    category?: {}
+    product?: {}
 }>()
 
-let currentTab = ref(props.tabs.current);
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+let currentTab = ref(props.tabs.current)
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
 
@@ -47,18 +47,18 @@ const component = computed(() => {
         header: WorkshopHeader,
         menu: WorkshopMenu,
         footer: WorkshopFooter,
-    };
-    return components[currentTab.value];
+    }
+    return components[currentTab.value]
 
-});
+})
 
 </script>
 
 
 <template>
-    <Head :title="capitalize(title)"/>
+
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
-    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]"></component>
 </template>
-
