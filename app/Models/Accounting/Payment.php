@@ -7,10 +7,14 @@
 
 namespace App\Models\Accounting;
 
+use App\Actions\Helpers\SerialReference\GetSerialReference;
+use App\Actions\Utils\Abbreviate;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Enums\Accounting\Payment\PaymentSubsequentStatusEnum;
 use App\Enums\Accounting\Payment\PaymentTypeEnum;
+use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Assets\Currency;
 use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
@@ -112,16 +116,26 @@ class Payment extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                $slug = $this->reference;
 
-                if ($slug == '') {
-                    $slug = 'payment';
+
+                if($this->paymentAccount->type==PaymentAccountTypeEnum::ACCOUNT) {
+                    $slug=GetSerialReference::run(
+                        container: $this->paymentAccount,
+                        modelType: SerialReferenceModelEnum::PAYMENT
+                    );
+                } else {
+                    $slug = $this->reference;
+
+                    if ($slug == '') {
+                        $slug = Abbreviate::run($this->paymentAccount->slug).'-'.$this->created_at->format('Ymd');
+                    }
+
                 }
 
                 return $slug;
             })
             ->doNotGenerateSlugsOnUpdate()
-            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(16);
+            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
     }
 
     public function shop(): BelongsTo
