@@ -34,7 +34,7 @@ const optionRadio = [
 ]
 
 onMounted(() => {
-    JsBarcode('#locationBarcode', route().v().params.location.padStart(4, 0), {
+    JsBarcode('#locationBarcode', 'loc-' + route().v().params.location, {
         lineColor: "rgb(41 37 36)",
         width: 2,
         height: 70,
