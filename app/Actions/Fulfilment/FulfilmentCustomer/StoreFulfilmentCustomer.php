@@ -13,12 +13,15 @@ use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
+use Symfony\Component\HttpFoundation\Response;
 
 class StoreFulfilmentCustomer extends OrgAction
 {
@@ -34,10 +37,7 @@ class StoreFulfilmentCustomer extends OrgAction
     public function handle(Fulfilment $fulfilment, array $modelData): FulfilmentCustomer
     {
 
-        $customer=StoreCustomer::make()->action($fulfilment->shop, $modelData);
-
-
-
+        $customer = StoreCustomer::make()->action($fulfilment->shop, $modelData);
 
         return $customer->fulfilmentCustomer;
     }
@@ -86,9 +86,16 @@ class StoreFulfilmentCustomer extends OrgAction
         ];
     }
 
+    public function htmlResponse(FulfilmentCustomer $fulfilmentCustomer): Response
+    {
+        return Inertia::location(route('grp.org.fulfilments.show.crm.customers.show', [
+            'organisation'               => $fulfilmentCustomer->organisation->slug,
+            'fulfilment'                 => $fulfilmentCustomer->fulfilment->slug,
+            'fulfilmentCustomer'         => $fulfilmentCustomer->slug
+        ]));
+    }
 
-
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): FulfilmentCustomer
+    public function asController(Organisation $organisation, Shop $shop, Fulfilment $fulfilment, ActionRequest $request): FulfilmentCustomer
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 

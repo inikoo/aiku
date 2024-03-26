@@ -155,6 +155,7 @@
     "auth.failed": "These credentials do not match our records.",
     "auth.password": "The provided password is incorrect.",
     "auth.throttle": "Too many login attempts. Please try again in :seconds seconds.",
+    "validation.phone": "Phone number is not valid.",
     "avatar": "avatar",
     "billing address": "billing address",
     "calendar": "calendar",
