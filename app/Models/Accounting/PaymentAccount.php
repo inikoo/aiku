@@ -8,6 +8,7 @@
 namespace App\Models\Accounting;
 
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
+use App\Models\Helpers\SerialReference;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use Eloquent;
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -106,6 +108,11 @@ class PaymentAccount extends Model implements Auditable
     public function stats(): HasOne
     {
         return $this->hasOne(PaymentAccountStats::class);
+    }
+
+    public function serialReferences(): MorphMany
+    {
+        return $this->morphMany(SerialReference::class, 'container');
     }
 
 }

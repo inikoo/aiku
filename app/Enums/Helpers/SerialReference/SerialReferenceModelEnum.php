@@ -20,6 +20,7 @@ enum SerialReferenceModelEnum: string
     case PALLET_DELIVERY      = 'pallet_delivery';
     case PALLET_RETURN        = 'pallet_return';
     case STORED_ITEM_RETURN   = 'stored_item_return';
+    case PALLET               = 'pallet';
+    case PAYMENT              = 'payment';
 
-    case PALLET = 'pallet';
 }

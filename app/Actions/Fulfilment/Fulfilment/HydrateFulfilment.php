@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\Fulfilment;
 
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateWarehouses;
 use App\Actions\HydrateModel;
 
@@ -16,11 +17,12 @@ use Illuminate\Support\Collection;
 
 class HydrateFulfilment extends HydrateModel
 {
-    public string $commandSignature = 'fulfilments:hydrate {organisations?*} {--i|id=}';
+    public string $commandSignature = 'fulfilment:hydrate {organisations?*} {--s|slugs=}';
 
     public function handle(Fulfilment $fulfilment): void
     {
         FulfilmentHydrateWarehouses::run($fulfilment);
+        FulfilmentHydratePallets::run($fulfilment);
     }
 
     protected function getModel(string $slug): Fulfilment

@@ -26,6 +26,12 @@ class ReceivedPalletDelivery extends OrgAction
         $modelData['received_at'] = now();
         $modelData['state']       = PalletDeliveryStateEnum::RECEIVED;
 
+        foreach ($palletDelivery->pallets as $pallet) {
+            $pallet->update([
+                'slug' => rand(0001, 9999)
+            ]);
+        }
+
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
 
         return $this->update($palletDelivery, $modelData);

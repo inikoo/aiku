@@ -362,7 +362,7 @@ trait WithAuroraParsers
         return $stock;
     }
 
-    public function parseLocation($sourceId): Location
+    public function parseLocation($sourceId): ?Location
     {
         $location = Location::where('source_id', $sourceId)->first();
         if (!$location) {
@@ -413,7 +413,7 @@ trait WithAuroraParsers
         return $paymentServiceProvider;
     }
 
-    public function parsePaymentAccount($sourceId): PaymentAccount
+    public function parsePaymentAccount($sourceId): ?PaymentAccount
     {
         $paymentAccount = PaymentAccount::where('source_id', $sourceId)->first();
         if (!$paymentAccount) {

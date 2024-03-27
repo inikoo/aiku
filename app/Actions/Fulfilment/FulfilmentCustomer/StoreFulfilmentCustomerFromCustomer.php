@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\OrgAction;
+use App\Actions\Utils\Abbreviate;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -29,7 +30,7 @@ class StoreFulfilmentCustomerFromCustomer extends OrgAction
             [
                 'model'           => SerialReferenceModelEnum::PALLET_DELIVERY,
                 'organisation_id' => $customerFulfilment->organisation->id,
-                'format'          => $customerFulfilment->slug.'-%03d'
+                'format'          => Abbreviate::run($customerFulfilment->slug).'-%03d'
             ]
         );
 
@@ -37,7 +38,7 @@ class StoreFulfilmentCustomerFromCustomer extends OrgAction
             [
                 'model'           => SerialReferenceModelEnum::PALLET_RETURN,
                 'organisation_id' => $customerFulfilment->organisation->id,
-                'format'          => $customerFulfilment->slug.'-%03d-return'
+                'format'          => Abbreviate::run($customerFulfilment->slug).'-r%03d'
             ]
         );
 
@@ -45,7 +46,7 @@ class StoreFulfilmentCustomerFromCustomer extends OrgAction
             [
                 'model'           => SerialReferenceModelEnum::STORED_ITEM_RETURN,
                 'organisation_id' => $customerFulfilment->organisation->id,
-                'format'          => $customerFulfilment->slug.'-%03d-stored-item-return'
+                'format'          => Abbreviate::run($customerFulfilment->slug).'-sir%03d'
             ]
         );
 
@@ -53,7 +54,7 @@ class StoreFulfilmentCustomerFromCustomer extends OrgAction
             [
                 'model'           => SerialReferenceModelEnum::PALLET,
                 'organisation_id' => $customerFulfilment->organisation->id,
-                'format'          => $customerFulfilment->slug.'-%04d-pallet'
+                'format'          => Abbreviate::run($customerFulfilment->slug).'-p%04d'
             ]
         );
 

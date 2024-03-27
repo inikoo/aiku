@@ -11,7 +11,6 @@ use App\Enums\EnumHelperTrait;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
-use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 
@@ -27,8 +26,8 @@ enum PalletStateEnum: string
     case BOOKED_IN    = 'booked-in';
     case SETTLED      = 'settled';
 
-    case PICKED       = 'picked';
-    case NOT_PICKED   = 'not-picked';
+    case PICKED     = 'picked';
+    case NOT_PICKED = 'not-picked';
 
 
     public static function labels(): array
@@ -42,33 +41,33 @@ enum PalletStateEnum: string
             'not-received' => __('Not Received'),
             'settled'      => __('Settled'),
 
-            'picked'      => __('Picked'),
-            'not-picked'  => __('Not Picked'),
+            'picked'     => __('Picked'),
+            'not-picked' => __('Not Picked'),
         ];
     }
 
     public static function stateIcon(): array
     {
         return [
-            'in-process' => [
+            'in-process'   => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
                 'color'   => 'lime'  // Color for box (Retina)
             ],
-            'submitted'  => [
+            'submitted'    => [
                 'tooltip' => __('Submitted'),
                 'icon'    => 'fal fa-share',
                 'class'   => 'text-indigo-400',
                 'color'   => 'indigo'
             ],
-            'confirmed'  => [
+            'confirmed'    => [
                 'tooltip' => __('Confirmed'),
                 'icon'    => 'fal fa-spell-check',
                 'class'   => 'text-emerald-500',
                 'color'   => 'emerald'
             ],
-            'received'   => [
+            'received'     => [
                 'tooltip' => __('Received'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-slate-500',
@@ -80,7 +79,7 @@ enum PalletStateEnum: string
                 'class'   => 'text-red-500',
                 'color'   => 'red'
             ],
-            'booked-in'  => [
+            'booked-in'    => [
                 'tooltip' => __('Booked in'),
                 'icon'    => 'fal fa-check-double',
                 'class'   => 'text-purple-500',
@@ -92,13 +91,13 @@ enum PalletStateEnum: string
                 'class'   => 'text-gray-400',
                 'color'   => 'gray'
             ],
-            'picked'      => [
+            'picked'       => [
                 'tooltip' => __('Picked'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-green-400',
                 'color'   => 'green'
             ],
-            'not-picked'      => [
+            'not-picked'   => [
                 'tooltip' => __('Not Picked'),
                 'icon'    => 'fal fa-cross',
                 'class'   => 'text-red-400',
@@ -107,10 +106,12 @@ enum PalletStateEnum: string
         ];
     }
 
-    public static function count(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent): array
+    public static function count(Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery $parent): array
     {
         if ($parent instanceof FulfilmentCustomer) {
             $stats = $parent;
+        } elseif ($parent instanceof Organisation) {
+            $stats = $parent->fulfilmentStats;
         } else {
             $stats = $parent->stats;
         }

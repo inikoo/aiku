@@ -16,7 +16,7 @@ use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrganisationFulfilmentHydratePallets
+class OrganisationHydratePallets
 {
     use AsAction;
     use WithEnumStats;

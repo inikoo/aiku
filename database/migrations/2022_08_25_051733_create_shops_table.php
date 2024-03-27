@@ -46,6 +46,12 @@ return new class () extends Migration {
             $table->foreign('timezone_id')->references('id')->on('timezones');
             $table->jsonb('data');
             $table->jsonb('settings');
+            $table->unsignedSmallInteger('sender_email_id')->nullable();
+            $table->foreign('sender_email_id')->references('id')->on('sender_emails');
+            $table->unsignedSmallInteger('prospects_sender_email_id')->nullable();
+            $table->foreign('prospects_sender_email_id')->references('id')->on('sender_emails');
+
+
             $table->timestampsTz();
             $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();

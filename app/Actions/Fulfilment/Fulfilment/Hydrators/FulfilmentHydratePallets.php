@@ -13,7 +13,6 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
-use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -33,7 +32,7 @@ class FulfilmentHydratePallets
         return [(new WithoutOverlapping($this->fulfilment->id))->dontRelease()];
     }
 
-    public function handle(Organisation $fulfilment): void
+    public function handle(Fulfilment $fulfilment): void
     {
         $stats = [
             'number_pallets' => Pallet::where('fulfilment_id', $fulfilment->id)->count()

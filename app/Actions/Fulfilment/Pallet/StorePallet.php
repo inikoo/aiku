@@ -7,16 +7,18 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
+use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydratePallets;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateFulfilmentCustomers;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePallets;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
@@ -70,7 +72,12 @@ class StorePallet extends OrgAction
             HydratePalletDeliveries::run($this->parent);
         }
         FulfilmentCustomerHydratePallets::dispatch($fulfilmentCustomer);
-        OrganisationHydrateFulfilmentCustomers::dispatch($fulfilmentCustomer->organisation);
+        FulfilmentHydratePallets::dispatch($fulfilmentCustomer->fulfilment);
+        OrganisationHydratePallets::dispatch($fulfilmentCustomer->organisation);
+        WarehouseHydratePallets::dispatch($pallet->warehouse);
+        if ($pallet->location && $pallet->location->warehouseArea) {
+            WarehouseAreaHydratePallets::dispatch($pallet->location->warehouseArea);
+        }
 
         $pallet->refresh();
 
@@ -144,15 +151,6 @@ class StorePallet extends OrgAction
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Pallet
-    {
-        $this->parent             = $fulfilmentCustomer;
-        $this->fulfilmentCustomer = $fulfilmentCustomer;
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($fulfilmentCustomer, $this->validateAttributes());
-    }
 
     public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData, int $hydratorsDelay = 0): Pallet
     {
