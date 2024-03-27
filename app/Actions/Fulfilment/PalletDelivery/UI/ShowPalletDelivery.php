@@ -197,7 +197,7 @@ class ShowPalletDelivery extends OrgAction
                         'name'       => 'grp.models.fulfilment-customer.pallet-delivery.export',
                         'parameters' => [
                             'fulfilmentCustomer' => $palletDelivery->fulfilment_customer_id,
-                            'palletDelivery'     => $palletDelivery->reference
+                            'palletDelivery'     => $palletDelivery->id
                         ]
                     ]
                 ];
