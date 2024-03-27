@@ -13,7 +13,6 @@ use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\UI\PalletTabsEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
@@ -27,7 +26,6 @@ use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -174,64 +172,16 @@ class ShowPallet extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
+        $pallet=Pallet::where('reference', $routeParameters['pallet'])->first();
 
-
-        $headCrumb = function (Pallet $pallet, array $routeParameters, string $suffix = null) {
-            return [
-                [
-
-                    'type'           => 'modelWithIndex',
-                    'modelWithIndex' => [
-                        'index' => [
-                            'route' => $routeParameters['index'],
-                            'label' => __('customers')
-                        ],
-                        'model' => [
-                            'route' => $routeParameters['model'],
-                            'label' => $pallet->reference,
-                        ],
-
-                    ],
-                    'suffix'         => $suffix
-
-                ],
-            ];
-        };
-
-        $pallet=Pallet::where('slug', $routeParameters['pallet'])->first();
-
-        return match ($routeName) {
-            'grp.org.fulfilments.show.operations.pallets.show',
-            => array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
-                $headCrumb(
-                    $pallet,
-                    [
-                        'index' => [
-                            'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
-                            'parameters' => Arr::only($routeParameters, ['organisation','fulfilment'])
-                        ],
-                        'model' => [
-                            'name'       => 'grp.org.fulfilments.show.operations.pallets.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment','pallet'])
-                        ]
-                    ],
-                    $suffix
-                ),
-            ),
-        };
-
-
-        return [];
-
-        return match ($this->parent) {
-            Warehouse::class    => $this->getBreadcrumbsFromWarehouse($pallet, $suffix),
-            Organisation::class => $this->getBreadcrumbsFromFulfilment($pallet, $suffix),
-            default             => $this->getBreadcrumbsFromFulfilmentCustomer($pallet, $suffix),
+        return match (class_basename($this->parent)) {
+            'Warehouse'    => $this->getBreadcrumbsFromWarehouse($pallet, $routeName, $suffix),
+            'Organisation' => $this->getBreadcrumbsFromFulfilment($pallet, $routeName, $suffix),
+            default        => $this->getBreadcrumbsFromFulfilmentCustomer($pallet, $routeName, $suffix),
         };
     }
 
-    public function getBreadcrumbsFromWarehouse(Pallet $pallet, $suffix = null): array
+    public function getBreadcrumbsFromWarehouse(Pallet $pallet, $routeName, $suffix = null): array
     {
         return array_merge(
             ShowWarehouse::make()->getBreadcrumbs(request()->route()->originalParameters()),
@@ -260,7 +210,7 @@ class ShowPallet extends OrgAction
         );
     }
 
-    public function getBreadcrumbsFromFulfilment(Pallet $pallet, $suffix = null): array
+    public function getBreadcrumbsFromFulfilment(Pallet $pallet, $routeName, $suffix = null): array
     {
         return array_merge(
             ShowFulfilment::make()->getBreadcrumbs(request()->route()->originalParameters()),
@@ -289,7 +239,7 @@ class ShowPallet extends OrgAction
         );
     }
 
-    public function getBreadcrumbsFromFulfilmentCustomer(Pallet $pallet, $suffix = null): array
+    public function getBreadcrumbsFromFulfilmentCustomer(Pallet $pallet, $routeName, $suffix = null): array
     {
         return array_merge(
             ShowFulfilmentCustomer::make()->getBreadcrumbs(request()->route()->originalParameters()),

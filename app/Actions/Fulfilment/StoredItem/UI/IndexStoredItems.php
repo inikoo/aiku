@@ -63,11 +63,19 @@ class IndexStoredItems extends OrgAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
-                    [
-                        'title'         => __("No stored items found"),
-                        'count'         => $parent->count(),
-                        'description'   => __("No items stored in any pallets")
-                    ]
+                    match (class_basename($parent)) {
+                        'StoredItemReturn' => [
+                            'title'         => __("No stored items found"),
+                            'count'         => $parent->count(),
+                            'description'   => __("No items stored in any pallets")
+                        ],
+                        'FulfilmentCustomer' => [
+                            'title'         => __("No stored items found"),
+                            'count'         => $parent->count(),
+                            'description'   => __("No items stored in this customer")
+                        ],
+                        default => []
+                    }
                 )
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer_name', label: __('Customer Name'), canBeHidden: false, sortable: true, searchable: true)
