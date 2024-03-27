@@ -94,7 +94,7 @@ class IndexStoredItemReturns extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(FulfilmentCustomer $parent, ?array $modelOperations = null, $prefix = null): \Closure
+    public function tableStructure(Fulfilment|Warehouse|FulfilmentCustomer $parent, ?array $modelOperations = null, $prefix = null): \Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
@@ -107,6 +107,35 @@ class IndexStoredItemReturns extends OrgAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
+                ->withEmptyState(
+                    match (class_basename($parent)) {
+                        'Fulfilment' => [
+                            'title'       => __('No stored item returns found for this shop'),
+                            'count'       => $parent->stats->number_stored_items_status_returned
+                        ],
+                        'Warehouse' => [
+                            'title'       => __('No stored item returns found for this warehouse'),
+                            'description' => __('This warehouse has not received any stored  item returns yet'),
+                            'count'       => $parent->stats->number_stored_items_status_returned
+                        ],
+                        'FulfilmentCustomer' => [
+                            'title'       => __('No stored item returns found for this customer'),
+                            'description' => __('This customer has not received any stored  item returns yet'),
+                            'count'       => $parent->number_stored_items_status_returned,
+                            'action'      => [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('Return new stored item return'),
+                                'label'   => __('Stored Item Return'),
+                                'route'   => [
+                                    'method'     => 'post',
+                                    'name'       => 'grp.models.fulfilment-customer.stored-item-return.store',
+                                    'parameters' => [$parent->id]
+                                ]
+                            ]
+                        ]
+                    }
+                )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true)
