@@ -17,6 +17,7 @@ use Laravel\Scout\Searchable;
  * App\Models\Search\UniversalSearch
  *
  * @property int $id
+ * @property string|null $ulid
  * @property bool $in_organisation
  * @property int|null $organisation_id
  * @property int|null $shop_id
@@ -29,7 +30,6 @@ use Laravel\Scout\Searchable;
  * @property string|null $description
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $ulid
  * @property-read Model|\Eloquent $model
  * @method static Builder|UniversalSearch newModelQuery()
  * @method static Builder|UniversalSearch newQuery()

@@ -176,7 +176,7 @@ class IndexInvoices extends OrgAction
         $this->parent = $organisation;
         $this->initialisation($organisation, $request);
 
-        return $this->handle(app('currentTenant'));
+        return $this->handle($organisation);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -221,17 +221,17 @@ class IndexInvoices extends OrgAction
             'grp.org.accounting.shops.show.invoices.index' =>
             array_merge(
                 ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.shops.show.dashboard', $routeParameters),
-                $headCrumb()
+                $headCrumb($routeParameters)
             ),
             'grp.org.accounting.invoices.index' =>
             array_merge(
-                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', []),
-                $headCrumb()
+                ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
+                $headCrumb($routeParameters)
             ),
             'grp.org.fulfilments.show.operations.invoices.index' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs(routeParameters: $routeParameters),
-                $headCrumb()
+                $headCrumb($routeParameters)
             ),
 
             default => []

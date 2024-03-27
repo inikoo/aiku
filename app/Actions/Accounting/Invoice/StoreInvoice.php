@@ -14,6 +14,8 @@ use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInvoices;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateInvoices;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\CRM\Customer;
@@ -69,6 +71,9 @@ class StoreInvoice extends OrgAction
 
         CustomerHydrateInvoices::dispatch($invoice->customer)->delay($this->hydratorsDelay);
         ShopHydrateInvoices::dispatch($invoice->shop)->delay($this->hydratorsDelay);
+        OrganisationHydrateInvoices::dispatch($invoice->organisation)->delay($this->hydratorsDelay);
+        GroupHydrateInvoices::dispatch($invoice->group)->delay($this->hydratorsDelay);
+
         InvoiceHydrateUniversalSearch::dispatch($invoice);
 
 

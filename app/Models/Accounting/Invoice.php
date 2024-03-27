@@ -7,8 +7,6 @@
 
 namespace App\Models\Accounting;
 
-use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
-use App\Actions\Market\Shop\Hydrators\ShopHydrateInvoices;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Assets\Currency;
 use App\Models\CRM\Customer;
@@ -16,6 +14,8 @@ use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
 use App\Models\OMS\Order;
 use App\Models\Search\UniversalSearch;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -53,6 +53,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $payment
  * @property string $group_net_amount
  * @property string $org_net_amount
+ * @property string|null $date
+ * @property string|null $tax_liability_at
  * @property array|null $paid_at
  * @property array $data
  * @property Carbon|null $created_at
@@ -62,10 +64,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Address> $addresses
  * @property-read Currency $currency
  * @property-read Customer $customer
+ * @property-read Group $group
  * @property-read Collection<int, \App\Models\Accounting\InvoiceTransaction> $invoiceTransactions
  * @property-read Order|null $order
  * @property-read Collection<int, Order> $orders
- * @property-write mixed $exchange
+ * @property-read Organisation $organisation
  * @property-read Shop $shop
  * @property-read \App\Models\Accounting\InvoiceStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
@@ -104,15 +107,6 @@ class Invoice extends Model
             ->doNotGenerateSlugsOnUpdate();
     }
 
-    protected static function booted()
-    {
-        static::deleted(
-            function (Invoice $invoice) {
-                CustomerHydrateInvoices::dispatch($invoice->customer);
-                ShopHydrateInvoices::dispatch($invoice->shop);
-            }
-        );
-    }
 
     protected $guarded = [];
 
@@ -152,12 +146,6 @@ class Invoice extends Model
     }
 
 
-    /** @noinspection PhpUnused */
-    public function setExchangeAttribute($val)
-    {
-        $this->attributes['exchange'] = sprintf('%.6f', $val);
-    }
-
     public function stats(): HasOne
     {
         return $this->hasOne(InvoiceStats::class);
@@ -166,5 +154,15 @@ class Invoice extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
     }
 }

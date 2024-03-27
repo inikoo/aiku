@@ -19,6 +19,8 @@ use App\Models\Assets\Currency;
 use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
 use App\Models\Search\UniversalSearch;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -35,6 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Payments\Payment
  *
  * @property int $id
+ * @property string $slug
  * @property int $group_id
  * @property int $organisation_id
  * @property int $payment_service_provider_id
@@ -43,7 +46,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $customer_id
  * @property PaymentTypeEnum $type
  * @property string $reference
- * @property string $slug
  * @property PaymentStatusEnum $status
  * @property PaymentStateEnum $state
  * @property PaymentSubsequentStatusEnum|null $subsequent_status
@@ -62,6 +64,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read Currency $currency
  * @property-read Customer $customer
+ * @property-read Group $group
+ * @property-read Organisation $organisation
  * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
  * @property-read Shop $shop
  * @property-read UniversalSearch|null $universalSearch
@@ -156,5 +160,15 @@ class Payment extends Model
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
     }
 }
