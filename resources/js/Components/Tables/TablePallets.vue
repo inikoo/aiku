@@ -30,7 +30,7 @@ function palletRoute(pallet: Pallet) {
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],
-                    pallet['slug']
+                    pallet['reference']
                 ]);
         case  'grp.org.warehouses.show.fulfilment.pallets.index':
             return route(
@@ -38,7 +38,7 @@ function palletRoute(pallet: Pallet) {
                 [
                     route().params['organisation'],
                     route().params['warehouse'],
-                    pallet['slug']
+                    pallet['reference']
                 ]);
 
         case  'grp.org.warehouses.show.infrastructure.locations.show':
@@ -48,7 +48,7 @@ function palletRoute(pallet: Pallet) {
                     route().params['organisation'],
                     route().params['warehouse'],
                     route().params['location'],
-                    pallet['slug']
+                    pallet['reference']
                 ]);
         case 'grp.org.fulfilments.show.crm.customers.show':
             return route(
@@ -57,7 +57,7 @@ function palletRoute(pallet: Pallet) {
                     route().params['organisation'],
                     route().params['fulfilment'],
                     route().params['fulfilmentCustomer'],
-                    pallet['slug']
+                    pallet['reference']
                 ]);
 
         default:
@@ -69,7 +69,7 @@ function palletRoute(pallet: Pallet) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(referencex)="{ item: pallet }">
+        <template #cell(reference)="{ item: pallet }">
             <Link :href="palletRoute(pallet)" class="specialUnderline">
                 {{ pallet['reference'] }}
             </Link>
