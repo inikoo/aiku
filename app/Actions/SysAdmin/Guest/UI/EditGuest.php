@@ -90,7 +90,7 @@ class EditGuest extends InertiaAction
                     'args' => [
                         'updateRoute' => [
                             'name'      => 'grp.models.guest.update',
-                            'parameters'=> $guest->slug
+                            'parameters'=> $guest->id
 
                         ],
                     ]

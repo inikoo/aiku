@@ -10,12 +10,14 @@ namespace App\Models\Fulfilment;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Warehouse;
+use App\Models\PalletDeliveryStats;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -50,6 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property-read Customer|null $customer
+ * @property-read PalletDeliveryStats|null $stats
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Group $group
@@ -85,7 +88,7 @@ class PalletDelivery extends Model
 
     public function getRouteKeyName(): string
     {
-        return 'slug';
+        return 'reference';
     }
 
     public function getSlugOptions(): SlugOptions
@@ -128,5 +131,10 @@ class PalletDelivery extends Model
     public function pallets(): HasMany
     {
         return $this->hasMany(Pallet::class);
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(PalletDeliveryStats::class);
     }
 }

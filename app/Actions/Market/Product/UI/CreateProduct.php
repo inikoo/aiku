@@ -97,7 +97,7 @@ class CreateProduct extends InertiaAction
                     'route' => match ($request->route()->getName()) {
                         'shops.show.products.create' => [
                             'name'      => 'grp.models.show.product.store',
-                            'arguments' => [$shop->slug]
+                            'arguments' => [$shop->id]
                         ],
                         default => [
                             'name' => 'grp.models.product.store'

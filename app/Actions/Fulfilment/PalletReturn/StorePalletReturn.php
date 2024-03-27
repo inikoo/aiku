@@ -61,6 +61,7 @@ class StorePalletReturn extends OrgAction
 
         /** @var PalletReturn $palletReturn */
         $palletReturn = $fulfilmentCustomer->palletReturns()->create($modelData);
+        $palletReturn->stats()->create();
 
         return $palletReturn;
     }

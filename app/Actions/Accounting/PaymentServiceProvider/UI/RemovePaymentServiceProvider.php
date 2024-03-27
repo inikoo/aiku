@@ -49,7 +49,7 @@ class RemovePaymentServiceProvider extends InertiaAction
             'RemoveModel',
             [
                 'title'       => __('delete payment service provider'),
-                'breadcrumbs' => $this->getBreadcrumbs($paymentServiceProvider),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'pageHead'    => [
                     'icon'  =>
                         [
@@ -71,7 +71,7 @@ class RemovePaymentServiceProvider extends InertiaAction
                 'data'      => $this->getAction(
                     route:[
                         'name'       => 'grp.models.payment-service-provider.delete',
-                        'parameters' => $request->route()->originalParameters()
+                        'parameters' => $paymentServiceProvider->id
                     ]
                 )
             ]
@@ -79,8 +79,8 @@ class RemovePaymentServiceProvider extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(PaymentServiceProvider $paymentServiceProvider): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
-        return ShowPaymentServiceProvider::make()->getBreadcrumbs($paymentServiceProvider, suffix: '('.__('deleting').')');
+        return ShowPaymentServiceProvider::make()->getBreadcrumbs($routeParameters, suffix: '('.__('deleting').')');
     }
 }

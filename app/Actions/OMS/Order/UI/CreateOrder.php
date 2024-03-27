@@ -122,7 +122,7 @@ class CreateOrder extends InertiaAction
                         ],
                     'route'     => [
                         'name'     => 'grp.models.shop.order.store',
-                        'arguments'=> [$shop->slug]
+                        'arguments'=> [$shop->id]
                     ]
                 ]
 

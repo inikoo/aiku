@@ -8,10 +8,8 @@
 namespace App\Actions\Inventory\Location\UI;
 
 use App\Actions\OrgAction;
-use App\Enums\UI\LocationTabsEnum;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
-use App\Models\Inventory\WarehouseArea;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -31,9 +29,9 @@ class EditLocation extends OrgAction
         return $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.view");
     }
 
-    public function inOrganisation(Location $location, ActionRequest $request): Location
+    public function inOrganisation(Organisation $organisation, Location $location, ActionRequest $request): Location
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($location);
     }
@@ -45,22 +43,20 @@ class EditLocation extends OrgAction
 
         return $this->handle($location);
     }
+    /*
+        public function inWarehouseArea(Organisation $organisation,Warehouse $warehouse,WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
+        {
+            $this->initialisationFromWarehouse($warehouse,$request);
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouseArea(WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
-    {
-        $this->initialisation($request);
+            return $this->handle($location);
+        }
 
-        return $this->handle($location);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
-    {
-        $this->initialisation($request)->withTab(LocationTabsEnum::values());
-        return $this->handle($location);
-    }
-
+        public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
+        {
+            $this->initialisation($request)->withTab(LocationTabsEnum::values());
+            return $this->handle($location);
+        }
+    */
     public function htmlResponse(Location $location, ActionRequest $request): Response
     {
         $sections               = [];
@@ -134,7 +130,7 @@ class EditLocation extends OrgAction
                     'args'      => [
                         'updateRoute' => [
                             'name'       => 'grp.models.location.update',
-                            'parameters' => $location->slug
+                            'parameters' => $location->id
                         ],
                     ]
                 ]

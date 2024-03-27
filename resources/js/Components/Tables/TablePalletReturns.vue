@@ -31,7 +31,7 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
                 [
                     route().params['organisation'],
                     route().params['warehouse'],
-                    palletReturn.slug
+                    palletReturn.reference
                 ]);
         case 'grp.org.fulfilments.show.operations.pallet-returns.index':
             return route(
@@ -39,13 +39,13 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],
-                    palletReturn.slug
+                    palletReturn.reference
                 ]);
         case 'retina.storage.pallet-returns.index':
             return route(
                 'retina.storage.pallet-returns.show',
                 [
-                    palletReturn.slug
+                    palletReturn.reference
                 ]);
         default:
             return route(
@@ -54,7 +54,7 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
                     route().params['organisation'],
                     route().params['fulfilment'],
                     route().params['fulfilmentCustomer'],
-                    palletReturn.slug
+                    palletReturn.reference
                 ]);
     }
 }
@@ -81,7 +81,7 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
             <div class="tabular-nums">
                 {{ palletReturn.number_pallets }}
             </div>
-        
+
         </template>
 
         <template #buttonreturns="{ linkButton: linkButton }">

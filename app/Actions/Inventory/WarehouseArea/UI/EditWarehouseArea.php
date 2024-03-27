@@ -55,7 +55,6 @@ class EditWarehouseArea extends InertiaAction
             [
                 'title'       => __('warehouse areas'),
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
                 'navigation' => [
@@ -101,7 +100,7 @@ class EditWarehouseArea extends InertiaAction
                     'args' => [
                         'updateRoute' => [
                             'name'      => 'grp.models.warehouse-area.update',
-                            'parameters'=> $warehouseArea->slug
+                            'parameters'=> $warehouseArea->id
 
                         ],
                     ]
@@ -111,10 +110,9 @@ class EditWarehouseArea extends InertiaAction
         );
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
         return ShowWarehouseArea::make()->getBreadcrumbs(
-            routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('editing').')'
         );

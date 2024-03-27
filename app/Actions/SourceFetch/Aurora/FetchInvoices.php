@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchInvoices extends FetchAction
 {
-    public string $commandSignature = 'fetch:invoices {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:invoices {organisations?*} {--s|source_id=} {--S|shop= : Shop slug}  {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Invoice
     {
@@ -105,6 +105,10 @@ class FetchInvoices extends FetchAction
             ->select('Invoice Key as source_id')
             ->orderBy('Invoice Date');
 
+        if ($this->shop) {
+            $sourceData = explode(':', $this->shop->source_id);
+            $query->where('Invoice Store Key', $sourceData[1]);
+        }
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
@@ -118,7 +122,10 @@ class FetchInvoices extends FetchAction
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
-
+        if ($this->shop) {
+            $sourceData = explode(':', $this->shop->source_id);
+            $query->where('Invoice Store Key', $sourceData[1]);
+        }
         return $query->count();
     }
 

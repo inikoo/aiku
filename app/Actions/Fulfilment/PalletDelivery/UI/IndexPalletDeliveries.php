@@ -137,8 +137,7 @@ class IndexPalletDeliveries extends OrgAction
                             'count'       => $parent->stats->number_pallet_deliveries
                         ],
                         'FulfilmentCustomer' => [
-                            'title'       => __('No pallet deliveries found for this customer'),
-                            'description' => __('This customer has not received any pallet deliveries yet'),
+                            'title'       => __('This customer has not received any pallet deliveries yet'),
                             'count'       => $parent->number_pallet_deliveries,
                             'action'      => [
                                 'type'    => 'button',

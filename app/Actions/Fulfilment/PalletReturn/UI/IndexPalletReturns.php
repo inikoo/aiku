@@ -11,7 +11,6 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
-use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -119,6 +118,35 @@ class IndexPalletReturns extends OrgAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
+                ->withEmptyState(
+                    match (class_basename($parent)) {
+                        'Fulfilment' => [
+                            'title'       => __('No pallet returns found for this shop'),
+                            'count'       => $parent->stats->number_pallet_returns
+                        ],
+                        'Warehouse' => [
+                            'title'       => __('No pallet returns found for this warehouse'),
+                            'description' => __('This warehouse has not received any pallet returns yet'),
+                            'count'       => $parent->stats->number_pallet_returns
+                        ],
+                        'FulfilmentCustomer' => [
+                            'title'       => __('No pallet returns found for this customer'),
+                            'description' => __('This customer has not received any pallet returns yet'),
+                            'count'       => $parent->number_pallet_returns,
+                            'action'      => [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('Create new pallet return'),
+                                'label'   => __('Pallet return'),
+                                'route'   => [
+                                    'method'     => 'post',
+                                    'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
+                                    'parameters' => [$parent->id]
+                                ]
+                            ]
+                        ]
+                    }
+                )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'customer reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true)
@@ -151,7 +179,7 @@ class IndexPalletReturns extends OrgAction
         }
 
         return Inertia::render(
-            'Org/Fulfilment/PalletDeliveries',
+            'Org/Fulfilment/PalletReturns',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -166,7 +194,7 @@ class IndexPalletReturns extends OrgAction
                         'title' => __('returns')
                     ]
                 ],
-                'data'        => PalletDeliveriesResource::collection($customers),
+                'data'        => PalletReturnsResource::collection($customers),
 
             ]
         )->table($this->tableStructure($this->parent));

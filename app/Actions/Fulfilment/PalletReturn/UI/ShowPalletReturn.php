@@ -80,6 +80,141 @@ class ShowPalletReturn extends OrgAction
             ];
         }
 
+        $actions = [];
+
+        if($this->canEdit) {
+            $actions = $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
+                [
+                    'type'   => 'buttonGroup',
+                    'key'    => 'upload-add',
+                    'button' => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'tertiary',
+                            'icon'  => 'fal fa-plus',
+                            'label' => __('add pallet'),
+                            'route' => [
+                                'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.store',
+                                'parameters' => [
+                                    'organisation'       => $palletReturn->organisation->id,
+                                    'fulfilment'         => $palletReturn->fulfilment->id,
+                                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                                    'palletReturn'       => $palletReturn->id
+                                ]
+                            ]
+                        ],
+                    ]
+                ],
+                $palletReturn->pallets()->count() > 0 ? [
+                    'type'    => 'button',
+                    'style'   => 'save',
+                    'tooltip' => __('submit'),
+                    'label'   => __('submit'),
+                    'key'     => 'action',
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'grp.models.fulfilment-customer.pallet-return.submit',
+                        'parameters' => [
+                            'organisation'       => $palletReturn->organisation->slug,
+                            'fulfilment'         => $palletReturn->fulfilment->slug,
+                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                            'palletReturn'       => $palletReturn->id
+                        ]
+                    ]
+                ] : [],
+            ] : [
+                $palletReturn->state == PalletReturnStateEnum::SUBMITTED ? [
+                    'type'    => 'button',
+                    'style'   => 'save',
+                    'tooltip' => __('confirm'),
+                    'label'   => __('confirm'),
+                    'key'     => 'action',
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'grp.models.fulfilment-customer.pallet-return.confirm',
+                        'parameters' => [
+                            'organisation'       => $palletReturn->organisation->slug,
+                            'fulfilment'         => $palletReturn->fulfilment->slug,
+                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                            'palletReturn'       => $palletReturn->id
+                        ]
+                    ]
+                ] : [],
+                $palletReturn->state == PalletReturnStateEnum::CONFIRMED ? [
+                    'type'    => 'button',
+                    'style'   => 'save',
+                    'tooltip' => __('picking'),
+                    'label'   => __('picking'),
+                    'key'     => 'action',
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'grp.models.fulfilment-customer.pallet-return.picking',
+                        'parameters' => [
+                            'organisation'       => $palletReturn->organisation->slug,
+                            'fulfilment'         => $palletReturn->fulfilment->slug,
+                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                            'palletReturn'       => $palletReturn->id
+                        ]
+                    ]
+                ] : [],
+                $palletReturn->state == PalletReturnStateEnum::PICKING ? [
+                    'type'    => 'button',
+                    'style'   => 'save',
+                    'tooltip' => __('picked'),
+                    'label'   => __('picked'),
+                    'key'     => 'action',
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'grp.models.fulfilment-customer.pallet-return.picked',
+                        'parameters' => [
+                            'organisation'       => $palletReturn->organisation->slug,
+                            'fulfilment'         => $palletReturn->fulfilment->slug,
+                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                            'palletReturn'       => $palletReturn->id
+                        ]
+                    ]
+                ] : [],
+                $palletReturn->state == PalletReturnStateEnum::PICKED ? [
+                    'type'    => 'button',
+                    'style'   => 'save',
+                    'tooltip' => __('dispatched'),
+                    'label'   => __('dispatched'),
+                    'key'     => 'action',
+                    'route'   => [
+                        'method'     => 'post',
+                        'name'       => 'grp.models.fulfilment-customer.pallet-return.dispatched',
+                        'parameters' => [
+                            'organisation'       => $palletReturn->organisation->slug,
+                            'fulfilment'         => $palletReturn->fulfilment->slug,
+                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
+                            'palletReturn'       => $palletReturn->id
+                        ]
+                    ]
+                ] : [],
+            ];
+
+            if(!in_array($palletReturn->state, [
+                PalletReturnStateEnum::IN_PROCESS,
+                PalletReturnStateEnum::SUBMITTED
+            ])) {
+                $actions[] = [
+                    'type'          => 'button',
+                    'style'         => 'tertiary',
+                    'icon'          => 'fal fa-file-export',
+                    'tooltip'       => __('Export pallet return'),
+                    'label'         => __('export as PDF'),
+                    'key'           => 'action',
+                    'route'         => [
+                        'name'       => 'grp.models.fulfilment-customer.pallet-return.export',
+                        'parameters' => [
+                            'fulfilmentCustomer' => $palletReturn->fulfilment_customer_id,
+                            'palletReturn'       => $palletReturn->id
+                        ]
+                    ]
+                ];
+            }
+        }
+
         return Inertia::render(
             'Org/Fulfilment/PalletReturn',
             [
@@ -105,115 +240,7 @@ class ShowPalletReturn extends OrgAction
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
-                    'actions' => $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
-                        [
-                            'type'   => 'buttonGroup',
-                            'key'    => 'upload-add',
-                            'button' => [
-                                [
-                                    'type'  => 'button',
-                                    'style' => 'tertiary',
-                                    'icon'  => 'fal fa-plus',
-                                    'label' => __('add pallet'),
-                                    'route' => [
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.store',
-                                        'parameters' => [
-                                            'organisation'       => $palletReturn->organisation->slug,
-                                            'fulfilment'         => $palletReturn->fulfilment->slug,
-                                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                            'palletReturn'       => $palletReturn->reference
-                                        ]
-                                    ]
-                                ],
-                            ]
-                        ],
-                        $palletReturn->pallets()->count() > 0 ? [
-                            'type'    => 'button',
-                            'style'   => 'save',
-                            'tooltip' => __('submit'),
-                            'label'   => __('submit'),
-                            'key'     => 'action',
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.submit',
-                                'parameters' => [
-                                    'organisation'       => $palletReturn->organisation->slug,
-                                    'fulfilment'         => $palletReturn->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                    'palletReturn'       => $palletReturn->reference
-                                ]
-                            ]
-                        ] : [],
-                    ] : [
-                        $palletReturn->state == PalletReturnStateEnum::SUBMITTED ? [
-                            'type'    => 'button',
-                            'style'   => 'save',
-                            'tooltip' => __('confirm'),
-                            'label'   => __('confirm'),
-                            'key'     => 'action',
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.confirm',
-                                'parameters' => [
-                                    'organisation'       => $palletReturn->organisation->slug,
-                                    'fulfilment'         => $palletReturn->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                    'palletReturn'       => $palletReturn->reference
-                                ]
-                            ]
-                        ] : [],
-                        $palletReturn->state == PalletReturnStateEnum::CONFIRMED ? [
-                            'type'    => 'button',
-                            'style'   => 'save',
-                            'tooltip' => __('picking'),
-                            'label'   => __('picking'),
-                            'key'     => 'action',
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.picking',
-                                'parameters' => [
-                                    'organisation'       => $palletReturn->organisation->slug,
-                                    'fulfilment'         => $palletReturn->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                    'palletReturn'       => $palletReturn->reference
-                                ]
-                            ]
-                        ] : [],
-                        $palletReturn->state == PalletReturnStateEnum::PICKING ? [
-                            'type'    => 'button',
-                            'style'   => 'save',
-                            'tooltip' => __('picked'),
-                            'label'   => __('picked'),
-                            'key'     => 'action',
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.picked',
-                                'parameters' => [
-                                    'organisation'       => $palletReturn->organisation->slug,
-                                    'fulfilment'         => $palletReturn->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                    'palletReturn'       => $palletReturn->reference
-                                ]
-                            ]
-                        ] : [],
-                        $palletReturn->state == PalletReturnStateEnum::PICKED ? [
-                            'type'    => 'button',
-                            'style'   => 'save',
-                            'tooltip' => __('dispatched'),
-                            'label'   => __('dispatched'),
-                            'key'     => 'action',
-                            'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-return.dispatched',
-                                'parameters' => [
-                                    'organisation'       => $palletReturn->organisation->slug,
-                                    'fulfilment'         => $palletReturn->fulfilment->slug,
-                                    'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                    'palletReturn'       => $palletReturn->reference
-                                ]
-                            ]
-                        ] : [],
-                    ],
+                    'actions' => $actions
                 ],
 
                 'updateRoute' => [
@@ -269,7 +296,7 @@ class ShowPalletReturn extends OrgAction
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
                             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                            'palletReturn'       => $palletReturn->slug
+                            'palletReturn'       => $palletReturn->id
                         ]
                     ]
                 ],

@@ -100,25 +100,10 @@ class RemoveLocation extends InertiaAction
                     ]
                 ],
                 'data'     => $this->getAction(
-                    route:
-                    match ($request->route()->getName()) {
-                        'grp.oms.locations.remove' => [
-                            'name'       => 'grp.models.location.delete',
-                            'parameters' => $request->route()->originalParameters()
-                        ],
-                        'grp.org.warehouses.show.infrastructure.locations.remove' => [
-                            'name'       => 'grp.models.warehouse.location.delete',
-                            'parameters' => $request->route()->originalParameters()
-                        ],
-                        'grp.org.inventory.warehouse-areas.show.locations.remove' => [
-                            'name'       => 'grp.models.warehouse-area.location.delete',
-                            'parameters' => $request->route()->originalParameters()
-                        ],
-                        'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.remove' => [
-                            'name'       => 'grp.models.warehouse.warehouse-area.location.delete',
-                            'parameters' => $request->route()->originalParameters()
-                        ]
-                    }
+                    route: [
+        'name'       => 'grp.models.location.delete',
+        'parameters' => $location->id
+    ],
                 )
 
 
