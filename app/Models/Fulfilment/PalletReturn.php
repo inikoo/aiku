@@ -10,11 +10,13 @@ namespace App\Models\Fulfilment;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Warehouse;
+use App\Models\PalletReturnStats;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -50,6 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property-read Customer|null $customer
+ * @property-read PalletReturnStats|null $stats
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Organisation $organisation
@@ -125,5 +128,10 @@ class PalletReturn extends Model
     public function pallets(): HasMany
     {
         return $this->hasMany(Pallet::class, 'pallet_return_id');
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(PalletReturnStats::class);
     }
 }

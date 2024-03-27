@@ -348,7 +348,7 @@ class ShowPalletReturn extends OrgAction
             ];
         };
 
-        $palletReturn = PalletReturn::where('slug', $routeParameters['palletReturn'])->first();
+        $palletReturn = PalletReturn::where('reference', $routeParameters['palletReturn'])->first();
 
         return match ($routeName) {
             'grp.org.fulfilments.show.crm.customers.show.pallet-returns.show' => array_merge(
