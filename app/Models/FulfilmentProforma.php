@@ -60,6 +60,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Address> $addresses
  * @property-read Currency $currency
  * @property-read Customer $customer
+ * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read Collection<int, \App\Models\Accounting\InvoiceTransaction> $invoiceTransactions
  * @property-read Order|null $order
  * @property-read Collection<int, Order> $orders

@@ -8,6 +8,7 @@
 namespace App\Models\Fulfilment;
 
 use App\Models\CRM\Customer;
+use App\Models\FulfilmentProforma;
 use App\Models\Helpers\SerialReference;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -86,6 +87,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read Group $group
  * @property-read Organisation $organisation
+ * @property-read FulfilmentProforma $proformas
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletDelivery> $palletDeliveries
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletReturn> $palletReturns
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
@@ -168,6 +170,11 @@ class FulfilmentCustomer extends Model
     public function palletReturns(): HasMany
     {
         return $this->hasMany(PalletReturn::class);
+    }
+
+    public function proformas(): HasMany
+    {
+        return $this->hasMany(FulfilmentProforma::class);
     }
 
     public function storedItemReturns(): HasMany

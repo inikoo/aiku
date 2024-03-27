@@ -22,6 +22,7 @@ use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\IndexStoredPallets;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
+use App\Actions\Fulfilment\Proforma\UI\IndexProforma;
 use App\Actions\Fulfilment\StoredItem\UI\IndexBookedInStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
@@ -78,5 +79,10 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::prefix('stored-item-returns')->as('.stored-item-returns.')->group(function () {
         Route::get('{storedItemReturn}', [ShowStoredItemReturn::class, 'inFulfilmentCustomer'])->name('show');
         Route::get('stored-items/booked-in', [IndexBookedInStoredItems::class, 'inFulfilmentCustomer'])->name('stored-items.booked-in.index');
+    });
+
+    Route::prefix('proformas')->as('.proformas.')->group(function () {
+        Route::get('', [IndexProforma::class, 'inFulfilmentCustomer'])->name('index');
+        Route::get('{palletReturn}', [ShowPalletReturn::class, 'inFulfilmentCustomer'])->name('show');
     });
 });
