@@ -31,7 +31,7 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
                 [
                     route().params['organisation'],
                     route().params['warehouse'],
-                    palletDelivery.slug
+                    palletDelivery.reference
                 ])
         case 'grp.org.fulfilments.show.operations.pallet-deliveries.index':
             return route(
@@ -39,7 +39,7 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],
-                    palletDelivery.slug
+                    palletDelivery.reference
                 ])
         case 'grp.org.warehouses.show.fulfilment.pallet-returns.index':
             return route(
@@ -47,7 +47,7 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
                 [
                     route().params['organisation'],
                     route().params['warehouse'],
-                    palletDelivery.slug
+                    palletDelivery.reference
                 ])
         case 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.index':
             return route(
@@ -56,7 +56,7 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
                     route().params['organisation'],
                     route().params['fulfilment'],
                     route().params['fulfilmentCustomer'],
-                    palletDelivery.slug
+                    palletDelivery.reference
                 ])
         default:
             return route(
@@ -65,7 +65,7 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
                     route().params['organisation'],
                     route().params['fulfilment'],
                     route().params['fulfilmentCustomer'],
-                    palletDelivery.slug
+                    palletDelivery.reference
                 ])
     }
 }

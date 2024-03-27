@@ -99,7 +99,7 @@ class ShowPalletReturn extends OrgAction
                                     'organisation'       => $palletReturn->organisation->slug,
                                     'fulfilment'         => $palletReturn->fulfilment->slug,
                                     'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                                    'palletReturn'       => $palletReturn->reference
+                                    'palletReturn'       => $palletReturn->id
                                 ]
                             ]
                         ],
@@ -118,7 +118,7 @@ class ShowPalletReturn extends OrgAction
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
                             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                            'palletReturn'       => $palletReturn->reference
+                            'palletReturn'       => $palletReturn->id
                         ]
                     ]
                 ] : [],
@@ -136,7 +136,7 @@ class ShowPalletReturn extends OrgAction
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
                             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                            'palletReturn'       => $palletReturn->reference
+                            'palletReturn'       => $palletReturn->id
                         ]
                     ]
                 ] : [],
@@ -153,7 +153,7 @@ class ShowPalletReturn extends OrgAction
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
                             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                            'palletReturn'       => $palletReturn->reference
+                            'palletReturn'       => $palletReturn->id
                         ]
                     ]
                 ] : [],
@@ -170,7 +170,7 @@ class ShowPalletReturn extends OrgAction
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
                             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                            'palletReturn'       => $palletReturn->reference
+                            'palletReturn'       => $palletReturn->id
                         ]
                     ]
                 ] : [],
@@ -187,7 +187,7 @@ class ShowPalletReturn extends OrgAction
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
                             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                            'palletReturn'       => $palletReturn->reference
+                            'palletReturn'       => $palletReturn->id
                         ]
                     ]
                 ] : [],
@@ -208,7 +208,7 @@ class ShowPalletReturn extends OrgAction
                         'name'       => 'grp.models.fulfilment-customer.pallet-return.export',
                         'parameters' => [
                             'fulfilmentCustomer' => $palletReturn->fulfilment_customer_id,
-                            'palletReturn'       => $palletReturn->reference
+                            'palletReturn'       => $palletReturn->id
                         ]
                     ]
                 ];
@@ -296,7 +296,7 @@ class ShowPalletReturn extends OrgAction
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
                             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                            'palletReturn'       => $palletReturn->slug
+                            'palletReturn'       => $palletReturn->id
                         ]
                     ]
                 ],
