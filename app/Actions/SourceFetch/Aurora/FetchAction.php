@@ -124,6 +124,7 @@ class FetchAction
                 'fetch:web-users',
                 'fetch:products',
                 'fetch:webpages',
+                'fetch:invoices',
             ]) and $command->option('shop')) {
             $this->shop = Shop::where('slug', $command->option('shop'))->firstOrFail();
         }
