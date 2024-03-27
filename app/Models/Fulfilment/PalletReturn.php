@@ -86,7 +86,7 @@ class PalletReturn extends Model
 
     public function getRouteKeyName(): string
     {
-        return 'slug';
+        return 'reference';
     }
 
     public function getSlugOptions(): SlugOptions

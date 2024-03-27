@@ -182,11 +182,9 @@ class ShowPalletDelivery extends OrgAction
                 default => []
             };
 
-            if(in_array($palletDelivery->state, [
-                PalletDeliveryStateEnum::CONFIRMED,
-                PalletDeliveryStateEnum::RECEIVED,
-                PalletDeliveryStateEnum::NOT_RECEIVED,
-                PalletDeliveryStateEnum::BOOKED_IN
+            if(!in_array($palletDelivery->state, [
+                PalletDeliveryStateEnum::IN_PROCESS,
+                PalletDeliveryStateEnum::SUBMITTED
             ])) {
                 $actions[] = [
                     'type'          => 'button',
