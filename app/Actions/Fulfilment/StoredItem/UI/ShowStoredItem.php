@@ -141,7 +141,7 @@ class ShowStoredItem extends OrgAction
                 'update' => [
                     'name'       => 'grp.models.stored-items.move',
                     'parameters' => [
-                        'storedItem'         => $storedItem->slug
+                        'storedItem'         => $storedItem->id
                     ]
                 ],
 

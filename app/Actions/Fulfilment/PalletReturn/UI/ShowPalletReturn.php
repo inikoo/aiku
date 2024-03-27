@@ -96,8 +96,8 @@ class ShowPalletReturn extends OrgAction
                             'route' => [
                                 'name'       => 'grp.models.fulfilment-customer.pallet-return.pallet.store',
                                 'parameters' => [
-                                    'organisation'       => $palletReturn->organisation->slug,
-                                    'fulfilment'         => $palletReturn->fulfilment->slug,
+                                    'organisation'       => $palletReturn->organisation->id,
+                                    'fulfilment'         => $palletReturn->fulfilment->id,
                                     'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
                                     'palletReturn'       => $palletReturn->id
                                 ]

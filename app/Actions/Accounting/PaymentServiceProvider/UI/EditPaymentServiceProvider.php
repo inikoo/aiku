@@ -7,15 +7,16 @@
 
 namespace App\Actions\Accounting\PaymentServiceProvider\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
-class EditPaymentServiceProvider extends InertiaAction
+class EditPaymentServiceProvider extends OrgAction
 {
     public function handle(PaymentServiceProvider $paymentServiceProvider): PaymentServiceProvider
     {
@@ -24,25 +25,23 @@ class EditPaymentServiceProvider extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("accounting.payment-service-providers.edit");
+        return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
     }
 
-    public function asController(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): PaymentServiceProvider
+    public function asController(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): PaymentServiceProvider
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
         return $this->handle($paymentServiceProvider);
     }
 
-    /**
-     * @throws \Exception
-     */
+
     public function htmlResponse(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
                 'title'       => __('edit payment service provider'),
-                'breadcrumbs' => $this->getBreadcrumbs($paymentServiceProvider),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'pageHead'    => [
                     'title'     => $paymentServiceProvider->code,
                     'actions'   => [
@@ -83,7 +82,7 @@ class EditPaymentServiceProvider extends InertiaAction
                     'args' => [
                         'updateRoute' => [
                             'name'      => 'grp.models.payment-service-provider.update',
-                            'parameters'=> $paymentServiceProvider->slug
+                            'parameters'=> $paymentServiceProvider->id
 
                         ],
                     ]
@@ -94,10 +93,10 @@ class EditPaymentServiceProvider extends InertiaAction
 
 
 
-    public function getBreadcrumbs(PaymentServiceProvider $paymentServiceProvider): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
         return ShowPaymentServiceProvider::make()->getBreadcrumbs(
-            paymentServiceProvider: $paymentServiceProvider,
+            routeParameters:$routeParameters,
             suffix: '('.__('editing').')'
         );
     }

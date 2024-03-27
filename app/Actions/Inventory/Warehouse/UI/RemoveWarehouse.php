@@ -50,7 +50,7 @@ class RemoveWarehouse extends InertiaAction
             [
                 'title'       => __('delete warehouse'),
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $warehouse
+                    $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
                     'icon'  =>
@@ -73,7 +73,7 @@ class RemoveWarehouse extends InertiaAction
                 'data'      => $this->getAction(
                     route:[
                         'name'       => 'grp.models.warehouse.delete',
-                        'parameters' => $request->route()->originalParameters()
+                        'parameters' => $warehouse->id
                     ]
                 )
             ]
@@ -81,8 +81,8 @@ class RemoveWarehouse extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(Warehouse $warehouse): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
-        return ShowWarehouse::make()->getBreadcrumbs($warehouse, suffix: '('.__('deleting').')');
+        return ShowWarehouse::make()->getBreadcrumbs($routeParameters, suffix: '('.__('deleting').')');
     }
 }

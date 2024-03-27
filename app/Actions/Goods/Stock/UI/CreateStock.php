@@ -8,6 +8,7 @@
 namespace App\Actions\Goods\Stock\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Models\SupplyChain\StockFamily;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -24,10 +25,10 @@ class CreateStock extends InertiaAction
     {
         $this->initialisation($request);
 
-        return $this->handle($request);
+        return $this->handle($stockFamily, $request);
     }
 
-    public function handle(ActionRequest $request): Response
+    public function handle(StockFamily $parent, ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
@@ -77,7 +78,7 @@ class CreateStock extends InertiaAction
                     'route' => match ($request->route()->getName()) {
                         'grp.org.inventory.org-stock-families.show.stocks.create' => [
                             'name'      => 'grp.models.stock-family.stock.store',
-                            'arguments' => [$request->route()->originalParameters()['stockFamily']->slug]
+                            'arguments' => $parent->id
                         ],
                         default => [
                             'name'      => 'grp.models.stock.store',

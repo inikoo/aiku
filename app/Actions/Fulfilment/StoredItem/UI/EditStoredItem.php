@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\StoredItem\UI;
 
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\InertiaAction;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
@@ -47,7 +48,9 @@ class EditStoredItem extends InertiaAction
         return Inertia::render(
             'EditModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->originalParameters()
+                ),
                 'title'       => __('stored items'),
                 'pageHead'    => [
                     'title'     => __('stored items'),
@@ -94,7 +97,7 @@ class EditStoredItem extends InertiaAction
                     'args' => [
                         'updateRoute' => [
                             'name'       => 'grp.models.stored-items.update',
-                            'parameters' => $storedItem->slug
+                            'parameters' => $storedItem->id
                         ],
                     ]
                 ],
@@ -110,10 +113,10 @@ class EditStoredItem extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
         return array_merge(
-            ShowFulfilment::make()->getBreadcrumbs(),
+            ShowFulfilment::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'   => 'simple',

@@ -95,7 +95,7 @@ class EditPayment extends InertiaAction
                     'args' => [
                         'updateRoute' => [
                             'name'      => 'grp.models.payment.update',
-                            'parameters'=> $payment->slug
+                            'parameters'=> $payment->id
 
                         ],
                     ]

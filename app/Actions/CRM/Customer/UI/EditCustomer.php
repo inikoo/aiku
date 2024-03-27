@@ -1,20 +1,21 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\CRM\Customer\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditCustomer extends InertiaAction
+class EditCustomer extends OrgAction
 {
     public function handle(Customer $customer): Customer
     {
@@ -28,17 +29,11 @@ class EditCustomer extends InertiaAction
         return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
     }
 
-    public function inOrganisation(Customer $customer, ActionRequest $request): Customer
-    {
-        $this->initialisation($request);
 
-        return $this->handle($customer);
-    }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, Customer $customer, ActionRequest $request): Customer
+    public function asController(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): Customer
     {
-        $this->initialisation($request);
+        $this->initialisationFromShop($shop, $request);
 
         return $this->handle($customer);
     }
@@ -96,7 +91,7 @@ class EditCustomer extends InertiaAction
                     'args'      => [
                         'updateRoute' => [
                             'name'       => 'grp.models.customer.update',
-                            'parameters' => $customer->slug
+                            'parameters' => $customer->id
 
                         ],
                     ]
@@ -148,16 +143,6 @@ class EditCustomer extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.org.shops.show.crm.customers.edit' => [
-                'label'=> $customer->name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'customer'=> $customer->slug
-                    ]
-
-                ]
-            ],
             'grp.org.shops.show.crm.customers.edit'=> [
                 'label'=> $customer->name,
                 'route'=> [

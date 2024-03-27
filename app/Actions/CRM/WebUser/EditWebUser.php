@@ -115,7 +115,7 @@ class EditWebUser extends InertiaAction
                     'args'      => [
                         'updateRoute' => [
                             'name'       => 'grp.models.web-user.update',
-                            'parameters' => [$webUser->slug]
+                            'parameters' => [$webUser->id]
 
                         ],
                     ]

@@ -45,7 +45,7 @@ class EditOutbox extends InertiaAction
         return $this->handle($outbox);
     }
 
-    public function htmlResponse(Outbox $outbox): Response
+    public function htmlResponse(Outbox $outbox, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
@@ -85,7 +85,7 @@ class EditOutbox extends InertiaAction
                     'args'      => [
                         'updateRoute' => [
                             'name'      => 'grp.models.outbox.update',
-                            'parameters'=> $outbox->slug
+                            'parameters'=> $outbox->id
 
                         ],
                     ]

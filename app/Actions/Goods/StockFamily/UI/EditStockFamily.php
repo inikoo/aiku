@@ -85,7 +85,7 @@ class EditStockFamily extends InertiaAction
                     'args' => [
                         'updateRoute' => [
                             'name'      => 'grp.models.stock-family.update',
-                            'parameters'=> $stockFamily->slug
+                            'parameters'=> $stockFamily->id
 
                         ],
                     ]

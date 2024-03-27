@@ -88,7 +88,7 @@ class EditWarehouse extends OrgAction
                     'args'      => [
                         'updateRoute' => [
                             'name'      => 'grp.models.warehouse.update',
-                            'parameters'=> $warehouse->slug
+                            'parameters'=> $warehouse->id
                         ],
                     ]
                 ]
