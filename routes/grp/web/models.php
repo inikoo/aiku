@@ -111,19 +111,14 @@ Route::patch('{storedItem}/stored-items', MoveStoredItem::class)->name('stored-i
 Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
     Route::post('stored-item-return', StoreStoredItemReturn::class)->name('stored-item-return.store');
     Route::post('stored-items', StoreStoredItem::class)->name('stored-items.store');
-
     Route::patch('', UpdateFulfilmentCustomer::class)->name('update');
     Route::post('pallet-delivery', StorePalletDelivery::class)->name('pallet-delivery.store');
-    Route::delete('pallet-delivery/{palletDelivery}/pallet/{pallet}', DeletePalletFromDelivery::class)->name('pallet-delivery.pallet.delete');
-
-    Route::get('pallet-delivery/{palletDelivery}/export', ExportPalletDelivery::class)->name('pallet-delivery.export');
-
-    Route::patch('pallet-delivery/{palletDelivery}/timeline', UpdatePalletDeliveryTimeline::class)->name('pallet-delivery.timeline.update');
-
-
+    Route::delete('pallet-delivery/{palletDelivery:id}/pallet/{pallet:id}', DeletePalletFromDelivery::class)->name('pallet-delivery.pallet.delete');
+    Route::get('pallet-delivery/{palletDelivery:id}/export', ExportPalletDelivery::class)->name('pallet-delivery.export');
+    Route::patch('pallet-delivery/{palletDelivery:id}/timeline', UpdatePalletDeliveryTimeline::class)->name('pallet-delivery.timeline.update');
     Route::post('pallet-return', StorePalletReturn::class)->name('pallet-return.store');
 
-    Route::prefix('pallet-return/{palletReturn}')->name('pallet-return.')->group(function () {
+    Route::prefix('pallet-return/{palletReturn:id}')->name('pallet-return.')->group(function () {
         Route::delete('pallet/{pallet}', DeletePalletFromReturn::class)->name('pallet.delete');
         Route::post('pallet', StorePalletToReturn::class)->name('pallet.store');
         Route::post('submit', SubmitPalletReturn::class)->name('submit');
@@ -133,7 +128,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
         Route::post('dispatched', DispatchedPalletReturn::class)->name('dispatched');
     });
 
-    Route::prefix('stored-item-return/{storedItemReturn}')->name('stored-item-return.')->group(function () {
+    Route::prefix('stored-item-return/{storedItemReturn:id}')->name('stored-item-return.')->group(function () {
         Route::delete('stored-item/{storedItem}', DeleteStoredItemFromStoredItemReturn::class)->name('stored-item.delete');
         Route::post('stored-item', StoreStoredItemToStoredItemReturn::class)->name('stored-item.store');
         Route::post('state/{state}', UpdateStateStoredItemReturn::class)->name('state.update')->whereIn('state', StoredItemReturnStateEnum::values());

@@ -69,18 +69,23 @@ class ShowFulfilmentCustomer extends OrgAction
 
         $navigation = CustomerFulfilmentTabsEnum::navigation();
 
+
+
         if (!$fulfilmentCustomer->pallets_storage) {
             unset($navigation[CustomerFulfilmentTabsEnum::PALLETS->value]);
+            unset($navigation[CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value]);
+            unset($navigation[CustomerFulfilmentTabsEnum::PALLET_RETURNS->value]);
         }
         if (!$fulfilmentCustomer->items_storage) {
             unset($navigation[CustomerFulfilmentTabsEnum::STORED_ITEM_RETURNS->value]);
             unset($navigation[CustomerFulfilmentTabsEnum::STORED_ITEMS->value]);
         }
         if (!$fulfilmentCustomer->dropshipping) {
-            unset($navigation[CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value]);
-            unset($navigation[CustomerFulfilmentTabsEnum::PALLET_RETURNS->value]);
-            unset($navigation[CustomerFulfilmentTabsEnum::INVOICES->value]);
+            // todo
+
         }
+
+
 
         return Inertia::render(
             'Org/Fulfilment/Customer',
@@ -138,8 +143,8 @@ class ShowFulfilmentCustomer extends OrgAction
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($fulfilmentCustomer))),
 
                 CustomerFulfilmentTabsEnum::STORED_ITEMS->value => $this->tab == CustomerFulfilmentTabsEnum::STORED_ITEMS->value ?
-                    fn () => StoredItemResource::collection(IndexStoredItems::run($fulfilmentCustomer))
-                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItems::run($fulfilmentCustomer))),
+                    fn () => StoredItemResource::collection(IndexStoredItems::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLETS->value))
+                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItems::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLETS->value))),
 
                 CustomerFulfilmentTabsEnum::STORED_ITEM_RETURNS->value => $this->tab == CustomerFulfilmentTabsEnum::STORED_ITEM_RETURNS->value ?
                     fn () => StoredItemReturnsResource::collection(IndexStoredItemReturns::run($fulfilmentCustomer))
@@ -174,7 +179,7 @@ class ShowFulfilmentCustomer extends OrgAction
                                     'type'    => 'button',
                                     'style'   => 'create',
                                     'tooltip' => __('Create new delivery order'),
-                                    'label'   => __('New Delivery Pallet'),
+                                    'label'   => __('New pallet delivery'),
                                     'options' => [
                                         'warehouses' => WarehouseResource::collection($fulfilmentCustomer->fulfilment->warehouses)
                                     ],

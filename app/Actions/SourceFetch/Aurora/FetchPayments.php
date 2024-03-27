@@ -68,7 +68,7 @@ class FetchPayments extends FetchAction
             $query->whereNull('aiku_id');
         }
 
-        return $query->orderBy('source_id');
+        return $query->orderBy('Payment Created Date');
     }
 
     public function count(): ?int

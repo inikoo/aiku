@@ -11,6 +11,7 @@ use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProvid
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePayments;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Rules\IUnique;
@@ -26,6 +27,19 @@ class StorePaymentAccount extends OrgAction
         /** @var PaymentAccount $paymentAccount */
         $paymentAccount = $paymentServiceProvider->accounts()->create($modelData);
         $paymentAccount->stats()->create();
+
+        if($paymentAccount->type==PaymentAccountTypeEnum::ACCOUNT) {
+            $paymentAccount->serialReferences()->create(
+                [
+                    'model'           => SerialReferenceModelEnum::PAYMENT,
+                    'organisation_id' => $paymentAccount->organisation->id,
+                    'format'          => $paymentAccount->slug.'-%04d'
+                ]
+            );
+        }
+
+
+
         PaymentServiceProviderHydrateAccounts::dispatch($paymentServiceProvider);
         OrganisationHydratePayments::dispatch($paymentServiceProvider->organisation);
 

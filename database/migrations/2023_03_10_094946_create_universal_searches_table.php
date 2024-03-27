@@ -14,6 +14,7 @@ return new class () extends Migration {
     {
         Schema::create('universal_searches', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('ulid')->nullable();
             $table->boolean('in_organisation')->default(true);
             $table->unsignedSmallInteger('organisation_id')->nullable()->index();
             $table->foreign('organisation_id')->references('id')->on('organisations');

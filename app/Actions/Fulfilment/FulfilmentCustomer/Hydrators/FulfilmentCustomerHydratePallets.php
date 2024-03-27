@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\FulfilmentCustomer\Hydrators;
 
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateFulfilmentCustomers;
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
@@ -79,5 +80,9 @@ class FulfilmentCustomerHydratePallets
         ));
 
         $fulfilmentCustomer->update($stats);
+
+        OrganisationHydrateFulfilmentCustomers::dispatch($fulfilmentCustomer->organisation);
+
+
     }
 }

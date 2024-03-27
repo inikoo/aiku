@@ -17,9 +17,10 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     use HasGroupOrganisationRelationship;
     use HasSoftDeletes;
+
     public function up(): void
     {
-        if(!Schema::hasTable('pallets')) {
+        if (!Schema::hasTable('pallets')) {
             Schema::create('pallets', function (Blueprint $table) {
                 $table->increments('id');
                 $table = $this->groupOrgRelationship($table);
@@ -43,7 +44,7 @@ return new class () extends Migration {
                 $table->string('status')->index()->default(PalletStatusEnum::IN_PROCESS->value);
                 $table->string('state')->index()->default(PalletStateEnum::IN_PROCESS->value);
                 $table->string('type')->index()->default(PalletTypeEnum::PALLET->value);
-                $table->string('notes', 1024);
+                $table->text('notes')->nullable();
                 $table->unsignedSmallInteger('number_stored_items')->default(0);
                 $table->dateTimeTz('received_at')->nullable();
                 $table->dateTimeTz('booked_in_at')->nullable();
@@ -52,6 +53,7 @@ return new class () extends Migration {
                 $table->timestampsTz();
                 $table = $this->softDeletes($table);
                 $table->string('source_id')->nullable()->unique();
+                $table->index(['customer_reference', 'fulfilment_customer_id']);
             });
         }
     }

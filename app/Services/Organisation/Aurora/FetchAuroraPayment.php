@@ -33,6 +33,12 @@ class FetchAuroraPayment extends FetchAurora
 
 
         $this->parsedData['paymentAccount'] = $this->parsePaymentAccount($this->organisation->id.':'.$this->auroraModelData->{'Payment Account Key'});
+
+        if(!$this->parsedData['paymentAccount']) {
+            print_r($this->auroraModelData);
+            dd('Error Payment Account not found');
+        }
+
         $this->parsedData['customer']       = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Payment Customer Key'});
 
         /** @var \App\Models\CRM\Customer $customer */

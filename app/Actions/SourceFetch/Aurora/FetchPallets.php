@@ -17,11 +17,12 @@ use Illuminate\Support\Facades\DB;
 
 class FetchPallets extends FetchAction
 {
-    public string $commandSignature = 'fetch:pallets {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:pallets {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} ';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Pallet
     {
         if ($palletData = $organisationSource->fetchPallet($organisationSourceId)) {
+            //print_r($palletData);
             if ($pallet = Pallet::withTrashed()->where('source_id', $palletData['pallet']['source_id'])
                 ->first()) {
                 $pallet = UpdatePallet::run(
@@ -29,12 +30,17 @@ class FetchPallets extends FetchAction
                     modelData: $palletData['pallet']
                 );
             } else {
-                //print_r($palletData['customer']);
                 $pallet = StorePallet::make()->action(
                     fulfilmentCustomer: $palletData['customer']->fulfilmentCustomer,
                     modelData: $palletData['pallet'],
                 );
             }
+
+
+            $sourceData = explode(':', $pallet->source_id);
+            DB::connection('aurora')->table('Fulfilment Asset Dimension')
+                ->where('Fulfilment Asset Key', $sourceData[1])
+                ->update(['aiku_id' => $pallet->id]);
 
             return $pallet;
         }
@@ -44,18 +50,29 @@ class FetchPallets extends FetchAction
 
     public function getModelsQuery(): Builder
     {
-        return DB::connection('aurora')
+        $query= DB::connection('aurora')
             ->table('Fulfilment Asset Dimension')
             ->select('Fulfilment Asset Key as source_id')
             ->orderBy('source_id')
             ->when(app()->environment('testing'), function ($query) {
                 return $query->limit(20);
             });
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        return $query;
+
     }
 
 
     public function count(): ?int
     {
-        return DB::connection('aurora')->table('Fulfilment Asset Dimension')->count();
+        $query= DB::connection('aurora')->table('Fulfilment Asset Dimension');
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+        return $query->count();
     }
 }

@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faArrowLeft, faCheckCircle } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { ref } from 'vue'
+import InputError from '@/Components/InputError.vue'
 library.add(faArrowLeft, faCheckCircle)
 
 
@@ -22,9 +23,11 @@ const form = useForm({
 })
 
 const isResetLinkSent = ref(false)
+// const errorForm = ref('')
 const submit = () => {
     form.post(route('grp.password.email'), {
-        onSuccess: () => isResetLinkSent.value = true 
+        onSuccess: () => (console.log('ewqewq'), isResetLinkSent.value = true),
+        // onError: (e) => errorForm.value = e.email
     })
 }
 </script>
@@ -50,13 +53,14 @@ const submit = () => {
                 <PureInput
                     v-model="form.email"
                     id="email"
+                    @update:modelValue="() => form.errors.email = ''"
                     placeholder="johndoe@gmail.com"
                     class="mt-1 block w-full"
                     type="email"
                     required
                     autofocus
                     autocomplete="email" />
-                <!-- <InputError class="mt-2" :message="form.errors.email" /> -->
+                <InputError class="italic mt-2" :message="form.errors.email" />
             </div>
             <div class="flex items-center justify-center mt-8">
                 <Button @click="() => submit()"

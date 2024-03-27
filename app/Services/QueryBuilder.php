@@ -21,18 +21,13 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 
 
         if (request()->has("$argumentName.$key")) {
-            $elements = explode(',', request()->input("$argumentName.$key"));
-
-
-            $validatedElements = array_intersect($allowedElements, $elements);
-
-
+            $elements               = explode(',', request()->input("$argumentName.$key"));
+            $validatedElements      = array_intersect($allowedElements, $elements);
             $countValidatedElements = count($validatedElements);
             if ($countValidatedElements > 0 and $countValidatedElements < count($allowedElements)) {
                 $elementsData = $validatedElements;
             }
         }
-
 
         if ($elementsData) {
             $engine($this, $elementsData);
