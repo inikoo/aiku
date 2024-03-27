@@ -34,6 +34,7 @@ import Checkbox from '@/Components/Forms/Fields/Checkbox.vue'
 import EmployeePosition from '@/Components/Forms/Fields/EmployeePosition.vue'
 import AppLogin from '@/Components/Forms/Fields/AppLogin.vue'
 import AppTheme from '@/Components/Forms/Fields/AppTheme.vue'
+import Interest from '@/Components/Forms/Fields/Interest.vue'
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -89,6 +90,7 @@ const components: {[key: string]: Component} = {
     'employeePosition': EmployeePosition,
     'app_login': AppLogin,
     'app_theme': AppTheme,
+    'interest': Interest,
 }
 
 const getComponent = (componentName: string) => {

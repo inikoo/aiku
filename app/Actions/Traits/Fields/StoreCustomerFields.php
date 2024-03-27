@@ -22,23 +22,42 @@ trait StoreCustomerFields
                 'fields' => [
                     'company_name' => [
                         'type'  => 'input',
-                        'label' => __('company')
+                        'label' => __('company'),
+                        'value' => ''
                     ],
                     'contact_name' => [
                         'type'  => 'input',
-                        'label' => __('contact name')
+                        'label' => __('contact name'),
+                        'value' => ''
                     ],
                     'email' => [
                         'type'  => 'input',
-                        'label' => __('email')
+                        'label' => __('email'),
+                        'value' => ''
                     ],
                     'phone' => [
                         'type'  => 'input',
-                        'label' => __('phone')
+                        'label' => __('phone'),
+                        'value' => ''
                     ],
                     'interest' => [
-                        'type'  => 'input',
-                        'label' => __('interest')
+                        'type'    => 'interest',
+                        'options' => [
+                            [
+                                'value' => 'allow_stocks',
+                                'label' => 'Allow stocks'
+                            ],
+                            [
+                                'value' => 'allow_fulfilment',
+                                'label' => 'Allow fulfilment'
+                            ],
+                            [
+                                'value' => 'allow_dropshipping',
+                                'label' => 'Allow dropshipping'
+                            ],
+                        ],
+                        'label' => __('interest'),
+                        'value' => []
                     ],
                     'address'      => [
                         'type'    => 'address',
