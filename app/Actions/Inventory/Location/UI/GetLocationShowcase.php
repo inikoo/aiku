@@ -17,7 +17,7 @@ class GetLocationShowcase
     public function handle(Location $location): array
     {
         return [
-            'contactCard' => [
+            'stats' => [
                 'max_volume'                => $location->max_volume,
                 'max_weight'                => $location->max_weight,
                 'number_org_stock_slots'    => $location->stats->number_org_stock_slots,
