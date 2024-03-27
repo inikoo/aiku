@@ -13,10 +13,10 @@ trait HasSalesTransactionParents
 {
     public function salesTransactionParents(Blueprint $table): Blueprint
     {
-        $table->unsignedSmallInteger('fulfilment_id')->index();
-        $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
-        $table->unsignedInteger('fulfilment_customer_id')->index();
-        $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
+        $table->unsignedSmallInteger('shop_id')->index();
+        $table->foreign('shop_id')->references('id')->on('shops');
+        $table->unsignedInteger('customer_id')->index();
+        $table->foreign('customer_id')->references('id')->on('customers');
         $table->unsignedInteger('order_id')->nullable()->index();
         $table->foreign('order_id')->references('id')->on('orders');
 

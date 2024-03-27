@@ -18,7 +18,14 @@ return new class () extends Migration {
             $table=$this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('number')->index();
-            $table=$this->salesTransactionParents($table);
+
+            $table->unsignedSmallInteger('fulfilment_id')->index();
+            $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
+            $table->unsignedInteger('fulfilment_customer_id')->index();
+            $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
+            $table->unsignedInteger('order_id')->nullable()->index();
+            $table->foreign('order_id')->references('id')->on('orders');
+
             $table->string('type')->default(ProformaTypeEnum::INVOICE->value)->index();
             $table->unsignedSmallInteger('currency_id');
             $table->foreign('currency_id')->references('id')->on('currencies');
