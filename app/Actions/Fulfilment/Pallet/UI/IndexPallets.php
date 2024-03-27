@@ -194,8 +194,8 @@ class IndexPallets extends OrgAction
                 'icons' => ['fal fa-pallet'],
                 'title' => __("No pallets exist"),
                 'count' => match (class_basename($parent)) {
-                    'Fulfilment', 'Warehouse' => $parent->stats->number_pallets,
-                    'FulfilmentCustomer' => $parent->number_pallets
+                    'FulfilmentCustomer' => $parent->number_pallets,
+                    default              => $parent->stats->number_pallets
                 }
             ];
 
