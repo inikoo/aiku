@@ -221,28 +221,27 @@ class ShowFulfilmentCustomer extends OrgAction
                 )
             )->table(
                 IndexStoredItems::make()->tableStructure(
-                    parent: $fulfilmentCustomer->storedItems,
-                    modelOperations:
-                    [
-                        'createLink' => [
-                           [
-                               'type'    => 'button',
-                               'style'   => 'create',
-                               'tooltip' => __('Return new stored item return'),
-                               'label'   => __('Stored Item Return'),
-                               'route'   => [
-                                   'method'     => 'post',
-                                   'name'       => 'grp.models.fulfilment-customer.stored-item-return.store',
-                                   'parameters' => [$fulfilmentCustomer->id]
-                               ]
-                           ]
-                        ],
-                    ],
+                    parent: $fulfilmentCustomer->storedItems
                 )
             )->table(
                 IndexStoredItemReturns::make()->tableStructure(
                     parent: $fulfilmentCustomer,
-                    prefix: CustomerFulfilmentTabsEnum::STORED_ITEM_RETURNS->value
+                    modelOperations: [
+                        'createLink' => [
+                            [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('Return new stored item return'),
+                                'label'   => __('Stored Item Return'),
+                                'route'   => [
+                                    'method'     => 'post',
+                                    'name'       => 'grp.models.fulfilment-customer.stored-item-return.store',
+                                    'parameters' => [$fulfilmentCustomer->id]
+                                ]
+                            ]
+                        ],
+                    ],
+                    prefix: CustomerFulfilmentTabsEnum::STORED_ITEM_RETURNS->value,
                 )
             );
     }
@@ -278,7 +277,7 @@ class ShowFulfilmentCustomer extends OrgAction
         };
 
         if(Arr::get($routeParameters, 'pallet')) {
-            $pallet             = Pallet::where('id', $routeParameters['pallet'])->first();
+            $pallet             = Pallet::where('reference', $routeParameters['pallet'])->first();
             $fulfilmentCustomer = $pallet->fulfilmentCustomer->slug;
         } else {
             $fulfilmentCustomer = $routeParameters['fulfilmentCustomer'];

@@ -14,6 +14,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
+use App\Http\Resources\Inventory\WarehouseResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -138,7 +139,21 @@ class IndexPalletDeliveries extends OrgAction
                         'FulfilmentCustomer' => [
                             'title'       => __('No pallet deliveries found for this customer'),
                             'description' => __('This customer has not received any pallet deliveries yet'),
-                            'count'       => $parent->number_pallet_deliveries
+                            'count'       => $parent->number_pallet_deliveries,
+                            'action'      => [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('Create new delivery order'),
+                                'label'   => __('New Delivery Pallet'),
+                                'options' => [
+                                    'warehouses' => WarehouseResource::collection($parent->fulfilment->warehouses)
+                                ],
+                                'route'   => [
+                                    'method'     => 'post',
+                                    'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
+                                    'parameters' => [$parent->id]
+                                ]
+                            ]
                         ]
                     }
                 )
