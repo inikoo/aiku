@@ -63,6 +63,7 @@ class StorePalletDelivery extends OrgAction
 
         /** @var PalletDelivery $palletDelivery */
         $palletDelivery = $fulfilmentCustomer->palletDeliveries()->create($modelData);
+        $palletDelivery->stats()->create();
 
         HydrateFulfilmentCustomer::dispatch($fulfilmentCustomer);
         BroadcastFulfilmentCustomerNotification::dispatch(
