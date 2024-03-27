@@ -35,6 +35,16 @@ class GetFulfilmentNavigation
                 'topMenu' => [
                     'subSections' => [
                         [
+                            'label'   => __('products'),
+                            'tooltip' => __('Products'),
+                            'icon'    => ['fal', 'fa-cube'],
+                            'root'    => 'grp.org.fulfilments.show.operations.pallets.',
+                            'route'   => [
+                                'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
+                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
+                            ],
+                        ],
+                        [
                             'label'   => __('pallets'),
                             'tooltip' => __('Pallets'),
                             'icon'    => ['fal', 'fa-pallet'],
@@ -62,6 +72,26 @@ class GetFulfilmentNavigation
                             'root'    => 'grp.org.fulfilments.show.operations.pallet-returns.',
                             'route'   => [
                                 'name'       => 'grp.org.fulfilments.show.operations.pallet-returns.index',
+                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
+                            ],
+                        ],
+                        [
+                            'label'   => __('proforma invoices'),
+                            'tooltip' => __('Proformas'),
+                            'icon'    => ['fal', 'fa-receipt'],
+                            'root'    => 'grp.org.fulfilments.show.operations.pallets.',
+                            'route'   => [
+                                'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
+                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
+                            ],
+                        ],
+                        [
+                            'label'   => __('invoices'),
+                            'tooltip' => __('Invoices'),
+                            'icon'    => ['fal', 'fa-file-invoice-dollar'],
+                            'root'    => 'grp.org.fulfilments.show.operations.pallets.',
+                            'route'   => [
+                                'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ],
                         ],
