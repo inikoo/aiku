@@ -10,7 +10,7 @@ namespace App\Actions\Accounting\Invoice;
 use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Accounting\InvoiceResource;
+use App\Http\Resources\Accounting\InvoicesResource;
 use App\Models\Accounting\Invoice;
 use App\Rules\IUnique;
 
@@ -32,7 +32,7 @@ class UpdateInvoice extends OrgAction
     public function rules(): array
     {
         return [
-            'number'      => [
+            'number'           => [
                 'sometimes',
                 'string',
                 'max:64',
@@ -44,9 +44,11 @@ class UpdateInvoice extends OrgAction
                     ]
                 ),
             ],
-            'currency_id' => ['sometimes', 'required', 'exists:currencies,id'],
-            'net'         => ['sometimes', 'required', 'numeric'],
-            'total'       => ['sometimes', 'required', 'numeric'],
+            'currency_id'      => ['sometimes', 'required', 'exists:currencies,id'],
+            'net'              => ['sometimes', 'required', 'numeric'],
+            'total'            => ['sometimes', 'required', 'numeric'],
+            'date'             => ['sometimes', 'date'],
+            'tax_liability_at' => ['sometimes', 'date'],
         ];
     }
 
@@ -61,8 +63,8 @@ class UpdateInvoice extends OrgAction
         return $this->handle($invoice, $this->validatedData);
     }
 
-    public function jsonResponse(Invoice $invoice): InvoiceResource
+    public function jsonResponse(Invoice $invoice): InvoicesResource
     {
-        return new InvoiceResource($invoice);
+        return new InvoicesResource($invoice);
     }
 }

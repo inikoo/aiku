@@ -55,6 +55,10 @@ class StoreInvoice extends OrgAction
         data_set($modelData, 'org_net_amount', Arr::get($modelData, 'net') * $orgExchange, overwrite: false);
         data_set($modelData, 'group_net_amount', Arr::get($modelData, 'net') * $groupExchange, overwrite: false);
 
+        $date=now();
+        data_set($modelData, 'date', $date, overwrite: false);
+        data_set($modelData, 'tax_liability_at', $date, overwrite: false);
+
 
         /** @var \App\Models\Accounting\Invoice $invoice */
         $invoice = $parent->invoices()->create($modelData);
@@ -92,6 +96,8 @@ class StoreInvoice extends OrgAction
             'net'              => ['required', 'numeric'],
             'total'            => ['required', 'numeric'],
             'source_id'        => ['sometimes', 'string'],
+            'date'             => ['sometimes', 'date'],
+            'tax_liability_at' => ['sometimes', 'date'],
             'created_at'       => ['sometimes', 'date'],
             'data'             => ['sometimes', 'array'],
             'org_exchange'     => ['sometimes', 'numeric'],

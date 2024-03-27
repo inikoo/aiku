@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\PaymentsResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -31,9 +32,9 @@ use App\Services\QueryBuilder;
 
 class IndexPayments extends OrgAction
 {
-    private Organisation|PaymentAccount|Shop|PaymentServiceProvider $parent;
+    private Organisation|PaymentAccount|Shop|PaymentServiceProvider|Invoice $parent;
 
-    public function handle($parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|PaymentAccount|Shop|PaymentServiceProvider|Invoice $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -54,6 +55,9 @@ class IndexPayments extends OrgAction
             $queryBuilder->where('payments.payment_account_id', $parent->id);
         } elseif (class_basename($parent) == 'Shop') {
             $queryBuilder->where('payments.shop_id', $parent->id);
+        } elseif (class_basename($parent) == 'Invoice') {
+            // todo
+            abort(404);
         } elseif (class_basename($parent) == 'Order') {
             $queryBuilder->leftJoin(
                 'paymentables',
@@ -63,6 +67,8 @@ class IndexPayments extends OrgAction
                 }
             );
             $queryBuilder->where('paymentables.paymentable_id', $parent->id);
+        } else {
+            abort(422);
         }
 
         /*
@@ -96,7 +102,7 @@ class IndexPayments extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|PaymentServiceProvider|PaymentAccount $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Invoice|Organisation|PaymentServiceProvider|PaymentAccount $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {

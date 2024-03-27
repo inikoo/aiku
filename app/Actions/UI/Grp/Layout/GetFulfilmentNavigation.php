@@ -38,7 +38,7 @@ class GetFulfilmentNavigation
                             'label'   => __('products'),
                             'tooltip' => __('Products'),
                             'icon'    => ['fal', 'fa-cube'],
-                            'root'    => 'grp.org.fulfilments.show.operations.pallets.',
+                            'root'    => 'grp.org.fulfilments.show.operations.products.',
                             'route'   => [
                                 'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
@@ -79,7 +79,7 @@ class GetFulfilmentNavigation
                             'label'   => __('Proformas'),
                             'tooltip' => __('Proforma invoices'),
                             'icon'    => ['fal', 'fa-receipt'],
-                            'root'    => 'grp.org.fulfilments.show.operations.pallets.',
+                            'root'    => 'grp.org.fulfilments.show.operations.fulfilment_proformas.',
                             'route'   => [
                                 'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
@@ -89,9 +89,9 @@ class GetFulfilmentNavigation
                             'label'   => __('invoices'),
                             'tooltip' => __('Invoices'),
                             'icon'    => ['fal', 'fa-file-invoice-dollar'],
-                            'root'    => 'grp.org.fulfilments.show.operations.pallets.',
+                            'root'    => 'grp.org.fulfilments.show.operations.invoiced.',
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
+                                'name'       => 'grp.org.fulfilments.show.operations.invoices.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ],
                         ],

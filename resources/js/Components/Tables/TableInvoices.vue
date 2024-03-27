@@ -16,15 +16,20 @@ const props = defineProps<{
 
 
 function invoiceRoute(invoice: Invoice) {
+  console.log(route().current())
     switch (route().current()) {
         case 'shops.show.invoices.index':
             return route(
                 'shops.show.invoices.show',
                 [invoice.slug, invoice.slug]);
+      case 'grp.org.fulfilments.show.operations.invoices.index':
+            return route(
+                'grp.org.fulfilments.show.operations.invoices.show',
+                [route().params['organisation'],route().params['fulfilment'],invoice.slug]);
         default:
             return route(
                 'grp.org.accounting.invoices.show',
-                [invoice.slug]);
+                [route().params['organisation'],invoice.slug]);
     }
 }
 
@@ -37,6 +42,12 @@ function invoiceRoute(invoice: Invoice) {
                 {{ invoice["number"]}}
             </Link>
         </template>
+
+      <template #cell(net)="{ item: invoice }">
+
+          {{ invoice["net"]}}  {{ invoice["currency_code"]}}  {{ invoice["currency_symbol"]}}
+
+      </template>
 
     </Table>
 </template>

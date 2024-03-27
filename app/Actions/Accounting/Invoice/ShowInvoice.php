@@ -8,28 +8,30 @@
 namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\Accounting\Payment\UI\IndexPayments;
-use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\IndexShops;
+use App\Actions\OrgAction;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\CustomerTabsEnum;
 use App\Enums\UI\InvoiceTabsEnum;
-use App\Http\Resources\Accounting\InvoiceResource;
+use App\Http\Resources\Accounting\InvoicesResource;
 use App\Http\Resources\Accounting\PaymentsResource;
 use App\Models\Accounting\Invoice;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Shop;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-/**
- * @property Invoice $invoice
- */
-class ShowInvoice extends InertiaAction
+class ShowInvoice extends OrgAction
 {
     use AsAction;
     use WithInertia;
+
+
+    private Organisation|Fulfilment|Shop $parent;
 
     public function handle(Invoice $invoice): Invoice
     {
@@ -38,21 +40,39 @@ class ShowInvoice extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        //
-        return $request->user()->hasPermissionTo("shops.products.view");
+
+        if($this->parent instanceof Organisation) {
+            return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
+        } elseif($this->parent instanceof Shop) {
+            //todo think about it
+            return false;
+        } elseif($this->parent instanceof Fulfilment) {
+            return $request->user()->hasPermissionTo("fulfilments.{$this->organisation->id}.view");
+        }
+        return false;
     }
 
-    public function inOrganisation(Invoice $invoice, ActionRequest $request): Invoice
+    public function inOrganisation(Organisation $organisation, Invoice $invoice, ActionRequest $request): Invoice
     {
-        $this->initialisation($request)->withTab(CustomerTabsEnum::values());
+        $this->parent=$organisation;
+        $this->initialisation($organisation, $request)->withTab(CustomerTabsEnum::values());
 
         return $this->handle($invoice);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, Invoice $invoice, ActionRequest $request): Invoice
+    public function inShop(Organisation $organisation, Shop $shop, Invoice $invoice, ActionRequest $request): Invoice
     {
-        $this->initialisation($request)->withTab(CustomerTabsEnum::values());
+        $this->parent=$shop;
+        $this->initialisationFromShop($shop, $request)->withTab(CustomerTabsEnum::values());
+        return $this->handle($invoice);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Invoice $invoice, ActionRequest $request): Invoice
+    {
+        $this->parent=$fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(CustomerTabsEnum::values());
         return $this->handle($invoice);
     }
 
@@ -81,17 +101,17 @@ class ShowInvoice extends InertiaAction
                 ],
 
                 InvoiceTabsEnum::SHOWCASE->value => $this->tab == InvoiceTabsEnum::SHOWCASE->value ?
-                    fn () => GetInvoiceShowcase::run($this->invoice)
-                    : Inertia::lazy(fn () => GetInvoiceShowcase::run($this->invoice)),
+                    fn () => GetInvoiceShowcase::run($invoice)
+                    : Inertia::lazy(fn () => GetInvoiceShowcase::run($invoice)),
 
                 InvoiceTabsEnum::PAYMENTS->value => $this->tab == InvoiceTabsEnum::PAYMENTS->value ?
-                    fn () => PaymentsResource::collection(IndexPayments::run($this->invoice))
-                    : Inertia::lazy(fn () => PaymentsResource::collection(IndexPayments::run($this->invoice))),
+                    fn () => PaymentsResource::collection(IndexPayments::run($invoice))
+                    : Inertia::lazy(fn () => PaymentsResource::collection(IndexPayments::run($invoice))),
 
 
 
             ]
-        )->table(IndexPayments::make()->tableStructure());
+        )->table(IndexPayments::make()->tableStructure($invoice));
     }
 
     public function prepareForValidation(ActionRequest $request): void
@@ -102,9 +122,9 @@ class ShowInvoice extends InertiaAction
         $this->set('canViewUsers', $request->user()->hasPermissionTo('users.view'));
     }
 
-    #[Pure] public function jsonResponse(Invoice $invoice): InvoiceResource
+    #[Pure] public function jsonResponse(Invoice $invoice): InvoicesResource
     {
-        return new InvoiceResource($invoice);
+        return new InvoicesResource($invoice);
     }
 
 

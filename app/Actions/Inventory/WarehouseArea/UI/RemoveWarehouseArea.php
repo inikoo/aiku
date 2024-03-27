@@ -107,7 +107,6 @@ class RemoveWarehouseArea extends InertiaAction
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return ShowWarehouseArea::make()->getBreadcrumbs(
-            $routeName,
             routeParameters: $routeParameters,
             suffix: '('.__('deleting').')'
         );
