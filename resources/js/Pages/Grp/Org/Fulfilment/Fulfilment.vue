@@ -17,7 +17,7 @@ import { useTabChange } from "@/Composables/tab-change"
 import ModelDetails from "@/Components/ModelDetails.vue"
 import TableHistories from "@/Components/Tables/TableHistories.vue"
 import FulfilmentShowcase from "@/Components/Showcases/Org/FulfilmentShowcase.vue"
-import TablePallets from "@/Components/Tables/TablePallets.vue";
+import TablePallets from "@/Components/Tables/TablePallets.vue"
 
 library.add(faTachometerAlt, faHandHoldingBox)
 
@@ -53,9 +53,9 @@ const component = computed(() => {
 
 
 <template>
+
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :tab="currentTab" :data="props[currentTab]"></component>
 </template>
-
