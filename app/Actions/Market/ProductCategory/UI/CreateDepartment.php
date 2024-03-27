@@ -83,7 +83,7 @@ class CreateDepartment extends InertiaAction
                     'route' => match ($request->route()->getName()) {
                         'shops.show.departments.create' => [
                             'name'      => 'grp.models.shop.department.store',
-                            'arguments' => [$request->route()->originalParameters()['shop']->slug]
+                            'arguments' => $this->shop->id
                         ],
                         default => [
                             'name' => 'grp.models.department.store'

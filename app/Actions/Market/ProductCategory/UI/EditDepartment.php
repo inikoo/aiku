@@ -98,7 +98,7 @@ class EditDepartment extends InertiaAction
                     'args'      => [
                         'updateRoute' => [
                             'name'       => 'grp.models.department.update',
-                            'parameters' => $department->slug
+                            'parameters' => $department->id
                         ],
                     ]
                 ]

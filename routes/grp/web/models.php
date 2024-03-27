@@ -70,18 +70,18 @@ Route::get('/profile/app-login-qrcode', GetProfileAppLoginQRCode::class)->name('
 
 
 Route::patch('/employees/{employee:id}', UpdateEmployee::class)->name('employee.update');
-Route::delete('/employee/{employee}', DeleteEmployee::class)->name('employee.delete');
-Route::patch('/working-place/{workplace}', UpdateWorkplace::class)->name('working-place.update');
-Route::delete('/working-place/{workplace}', DeleteWorkplace::class)->name('working-place.delete');
+Route::delete('/employee/{employee:id}', DeleteEmployee::class)->name('employee.delete');
+Route::patch('/working-place/{workplace:id}', UpdateWorkplace::class)->name('working-place.update');
+Route::delete('/working-place/{workplace:id}', DeleteWorkplace::class)->name('working-place.delete');
 
-Route::name('org.')->prefix('org/{organisation}')->group(function () {
+Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('/employee/', StoreEmployee::class)->name('employee.store');
     Route::post('/working-place/', StoreWorkplace::class)->name('working-place.store');
     Route::post('/shop/', StoreShop::class)->name('shop.store');
     Route::post('/fulfilment/', StoreFulfilment::class)->name('fulfilment.store');
 
-    Route::post('/shop/{shop}/customer/', StoreCustomer::class)->name('shop.customer.store');
-    Route::post('/shop/{shop}/fulfilment/{fulfilment}/customer', StoreFulfilmentCustomer::class)->name('shop.fulfilment-customer.store');
+    Route::post('/shop/{shop:id}/customer/', StoreCustomer::class)->name('shop.customer.store');
+    Route::post('/shop/{shop:id}/fulfilment/{fulfilment:id}/customer', StoreFulfilmentCustomer::class)->name('shop.fulfilment-customer.store');
 
 });
 
@@ -107,7 +107,7 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::post('stored-items', SyncStoredItemToPallet::class)->name('stored-items.update');
 });
 
-Route::patch('{storedItem}/stored-items', MoveStoredItem::class)->name('stored-items.move');
+Route::patch('{storedItem:id}/stored-items', MoveStoredItem::class)->name('stored-items.move');
 
 Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
     Route::post('stored-item-return', StoreStoredItemReturn::class)->name('stored-item-return.store');
@@ -120,7 +120,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::post('pallet-return', StorePalletReturn::class)->name('pallet-return.store');
 
     Route::prefix('pallet-return/{palletReturn:id}')->name('pallet-return.')->group(function () {
-        Route::delete('pallet/{pallet}', DeletePalletFromReturn::class)->name('pallet.delete');
+        Route::delete('pallet/{pallet:id}', DeletePalletFromReturn::class)->name('pallet.delete');
         Route::post('pallet', StorePalletToReturn::class)->name('pallet.store');
         Route::post('submit', SubmitPalletReturn::class)->name('submit');
         Route::post('delivery', PickingPalletReturn::class)->name('picking');
@@ -131,7 +131,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     });
 
     Route::prefix('stored-item-return/{storedItemReturn:id}')->name('stored-item-return.')->group(function () {
-        Route::delete('stored-item/{storedItem}', DeleteStoredItemFromStoredItemReturn::class)->name('stored-item.delete');
+        Route::delete('stored-item/{storedItem:id}', DeleteStoredItemFromStoredItemReturn::class)->name('stored-item.delete');
         Route::post('stored-item', StoreStoredItemToStoredItemReturn::class)->name('stored-item.store');
         Route::post('state/{state}', UpdateStateStoredItemReturn::class)->name('state.update')->whereIn('state', StoredItemReturnStateEnum::values());
     });
@@ -180,134 +180,134 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
 
 
 
-Route::patch('/shop/{shop}', UpdateShop::class)->name('shop.update');
-Route::delete('/shop/{shop}', DeleteShop::class)->name('shop.delete');
+Route::patch('/shop/{shop:id}', UpdateShop::class)->name('shop.update');
+Route::delete('/shop/{shop:id}', DeleteShop::class)->name('shop.delete');
 
-Route::patch('/customer/{customer}', UpdateCustomer::class)->name('customer.update');
-Route::post('/shop/{shop}/customer/', StoreCustomer::class)->name('shop.customer.store');
-Route::post('/shop/{shop}/department/', [StoreProductCategory::class, 'inShop'])->name('shop.department.store');
-Route::post('/shop/{shop}/website/', StoreWebsite::class)->name('shop.website.store');
-Route::delete('/shop/{shop}/department/{department}', [DeleteProductCategory::class, 'inShop'])->name('shop.department.delete');
-
-
-Route::post('stored-items/customer/{customer}', StoreStoredItem::class)->name('stored-items.store');
-Route::patch('stored-items/{storedItem}', UpdateStoredItem::class)->name('stored-items.update');
-
-Route::delete('/website/{website}', DeleteWebsite::class)->name('website.delete');
-Route::patch('/web-user/{webUser}', UpdateWebUser::class)->name('web-user.update');
+Route::patch('/customer/{customer:id}', UpdateCustomer::class)->name('customer.update');
+Route::post('/shop/{shop:id}/customer/', StoreCustomer::class)->name('shop.customer.store');
+Route::post('/shop/{shop:id}/department/', [StoreProductCategory::class, 'inShop'])->name('shop.department.store');
+Route::post('/shop/{shop:id}/website/', StoreWebsite::class)->name('shop.website.store');
+Route::delete('/shop/{shop:id}/department/{department:id}', [DeleteProductCategory::class, 'inShop'])->name('shop.department.delete');
 
 
+Route::post('stored-items/customer/{customer:id}', StoreStoredItem::class)->name('stored-items.store');
+Route::patch('stored-items/{storedItem:id}', UpdateStoredItem::class)->name('stored-items.update');
 
-Route::post('/shop/{shop}/product/', [StoreProduct::class, 'inShop'])->name('show.product.store');
-Route::post('/shop/{shop}/order/', [StoreOrder::class, 'inShop'])->name('show.order.store');
+Route::delete('/website/{website:id}', DeleteWebsite::class)->name('website.delete');
+Route::patch('/web-user/{webUser:id}', UpdateWebUser::class)->name('web-user.update');
+
+
+
+Route::post('/shop/{shop:id}/product/', [StoreProduct::class, 'inShop'])->name('show.product.store');
+Route::post('/shop/{shop:id}/order/', [StoreOrder::class, 'inShop'])->name('show.order.store');
 
 Route::post('/product/', StoreProduct::class)->name('product.store');
-Route::patch('/product/{product}', UpdateProduct::class)->name('product.update');
-Route::delete('/product/{product}', UpdateProduct::class)->name('product.delete');
-Route::delete('/shop/{shop}/product/{product}', [DeleteProduct::class, 'inShop'])->name('shop.product.delete');
+Route::patch('/product/{product:id}', UpdateProduct::class)->name('product.update');
+Route::delete('/product/{product:id}', UpdateProduct::class)->name('product.delete');
+Route::delete('/shop/{shop:id}/product/{product:id}', [DeleteProduct::class, 'inShop'])->name('shop.product.delete');
 
-Route::patch('/department/{department}', UpdateProductCategory::class)->name('department.update');
-Route::delete('/department/{department}', DeleteProductCategory::class)->name('department.delete');
+Route::patch('/department/{department:id}', UpdateProductCategory::class)->name('department.update');
+Route::delete('/department/{department:id}', DeleteProductCategory::class)->name('department.delete');
 
 Route::post('/family/', StoreProductCategory::class)->name('family.store');
-Route::post('/shop/{shop}/family/', [StoreProductCategory::class, 'inShop'])->name('shop.family.store');
-Route::patch('/family/{family}', UpdateFamily::class)->name('family.update');
-Route::delete('/family/{family}', DeleteFamily::class)->name('family.delete');
+Route::post('/shop/{shop:id}/family/', [StoreProductCategory::class, 'inShop'])->name('shop.family.store');
+Route::patch('/family/{family:id}', UpdateFamily::class)->name('family.update');
+Route::delete('/family/{family:id}', DeleteFamily::class)->name('family.delete');
 
 Route::post('/order/', StoreOrder::class)->name('order.store');
-Route::patch('/order/{order}', UpdateOrder::class)->name('order.update');
+Route::patch('/order/{order:id}', UpdateOrder::class)->name('order.update');
 
 
-Route::patch('/position/{employee}', UpdateJobPosition::class)->name('job-position.update');
+Route::patch('/position/{employee:id}', UpdateJobPosition::class)->name('job-position.update');
 Route::post('/position/', StoreJobPosition::class)->name('job-position.store');
-Route::delete('/position/{employee}', DeleteJobPosition::class)->name('job-position.delete');
+Route::delete('/position/{employee:id}', DeleteJobPosition::class)->name('job-position.delete');
 
 
-Route::patch('/clocking-machine/{clockingMachine}', UpdateClockingMachine::class)->name('clocking-machine.update');
+Route::patch('/clocking-machine/{clockingMachine:id}', UpdateClockingMachine::class)->name('clocking-machine.update');
 Route::post('/clocking-machine', StoreClockingMachine::class)->name('clocking-machine.store');
-Route::delete('/clocking-machine/{workplace}', DeleteWorkplace::class)->name('clocking-machine.delete');
-Route::post('/working-place/{workplace}/clocking-machine', StoreClockingMachine::class)->name('working-place.clocking-machine.store');
-Route::delete('/working-place/{workplace}/clocking-machine/{clockingMachine}', [ DeleteClockingMachine::class, 'inWorkplace'])->name('working-place.clocking-machine.delete');
+Route::delete('/clocking-machine/{workplace:id}', DeleteWorkplace::class)->name('clocking-machine.delete');
+Route::post('/working-place/{workplace:id}/clocking-machine', StoreClockingMachine::class)->name('working-place.clocking-machine.store');
+Route::delete('/working-place/{workplace:id}/clocking-machine/{clockingMachine:id}', [ DeleteClockingMachine::class, 'inWorkplace'])->name('working-place.clocking-machine.delete');
 
-Route::patch('/clocking/{clocking}', UpdateClocking::class)->name('clocking.update');
+Route::patch('/clocking/{clocking:id}', UpdateClocking::class)->name('clocking.update');
 Route::post('/clocking', StoreClocking::class)->name('clocking.store');
-Route::post('/working-place/{workplace}/clocking', StoreClocking::class)->name('working-place.clocking.store');
-Route::post('/clocking-machine/{clockingMachine}/clocking', [StoreClocking::class, 'inClockingMachine'])->name('clocking-machine.clocking.store');
-Route::post('/working-place/{workplace}/clocking-machine/{clockingMachine}/clocking', StoreClocking::class)->name('working-place.clocking-machine.clocking.store');
-Route::delete('/working-place/{workplace}/clocking/{clocking}', [ DeleteClocking::class, 'inWorkplace'])->name('working-place.clocking.delete');
-Route::delete('/clocking-machine/{clockingMachine}/clocking/{clocking}', [ DeleteClocking::class, 'inClockingMachine'])->name('clocking-machine.clocking.delete');
-Route::delete('/working-place/{workplace}/clocking-machine/{clockingMachine}/clocking/{clocking}', [ DeleteClocking::class, 'inWorkplaceInClockingMachine'])->name('working-place.clocking-machine.clocking.delete');
+Route::post('/working-place/{workplace:id}/clocking', StoreClocking::class)->name('working-place.clocking.store');
+Route::post('/clocking-machine/{clockingMachine:id}/clocking', [StoreClocking::class, 'inClockingMachine'])->name('clocking-machine.clocking.store');
+Route::post('/working-place/{workplace:id}/clocking-machine/{clockingMachine:id}/clocking', StoreClocking::class)->name('working-place.clocking-machine.clocking.store');
+Route::delete('/working-place/{workplace:id}/clocking/{clocking:id}', [ DeleteClocking::class, 'inWorkplace'])->name('working-place.clocking.delete');
+Route::delete('/clocking-machine/{clockingMachine:id}/clocking/{clocking:id}', [ DeleteClocking::class, 'inClockingMachine'])->name('clocking-machine.clocking.delete');
+Route::delete('/working-place/{workplace:id}/clocking-machine/{clockingMachine:id}/clocking/{clocking:id}', [ DeleteClocking::class, 'inWorkplaceInClockingMachine'])->name('working-place.clocking-machine.clocking.delete');
 
 Route::post('/warehouse/', StoreWarehouse::class)->name('warehouse.store');
-Route::patch('/warehouse/{warehouse}', UpdateWarehouse::class)->name('warehouse.update');
-Route::delete('/warehouse/{warehouse}', DeleteWarehouse::class)->name('warehouse.delete');
+Route::patch('/warehouse/{warehouse:id}', UpdateWarehouse::class)->name('warehouse.update');
+Route::delete('/warehouse/{warehouse:id}', DeleteWarehouse::class)->name('warehouse.delete');
 
-Route::post('/warehouse/{warehouse}/area/', StoreWarehouseArea::class)->name('warehouse.warehouse-area.store');
+Route::post('/warehouse/{warehouse:id}/area/', StoreWarehouseArea::class)->name('warehouse.warehouse-area.store');
 
-Route::patch('/area/{warehouseArea}', UpdateWarehouseArea::class)->name('warehouse-area.update');
-Route::delete('/area/{warehouseArea}', DeleteWarehouseArea::class)->name('warehouse-area.delete');
-Route::delete('/warehouse/{warehouse}/area/{warehouseArea}', [DeleteWarehouseArea::class,'inWarehouse'])->name('warehouse.warehouse-area.delete');
+Route::patch('/area/{warehouseArea:id}', UpdateWarehouseArea::class)->name('warehouse-area.update');
+Route::delete('/area/{warehouseArea:id}', DeleteWarehouseArea::class)->name('warehouse-area.delete');
+Route::delete('/warehouse/{warehouse:id}/area/{warehouseArea:id}', [DeleteWarehouseArea::class,'inWarehouse'])->name('warehouse.warehouse-area.delete');
 
-Route::patch('/location/{location}', UpdateLocation::class)->name('location.update');
-Route::delete('/location/{location}', DeleteLocation::class)->name('location.delete');
-Route::delete('/warehouse/{warehouse}/location/{location}', [DeleteLocation::class, 'inWarehouse'])->name('warehouse.location.delete');
-Route::delete('/area/{warehouseArea}/location/{location}', [DeleteLocation::class, 'inWarehouseArea'])->name('warehouse-area.location.delete');
-Route::delete('/warehouse/{warehouse}/area/{warehouseArea}/location/{location}', [DeleteLocation::class, 'inWarehouseInWarehouseArea'])->name('warehouse.warehouse-area.location.delete');
+Route::patch('/location/{location:id}', UpdateLocation::class)->name('location.update');
+Route::delete('/location/{location:id}', DeleteLocation::class)->name('location.delete');
+Route::delete('/warehouse/{warehouse:id}/location/{location:id}', [DeleteLocation::class, 'inWarehouse'])->name('warehouse.location.delete');
+Route::delete('/area/{warehouseArea:id}/location/{location:id}', [DeleteLocation::class, 'inWarehouseArea'])->name('warehouse-area.location.delete');
+Route::delete('/warehouse/{warehouse:id}/area/{warehouseArea:id}/location/{location:id}', [DeleteLocation::class, 'inWarehouseInWarehouseArea'])->name('warehouse.warehouse-area.location.delete');
 
-Route::post('/warehouse/{warehouse}/location', StoreLocation::class)->name('warehouse.location.store');
-Route::post('/area/{warehouseArea}/location', [StoreLocation::class, 'inWarehouseArea'])->name('warehouse-area.location.store');
+Route::post('/warehouse/{warehouse:id}/location', StoreLocation::class)->name('warehouse.location.store');
+Route::post('/area/{warehouseArea:id}/location', [StoreLocation::class, 'inWarehouseArea'])->name('warehouse-area.location.store');
 
-Route::patch('/stock/{stock}', UpdateStock::class)->name('stock.update');
+Route::patch('/stock/{stock:id}', UpdateStock::class)->name('stock.update');
 Route::post('/stock-family', StoreStockFamily::class)->name('stock-family.store');
-Route::patch('/stock-family/{stockFamily}', UpdateStockFamily::class)->name('stock-family.update');
-Route::delete('/stock-family/{stockFamily}', DeleteStockFamily::class)->name('stock-family.delete');
-Route::post('/stock-family/{stockFamily}/stock', [StoreStock::class,'inStockFamily'])->name('stock-family.stock.store');
-Route::patch('/stock-family/{stockFamily}/stock/{stock}', [UpdateStock::class,'inStockFamily'])->name('stock-family.stock.update');
-Route::delete('/stock-family/{stockFamily}/stock/{stock}', [DeleteStock::class, 'inStockFamily'])->name('stock-family.stock.delete');
+Route::patch('/stock-family/{stockFamily:id}', UpdateStockFamily::class)->name('stock-family.update');
+Route::delete('/stock-family/{stockFamily:id}', DeleteStockFamily::class)->name('stock-family.delete');
+Route::post('/stock-family/{stockFamily:id}/stock', [StoreStock::class,'inStockFamily'])->name('stock-family.stock.store');
+Route::patch('/stock-family/{stockFamily:id}/stock/{stock:id}', [UpdateStock::class,'inStockFamily'])->name('stock-family.stock.update');
+Route::delete('/stock-family/{stockFamily:id}/stock/{stock:id}', [DeleteStock::class, 'inStockFamily'])->name('stock-family.stock.delete');
 
-Route::patch('/agent/{agent}', UpdateAgent::class)->name('agent.update');
-Route::post('/agent/{agent}/purchase-order', [StorePurchaseOrder::class, 'inAgent'])->name('agent.purchase-order.store');
-Route::delete('/agent/{agent}', DeleteAgent::class)->name('agent.delete');
+Route::patch('/agent/{agent:id}', UpdateAgent::class)->name('agent.update');
+Route::post('/agent/{agent:id}/purchase-order', [StorePurchaseOrder::class, 'inAgent'])->name('agent.purchase-order.store');
+Route::delete('/agent/{agent:id}', DeleteAgent::class)->name('agent.delete');
 
 Route::post('/agent/', StoreAgent::class)->name('agent.store');
 
-Route::patch('/supplier/{supplier}', UpdateSupplier::class)->name('supplier.update');
-Route::delete('/supplier/{supplier}', DeleteSupplier::class)->name('supplier.delete');
+Route::patch('/supplier/{supplier:id}', UpdateSupplier::class)->name('supplier.update');
+Route::delete('/supplier/{supplier:id}', DeleteSupplier::class)->name('supplier.delete');
 Route::post('/supplier/', StoreSupplier::class)->name('supplier.store');
 
-Route::post('/agent/{agent}/supplier', [StoreSupplier::class, 'inAgent'])->name('agent.supplier.store');
-Route::post('/agent/{supplier}/purchase-order', [StorePurchaseOrder::class, 'inSupplier'])->name('supplier.purchase-order.store');
-Route::post('/supplier/{supplier}/purchase-order', [StorePurchaseOrder::class, 'inSupplier'])->name('supplier.purchase-order.store');
+Route::post('/agent/{agent:id}/supplier', [StoreSupplier::class, 'inAgent'])->name('agent.supplier.store');
+Route::post('/agent/{supplier:id}/purchase-order', [StorePurchaseOrder::class, 'inSupplier'])->name('supplier.purchase-order.store');
+Route::post('/supplier/{supplier:id}/purchase-order', [StorePurchaseOrder::class, 'inSupplier'])->name('supplier.purchase-order.store');
 
 
 Route::post('/provider', StorePaymentServiceProvider::class)->name('payment-service-provider.store');
-Route::patch('/provider/{paymentServiceProvider}', UpdatePaymentServiceProvider::class)->name('payment-service-provider.update');
-Route::delete('/provider/{paymentServiceProvider}', DeletePaymentServiceProvider::class)->name('payment-service-provider.delete');
+Route::patch('/provider/{paymentServiceProvider:id}', UpdatePaymentServiceProvider::class)->name('payment-service-provider.update');
+Route::delete('/provider/{paymentServiceProvider:id}', DeletePaymentServiceProvider::class)->name('payment-service-provider.delete');
 
-Route::patch('/payment/{payment}', UpdatePayment::class)->name('payment.update');
+Route::patch('/payment/{payment:id}', UpdatePayment::class)->name('payment.update');
 
-Route::patch('/payment-account/{paymentAccount}', UpdatePaymentAccount::class)->name('payment-account.update');
+Route::patch('/payment-account/{paymentAccount:id}', UpdatePaymentAccount::class)->name('payment-account.update');
 Route::post('/payment-account', StorePaymentAccount::class)->name('payment-account.store');
 
-Route::patch('/user/{user}', UpdateUser::class)->name('user.update');
+Route::patch('/user/{user:id}', UpdateUser::class)->name('user.update');
 
 
 
-Route::patch('/guest/{guest}', UpdateGuest::class)->name('guest.update');
+Route::patch('/guest/{guest:id}', UpdateGuest::class)->name('guest.update');
 Route::post('/guest/', StoreGuest::class)->name('guest.store');
-Route::delete('/guest/{guest}', DeleteGuest::class)->name('guest.delete');
-Route::post('/group-user/{GroupUser}guest/', [StoreGuest::class, 'inGroupUser'])->name('group-user.guest.store');
+Route::delete('/guest/{guest:id}', DeleteGuest::class)->name('guest.delete');
+Route::post('/group-user/{GroupUser:id}guest/', [StoreGuest::class, 'inGroupUser'])->name('group-user.guest.store');
 
-Route::patch('/outbox/{outbox}', UpdateOutbox::class)->name('outbox.update');
+Route::patch('/outbox/{outbox:id}', UpdateOutbox::class)->name('outbox.update');
 
-Route::patch('/purchase-order/{purchaseOrder}', UpdatePurchaseOrder::class)->name('purchase-order.update');
+Route::patch('/purchase-order/{purchaseOrder:id}', UpdatePurchaseOrder::class)->name('purchase-order.update');
 
-Route::patch('/supplier-delivery/{supplierDelivery}', UpdateSupplierDelivery::class)->name('supplier-delivery.update');
+Route::patch('/supplier-delivery/{supplierDelivery:id}', UpdateSupplierDelivery::class)->name('supplier-delivery.update');
 Route::post('/supplier-delivery/', StoreSupplierDelivery::class)->name('supplier-delivery.store');
-Route::patch('/marketplace-agent/{marketplaceAgent}', UpdateMarketplaceAgent::class)->name('marketplace-agent.update');
-Route::delete('/marketplace-agent/{marketplaceAgent}', DeleteMarketplaceAgent::class)->name('marketplace-agent.delete');
+Route::patch('/marketplace-agent/{marketplaceAgent:id}', UpdateMarketplaceAgent::class)->name('marketplace-agent.update');
+Route::delete('/marketplace-agent/{marketplaceAgent:id}', DeleteMarketplaceAgent::class)->name('marketplace-agent.delete');
 
-Route::patch('/marketplace-supplier/{marketplaceSupplier}', UpdateMarketplaceSupplier::class)->name('marketplace-supplier.update');
+Route::patch('/marketplace-supplier/{marketplaceSupplier:id}', UpdateMarketplaceSupplier::class)->name('marketplace-supplier.update');
 
 Route::patch('/system-settings', UpdateOrganisation::class)->name('system-settings.update');
 */

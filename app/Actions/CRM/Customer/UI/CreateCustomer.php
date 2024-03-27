@@ -84,7 +84,7 @@ class CreateCustomer extends InertiaAction
                         ],
                     'route'     => [
                         'name'     => 'grp.models.shop.customer.store',
-                        'arguments'=> [$shop->slug]
+                        'arguments'=> [$shop->id]
                     ]
                 ]
 

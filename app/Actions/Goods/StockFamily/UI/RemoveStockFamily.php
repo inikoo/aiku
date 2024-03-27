@@ -50,7 +50,7 @@ class RemoveStockFamily extends InertiaAction
             [
                 'title'       => __('delete stock family'),
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $stockFamily
+                    $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
                     'icon'  =>
@@ -73,15 +73,15 @@ class RemoveStockFamily extends InertiaAction
                 'data'      => $this->getAction(
                     route:[
                         'name'       => 'grp.models.stock-family.delete',
-                        'parameters' => $request->route()->originalParameters()
+                        'parameters' => $stockFamily->id
                     ]
                 )
             ]
         );
     }
 
-    public function getBreadcrumbs(StockFamily $stockFamily): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
-        return ShowStockFamily::make()->getBreadcrumbs($stockFamily, suffix: '('.__('deleting').')');
+        return ShowStockFamily::make()->getBreadcrumbs($routeParameters, suffix: '('.__('deleting').')');
     }
 }

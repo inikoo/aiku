@@ -15,7 +15,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class CreateWarehouseArea extends InertiaAction
 {
-    public function handle(ActionRequest $request): Response
+    public function handle(Warehouse $warehouse, ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
@@ -65,7 +65,7 @@ class CreateWarehouseArea extends InertiaAction
                     ],
                     'route'     => [
                         'name'      => 'grp.models.warehouse.warehouse-area.store',
-                        'arguments' => [$request->route()->originalParameters()['warehouse']->slug]
+                        'arguments' => $warehouse->id
                     ]
                 ],
 
@@ -79,12 +79,11 @@ class CreateWarehouseArea extends InertiaAction
     }
 
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function asController(Warehouse $warehouse, ActionRequest $request): Response
     {
         $this->initialisation($request);
 
-        return $this->handle($request);
+        return $this->handle($warehouse, $request);
     }
 
 

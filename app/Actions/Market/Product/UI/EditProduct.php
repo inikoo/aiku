@@ -127,7 +127,7 @@ class EditProduct extends InertiaAction
                     'args'      => [
                         'updateRoute' => [
                             'name'       => 'grp.models.product.update',
-                            'parameters' => $product->slug
+                            'parameters' => $product->id
 
                         ],
                     ]

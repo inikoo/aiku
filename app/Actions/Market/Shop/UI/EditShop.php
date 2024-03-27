@@ -162,7 +162,7 @@ class EditShop extends InertiaAction
                     'args'      => [
                         'updateRoute' => [
                             'name'       => 'grp.models.shop.update',
-                            'parameters' => $shop->slug
+                            'parameters' => $shop->id
 
                         ],
                     ]

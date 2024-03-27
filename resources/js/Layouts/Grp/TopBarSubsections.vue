@@ -28,10 +28,11 @@ const isSubSectionActive = (routeName: string) => {
 <template>
     <template v-for="subSection in subSections">
         <component v-if="subSection"
-                   :is="subSection.route?.name ? Link : 'div'"
-                   :href="subSection.route?.name ? route(subSection.route.name, subSection.route.parameters) : '#'"
-                   class="group relative text-gray-700 group text-sm flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4"
-                   :class="[]" :title="capitalize(subSection.tooltip ?? subSection.label ?? '')"
+            :is="subSection.route?.name ? Link : 'div'"
+            :href="subSection.route?.name ? route(subSection.route.name, subSection.route.parameters) : '#'"
+            class="group relative text-gray-700 group text-sm flex justify-end items-center cursor-pointer py-3 gap-x-2 px-4 md:px-4 lg:px-4"
+            :class="[]"
+            v-tooltip="capitalize(subSection.tooltip ?? subSection.label ?? '')"
         >
             <div :class="[
                 isSubSectionActive(subSection.root)
