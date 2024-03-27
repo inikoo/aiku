@@ -76,8 +76,8 @@ class GetFulfilmentNavigation
                             ],
                         ],
                         [
-                            'label'   => __('proforma invoices'),
-                            'tooltip' => __('Proformas'),
+                            'label'   => __('Proformas'),
+                            'tooltip' => __('Proforma invoices'),
                             'icon'    => ['fal', 'fa-receipt'],
                             'root'    => 'grp.org.fulfilments.show.operations.pallets.',
                             'route'   => [
