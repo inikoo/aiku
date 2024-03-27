@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faArrowLeft, faCheckCircle } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { ref } from 'vue'
+import InputError from '@/Components/InputError.vue'
 library.add(faArrowLeft, faCheckCircle)
 
 
@@ -48,6 +49,7 @@ const submit = () => {
                 <label for="email" value="Email" class="font-medium text-sm">Email:</label>
                 <PureInput
                     v-model="form.email"
+                    @update:modelValue="() => form.errors.email = ''"
                     id="email"
                     placeholder="johndoe@gmail.com"
                     class="mt-1 block w-full"
@@ -55,7 +57,7 @@ const submit = () => {
                     required
                     autofocus
                     autocomplete="email" />
-                <!-- <InputError class="mt-2" :message="form.errors.email" /> -->
+                <InputError class="mt-2 italic" :message="form.errors.email" />
             </div>
             <div class="flex items-center justify-center mt-8">
                 <Button @click="() => submit()"
