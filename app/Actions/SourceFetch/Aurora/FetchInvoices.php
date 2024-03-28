@@ -13,6 +13,7 @@ use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
 use App\Models\Accounting\Invoice;
 use App\Services\Organisation\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -25,12 +26,17 @@ class FetchInvoices extends FetchAction
         if ($invoiceData = $organisationSource->fetchInvoice($organisationSourceId)) {
             if ($invoice = Invoice::withTrashed()->where('source_id', $invoiceData['invoice']['source_id'])
                 ->first()) {
-                UpdateInvoice::make()->action(
-                    invoice: $invoice,
-                    modelData: $invoiceData['invoice'],
-                    hydratorsDelay: 60,
-                );
+                try {
+                    UpdateInvoice::make()->action(
+                        invoice: $invoice,
+                        modelData: $invoiceData['invoice'],
+                        hydratorsDelay: 60,
+                    );
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $invoiceData['product'], 'Invoice', 'update');
 
+                    return null;
+                }
                 $currentBillingAddress = $invoice->getAddress('billing');
 
                 if ($currentBillingAddress->checksum != $invoiceData['invoice']['billing_address']->getChecksum()) {
@@ -50,13 +56,18 @@ class FetchInvoices extends FetchAction
                     if ($invoiceData['invoice']['data']['foot_note'] == '') {
                         unset($invoiceData['invoice']['data']['foot_note']);
                     }
+                    try {
+                        $invoice = StoreInvoice::make()->action(
+                            parent: $invoiceData['parent'],
+                            modelData: $invoiceData['invoice'],
+                            hydratorsDelay: $this->hydrateDelay,
+                            strict: false
+                        );
+                    } catch (Exception $e) {
+                        $this->recordError($organisationSource, $e, $invoiceData['product'], 'Invoice', 'store');
 
-                    $invoice = StoreInvoice::make()->action(
-                        parent: $invoiceData['parent'],
-                        modelData: $invoiceData['invoice'],
-                        hydratorsDelay: $this->hydrateDelay,
-                        strict:false
-                    );
+                        return null;
+                    }
                     if (in_array('transactions', $this->with)) {
                         $this->fetchInvoiceTransactions($organisationSource, $invoice);
                     }
@@ -126,6 +137,7 @@ class FetchInvoices extends FetchAction
             $sourceData = explode(':', $this->shop->source_id);
             $query->where('Invoice Store Key', $sourceData[1]);
         }
+
         return $query->count();
     }
 
