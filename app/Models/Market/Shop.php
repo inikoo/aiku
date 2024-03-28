@@ -8,6 +8,7 @@
 namespace App\Models\Market;
 
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
+use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Market\Shop\ShopStateEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\Accounting\Invoice;
@@ -234,15 +235,20 @@ class Shop extends Model
         return $this->hasMany(Invoice::class);
     }
 
-    public function departments(): MorphMany
+    public function productCategories(): HasMany
     {
-        return $this->morphMany(ProductCategory::class, 'parent');
+        return $this->hasMany(ProductCategory::class);
     }
 
-    //    public function families(): HasMany
-    //    {
-    //        return $this->hasMany(Family::class);
-    //    }
+    public function departments(): Collection
+    {
+        return $this->productCategories()->where('shop_id', $this->id)->where('type', ProductCategoryTypeEnum::DEPARTMENT)->get();
+    }
+
+    public function families(): Collection
+    {
+        return $this->productCategories()->where('shop_id', $this->id)->where('type', ProductCategoryTypeEnum::FAMILY)->get();
+    }
 
     public function payments(): HasMany
     {

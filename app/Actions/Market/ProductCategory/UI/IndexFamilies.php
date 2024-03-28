@@ -10,6 +10,7 @@ namespace App\Actions\Market\ProductCategory\UI;
 use App\Actions\Market\HasMarketAuthorisation;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
+use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Market\FamiliesResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
@@ -83,7 +84,7 @@ class IndexFamilies extends OrgAction
                 'product_categories.updated_at',
             ])
             ->leftJoin('product_category_stats', 'product_categories.id', 'product_category_stats.product_category_id')
-            ->where('is_family', true)
+            ->where('type', ProductCategoryTypeEnum::FAMILY)
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Shop') {
                     $query->where('product_categories.parent_type', 'Shop');

@@ -35,6 +35,7 @@ use App\Actions\SourceFetch\Aurora\FetchTradeUnits;
 use App\Actions\SourceFetch\Aurora\FetchWarehouses;
 use App\Actions\SourceFetch\Aurora\FetchWebsites;
 use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
+use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -296,7 +297,7 @@ trait WithAuroraParsers
 
     public function parseDepartment(string $sourceId): ?ProductCategory
     {
-        $department = ProductCategory::where('is_family', false)->where('source_department_id', $sourceId)->first();
+        $department = ProductCategory::where('type', ProductCategoryTypeEnum::DEPARTMENT)->where('source_department_id', $sourceId)->first();
         if (!$department) {
             $sourceData = explode(':', $sourceId);
             $department = FetchDepartments::run($this->organisationSource, $sourceData[1]);
@@ -307,7 +308,7 @@ trait WithAuroraParsers
 
     public function parseFamily(string $sourceId): ?ProductCategory
     {
-        $family = ProductCategory::where('is_family', true)->where('source_family_id', $sourceId)->first();
+        $family = ProductCategory::where('type', ProductCategoryTypeEnum::FAMILY)->where('source_family_id', $sourceId)->first();
         if (!$family) {
             $sourceData = explode(':', $sourceId);
             $family     = FetchFamilies::run($this->organisationSource, $sourceData[1]);

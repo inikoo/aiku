@@ -21,6 +21,7 @@ return new class () extends Migration {
     {
         Schema::create('product_categories', function (Blueprint $table) {
             $table->smallIncrements('id');
+            $table->string('type')->index();
             $table = $this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table = $this->assertCodeDescription($table);
@@ -29,8 +30,6 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('parent_id');
             $table->string('parent_type');
-            $table->string('type')->index();
-            $table->boolean('is_family')->default(false);
             $table->string('state')->nullable()->index();
             $table->jsonb('data');
             $table->timestampstz();

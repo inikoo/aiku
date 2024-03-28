@@ -8,6 +8,7 @@
 namespace App\Services\Organisation\Aurora;
 
 use App\Actions\Utils\Abbreviate;
+use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDepartment extends FetchAurora
@@ -28,9 +29,10 @@ class FetchAuroraDepartment extends FetchAurora
 
 
         $this->parsedData['department'] = [
-            'code'       => $code,
-            'name'       => $this->auroraModelData->{'Category Label'},
-            'state'      => match ($this->auroraModelData->{'Product Category Status'}) {
+            'type'             => ProductCategoryTypeEnum::DEPARTMENT,
+            'code'             => $code,
+            'name'             => $this->auroraModelData->{'Category Label'},
+            'state'            => match ($this->auroraModelData->{'Product Category Status'}) {
                 'In Process' => 'in-process',
                 default      => strtolower($this->auroraModelData->{'Product Category Status'})
             },

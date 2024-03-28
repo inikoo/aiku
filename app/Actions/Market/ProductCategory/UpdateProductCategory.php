@@ -53,7 +53,7 @@ class UpdateProductCategory extends OrgAction
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
                         ['column' => 'deleted_at', 'value' => null],
-                        ['column' => 'is_family', 'value' => $this->productCategory->is_family, 'operator' => '='],
+                        ['column' => 'type', 'value' => $this->productCategory->type, 'operator' => '='],
                         ['column' => 'id', 'value' => $this->productCategory->id, 'operator' => '!=']
 
                     ]

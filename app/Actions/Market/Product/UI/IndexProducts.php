@@ -10,6 +10,7 @@ namespace App\Actions\Market\Product\UI;
 use App\Actions\Market\HasMarketAuthorisation;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
+use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Market\ProductsResource;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
@@ -191,7 +192,7 @@ class IndexProducts extends OrgAction
                         'title' => __('product')
                     ],
                     'actions' => [
-                        $this->canEdit && class_basename($this->parent)=='ProductCategory' && $this->parent->is_family ? [
+                        $this->canEdit && class_basename($this->parent)=='ProductCategory' && $this->parent->type==ProductCategoryTypeEnum::FAMILY ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new product'),

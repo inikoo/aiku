@@ -9,6 +9,7 @@ namespace App\Actions\Market\Shop\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
+use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
 use Illuminate\Queue\Middleware\WithoutOverlapping;

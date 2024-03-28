@@ -25,10 +25,8 @@ class StoreProductCategory extends OrgAction
     public function handle(Shop|ProductCategory $parent, array $modelData): ProductCategory
     {
         if (class_basename($parent) == 'ProductCategory') {
-            $modelData['type']    = ProductCategoryTypeEnum::BRANCH;
             $modelData['shop_id'] = $parent->shop_id;
         } else {
-            $modelData['type']    = ProductCategoryTypeEnum::ROOT;
             $modelData['shop_id'] = $parent->id;
         }
 
@@ -59,6 +57,7 @@ class StoreProductCategory extends OrgAction
     public function rules(): array
     {
         return [
+            'type'                 => ['required', Rule::enum(ProductCategoryTypeEnum::class)],
             'code'                 => [
                 'required',
                 'max:32',
@@ -75,7 +74,6 @@ class StoreProductCategory extends OrgAction
             'image_id'             => ['sometimes', 'required', 'exists:media,id'],
             'state'                => ['sometimes', Rule::enum(ProductCategoryStateEnum::class)],
             'description'          => ['sometimes', 'required', 'max:1500'],
-            'is_family'            => ['sometimes', 'required', 'boolean'],
             'created_at'           => ['sometimes', 'date'],
             'source_department_id' => ['sometimes', 'string', 'max:255'],
             'source_family_id'     => ['sometimes', 'string', 'max:255'],
