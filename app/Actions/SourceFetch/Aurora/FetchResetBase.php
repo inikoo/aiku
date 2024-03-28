@@ -81,7 +81,7 @@ class FetchResetBase
                 DB::connection('aurora')->table('Shipper Dimension')
                     ->update([$aikuIdField => null]);
 
-                DB::connection('aurora')->table('Products Dimension')
+                DB::connection('aurora')->table('Product Dimension')
                     ->update([$aikuIdField => null]);
 
                 DB::connection('aurora')->table('Category Dimension')
