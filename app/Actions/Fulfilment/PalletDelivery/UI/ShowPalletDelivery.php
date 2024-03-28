@@ -91,19 +91,19 @@ class ShowPalletDelivery extends OrgAction
                         'type'   => 'buttonGroup',
                         'key'    => 'upload-add',
                         'button' => [
-                            // [
-                            //     'type'    => 'button',
-                            //     'style'   => 'secondary',
-                            //     'icon'    => ['fal', 'fa-upload'],
-                            //     'label'   => 'upload',
-                            //     'tooltip' => __('Upload pallet via file'),
-                            //     'route'   => [
-                            //         'name'       => 'grp.models.pallet-delivery.pallet.import',
-                            //         'parameters' => [
-                            //             'palletDelivery' => $palletDelivery->id
-                            //         ]
-                            //     ]
-                            // ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => ['fal', 'fa-upload'],
+                                'label'   => 'upload',
+                                'tooltip' => __('Upload pallet via file'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.pallet.import',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ],
                             [
                                 'type'  => 'button',
                                 'style' => 'secondary',
