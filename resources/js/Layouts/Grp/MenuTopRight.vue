@@ -8,6 +8,8 @@ import { useLiveUsers } from '@/Stores/active-users'
 import SearchBar from "@/Components/SearchBar.vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Image from '@/Components/Image.vue'
+import Popover from '@/Components/Popover.vue'
+import NotificationList from '@/Components/NotificationList/NotificationList.vue'
 
 const props = defineProps<{
     urlPrefix: string
@@ -49,12 +51,25 @@ const logoutAuth = () => {
                 <span class="whitespace-nowrap text-gray-400 tracking-tight font-normal">Search something...</span>
                 <SearchBar :isOpen="showSearchDialog" @close="(e) => showSearchDialog = e" />
             </button>
+
             <!-- Button: Notifications -->
-            <button type="button"
-                    class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                <span class="sr-only">{{ trans("View notifications") }}</span>
-                <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
-            </button>
+            <div class="relative">
+                <Popover width="w-full">
+                    <template #button>
+                        <button type="button"
+                            class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 mr-3 ml-3">
+                            <span class="sr-only">{{ trans("View notifications") }}</span>
+                            <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
+                        </button>
+                    </template>
+
+                    <template #content="{ close: closed }">
+                        <div class="w-96">
+                            <NotificationList />
+                        </div>
+                    </template>
+                </Popover>
+            </div>
         </div>
 
         <!-- Avatar Button -->
@@ -64,7 +79,7 @@ const logoutAuth = () => {
                 <span class="sr-only">{{ trans("Open user menu") }}</span>
                 <Image class="h-8 w-8 rounded-full" :src="layoutStore.user.avatar_thumbnail" alt="" />
             </MenuButton>
-            
+
             <transition enter-active-class="transition ease-out duration-100"
                 enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
                 leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
