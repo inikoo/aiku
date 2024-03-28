@@ -23,6 +23,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue"
 import TablePalletDeliveries from '@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveries.vue'
 import Popover from '@/Components/Popover.vue'
 import CustomerShowcase from "@/Components/Showcases/Grp/CustomerShowcase.vue"
+import CustomerInvoices from "@/Components/Fulfilment/CustomerInvoices.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import Multiselect from "@vueform/multiselect"
 import { Link } from "@inertiajs/vue3"
@@ -60,14 +61,15 @@ const component = computed(() => {
 
     const components = {
         showcase: CustomerShowcase,
+        pallets: TablePallets,
         stored_items: TableStoredItems,
         stored_item_returns: TableStoredItemReturn,
-        pallets: TablePallets,
+        pallet_deliveries: TablePalletDeliveries,
+        pallet_returns: TablePalletReturns,
+        invoices: CustomerInvoices,
         details: ModelDetails,
         history: ModelChangelog,
         dispatched_emails: TableDispatchedEmails,
-        pallet_deliveries: TablePalletDeliveries,
-        pallet_returns: TablePalletReturns
     }
 
     return components[currentTab.value]
@@ -131,6 +133,7 @@ onUnmounted(() => {
 </script>
 
 <template>
+    <!-- {{currentTab}} -->
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-create-delivery="{ action: action }">
