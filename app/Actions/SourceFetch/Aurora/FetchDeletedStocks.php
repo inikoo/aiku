@@ -19,8 +19,12 @@ class FetchDeletedStocks extends FetchAction
     public string $commandSignature = 'fetch:deleted-stocks {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Stock
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): array
     {
+
+        $stock   =null;
+        $orgStock=null;
+
         if ($deletedStockData = $organisationSource->fetchDeletedStock($organisationSourceId)) {
             if ($deletedStockData['stock']) {
                 if ($stock = Stock::withTrashed()->where('source_id', $deletedStockData['stock']['source_id'])
@@ -45,7 +49,10 @@ class FetchDeletedStocks extends FetchAction
             }
         }
 
-        return null;
+        return [
+            'stock'    => $stock,
+            'orgStock' => $orgStock
+        ];
     }
 
     public function getModelsQuery(): Builder

@@ -60,7 +60,7 @@ class FetchAction
         $this->with        = [];
     }
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Model
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): Model|array|null
     {
         return null;
     }

@@ -48,6 +48,7 @@ use App\Models\Dispatch\Shipper;
 use App\Models\Goods\TradeUnit;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Location;
+use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
@@ -353,14 +354,36 @@ trait WithAuroraParsers
         return Agent::withTrashed()->where('source_slug', $sourceSlug)->first();
     }
 
+    public function parseOrgStock($sourceId): ?OrgStock
+    {
+        $orgStock   = OrgStock::withTrashed()->where('source_id', $sourceId)->first();
+        $sourceData = explode(':', $sourceId);
+        if (!$orgStock) {
+
+            $res     = FetchStocks::run($this->organisationSource, $sourceData[1]);
+            $orgStock=$res['orgStock'];
+        }
+        /*
+        if (!$orgStock) {
+            $res = FetchDeletedStocks::run($this->organisationSource,$sourceData[1]);
+            $orgStock=$res['org_stock'];
+
+        }
+        */
+        return $orgStock;
+    }
+
     public function parseStock($sourceId): ?Stock
     {
-        $stock = Stock::withTrashed()->where('source_id', $sourceId)->first();
+        $stock      = Stock::withTrashed()->where('source_id', $sourceId)->first();
+        $sourceData = explode(':', $sourceId);
         if (!$stock) {
-            $stock = FetchStocks::run($this->organisationSource, $sourceId);
+            $res  = FetchStocks::run($this->organisationSource, $sourceData[1]);
+            $stock=$res['stock'];
         }
         if (!$stock) {
-            $stock = FetchDeletedStocks::run($this->organisationSource, $sourceId);
+            $res  = FetchDeletedStocks::run($this->organisationSource, $sourceData[1]);
+            $stock=$res['stock'];
         }
 
         return $stock;

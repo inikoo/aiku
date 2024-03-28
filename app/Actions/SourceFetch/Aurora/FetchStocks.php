@@ -24,8 +24,12 @@ class FetchStocks extends FetchAction
 {
     public string $commandSignature = 'fetch:stocks {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Stock
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): array
     {
+
+        $stock   =null;
+        $orgStock=null;
+
         if ($stockData = $organisationSource->fetchStock($organisationSourceId)) {
             //print_r($stockData['stock']);
 
@@ -87,15 +91,20 @@ class FetchStocks extends FetchAction
 
                 $sourceData = explode(':', $stockData['stock']['source_id']);
 
+
+
+
                 $locationsData = $organisationSource->fetchLocationStocks($sourceData[1]);
                 SyncOrgStockLocations::run($orgStock, $locationsData['stock_locations']);
             }
 
-            return $stock;
         }
 
 
-        return null;
+        return [
+            'stock'    => $stock,
+            'orgStock' => $orgStock
+        ];
     }
 
     public function getModelsQuery(): Builder

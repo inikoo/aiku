@@ -21,7 +21,7 @@ class FetchFamilies extends FetchAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?ProductCategory
     {
         if ($familyData = $organisationSource->fetchFamily($organisationSourceId)) {
-            print_r($familyData['family']);
+            //print_r($familyData['family']);
 
             if ($family = ProductCategory::where('source_family_id', $familyData['family']['source_family_id'])
                 ->first()) {
