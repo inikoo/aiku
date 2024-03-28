@@ -113,7 +113,7 @@ class ShowFamily extends InertiaAction
                 /*
                 DepartmentTabsEnum::FAMILIES->value  => $this->tab == DepartmentTabsEnum::FAMILIES->value ?
                     fn () => [
-                        'table'             => FamilyResource::collection(IndexFamilies::run($this->department)),
+                        'table'             => FamiliesResource::collection(IndexFamilies::run($this->department)),
                         'createInlineModel' => [
                             'buttonLabel' => __('family'),
                             'dialog'      => [
@@ -125,7 +125,7 @@ class ShowFamily extends InertiaAction
                     ]
                     : Inertia::lazy(
                         fn () => [
-                            'table'             => FamilyResource::collection(IndexFamilies::run($this->department)),
+                            'table'             => FamiliesResource::collection(IndexFamilies::run($this->department)),
                             'createInlineModel' => [
                                 'buttonLabel' => __('family'),
                                 'dialog'      => [

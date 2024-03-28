@@ -15,7 +15,7 @@ use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\ShopTabsEnum;
 use App\Http\Resources\Market\DepartmentsResource;
-use App\Http\Resources\Market\FamilyResource;
+use App\Http\Resources\Market\FamiliesResource;
 use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Market\ShopResource;
 use App\Models\Market\Shop;
@@ -199,13 +199,13 @@ class ShowShop extends OrgAction
 
                 ShopTabsEnum::FAMILIES->value => $this->tab == ShopTabsEnum::FAMILIES->value
                     ?
-                    fn () => FamilyResource::collection(
+                    fn () => FamiliesResource::collection(
                         IndexFamilies::run(
                             parent: $shop,
                             prefix: 'families'
                         )
                     )
-                    : Inertia::lazy(fn () => FamilyResource::collection(
+                    : Inertia::lazy(fn () => FamiliesResource::collection(
                         IndexFamilies::run(
                             parent: $shop,
                             prefix: 'families'

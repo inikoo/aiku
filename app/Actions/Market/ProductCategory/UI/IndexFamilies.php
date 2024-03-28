@@ -7,10 +7,10 @@
 
 namespace App\Actions\Market\ProductCategory\UI;
 
-use App\Actions\InertiaAction;
-use App\Actions\Market\Shop\UI\IndexShops;
+use App\Actions\Market\HasMarketAuthorisation;
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Http\Resources\Market\FamilyResource;
+use App\Actions\OrgAction;
+use App\Http\Resources\Market\FamiliesResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -25,36 +25,27 @@ use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexFamilies extends InertiaAction
+class IndexFamilies extends OrgAction
 {
+    use HasMarketAuthorisation;
+
     private Shop|ProductCategory|Organisation $parent;
 
-    public function authorize(ActionRequest $request): bool
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->canEdit = $request->user()->hasPermissionTo('shops.edit');
-
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('shops.view')
-            );
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request);
+        return $this->handle(parent: $organisation);
     }
 
-    public function inOrganisation(ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
-        $this->parent = app('currentTenant');
-
-        return $this->handle(parent: app('currentTenant'));
-    }
-
-    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
         $this->parent = $shop;
+        $this->initialisationFromShop($shop, $request);
 
         return $this->handle(parent: $shop);
     }
+
 
     public function handle(Shop|ProductCategory|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
@@ -69,6 +60,8 @@ class IndexFamilies extends InertiaAction
         }
 
         $queryBuilder = QueryBuilder::for(ProductCategory::class);
+
+        /*
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
@@ -77,6 +70,7 @@ class IndexFamilies extends InertiaAction
                 prefix: $prefix
             );
         }
+        */
 
         return $queryBuilder
             ->defaultSort('product_categories.code')
@@ -129,8 +123,8 @@ class IndexFamilies extends InertiaAction
                                 'tooltip' => __('new shop'),
                                 'label'   => __('shop'),
                                 'route'   => [
-                                    'name'       => 'shops.create',
-                                    'parameters' => array_values($request->route()->originalParameters())
+                                    'name'       => 'grp.org.shops.create',
+                                    'parameters' => [$parent->slug]
                                 ]
                             ] : null
                         ],
@@ -150,7 +144,7 @@ class IndexFamilies extends InertiaAction
 
     public function jsonResponse(LengthAwarePaginator $families): AnonymousResourceCollection
     {
-        return FamilyResource::collection($families);
+        return FamiliesResource::collection($families);
     }
 
     public function htmlResponse(LengthAwarePaginator $families, ActionRequest $request): Response
@@ -194,7 +188,7 @@ class IndexFamilies extends InertiaAction
                         ] : false,
                     ]
                 ],
-                'data'        => FamilyResource::collection($families),
+                'data'        => FamiliesResource::collection($families),
             ]
         )->table($this->tableStructure($this->parent));
     }
@@ -216,18 +210,7 @@ class IndexFamilies extends InertiaAction
         };
 
         return match ($routeName) {
-            'shops.families.index' =>
-            array_merge(
-                IndexShops::make()->getBreadcrumbs(),
-                $headCrumb(
-                    [
-                        'name'       => $routeName,
-                        'parameters' => $routeParameters
-                    ],
-                    $suffix
-                )
-            ),
-            'shops.show.families.index' =>
+            'grp.org.shops.show.catalogue.families.index' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(

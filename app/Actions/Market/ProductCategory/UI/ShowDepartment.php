@@ -18,7 +18,7 @@ use App\Enums\UI\DepartmentTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Market\DepartmentsResource;
-use App\Http\Resources\Market\FamilyResource;
+use App\Http\Resources\Market\FamiliesResource;
 use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Sales\CustomersResource;
 use App\Models\Market\ProductCategory;
@@ -151,7 +151,7 @@ class ShowDepartment extends InertiaAction
 
                 DepartmentTabsEnum::FAMILIES->value  => $this->tab == DepartmentTabsEnum::FAMILIES->value ?
                     fn () => [
-                        'table'             => FamilyResource::collection(
+                        'table'             => FamiliesResource::collection(
                             IndexFamilies::run(
                                 parent: $department->shop,
                                 prefix: 'product_categories'
@@ -168,7 +168,7 @@ class ShowDepartment extends InertiaAction
                     ]
                     : Inertia::lazy(
                         fn () => [
-                            'table'             => FamilyResource::collection(
+                            'table'             => FamiliesResource::collection(
                                 IndexFamilies::run(
                                     parent: $department->shop,
                                     prefix: 'product_categories'
