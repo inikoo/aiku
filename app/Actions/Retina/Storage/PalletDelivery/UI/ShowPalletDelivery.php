@@ -8,8 +8,8 @@
 namespace App\Actions\Retina\Storage\PalletDelivery\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
+use App\Actions\Retina\Storage\Pallet\UI\IndexPallets;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Storage\ShowStorageDashboard;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
@@ -188,8 +188,8 @@ class ShowPalletDelivery extends RetinaAction
                 'data' => PalletDeliveryResource::make($palletDelivery),
 
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
-                    fn () => PalletsResource::collection(IndexPallets::run($palletDelivery))
-                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($palletDelivery))),
+                    fn () => PalletsResource::collection(IndexPallets::make()->action($palletDelivery))
+                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::make()->action($palletDelivery))),
             ]
         )->table(
             IndexPallets::make()->tableStructure(

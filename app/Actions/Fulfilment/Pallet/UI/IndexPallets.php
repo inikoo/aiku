@@ -179,7 +179,7 @@ class IndexPallets extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            if (!$parent instanceof Location) {
+            if (!$parent instanceof Location and !$parent instanceof PalletDelivery and !$parent instanceof PalletReturn) {
                 foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                     $table->elementGroup(
                         key: $key,
@@ -210,8 +210,11 @@ class IndexPallets extends OrgAction
                 $emptyStateData['description'] = __("This customer don't have any pallets");
             }
 
-            $table->withGlobalSearch()
-                ->withEmptyState($emptyStateData)
+            if(!$parent instanceof PalletDelivery and !$parent instanceof PalletReturn) {
+                $table->withGlobalSearch();
+            }
+
+            $table->withEmptyState($emptyStateData)
                 ->withModelOperations($modelOperations);
 
 
@@ -228,7 +231,7 @@ class IndexPallets extends OrgAction
                 $table->column(key: 'fulfilment_customer_name', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true);
             }
 
-            if (($parent instanceof Organisation or $parent instanceof Fulfilment or $parent instanceof Warehouse or $parent instanceof PalletDelivery) and in_array($parent->state, [PalletDeliveryStateEnum::RECEIVED, PalletDeliveryStateEnum::BOOKED_IN]) and request(
+            if (($parent instanceof Organisation or $parent instanceof Fulfilment or $parent instanceof Warehouse or $parent instanceof PalletDelivery or $parent instanceof PalletReturn) and in_array($parent->state, [PalletDeliveryStateEnum::RECEIVED, PalletDeliveryStateEnum::BOOKED_IN]) and request(
             )->user() instanceof User) {
                 $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
             }

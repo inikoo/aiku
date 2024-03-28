@@ -169,16 +169,16 @@
         <td width="45%" style="border: 0.1mm solid #888888;">
             <span style="font-size: 7pt; color: #555555; font-family: sans-serif;">Delivery address:</span>
             <div>
-                The Firs Stone Lodge Lane
+                {{ $customer->addresses[0]['address_line_1'] }}
             </div>
             <div>
-                Ipswich
+                {{ $customer->addresses[0]['address_line'] }}
             </div>
             <div>
-                IP2 9AR
+                {{ $customer->addresses[0]['administrative_area'] }}
             </div>
             <div>
-                United Kingdom
+                {{ $customer->addresses[0]->country['name'] }}
             </div>
         </td>
         <td width="10%">&nbsp;</td>
@@ -194,8 +194,6 @@
 
         <td style="width:50%; text-align:left">Description</td>
 
-        <td style="text-align:left">Required</td>
-
         <td style="text-align:right">Dispatched</td>
     </tr>
     </thead>
@@ -207,9 +205,7 @@
 
         <td style="text-align:left">{{ $pallet->notes }}</td>
 
-        <td style="text-align:right">{{ $pallet->storedItems()->count() }}</td>
-
-        <td style="text-align:right">50</td>
+        <td style="text-align:right">1</td>
     </tr>
     @endforeach
 

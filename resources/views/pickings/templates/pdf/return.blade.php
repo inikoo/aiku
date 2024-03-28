@@ -114,7 +114,7 @@
             </td>
 
             <td style="text-align: right;">Delivery Note No.<br/>
-                <b>{{ $delivery->reference }}</b>
+                <b>{{ $return->reference }}</b>
             </td>
 
         </tr>
@@ -135,7 +135,7 @@
         </td>
         <td style="text-align: right">
             <div>
-                Dispatch Date: <b>{{ $delivery->created_at->format('j F Y') }}</b>
+                Dispatch Date: <b>{{ $return->created_at->format('j F Y') }}</b>
             </div>
         </td>
     </tr>
@@ -157,7 +157,7 @@
         </td>
         <td width="50%" style="vertical-align:bottom;border: 0mm solid #888888;text-align: right">
             <div style="text-align:right;">
-                Parcels: <b>{{ $delivery->pallets()->count() }} box</b>
+                Parcels: <b>{{ $return->pallets()->count() }} box</b>
             </div>
             <div style="text-align: right">Weight: <b>2Kg</b></div>
 
@@ -201,7 +201,7 @@
     </thead>
     <tbody>
 
-    @foreach($delivery->pallets as $pallet)
+    @foreach($return->pallets as $pallet)
     <tr class="@if($loop->last) last @endif">
         <td style="text-align:left">{{ $pallet->reference }}</td>
 

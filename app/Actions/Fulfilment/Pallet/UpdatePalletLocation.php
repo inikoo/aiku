@@ -60,6 +60,7 @@ class UpdatePalletLocation extends OrgAction
     public function asController(Organisation $organisation, Warehouse $warehouse, Location $location, Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->pallet = $pallet;
+        $this->scope  = $warehouse;
         $this->initialisationFromFulfilment($pallet->fulfilment, $request);
 
         return $this->handle($location, $pallet);
