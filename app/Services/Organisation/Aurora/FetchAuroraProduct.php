@@ -7,6 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
+use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTypeEnum;
 use Illuminate\Support\Facades\DB;
 
@@ -23,7 +24,7 @@ class FetchAuroraProduct extends FetchAurora
         $this->parsedData['shop']   = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Product Store Key'});
         $this->parsedData['parent'] = $this->parsedData['shop'];
         if ($this->auroraModelData->{'Product Family Category Key'}) {
-            $family = $this->parseFamily($this->auroraModelData->{'Product Family Category Key'});
+            $family = $this->parseFamily($this->organisation->id.':'.$this->auroraModelData->{'Product Family Category Key'});
             if ($family) {
                 $this->parsedData['parent'] =$family;
             }
@@ -49,10 +50,10 @@ class FetchAuroraProduct extends FetchAurora
         }
 
         $state = match ($this->auroraModelData->{'Product Status'}) {
-            'InProcess'     => 'in-process',
-            'Discontinuing' => 'discontinuing',
-            'Discontinued'  => 'discontinued',
-            default         => 'active',
+            'InProcess'     => ProductStateEnum::IN_PROCESS,
+            'Discontinuing' => ProductStateEnum::DISCONTINUING,
+            'Discontinued'  => ProductStateEnum::DISCONTINUED,
+            default         => ProductStateEnum::ACTIVE
         };
 
 
@@ -72,11 +73,14 @@ class FetchAuroraProduct extends FetchAurora
 
         $this->parsedData['historic_product_source_id'] = $this->auroraModelData->{'Product Current Key'};
 
+        $code = $this->cleanTradeUnitReference($this->auroraModelData->{'Product Code'});
+
+
         $this->parsedData['product'] = [
             'type'       => ProductTypeEnum::PHYSICAL_GOOD,
             'owner_type' => $owner_type,
             'owner_id'   => $owner_id,
-            'code'       => $this->auroraModelData->{'Product Code'},
+            'code'       => $code,
             'name'       => $this->auroraModelData->{'Product Name'},
             'price'      => round($unit_price, 2),
             'units'      => round($units, 3),

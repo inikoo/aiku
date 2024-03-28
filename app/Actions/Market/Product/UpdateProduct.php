@@ -8,22 +8,24 @@
 namespace App\Actions\Market\Product;
 
 use App\Actions\Market\Product\Hydrators\ProductHydrateUniversalSearch;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Market\ProductResource;
 use App\Models\Market\Product;
+use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateProduct
+class UpdateProduct extends OrgAction
 {
     use WithActionUpdate;
 
-    private bool $asAction=false;
+    private Product $product;
 
-    public function handle(Product $product, array $modelData, bool $skipHistoric=false): Product
+    public function handle(Product $product, array $modelData, bool $skipHistoric = false): Product
     {
-        $product= $this->update($product, $modelData, ['data', 'settings']);
+        $product = $this->update($product, $modelData, ['data', 'settings']);
         if (!$skipHistoric and $product->wasChanged(
-            ['price', 'code','name','units']
+            ['price', 'code', 'name', 'units']
         )) {
             //todo create HistoricProduct and update current_historic_product_id if
         }
@@ -34,37 +36,55 @@ class UpdateProduct
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
 
         return $request->user()->hasPermissionTo("shops.products.edit");
     }
+
     public function rules(): array
     {
         return [
-            'code'        => ['sometimes','required', 'unique:products', 'between:2,9', 'alpha_dash'],
+            'code'        => [
+                'sometimes',
+                'required',
+                'max:32',
+                'alpha_dash',
+                new IUnique(
+                    table: 'products',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'deleted_at', 'value' => null],
+                        ['column' => 'id', 'value' => $this->product->id, 'operator' => '!=']
+                    ]
+                ),
+            ],
             'units'       => ['sometimes', 'required', 'numeric'],
             'price'       => ['sometimes', 'required', 'numeric'],
             'rrp'         => ['sometimes', 'required', 'numeric'],
-            'name'        => ['sometimes','required', 'max:250', 'string'],
+            'name'        => ['sometimes', 'required', 'max:250', 'string'],
             'description' => ['sometimes', 'required', 'max:1500'],
         ];
     }
 
     public function asController(Product $product, ActionRequest $request): Product
     {
-        $request->validate();
-        return $this->handle($product, $request->all());
+        $this->product = $product;
+        $this->initialisationFromShop($product->shop, $request);
+
+        return $this->handle($product, $this->validatedData);
     }
 
-    public function action(Product $product, array $modelData): Product
+    public function action(Product $product, array $modelData, int $hydratorsDelay = 0, $skipHistoric = false): Product
     {
-        $this->asAction=true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->product        = $product;
 
-        return $this->handle($product, $validatedData);
+        $this->initialisationFromShop($product->shop, $modelData);
+
+        return $this->handle($product, $this->validatedData, $skipHistoric);
     }
 
     public function jsonResponse(Product $product): ProductResource

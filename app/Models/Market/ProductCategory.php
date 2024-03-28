@@ -54,8 +54,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
- * @property int|null $source_department_id
- * @property int|null $source_family_id
+ * @property string|null $source_department_id
+ * @property string|null $source_family_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, ProductCategory> $departments
  * @property-read Group $group
@@ -148,7 +148,7 @@ class ProductCategory extends Model implements Auditable
 
     public function salesTenantCurrencyStats(): MorphOne
     {
-        return $this->morphOne(SalesStats::class, 'model')->where('scope', 'sales-tenant-currency');
+        return $this->morphOne(SalesStats::class, 'model')->where('scope', 'sales-organisation-currency');
     }
 
     public function parent(): MorphTo

@@ -22,6 +22,8 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Market\HistoricProduct
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property string $slug
  * @property bool $status
  * @property int $product_id

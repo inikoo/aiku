@@ -145,7 +145,8 @@ class FetchAction
             'fetch:webpages',
             'fetch:supplier-products',
             'fetch:payments',
-            'fetch:pallets'
+            'fetch:pallets',
+            'fetch:families'
         ])) {
             $this->onlyNew = (bool)$command->option('only_new');
         }

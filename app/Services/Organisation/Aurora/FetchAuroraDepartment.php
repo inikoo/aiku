@@ -7,6 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
+use App\Actions\Utils\Abbreviate;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDepartment extends FetchAurora
@@ -15,16 +16,32 @@ class FetchAuroraDepartment extends FetchAurora
     {
         $this->parsedData['shop'] = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Product Category Store Key'});
 
+        $code = $this->cleanTradeUnitReference($this->auroraModelData->{'Category Code'});
+
+        if($code=='40%') {
+            $code='40off';
+        }
+
+        if(strlen($code) > 32) {
+            $code =Abbreviate::run($code, 32);
+        }
+
+
         $this->parsedData['department'] = [
-            'code'       => $this->auroraModelData->{'Category Code'},
+            'code'       => $code,
             'name'       => $this->auroraModelData->{'Category Label'},
             'state'      => match ($this->auroraModelData->{'Product Category Status'}) {
                 'In Process' => 'in-process',
                 default      => strtolower($this->auroraModelData->{'Product Category Status'})
             },
-            'created_at'            => $this->parseDate($this->auroraModelData->{'Product Category Valid From'}),
-            'source_department_id'  => $this->auroraModelData->{'Category Key'},
+            'source_department_id'  => $this->organisation->id.':'.$this->auroraModelData->{'Category Key'},
         ];
+
+        $createdAt= $this->parseDate($this->auroraModelData->{'Product Category Valid From'});
+        if($createdAt) {
+            $this->parsedData['department']['created_at'] = $createdAt;
+        }
+
     }
 
     protected function fetchData($id): object|null

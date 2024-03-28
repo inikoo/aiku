@@ -7,32 +7,41 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Models\Market\Shop;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraFamily extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $parent = $this->parseDepartment($this->auroraModelData->{'Product Category Department Category Key'});
+
+        $parent=null;
+        if($this->auroraModelData->{'Product Category Department Category Key'}) {
+            $parent = $this->parseDepartment($this->organisation->id.':'.$this->auroraModelData->{'Product Category Department Category Key'});
+        }
         if (!$parent) {
-            $parent = (new Shop())->firstWhere('source_id', $this->auroraModelData->{'Product Category Store Key'});
+            $parent =$this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Product Category Store Key'});
         }
 
         $this->parsedData['parent'] = $parent;
 
+        $code = $this->cleanTradeUnitReference($this->auroraModelData->{'Category Code'});
+
         $this->parsedData['family'] = [
             'is_family'        => true,
-            'code'             => $this->auroraModelData->{'Category Code'},
+            'code'             => $code,
             'name'             => $this->auroraModelData->{'Category Label'},
             'state'            => match ($this->auroraModelData->{'Product Category Status'}) {
                 'In Process' => 'in-process',
                 'Suspended'  => 'active',
                 default      => strtolower($this->auroraModelData->{'Product Category Status'})
             },
-            'created_at'       => $this->parseDate($this->auroraModelData->{'Product Category Valid From'}),
-            'source_family_id' => $this->auroraModelData->{'Category Key'},
+            'source_family_id' => $this->organisation->id.':'.$this->auroraModelData->{'Category Key'},
         ];
+
+        $createdAt= $this->parseDate($this->auroraModelData->{'Product Category Valid From'});
+        if($createdAt) {
+            $this->parsedData['family']['created_at'] = $createdAt;
+        }
     }
 
     protected function fetchData($id): object|null

@@ -23,15 +23,16 @@ class FetchProducts extends FetchAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Product
     {
         if ($productData = $organisationSource->fetchProduct($organisationSourceId)) {
+            //print_r($productData['product']);
             if ($product = Product::withTrashed()->where('source_id', $productData['product']['source_id'])
                 ->first()) {
-                $product = UpdateProduct::run(
+                $product = UpdateProduct::make()->action(
                     product: $product,
                     modelData: $productData['product'],
                     skipHistoric: true
                 );
             } else {
-                $product = StoreProduct::run(
+                $product = StoreProduct::make()->action(
                     parent: $productData['parent'],
                     modelData: $productData['product'],
                     skipHistoric: true
@@ -39,8 +40,12 @@ class FetchProducts extends FetchAction
             }
 
 
+
+
+            $sourceData = explode(':', $product->source_id);
+
             DB::connection('aurora')->table('Product Dimension')
-                ->where('Product ID', $product->source_id)
+                ->where('Product ID', $sourceData[1])
                 ->update(['aiku_id' => $product->id]);
 
 
@@ -56,7 +61,7 @@ class FetchProducts extends FetchAction
             );
 
 
-            $tradeUnits = $organisationSource->fetchProductStocks($productData['product']['source_id']);
+            $tradeUnits = $organisationSource->fetchProductStocks($sourceData[1]);
 
 
             SyncProductTradeUnits::run($product, $tradeUnits['product_stocks']);

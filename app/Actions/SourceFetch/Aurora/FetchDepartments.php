@@ -34,8 +34,15 @@ class FetchDepartments extends FetchAction
                 );
             }
 
+            $sourceData = explode(':', $productCategory->source_department_id);
+
+            DB::connection('aurora')->table('Category Dimension')
+                ->where('Category Key', $sourceData[1])
+                ->update(['aiku_department_id' => $productCategory->id]);
+
             return $productCategory;
         }
+
 
 
         return null;

@@ -10,10 +10,14 @@ namespace App\Actions\Market\ProductCategory;
 use App\Actions\Market\ProductCategory\Hydrators\ProductCategoryHydrateUniversalSearch;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateDepartments;
 use App\Actions\OrgAction;
+use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
+use App\Rules\AlphaDashDot;
+use App\Rules\IUnique;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreProductCategory extends OrgAction
@@ -29,7 +33,7 @@ class StoreProductCategory extends OrgAction
         }
 
         data_set($modelData, 'group_id', $parent->group_id);
-        data_set($modelData, 'organisation', $parent->organisation_id);
+        data_set($modelData, 'organisation_id', $parent->organisation_id);
 
 
         /** @var ProductCategory $productCategory */
@@ -42,7 +46,7 @@ class StoreProductCategory extends OrgAction
 
         if ($productCategory->shop->currency_id != $parent->organisation->currency_id) {
             $productCategory->salesStats()->create([
-                'scope' => 'sales-tenant-currency'
+                'scope' => 'sales-organisation-currency'
             ]);
         }
 
@@ -55,18 +59,40 @@ class StoreProductCategory extends OrgAction
     public function rules(): array
     {
         return [
-            'code'        => ['required', 'unique:product_categories', 'between:2,9', 'alpha_dash'],
-            'name'        => ['required', 'max:250', 'string'],
-            'image_id'    => ['sometimes', 'required', 'exists:media,id'],
-            'state'       => ['sometimes', 'required'],
-            'description' => ['sometimes', 'required', 'max:1500'],
+            'code'                 => [
+                'required',
+                'max:32',
+                new AlphaDashDot(),
+                new IUnique(
+                    table: 'products',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'deleted_at', 'value' => null],
+                    ]
+                ),
+            ],
+            'name'                 => ['required', 'max:250', 'string'],
+            'image_id'             => ['sometimes', 'required', 'exists:media,id'],
+            'state'                => ['sometimes', Rule::enum(ProductCategoryStateEnum::class)],
+            'description'          => ['sometimes', 'required', 'max:1500'],
+            'is_family'            => ['sometimes', 'required', 'boolean'],
+            'created_at'           => ['sometimes', 'date'],
+            'source_department_id' => ['sometimes', 'string', 'max:255'],
+            'source_family_id'     => ['sometimes', 'string', 'max:255'],
         ];
     }
 
     public function action(Shop|ProductCategory $parent, array $modelData, int $hydratorsDelay = 0): ProductCategory
     {
+        $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisation($parent->organisation, $modelData);
+        if ($parent instanceof Shop) {
+            $shop = $parent;
+        } else {
+            $shop = $parent->shop;
+        }
+
+        $this->initialisationFromShop($shop, $modelData);
 
         return $this->handle($parent, $this->validatedData);
     }

@@ -35,8 +35,8 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->timestampstz();
             $table = $this->softDeletes($table);
-            $table->unsignedInteger('source_department_id')->nullable()->unique();
-            $table->unsignedInteger('source_family_id')->nullable()->unique();
+            $table->string('source_department_id')->nullable()->unique();
+            $table->string('source_family_id')->nullable()->unique();
             $table->index(['parent_id', 'parent_type']);
         });
         DB::statement('CREATE INDEX ON product_categories USING gin (name gin_trgm_ops) ');

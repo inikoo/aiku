@@ -282,47 +282,51 @@ trait WithAuroraParsers
         return $historicItem;
     }
 
-    public function parseProduct($sourceId): Product
+    public function parseProduct(string $sourceId): Product
     {
         $product = Product::where('source_id', $sourceId)->first();
         if (!$product) {
-            $product = FetchProducts::run($this->organisationSource, $sourceId);
+            $sourceData = explode(':', $sourceId);
+            $product    = FetchProducts::run($this->organisationSource, $sourceData[1]);
         }
 
         return $product;
     }
 
-    public function parseDepartment($sourceId): ?ProductCategory
+    public function parseDepartment(string $sourceId): ?ProductCategory
     {
-        $department = ProductCategory::where('source_department_id', $sourceId)->first();
+        $department = ProductCategory::where('is_family', false)->where('source_department_id', $sourceId)->first();
         if (!$department) {
-            $department = FetchDepartments::run($this->organisationSource, $sourceId);
+            $sourceData = explode(':', $sourceId);
+            $department = FetchDepartments::run($this->organisationSource, $sourceData[1]);
         }
 
         return $department;
     }
 
-    public function parseFamily($sourceId): ?ProductCategory
+    public function parseFamily(string $sourceId): ?ProductCategory
     {
-        $family = ProductCategory::where('source_family_id', $sourceId)->first();
+        $family = ProductCategory::where('is_family', true)->where('source_family_id', $sourceId)->first();
         if (!$family) {
-            $family = FetchFamilies::run($this->organisationSource, $sourceId);
+            $sourceData = explode(':', $sourceId);
+            $family     = FetchFamilies::run($this->organisationSource, $sourceData[1]);
         }
 
         return $family;
     }
 
-    public function parseService($sourceId): Product
+    public function parseService(string $sourceId): Product
     {
         $service = Product::withTrashed()->where('source_id', $sourceId)->first();
         if (!$service) {
-            $service = FetchServices::run($this->organisationSource, $sourceId);
+            $sourceData = explode(':', $sourceId);
+            $service    = FetchServices::run($this->organisationSource, $sourceData[1]);
         }
 
         return $service;
     }
 
-    public function parseCustomer($sourceId): ?Customer
+    public function parseCustomer(string $sourceId): ?Customer
     {
         if (!$sourceId) {
             return null;
@@ -529,7 +533,12 @@ trait WithAuroraParsers
         $reference = preg_replace('/\)$/', '', $reference);
         $reference = str_replace('(', '-', $reference);
         $reference = str_replace(')', '-', $reference);
+        $reference = str_replace("'", '', $reference);
+        $reference = str_replace(",", '', $reference);
+        $reference = str_replace("/", '-', $reference);
 
+        /** @noinspection PhpDuplicateArrayKeysInspection */
+        /** @noinspection DuplicatedCode */
         $normalizeChars = array(
             'Š' => 'S',
             'š' => 's',
@@ -632,6 +641,8 @@ trait WithAuroraParsers
         $string = str_replace('?', '_', $string);
 
 
+        /** @noinspection PhpDuplicateArrayKeysInspection */
+        /** @noinspection DuplicatedCode */
         $normalizeChars = array(
             'Š' => 'S',
             'š' => 's',
