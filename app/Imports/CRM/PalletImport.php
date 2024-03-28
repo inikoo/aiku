@@ -62,7 +62,7 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
     public function rules(): array
     {
         return [
-            'customer_reference' => ['nullable'],
+            'customer_reference' => ['nullable', 'unique:pallets,customer_reference'],
             'notes'              => ['nullable']
         ];
     }
