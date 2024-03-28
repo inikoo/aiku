@@ -82,7 +82,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('/fulfilment/', StoreFulfilment::class)->name('fulfilment.store');
 
     Route::post('/shop/{shop:id}/customer/', StoreCustomer::class)->name('shop.customer.store');
-    Route::post('/shop/{shop:id}/fulfilment/{fulfilment:id}/customer', StoreFulfilmentCustomer::class)->name('shop.fulfilment-customer.store');
+    Route::post('/shop/{shop:id}/fulfilment/{fulfilment}/customer', StoreFulfilmentCustomer::class)->name('shop.fulfilment-customer.store');
 
 });
 
@@ -151,7 +151,7 @@ Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function ()
     Route::patch('/', UpdateWarehouse::class)->name('warehouse.update');
     Route::post('areas/upload', [ImportWarehouseArea::class, 'inWarehouse'])->name('warehouse-areas.upload');
 
-    Route::patch('pallets/{pallet}/locations', [UpdatePalletLocation::class, 'inWarehouse'])->name('pallets.location.update');
+    Route::patch('pallets/{pallet:id}/locations', [UpdatePalletLocation::class, 'inWarehouse'])->name('pallets.location.update');
 
     Route::post('location/upload', [ImportLocation::class, 'inWarehouse'])->name('location.upload');
     Route::post('location', [StoreLocation::class, 'inWarehouse'])->name('location.store');

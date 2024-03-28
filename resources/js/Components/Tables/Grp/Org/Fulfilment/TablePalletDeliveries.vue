@@ -23,7 +23,7 @@ const props = defineProps<{
 }>()
 
 function palletDeliveryRoute(palletDelivery: PalletDelivery) {
-    console.log(route().current())
+    // console.log(route().current())
     switch (route().current()) {
         case 'grp.org.warehouses.show.fulfilment.pallet-deliveries.index':
             return route(
@@ -89,35 +89,36 @@ function customerRoute(palletDelivery: PalletDelivery) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-
-
+        <!-- Column: Reference -->
         <template #cell(reference)="{ item: palletDelivery }">
             <Link :href="palletDeliveryRoute(palletDelivery)" class="specialUnderlineSecondary">
                 {{ palletDelivery['reference'] }}
             </Link>
         </template>
 
-        <template #cell(customer_name)="{ item: palletDelivery }">
+        <!-- Column: Customer -->
+        <!-- <template #cell(customer_name)="{ item: palletDelivery }">
             <Link :href="customerRoute(palletDelivery)" class="specialUnderline">
                 {{ palletDelivery['customer_name'] }}
             </Link>
-        </template>
+        </template> -->
 
+        <!-- Column: State -->
         <template #cell(state)="{ item: palletDelivery }">
             <Icon :data="palletDelivery['state_icon']" class="px-1" />
         </template>
 
-
-        <template #buttondeliveries="{ linkButton: linkButton }">
+        <!-- <template #buttondeliveries="{ linkButton: linkButton }">
             <Link v-if="linkButton?.route?.name" method="post"
+                as="div"
                 :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
                 class="ring-1 ring-gray-300 overflow-hidden first:rounded-l last:rounded-r">
                 <Button
                     :style="linkButton.style"
                     :label="linkButton.label"
-                    class="h-full capitalize inline-flex items-center rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
+                    class="rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
                 />
             </Link>
-        </template>
+        </template> -->
     </Table>
 </template>

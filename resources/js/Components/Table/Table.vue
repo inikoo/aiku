@@ -622,6 +622,7 @@ watch(() => props.name, () => {
                                     :name="`button${linkButton.label}`" :linkButton="linkButton"
                                 >
                                     <Link v-if="linkButton?.route?.name"
+                                        as="div"
                                         :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
                                         :method="linkButton.route?.method || 'get'"
                                         :class="[queryBuilderProps.modelOperations?.createLink.length > 1 ? 'first:rounded-l last:rounded-r' : '']"
