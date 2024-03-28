@@ -28,43 +28,45 @@ const props = defineProps<{
 const blueprint = [
     {
         name: 'Slug',
-        value: props.data.data.slug
+        value: props.data.data.slug || '-'
     },
     {
         name: 'reference',
-        value: props.data.data.reference
+        value: props.data.data.reference || '-'
     },
     {
         name: 'Customer name',
-        value: props.data.data.customer_name
+        value: props.data.data.customer_name || '-'
     },
     {
         name: 'Customer reference',
-        value: props.data.data.customer_reference
+        value: props.data.data.customer_reference || '-'
 
     },
     {
         name: 'Location',
-        value: props.data.data.location.code
+        value: props.data.data.location?.code || '-'
     },
     {
         name: 'State',
-        value: props.data.data.state
+        value: props.data.data.state || '-'
     },
     {
         name: 'Status',
-        value: props.data.data.status
+        value: props.data.data.status || '-'
     },
 ]
 
 
 onMounted(() => {
-    JsBarcode('#palletBarcode', `pal-${props.data.data.slug}`, {
-        lineColor: "rgb(41 37 36)",
-        width: 2,
-        height: 70,
-        displayValue: true
-    })
+    if(props.data.data.slug){
+        JsBarcode('#palletBarcode', `pal-${props.data.data.slug}`, {
+            lineColor: "rgb(41 37 36)",
+            width: 2,
+            height: 70,
+            displayValue: true
+        })
+    }
 })
 
 </script>
