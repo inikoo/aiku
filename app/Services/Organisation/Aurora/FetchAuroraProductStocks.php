@@ -25,7 +25,7 @@ class FetchAuroraProductStocks extends FetchAurora
                 }
             } else {
                 print "\nWarning: Part SKU ".$modelData->{'Product Part Part SKU'}." not found in `Product Part Bridge`\n";
-                //abort(404, "Error fetching products-stock relation");
+                abort(404, "Error fetching products-stock relation");
             }
         }
         $this->parsedData['product_stocks'] = $productStocks;

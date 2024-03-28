@@ -47,7 +47,7 @@ class ShopHydrateDepartments
                 enum: ProductCategoryStateEnum::class,
                 models: ProductCategory::class,
                 where: function ($q) use ($shop) {
-                    $q->where('shop_id', $shop->id);
+                    $q->where('shop_id', $shop->id)->where('type', ProductCategoryTypeEnum::DEPARTMENT);
                 }
             )
         );

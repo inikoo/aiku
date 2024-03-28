@@ -29,13 +29,14 @@ class StoreProductCategory extends OrgAction
         } else {
             $modelData['shop_id'] = $parent->id;
         }
-
+        data_set($modelData, 'parent_id', $parent->id);
+        data_set($modelData, 'parent_type', class_basename($parent));
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
 
 
         /** @var ProductCategory $productCategory */
-        $productCategory = $parent->departments()->create($modelData);
+        $productCategory = ProductCategory::create($modelData);
 
         $productCategory->stats()->create();
         $productCategory->salesStats()->create([
@@ -49,7 +50,17 @@ class StoreProductCategory extends OrgAction
         }
 
         ProductCategoryHydrateUniversalSearch::dispatch($productCategory);
-        ShopHydrateDepartments::dispatch($productCategory->shop);
+
+        switch ($productCategory->type) {
+            case ProductCategoryTypeEnum::DEPARTMENT:
+                ShopHydrateDepartments::dispatch($productCategory->shop);
+                break;
+            case ProductCategoryTypeEnum::FAMILY:
+                //ShopHydrateFamilies::dispatch($productCategory->shop);
+                break;
+        }
+
+
 
         return $productCategory;
     }
