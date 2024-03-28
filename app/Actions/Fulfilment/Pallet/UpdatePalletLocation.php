@@ -8,7 +8,6 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\Pallet\Hydrators\HydrateMovementPallet;
-use App\Actions\Fulfilment\StoredItem\Hydrators\StoredItemHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\Pallet;
@@ -23,6 +22,10 @@ class UpdatePalletLocation extends OrgAction
 
 
     private Pallet $pallet;
+    /**
+     * @var array|\ArrayAccess|mixed
+     */
+    private mixed $scope;
 
     public function handle(Location $location, Pallet $pallet): Pallet
     {
@@ -32,7 +35,6 @@ class UpdatePalletLocation extends OrgAction
             'location_id' => $location->id
         ]);
 
-        StoredItemHydrateUniversalSearch::dispatch($pallet);
         HydrateMovementPallet::dispatch($pallet, $lastLocationId);
 
         return $pallet;
@@ -44,7 +46,15 @@ class UpdatePalletLocation extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
+        if ($this->scope instanceof Warehouse) {
+            $this->canEdit = $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
+
+            return  $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
+        }
+
+        $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
+
+        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.view");
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse, Location $location, Pallet $pallet, ActionRequest $request): Pallet
@@ -58,9 +68,10 @@ class UpdatePalletLocation extends OrgAction
     public function inWarehouse(Warehouse $warehouse, Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->pallet = $pallet;
+        $this->scope  = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request);
 
-        $location = Location::find($request->only('location_id'));
+        $location = Location::where('id', $request->only('location_id'))->first();
 
         return $this->handle($location, $pallet);
     }

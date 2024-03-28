@@ -59,7 +59,7 @@ class CreateFulfilmentCustomer extends OrgAction
                         'parameters'=> [
                             'organisation'       => $fulfilment->organisation->id,
                             'shop'               => $fulfilment->shop->id,
-                            'fulfilment'         => $fulfilment->slug
+                            'fulfilment'         => $fulfilment->id
                         ]
                     ]
                 ]
