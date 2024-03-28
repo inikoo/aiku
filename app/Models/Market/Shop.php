@@ -97,7 +97,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Market\ShopCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read Collection<int, Customer> $customers
- * @property-read Collection<int, \App\Models\Market\ProductCategory> $departments
  * @property-read Fulfilment|null $fulfilment
  * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
  * @property-read Group $group
@@ -111,6 +110,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, PaymentAccount> $paymentAccounts
  * @property-read Collection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read Collection<int, Payment> $payments
+ * @property-read Collection<int, \App\Models\Market\ProductCategory> $productCategories
  * @property-read Collection<int, \App\Models\Market\Product> $products
  * @property-read Collection<int, Prospect> $prospects
  * @property-read Collection<int, Role> $roles

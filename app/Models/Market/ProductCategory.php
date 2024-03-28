@@ -37,6 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Market\Department
  *
  * @property int $id
+ * @property ProductCategoryTypeEnum $type
  * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
@@ -47,7 +48,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $shop_id
  * @property int $parent_id
  * @property string $parent_type
- * @property string $type
  * @property ProductCategoryStateEnum|null $state
  * @property array $data
  * @property Carbon|null $created_at
