@@ -13,23 +13,28 @@ import { faTrashAlt } from '@far'
 import { faSignOutAlt } from '@fal'
 import Tag from "@/Components/Tag.vue"
 import Popover from '@/Components/Popover.vue'
-import SelectQuery from '@/Components/SelectQuery.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import Multiselect from "@vueform/multiselect"
 import axios from 'axios'
 import { ref } from 'vue'
 import { notify } from '@kyvg/vue3-notification'
+import type { Meta, Links } from '@/types/Table'
+
 
 library.add(
     faTrashAlt, faSignOutAlt
 )
 const props = defineProps<{
-    data: {},
+    data: {
+        data: {}[]
+        links: Links
+        meta: Meta
+    },
     tab?: string
 }>()
 
 
-function palletRoute(pallet: Pallet) {
+function palletRoute(pallet: {}) {
     switch (route().current()) {
         case 'grp.org.fulfilments.show.operations.pallets.index':
             return route(
@@ -72,7 +77,7 @@ function palletRoute(pallet: Pallet) {
     }
 }
 
-function fulfilmentCustomerRoute(pallet: Pallet) {
+function fulfilmentCustomerRoute(pallet: {}) {
     console.log(route().current())
     switch (route().current()) {
 
@@ -90,40 +95,72 @@ function fulfilmentCustomerRoute(pallet: Pallet) {
     }
 }
 
+const palletSelected = ref<{[key: string]: number} | null>({
+    abc: 1,
+})  // Helper on which pallet selected to move
 const isLoading = ref(false)
 const locationsList = ref([])
+
+// Method: Get locations list from current Warehouse
 const getLocationsList = async () => {
     isLoading.value = true;
     try {
-        const response = await axios.get(route('grp.org.warehouses.show.infrastructure.locations.index', { "organisation": "awa", "warehouse": "ac" })
-        // , {
-        //     params: {
-        //         [`filter[global]`]: q.value,
-        //         page: page.value,
-        //         perPage: 10,
-        //     }
-        // }
-        )
+        const response = await axios.get(route('grp.org.warehouses.show.infrastructure.locations.index', { "organisation": "awa", "warehouse": "ac" }))
 
-        locationsList.value = response.data.data
-        console.log('resposne', response)
-        // onGetOptionsSuccess(response);
-        isLoading.value = false;
+        // Add 'disabled' key to current location
+        locationsList.value = response.data.data.map(loc => {
+            if (loc.slug == route().params.location) {
+                return {
+                    ...loc,
+                    disabled: true
+                }
+            }
+            return loc
+        })
+
+        // console.log('resposne', locationsList.value)
+        isLoading.value = false
     } catch (error) {
-        console.log(error);
-        isLoading.value = false;
+        console.error(error)
+        isLoading.value = false
+        // notify({
+        //     title: "Failed",
+        //     text: "Error while fetching data",
+        //     type: "error"
+        // })
+    }
+}
+
+// On submit move pallet
+const onMovePallet = async (url: string, locationId: number, palletReference: string, closePopup: Function) => {
+    try {
+        axios.patch(url, {
+            location_id: locationId
+        })
+
+        // Delete data in Frontend
+        const indexToDelete = props.data.data.findIndex(item => item.reference === palletReference);
+        // Check if the element exists (index !== -1)
+        if (indexToDelete !== -1) {
+            props.data.meta.total = props.data.meta.total-1 
+            props.data.data.splice(indexToDelete, 1)
+        }
+
         notify({
-            title: "Failed",
-            text: "Error while fetching data",
-            type: "error"
-        });
+            title: "Pallet moved!",
+            text: "Pallet has been moved to " + locationsList.value.filter(loc => loc.id == locationId)[0].code,
+            type: "success"
+        }),
+        closePopup()
+    } catch (e) {
+        console.error(e)
     }
 }
 
 </script>
 
 <template>
-    <!-- <pre>{{ props.data }}</pre> -->
+    <!-- <pre>{{ props.data.meta }}</pre> -->
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(reference)="{ item: pallet }">
             <Link :href="palletRoute(pallet)" class="specialUnderline">
@@ -137,34 +174,42 @@ const getLocationsList = async () => {
             </Link>
         </template>
 
-        <template #cell(actions)="{ item: pallet }">
-        <!-- {{pallet}} -->
+        <!-- Column: Action (move pallet) -->
+        <template #cell(actions)="{ item }">
             <Popover width="w-full" class="relative">
                 <template #button>
-                    <Button type="secondary" tooltip="Move pallet" label="Move pallet" :key="pallet.index" :size="'xs'" />
+                    <Button @click="() => (locationsList.length ? '' : getLocationsList(), palletSelected?.[item.reference] ? '' : palletSelected = {[item.reference]: item.location_id})" type="secondary" tooltip="Move pallet to another location" label="Move pallet" :key="item.index" :size="'xs'" />
                 </template>
 
-                <template #content="{ close: closed }">
+                <template #content="{ close }">
                     <div class="w-[250px]">
-                        <span class="text-xs px-1 my-2">Location: </span>
+                        <span class="text-xs px-1 my-2">Location:</span>
                         <div>
                             <Multiselect ref="_multiselectRef"
-                                v-model="pallet.location_id"
-                                label="code" valueProp="id"
-                                placeholder="hehehehe"
+                                v-model="palletSelected[item.reference]"
+                                :canClear="false"
+                                :canDeselect="false"
+                                label="code"
+                                valueProp="id"
+                                placeholder="Select location.."
                                 :options="locationsList"
                                 :noResultsText="isLoading ? 'loading...' : 'No Result'"
-                                @open="() => locationsList.length ? '' : getLocationsList()"
                             >
                                 
                             </Multiselect>
                             <!-- <p v-if="error.location_id" class="mt-2 text-sm text-red-600">{{ error.location_id }}</p> -->
                         </div>
+
                         <div class="flex justify-end mt-2">
-                        <!-- {{ pallet.updateLocationRoute.parameters }} -->
-                            <Link :href="route(pallet.updateLocationRoute.name, pallet.updateLocationRoute.parameters)" method="patch" :data="{location_id: pallet.location_id}">
-                                <Button type="primary" tooltip="Move pallet" label="save" :key="pallet.index" :size="'xs'" />
-                            </Link>
+                            <Button @click="() => onMovePallet(route(item.updateLocationRoute.name, item.updateLocationRoute.parameters), palletSelected?.[item.reference], item.reference, close)"
+                                type="primary"
+                                tooltip="Move pallet"
+                                :loading="isLoading"
+                                label="save"
+                                :key="item.index + palletSelected?.[item.reference]"
+                                :size="'xs'"
+                                :disabled="palletSelected?.[item.reference] == item.location_id"
+                                />
                         </div>
                     </div>
                 </template>
