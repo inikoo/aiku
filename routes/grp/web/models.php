@@ -18,6 +18,7 @@ use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePalletBookedIn;
+use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
 use App\Actions\Fulfilment\Pallet\UpdatePalletNotReceived;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\BookInPalletDelivery;
@@ -149,6 +150,8 @@ Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function
 Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function () {
     Route::patch('/', UpdateWarehouse::class)->name('warehouse.update');
     Route::post('areas/upload', [ImportWarehouseArea::class, 'inWarehouse'])->name('warehouse-areas.upload');
+
+    Route::patch('pallets/{pallet}/locations', [UpdatePalletLocation::class, 'inWarehouse'])->name('pallets.location.update');
 
     Route::post('location/upload', [ImportLocation::class, 'inWarehouse'])->name('location.upload');
     Route::post('location', [StoreLocation::class, 'inWarehouse'])->name('location.store');

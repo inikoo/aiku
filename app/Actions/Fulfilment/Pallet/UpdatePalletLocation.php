@@ -54,4 +54,14 @@ class UpdatePalletLocation extends OrgAction
 
         return $this->handle($location, $pallet);
     }
+
+    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, Pallet $pallet, ActionRequest $request): Pallet
+    {
+        $this->pallet = $pallet;
+        $this->initialisationFromWarehouse($warehouse, $request);
+
+        $location = Location::find($request->only('location_id'));
+
+        return $this->handle($location, $pallet);
+    }
 }

@@ -102,6 +102,10 @@ class PalletsResource extends JsonResource
                 'name'       => 'grp.models.warehouse.pallet.booked-in',
                 'parameters' => [$this->warehouse_id, $this->id]
             ],
+            'updateLocationRoute'              => [
+                'name'       => 'grp.models.warehouse.pallets.location.update',
+                'parameters' => [$this->warehouse_id, $this->id]
+            ],
             'storeStoredItemRoute'     => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet.stored-items.update',
