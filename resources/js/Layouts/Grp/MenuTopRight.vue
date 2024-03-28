@@ -50,11 +50,11 @@ const logoutAuth = () => {
                 <SearchBar :isOpen="showSearchDialog" @close="(e) => showSearchDialog = e" />
             </button>
             <!-- Button: Notifications -->
-            <!-- <button type="button"
+            <button type="button"
                     class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
                 <span class="sr-only">{{ trans("View notifications") }}</span>
                 <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
-            </button> -->
+            </button>
         </div>
 
         <!-- Avatar Button -->
