@@ -20,7 +20,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $created_at
  * @property mixed $updated_at
  */
-class DepartmentResource extends JsonResource
+class DepartmentsResource extends JsonResource
 {
     public function toArray($request): array
     {

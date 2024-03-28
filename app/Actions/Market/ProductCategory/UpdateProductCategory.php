@@ -11,7 +11,7 @@ use App\Actions\Market\ProductCategory\Hydrators\ProductCategoryHydrateUniversal
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
-use App\Http\Resources\Market\DepartmentResource;
+use App\Http\Resources\Market\DepartmentsResource;
 use App\Models\Market\ProductCategory;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
@@ -86,8 +86,8 @@ class UpdateProductCategory extends OrgAction
         return $this->handle($productCategory, $this->validatedData);
     }
 
-    public function jsonResponse(ProductCategory $productCategory): DepartmentResource
+    public function jsonResponse(ProductCategory $productCategory): DepartmentsResource
     {
-        return new DepartmentResource($productCategory);
+        return new DepartmentsResource($productCategory);
     }
 }

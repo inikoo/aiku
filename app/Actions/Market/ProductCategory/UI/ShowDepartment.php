@@ -17,7 +17,7 @@ use App\Actions\Market\Shop\UI\ShowShop;
 use App\Enums\UI\DepartmentTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Mail\MailshotResource;
-use App\Http\Resources\Market\DepartmentResource;
+use App\Http\Resources\Market\DepartmentsResource;
 use App\Http\Resources\Market\FamilyResource;
 use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Sales\CustomersResource;
@@ -219,9 +219,9 @@ class ShowDepartment extends InertiaAction
     }
 
 
-    public function jsonResponse(ProductCategory $department): DepartmentResource
+    public function jsonResponse(ProductCategory $department): DepartmentsResource
     {
-        return new DepartmentResource($department);
+        return new DepartmentsResource($department);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array

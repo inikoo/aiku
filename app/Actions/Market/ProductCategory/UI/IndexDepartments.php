@@ -7,12 +7,10 @@
 
 namespace App\Actions\Market\ProductCategory\UI;
 
-use App\Actions\InertiaAction;
-use App\Actions\Market\Shop\UI\IndexShops;
-
 //use App\Actions\UI\Catalogue\CatalogueHub;
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Http\Resources\Market\DepartmentResource;
+use App\Actions\OrgAction;
+use App\Http\Resources\Market\DepartmentsResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -27,32 +25,45 @@ use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexDepartments extends InertiaAction
+class IndexDepartments extends OrgAction
 {
     private Shop|ProductCategory|Organisation $parent;
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('shops.products.edit');
+        if ($this->parent instanceof Organisation) {
+            $this->canEdit = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('shops.products.view')
-            );
+            return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.view");
+        } else {
+            $this->canEdit = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
+
+            return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");
+        }
     }
 
-    public function inOrganisation(ActionRequest $request): LengthAwarePaginator
+
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
-        $this->parent = app('currentTenant');
-        return $this->handle(parent: app('currentTenant'));
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request);
+
+        return $this->handle(parent: $organisation);
     }
 
-    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    public function inProductCategory(Organisation $organisation, Shop $shop, ProductCategory $productCategory, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->parent = $productCategory;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle(parent: $productCategory);
+    }
+
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
+    {
         $this->parent = $shop;
+        $this->initialisationFromShop($shop, $request);
+
         return $this->handle(parent: $shop);
     }
 
@@ -70,6 +81,8 @@ class IndexDepartments extends InertiaAction
         }
 
         $queryBuilder = QueryBuilder::for(ProductCategory::class);
+
+        /*
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
@@ -78,9 +91,10 @@ class IndexDepartments extends InertiaAction
                 prefix: $prefix
             );
         }
+        */
 
         return $queryBuilder
-            ->defaultSort('product_categories.slug')
+            ->defaultSort('product_categories.code')
             ->select([
                 'product_categories.slug',
                 'product_categories.code',
@@ -101,13 +115,13 @@ class IndexDepartments extends InertiaAction
                     $query->addSelect('shops.slug as shop_slug');
                 }
             })
-            ->allowedSorts(['slug', 'name'])
+            ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Shop|ProductCategory|Organisation $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
@@ -133,8 +147,8 @@ class IndexDepartments extends InertiaAction
                                 'tooltip' => __('new shop'),
                                 'label'   => __('shop'),
                                 'route'   => [
-                                    'name'       => 'shops.create',
-                                    'parameters' => array_values($request->route()->originalParameters())
+                                    'name'       => 'grp.org.shops.create',
+                                    'parameters' => [$parent->slug]
                                 ]
                             ] : null
                         ],
@@ -149,8 +163,8 @@ class IndexDepartments extends InertiaAction
                                 'tooltip' => __('new department'),
                                 'label'   => __('department'),
                                 'route'   => [
-                                    'name'       => 'shops.show.departments.create',
-                                    'parameters' => array_values($request->route()->originalParameters())
+                                    'name'       => 'grp.org.shops.show.departments.create',
+                                    'parameters' => [$parent->organisation->slug,$parent->slug]
                                 ]
                             ] : null
                         ],
@@ -174,20 +188,20 @@ class IndexDepartments extends InertiaAction
                     ]
                     */
                 )
-                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
     public function jsonResponse(LengthAwarePaginator $departments): AnonymousResourceCollection
     {
-        return DepartmentResource::collection($departments);
+        return DepartmentsResource::collection($departments);
     }
 
     public function htmlResponse(LengthAwarePaginator $departments, ActionRequest $request): Response
     {
-        $scope    =$this->parent;
-        $container=null;
+        $scope     = $this->parent;
+        $container = null;
         if (class_basename($scope) == 'Shop') {
             $container = [
                 'icon'    => ['fal', 'fa-store-alt'],
@@ -195,6 +209,7 @@ class IndexDepartments extends InertiaAction
                 'label'   => Str::possessive($scope->name)
             ];
         }
+
         return Inertia::render(
             'Market/Departments',
             [
@@ -204,13 +219,13 @@ class IndexDepartments extends InertiaAction
                 ),
                 'title'       => __('Departments'),
                 'pageHead'    => [
-                    'title'        => __('departments'),
-                    'container'    => $container,
-                    'iconRight'    => [
+                    'title'     => __('departments'),
+                    'container' => $container,
+                    'iconRight' => [
                         'icon'  => ['fal', 'fa-folder-tree'],
                         'title' => __('department')
                     ],
-                    'actions' => [
+                    'actions'   => [
                         $this->canEdit && $request->route()->getName() == 'shops.show.departments.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -223,7 +238,7 @@ class IndexDepartments extends InertiaAction
                         ] : false,
                     ]
                 ],
-                'data'        => DepartmentResource::collection($departments),
+                'data'        => DepartmentsResource::collection($departments),
             ]
         )->table($this->tableStructure($this->parent));
     }
@@ -245,19 +260,7 @@ class IndexDepartments extends InertiaAction
         };
 
         return match ($routeName) {
-            'shops.departments.index' =>
-            array_merge(
-                IndexShops::make()->getBreadcrumbs(),
-                $headCrumb(
-                    [
-                        'name'       => $routeName,
-                        'parameters' => $routeParameters
-                    ],
-                    $suffix
-                )
-            ),
-
-            'shops.show.departments.index' =>
+            'grp.org.shops.show.catalogue.departments.index' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
@@ -268,6 +271,7 @@ class IndexDepartments extends InertiaAction
                     $suffix
                 )
             ),
+
 
             default => []
         };

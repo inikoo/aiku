@@ -14,7 +14,7 @@ use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\UI\ShopsTabsEnum;
-use App\Http\Resources\Market\DepartmentResource;
+use App\Http\Resources\Market\DepartmentsResource;
 use App\Http\Resources\Market\FamilyResource;
 use App\Http\Resources\Market\ProductResource;
 use App\Http\Resources\Market\ShopResource;
@@ -162,8 +162,8 @@ class IndexShops extends OrgAction
                     : Inertia::lazy(fn () => ShopResource::collection($shops)),
 
                 ShopsTabsEnum::DEPARTMENTS->value => $this->tab == ShopsTabsEnum::DEPARTMENTS->value ?
-                    fn () => DepartmentResource::collection(IndexDepartments::run($this->parent, ShopsTabsEnum::DEPARTMENTS->value))
-                    : Inertia::lazy(fn () => DepartmentResource::collection(IndexDepartments::run($this->parent, ShopsTabsEnum::DEPARTMENTS->value))),
+                    fn () => DepartmentsResource::collection(IndexDepartments::run($this->parent, ShopsTabsEnum::DEPARTMENTS->value))
+                    : Inertia::lazy(fn () => DepartmentsResource::collection(IndexDepartments::run($this->parent, ShopsTabsEnum::DEPARTMENTS->value))),
 
                 ShopsTabsEnum::FAMILIES->value => $this->tab == ShopsTabsEnum::FAMILIES->value ?
                     fn () => FamilyResource::collection(IndexFamilies::run($this->parent))
