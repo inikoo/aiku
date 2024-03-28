@@ -7,16 +7,20 @@
 
 use App\Enums\Market\Product\ProductTradeUnitCompositionEnum;
 use App\Stubs\Migrations\HasAssetCodeDescription;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasAssetCodeDescription;
+    use HasGroupOrganisationRelationship;
+
     public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
             $table->increments('id');
+            $table = $this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table = $this->assertCodeDescription($table);
             $table->string('type')->index();
