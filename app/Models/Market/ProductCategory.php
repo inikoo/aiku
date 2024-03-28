@@ -9,6 +9,7 @@ namespace App\Models\Market;
 
 use App\Actions\Market\Shop\Hydrators\ShopHydrateDepartments;
 use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
+use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\BI\SalesStats;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
@@ -88,7 +89,8 @@ class ProductCategory extends Model implements Auditable
 
     protected $casts = [
         'data'  => 'array',
-        'state' => ProductCategoryStateEnum::class
+        'state' => ProductCategoryStateEnum::class,
+        'type'  => ProductCategoryTypeEnum::class,
     ];
 
     protected $attributes = [
