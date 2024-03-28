@@ -7,10 +7,10 @@
 
 namespace App\Actions\Market\Product\UI;
 
-use App\Actions\InertiaAction;
-use App\Actions\Market\Shop\UI\IndexShops;
+use App\Actions\Market\HasMarketAuthorisation;
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Http\Resources\Market\ProductResource;
+use App\Actions\OrgAction;
+use App\Http\Resources\Market\ProductsResource;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
@@ -26,33 +26,24 @@ use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexProducts extends InertiaAction
+class IndexProducts extends OrgAction
 {
+    use HasMarketAuthorisation;
+
     private Shop|ProductCategory|Organisation $parent;
 
-    public function authorize(ActionRequest $request): bool
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->canEdit = $request->user()->hasPermissionTo('shops.products.edit');
-
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('shops.products.view')
-            );
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request);
+        return $this->handle(parent: $organisation);
     }
 
-    public function inOrganisation(ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
-        $this->parent = app('currentTenant');
-        return $this->handle(app('currentTenant'));
-    }
-
-    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
         $this->parent = $shop;
-        return $this->handle($shop);
+        $this->initialisationFromShop($shop, $request);
+        return $this->handle(parent: $shop);
     }
 
     public function handle(Shop|ProductCategory|Organisation $parent, $prefix = null): LengthAwarePaginator
@@ -60,7 +51,7 @@ class IndexProducts extends InertiaAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('products.name', $value)
-                    ->orWhere('products.slug', 'ilike', "$value%");
+                    ->orWhereStartWith('products.code', $value);
             });
         });
 
@@ -69,6 +60,8 @@ class IndexProducts extends InertiaAction
         }
 
         $queryBuilder = QueryBuilder::for(Product::class);
+
+        /*
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
@@ -77,6 +70,7 @@ class IndexProducts extends InertiaAction
                 prefix: $prefix
             );
         }
+        */
 
         return $queryBuilder
             ->defaultSort('products.slug')
@@ -128,8 +122,8 @@ class IndexProducts extends InertiaAction
                                 'tooltip' => __('new shop'),
                                 'label'   => __('shop'),
                                 'route'   => [
-                                    'name'       => 'shops.create',
-                                    'parameters' => array_values($request->route()->originalParameters())
+                                    'name'       => 'grp.org.shops.create',
+                                    'parameters' => [$parent->slug]
                                 ]
                             ] : null
                         ],
@@ -164,7 +158,7 @@ class IndexProducts extends InertiaAction
 
     public function jsonResponse(LengthAwarePaginator $products): AnonymousResourceCollection
     {
-        return ProductResource::collection($products);
+        return ProductsResource::collection($products);
     }
 
     public function htmlResponse(LengthAwarePaginator $products, ActionRequest $request): Response
@@ -209,7 +203,7 @@ class IndexProducts extends InertiaAction
                         ] : false,
                     ]
                 ],
-                'data'        => ProductResource::collection($products),
+                'data'        => ProductsResource::collection($products),
 
 
             ]
@@ -245,17 +239,6 @@ class IndexProducts extends InertiaAction
                 )
             ),
 
-            'shops.products.index' =>
-            array_merge(
-                IndexShops::make()->getBreadcrumbs(),
-                $headCrumb(
-                    [
-                        'name'       => $routeName,
-                        'parameters' => $routeParameters
-                    ],
-                    $suffix
-                )
-            ),
 
             default => []
         };

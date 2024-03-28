@@ -42,7 +42,6 @@ class IndexFamilies extends OrgAction
     {
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
-
         return $this->handle(parent: $shop);
     }
 
@@ -52,7 +51,7 @@ class IndexFamilies extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('product_categories.name', $value)
-                    ->orWhere('product_categories.code', 'ilike', "$value%");
+                    ->orWhereStartWith('product_categories.code', $value);
             });
         });
         if ($prefix) {

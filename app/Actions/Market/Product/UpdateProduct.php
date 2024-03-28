@@ -10,7 +10,7 @@ namespace App\Actions\Market\Product;
 use App\Actions\Market\Product\Hydrators\ProductHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Market\ProductResource;
+use App\Http\Resources\Market\ProductsResource;
 use App\Models\Market\Product;
 use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
@@ -87,8 +87,8 @@ class UpdateProduct extends OrgAction
         return $this->handle($product, $this->validatedData, $skipHistoric);
     }
 
-    public function jsonResponse(Product $product): ProductResource
+    public function jsonResponse(Product $product): ProductsResource
     {
-        return new ProductResource($product);
+        return new ProductsResource($product);
     }
 }

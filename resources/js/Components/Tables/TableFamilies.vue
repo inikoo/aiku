@@ -39,7 +39,7 @@ function familyRoute(family: Family) {
 <template>
   <Table :resource="data" :name="tab" class="mt-5">
     <template #cell(code)="{ item: family }">
-      <Link :href="familyRoute(family)">
+      <Link :href="familyRoute(family)" class="specialUnderline">
         {{ family["code"] }}
       </Link>
     </template>

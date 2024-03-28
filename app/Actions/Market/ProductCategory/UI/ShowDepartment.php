@@ -19,7 +19,7 @@ use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Market\DepartmentsResource;
 use App\Http\Resources\Market\FamiliesResource;
-use App\Http\Resources\Market\ProductResource;
+use App\Http\Resources\Market\ProductsResource;
 use App\Http\Resources\Sales\CustomersResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
@@ -131,13 +131,13 @@ class ShowDepartment extends InertiaAction
                         )
                     )),
                 DepartmentTabsEnum::PRODUCTS->value  => $this->tab == DepartmentTabsEnum::PRODUCTS->value ?
-                    fn () => ProductResource::collection(
+                    fn () => ProductsResource::collection(
                         IndexProducts::run(
                             parent: $department,
                             prefix: 'products'
                         )
                     )
-                    : Inertia::lazy(fn () => ProductResource::collection(
+                    : Inertia::lazy(fn () => ProductsResource::collection(
                         IndexProducts::run(
                             parent: $department,
                             prefix: 'products'
