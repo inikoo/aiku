@@ -10,20 +10,20 @@ import Table from '@/Components/Table/Table.vue'
 import Icon from '@/Components/Icon.vue'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faTrashAlt } from '@far'
-import { faSignOutAlt } from '@fal'
+import { faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross } from '@fal'
 import Tag from "@/Components/Tag.vue"
 import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import Multiselect from "@vueform/multiselect"
 import axios from 'axios'
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
 import { notify } from '@kyvg/vue3-notification'
 import type { Meta, Links } from '@/types/Table'
 
+library.add( faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross )
 
-library.add(
-    faTrashAlt, faSignOutAlt
-)
+const isMovePallet = inject('isMovePallet', false)
+
 const props = defineProps<{
     data: {
         data: {}[]
@@ -162,6 +162,7 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
 <template>
     <!-- <pre>{{ props.data.meta }}</pre> -->
     <Table :resource="data" :name="tab" class="mt-5">
+        <!-- Column: Reference -->
         <template #cell(reference)="{ item: pallet }">
             <Link :href="palletRoute(pallet)" class="specialUnderline">
                 {{ pallet['reference'] }}
@@ -176,7 +177,8 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
 
         <!-- Column: Action (move pallet) -->
         <template #cell(actions)="{ item }">
-            <Popover width="w-full" class="relative">
+            <!-- Action: Move Pallet -->
+            <Popover v-if="isMovePallet" width="w-full" class="relative">
                 <template #button>
                     <Button @click="() => (locationsList.length ? '' : getLocationsList(), palletSelected?.[item.reference] ? '' : palletSelected = {[item.reference]: item.location_id})" type="secondary" tooltip="Move pallet to another location" label="Move pallet" :key="item.index" :size="'xs'" />
                 </template>
@@ -216,10 +218,17 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
             </Popover>
         </template>
 
+        <!-- Column: State -->
         <template #cell(state)="{ item: pallet }">
             <Icon :data="pallet['state_icon']" class="px-1" />
         </template>
 
+        <!-- Column: Notes -->
+        <template #cell(notes)="{ item: pallet }">
+            <div class="text-gray-500 italic">{{ pallet.notes }}</div>
+        </template>
+
+        <!-- Column: Stored Items -->
         <template #cell(stored_items)="{ item: pallet }">
             <div v-if="pallet.stored_items.length" class="flex flex-wrap gap-x-1 gap-y-1.5">
                 <Tag v-for="item of pallet.stored_items" :theme="item.id"
@@ -234,8 +243,8 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
             <div v-else class="text-gray-400 text-xs italic">
                 No items in this pallet
             </div>
-
         </template>
+
     </Table>
 </template>
 
