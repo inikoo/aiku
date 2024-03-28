@@ -29,7 +29,6 @@ class FetchAuroraInvoice extends FetchAurora
         }
 
 
-
         $data = [];
 
         $data['foot_note'] = $this->auroraModelData->{'Invoice Message'};
@@ -39,13 +38,19 @@ class FetchAuroraInvoice extends FetchAurora
         $date = $this->parseDate($this->auroraModelData->{'Invoice Date'});
         $date = new Carbon($date);
 
+        $taxLiabilityAt = $this->parseDate($this->auroraModelData->{'Invoice Tax Liability Date'});
+        if (!$taxLiabilityAt) {
+            $taxLiabilityAt = $this->auroraModelData->{'Invoice Date'};
+        }
         $this->parsedData['invoice'] = [
-            'number'     => $this->auroraModelData->{'Invoice Public ID'},
-            'type'       => strtolower($this->auroraModelData->{'Invoice Type'}),
-            'created_at' => $this->auroraModelData->{'Invoice Date'},
-            'exchange'   => $this->auroraModelData->{'Invoice Currency Exchange'},
-            'net'        => $this->auroraModelData->{'Invoice Total Net Amount'},
-            'total'      => $this->auroraModelData->{'Invoice Total Amount'},
+            'number'           => $this->auroraModelData->{'Invoice Public ID'},
+            'type'             => strtolower($this->auroraModelData->{'Invoice Type'}),
+            'created_at'       => $this->auroraModelData->{'Invoice Date'},
+            'date'             => $this->auroraModelData->{'Invoice Date'},
+            'tax_liability_at' => $taxLiabilityAt,
+            'exchange'         => $this->auroraModelData->{'Invoice Currency Exchange'},
+            'net'              => $this->auroraModelData->{'Invoice Total Net Amount'},
+            'total'            => $this->auroraModelData->{'Invoice Total Amount'},
 
             'org_exchange'   => GetHistoricCurrencyExchange::run($this->parsedData['parent']->shop->currency, $this->parsedData['parent']->organisation->currency, $date),
             'group_exchange' => GetHistoricCurrencyExchange::run($this->parsedData['parent']->shop->currency, $this->parsedData['parent']->group->currency, $date),

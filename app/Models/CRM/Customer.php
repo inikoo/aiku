@@ -74,13 +74,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $is_fulfilment
  * @property bool $is_dropshipping
  * @property array $data
+ * @property mixed $settings
+ * @property int|null $prospects_sender_email_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
- * @property int|null $prospects_sender_email_id
- * @property mixed $settings
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, \App\Models\CRM\Appointment> $appointments
  * @property-read Collection<int, CustomerClient> $clients

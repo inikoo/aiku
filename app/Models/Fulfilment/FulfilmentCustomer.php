@@ -87,10 +87,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read Group $group
  * @property-read Organisation $organisation
- * @property-read FulfilmentProforma $proformas
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletDelivery> $palletDeliveries
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletReturn> $palletReturns
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, FulfilmentProforma> $proformas
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemReturn> $storedItemReturns
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems

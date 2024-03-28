@@ -14,6 +14,8 @@ use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInvoices;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateInvoices;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\CRM\Customer;
@@ -55,6 +57,10 @@ class StoreInvoice extends OrgAction
         data_set($modelData, 'org_net_amount', Arr::get($modelData, 'net') * $orgExchange, overwrite: false);
         data_set($modelData, 'group_net_amount', Arr::get($modelData, 'net') * $groupExchange, overwrite: false);
 
+        $date=now();
+        data_set($modelData, 'date', $date, overwrite: false);
+        data_set($modelData, 'tax_liability_at', $date, overwrite: false);
+
 
         /** @var \App\Models\Accounting\Invoice $invoice */
         $invoice = $parent->invoices()->create($modelData);
@@ -65,6 +71,9 @@ class StoreInvoice extends OrgAction
 
         CustomerHydrateInvoices::dispatch($invoice->customer)->delay($this->hydratorsDelay);
         ShopHydrateInvoices::dispatch($invoice->shop)->delay($this->hydratorsDelay);
+        OrganisationHydrateInvoices::dispatch($invoice->organisation)->delay($this->hydratorsDelay);
+        GroupHydrateInvoices::dispatch($invoice->group)->delay($this->hydratorsDelay);
+
         InvoiceHydrateUniversalSearch::dispatch($invoice);
 
 
@@ -92,6 +101,8 @@ class StoreInvoice extends OrgAction
             'net'              => ['required', 'numeric'],
             'total'            => ['required', 'numeric'],
             'source_id'        => ['sometimes', 'string'],
+            'date'             => ['sometimes', 'date'],
+            'tax_liability_at' => ['sometimes', 'date'],
             'created_at'       => ['sometimes', 'date'],
             'data'             => ['sometimes', 'array'],
             'org_exchange'     => ['sometimes', 'numeric'],

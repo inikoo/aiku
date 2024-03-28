@@ -82,13 +82,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $timezone_id
  * @property array $data
  * @property array $settings
+ * @property int|null $sender_email_id
+ * @property int|null $prospects_sender_email_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
- * @property int|null $sender_email_id
- * @property int|null $prospects_sender_email_id
  * @property-read \App\Models\Market\ShopAccountingStats|null $accountingStats
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, Appointment> $appointments

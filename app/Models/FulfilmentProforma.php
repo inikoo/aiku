@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateInvoices;
-use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\Fulfilment\Proforma\ProformaTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceStats;
@@ -39,10 +38,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $organisation_id
  * @property string $slug
  * @property string $number
- * @property int $shop_id
- * @property int $customer_id
+ * @property int $fulfilment_id
+ * @property int $fulfilment_customer_id
  * @property int|null $order_id
- * @property InvoiceTypeEnum $type
+ * @property ProformaTypeEnum $type
  * @property int $currency_id
  * @property string $group_exchange
  * @property string $org_exchange
@@ -59,23 +58,20 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read Collection<int, Address> $addresses
  * @property-read Currency $currency
- * @property-read Customer $customer
- * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
- * @property-read Collection<int, \App\Models\Accounting\InvoiceTransaction> $invoiceTransactions
+ * @property-read Shop $fulfilment
+ * @property-read FulfilmentCustomer $fulfilmentCustomer
  * @property-read Order|null $order
  * @property-read Collection<int, Order> $orders
+ * @property-read Collection<int, Pallet> $pallets
  * @property-write mixed $exchange
- * @property-read Shop $shop
- * @property-read \App\Models\Accounting\InvoiceStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Accounting\InvoiceFactory factory($count = null, $state = [])
- * @method static Builder|Invoice newModelQuery()
- * @method static Builder|Invoice newQuery()
- * @method static Builder|Invoice onlyTrashed()
- * @method static Builder|Invoice query()
- * @method static Builder|Invoice withTrashed()
- * @method static Builder|Invoice withoutTrashed()
- * @mixin Eloquent
+ * @method static Builder|FulfilmentProforma newModelQuery()
+ * @method static Builder|FulfilmentProforma newQuery()
+ * @method static Builder|FulfilmentProforma onlyTrashed()
+ * @method static Builder|FulfilmentProforma query()
+ * @method static Builder|FulfilmentProforma withTrashed()
+ * @method static Builder|FulfilmentProforma withoutTrashed()
+ * @mixin \Eloquent
  */
 class FulfilmentProforma extends Model
 {

@@ -126,8 +126,8 @@ class IndexPallets extends RetinaAction
 
 
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
-            $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'customer_reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'reference', label: __('reference number'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'customer_reference', label: __('pallet name'), canBeHidden: false, sortable: false, searchable: true);
             $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true)
                 ->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true)
                 ->defaultSort('reference');

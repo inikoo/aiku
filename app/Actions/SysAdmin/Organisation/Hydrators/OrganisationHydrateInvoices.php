@@ -1,20 +1,20 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 04 Dec 2023 16:15:10 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Wed, 27 Mar 2024 19:42:14 Malaysia Time, Mexico City, Mexico
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
-use App\Models\Accounting\PaymentAccount;
+use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
+use App\Models\Accounting\Invoice;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrganisationHydratePaymentAccounts
+class OrganisationHydrateInvoices
 {
     use AsAction;
     use WithEnumStats;
@@ -31,26 +31,29 @@ class OrganisationHydratePaymentAccounts
         return [(new WithoutOverlapping($this->organisation->id))->dontRelease()];
     }
 
-
     public function handle(Organisation $organisation): void
     {
         $stats = [
-            'number_payment_accounts'          => $organisation->paymentAccounts()->count(),
+            'number_invoices' => $organisation->invoices->count(),
         ];
+
 
         $stats = array_merge(
             $stats,
             $this->getEnumStats(
-                model: 'payment_accounts',
+                model: 'invoices',
                 field: 'type',
-                enum: PaymentAccountTypeEnum::class,
-                models: PaymentAccount::class,
+                enum: InvoiceTypeEnum::class,
+                models: Invoice::class,
                 where: function ($q) use ($organisation) {
                     $q->where('organisation_id', $organisation->id);
                 }
             )
         );
 
+
         $organisation->accountingStats()->update($stats);
     }
+
+
 }

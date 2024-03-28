@@ -35,6 +35,8 @@ return new class () extends Migration {
             $table->decimal('payment', 16)->default(0);
             $table->decimal('group_net_amount', 16)->default(0);
             $table->decimal('org_net_amount', 16)->default(0);
+            $table->dateTimeTz('date')->index()->nullable();
+            $table->dateTimeTz('tax_liability_at')->nullable();
             $table->dateTimeTz('paid_at')->nullable();
             $table->jsonb('data');
             $table->timestampsTz();

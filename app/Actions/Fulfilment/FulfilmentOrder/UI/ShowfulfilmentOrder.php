@@ -15,7 +15,7 @@ use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OMS\Order\UI\GetOrderShowcase;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\UI\OrderTabsEnum;
-use App\Http\Resources\Accounting\InvoiceResource;
+use App\Http\Resources\Accounting\InvoicesResource;
 use App\Http\Resources\Accounting\PaymentsResource;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\Http\Resources\Sales\OrderResource;
@@ -105,8 +105,8 @@ class ShowfulfilmentOrder extends InertiaAction
                     : Inertia::lazy(fn () => PaymentsResource::collection(IndexPayments::run($this->order))),
 
                 OrderTabsEnum::INVOICES->value => $this->tab == OrderTabsEnum::INVOICES->value ?
-                    fn () => InvoiceResource::collection(IndexInvoices::run($this->order))
-                    : Inertia::lazy(fn () => InvoiceResource::collection(IndexInvoices::run($this->order))),
+                    fn () => InvoicesResource::collection(IndexInvoices::run($this->order))
+                    : Inertia::lazy(fn () => InvoicesResource::collection(IndexInvoices::run($this->order))),
 
                 OrderTabsEnum::DELIVERY_NOTES->value => $this->tab == OrderTabsEnum::DELIVERY_NOTES->value ?
                     fn () => DeliveryNoteResource::collection(IndexDeliveryNotes::run($this->order))

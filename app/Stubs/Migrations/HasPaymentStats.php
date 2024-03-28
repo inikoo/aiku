@@ -9,6 +9,7 @@ namespace App\Stubs\Migrations;
 
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentTypeEnum;
+use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use Illuminate\Database\Schema\Blueprint;
 
@@ -26,6 +27,9 @@ trait HasPaymentStats
     public function paymentAccountStats(Blueprint $table): Blueprint
     {
         $table->unsignedSmallInteger('number_payment_accounts')->default(0);
+        foreach (PaymentAccountTypeEnum::cases() as $case) {
+            $table->unsignedInteger("number_payment_accounts_type_{$case->snake()}")->default(0);
+        }
         return $table;
     }
 

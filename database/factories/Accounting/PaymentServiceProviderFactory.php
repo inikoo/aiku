@@ -17,7 +17,7 @@ class PaymentServiceProviderFactory extends Factory
         return [
             'code' => fake()->lexify(),
             'name' => fake()->lexify(),
-            'type' => PaymentServiceProviderTypeEnum::ACCOUNT->value,
+            'type' => PaymentServiceProviderTypeEnum::BANK->value,
         ];
     }
 }

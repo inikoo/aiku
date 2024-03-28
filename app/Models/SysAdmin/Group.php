@@ -7,6 +7,10 @@
 
 namespace App\Models\SysAdmin;
 
+use App\Models\Accounting\Invoice;
+use App\Models\Accounting\Payment;
+use App\Models\Accounting\PaymentAccount;
+use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Currency;
 use App\Models\CRM\WebUser;
 use App\Models\Goods\TradeUnit;
@@ -60,11 +64,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Guest> $guests
  * @property-read \App\Models\SysAdmin\GroupHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\SysAdmin\GroupInventoryStats|null $inventoryStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $josPositions
  * @property-read \App\Models\Media\Media|null $logo
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Mailroom> $mailrooms
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $organisations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentAccount> $paymentAccounts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentServiceProvider> $paymentServiceProviders
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \App\Models\SysAdmin\GroupSalesStats|null $salesStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StockFamily> $stockFamilies
@@ -224,5 +232,25 @@ class Group extends Model implements HasMedia
     public function fulfilmentStats(): HasMany
     {
         return $this->hasMany(GroupFulfilmentStat::class);
+    }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    public function paymentServiceProviders(): HasMany
+    {
+        return $this->hasMany(PaymentServiceProvider::class);
+    }
+
+    public function paymentAccounts(): HasMany
+    {
+        return $this->hasMany(PaymentAccount::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
     }
 }

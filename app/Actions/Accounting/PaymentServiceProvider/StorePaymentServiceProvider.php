@@ -8,6 +8,7 @@
 namespace App\Actions\Accounting\PaymentServiceProvider;
 
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePaymentServiceProviders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePaymentServiceProviders;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -27,6 +28,8 @@ class StorePaymentServiceProvider extends OrgAction
         $paymentServiceProvider = $organisation->paymentServiceProviders()->create($modelData);
         $paymentServiceProvider->stats()->create();
         OrganisationHydratePaymentServiceProviders::dispatch($organisation);
+        GroupHydratePaymentServiceProviders::dispatch($organisation->group);
+
         return $paymentServiceProvider;
     }
 

@@ -13,6 +13,7 @@ use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProvid
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Market\Shop\Hydrators\ShopHydratePayments;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePayments;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePayments;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
@@ -44,6 +45,7 @@ class StorePayment extends OrgAction
         /** @var Payment $payment */
         $payment = $paymentAccount->payments()->create($modelData);
 
+        GroupHydratePayments::dispatch($payment->group)->delay($this->hydratorsDelay);
         OrganisationHydratePayments::dispatch($paymentAccount->organisation)->delay($this->hydratorsDelay);
         PaymentServiceProviderHydratePayments::dispatch($payment->paymentAccount->paymentServiceProvider)->delay($this->hydratorsDelay);
         PaymentAccountHydratePayments::dispatch($payment->paymentAccount)->delay($this->hydratorsDelay);

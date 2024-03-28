@@ -8,6 +8,7 @@
 namespace App\Models\Accounting;
 
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,11 +29,11 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Payments\PaymentServiceProvider
  *
  * @property int $id
+ * @property string $slug
  * @property int $group_id
  * @property int $organisation_id
  * @property PaymentServiceProviderTypeEnum $type
  * @property string $code
- * @property string $slug
  * @property string $name
  * @property array $data
  * @property string|null $last_used_at
@@ -41,6 +42,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Accounting\PaymentAccount> $accounts
+ * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read \App\Models\Accounting\PaymentServiceProviderStats|null $stats
@@ -102,5 +104,10 @@ class PaymentServiceProvider extends Model
     public function organisation(): BelongsTo
     {
         return $this->belongsTo(Organisation::class);
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
     }
 }

@@ -9,6 +9,7 @@ namespace App\Models\SysAdmin;
 
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -95,6 +96,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\OrganisationHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\SysAdmin\OrganisationInventoryStats|null $inventoryStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $josPositions
  * @property-read Language $language
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Location> $locations
@@ -402,6 +404,11 @@ class Organisation extends Model implements HasMedia
     public function fulfilments(): HasMany
     {
         return $this->hasMany(Fulfilment::class);
+    }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
     }
 
 }

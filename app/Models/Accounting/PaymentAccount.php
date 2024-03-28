@@ -31,12 +31,12 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Accounting\PaymentAccount
  *
  * @property int $id
+ * @property string $slug
  * @property int $group_id
  * @property int $organisation_id
  * @property int $payment_service_provider_id
  * @property PaymentAccountTypeEnum $type
  * @property string $code
- * @property string $slug
  * @property string $name
  * @property bool $is_accounts
  * @property array $data
@@ -49,6 +49,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
+ * @property-read Collection<int, SerialReference> $serialReferences
  * @property-read \App\Models\Accounting\PaymentAccountStats|null $stats
  * @method static \Database\Factories\Accounting\PaymentAccountFactory factory($count = null, $state = [])
  * @method static Builder|PaymentAccount newModelQuery()
