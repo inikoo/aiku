@@ -178,6 +178,14 @@ class IndexPallets extends RetinaAction
         return $this->handle($this->customer->fulfilmentCustomer, 'pallets');
     }
 
+    public function action(PalletDelivery|PalletReturn $parent): LengthAwarePaginator
+    {
+        $this->customer = request()->user()->customer;
+        $this->parent   = $parent;
+
+        return $this->handle($parent, 'pallets');
+    }
+
     public function getBreadcrumbs(string $routeName): array
     {
         return match ($routeName) {

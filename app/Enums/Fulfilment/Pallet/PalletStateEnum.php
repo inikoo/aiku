@@ -100,7 +100,7 @@ enum PalletStateEnum: string
             ],
             'not-picked'   => [
                 'tooltip' => __('Not Picked'),
-                'icon'    => 'fal fa-cross',
+                'icon'    => 'fal fa-times',
                 'class'   => 'text-red-400',
                 'color'   => 'red'
             ]
