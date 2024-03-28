@@ -57,8 +57,8 @@ class CreateFulfilmentCustomer extends OrgAction
                     'route'     => [
                         'name'      => 'grp.models.org.shop.fulfilment-customer.store',
                         'parameters'=> [
-                            'organisation'       => $fulfilment->organisation->slug,
-                            'shop'               => $fulfilment->shop->slug,
+                            'organisation'       => $fulfilment->organisation->id,
+                            'shop'               => $fulfilment->shop->id,
                             'fulfilment'         => $fulfilment->slug
                         ]
                     ]

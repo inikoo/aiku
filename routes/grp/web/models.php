@@ -82,7 +82,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('/fulfilment/', StoreFulfilment::class)->name('fulfilment.store');
 
     Route::post('/shop/{shop:id}/customer/', StoreCustomer::class)->name('shop.customer.store');
-    Route::post('/shop/{shop:id}/fulfilment/{fulfilment:id}/customer', StoreFulfilmentCustomer::class)->name('shop.fulfilment-customer.store');
+    Route::post('/shop/{shop:id}/fulfilment/{fulfilment}/customer', StoreFulfilmentCustomer::class)->name('shop.fulfilment-customer.store');
 
 });
 
