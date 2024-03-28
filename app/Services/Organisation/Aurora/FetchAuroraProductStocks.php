@@ -7,6 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
+use App\Enums\Market\Product\ProductStateEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraProductStocks extends FetchAurora
@@ -24,8 +25,12 @@ class FetchAuroraProductStocks extends FetchAurora
                     ];
                 }
             } else {
-                print "\nWarning: Part SKU ".$modelData->{'Product Part Part SKU'}." not found in `Product Part Bridge`\n";
-                abort(404, "Error fetching products-stock relation");
+
+                $product=$this->parseProduct($this->organisation->id.':'.$modelData->{'Product Part Product ID'});
+                if($product->state!=ProductStateEnum::DISCONTINUED) {
+                    print "\nWarning: Part SKU ".$modelData->{'Product Part Part SKU'}." not found in `Product Part Bridge`\n";
+                    abort(404, "Error fetching products-stock relation");
+                }
             }
         }
         $this->parsedData['product_stocks'] = $productStocks;
