@@ -7,10 +7,10 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
-import Icon from '@/Components/Icon.vue'
 import { library } from "@fortawesome/fontawesome-svg-core"
 
 import { faTimes } from '@fal'
+import TagPallete from '@/Components/TagPallete.vue'
 
 library.add( faTimes )
 
@@ -74,7 +74,8 @@ const props = defineProps<{
         </template> -->
 
         <template #cell(state)="{ item: pallet }">
-            <Icon v-if="pallet['state_icon']" :data="pallet['state_icon']" class="px-1" />
+            <!-- <Icon v-if="pallet['state_icon']" :data="pallet['state_icon']" class="px-1" /> -->
+            <TagPallete :stateIcon="pallet.state_icon" />
         </template>
     </Table>
 </template>
