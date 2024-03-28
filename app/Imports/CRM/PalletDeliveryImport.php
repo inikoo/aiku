@@ -35,7 +35,7 @@ class PalletDeliveryImport implements ToCollection, WithHeadingRow, SkipsOnFailu
                 array_keys(
                     Arr::except(
                         $this->rules(),
-                        ['reference']
+                        []
                     )
                 )
             );

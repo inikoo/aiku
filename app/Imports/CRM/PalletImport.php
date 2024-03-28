@@ -40,7 +40,6 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
 
         $modelData = $row->only($fields)->all();
 
-        data_set($modelData, 'reference', $this->scope->reference);
         data_set($modelData, 'data.bulk_import', [
             'id'   => $this->upload->id,
             'type' => 'Upload',
@@ -63,7 +62,6 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
     public function rules(): array
     {
         return [
-            'reference'          => ['required'],
             'customer_reference' => ['nullable'],
             'notes'              => ['nullable']
         ];
