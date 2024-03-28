@@ -155,7 +155,7 @@ class ShowPalletDelivery extends RetinaAction
                         'parameters' => [
                             'organisation'       => $palletDelivery->organisation->slug,
                             'fulfilment'         => $palletDelivery->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
+                            'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
                             'palletDelivery'     => $palletDelivery->reference
                         ]
                     ],
