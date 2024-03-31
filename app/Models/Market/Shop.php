@@ -242,12 +242,12 @@ class Shop extends Model
 
     public function departments(): Collection
     {
-        return $this->productCategories()->where('shop_id', $this->id)->where('type', ProductCategoryTypeEnum::DEPARTMENT)->get();
+        return $this->productCategories()->where('type', ProductCategoryTypeEnum::DEPARTMENT)->get();
     }
 
     public function families(): Collection
     {
-        return $this->productCategories()->where('shop_id', $this->id)->where('type', ProductCategoryTypeEnum::FAMILY)->get();
+        return $this->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
     }
 
     public function payments(): HasMany

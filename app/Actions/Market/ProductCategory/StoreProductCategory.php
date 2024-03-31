@@ -9,7 +9,10 @@ namespace App\Actions\Market\ProductCategory;
 
 use App\Actions\Market\ProductCategory\Hydrators\ProductCategoryHydrateUniversalSearch;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateDepartments;
+use App\Actions\Market\Shop\Hydrators\ShopHydrateFamilies;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateDepartments;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateFamilies;
 use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Market\ProductCategory;
@@ -53,10 +56,12 @@ class StoreProductCategory extends OrgAction
 
         switch ($productCategory->type) {
             case ProductCategoryTypeEnum::DEPARTMENT:
-                ShopHydrateDepartments::dispatch($productCategory->shop);
+                OrganisationHydrateDepartments::dispatch($productCategory->organisation)->delay($this->hydratorsDelay);
+                ShopHydrateDepartments::dispatch($productCategory->shop)->delay($this->hydratorsDelay);
                 break;
             case ProductCategoryTypeEnum::FAMILY:
-                //ShopHydrateFamilies::dispatch($productCategory->shop);
+                OrganisationHydrateFamilies::dispatch($productCategory->organisation)->delay($this->hydratorsDelay);
+                ShopHydrateFamilies::dispatch($productCategory->shop)->delay($this->hydratorsDelay);
                 break;
         }
 
