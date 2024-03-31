@@ -17,6 +17,14 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $name
  * @property string $state
  * @property string $shop_slug
+ * @property mixed $shop_code
+ * @property mixed $shop_name
+ * @property mixed $department_slug
+ * @property mixed $department_code
+ * @property mixed $department_name
+ * @property mixed $family_slug
+ * @property mixed $family_code
+ * @property mixed $family_name
  *
  */
 class ProductsResource extends JsonResource
@@ -24,13 +32,21 @@ class ProductsResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'slug'       => $this->slug,
-            'code'       => $this->code,
-            'name'       => $this->name,
-            'state'      => $this->state,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'shop_slug'  => $this->shop_slug
+            'slug'            => $this->slug,
+            'code'            => $this->code,
+            'name'            => $this->name,
+            'state'           => $this->state,
+            'created_at'      => $this->created_at,
+            'updated_at'      => $this->updated_at,
+            'shop_slug'       => $this->shop_slug,
+            'shop_code'       => $this->shop_code,
+            'shop_name'       => $this->shop_name,
+            'department_slug' => $this->department_slug,
+            'department_code' => $this->department_code,
+            'department_name' => $this->department_name,
+            'family_slug'     => $this->family_slug,
+            'family_code'     => $this->family_code,
+            'family_name'     => $this->family_name,
         ];
     }
 }

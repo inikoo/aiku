@@ -7,6 +7,7 @@
 
 namespace App\Actions\Market\Shop\UI;
 
+use App\Actions\Market\HasMarketAuthorisation;
 use App\Actions\Market\Product\UI\IndexProducts;
 use App\Actions\Market\ProductCategory\UI\IndexDepartments;
 use App\Actions\Market\ProductCategory\UI\IndexFamilies;
@@ -33,14 +34,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexShops extends OrgAction
 {
+    use HasMarketAuthorisation;
+
     private Organisation|Group $parent;
-
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->hasPermissionTo('shops');
-
-        return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
-    }
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
@@ -166,12 +162,12 @@ class IndexShops extends OrgAction
                     : Inertia::lazy(fn () => DepartmentsResource::collection(IndexDepartments::run($this->parent, ShopsTabsEnum::DEPARTMENTS->value))),
 
                 ShopsTabsEnum::FAMILIES->value => $this->tab == ShopsTabsEnum::FAMILIES->value ?
-                    fn () => FamiliesResource::collection(IndexFamilies::run($this->parent))
-                    : Inertia::lazy(fn () => FamiliesResource::collection(IndexFamilies::run($this->parent))),
+                    fn () => FamiliesResource::collection(IndexFamilies::run($this->parent, ShopsTabsEnum::FAMILIES->value))
+                    : Inertia::lazy(fn () => FamiliesResource::collection(IndexFamilies::run($this->parent, ShopsTabsEnum::FAMILIES->value))),
 
                 ShopsTabsEnum::PRODUCTS->value => $this->tab == ShopsTabsEnum::PRODUCTS->value ?
-                    fn () => ProductsResource::collection(IndexProducts::run($this->parent))
-                    : Inertia::lazy(fn () => ProductsResource::collection(IndexProducts::run($this->parent))),
+                    fn () => ProductsResource::collection(IndexProducts::run($this->parent, ShopsTabsEnum::PRODUCTS->value))
+                    : Inertia::lazy(fn () => ProductsResource::collection(IndexProducts::run($this->parent, ShopsTabsEnum::PRODUCTS->value))),
 
 
             ]
@@ -180,11 +176,22 @@ class IndexShops extends OrgAction
                 IndexDepartments::make()->tableStructure(
                     parent: $this->parent,
                     modelOperations: [],
-                    prefix: 'departments'
+                    prefix: ShopsTabsEnum::DEPARTMENTS->value,
+                    canEdit: $this->canEdit
                 )
             )
-            ->table(IndexFamilies::make()->tableStructure(parent: $this->parent, prefix: 'families'))
-            ->table(IndexDepartments::make()->tableStructure(parent: $this->parent, prefix: 'products'));
+            ->table(
+                IndexFamilies::make()->tableStructure(
+                    parent: $this->parent,
+                    prefix: ShopsTabsEnum::FAMILIES->value,
+                    canEdit: $this->canEdit
+                ),
+            )
+            ->table(IndexProducts::make()->tableStructure(
+                parent: $this->parent,
+                prefix: ShopsTabsEnum::PRODUCTS->value,
+                canEdit: $this->canEdit
+            ));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array

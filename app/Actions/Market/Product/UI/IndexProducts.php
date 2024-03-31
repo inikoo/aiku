@@ -73,8 +73,9 @@ class IndexProducts extends OrgAction
         }
         */
 
-        return $queryBuilder
-            ->defaultSort('products.slug')
+
+        $queryBuilder
+            ->defaultSort('products.code')
             ->select([
                 'products.code',
                 'products.name',
@@ -84,28 +85,39 @@ class IndexProducts extends OrgAction
                 'products.slug',
                 'shops.slug as shop_slug'
             ])
-            ->leftJoin('product_stats', 'products.id', 'product_stats.product_id')
-            ->leftJoin('shops', 'products.shop_id', 'shops.id')
-            ->when($parent, function ($query) use ($parent) {
-                if (class_basename($parent) == 'Shop') {
-                    $query->where('products.shop_id', $parent->id);
-                } elseif (class_basename($parent) == 'Shop') {
-                    $query->where('families.department_id', $parent->id);
-                }
-            })
-            ->allowedSorts(['slug', 'name'])
+            ->leftJoin('product_stats', 'products.id', 'product_stats.product_id');
+
+        if (class_basename($parent) == 'Shop') {
+            $queryBuilder->where('products.shop_id', $parent->id);
+        } elseif (class_basename($parent) == 'Organisation') {
+            $queryBuilder->where('products.organisation_id', $parent->id);
+            $queryBuilder->leftJoin('shops', 'products.shop_id', 'shops.id');
+            $queryBuilder->addSelect(
+                'shops.slug as shop_slug',
+                'shops.code as shop_code',
+                'shops.name as shop_name',
+            );
+        } else {
+            abort(419);
+        }
+
+        return $queryBuilder->allowedSorts(['code', 'name', 'shop_slug', 'department_slug', 'family_slug'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|ProductCategory|Organisation $parent, ?array $modelOperations = null, $prefix = null): Closure
-    {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+    public function tableStructure(
+        Shop|ProductCategory|Organisation $parent,
+        ?array $modelOperations = null,
+        $prefix = null,
+        $canEdit = false
+    ): Closure {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
                 $table
                     ->name($prefix)
-                    ->pageName($prefix.'Page');
+                    ->pageName($prefix . 'Page');
             }
             $table
                 ->withGlobalSearch()
@@ -114,10 +126,11 @@ class IndexProducts extends OrgAction
                     match (class_basename($parent)) {
                         'Organisation' => [
                             'title'       => __("No products found"),
-                            'description' => $this->canEdit && $parent->marketStats->number_shops==0 ? __('Get started by creating a new shop. ✨')
-                                : __("In fact, is no even a shop yet 🤷🏽‍♂️"),
-                            'count'       => $parent->marketStats->number_products,
-                            'action'      => $this->canEdit ? [
+                            'description' => $canEdit && $parent->marketStats->number_shops == 0 ? __(
+                                'Get started by creating a new shop. ✨'
+                            ) : '',
+                            'count'  => $parent->marketStats->number_products,
+                            'action' => $canEdit && $parent->marketStats->number_shops == 0 ? [
                                 'type'    => 'button',
                                 'style'   => 'create',
                                 'tooltip' => __('new shop'),
@@ -129,8 +142,8 @@ class IndexProducts extends OrgAction
                             ] : null
                         ],
                         'Shop' => [
-                            'title'       => __("No products found"),
-                            'count'       => $parent->stats->number_products,
+                            'title' => __("No products found"),
+                            'count' => $parent->stats->number_products,
                         ],
                         default => null
                     }
@@ -138,9 +151,9 @@ class IndexProducts extends OrgAction
                     /*
                     [
                         'title'       => __('no products'),
-                        'description' => $this->canEdit ? __('Get started by creating a new product.') : null,
+                        'description' => $canEdit ? __('Get started by creating a new product.') : null,
                         'count'       => app('currentTenant')->stats->number_products,
-                        'action'      => $this->canEdit ? [
+                        'action'      => $canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new product'),
@@ -151,8 +164,17 @@ class IndexProducts extends OrgAction
                             ]
                         ] : null
                     ]*/
-                )
-                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                );
+            if ($parent instanceof Organisation) {
+                $table->column(
+                    key: 'shop_code',
+                    label: __('shop'),
+                    canBeHidden: false,
+                    sortable: true,
+                    searchable: true
+                );
+            };
+            $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
@@ -164,8 +186,8 @@ class IndexProducts extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $products, ActionRequest $request): Response
     {
-        $scope    =$this->parent;
-        $container=null;
+        $scope     = $this->parent;
+        $container = null;
         if (class_basename($scope) == 'Shop') {
             $container = [
                 'icon'    => ['fal', 'fa-store-alt'],
@@ -175,7 +197,6 @@ class IndexProducts extends OrgAction
         }
 
 
-
         return Inertia::render(
             'Market/Products',
             [
@@ -183,28 +204,30 @@ class IndexProducts extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('Products'),
-                'pageHead'    => [
-                    'title'        => __('products'),
-                    'container'    => $container,
-                    'iconRight'    => [
+                'title'    => __('Products'),
+                'pageHead' => [
+                    'title'     => __('products'),
+                    'container' => $container,
+                    'iconRight' => [
                         'icon'  => ['fal', 'fa-cube'],
                         'title' => __('product')
                     ],
                     'actions' => [
-                        $this->canEdit && class_basename($this->parent)=='ProductCategory' && $this->parent->type==ProductCategoryTypeEnum::FAMILY ? [
+                        $this->canEdit && class_basename(
+                            $this->parent
+                        ) == 'ProductCategory' && $this->parent->type == ProductCategoryTypeEnum::FAMILY ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new product'),
                             'label'   => __('product'),
                             'route'   => [
-                                'name'       => $request->route()->getName().'.create',
+                                'name'       => $request->route()->getName() . '.create',
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
                     ]
                 ],
-                'data'        => ProductsResource::collection($products),
+                'data' => ProductsResource::collection($products),
 
 
             ]

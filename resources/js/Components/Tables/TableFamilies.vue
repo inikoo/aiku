@@ -27,11 +27,29 @@ function familyRoute(family: Family) {
       return route(
         "grp.org.shops.show.catalogue.departments.show.families.show",
         [route().params["organisation"], route().params["shop"], route().params["department"], family.slug]);
-    default:
+    case 'grp.org.shops.index':
       return route(
         "grp.org.shops.show.catalogue.families.show",
-        [route().params["organisation"], route().params["shop"], family.slug]);
+        [route().params["organisation"], family.shop_slug, family.slug]);
   }
+}
+
+function shopRoute(family: Family) {
+    switch (route().current()) {
+        case 'grp.org.shops.index':
+            return route(
+                "grp.org.shops.show.catalogue.dashboard",
+                [route().params["organisation"], family.shop_slug]);
+    }
+}
+
+function departmentRoute(family: Family) {
+    switch (route().current()) {
+        case 'grp.org.shops.index':
+            return route(
+                "grp.org.shops.show.catalogue.departments.index",
+                [route().params["organisation"], family.shop_slug,family.departmant_slug]);
+    }
 }
 
 </script>
@@ -43,6 +61,16 @@ function familyRoute(family: Family) {
         {{ family["code"] }}
       </Link>
     </template>
+      <template #cell(shop_code)="{ item: family }">
+          <Link :href="shopRoute(family)" class="specialUnderlineSecondary">
+              {{ family["shop_code"] }}
+          </Link>
+      </template>
+      <template #cell(department_code)="{ item: family }">
+          <Link :href="departmentRoute(family)" class="specialUnderlineSecondary">
+              {{ family["department_code"] }}
+          </Link>
+      </template>
   </Table>
 </template>
 

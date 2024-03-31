@@ -15,8 +15,9 @@ trait HasMarketAuthorisation
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Organisation) {
-            $this->canEdit = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
 
+
+            $this->canEdit = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
             return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.view");
         } else {
             $this->canEdit = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");

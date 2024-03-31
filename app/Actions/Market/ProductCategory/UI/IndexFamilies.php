@@ -82,42 +82,56 @@ class IndexFamilies extends OrgAction
                 'product_categories.description',
                 'product_categories.created_at',
                 'product_categories.updated_at',
+                'departments.slug as department_slug',
+                'departments.code as department_code',
+                'departments.name as department_name',
+
             ])
             ->leftJoin('product_category_stats', 'product_categories.id', 'product_category_stats.product_category_id')
-            ->where('type', ProductCategoryTypeEnum::FAMILY)
+            ->where('product_categories.type', ProductCategoryTypeEnum::FAMILY)
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Shop') {
                     $query->where('product_categories.parent_type', 'Shop');
                     $query->where('product_categories.parent_id', $parent->id);
                 } elseif (class_basename($parent) == 'Organisation') {
+                    $query->where('product_categories.organisation_id', $parent->id);
                     $query->leftJoin('shops', 'product_categories.shop_id', 'shops.id');
-                    $query->addSelect('shops.slug as shop_slug');
+                    $query->addSelect(
+                        'shops.slug as shop_slug',
+                        'shops.code as shop_code',
+                        'shops.name as shop_name',
+                    );
                 }
-            })
-            ->allowedSorts(['code', 'name'])
+            })->leftjoin('product_categories as departments', 'departments.id', 'product_categories.parent_id')
+
+            ->allowedSorts(['code', 'name','shop_code','department_code'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|ProductCategory|Organisation $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Shop|ProductCategory|Organisation $parent, ?array $modelOperations = null, $prefix = null, $canEdit=false): Closure
     {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
+
             $table
                 ->defaultSort('code')
                 ->withEmptyState(
                     match (class_basename($parent)) {
                         'Organisation' => [
                             'title'       => __("No families found"),
-                            'description' => $this->canEdit && $parent->marketStats->number_shops == 0 ? __('Get started by creating a shop. ✨')
-                                : __("In fact, is no even a shop yet 🤷🏽‍♂️"),
+                            'description' => $canEdit ?
+                                $parent->marketStats->number_shops == 0 ? __("In fact, is no even a shop yet 🤷🏽‍♂️") : ''
+                                : '',
                             'count'       => $parent->marketStats->number_families,
-                            'action'      => $this->canEdit ? [
+                            'action'      => $canEdit && $parent->marketStats->number_shops == 0
+                                    ?
+                                [
                                 'type'    => 'button',
                                 'style'   => 'create',
                                 'tooltip' => __('new shop'),
@@ -126,7 +140,8 @@ class IndexFamilies extends OrgAction
                                     'name'       => 'grp.org.shops.create',
                                     'parameters' => [$parent->slug]
                                 ]
-                            ] : null
+                                    ] : null
+
                         ],
                         'Shop' => [
                             'title'       => __("No families found"),
@@ -136,9 +151,15 @@ class IndexFamilies extends OrgAction
                     }
                 )
                 ->withGlobalSearch()
-                ->withModelOperations($modelOperations)
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+                ->withModelOperations($modelOperations);
+
+            if($parent instanceof Organisation) {
+                $table->column(key: 'shop_code', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            };
+            $table->column(key: 'department_code', label: __('department'), canBeHidden: false, sortable: true, searchable: true);
+
+            $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 

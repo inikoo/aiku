@@ -96,43 +96,49 @@ class IndexDepartments extends OrgAction
                 'product_categories.updated_at',
             ])
             ->leftJoin('product_category_stats', 'product_categories.id', 'product_category_stats.product_category_id')
-            ->where('type', ProductCategoryTypeEnum::DEPARTMENT)
+            ->where('product_categories.type', ProductCategoryTypeEnum::DEPARTMENT)
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Shop') {
                     $query->where('product_categories.parent_type', 'Shop');
                     $query->where('product_categories.parent_id', $parent->id);
                 } elseif (class_basename($parent) == 'Organisation') {
+                    $query->where('product_categories.organisation_id', $parent->id);
                     $query->leftJoin('shops', 'product_categories.shop_id', 'shops.id');
-                    $query->addSelect('shops.slug as shop_slug');
+                    $query->addSelect(
+                        'shops.slug as shop_slug',
+                        'shops.code as shop_code',
+                        'shops.name as shop_name',
+                    );
                 }
             })
-            ->allowedSorts(['code', 'name'])
+            ->allowedSorts(['code', 'name','shop_code'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|ProductCategory|Organisation $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Shop|ProductCategory|Organisation $parent, ?array $modelOperations = null, $prefix = null, $canEdit=false): Closure
     {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
 
+
             $table
-                ->defaultSort('slug')
+                ->defaultSort('code')
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     match (class_basename($parent)) {
                         'Organisation' => [
                             'title'       => __("No departments found"),
-                            'description' => $this->canEdit && $parent->marketStats->number_shops == 0 ? __('Get started by creating a shop. ✨')
-                                : __("In fact, is no even a shop yet 🤷🏽‍♂️"),
+                            'description' => $canEdit && $parent->marketStats->number_shops == 0 ? __('Get started by creating a shop. ✨') : '',
                             'count'       => $parent->marketStats->number_departments,
-                            'action'      => $this->canEdit && $parent->marketStats->number_shops == 0 ? [
+                            'action'      => $canEdit && $parent->marketStats->number_shops == 0 ?
+                                [
                                 'type'    => 'button',
                                 'style'   => 'create',
                                 'tooltip' => __('new shop'),
@@ -142,13 +148,14 @@ class IndexDepartments extends OrgAction
                                     'parameters' => [$parent->slug]
                                 ]
                             ] : null
+
                         ],
                         'Shop' => [
                             'title'       => __("No departments found"),
-                            'description' => $this->canEdit ? __('Get started by creating a new department. ✨')
+                            'description' => $canEdit ? __('Get started by creating a new department. ✨')
                                 : null,
                             'count'       => $parent->stats->number_departments,
-                            'action'      => $this->canEdit ? [
+                            'action'      => $canEdit ? [
                                 'type'    => 'button',
                                 'style'   => 'create',
                                 'tooltip' => __('new department'),
@@ -164,9 +171,9 @@ class IndexDepartments extends OrgAction
                     /*
                     [
                         'title'       => __('no departments'),
-                        'description' => $this->canEdit ? __('Get started by creating a new department.') : null,
+                        'description' => $canEdit ? __('Get started by creating a new department.') : null,
                         'count'       => app('currentTenant')->stats->number_shops,
-                        'action'      => $this->canEdit ? [
+                        'action'      => $canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new department'),
@@ -178,9 +185,13 @@ class IndexDepartments extends OrgAction
                         ] : null
                     ]
                     */
-                )
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+                );
+
+            if($parent instanceof Organisation) {
+                $table->column(key: 'shop_code', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            };
+            $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
