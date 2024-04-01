@@ -120,9 +120,8 @@ class ShowFulfilmentCustomer extends OrgAction
                             'tooltip' => __('Edit Customer'),
                             'label'   => __('Edit Customer'),
                             'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
-                                'parameters' => [$fulfilmentCustomer->id]
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.edit',
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],
                     ]

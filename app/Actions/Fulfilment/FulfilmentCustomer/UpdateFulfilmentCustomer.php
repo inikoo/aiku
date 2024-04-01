@@ -35,7 +35,9 @@ class UpdateFulfilmentCustomer extends OrgAction
     public function rules(): array
     {
         return [
-
+            'contact_name'    => ['sometimes', 'string'],
+            'company_name'    => ['sometimes', 'string'],
+            'phone'           => ['sometimes', 'string'],
             'pallets_storage' => ['sometimes', 'boolean'],
             'items_storage'   => ['sometimes', 'boolean'],
             'dropshipping'    => ['sometimes', 'boolean'],

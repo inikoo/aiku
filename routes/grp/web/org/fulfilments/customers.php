@@ -14,6 +14,7 @@ use App\Actions\CRM\WebUser\ShowWebUser;
 use App\Actions\Fulfilment\FulfilmentCustomer\FetchNewWebhookFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\CreateFulfilmentCustomer;
+use App\Actions\Fulfilment\FulfilmentCustomer\UI\EditFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\IndexFulfilmentCustomers;
 use App\Actions\Fulfilment\Pallet\DownloadPalletsTemplate;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
@@ -41,6 +42,7 @@ Route::get('{fulfilmentCustomer}/edit', [EditCustomer::class, 'inShop'])->name('
 
 Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::get('', ShowFulfilmentCustomer::class);
+    Route::get('/edit', EditFulfilmentCustomer::class)->name('.edit');
     Route::get('orders/{order}', [ShowOrder::class, 'inCustomerInShop'])->name('.orders.show');
 
     Route::prefix('web-users')->as('.web-users.')->group(function () {
