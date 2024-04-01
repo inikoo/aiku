@@ -43,12 +43,12 @@ Route::prefix("{warehouse:id}")->name("warehouses.")
         Route::prefix('pallet-deliveries')->name('pallet-delivery.')->group(function () {
             Route::get('/', [IndexPalletDeliveries::class, 'inWarehouse'])->name('index');
             Route::get('{palletDelivery:id}', [ShowPalletDelivery::class, 'inWarehouse'])->name('show')->withoutScopedBindings();
-            ;
+            Route::get('{palletDelivery:id}/pallets', [IndexPallets::class, 'fromDelivery'])->name('pallets.index')->withoutScopedBindings();
         });
 
         Route::prefix('pallet-returns')->name('pallet-return.')->group(function () {
             Route::get('/', [IndexPalletReturns::class, 'inWarehouse'])->name('index');
             Route::get('{palletReturn:id}', [ShowPalletReturn::class, 'inWarehouse'])->name('show')->withoutScopedBindings();
-            ;
+            Route::get('{palletReturn:id}/pallets', [IndexPallets::class, 'fromReturn'])->name('pallets.index')->withoutScopedBindings();
         });
     });
