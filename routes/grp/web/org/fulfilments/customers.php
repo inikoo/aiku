@@ -51,6 +51,8 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
         });
     });
 
+    Route::post('webhook', StorePalletReturn::class)->name('pallet-return.store');
+
     Route::get('pallets/stored', [IndexStoredPallets::class, 'inFulfilmentCustomer'])->name('.stored-pallets.index');
     Route::get('stored-items', [IndexStoredItems::class, 'inFulfilmentCustomer'])->name('.stored-items.index');
     Route::get('stored-items/{storedItem}', [ShowStoredItem::class, 'inFulfilmentCustomer'])->name('.stored-items.show');
