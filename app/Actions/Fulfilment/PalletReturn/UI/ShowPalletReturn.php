@@ -201,7 +201,7 @@ class ShowPalletReturn extends OrgAction
                     'type'          => 'button',
                     'style'         => 'tertiary',
                     'icon'          => 'fal fa-file-export',
-                    'id'=>'pdf-export',
+                    'id'            => 'pdf-export',
                     'label'         => 'PDF',
                     'key'           => 'action',
                     'route'         => [

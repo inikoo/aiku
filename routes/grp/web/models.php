@@ -104,7 +104,7 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
 
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
 
-      Route::get('pdf', PdfPalletReturn::class)->name('pdf');
+    Route::get('pdf', PdfPalletReturn::class)->name('pdf');
 
 
 });
