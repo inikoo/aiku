@@ -132,14 +132,9 @@ class ShowFulfilmentCustomer extends OrgAction
                     'navigation' => $navigation
                 ],
 
-                'fetchWebhookRoute' => [
-                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.webhook.fetch',
-                    'parameters' => array_values($request->route()->originalParameters())
-                ],
-
                 CustomerFulfilmentTabsEnum::SHOWCASE->value => $this->tab == CustomerFulfilmentTabsEnum::SHOWCASE->value ?
-                    fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer)
-                    : Inertia::lazy(fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer)),
+                    fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)
+                    : Inertia::lazy(fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)),
 
 
                 CustomerFulfilmentTabsEnum::PALLETS->value => $this->tab == CustomerFulfilmentTabsEnum::PALLETS->value ?
