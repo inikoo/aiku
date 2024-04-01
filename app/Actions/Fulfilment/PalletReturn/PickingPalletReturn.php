@@ -32,7 +32,7 @@ class PickingPalletReturn extends OrgAction
 
         foreach ($palletReturn->pallets as $pallet) {
             $pallet->update([
-                'state' => PalletStateEnum::SUBMITTED
+                'state' => PalletStateEnum::PICKING
             ]);
         }
 

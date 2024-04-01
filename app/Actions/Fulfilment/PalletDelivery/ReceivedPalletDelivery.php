@@ -29,7 +29,7 @@ class ReceivedPalletDelivery extends OrgAction
 
         foreach ($palletDelivery->pallets as $pallet) {
             $pallet->update([
-                'state' => PalletStateEnum::RECEIVED
+                'state' => PalletStateEnum::BOOKING_IN
             ]);
         }
 

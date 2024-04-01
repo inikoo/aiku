@@ -24,6 +24,7 @@ enum PalletStateEnum: string
     case CONFIRMED    = 'confirmed';
     case RECEIVED     = 'received';
     case NOT_RECEIVED = 'not-received';
+    case BOOKING_IN   = 'booking-in';
     case BOOKED_IN    = 'booked-in';
     case SETTLED      = 'settled';
 
@@ -35,13 +36,14 @@ enum PalletStateEnum: string
     public static function labels(): array
     {
         return [
-            'in-process'   => __('In process'),
-            'submitted'    => __('Submitted'),
-            'confirmed'    => __('Confirmed'),
-            'received'     => __('Received'),
-            'booked-in'    => __('Booked in'),
-            'not-received' => __('Not Received'),
-            'settled'      => __('Settled'),
+            'in-process'    => __('In process'),
+            'submitted'     => __('Submitted'),
+            'confirmed'     => __('Confirmed'),
+            'received'      => __('Received'),
+            'booking-in'    => __('Booking in'),
+            'booked-in'     => __('Booked in'),
+            'not-received'  => __('Not Received'),
+            'settled'       => __('Settled'),
 
             'picking'     => __('Picking'),
             'picked'      => __('Picked'),
@@ -85,6 +87,12 @@ enum PalletStateEnum: string
             'booked-in'    => [
                 'tooltip' => __('Booked in'),
                 'icon'    => 'fal fa-check-double',
+                'class'   => 'text-purple-500',
+                'color'   => 'purple'
+            ],
+            'booking-in'    => [
+                'tooltip' => __('Booking in'),
+                'icon'    => 'fal fa-check',
                 'class'   => 'text-purple-500',
                 'color'   => 'purple'
             ],
@@ -132,6 +140,7 @@ enum PalletStateEnum: string
             'not-received' => $stats->number_pallets_state_not_received,
             'received'     => $stats->number_pallets_state_received,
             'booked-in'    => $stats->number_pallets_state_booked_in,
+            'booking-in'   => $stats->number_pallets_state_booking_in,
             'settled'      => $stats->number_pallets_state_settled,
             'picking'      => $stats->number_pallets_state_picking,
             'picked'       => $stats->number_pallets_state_picked,
