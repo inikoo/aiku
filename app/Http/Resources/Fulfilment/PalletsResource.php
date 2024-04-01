@@ -17,6 +17,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $slug
  * @property mixed $notes
  * @property mixed $state
+ * @property mixed $status
  * @property mixed $location_slug
  * @property mixed $location_code
  * @property mixed $location_id
@@ -40,6 +41,7 @@ class PalletsResource extends JsonResource
             'fulfilment_customer_id'   => $this->fulfilment_customer_id,
             'notes'                    => (string)$this->notes,
             'state'                    => $this->state,
+            'status'                   => $this->status,
             'location'                 => $this->location_slug,
             'location_code'            => $this->location_code,
             'location_id'              => $this->location_id,

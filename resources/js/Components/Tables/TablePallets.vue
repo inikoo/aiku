@@ -10,7 +10,7 @@ import Table from '@/Components/Table/Table.vue'
 import Icon from '@/Components/Icon.vue'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faTrashAlt } from '@far'
-import { faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross } from '@fal'
+import { faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp } from '@fal'
 import Tag from "@/Components/Tag.vue"
 import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -20,7 +20,7 @@ import { inject, ref } from 'vue'
 import { notify } from '@kyvg/vue3-notification'
 import type { Meta, Links } from '@/types/Table'
 
-library.add( faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross )
+library.add( faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp )
 
 const isMovePallet = inject('isMovePallet', false)
 
@@ -175,49 +175,6 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
             </Link>
         </template>
 
-        <!-- Column: Action (move pallet) -->
-        <template #cell(actions)="{ item }">
-            <!-- Action: Move Pallet -->
-            <Popover v-if="isMovePallet" width="w-full" class="relative">
-                <template #button>
-                    <Button @click="() => (locationsList.length ? '' : getLocationsList(), palletSelected?.[item.reference] ? '' : palletSelected = {[item.reference]: item.location_id})" type="secondary" tooltip="Move pallet to another location" label="Move pallet" :key="item.index" :size="'xs'" />
-                </template>
-
-                <template #content="{ close }">
-                    <div class="w-[250px]">
-                        <span class="text-xs px-1 my-2">Location:</span>
-                        <div>
-                            <Multiselect ref="_multiselectRef"
-                                v-model="palletSelected[item.reference]"
-                                :canClear="false"
-                                :canDeselect="false"
-                                label="code"
-                                valueProp="id"
-                                placeholder="Select location.."
-                                :options="locationsList"
-                                :noResultsText="isLoading ? 'loading...' : 'No Result'"
-                            >
-                                
-                            </Multiselect>
-                            <!-- <p v-if="error.location_id" class="mt-2 text-sm text-red-600">{{ error.location_id }}</p> -->
-                        </div>
-
-                        <div class="flex justify-end mt-2">
-                            <Button @click="() => onMovePallet(route(item.updateLocationRoute.name, item.updateLocationRoute.parameters), palletSelected?.[item.reference], item.reference, close)"
-                                type="primary"
-                                tooltip="Move pallet"
-                                :loading="isLoading"
-                                label="save"
-                                :key="item.index + palletSelected?.[item.reference]"
-                                :size="'xs'"
-                                :disabled="palletSelected?.[item.reference] == item.location_id"
-                                />
-                        </div>
-                    </div>
-                </template>
-            </Popover>
-        </template>
-
         <!-- Column: State -->
         <template #cell(state)="{ item: pallet }">
             <Icon :data="pallet['state_icon']" class="px-1" />
@@ -242,6 +199,58 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
             </div>
             <div v-else class="text-gray-400 text-xs italic">
                 No items in this pallet
+            </div>
+        </template>
+
+        <!-- Column: Action (move pallet) -->
+        <template #cell(actions)="{ item }">
+            <div class="flex gap-x-1 gap-y-1.5">
+                <!-- Action: Move Pallet -->
+                <Popover v-if="isMovePallet" width="w-full" class="relative">
+                    <template #button>
+                        <Button @click="() => (locationsList.length ? '' : getLocationsList(), palletSelected?.[item.reference] ? '' : palletSelected = {[item.reference]: item.location_id})" type="secondary" tooltip="Move pallet to another location" label="Move pallet" :key="item.index" :size="'xs'" />
+                    </template>
+                    <template #content="{ close }">
+                        <div class="w-[250px]">
+                            <span class="text-xs px-1 my-2">Location:</span>
+                            <div>
+                                <Multiselect ref="_multiselectRef"
+                                    v-model="palletSelected[item.reference]"
+                                    :canClear="false"
+                                    :canDeselect="false"
+                                    label="code"
+                                    valueProp="id"
+                                    placeholder="Select location.."
+                                    :options="locationsList"
+                                    :noResultsText="isLoading ? 'loading...' : 'No Result'"
+                                >
+                
+                                </Multiselect>
+                                <!-- <p v-if="error.location_id" class="mt-2 text-sm text-red-600">{{ error.location_id }}</p> -->
+                            </div>
+                            <div class="flex justify-end mt-2">
+                                <Button @click="() => onMovePallet(route(item.updateLocationRoute.name, item.updateLocationRoute.parameters), palletSelected?.[item.reference], item.reference, close)"
+                                    type="primary"
+                                    tooltip="Move pallet"
+                                    :loading="isLoading"
+                                    label="save"
+                                    :key="item.index + palletSelected?.[item.reference]"
+                                    :size="'xs'"
+                                    :disabled="palletSelected?.[item.reference] == item.location_id"
+                                    />
+                            </div>
+                        </div>
+                    </template>
+                </Popover>
+                
+                <!-- Action: Set as storing, damaged, lost -->
+                <div v-if="item.status === 'storing'" class="flex gap-x-1 gap-y-2">
+                    <Button label="Set as damaged" type="negative" iconRight="fal fa-fragile" size="xs" />
+                    <Button label="Set as lost" type="negative" iconRight="fal fa-ghost" size="xs" />
+                </div>
+                <div v-else-if="item.status === 'lost' || item.status === 'damaged'">
+                    <Button label="Undo" type="tertiary" icon="fal fa-box-up" size="xs" v-tooltip="`Set pallet as stored`" />
+                </div>
             </div>
         </template>
 
