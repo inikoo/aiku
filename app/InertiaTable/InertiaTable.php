@@ -274,11 +274,11 @@ class InertiaTable
 
         if ($searchable) {
 
-            if(is_array($column->label)){
+            if(is_array($column->label)) {
 
-                if(is_array($column->label['data'])){
+                if(is_array($column->label['data'])) {
                     $column->label = $column->label['search'];
-                }else{
+                } else {
                     $column->label = $column->label['data'];
                 }
 

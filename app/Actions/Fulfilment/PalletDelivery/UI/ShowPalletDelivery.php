@@ -190,10 +190,11 @@ class ShowPalletDelivery extends OrgAction
                 $actions[] = [
                     'type'          => 'button',
                     'style'         => 'tertiary',
-                    'icon'          => 'fal fa-file-export',
                     'label'         => 'PDF',
                     'target'        => '_blank',
+                    'icon'          => 'fal fa-file-pdf',
                     'key'           => 'action',
+                    'label'         => 'PDF',
                     'route'         => [
                         'name'       => 'grp.models.pallet-delivery.pdf',
                         'parameters' => [

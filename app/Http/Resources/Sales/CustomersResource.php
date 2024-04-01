@@ -32,7 +32,6 @@ class CustomersResource extends JsonResource
             'location'              => $customer->location,
             'email'                 => $customer->email,
             'phone'                 => $customer->phone,
-            'webhook_access_key'    => $customer->webhook_access_key,
             'created_at'            => $customer->created_at,
             'number_active_clients' => $this->number_active_clients
         ];
