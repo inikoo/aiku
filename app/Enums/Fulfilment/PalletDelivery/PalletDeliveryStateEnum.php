@@ -34,7 +34,7 @@ enum PalletDeliveryStateEnum: string
             'confirmed'      => __('Confirmed'),
             'received'       => __('Received'),
             'not-received'   => __('Not Received'),
-            'booked-in'      => __('Done')
+            'booked-in'      => __('Booked In')
         ];
     }
 

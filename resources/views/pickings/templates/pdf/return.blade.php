@@ -92,9 +92,9 @@
     <table width="100%" style="font-size: 9pt;">
         <tr>
             <td style="width:250px;padding-left:10px;">
-                AW-AromaticsAW
+                {{ $shop->name }}
                 <div style="font-size:7pt">
-                    Aromatics Ltd
+                    {{ $shop->company_name }}
                 </div>
                 <div style="font-size:7pt">
                     Unit 15
@@ -109,7 +109,7 @@
                     Sheffield S3 8AL
                 </div>
                 <div style="font-size:7pt">
-                    www.aw-aromatics.com
+                    {{ $shop->website['domain'] }}
                 </div>
             </td>
 
@@ -130,13 +130,15 @@
     <tr>
         <td>
             <h1>
-                Delivery Note
+                Pallet Return
             </h1>
         </td>
         <td style="text-align: right">
-            <div>
-                Dispatch Date: <b>{{ $return->created_at->format('j F Y') }}</b>
-            </div>
+            @if($return->state == \App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum::DISPATCHED)
+                <div>
+                    Dispatched Date: <b>{{ $return->dispatched_at->format('j F Y') }}</b>
+                </div>
+            @endif
         </td>
     </tr>
 </table>
@@ -157,10 +159,8 @@
         </td>
         <td width="50%" style="vertical-align:bottom;border: 0mm solid #888888;text-align: right">
             <div style="text-align:right;">
-                Parcels: <b>{{ $return->pallets()->count() }} box</b>
+                State: <b>{{ $return->state->labels()[$return->state->value] }}</b>
             </div>
-            <div style="text-align: right">Weight: <b>2Kg</b></div>
-
         </td>
     </tr>
 </table>
@@ -169,16 +169,16 @@
         <td width="45%" style="border: 0.1mm solid #888888;">
             <span style="font-size: 7pt; color: #555555; font-family: sans-serif;">Delivery address:</span>
             <div>
-                The Firs Stone Lodge Lane
+                {{ $customer->addresses[0]['address_line_1'] }}
             </div>
             <div>
-                Ipswich
+                {{ $customer->addresses[0]['address_line'] }}
             </div>
             <div>
-                IP2 9AR
+                {{ $customer->addresses[0]['administrative_area'] }}
             </div>
             <div>
-                United Kingdom
+                {{ $customer->addresses[0]->country['name'] }}
             </div>
         </td>
         <td width="10%">&nbsp;</td>
@@ -190,27 +190,19 @@
 <table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse;" cellpadding="8">
     <thead>
     <tr>
-        <td style="width:20%; text-align:left">Code</td>
-
-        <td style="width:50%; text-align:left">Description</td>
-
-        <td style="text-align:left">Required</td>
-
-        <td style="text-align:right">Dispatched</td>
+        <td style="width:20%; text-align:left">Reference</td>
+        <td style="width:50%; text-align:left">Pallet Reference (Customer's)</td>
+        <td style="text-align:right">Notes</td>
     </tr>
     </thead>
     <tbody>
 
     @foreach($return->pallets as $pallet)
-    <tr class="@if($loop->last) last @endif">
-        <td style="text-align:left">{{ $pallet->reference }}</td>
-
-        <td style="text-align:left">{{ $pallet->notes }}</td>
-
-        <td style="text-align:right">{{ $pallet->storedItems()->count() }}</td>
-
-        <td style="text-align:right">50</td>
-    </tr>
+        <tr class="@if($loop->last) last @endif">
+            <td style="text-align:left">{{ $pallet->reference }}</td>
+            <td style="text-align:left">{{ $pallet->customer_reference }}</td>
+            <td style="text-align:left">{{ $pallet->notes }}</td>
+        </tr>
     @endforeach
 
     </tbody>
@@ -220,20 +212,6 @@
 <br>
 <br>
 <br>
-
-<div style="text-align: center; font-style: italic;">
-    The exporter of products covered by this document GB356317102000 declares that, unless otherwise clearly
-    indicated, these products are of UK preferential origin. Such products are covered by the The EU-UK Trade and
-    Cooperation Agreement and MUST be regarded with a preferential 0% tariff code.
-</div>
-
-<br>
-
-<div style="text-align: center; font-style: italic;">
-    EORI: GB356317102000 XI EORI: XI356317102000 Thank you for your order. Bank Details:
-    Beneficiary: AW Aromatics Ltd Bank: HSBC UK Bank PLC Address: Carmel House, 49 - 63 Fargate,S1 2HD, Sheffield UK
-    Account Number: 70861278 Bank Code: 404157 Swift: HBUKGB4B IBAN: GB15HBUK40415770861278
-</div>
 
 <htmlpagefooter name="myfooter">
     <div
