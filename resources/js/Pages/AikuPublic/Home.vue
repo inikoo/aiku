@@ -2,9 +2,11 @@
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheck, faPlus, faMinus } from '@fal'
+import { faGithub } from "@fortawesome/free-brands-svg-icons"
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Head } from '@inertiajs/vue3'
-library.add(faCheck, faPlus, faMinus)
+import Button from '@/Components/Elements/Buttons/Button.vue'
+library.add(faCheck, faPlus, faMinus, faGithub)
 
 const features = [
     {
@@ -98,40 +100,17 @@ const faqs = [
                     </div>
                     <div class="text-center">
                         <h1 class="text-4xl font-medium tracking-tight text-white sm:text-6xl">
-                            <span class="font-bold">Aiku</span> help you against Warehouse solutions.
+                            <span class="font-black">Take Control of Your Warehouse</span>
                         </h1>
                         <p class="mt-6 leading-8 text-gray-300">
-                            Discover our warehouse facilities designed to safeguard your inventory with top-notch security and customizable storage options.
-                            Streamline your operations with ease, whether you're a small business or a large enterprise.
+                            We are building an open-source 100% free ERP online software. Aiku Warehouse Management ERP provides the comprehensive solution you need to take control.
+                            Streamline operations, boost productivity, and gain real-time inventory insights with our powerful features designed to optimize every aspect of your warehouse.
+                            Reduce costs, minimize errors, and enhance customer satisfaction with our user-friendly software.
                         </p>
-                        <div class="mt-10 flex items-center justify-center gap-x-6">
-                            <a href="#"
-                                class="rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400">Get
-                                started</a>
-                            <a href="#" class="text-sm font-semibold leading-6 text-white">Live demo <span
-                                    aria-hidden="true">→</span></a>
-                        </div>
+                        <a href="https://github.com/inikoo/aiku" target="_blank" class="mt-10 flex items-center justify-center gap-x-6">
+                            <Button type="white" label="Github" icon="fab fa-github" />
+                        </a>
                     </div>
-                </div>
-
-                <!-- Logo cloud -->
-                <div
-                    class="mx-auto grid max-w-lg grid-cols-4 items-center gap-x-8 gap-y-10 sm:max-w-xl sm:grid-cols-6 sm:gap-x-10 lg:mx-0 lg:max-w-none lg:grid-cols-5">
-                    <img class="col-span-2 max-h-12 w-full object-contain lg:col-span-1"
-                        src="https://tailwindui.com/img/logos/158x48/transistor-logo-white.svg" alt="Transistor"
-                        width="158" height="48" />
-                    <img class="col-span-2 max-h-12 w-full object-contain lg:col-span-1"
-                        src="https://tailwindui.com/img/logos/158x48/reform-logo-white.svg" alt="Reform" width="158"
-                        height="48" />
-                    <img class="col-span-2 max-h-12 w-full object-contain lg:col-span-1"
-                        src="https://tailwindui.com/img/logos/158x48/tuple-logo-white.svg" alt="Tuple" width="158"
-                        height="48" />
-                    <img class="col-span-2 max-h-12 w-full object-contain sm:col-start-2 lg:col-span-1"
-                        src="https://tailwindui.com/img/logos/158x48/savvycal-logo-white.svg" alt="SavvyCal" width="158"
-                        height="48" />
-                    <img class="col-span-2 col-start-2 max-h-12 w-full object-contain sm:col-start-auto lg:col-span-1"
-                        src="https://tailwindui.com/img/logos/158x48/statamic-logo-white.svg" alt="Statamic" width="158"
-                        height="48" />
                 </div>
             </div>
             <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]"

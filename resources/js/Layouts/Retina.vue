@@ -20,6 +20,8 @@ import { faHome, faBars, faUsersCog, faTachometerAltFast, faUser, faLanguage } f
 import { faSearch, faBell } from '@far'
 import { ref, provide } from 'vue'
 
+// console.log('sss', useLayoutStore().app.theme)
+
 provide('layout', useLayoutStore())
 
 library.add( faHome, faBars, faUsersCog, faTachometerAltFast, faUser, faLanguage, faSearch, faBell )

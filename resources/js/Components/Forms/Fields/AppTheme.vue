@@ -31,11 +31,13 @@ const onClickColor = (colorTheme: string[]) => {
                 class="flex ring-1 ring-gray-400 hover:ring-indigo-500 shadow rounded overflow-hidden w-fit cursor-pointer"
             >
                 <div class="h-6 aspect-square" :style="{backgroundColor: colorTheme[0]}" />
-                <div class="h-6 aspect-square" :style="{backgroundColor: colorTheme[1]}" />
-                <div class="h-6 aspect-square" :style="{backgroundColor: colorTheme[2]}" />
+                <!-- <div class="h-6 aspect-square" :style="{backgroundColor: colorTheme[1]}" /> -->
+                <!-- <div class="h-6 aspect-square" :style="{backgroundColor: colorTheme[2]}" />
                 <div class="h-6 aspect-square" :style="{backgroundColor: colorTheme[3]}" />
                 <div class="h-6 aspect-square" :style="{backgroundColor: colorTheme[4]}" />
-                <div class="h-6 aspect-square" :style="{backgroundColor: colorTheme[5]}" />
+                <div class="h-6 aspect-square" :style="{backgroundColor: colorTheme[5]}" /> -->
+                <div class="h-6 aspect-square" :style="{backgroundColor: colorTheme[6]}" />
+                <!-- <div class="h-6 aspect-square" :style="{backgroundColor: colorTheme[7]}" /> -->
             </div>
         </div>
 

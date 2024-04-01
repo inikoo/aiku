@@ -127,9 +127,9 @@ const sidebarOpen = ref(false)
 }
 
 .specialUnderline {
-    background: v-bind('`linear-gradient(to top, ${layout.app.theme[2]}, ${layout.app.theme[2] + "AA"})`');
+    background: v-bind('`linear-gradient(to top, ${layout.app.theme[6]}, ${layout.app.theme[6] + "77"})`');
     &:hover, &:focus {
-        color: v-bind('`${layout.app.theme[3]}`');
+        color: v-bind('`${layout.app.theme[7]}`');
     }
 
     @apply focus:ring-0 focus:outline-none focus:border-none
@@ -141,9 +141,9 @@ const sidebarOpen = ref(false)
 }
 
 .specialUnderlineSecondary {
-    background: v-bind('`linear-gradient(to top, ${layout.app.theme[4]}, ${layout.app.theme[4] + "AA"})`');
+    background: v-bind('`linear-gradient(to top, ${layout.app.theme[6] + "77"}, ${layout.app.theme[6] + "11"})`');
     &:hover, &:focus {
-        color: v-bind('`${layout.app.theme[5]}`');
+        color: v-bind('`${layout.app.theme[7]}`');
     }
 
     @apply focus:ring-0 focus:outline-none focus:border-none
