@@ -11,14 +11,12 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @property string $slug
- * @property string $shop_slug
- * @property string $department_slug
- * @property string $state
  * @property string $code
- * @property string $name
- * @property string $description
  * @property mixed $created_at
  * @property mixed $updated_at
+ * @property string $name
+ * @property string $state
+ * @property integer $image_id
  *
  */
 class FamilyResource extends JsonResource
@@ -26,15 +24,13 @@ class FamilyResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'slug'            => $this->slug,
-            'shop_slug'       => $this->shop_slug,
-            'department_slug' => $this->department_slug,
-            'state'           => $this->state,
-            'code'            => $this->code,
-            'name'            => $this->name,
-            'description'     => $this->description,
-            'created_at'      => $this->created_at,
-            'updated_at'      => $this->updated_at,
+            'slug'       => $this->slug,
+            'image_id'   => $this->image_id,
+            'code'       => $this->code,
+            'name'       => $this->name,
+            'state'      => $this->state,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }

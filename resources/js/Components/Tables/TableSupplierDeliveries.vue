@@ -7,7 +7,6 @@
 <script setup lang="ts">
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import SupplierDeliveries from "@/Pages/Procurement/SupplierDeliveries.vue";
 
 const props = defineProps<{
     data: object,
@@ -15,7 +14,7 @@ const props = defineProps<{
 }>()
 
 
-function supplierDeliveryRoute(supplierDelivery: SupplierDeliveries) {
+function supplierDeliveryRoute(supplierDelivery: { } ) {
     switch (route().current()) {
         case 'grp.procurement.supplier-deliveries.index':
             return route(

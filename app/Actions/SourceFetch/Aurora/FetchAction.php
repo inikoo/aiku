@@ -60,7 +60,7 @@ class FetchAction
         $this->with        = [];
     }
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Model
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): Model|array|null
     {
         return null;
     }
@@ -145,7 +145,8 @@ class FetchAction
             'fetch:webpages',
             'fetch:supplier-products',
             'fetch:payments',
-            'fetch:pallets'
+            'fetch:pallets',
+            'fetch:families'
         ])) {
             $this->onlyNew = (bool)$command->option('only_new');
         }

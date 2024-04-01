@@ -12,6 +12,7 @@ use App\Actions\HydrateModel;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateCustomerInvoices;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateCustomers;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateDepartments;
+use App\Actions\Market\Shop\Hydrators\ShopHydrateFamilies;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateOrders;
 use App\Actions\Market\Shop\Hydrators\ShopHydratePaymentAccounts;
@@ -28,12 +29,14 @@ class HydrateShop extends HydrateModel
 
     public function handle(Shop $shop): void
     {
+
         ShopHydratePaymentAccounts::run($shop);
         ShopHydratePayments::run($shop);
         ShopHydrateCustomers::run($shop);
         ShopHydrateCustomerInvoices::run($shop);
         ShopHydrateOrders::run($shop);
         ShopHydrateDepartments::run($shop);
+        ShopHydrateFamilies::run($shop);
         ShopHydrateInvoices::run($shop);
         ShopHydrateSales::run($shop);
         ShopHydrateProducts::run($shop);

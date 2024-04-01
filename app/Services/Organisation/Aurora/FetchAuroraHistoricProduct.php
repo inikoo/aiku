@@ -13,7 +13,7 @@ class FetchAuroraHistoricProduct extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $this->parsedData['product'] = $this->parseProduct($this->auroraModelData->{'Product ID'});
+        $this->parsedData['product'] = $this->parseProduct($this->organisation->id.':'.$this->auroraModelData->{'Product ID'});
 
         $deleted_at = $this->parseDate($this->auroraModelData->{'Product History Valid To'});
 

@@ -13,15 +13,18 @@ use App\Models\SupplyChain\Stock;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchDeletedStocks extends FetchAction
 {
     public string $commandSignature = 'fetch:deleted-stocks {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Stock
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): array
     {
+
+        $stock   =null;
+        $orgStock=null;
+
         if ($deletedStockData = $organisationSource->fetchDeletedStock($organisationSourceId)) {
             if ($deletedStockData['stock']) {
                 if ($stock = Stock::withTrashed()->where('source_id', $deletedStockData['stock']['source_id'])
@@ -36,16 +39,20 @@ class FetchDeletedStocks extends FetchAction
                         modelData: $deletedStockData['stock']
                     );
                 }
+                $sourceData = explode(':', $stock->source_id);
 
                 DB::connection('aurora')->table('Part Deleted Dimension')
-                    ->where('Part Deleted Key', $stock->source_id)
+                    ->where('Part Deleted Key', $sourceData[1])
                     ->update(['aiku_id' => $stock->id]);
 
                 return $stock;
             }
         }
 
-        return null;
+        return [
+            'stock'    => $stock,
+            'orgStock' => $orgStock
+        ];
     }
 
     public function getModelsQuery(): Builder

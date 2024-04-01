@@ -21,22 +21,21 @@ return new class () extends Migration {
     {
         Schema::create('product_categories', function (Blueprint $table) {
             $table->smallIncrements('id');
+            $table->string('type')->index();
             $table = $this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table = $this->assertCodeDescription($table);
             $table->unsignedInteger('image_id')->nullable();
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->unsignedInteger('parent_id');
             $table->string('parent_type');
-            $table->string('type')->index();
-            $table->boolean('is_family')->default(false);
+            $table->unsignedInteger('parent_id');
             $table->string('state')->nullable()->index();
             $table->jsonb('data');
             $table->timestampstz();
             $table = $this->softDeletes($table);
-            $table->unsignedInteger('source_department_id')->nullable()->unique();
-            $table->unsignedInteger('source_family_id')->nullable()->unique();
+            $table->string('source_department_id')->nullable()->unique();
+            $table->string('source_family_id')->nullable()->unique();
             $table->index(['parent_id', 'parent_type']);
         });
         DB::statement('CREATE INDEX ON product_categories USING gin (name gin_trgm_ops) ');

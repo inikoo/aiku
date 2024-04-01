@@ -7,10 +7,11 @@
 
 namespace App\Actions\Market\ProductCategory\UI;
 
-use App\Actions\InertiaAction;
-use App\Actions\Market\Shop\UI\IndexShops;
+use App\Actions\Market\HasMarketAuthorisation;
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Http\Resources\Market\FamilyResource;
+use App\Actions\OrgAction;
+use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
+use App\Http\Resources\Market\FamiliesResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -25,43 +26,33 @@ use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexFamilies extends InertiaAction
+class IndexFamilies extends OrgAction
 {
+    use HasMarketAuthorisation;
+
     private Shop|ProductCategory|Organisation $parent;
 
-    public function authorize(ActionRequest $request): bool
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->canEdit = $request->user()->hasPermissionTo('shops.edit');
-
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('shops.view')
-            );
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request);
+        return $this->handle(parent: $organisation);
     }
 
-    public function inOrganisation(ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
-        $this->parent = app('currentTenant');
-
-        return $this->handle(parent: app('currentTenant'));
-    }
-
-    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
         $this->parent = $shop;
-
+        $this->initialisationFromShop($shop, $request);
         return $this->handle(parent: $shop);
     }
+
 
     public function handle(Shop|ProductCategory|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('product_categories.name', $value)
-                    ->orWhere('product_categories.code', 'ilike', "$value%");
+                    ->orWhereStartWith('product_categories.code', $value);
             });
         });
         if ($prefix) {
@@ -69,6 +60,8 @@ class IndexFamilies extends InertiaAction
         }
 
         $queryBuilder = QueryBuilder::for(ProductCategory::class);
+
+        /*
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
@@ -77,6 +70,7 @@ class IndexFamilies extends InertiaAction
                 prefix: $prefix
             );
         }
+        */
 
         return $queryBuilder
             ->defaultSort('product_categories.code')
@@ -88,51 +82,66 @@ class IndexFamilies extends InertiaAction
                 'product_categories.description',
                 'product_categories.created_at',
                 'product_categories.updated_at',
+                'departments.slug as department_slug',
+                'departments.code as department_code',
+                'departments.name as department_name',
+
             ])
             ->leftJoin('product_category_stats', 'product_categories.id', 'product_category_stats.product_category_id')
-            ->where('is_family', true)
+            ->where('product_categories.type', ProductCategoryTypeEnum::FAMILY)
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Shop') {
                     $query->where('product_categories.parent_type', 'Shop');
                     $query->where('product_categories.parent_id', $parent->id);
                 } elseif (class_basename($parent) == 'Organisation') {
+                    $query->where('product_categories.organisation_id', $parent->id);
                     $query->leftJoin('shops', 'product_categories.shop_id', 'shops.id');
-                    $query->addSelect('shops.slug as shop_slug');
+                    $query->addSelect(
+                        'shops.slug as shop_slug',
+                        'shops.code as shop_code',
+                        'shops.name as shop_name',
+                    );
                 }
-            })
-            ->allowedSorts(['code', 'name'])
+            })->leftjoin('product_categories as departments', 'departments.id', 'product_categories.parent_id')
+
+            ->allowedSorts(['code', 'name','shop_code','department_code'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|ProductCategory|Organisation $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Shop|ProductCategory|Organisation $parent, ?array $modelOperations = null, $prefix = null, $canEdit=false): Closure
     {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
+
             $table
                 ->defaultSort('code')
                 ->withEmptyState(
                     match (class_basename($parent)) {
                         'Organisation' => [
                             'title'       => __("No families found"),
-                            'description' => $this->canEdit && $parent->marketStats->number_shops == 0 ? __('Get started by creating a shop. ✨')
-                                : __("In fact, is no even a shop yet 🤷🏽‍♂️"),
+                            'description' => $canEdit ?
+                                $parent->marketStats->number_shops == 0 ? __("In fact, is no even a shop yet 🤷🏽‍♂️") : ''
+                                : '',
                             'count'       => $parent->marketStats->number_families,
-                            'action'      => $this->canEdit ? [
+                            'action'      => $canEdit && $parent->marketStats->number_shops == 0
+                                    ?
+                                [
                                 'type'    => 'button',
                                 'style'   => 'create',
                                 'tooltip' => __('new shop'),
                                 'label'   => __('shop'),
                                 'route'   => [
-                                    'name'       => 'shops.create',
-                                    'parameters' => array_values($request->route()->originalParameters())
+                                    'name'       => 'grp.org.shops.create',
+                                    'parameters' => [$parent->slug]
                                 ]
-                            ] : null
+                                    ] : null
+
                         ],
                         'Shop' => [
                             'title'       => __("No families found"),
@@ -142,15 +151,21 @@ class IndexFamilies extends InertiaAction
                     }
                 )
                 ->withGlobalSearch()
-                ->withModelOperations($modelOperations)
-                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+                ->withModelOperations($modelOperations);
+
+            if($parent instanceof Organisation) {
+                $table->column(key: 'shop_code', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            };
+            $table->column(key: 'department_code', label: __('department'), canBeHidden: false, sortable: true, searchable: true);
+
+            $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
     public function jsonResponse(LengthAwarePaginator $families): AnonymousResourceCollection
     {
-        return FamilyResource::collection($families);
+        return FamiliesResource::collection($families);
     }
 
     public function htmlResponse(LengthAwarePaginator $families, ActionRequest $request): Response
@@ -194,7 +209,7 @@ class IndexFamilies extends InertiaAction
                         ] : false,
                     ]
                 ],
-                'data'        => FamilyResource::collection($families),
+                'data'        => FamiliesResource::collection($families),
             ]
         )->table($this->tableStructure($this->parent));
     }
@@ -216,18 +231,7 @@ class IndexFamilies extends InertiaAction
         };
 
         return match ($routeName) {
-            'shops.families.index' =>
-            array_merge(
-                IndexShops::make()->getBreadcrumbs(),
-                $headCrumb(
-                    [
-                        'name'       => $routeName,
-                        'parameters' => $routeParameters
-                    ],
-                    $suffix
-                )
-            ),
-            'shops.show.families.index' =>
+            'grp.org.shops.show.catalogue.families.index' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(

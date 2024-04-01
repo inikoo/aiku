@@ -7,7 +7,6 @@
 <script setup lang="ts">
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import SupplierPurchaseOrder from "@/Pages/Procurement/SupplierPurchaseOrders.vue";
 
 const props = defineProps<{
     data: object,
@@ -15,7 +14,7 @@ const props = defineProps<{
 }>()
 
 
-function supplierPurchaseOrderRoute(supplierPurchaseOrder: SupplierPurchaseOrder) {
+function supplierPurchaseOrderRoute(supplierPurchaseOrder: {}) {
     switch (route().current()) {
         case 'grp.procurement.supplier-purchase-orders.index':
             return route(

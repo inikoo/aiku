@@ -25,7 +25,6 @@ class ProductCategoriesExport implements FromQuery, WithMapping, ShouldAutoSize,
             $row->slug,
             $row->shop->name,
             $row->type,
-            $row->is_family,
             $row->state->value,
             $row->created_at
         ];

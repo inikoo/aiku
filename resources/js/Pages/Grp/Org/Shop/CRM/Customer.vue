@@ -78,7 +78,6 @@ import {
     TransitionChild,
     TransitionRoot,
 } from "@headlessui/vue";
-import AgentShowcase from "@/Pages/Procurement/AgentShowcase.vue";
 
 
 const isOpen = ref(false);

@@ -8,6 +8,7 @@
 namespace App\Models\Market;
 
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
+use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Market\Shop\ShopStateEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\Accounting\Invoice;
@@ -96,7 +97,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Market\ShopCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read Collection<int, Customer> $customers
- * @property-read Collection<int, \App\Models\Market\ProductCategory> $departments
  * @property-read Fulfilment|null $fulfilment
  * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
  * @property-read Group $group
@@ -110,6 +110,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, PaymentAccount> $paymentAccounts
  * @property-read Collection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read Collection<int, Payment> $payments
+ * @property-read Collection<int, \App\Models\Market\ProductCategory> $productCategories
  * @property-read Collection<int, \App\Models\Market\Product> $products
  * @property-read Collection<int, Prospect> $prospects
  * @property-read Collection<int, Role> $roles
@@ -234,15 +235,20 @@ class Shop extends Model
         return $this->hasMany(Invoice::class);
     }
 
-    public function departments(): MorphMany
+    public function productCategories(): HasMany
     {
-        return $this->morphMany(ProductCategory::class, 'parent');
+        return $this->hasMany(ProductCategory::class);
     }
 
-    //    public function families(): HasMany
-    //    {
-    //        return $this->hasMany(Family::class);
-    //    }
+    public function departments(): Collection
+    {
+        return $this->productCategories()->where('type', ProductCategoryTypeEnum::DEPARTMENT)->get();
+    }
+
+    public function families(): Collection
+    {
+        return $this->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
+    }
 
     public function payments(): HasMany
     {

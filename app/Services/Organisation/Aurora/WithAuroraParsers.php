@@ -35,6 +35,7 @@ use App\Actions\SourceFetch\Aurora\FetchTradeUnits;
 use App\Actions\SourceFetch\Aurora\FetchWarehouses;
 use App\Actions\SourceFetch\Aurora\FetchWebsites;
 use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
+use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -48,6 +49,7 @@ use App\Models\Dispatch\Shipper;
 use App\Models\Goods\TradeUnit;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Location;
+use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
@@ -282,47 +284,51 @@ trait WithAuroraParsers
         return $historicItem;
     }
 
-    public function parseProduct($sourceId): Product
+    public function parseProduct(string $sourceId): Product
     {
         $product = Product::where('source_id', $sourceId)->first();
         if (!$product) {
-            $product = FetchProducts::run($this->organisationSource, $sourceId);
+            $sourceData = explode(':', $sourceId);
+            $product    = FetchProducts::run($this->organisationSource, $sourceData[1]);
         }
 
         return $product;
     }
 
-    public function parseDepartment($sourceId): ?ProductCategory
+    public function parseDepartment(string $sourceId): ?ProductCategory
     {
-        $department = ProductCategory::where('source_department_id', $sourceId)->first();
+        $department = ProductCategory::where('type', ProductCategoryTypeEnum::DEPARTMENT)->where('source_department_id', $sourceId)->first();
         if (!$department) {
-            $department = FetchDepartments::run($this->organisationSource, $sourceId);
+            $sourceData = explode(':', $sourceId);
+            $department = FetchDepartments::run($this->organisationSource, $sourceData[1]);
         }
 
         return $department;
     }
 
-    public function parseFamily($sourceId): ?ProductCategory
+    public function parseFamily(string $sourceId): ?ProductCategory
     {
-        $family = ProductCategory::where('source_family_id', $sourceId)->first();
+        $family = ProductCategory::where('type', ProductCategoryTypeEnum::FAMILY)->where('source_family_id', $sourceId)->first();
         if (!$family) {
-            $family = FetchFamilies::run($this->organisationSource, $sourceId);
+            $sourceData = explode(':', $sourceId);
+            $family     = FetchFamilies::run($this->organisationSource, $sourceData[1]);
         }
 
         return $family;
     }
 
-    public function parseService($sourceId): Product
+    public function parseService(string $sourceId): Product
     {
         $service = Product::withTrashed()->where('source_id', $sourceId)->first();
         if (!$service) {
-            $service = FetchServices::run($this->organisationSource, $sourceId);
+            $sourceData = explode(':', $sourceId);
+            $service    = FetchServices::run($this->organisationSource, $sourceData[1]);
         }
 
         return $service;
     }
 
-    public function parseCustomer($sourceId): ?Customer
+    public function parseCustomer(string $sourceId): ?Customer
     {
         if (!$sourceId) {
             return null;
@@ -349,14 +355,36 @@ trait WithAuroraParsers
         return Agent::withTrashed()->where('source_slug', $sourceSlug)->first();
     }
 
+    public function parseOrgStock($sourceId): ?OrgStock
+    {
+        $orgStock   = OrgStock::withTrashed()->where('source_id', $sourceId)->first();
+        $sourceData = explode(':', $sourceId);
+        if (!$orgStock) {
+
+            $res     = FetchStocks::run($this->organisationSource, $sourceData[1]);
+            $orgStock=$res['orgStock'];
+        }
+        /*
+        if (!$orgStock) {
+            $res = FetchDeletedStocks::run($this->organisationSource,$sourceData[1]);
+            $orgStock=$res['org_stock'];
+
+        }
+        */
+        return $orgStock;
+    }
+
     public function parseStock($sourceId): ?Stock
     {
-        $stock = Stock::withTrashed()->where('source_id', $sourceId)->first();
+        $stock      = Stock::withTrashed()->where('source_id', $sourceId)->first();
+        $sourceData = explode(':', $sourceId);
         if (!$stock) {
-            $stock = FetchStocks::run($this->organisationSource, $sourceId);
+            $res  = FetchStocks::run($this->organisationSource, $sourceData[1]);
+            $stock=$res['stock'];
         }
         if (!$stock) {
-            $stock = FetchDeletedStocks::run($this->organisationSource, $sourceId);
+            $res  = FetchDeletedStocks::run($this->organisationSource, $sourceData[1]);
+            $stock=$res['stock'];
         }
 
         return $stock;
@@ -529,7 +557,12 @@ trait WithAuroraParsers
         $reference = preg_replace('/\)$/', '', $reference);
         $reference = str_replace('(', '-', $reference);
         $reference = str_replace(')', '-', $reference);
+        $reference = str_replace("'", '', $reference);
+        $reference = str_replace(",", '', $reference);
+        $reference = str_replace("/", '-', $reference);
 
+        /** @noinspection PhpDuplicateArrayKeysInspection */
+        /** @noinspection DuplicatedCode */
         $normalizeChars = array(
             'Š' => 'S',
             'š' => 's',
@@ -632,6 +665,8 @@ trait WithAuroraParsers
         $string = str_replace('?', '_', $string);
 
 
+        /** @noinspection PhpDuplicateArrayKeysInspection */
+        /** @noinspection DuplicatedCode */
         $normalizeChars = array(
             'Š' => 'S',
             'š' => 's',

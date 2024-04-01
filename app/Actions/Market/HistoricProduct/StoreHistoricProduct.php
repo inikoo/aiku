@@ -25,8 +25,6 @@ class StoreHistoricProduct
             'price'      => Arr::get($modelData, 'price', $product->price),
             'units'      => Arr::get($modelData, 'units', $product->units),
             'source_id'  => Arr::get($modelData, 'source_id'),
-
-
         ];
         if (Arr::get($modelData, 'created_at')) {
             $historicProductData['created_at'] = Arr::get($modelData, 'created_at');
@@ -41,6 +39,9 @@ class StoreHistoricProduct
         } else {
             $historicProductData['status'] = true;
         }
+
+        data_set($historicProductData, 'organisation_id', $product->organisation_id);
+        data_set($historicProductData, 'group_id', $product->group_id);
 
         /** @var HistoricProduct $historicProduct */
         $historicProduct = $product->historicRecords()->create($historicProductData);

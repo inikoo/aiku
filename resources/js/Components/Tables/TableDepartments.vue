@@ -8,6 +8,7 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Department} from "@/types/department";
+import {Family} from "@/types/family";
 
 const props = defineProps<{
     data: object,
@@ -17,15 +18,25 @@ const props = defineProps<{
 
 function departmentRoute(department: Department) {
     switch (route().current()) {
-        case 'shops.show':
-        case "shops.show.departments.index":
+      case "grp.org.shops.show.catalogue.departments.index":
+        return route(
+          'grp.org.shops.show.catalogue.departments.show',
+          [route().params['organisation'],route().params['shop'], department.slug]);
+        case 'grp.org.shops.index':
             return route(
-                'shops.show.departments.show',
-                [route().params['shop'], department.slug]);
+                'grp.org.shops.show.catalogue.departments.show',
+                [route().params['organisation'],department.shop_slug, department.slug]);
         default:
+            return null;
+    }
+}
+
+function shopRoute(department: Department) {
+    switch (route().current()) {
+        case 'grp.org.shops.index':
             return route(
-                'shops.show.departments.show',
-                [department.shop_slug,department.slug]);
+                "grp.org.shops.show.catalogue.dashboard",
+                [route().params["organisation"], department.shop_slug]);
     }
 }
 
@@ -34,9 +45,14 @@ function departmentRoute(department: Department) {
 <template>
 
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(slug)="{ item: department }">
-            <Link :href="departmentRoute(department)">
-                {{ department['slug'] }}
+        <template #cell(code)="{ item: department }">
+            <Link :href="departmentRoute(department)" class="specialUnderline">
+                {{ department['code'] }}
+            </Link>
+        </template>
+        <template #cell(shop_code)="{ item: department }">
+            <Link :href="shopRoute(department)" class="specialUnderlineSecondary">
+                {{ department["shop_code"] }}
             </Link>
         </template>
     </Table>

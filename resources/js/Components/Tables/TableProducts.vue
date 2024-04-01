@@ -17,15 +17,17 @@ const props = defineProps<{
 
 function productRoute(product: Product) {
     switch (route().current()) {
-        case 'shops.show':
-        case "shops.show.products.index":
+
+        case "grp.org.shops.show.catalogue.products.index":
             return route(
-                'shops.show.products.show',
-                [route().params['shop'], product.slug]);
+                'grp.org.shops.show.catalogue.products.show',
+                [route().params['organisation'],route().params['shop'], product.slug]);
+        case 'grp.org.shops.index':
+            return route(
+                'grp.org.shops.show.catalogue.products.show',
+                [route().params['organisation'],product.shop_slug, product.slug]);
         default:
-            return route(
-                'shops.show.products.show',
-                [product.shop_slug,product.slug]);
+            return null
     }
 }
 
@@ -35,9 +37,14 @@ function productRoute(product: Product) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(slug)="{ item: product }">
-            <Link :href="productRoute(product)">
-                {{ product['slug'] }}
+        <template #cell(code)="{ item: product }">
+            <Link :href="productRoute(product)" class="specialUnderline">
+                {{ product['code'] }}
+            </Link>
+        </template>
+        <template #cell(shop_code)="{ item: product }">
+            <Link :href="productRoute(product)" class="specialUnderlineSecondary">
+                {{ product['shop_slug'] }}
             </Link>
         </template>
     </Table>

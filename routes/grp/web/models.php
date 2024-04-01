@@ -214,8 +214,7 @@ Route::delete('/department/{department:id}', DeleteProductCategory::class)->name
 
 Route::post('/family/', StoreProductCategory::class)->name('family.store');
 Route::post('/shop/{shop:id}/family/', [StoreProductCategory::class, 'inShop'])->name('shop.family.store');
-Route::patch('/family/{family:id}', UpdateFamily::class)->name('family.update');
-Route::delete('/family/{family:id}', DeleteFamily::class)->name('family.delete');
+
 
 Route::post('/order/', StoreOrder::class)->name('order.store');
 Route::patch('/order/{order:id}', UpdateOrder::class)->name('order.update');

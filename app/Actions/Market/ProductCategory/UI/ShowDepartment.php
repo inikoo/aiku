@@ -17,9 +17,9 @@ use App\Actions\Market\Shop\UI\ShowShop;
 use App\Enums\UI\DepartmentTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Mail\MailshotResource;
-use App\Http\Resources\Market\DepartmentResource;
-use App\Http\Resources\Market\FamilyResource;
-use App\Http\Resources\Market\ProductResource;
+use App\Http\Resources\Market\DepartmentsResource;
+use App\Http\Resources\Market\FamiliesResource;
+use App\Http\Resources\Market\ProductsResource;
 use App\Http\Resources\Sales\CustomersResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
@@ -131,13 +131,13 @@ class ShowDepartment extends InertiaAction
                         )
                     )),
                 DepartmentTabsEnum::PRODUCTS->value  => $this->tab == DepartmentTabsEnum::PRODUCTS->value ?
-                    fn () => ProductResource::collection(
+                    fn () => ProductsResource::collection(
                         IndexProducts::run(
                             parent: $department,
                             prefix: 'products'
                         )
                     )
-                    : Inertia::lazy(fn () => ProductResource::collection(
+                    : Inertia::lazy(fn () => ProductsResource::collection(
                         IndexProducts::run(
                             parent: $department,
                             prefix: 'products'
@@ -151,7 +151,7 @@ class ShowDepartment extends InertiaAction
 
                 DepartmentTabsEnum::FAMILIES->value  => $this->tab == DepartmentTabsEnum::FAMILIES->value ?
                     fn () => [
-                        'table'             => FamilyResource::collection(
+                        'table'             => FamiliesResource::collection(
                             IndexFamilies::run(
                                 parent: $department->shop,
                                 prefix: 'product_categories'
@@ -168,7 +168,7 @@ class ShowDepartment extends InertiaAction
                     ]
                     : Inertia::lazy(
                         fn () => [
-                            'table'             => FamilyResource::collection(
+                            'table'             => FamiliesResource::collection(
                                 IndexFamilies::run(
                                     parent: $department->shop,
                                     prefix: 'product_categories'
@@ -219,9 +219,9 @@ class ShowDepartment extends InertiaAction
     }
 
 
-    public function jsonResponse(ProductCategory $department): DepartmentResource
+    public function jsonResponse(ProductCategory $department): DepartmentsResource
     {
-        return new DepartmentResource($department);
+        return new DepartmentsResource($department);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array

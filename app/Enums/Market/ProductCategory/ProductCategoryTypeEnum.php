@@ -13,7 +13,7 @@ enum ProductCategoryTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case ROOT   = 'root';
-    case BRANCH = 'branch';
-    case HEAD   = 'head';
+    case DEPARTMENT     = 'department';
+    case SUB_DEPARTMENT = 'sub_department';
+    case FAMILY         = 'family';
 }
