@@ -247,20 +247,16 @@ class InertiaTable
 
 
     public function column(
-        string $key = null,
+        string $key,
         array|string $label = null,
         bool $canBeHidden = true,
         bool $hidden = false,
         bool $sortable = false,
         bool $searchable = false,
-        string $type = null
+        string $type = null,
+        string $tooltip = null
     ): self {
-        if (is_string($label)) {
-            $label = $label ?: Str::headline($key);
-            $key   = $key ?: Str::kebab($label);
-        } else {
-            $key = $key ?: Str::kebab($label['tooltip']);
-        }
+
 
 
         $this->columns = $this->columns->reject(function (Column $column) use ($key) {
@@ -273,7 +269,8 @@ class InertiaTable
                 hidden: $hidden,
                 sortable: $sortable,
                 sorted: false,
-                type: $type
+                type: $type,
+                tooltip: $tooltip
             )
         )->values();
 
