@@ -23,6 +23,7 @@ class GetFulfilmentCustomerShowcase
     public function handle(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): array
     {
         return [
+            'website'             => $fulfilmentCustomer->fulfilment->shop->website,
             'customer'            => CustomersResource::make($fulfilmentCustomer->customer)->getArray(),
             'fulfilment_customer' => FulfilmentCustomerResource::make($fulfilmentCustomer)->getArray(),
             'updateRoute'         => [
