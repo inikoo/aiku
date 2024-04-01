@@ -160,8 +160,8 @@ class ShowPalletReturn extends OrgAction
                 $palletReturn->state == PalletReturnStateEnum::PICKING ? [
                     'type'    => 'button',
                     'style'   => 'save',
-                    'tooltip' => __('picked'),
-                    'label'   => __('picked'),
+                    'tooltip' => __('set all pending as picked'),
+                    'label'   => __('pick all'),
                     'key'     => 'action',
                     'route'   => [
                         'method'     => 'post',
@@ -177,8 +177,8 @@ class ShowPalletReturn extends OrgAction
                 $palletReturn->state == PalletReturnStateEnum::PICKED ? [
                     'type'    => 'button',
                     'style'   => 'save',
-                    'tooltip' => __('dispatched'),
-                    'label'   => __('dispatched'),
+                    'tooltip' => __('set as dispatched'),
+                    'label'   => __('Dispatch'),
                     'key'     => 'action',
                     'route'   => [
                         'method'     => 'post',

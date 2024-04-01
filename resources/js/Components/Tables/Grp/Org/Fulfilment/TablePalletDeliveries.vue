@@ -96,6 +96,7 @@ function customerRoute(palletDelivery: PalletDelivery) {
             </Link>
         </template>
 
+        <!-- Column: Customer -->
         <template #cell(customer_name)="{ item: palletDelivery }">
             <Link :href="customerRoute(palletDelivery)" class="specialUnderline">
                 {{ palletDelivery['customer_name'] }}

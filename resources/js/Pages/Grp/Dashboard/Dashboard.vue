@@ -18,6 +18,6 @@ defineOptions({ layout: Layout })
         <!-- <pre>{{ route().v()?.params?.organisation }}</pre> -->
         <!-- <pre>{{ usePage().props }}</pre> -->
         <!-- <pre>{{ route(useLayoutStore().currentRoute, useLayoutStore().currentParams) }}</pre> -->
-        <pre>{{ useLayoutStore().navigation.org }}</pre>
+        <!-- <pre>{{ useLayoutStore().navigation.org }}</pre> -->
     </div>
 </template>

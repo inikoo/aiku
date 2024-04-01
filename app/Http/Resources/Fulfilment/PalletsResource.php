@@ -104,6 +104,10 @@ class PalletsResource extends JsonResource
                 'name'       => 'grp.models.pallet.booked-in',
                 'parameters' => [$this->id]
             ],
+            'undoBookInRoute'              => [
+                'name'       => 'grp.models.pallet.undo-booked-in',
+                'parameters' => [$this->id]
+            ],
             'updateLocationRoute'              => [
                 'name'       => 'grp.models.warehouse.pallets.location.update',
                 'parameters' => [$this->warehouse_id, $this->id]

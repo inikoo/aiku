@@ -10,5 +10,5 @@ import { usePage } from '@inertiajs/vue3'
 </script>
 
 <template>
-    <pre>{{ usePage() }}</pre>
+    <!-- <pre>{{ usePage() }}</pre> -->
 </template>
