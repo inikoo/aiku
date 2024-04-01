@@ -84,6 +84,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
+ * @property string|null $webhook_access_key
  * @property-read Customer $customer
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read Group $group

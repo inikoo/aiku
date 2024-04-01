@@ -14,9 +14,9 @@ use App\Actions\Market\ProductCategory\UI\IndexFamilies;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\ShopTabsEnum;
-use App\Http\Resources\Market\DepartmentResource;
-use App\Http\Resources\Market\FamilyResource;
-use App\Http\Resources\Market\ProductResource;
+use App\Http\Resources\Market\DepartmentsResource;
+use App\Http\Resources\Market\FamiliesResource;
+use App\Http\Resources\Market\ProductsResource;
 use App\Http\Resources\Market\ShopResource;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -184,13 +184,13 @@ class ShowShop extends OrgAction
 
                 ShopTabsEnum::DEPARTMENTS->value => $this->tab == ShopTabsEnum::DEPARTMENTS->value
                     ?
-                    fn () => DepartmentResource::collection(
+                    fn () => DepartmentsResource::collection(
                         IndexDepartments::run(
                             parent: $shop,
                             prefix: 'departments'
                         )
                     )
-                    : Inertia::lazy(fn () => DepartmentResource::collection(
+                    : Inertia::lazy(fn () => DepartmentsResource::collection(
                         IndexDepartments::run(
                             parent: $shop,
                             prefix: 'departments'
@@ -199,13 +199,13 @@ class ShowShop extends OrgAction
 
                 ShopTabsEnum::FAMILIES->value => $this->tab == ShopTabsEnum::FAMILIES->value
                     ?
-                    fn () => FamilyResource::collection(
+                    fn () => FamiliesResource::collection(
                         IndexFamilies::run(
                             parent: $shop,
                             prefix: 'families'
                         )
                     )
-                    : Inertia::lazy(fn () => FamilyResource::collection(
+                    : Inertia::lazy(fn () => FamiliesResource::collection(
                         IndexFamilies::run(
                             parent: $shop,
                             prefix: 'families'
@@ -214,13 +214,13 @@ class ShowShop extends OrgAction
 
                 ShopTabsEnum::PRODUCTS->value => $this->tab == ShopTabsEnum::PRODUCTS->value
                     ?
-                    fn () => ProductResource::collection(
+                    fn () => ProductsResource::collection(
                         IndexProducts::run(
                             parent: $shop,
                             prefix: 'products'
                         )
                     )
-                    : Inertia::lazy(fn () => ProductResource::collection(
+                    : Inertia::lazy(fn () => ProductsResource::collection(
                         IndexProducts::run(
                             parent: $shop,
                             prefix: 'products'

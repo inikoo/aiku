@@ -30,11 +30,6 @@ class FetchResetBase
         $aikuIdField      = 'aiku_id';
         $aikuGuestIdField = 'aiku_guest_id';
 
-        if (app()->environment('staging')) {
-            $aikuIdField      = 'staging_'.$aikuIdField;
-            $aikuGuestIdField = 'staging_'.$aikuGuestIdField;
-        }
-
         $organisations = $this->getOrganisations($command);
         $exitCode      = 0;
 
@@ -85,6 +80,18 @@ class FetchResetBase
 
                 DB::connection('aurora')->table('Shipper Dimension')
                     ->update([$aikuIdField => null]);
+
+                DB::connection('aurora')->table('Product Dimension')
+                    ->update([$aikuIdField => null]);
+
+                DB::connection('aurora')->table('Category Dimension')
+                    ->update(
+                        [
+                            'aiku_family_id'    => null,
+                            'aiku_department_id'=> null
+
+                        ]
+                    );
 
 
                 $command->line('✅ shops');

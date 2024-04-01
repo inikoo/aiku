@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 25 Mar 2023 01:57:22 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sun, 31 Mar 2024 15:32 Malaysia Time, Plane KL - Bali
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -15,7 +15,7 @@ use App\Models\Market\Shop;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShopHydrateDepartments
+class ShopHydrateFamilies
 {
     use AsAction;
     use WithEnumStats;
@@ -35,18 +35,18 @@ class ShopHydrateDepartments
     public function handle(Shop $shop): void
     {
         $stats = [
-            'number_departments' => $shop->departments()->count(),
+            'number_families' => $shop->families()->count(),
         ];
 
         $stats = array_merge(
             $stats,
             $this->getEnumStats(
-                model: 'departments',
+                model: 'families',
                 field: 'state',
                 enum: ProductCategoryStateEnum::class,
                 models: ProductCategory::class,
                 where: function ($q) use ($shop) {
-                    $q->where('shop_id', $shop->id)->where('type', ProductCategoryTypeEnum::DEPARTMENT);
+                    $q->where('shop_id', $shop->id)->where('type', ProductCategoryTypeEnum::FAMILY);
                 }
             )
         );

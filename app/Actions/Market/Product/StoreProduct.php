@@ -11,39 +11,41 @@ namespace App\Actions\Market\Product;
 use App\Actions\Market\HistoricProduct\StoreHistoricProduct;
 use App\Actions\Market\Product\Hydrators\ProductHydrateUniversalSearch;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateProducts;
+use App\Actions\OrgAction;
+use App\Enums\Market\Product\ProductStateEnum;
+use App\Enums\Market\Product\ProductTypeEnum;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
-use App\Models\SysAdmin\Organisation;
-use App\Rules\CaseSensitive;
+use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreProduct
+class StoreProduct extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
-
-    private int $hydratorsDelay =0;
+    private $state=null;
 
     public function handle(Shop|ProductCategory $parent, array $modelData, bool $skipHistoric = false): Product
     {
-        if(class_basename($parent)=='Shop') {
-            $modelData['shop_id']    =$parent->id;
-            $modelData['parent_id']  =$parent->id;
-            $modelData['parent_type']= $parent->type;
-            $modelData['owner_id']   = $parent->id;
-            $modelData['owner_type'] = $parent->type;
-
+        if (class_basename($parent) == 'Shop') {
+            $modelData['shop_id']     = $parent->id;
+            $modelData['parent_id']   = $parent->id;
+            $modelData['parent_type'] = $parent->type;
+            $modelData['owner_id']    = $parent->id;
+            $modelData['owner_type']  = $parent->type;
         } else {
-            $modelData['shop_id']    =$parent->shop_id;
+            $modelData['shop_id']    = $parent->shop_id;
             $modelData['owner_id']   = $parent->parent_id;
             $modelData['owner_type'] = $parent->shop->type;
-
         }
+
+        data_set($modelData, 'organisation_id', $parent->organisation_id);
+        data_set($modelData, 'group_id', $parent->group_id);
+
+
         /** @var Product $product */
         $product = $parent->products()->create($modelData);
         $product->stats()->create();
@@ -58,55 +60,89 @@ class StoreProduct
         $product->salesStats()->create([
             'scope' => 'sales'
         ]);
-        /** @var Organisation $organisation */
-        $organisation = app('currentTenant');
-        if ($product->shop->currency_id != $organisation->currency_id) {
+
+        if ($product->shop->currency_id != $parent->organisation->currency_id) {
             $product->salesStats()->create([
-                'scope' => 'sales-tenant-currency'
+                'scope' => 'sales-organisation-currency'
             ]);
         }
 
 
         ShopHydrateProducts::dispatch($product->shop);
         ProductHydrateUniversalSearch::dispatch($product);
+
         return $product;
     }
 
     public function rules(): array
     {
-        return [
-            'code'        => ['required', 'unique:products', 'between:2,9', 'alpha_dash', new CaseSensitive('products')],
+        $rules= [
+            'code'        => [
+                'required',
+                'max:32',
+                'alpha_dash',
+                new IUnique(
+                    table: 'products',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'deleted_at', 'value' => null],
+                    ]
+                ),
+            ],
             'family_id'   => ['sometimes', 'required', 'exists:families,id'],
             'units'       => ['sometimes', 'required', 'numeric'],
             'image_id'    => ['sometimes', 'required', 'exists:media,id'],
             'price'       => ['required', 'numeric'],
             'rrp'         => ['sometimes', 'required', 'numeric'],
             'name'        => ['required', 'max:250', 'string'],
-            'state'       => ['sometimes', 'required'],
-            'type'        => ['required'],
             'description' => ['sometimes', 'required', 'max:1500'],
+            'source_id'   => ['sometimes', 'required', 'string', 'max:255'],
+            'type'        => ['required', Rule::enum(ProductTypeEnum::class)],
+            'owner_id'    => 'required',// todo check if this is needed
+            'owner_type'  => 'required',
+            'status'      => ['required', 'boolean'],
+            'state'       => ['required', Rule::enum(ProductStateEnum::class)],
+            'data'        => ['sometimes', 'array'],
+            'settings'    => ['sometimes', 'array'],
+            'created_at'  => ['sometimes', 'date'],
         ];
+
+        if($this->state and $this->state==ProductStateEnum::DISCONTINUED) {
+            $rules['code']= [
+                'required',
+                'max:32',
+                'alpha_dash',
+            ];
+        }
+
+
+        return $rules;
+
     }
 
-    public function action(Shop|Product $parent, array $modelData): Product
+    public function action(Shop|ProductCategory $parent, array $modelData, int $hydratorsDelay = 0, bool $skipHistoric = false): Product
     {
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->asAction       = true;
+        $this->state          =Arr::get($modelData, 'state');
+        if ($parent instanceof Shop) {
+            $shop = $parent;
+        } else {
+            $shop = $parent->shop;
+        }
 
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->initialisationFromShop($shop, $modelData);
 
-        return $this->handle($parent, $validatedData);
+        return $this->handle($parent, $this->validatedData, $skipHistoric);
     }
 
     public function inShop(Shop $shop, ActionRequest $request): RedirectResponse
     {
         $request->validate();
         $this->handle($shop, $request->all());
-        return  Redirect::route('grp.org.shops.show.catalogue.products.index', $shop);
+
+        return Redirect::route('grp.org.shops.show.catalogue.products.index', $shop);
     }
 
-    public function asFetch(Shop $shop, array $productData, int $hydratorsDelay=60): Product
-    {
-        $this->hydratorsDelay=$hydratorsDelay;
-        return $this->handle($shop, $productData);
-    }
+
 }

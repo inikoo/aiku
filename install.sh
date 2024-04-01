@@ -10,28 +10,35 @@ BACKUP_DB=aiku_elasticserch_backup
 
 echo -e "🧼 Cleaning storage"
 rm -rf storage/app/media
+
 echo -e "✨ Resetting databases ${ITALIC}${DB}${NONE}"
 dropdb --force --if-exists ${DB}
 createdb --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}" ${DB}
 dropdb --force --if-exists ${BACKUP_DB}
 createdb --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}" ${BACKUP_DB}
+
 echo -e "✨ Resetting elasticsearch"
 php artisan es:refresh
+
 echo "Public assets link 🔗"
 php artisan storage:link
+
 echo "Clear horizon 🧼"
 php artisan horizon:clear
 php artisan horizon:terminate
+
 echo "Clear cache 🧼"
 php artisan cache:clear
 redis-cli KEYS "aiku_database_*" | xargs redis-cli DEL
+
 echo "🌱 Migrating and seeding database"
 php artisan migrate --database=backup --path=database/migrations/backup
 php artisan migrate
 php artisan db:seed
-./seed_currancy_exchanges.sh
+./seed_currency_exchanges.sh
 php artisan telescope:clear
 pg_dump -Fc -f "devops/devel/snapshots/fresh.dump" ${DB}
+
 echo "🏢 create group"
 php artisan group:create aw AW GB GBP --subdomain=aw
 pg_dump -Fc -f "devops/devel/snapshots/group.dump" ${DB}

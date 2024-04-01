@@ -33,6 +33,7 @@ class GetShopNavigation
                         [
                             "tooltip" => __("shop"),
                             "icon"    => ["fal", "fa-store-alt"],
+                            'root'    => 'grp.org.shops.show.catalogue.dashboard',
                             "route"   => [
                                 "name"       => 'grp.org.shops.show.catalogue.dashboard',
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
@@ -42,6 +43,7 @@ class GetShopNavigation
                             "label"   => __("departments"),
                             "tooltip" => __("Departments"),
                             "icon"    => ["fal", "fa-folder-tree"],
+                            'root'    => 'grp.org.shops.show.catalogue.departments.',
                             "route"   => [
                                 "name"       => "grp.org.shops.show.catalogue.departments.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
@@ -51,6 +53,7 @@ class GetShopNavigation
                             "label"   => __("families"),
                             "tooltip" => __("Families"),
                             "icon"    => ["fal", "fa-folder"],
+                            'root'    => 'grp.org.shops.show.catalogue.families.',
                             "route"   => [
                                 "name"       => "grp.org.shops.show.catalogue.families.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
@@ -60,6 +63,7 @@ class GetShopNavigation
                             "label"   => __("products"),
                             "tooltip" => __("Products"),
                             "icon"    => ["fal", "fa-cube"],
+                            'root'    => 'grp.org.shops.show.catalogue.products.',
                             "route"   => [
                                 "name"       => "grp.org.shops.show.catalogue.products.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],

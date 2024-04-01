@@ -19,7 +19,7 @@ use Illuminate\Support\Collection;
 
 class HydrateFulfilmentCustomer extends HydrateModel
 {
-    public string $commandSignature = 'customer-fulfilment:hydrate {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'fulfilment-customer:hydrate {organisations?*} {--s|slugs=}';
 
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer): void

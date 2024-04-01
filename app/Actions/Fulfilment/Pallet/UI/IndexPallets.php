@@ -224,7 +224,7 @@ class IndexPallets extends OrgAction
             }
 
 
-            $table->column(key: 'customer_reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'customer_reference', label: __("pallet reference (customer's)"), canBeHidden: false, sortable: true, searchable: true);
 
 
             if ($parent instanceof Organisation || $parent instanceof Fulfilment || $parent instanceof Warehouse) {

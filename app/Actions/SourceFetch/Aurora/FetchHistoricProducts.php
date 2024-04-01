@@ -5,9 +5,6 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-
-/** @noinspection PhpUnused */
-
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Market\HistoricProduct\StoreHistoricProduct;
@@ -15,7 +12,6 @@ use App\Actions\Market\HistoricProduct\UpdateHistoricProduct;
 use App\Models\Market\HistoricProduct;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class FetchHistoricProducts
@@ -23,7 +19,7 @@ class FetchHistoricProducts
     use AsAction;
 
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $source_id): ?HistoricProduct
+    public function handle(SourceOrganisationService $organisationSource, int $source_id): ?HistoricProduct
     {
         if ($historicProductData = $organisationSource->fetchHistoricProduct($source_id)) {
             if ($historicProduct = HistoricProduct::withTrashed()->where('source_id', $historicProductData['historic_product']['source_id'])
@@ -38,9 +34,10 @@ class FetchHistoricProducts
                     modelData: $historicProductData['historic_product']
                 );
             }
+            $sourceData = explode(':', $historicProduct->source_id);
 
             DB::connection('aurora')->table('Product History Dimension')
-                ->where('Product Key', $historicProduct->source_id)
+                ->where('Product Key', $sourceData[1])
                 ->update(['aiku_id'=>$historicProduct->id]);
 
             return $historicProduct;

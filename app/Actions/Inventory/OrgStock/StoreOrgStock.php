@@ -58,6 +58,7 @@ class StoreOrgStock extends OrgAction
         return [
             'state'           => ['sometimes', 'nullable', Rule::enum(OrgStockStateEnum::class)],
             'quantity_status' => ['sometimes', 'nullable', Rule::enum(OrgStockQuantityStatusEnum::class)],
+            'source_id'       => ['sometimes', 'nullable', 'string'],
         ];
     }
 

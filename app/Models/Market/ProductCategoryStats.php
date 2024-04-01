@@ -17,13 +17,21 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int $product_category_id
- * @property int $number_sub_product_categories
+ * @property int $number_sub_departments
+ * @property int $number_current_sub_departments state: active+discontinuing
+ * @property int $number_sub_departments_state_in_process
+ * @property int $number_sub_departments_state_active
+ * @property int $number_sub_departments_state_discontinuing
+ * @property int $number_sub_departments_state_discontinued
  * @property int $number_families
+ * @property int $number_current_families state: active+discontinuing
  * @property int $number_families_state_in_process
  * @property int $number_families_state_active
  * @property int $number_families_state_discontinuing
  * @property int $number_families_state_discontinued
+ * @property int $number_orphan_families
  * @property int $number_products
+ * @property int $number_current_products state: active+discontinuing
  * @property int $number_products_state_in_process
  * @property int $number_products_state_active
  * @property int $number_products_state_discontinuing

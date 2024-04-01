@@ -69,8 +69,16 @@ const onSaveError = (errorValue: any) => {
                             :fieldName="'location_id'"
                             @updateVModel="() => error.location_id = ''"
                         />
+                        
+                        <div class="flex gap-x-1 items-center mt-2 pl-0.5">
+                            <input type="checkbox" id="checkboxLocation" class="rounded border-gray-300 text-red-500 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <label for="checkboxLocation" class="select-none cursor-pointer text-gray-500">Set as damaged</label>
+                        </div>
+
                         <p v-if="error.location_id" class="mt-2 text-sm text-red-600">{{ error.location_id }}</p>
                     </div>
+
+                    <!-- Button: Save -->
                     <div class="flex justify-end mt-2">
                         <ButtonEditTable
                             type="primary"

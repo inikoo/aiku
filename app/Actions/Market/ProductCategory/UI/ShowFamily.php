@@ -15,8 +15,8 @@ use App\Actions\Market\Shop\UI\IndexShops;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Enums\UI\DepartmentTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
-use App\Http\Resources\Market\DepartmentResource;
-use App\Http\Resources\Market\ProductResource;
+use App\Http\Resources\Market\DepartmentsResource;
+use App\Http\Resources\Market\ProductsResource;
 use App\Http\Resources\Sales\CustomersResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
@@ -113,7 +113,7 @@ class ShowFamily extends InertiaAction
                 /*
                 DepartmentTabsEnum::FAMILIES->value  => $this->tab == DepartmentTabsEnum::FAMILIES->value ?
                     fn () => [
-                        'table'             => FamilyResource::collection(IndexFamilies::run($this->department)),
+                        'table'             => FamiliesResource::collection(IndexFamilies::run($this->department)),
                         'createInlineModel' => [
                             'buttonLabel' => __('family'),
                             'dialog'      => [
@@ -125,7 +125,7 @@ class ShowFamily extends InertiaAction
                     ]
                     : Inertia::lazy(
                         fn () => [
-                            'table'             => FamilyResource::collection(IndexFamilies::run($this->department)),
+                            'table'             => FamiliesResource::collection(IndexFamilies::run($this->department)),
                             'createInlineModel' => [
                                 'buttonLabel' => __('family'),
                                 'dialog'      => [
@@ -139,8 +139,8 @@ class ShowFamily extends InertiaAction
 */
 
                 DepartmentTabsEnum::PRODUCTS->value  => $this->tab == DepartmentTabsEnum::PRODUCTS->value ?
-                    fn () => ProductResource::collection(IndexProducts::run($family))
-                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($family))),
+                    fn () => ProductsResource::collection(IndexProducts::run($family))
+                    : Inertia::lazy(fn () => ProductsResource::collection(IndexProducts::run($family))),
 
             ]
         )->table(IndexCustomers::make()->tableStructure($family))
@@ -149,9 +149,9 @@ class ShowFamily extends InertiaAction
     }
 
 
-    public function jsonResponse(ProductCategory $family): DepartmentResource
+    public function jsonResponse(ProductCategory $family): DepartmentsResource
     {
-        return new DepartmentResource($family);
+        return new DepartmentsResource($family);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array

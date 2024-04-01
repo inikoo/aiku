@@ -35,8 +35,9 @@ class ShopHydrateCustomers
     public function handle(Shop $shop): void
     {
         $stats = [
-            'number_customers' => $shop->customers->count(),
+            'number_customers' => $shop->customers()->count(),
         ];
+
 
         $stats=array_merge($stats, $this->getEnumStats(
             model:'customers',

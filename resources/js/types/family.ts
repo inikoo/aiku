@@ -7,7 +7,11 @@
 export interface Family {
     slug:string,
     shop_slug: string,
-    department_slug: string
+    shop_code: string,
+    shop_name: string,
+    department_slug: string,
+    department_code: string,
+    department_name: string,
     state: string
     code: string
     name: string

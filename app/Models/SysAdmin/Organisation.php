@@ -8,6 +8,7 @@
 namespace App\Models\SysAdmin;
 
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
+use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
@@ -31,6 +32,7 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
 use App\Models\Media\Media;
 use App\Models\Procurement\AgentOrganisation;
@@ -41,6 +43,7 @@ use App\Models\SupplyChain\Supplier;
 use App\Models\Traits\HasLogo;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -409,6 +412,23 @@ class Organisation extends Model implements HasMedia
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    public function productCategories(): HasMany
+    {
+        return $this->hasMany(ProductCategory::class);
+    }
+
+    public function departments(): Collection
+    {
+
+        return $this->productCategories()->where('type', ProductCategoryTypeEnum::DEPARTMENT)->get();
+
+    }
+
+    public function families(): ?Collection
+    {
+        return $this->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
     }
 
 }

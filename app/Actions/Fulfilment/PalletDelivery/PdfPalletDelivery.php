@@ -16,7 +16,7 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
 use Symfony\Component\HttpFoundation\Response;
 
-class ExportPalletDelivery
+class PdfPalletDelivery
 {
     use AsAction;
     use WithAttributes;
@@ -25,9 +25,9 @@ class ExportPalletDelivery
     /**
      * @throws \Mpdf\MpdfException
      */
-    public function handle(PalletDelivery $palletDelivery, ActionRequest $request): Response
+    public function handle(PalletDelivery $palletDelivery): Response
     {
-        $filename = 'pallet-delivery-' . $palletDelivery->reference . '.pdf';
+        $filename = 'pallet-delivery-' . $palletDelivery->slug . '.pdf';
 
         $config = [
             'title'                  => $filename,
@@ -45,14 +45,14 @@ class ExportPalletDelivery
             'customer' => $palletDelivery->fulfilmentCustomer->customer
         ], [], $config);
 
-        return $pdf->download($filename);
+        return $pdf->stream($filename);
     }
 
     /**
      * @throws \Mpdf\MpdfException
      */
-    public function asController(FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): Response
+    public function asController( PalletDelivery $palletDelivery, ActionRequest $request): Response
     {
-        return $this->handle($palletDelivery, $request);
+        return $this->handle($palletDelivery);
     }
 }

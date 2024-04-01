@@ -11,6 +11,7 @@ use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\Accounting\Payment\UpdatePayment;
 use App\Models\Accounting\Payment;
 use App\Services\Organisation\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -24,21 +25,32 @@ class FetchPayments extends FetchAction
         if ($paymentData = $organisationSource->fetchPayment($organisationSourceId)) {
             if ($payment = Payment::where('source_id', $paymentData['payment']['source_id'])
                 ->first()) {
-                $payment = UpdatePayment::make()->action(
-                    payment: $payment,
-                    modelData: $paymentData['payment'],
-                    hydratorsDelay: $this->hydrateDelay
-                );
-                $this->markAuroraModel($payment);
-            } else {
-                if ($paymentData['customer']) {
-                    $payment = StorePayment::make()->action(
-                        customer: $paymentData['customer'],
-                        paymentAccount: $paymentData['paymentAccount'],
+                try {
+                    $payment = UpdatePayment::make()->action(
+                        payment: $payment,
                         modelData: $paymentData['payment'],
                         hydratorsDelay: $this->hydrateDelay
                     );
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $paymentData['payment'], 'Payment', 'update');
 
+                    return null;
+                }
+                $this->markAuroraModel($payment);
+            } else {
+                if ($paymentData['customer']) {
+                    try {
+                        $payment = StorePayment::make()->action(
+                            customer: $paymentData['customer'],
+                            paymentAccount: $paymentData['paymentAccount'],
+                            modelData: $paymentData['payment'],
+                            hydratorsDelay: $this->hydrateDelay
+                        );
+                    } catch (Exception $e) {
+                        $this->recordError($organisationSource, $e, $paymentData['payment'], 'Payment', 'store');
+
+                        return null;
+                    }
                     $this->markAuroraModel($payment);
                 }
             }

@@ -136,8 +136,8 @@ class ShowCustomer extends OrgAction
 
                 /*
                 CustomerTabsEnum::PRODUCTS->value => $this->tab == CustomerTabsEnum::PRODUCTS->value ?
-                    fn () => ProductResource::collection(IndexProducts::run($customer))
-                    : Inertia::lazy(fn () => ProductResource::collection(IndexProducts::run($customer))),
+                    fn () => ProductsResource::collection(IndexProducts::run($customer))
+                    : Inertia::lazy(fn () => ProductsResource::collection(IndexProducts::run($customer))),
                 */
 
                 CustomerTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerTabsEnum::DISPATCHED_EMAILS->value ?

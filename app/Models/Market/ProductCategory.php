@@ -9,6 +9,7 @@ namespace App\Models\Market;
 
 use App\Actions\Market\Shop\Hydrators\ShopHydrateDepartments;
 use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
+use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\BI\SalesStats;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
@@ -36,6 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Market\Department
  *
  * @property int $id
+ * @property ProductCategoryTypeEnum $type
  * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
@@ -46,16 +48,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $shop_id
  * @property int $parent_id
  * @property string $parent_type
- * @property string $type
- * @property bool $is_family
  * @property ProductCategoryStateEnum|null $state
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
- * @property int|null $source_department_id
- * @property int|null $source_family_id
+ * @property string|null $source_department_id
+ * @property string|null $source_family_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, ProductCategory> $departments
  * @property-read Group $group
@@ -89,7 +89,8 @@ class ProductCategory extends Model implements Auditable
 
     protected $casts = [
         'data'  => 'array',
-        'state' => ProductCategoryStateEnum::class
+        'state' => ProductCategoryStateEnum::class,
+        'type'  => ProductCategoryTypeEnum::class,
     ];
 
     protected $attributes = [
@@ -148,7 +149,7 @@ class ProductCategory extends Model implements Auditable
 
     public function salesTenantCurrencyStats(): MorphOne
     {
-        return $this->morphOne(SalesStats::class, 'model')->where('scope', 'sales-tenant-currency');
+        return $this->morphOne(SalesStats::class, 'model')->where('scope', 'sales-organisation-currency');
     }
 
     public function parent(): MorphTo

@@ -8,17 +8,21 @@
 namespace App\Actions\Market\ProductCategory;
 
 use App\Actions\Market\ProductCategory\Hydrators\ProductCategoryHydrateUniversalSearch;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Market\DepartmentResource;
+use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
+use App\Http\Resources\Market\DepartmentsResource;
 use App\Models\Market\ProductCategory;
+use App\Rules\AlphaDashDot;
+use App\Rules\IUnique;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateProductCategory
+class UpdateProductCategory extends OrgAction
 {
     use WithActionUpdate;
 
-
-    private bool $asAction=false;
+    private ProductCategory $productCategory;
 
     public function handle(ProductCategory $productCategory, array $modelData): ProductCategory
     {
@@ -30,7 +34,7 @@ class UpdateProductCategory
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
 
@@ -40,30 +44,50 @@ class UpdateProductCategory
     public function rules(): array
     {
         return [
-            'code'        => ['required', 'unique:product_categories', 'between:2,9', 'alpha'],
-            'name'        => ['required', 'max:250', 'string'],
+            'code'        => [
+                'sometimes',
+                'max:32',
+                new AlphaDashDot(),
+                new IUnique(
+                    table: 'product_categories',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'deleted_at', 'value' => null],
+                        ['column' => 'type', 'value' => $this->productCategory->type, 'operator' => '='],
+                        ['column' => 'id', 'value' => $this->productCategory->id, 'operator' => '!=']
+
+                    ]
+                ),
+            ],
+            'name'        => ['sometimes', 'max:250', 'string'],
             'image_id'    => ['sometimes', 'required', 'exists:media,id'],
-            'state'       => ['sometimes', 'required'],
+            'state'       => ['sometimes', 'required', Rule::enum(ProductCategoryStateEnum::class)],
             'description' => ['sometimes', 'required', 'max:1500'],
+            'created_at'  => ['sometimes', 'date'], // todo delete this after all fetching from aurora is done
+
         ];
     }
 
     public function action(ProductCategory $productCategory, array $modelData): ProductCategory
     {
-        $this->asAction=true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
-        return $this->handle($productCategory, $validatedData);
+        $this->asAction        = true;
+        $this->productCategory = $productCategory;
+        $this->initialisationFromShop($productCategory->shop, $modelData);
+
+        return $this->handle($productCategory, $this->validatedData);
     }
 
     public function asController(ProductCategory $productCategory, ActionRequest $request): ProductCategory
     {
-        $productCategory = $productCategory::where('slug', $request->route()->originalParameters())->first();
-        return $this->handle($productCategory, $request->all());
+        $this->productCategory = $productCategory;
+
+        $this->initialisationFromShop($productCategory->shop, $request);
+
+        return $this->handle($productCategory, $this->validatedData);
     }
 
-    public function jsonResponse(ProductCategory $productCategory): DepartmentResource
+    public function jsonResponse(ProductCategory $productCategory): DepartmentsResource
     {
-        return new DepartmentResource($productCategory);
+        return new DepartmentsResource($productCategory);
     }
 }

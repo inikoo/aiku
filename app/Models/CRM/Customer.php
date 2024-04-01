@@ -23,6 +23,7 @@ use App\Models\Helpers\Issue;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Market\Product;
 use App\Models\Market\Shop;
+use App\Models\Media\Media;
 use App\Models\OMS\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\SupplyChain\Stock;
@@ -31,7 +32,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
-use Eloquent;
+use Database\Factories\CRM\CustomerFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -58,7 +59,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $shop_id
  * @property int|null $image_id
  * @property string $slug
- * @property string $webhook_access_key
  * @property string|null $reference customer public id
  * @property string|null $name
  * @property string|null $contact_name
@@ -83,34 +83,33 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property-read Collection<int, Address> $addresses
- * @property-read Collection<int, \App\Models\CRM\Appointment> $appointments
+ * @property-read Collection<int, Appointment> $appointments
  * @property-read Collection<int, CustomerClient> $clients
  * @property-read FulfilmentCustomer|null $fulfilmentCustomer
  * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
  * @property-read Group $group
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
- * @property-read MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read MediaCollection<int, Media> $media
  * @property-read Collection<int, Order> $orders
  * @property-read Organisation $organisation
  * @property-read Collection<int, PalletDelivery> $palletDeliveries
  * @property-read Collection<int, Payment> $payments
  * @property-read Collection<int, Product> $products
  * @property-read Shop|null $shop
- * @property-read \App\Models\CRM\CustomerStats|null $stats
+ * @property-read CustomerStats|null $stats
  * @property-read Collection<int, Stock> $stocks
  * @property-read Collection<int, StoredItem> $storedItems
  * @property-read TaxNumber|null $taxNumber
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Collection<int, \App\Models\CRM\WebUser> $webUsers
- * @method static \Database\Factories\CRM\CustomerFactory factory($count = null, $state = [])
+ * @method static CustomerFactory factory($count = null, $state = [])
  * @method static Builder|Customer newModelQuery()
  * @method static Builder|Customer newQuery()
  * @method static Builder|Customer onlyTrashed()
  * @method static Builder|Customer query()
  * @method static Builder|Customer withTrashed()
  * @method static Builder|Customer withoutTrashed()
- * @mixin Eloquent
  */
 class Customer extends Model implements HasMedia
 {
@@ -143,18 +142,19 @@ class Customer extends Model implements HasMedia
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
+
                 $slug = $this->company_name;
                 if ($slug == '') {
                     $slug = $this->contact_name;
                 }
-                if ($slug == '') {
+                if ($slug == '' or $slug=='Unknown') {
                     $slug = $this->reference;
                 }
 
                 return $slug;
             })
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(16)
+            ->slugsShouldBeNoLongerThan(32)
             ->doNotGenerateSlugsOnUpdate();
     }
 

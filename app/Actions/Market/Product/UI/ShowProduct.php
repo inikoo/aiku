@@ -15,7 +15,7 @@ use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OMS\Order\UI\IndexOrders;
 use App\Enums\UI\ProductTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
-use App\Http\Resources\Market\ProductResource;
+use App\Http\Resources\Market\ProductsResource;
 use App\Http\Resources\Sales\CustomersResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Market\Product;
@@ -128,9 +128,9 @@ class ShowProduct extends InertiaAction
             ->table(IndexMailshots::make()->tableStructure($product));
     }
 
-    public function jsonResponse(Product $product): ProductResource
+    public function jsonResponse(Product $product): ProductsResource
     {
-        return new ProductResource($product);
+        return new ProductsResource($product);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
