@@ -257,7 +257,7 @@ const setLink = () => {
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Action: bold, italic, align, etc -->
                 <div v-else
                     v-tooltip="action.label"
