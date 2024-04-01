@@ -13,7 +13,6 @@ export interface PalletCustomer {
     shop?: string
     shop_slug?: string
     number_active_clients?: number
-    webhook_access_key?: string
 }
 
 export interface PieCustomer {

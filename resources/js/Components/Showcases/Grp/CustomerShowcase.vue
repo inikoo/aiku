@@ -40,6 +40,10 @@ const props = defineProps<{
         pieData: {
             [key: string]: PieCustomer
         }
+        webhook: {
+            webhook_access_key: string | null
+            route: routeType
+        }
     },
     tab: string
 }>()
@@ -65,16 +69,17 @@ const optionRadio = [
 
 // Section: Webhook
 const isWebhookLoading = ref(false)
-const webhookValue = ref(props.data.customer.webhook_access_key || '')
-const onRetrieveWebhook = () => {
+const webhookValue = ref(props.data.webhook.webhook_access_key || '')
+const onRetrieveWebhook = async () => {
     isWebhookLoading.value = true
     try {
-        const response = axios.post('route')
-        webhookValue.value = 'xxx'
+        const response: { webhook_access_key: string} = await axios.get(route(props.data.webhook.route.name, props.data.webhook.route.parameters))
+        // console.log('response', response)
+        webhookValue.value = response?.webhook_access_key || 'xxx'
     } catch (error) {
         notify({
-            title: "Something wrong.",
-            text: "Failed to retrieve webhook. Please try again.",
+            title: trans("Something wrong"),
+            text: trans("Failed to retrieve webhook. Please try again."),
             type: "error"
         })
     }
@@ -85,6 +90,7 @@ const onRetrieveWebhook = () => {
 </script>
 
 <template>
+    <!-- <pre>{{props}}</pre> -->
     <!-- Section: Stats box -->
     <div class="px-4 py-5 md:px-6 lg:px-8 grid grid-cols-2 gap-x-4 gap-y-3">
         <!-- Section: Radio -->
