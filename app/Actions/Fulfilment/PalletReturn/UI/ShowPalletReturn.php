@@ -201,13 +201,12 @@ class ShowPalletReturn extends OrgAction
                     'type'          => 'button',
                     'style'         => 'tertiary',
                     'icon'          => 'fal fa-file-export',
-                    'tooltip'       => __('Export pallet return'),
-                    'label'         => __('export as PDF'),
+                    'id'            => 'pdf-export',
+                    'label'         => 'PDF',
                     'key'           => 'action',
                     'route'         => [
-                        'name'       => 'grp.models.fulfilment-customer.pallet-return.export',
+                        'name'       => 'grp.models..pallet-return.export',
                         'parameters' => [
-                            'fulfilmentCustomer' => $palletReturn->fulfilment_customer_id,
                             'palletReturn'       => $palletReturn->id
                         ]
                     ]

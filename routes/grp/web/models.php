@@ -31,7 +31,7 @@ use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DeletePalletFromReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchedPalletReturn;
-use App\Actions\Fulfilment\PalletReturn\ExportPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\PdfPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
@@ -97,7 +97,14 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('pallet-upload', [ImportPallet::class,'fromGrp'])->name('pallet.import');
     Route::post('pallet', StorePalletFromDelivery::class)->name('pallet.store');
     Route::post('multiple-pallet', StoreMultiplePallets::class)->name('multiple-pallets.store');
-    Route::get('export', PdfPalletDelivery::class)->name('pdf');
+    Route::get('pdf', PdfPalletDelivery::class)->name('pdf');
+
+
+});
+
+Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
+
+    Route::get('pdf', PdfPalletReturn::class)->name('pdf');
 
 
 });
@@ -129,7 +136,6 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
         Route::post('confirm', ConfirmPalletReturn::class)->name('confirm');
         Route::post('received', PickedPalletReturn::class)->name('picked');
         Route::post('dispatched', DispatchedPalletReturn::class)->name('dispatched');
-        Route::get('export', ExportPalletReturn::class)->name('export');
     });
 
     Route::prefix('stored-item-return/{storedItemReturn:id}')->name('stored-item-return.')->group(function () {

@@ -11,6 +11,7 @@ export interface Action {
     route?: routeType
     tooltip?: string
     button?: Button[]
+    target?: string  // '_blank'
     
     buttonGroup?: {
         // If type = buttonGroup
@@ -20,5 +21,6 @@ export interface Action {
         style?: string
         route?: routeType
         tooltip?: string
+        target?: string  // '_blank'
     }[]
 }

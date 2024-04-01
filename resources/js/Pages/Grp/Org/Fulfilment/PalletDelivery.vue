@@ -28,10 +28,9 @@ import { Table } from '@/types/Table'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { useLayoutStore } from '@/Stores/layout'
 
-// import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus, faFileExport } from '@fal'
-library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus, faFileExport)
+import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus, faFilePdf } from '@fal'
+library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus, faFilePdf)
 
 const props = defineProps<{
     title: string
@@ -204,13 +203,13 @@ watch(() => props.data, (newValue) => {
                                 type="number"
                                 :minValue="1"
                                 @update:modelValue="() => formMultiplePallet.errors.number_pallets = ''"
-                                @keydown.enter="() => formMultiplePallet.number_pallets ? handleFormSubmitAddMultiplePallet(action.button, closed) : ''"    
+                                @keydown.enter="() => formMultiplePallet.number_pallets ? handleFormSubmitAddMultiplePallet(action.button, closed) : ''"
                             />
                             <p v-if="get(formMultiplePallet, ['errors', 'number_pallets'])" class="mt-2 text-xxs italic text-red-600">
                                 {{ formMultiplePallet.errors.number_pallets }}
                             </p>
                         </div>
-                        
+
                         <div class="flex justify-end mt-3">
                             <Button
                                 :style="'save'"
@@ -223,7 +222,7 @@ watch(() => props.data, (newValue) => {
                 </template>
             </Popover>
         </template>
-        
+
         <!-- Button: Add pallet (single) -->
         <template #button-group-add-pallet="{ action: action }">
             <div class="relative">
@@ -236,7 +235,7 @@ watch(() => props.data, (newValue) => {
                             :tooltip="action.button.tooltip"
                             class="rounded-l-none rounded-r border-none " />
                     </template>
-                    
+
                     <template #content="{ close: closed }">
                         <div class="w-[250px]">
                             <span class="text-xs px-1 my-2">{{ trans('Reference') }}: </span>
@@ -244,7 +243,7 @@ watch(() => props.data, (newValue) => {
                                 <PureInput v-model="formAddPallet.customer_reference"
                                     autofocus
                                     placeholder="Reference"
-                                    @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)"    
+                                    @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)"
                                 />
                                 <p v-if="get(formAddPallet, ['errors', 'customer_reference'])"
                                     class="mt-2 text-sm text-red-600">
@@ -284,14 +283,6 @@ watch(() => props.data, (newValue) => {
                     :label="action.action.label" :loading="loading" />
             </div>
         </template>
-
-        <!-- Button: Export as PDF -->
-        <template #button-export-as-pdf="{ action }">
-            <a :href="route(action.action.route.name, action.action.route.parameters)" target="_blank">
-            <!-- <pre>{{ action.action }}</pre> -->
-                <Button :style="action.action.style" :icon="action.action.icon" :tooltip="action.action.tooltip" :label="action.action.label" />
-            </a>
-        </template>
     </PageHeading>
 
     <div v-if="timeline.state != 'in-process'" class="border-b border-gray-200">
@@ -315,7 +306,7 @@ watch(() => props.data, (newValue) => {
         :tab="currentTab"
         :tableKey="tableKey"
         @renderTableKey="changeTableKey"
-        :locationRoute="locationRoute" 
+        :locationRoute="locationRoute"
         :storedItemsRoute="storedItemsRoute"
     />
 

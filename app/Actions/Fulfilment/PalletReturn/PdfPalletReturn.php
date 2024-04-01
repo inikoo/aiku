@@ -8,7 +8,6 @@
 namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Traits\WithExportData;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -16,7 +15,7 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
 use Symfony\Component\HttpFoundation\Response;
 
-class ExportPalletReturn
+class PdfPalletReturn
 {
     use AsAction;
     use WithAttributes;
@@ -25,9 +24,9 @@ class ExportPalletReturn
     /**
      * @throws \Mpdf\MpdfException
      */
-    public function handle(PalletReturn $palletReturn, ActionRequest $request): Response
+    public function handle(PalletReturn $palletReturn): Response
     {
-        $filename = 'pallet-return-' . $palletReturn->reference . '.pdf';
+        $filename = 'pallet-return-' . $palletReturn->slug . '.pdf';
 
         $config = [
             'title'                  => $filename,
@@ -45,14 +44,14 @@ class ExportPalletReturn
             'customer' => $palletReturn->fulfilmentCustomer->customer
         ], [], $config);
 
-        return $pdf->download($filename);
+        return $pdf->stream($filename);
     }
 
     /**
      * @throws \Mpdf\MpdfException
      */
-    public function asController(FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, ActionRequest $request): Response
+    public function asController(PalletReturn $palletReturn, ActionRequest $request): Response
     {
-        return $this->handle($palletReturn, $request);
+        return $this->handle($palletReturn);
     }
 }
