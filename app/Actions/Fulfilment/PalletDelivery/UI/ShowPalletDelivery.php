@@ -166,7 +166,8 @@ class ShowPalletDelivery extends OrgAction
                 PalletDeliveryStateEnum::CONFIRMED => [
                     [
                         'type'    => 'button',
-                        'style'   => 'save',
+                        'style'   => 'primary',
+                        'icon'    => 'fal fa-check',
                         'tooltip' => __('Mark as received'),
                         'label'   => __('receive'),
                         'key'     => 'action',
