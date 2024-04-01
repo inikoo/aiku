@@ -28,8 +28,8 @@ class GetFulfilmentCustomerShowcase
                 'name'       => 'grp.models.fulfilment-customer.update',
                 'parameters' => [$fulfilmentCustomer->id]
             ],
-            'pieData'  => $this->getDashboardData($fulfilmentCustomer),
-
+            'pieData'               => $this->getDashboardData($fulfilmentCustomer),
+            'webhook_access_key'    => $fulfilmentCustomer->webhook_access_key
         ];
     }
 
