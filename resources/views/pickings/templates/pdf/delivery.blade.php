@@ -134,7 +134,7 @@
             </h1>
         </td>
         <td style="text-align: right">
-            @if($delivery->state == \App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum::RECEIVED)
+            @if(in_array($delivery->state, [\App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum::RECEIVED, \App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum::BOOKED_IN]))
             <div>
                 Received Date: <b>{{ $delivery->received_at->format('j F Y') }}</b>
             </div>

@@ -81,7 +81,7 @@ enum PalletReturnStateEnum: string
             ],
             'cancel' => [
                 'tooltip' => __('Cancel'),
-                'icon'    => 'fal fa-cross',
+                'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500',
                 'color'   => 'red'
             ],

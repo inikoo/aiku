@@ -135,7 +135,7 @@ class ShowPalletDelivery extends RetinaAction
                             'organisation'       => $palletDelivery->organisation->slug,
                             'fulfilment'         => $palletDelivery->fulfilment->slug,
                             'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                            'palletDelivery'     => $palletDelivery->reference
+                            'palletDelivery'     => $palletDelivery->slug
                         ]
                     ]
                 ],
@@ -147,7 +147,7 @@ class ShowPalletDelivery extends RetinaAction
                             'organisation'       => $palletDelivery->organisation->slug,
                             'fulfilment'         => $palletDelivery->fulfilment->slug,
                             'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->id,
-                            'palletDelivery'     => $palletDelivery->reference
+                            'palletDelivery'     => $palletDelivery->slug
                         ]
                     ],
                     'download' => [
@@ -156,7 +156,7 @@ class ShowPalletDelivery extends RetinaAction
                             'organisation'       => $palletDelivery->organisation->slug,
                             'fulfilment'         => $palletDelivery->fulfilment->slug,
                             'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
-                            'palletDelivery'     => $palletDelivery->reference
+                            'palletDelivery'     => $palletDelivery->slug
                         ]
                     ],
                 ],
@@ -218,7 +218,7 @@ class ShowPalletDelivery extends RetinaAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $palletDelivery->reference,
+                            'label' => $palletDelivery->slug,
                         ],
 
                     ],
@@ -227,7 +227,7 @@ class ShowPalletDelivery extends RetinaAction
             ];
         };
 
-        $palletDelivery = PalletDelivery::where('reference', $routeParameters['palletDelivery'])->first();
+        $palletDelivery = PalletDelivery::where('slug', $routeParameters['palletDelivery'])->first();
 
 
         return match ($routeName) {
@@ -278,7 +278,7 @@ class ShowPalletDelivery extends RetinaAction
                         ],
                         'model' => [
                             'name'       => 'retina.storage.pallet-deliveries.show',
-                            'parameters' => [$palletDelivery->reference]
+                            'parameters' => [$palletDelivery->slug]
                         ]
                     ],
                     $suffix
@@ -312,26 +312,26 @@ class ShowPalletDelivery extends RetinaAction
 
         return match (class_basename($this->parent)) {
             'Warehouse' => [
-                'label' => $palletDelivery->reference,
+                'label' => $palletDelivery->slug,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
                         'organisation'   => $palletDelivery->organisation->slug,
                         'warehouse'      => $palletDelivery->warehouse->slug,
-                        'palletDelivery' => $palletDelivery->reference
+                        'palletDelivery' => $palletDelivery->slug
                     ]
 
                 ]
             ],
             'FulfilmentCustomer' => [
-                'label' => $palletDelivery->reference,
+                'label' => $palletDelivery->slug,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
                         'organisation'       => $palletDelivery->organisation->slug,
                         'fulfilment'         => $palletDelivery->fulfilment->slug,
                         'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
-                        'palletDelivery'     => $palletDelivery->reference
+                        'palletDelivery'     => $palletDelivery->slug
                     ]
 
                 ]

@@ -204,8 +204,9 @@ class ShowPalletReturn extends OrgAction
                     'id'            => 'pdf-export',
                     'label'         => 'PDF',
                     'key'           => 'action',
+                    'target'        => '_blank',
                     'route'         => [
-                        'name'       => 'grp.models..pallet-return.export',
+                        'name'       => 'grp.models.pallet-return.pdf',
                         'parameters' => [
                             'palletReturn'       => $palletReturn->id
                         ]

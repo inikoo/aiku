@@ -32,7 +32,7 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
             return route(
                 'retina.storage.pallet-deliveries.show',
                 [
-                    palletDelivery.reference
+                    palletDelivery.slug
                 ])
 
     }
