@@ -32,7 +32,7 @@ class FetchPayments extends FetchAction
                         hydratorsDelay: $this->hydrateDelay
                     );
                 } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $paymentData['product'], 'Payment', 'update');
+                    $this->recordError($organisationSource, $e, $paymentData['payment'], 'Payment', 'update');
 
                     return null;
                 }
@@ -47,7 +47,7 @@ class FetchPayments extends FetchAction
                             hydratorsDelay: $this->hydrateDelay
                         );
                     } catch (Exception $e) {
-                        $this->recordError($organisationSource, $e, $paymentData['product'], 'Payment', 'store');
+                        $this->recordError($organisationSource, $e, $paymentData['payment'], 'Payment', 'store');
 
                         return null;
                     }
