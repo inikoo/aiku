@@ -7,6 +7,7 @@
 
 
 use App\Actions\CRM\Customer\StoreCustomer;
+use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\CRM\Prospect\ImportShopProspects;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
@@ -81,9 +82,10 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('/shop/', StoreShop::class)->name('shop.store');
     Route::post('/fulfilment/', StoreFulfilment::class)->name('fulfilment.store');
 
-    Route::post('/shop/{shop:id}/customer/', StoreCustomer::class)->name('shop.customer.store');
+    Route::post('/shop/{shop:id}/customer', StoreCustomer::class)->name('shop.customer.store');
+    Route::patch('/shop/{shop:id}/customer/{customer:id}', UpdateCustomer::class)->name('shop.customer.update')->withoutScopedBindings();
     Route::post('/shop/{shop:id}/fulfilment/{fulfilment:id}/customer', StoreFulfilmentCustomer::class)->name('shop.fulfilment-customer.store')->withoutScopedBindings();
-    Route::patch('/shop/{shop:id}/fulfilment/{fulfilment:id}/customer', UpdateFulfilmentCustomer::class)->name('shop.fulfilment-customer.update')->withoutScopedBindings();
+    Route::patch('/shop/{shop:id}/fulfilment/{fulfilment:id}/customer/{fulfilmentCustomer:id}', UpdateFulfilmentCustomer::class)->name('shop.fulfilment-customer.update')->withoutScopedBindings();
 
 });
 
@@ -194,7 +196,6 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
 Route::patch('/shop/{shop:id}', UpdateShop::class)->name('shop.update');
 Route::delete('/shop/{shop:id}', DeleteShop::class)->name('shop.delete');
 
-Route::patch('/customer/{customer:id}', UpdateCustomer::class)->name('customer.update');
 Route::post('/shop/{shop:id}/customer/', StoreCustomer::class)->name('shop.customer.store');
 Route::post('/shop/{shop:id}/department/', [StoreProductCategory::class, 'inShop'])->name('shop.department.store');
 Route::post('/shop/{shop:id}/website/', StoreWebsite::class)->name('shop.website.store');

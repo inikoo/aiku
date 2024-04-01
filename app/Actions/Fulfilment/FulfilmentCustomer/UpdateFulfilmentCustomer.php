@@ -7,9 +7,14 @@
 
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
+use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Market\Shop;
+use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateFulfilmentCustomer extends OrgAction
@@ -19,6 +24,14 @@ class UpdateFulfilmentCustomer extends OrgAction
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): FulfilmentCustomer
     {
+
+        if(Arr::exists($modelData, 'contact_name')
+            or Arr::exists($modelData, 'company_name')
+            or Arr::exists($modelData, 'phone')) {
+            UpdateCustomer::run($fulfilmentCustomer->customer, $modelData);
+
+            return $fulfilmentCustomer;
+        }
 
         return $this->update($fulfilmentCustomer, $modelData, ['data']);
     }
@@ -45,14 +58,14 @@ class UpdateFulfilmentCustomer extends OrgAction
     }
 
 
-    public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): FulfilmentCustomer
+    public function asController(Organisation $organisation, Shop $shop, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): FulfilmentCustomer
     {
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
-    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): FulfilmentCustomer
+    public function action(Organisation $organisation, Shop $shop, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, array $modelData): FulfilmentCustomer
     {
         $this->asAction = true;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
