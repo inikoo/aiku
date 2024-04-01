@@ -284,14 +284,6 @@ watch(() => props.data, (newValue) => {
                     :label="action.action.label" :loading="loading" />
             </div>
         </template>
-
-        <!-- Button: Export as PDF -->
-        <template #button-export-as-pdf="{ action }">
-            <a :href="route(action.action.route.name, action.action.route.parameters)" target="_blank">
-            <!-- <pre>{{ action.action }}</pre> -->
-                <Button :style="action.action.style" :icon="action.action.icon" :tooltip="action.action.tooltip" :label="action.action.label" />
-            </a>
-        </template>
     </PageHeading>
 
     <div v-if="timeline.state != 'in-process'" class="border-b border-gray-200">

@@ -190,8 +190,8 @@ class ShowPalletDelivery extends OrgAction
                     'type'          => 'button',
                     'style'         => 'tertiary',
                     'icon'          => 'fal fa-file-export',
-                    'tooltip'       => __('Export pallet delivery'),
-                    'label'         => __('export as PDF'),
+                    'label'         => 'PDF',
+                    'target'        => '_blank',
                     'key'           => 'action',
                     'route'         => [
                         'name'       => 'grp.models.fulfilment-customer.pallet-delivery.export',

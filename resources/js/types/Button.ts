@@ -7,4 +7,5 @@ export interface Button {
     label?: string
     tooltip?: string
     route: routeType
+    target?: string  // '_blank'
 }

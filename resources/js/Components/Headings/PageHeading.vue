@@ -136,7 +136,8 @@ const originUrl = location.origin;
                                     <Link
                                         :href="`${route(button.route.name, button.route.parameters)}`" class=""
                                         :method="button.route.method ?? 'get'"
-                                        as="button"
+                                        :as="button.target ? 'a' : 'div'"
+                                        :target="button.target"
                                     >
                                         <Button :style="button.style" :label="button.label"
                                                 :icon="button.icon"
