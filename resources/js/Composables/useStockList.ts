@@ -60,6 +60,6 @@ export const useColorTheme = [
     // ['#84CC16 ', '#000000', '#333333', '#cccccc', '#20C997', '#000000', '#84CC16 ', '#374151'],  // Tropical Oasis 
 
     // ['#333333', '#cccccc', '#2F4F4F', '#cccccc', '#007bff', '#ffffff', '#333333', '#374151'],  // Midnight
-    // ['#0F1626', '#FFFFFF', '#1e293b', '#f1f5f9', '#0f172a', '#e2e8f0', '#0F1626', '#374151'],  // Black and White (Retina)
+    ['#0F1626', '#FFFFFF', '#1e293b', '#f1f5f9', '#0f172a', '#e2e8f0', '#0F1626', '#374151'],  // Black and White (Retina)
     // ['#xxxxxx', '#xxxxxx', '#xxxxxx', '#xxxxxx', '#xxxxxx', '#xxxxxx'],
 ]

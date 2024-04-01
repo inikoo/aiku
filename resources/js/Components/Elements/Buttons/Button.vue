@@ -17,7 +17,7 @@ import { faSpinnerThird } from '@fad'
 import { inject } from 'vue'
 
 // const layout = useLayoutStore()
-const layout: any = inject('layout')
+const layout: any = inject('layout', {})
 
 library.add(faPlus, faSave, fadSave, faUpload, faDownload, falPlus, faArrowLeft, faPencil, faTrashAlt, faSpinnerThird, faTrashUndoAlt, faPersonDolly)
 
@@ -62,7 +62,7 @@ else if (props.type == 'rainbow' || props.style == 'rainbow' ) styleClass = 'bg-
 else if (props.style == 'delete' || props.style == 'negative' || props.style == 'cancel' || props.type == 'delete' || props.type == 'negative' || props.type == 'cancel') styleClass = 'border border-red-400 text-red-500 hover:text-red-800 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
 else if (props.style == 'positive' || props.type == 'positive') styleClass = 'border border-lime-500 text-lime-600 hover:text-lime-800 hover:bg-lime-50 focus:outline-none focus:ring-2 focus:ring-lime-600 focus:ring-offset-2'
 
-else if (props.style == 'white' || props.type == 'white' ) styleClass = 'bg-white text-gray-600'
+else if (props.style == 'white' || props.type == 'white' ) styleClass = 'bg-white hover:bg-gray-300 text-gray-600'
 else if (props.style == 'red' || props.type == 'red') styleClass = 'bg-red-500 hover:bg-red-600 text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
 else if (props.style == 'green' || props.type == 'green') styleClass = 'bg-lime-400 hover:bg-lime-500 text-white focus:outline-none focus:ring-2 focus:ring-lime-400 focus:ring-offset-2'
 else if (props.style == 'gray' || props.type == 'gray') styleClass = 'bg-gray-200 hover:bg-gray-300 border border-gray-400 text-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2'
