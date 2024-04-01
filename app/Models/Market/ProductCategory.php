@@ -46,8 +46,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $description
  * @property int|null $image_id
  * @property int|null $shop_id
- * @property int $parent_id
  * @property string $parent_type
+ * @property int $parent_id
  * @property ProductCategoryStateEnum|null $state
  * @property array $data
  * @property Carbon|null $created_at

@@ -88,7 +88,7 @@ class PalletDelivery extends Model
 
     public function getRouteKeyName(): string
     {
-        return 'reference';
+        return 'slug';
     }
 
     public function getSlugOptions(): SlugOptions

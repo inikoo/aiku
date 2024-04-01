@@ -93,16 +93,16 @@ class PalletsResource extends JsonResource
                 ]
             },
             'notReceivedRoute'         => [
-                'name'       => 'grp.models.warehouse.pallet.not-received',
-                'parameters' => [$this->warehouse_id, $this->id]
+                'name'       => 'grp.models.pallet.not-received',
+                'parameters' => [ $this->id]
             ],
             'undoNotReceivedRoute'     => [
-                'name'       => 'grp.models.warehouse.pallet.undo-not-received',
-                'parameters' => [$this->warehouse_id, $this->id]
+                'name'       => 'grp.models.pallet.undo-not-received',
+                'parameters' => [$this->id]
             ],
             'bookInRoute'              => [
-                'name'       => 'grp.models.warehouse.pallet.booked-in',
-                'parameters' => [$this->warehouse_id, $this->id]
+                'name'       => 'grp.models.pallet.booked-in',
+                'parameters' => [$this->id]
             ],
             'updateLocationRoute'              => [
                 'name'       => 'grp.models.warehouse.pallets.location.update',

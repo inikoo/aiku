@@ -149,10 +149,10 @@ class StorePalletFromDelivery extends OrgAction
                 'organisation'           => $pallet->organisation->slug,
                 'fulfilment'             => $pallet->fulfilment->slug,
                 'fulfilmentCustomer'     => $pallet->fulfilmentCustomer->slug,
-                'palletDelivery'         => $this->parent->reference
+                'palletDelivery'         => $this->parent->slug
             ]),
             default => Redirect::route('retina.storage.pallet-deliveries.show', [
-                'palletDelivery'     => $this->parent->reference
+                'palletDelivery'     => $this->parent->slug
             ])
         };
     }

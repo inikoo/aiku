@@ -16,6 +16,7 @@ use App\Actions\Fulfilment\Pallet\ImportPallet;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePallets;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
+use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePalletBookedIn;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
@@ -114,6 +115,12 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::patch('', UpdatePallet::class)->name('update');
 
     Route::post('stored-items', SyncStoredItemToPallet::class)->name('stored-items.update');
+    Route::patch('booked-in', UpdatePalletBookedIn::class)->name('booked-in');
+    Route::patch('not-received', UpdatePalletNotReceived::class)->name('not-received');
+    Route::patch('undo-not-received', UndoPalletStateToReceived::class)->name('undo-not-received');
+    Route::patch('undo-booked-in', UndoPalletStateToReceived::class)->name('undo-booked-in');
+
+
 });
 
 Route::patch('{storedItem:id}/stored-items', MoveStoredItem::class)->name('stored-items.move');
@@ -162,9 +169,6 @@ Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function ()
 
     Route::post('location/upload', [ImportLocation::class, 'inWarehouse'])->name('location.upload');
     Route::post('location', [StoreLocation::class, 'inWarehouse'])->name('location.store');
-    Route::patch('pallet/{pallet:id}/booked-in', UpdatePalletBookedIn::class)->name('pallet.booked-in')->withoutScopedBindings();
-    Route::patch('pallet/{pallet:id}/not-received', UpdatePalletNotReceived::class)->name('pallet.not-received')->withoutScopedBindings();
-    Route::patch('pallet/{pallet:id}/undo-not-received', [UpdatePalletNotReceived::class, 'undo'])->name('pallet.undo-not-received')->withoutScopedBindings();
 
 });
 

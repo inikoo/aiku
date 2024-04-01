@@ -25,7 +25,6 @@ class SubmitPalletDelivery extends OrgAction
 {
     use WithActionUpdate;
 
-
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
         $modelData['submitted_at'] = now();
@@ -39,6 +38,7 @@ class SubmitPalletDelivery extends OrgAction
                 ),
                 'state'     => PalletStateEnum::SUBMITTED
             ]);
+            $pallet->generateSlug();
         }
 
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);

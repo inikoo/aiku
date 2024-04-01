@@ -40,21 +40,20 @@ class UpdatePalletNotReceived extends OrgAction
         if ($this->asAction) {
             return true;
         }
-
         return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.edit");
     }
 
 
-    public function asController(Warehouse $warehouse, Pallet $pallet, ActionRequest $request): Pallet
+    public function asController(Pallet $pallet, ActionRequest $request): Pallet
     {
-        $this->initialisationFromWarehouse($warehouse, $request);
+        $this->initialisationFromWarehouse($pallet->warehouse, $request);
 
         return $this->handle($pallet, PalletStateEnum::NOT_RECEIVED);
     }
 
-    public function undo(Warehouse $warehouse, Pallet $pallet, ActionRequest $request): Pallet
+    public function undo(Pallet $pallet, ActionRequest $request): Pallet
     {
-        $this->initialisationFromWarehouse($warehouse, $request);
+        $this->initialisationFromWarehouse($pallet->warehouse, $request);
 
         return $this->handle($pallet, PalletStateEnum::RECEIVED);
     }

@@ -158,10 +158,10 @@ class StorePalletDelivery extends OrgAction
                 'organisation'           => $palletDelivery->organisation->slug,
                 'fulfilment'             => $palletDelivery->fulfilment->slug,
                 'fulfilmentCustomer'     => $palletDelivery->fulfilmentCustomer->slug,
-                'palletDelivery'         => $palletDelivery->reference
+                'palletDelivery'         => $palletDelivery->slug
             ])),
             default => Inertia::location(route('retina.storage.pallet-deliveries.show', [
-                'palletDelivery'         => $palletDelivery->reference
+                'palletDelivery'         => $palletDelivery->slug
             ]))
         };
     }

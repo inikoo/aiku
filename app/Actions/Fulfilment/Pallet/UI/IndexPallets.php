@@ -231,13 +231,15 @@ class IndexPallets extends OrgAction
                 $table->column(key: 'fulfilment_customer_name', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true);
             }
 
+            $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true);
+
+
             if (($parent instanceof Organisation or $parent instanceof Fulfilment or $parent instanceof Warehouse or $parent instanceof PalletDelivery or $parent instanceof PalletReturn) and in_array($parent->state, [PalletDeliveryStateEnum::RECEIVED, PalletDeliveryStateEnum::BOOKED_IN]) and request(
             )->user() instanceof User) {
                 $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
             }
 
 
-            $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true);
 
             $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
 

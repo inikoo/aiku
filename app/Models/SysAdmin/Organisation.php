@@ -85,49 +85,50 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationAccountingStats|null $accountingStats
  * @property-read Address|null $address
  * @property-read Agent|null $agent
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\OrganisationAuthorisedModels> $authorisedModels
- * @property-read \Illuminate\Database\Eloquent\Collection<int, ClockingMachine> $clockingMachines
+ * @property-read Collection<int, Agent> $agents
+ * @property-read Collection<int, \App\Models\SysAdmin\OrganisationAuthorisedModels> $authorisedModels
+ * @property-read Collection<int, ClockingMachine> $clockingMachines
  * @property-read Country $country
  * @property-read \App\Models\SysAdmin\OrganisationCRMStats|null $crmStats
  * @property-read Currency $currency
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Customer> $customers
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Employee> $employees
- * @property-read \Illuminate\Database\Eloquent\Collection<int, FulfilmentCustomer> $fulfilmentCustomers
+ * @property-read Collection<int, Customer> $customers
+ * @property-read Collection<int, Employee> $employees
+ * @property-read Collection<int, FulfilmentCustomer> $fulfilmentCustomers
  * @property-read \App\Models\SysAdmin\OrganisationFulfilmentStats|null $fulfilmentStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Fulfilment> $fulfilments
+ * @property-read Collection<int, Fulfilment> $fulfilments
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\OrganisationHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\SysAdmin\OrganisationInventoryStats|null $inventoryStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $josPositions
+ * @property-read Collection<int, Invoice> $invoices
+ * @property-read Collection<int, JobPosition> $josPositions
  * @property-read Language $language
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Location> $locations
+ * @property-read Collection<int, Location> $locations
  * @property-read Media|null $logo
  * @property-read \App\Models\SysAdmin\OrganisationMailStats|null $mailStats
  * @property-read \App\Models\SysAdmin\OrganisationMarketStats|null $marketStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
- * @property-read \Illuminate\Database\Eloquent\Collection<int, OrgStock> $orgStocks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentAccount> $paymentAccounts
- * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentServiceProvider> $paymentServiceProviders
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
+ * @property-read Collection<int, OrgStock> $orgStocks
+ * @property-read Collection<int, PaymentAccount> $paymentAccounts
+ * @property-read Collection<int, PaymentServiceProvider> $paymentServiceProviders
+ * @property-read Collection<int, Payment> $payments
  * @property-read \App\Models\SysAdmin\OrganisationProcurementStats|null $procurementStats
+ * @property-read Collection<int, ProductCategory> $productCategories
  * @property-read \App\Models\SysAdmin\OrganisationProductionStats|null $productionStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Prospect> $prospects
- * @property-read \Illuminate\Database\Eloquent\Collection<int, PurchaseOrder> $purchaseOrders
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Role> $roles
+ * @property-read Collection<int, Prospect> $prospects
+ * @property-read Collection<int, PurchaseOrder> $purchaseOrders
+ * @property-read Collection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \App\Models\SysAdmin\OrganisationSalesStats|null $salesStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Shipper> $shippers
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Shop> $shops
+ * @property-read Collection<int, Shipper> $shippers
+ * @property-read Collection<int, Shop> $shops
  * @property-read \App\Models\SysAdmin\OrganisationStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
+ * @property-read Collection<int, Supplier> $suppliers
  * @property-read Timezone $timezone
- * @property-read \Illuminate\Database\Eloquent\Collection<int, WarehouseArea> $warehouseAreas
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
+ * @property-read Collection<int, WarehouseArea> $warehouseAreas
+ * @property-read Collection<int, Warehouse> $warehouses
  * @property-read \App\Models\SysAdmin\OrganisationWebStats|null $webStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Webpage> $webpages
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Website> $websites
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Workplace> $workplaces
+ * @property-read Collection<int, Webpage> $webpages
+ * @property-read Collection<int, Website> $websites
+ * @property-read Collection<int, Workplace> $workplaces
  * @method static \Database\Factories\SysAdmin\OrganisationFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Organisation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Organisation newQuery()

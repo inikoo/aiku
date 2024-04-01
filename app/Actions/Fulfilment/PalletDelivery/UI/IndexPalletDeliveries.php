@@ -192,6 +192,11 @@ class IndexPalletDeliveries extends OrgAction
             ];
         }
 
+
+
+
+
+
         return Inertia::render(
             'Org/Fulfilment/PalletDeliveries',
             [
@@ -208,20 +213,20 @@ class IndexPalletDeliveries extends OrgAction
                         'title' => __('delivery')
                     ],
                     'actions' => [
-                        [
+                        ($this->canEdit && $this->parent instanceof FulfilmentCustomer) ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('Create new delivery order'),
                             'label'   => __('New pallet delivery'),
                             'options' => [
-                                'warehouses' => WarehouseResource::collection($this->parent->fulfilment->warehouses)
+                                'warehouses' => WarehouseResource::collection([$this->fulfilment->warehouses])
                             ],
                             'route'   => [
                                 'method'     => 'post',
                                 'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
                                 'parameters' => [$this->parent->id]
                             ]
-                        ]
+                        ] : null
                     ]
                 ],
                 'data'        => PalletDeliveriesResource::collection($customers),

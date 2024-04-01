@@ -24,9 +24,10 @@ class NotReceivedPalletDelivery extends OrgAction
         $modelData['not_received_at'] = now();
         $modelData['state']           = PalletDeliveryStateEnum::NOT_RECEIVED;
 
+        $palletDelivery= $this->update($palletDelivery, $modelData);
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
+        return $palletDelivery;
 
-        return $this->update($palletDelivery, $modelData);
     }
 
     public function authorize(ActionRequest $request): bool

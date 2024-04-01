@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\PalletDelivery;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Models\Fulfilment\PalletDelivery;
@@ -28,7 +29,7 @@ class ReceivedPalletDelivery extends OrgAction
 
         foreach ($palletDelivery->pallets as $pallet) {
             $pallet->update([
-                'slug' => rand(0001, 9999)
+                'state' => PalletStateEnum::RECEIVED
             ]);
         }
 

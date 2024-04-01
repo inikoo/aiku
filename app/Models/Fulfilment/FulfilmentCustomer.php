@@ -27,7 +27,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
- * @property string $webhook_access_key
  * @property int $customer_id
  * @property int $fulfilment_id
  * @property bool $pallets_storage

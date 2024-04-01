@@ -10,7 +10,6 @@ namespace App\Actions\Fulfilment\PalletDelivery;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Models\Fulfilment\PalletDelivery;
 use Lorisleiva\Actions\ActionRequest;
@@ -25,15 +24,9 @@ class BookInPalletDelivery extends OrgAction
         $modelData['booked_in_at']                                 = now();
         $modelData['state']                                        = PalletDeliveryStateEnum::BOOKED_IN;
 
-        foreach ($palletDelivery->pallets as $pallet) {
-            $pallet->update([
-                'state' => PalletStateEnum::BOOKED_IN
-            ]);
-        }
-
+        $palletDelivery= $this->update($palletDelivery, $modelData);
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
-
-        return $this->update($palletDelivery, $modelData);
+        return $palletDelivery;
     }
 
     public function authorize(ActionRequest $request): bool

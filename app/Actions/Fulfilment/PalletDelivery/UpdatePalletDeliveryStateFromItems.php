@@ -7,29 +7,81 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
-use App\Actions\HydrateModel;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Models\Fulfilment\PalletDelivery;
+use Exception;
+use Illuminate\Console\Command;
+use Lorisleiva\Actions\Concerns\AsAction;
 
-class UpdatePalletDeliveryStateFromItems extends HydrateModel
+class UpdatePalletDeliveryStateFromItems
 {
     use WithActionUpdate;
+    use AsAction;
 
-    public function handle(PalletDelivery $palletDelivery): void
+    public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
-        $palletCount            = $palletDelivery->pallets()->count();
-        $palletBookedInCount    = $palletDelivery->pallets()->where('state', PalletStateEnum::BOOKED_IN)->count();
-        $palletNotReceivedCount = $palletDelivery->pallets()->where('state', PalletStateEnum::NOT_RECEIVED)->count();
-        $palletReceivedCount    = $palletDelivery->pallets()->where('state', PalletStateEnum::RECEIVED)->count();
+        $palletCount                 = $palletDelivery->pallets()->count();
+        $palletStateBookedInCount    = $palletDelivery->pallets()->where('state', PalletStateEnum::BOOKED_IN)->count();
+        $palletStateNotReceivedCount = $palletDelivery->pallets()->where('state', PalletStateEnum::NOT_RECEIVED)->count(
+        );
+        $palletStateReceivedCount = $palletDelivery->pallets()->where('state', PalletStateEnum::RECEIVED)->count();
 
-        if($palletCount == $palletBookedInCount) {
-            BookInPalletDelivery::run($palletDelivery);
-        } elseif($palletReceivedCount != 0 || $palletReceivedCount == $palletCount) {
-            ReceivedPalletDelivery::run($palletDelivery);
-        } elseif($palletNotReceivedCount != 0 || $palletNotReceivedCount == $palletCount) {
-            NotReceivedPalletDelivery::run($palletDelivery);
+        $palletReceivedCount = $palletStateReceivedCount + $palletStateNotReceivedCount + $palletStateBookedInCount;
+
+
+        print "$palletCount $palletReceivedCount $palletStateBookedInCount $palletStateNotReceivedCount $palletStateReceivedCount\n";
+
+
+        if (in_array($palletDelivery->state->value, [
+            PalletDeliveryStateEnum::RECEIVED->value,
+            PalletDeliveryStateEnum::CONFIRMED->value,
+            PalletDeliveryStateEnum::NOT_RECEIVED->value,
+
+        ])) {
+            if ($palletReceivedCount == 0) {
+                return $palletDelivery;
+            }
+
+            if ($palletReceivedCount == $palletStateNotReceivedCount) {
+                return NotReceivedPalletDelivery::run($palletDelivery);
+            }
+
+            if ($palletStateReceivedCount == 0) {
+                return BookInPalletDelivery::run($palletDelivery);
+            }
+
+            return $this->update(
+                $palletDelivery,
+                ['state' => PalletDeliveryStateEnum::RECEIVED]
+            );
         }
 
+
+        return $palletDelivery;
     }
+
+    public string $commandSignature = 'pallet-delivery:update-state {slug}';
+
+    public function asCommand(Command $command): int
+    {
+        $exitCode = 0;
+
+        try {
+            $palletDelivery = PalletDelivery::where('slug', $command->argument('slug'))->firstOrFail();
+        } catch (Exception) {
+            $command->error('Pallet Delivery not found');
+            return 1;
+        }
+
+
+
+        $palletDelivery=$this->handle($palletDelivery);
+
+        $command->info("Pallet Delivery $palletDelivery->reference has state ".$palletDelivery->state->value." 🎉");
+        return $exitCode;
+    }
+
+
 }

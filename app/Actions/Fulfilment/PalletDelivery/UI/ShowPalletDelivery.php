@@ -339,7 +339,7 @@ class ShowPalletDelivery extends OrgAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $palletDelivery->reference,
+                            'label' => $palletDelivery->slug,
                         ],
 
                     ],
@@ -348,7 +348,7 @@ class ShowPalletDelivery extends OrgAction
             ];
         };
 
-        $palletDelivery = PalletDelivery::where('reference', $routeParameters['palletDelivery'])->first();
+        $palletDelivery = PalletDelivery::where('slug', $routeParameters['palletDelivery'])->first();
 
         return match ($routeName) {
             'grp.org.fulfilments.show.operations.pallet-deliveries.show' =>
@@ -441,7 +441,7 @@ class ShowPalletDelivery extends OrgAction
                     'parameters' => [
                         'organisation'   => $palletDelivery->organisation->slug,
                         'warehouse'      => $palletDelivery->warehouse->slug,
-                        'palletDelivery' => $palletDelivery->reference
+                        'palletDelivery' => $palletDelivery->slug
                     ]
 
                 ]
@@ -454,7 +454,7 @@ class ShowPalletDelivery extends OrgAction
                         'organisation'       => $palletDelivery->organisation->slug,
                         'fulfilment'         => $palletDelivery->fulfilment->slug,
                         'fulfilmentCustomer' => $palletDelivery->fulfilmentCustomer->slug,
-                        'palletDelivery'     => $palletDelivery->reference
+                        'palletDelivery'     => $palletDelivery->slug
                     ]
 
                 ]

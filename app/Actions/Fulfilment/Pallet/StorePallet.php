@@ -171,7 +171,7 @@ class StorePallet extends OrgAction
                 'organisation'       => $pallet->organisation->slug,
                 'fulfilment'         => $pallet->fulfilment->slug,
                 'fulfilmentCustomer' => $pallet->fulfilmentCustomer->slug,
-                'palletDelivery'     => $this->parent->reference
+                'palletDelivery'     => $this->parent->slug
             ]);
         }
 
