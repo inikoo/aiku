@@ -11,4 +11,39 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class WarehouseResource extends JsonResource
 {
+    public function toArray($request): array
+    {
+        /** @var \App\Models\Inventory\Warehouse $warehouse */
+        $warehouse=$this;
+        return [
+            'id'      => $warehouse->id,
+            'slug'    => $warehouse->slug,
+            'stats'   => [
+                'locations' => [
+                    'label' => 'Location',
+                    'count' => $warehouse->locations()->count()
+                ],
+
+                'pallets' => [
+                    'label' => 'Pallets',
+                    'count' => $warehouse->pallets()->count()
+                ],
+
+                'stored_items' => [
+                    'label' => 'Stored Items',
+                    'count' => 0
+                ],
+
+                'deliveries' => [
+                    'label' => 'Delivery',
+                    'count' => $warehouse->palletDeliveries()->count()
+                ],
+
+                'returns' => [
+                    'label' => 'Return',
+                    'count' => $warehouse->palletReturns()->count()
+                ],
+            ]
+        ];
+    }
 }

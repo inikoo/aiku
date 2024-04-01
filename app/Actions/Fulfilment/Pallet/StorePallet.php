@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
+use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateUniversalSearch;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
@@ -80,6 +81,8 @@ class StorePallet extends OrgAction
         }
 
         $pallet->refresh();
+
+        PalletHydrateUniversalSearch::dispatch($pallet);
 
         return $pallet;
     }

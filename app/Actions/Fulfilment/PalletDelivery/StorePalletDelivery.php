@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\PalletDelivery;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
+use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateUniversalSearch;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
@@ -65,6 +66,7 @@ class StorePalletDelivery extends OrgAction
         $palletDelivery = $fulfilmentCustomer->palletDeliveries()->create($modelData);
         $palletDelivery->stats()->create();
 
+        PalletDeliveryHydrateUniversalSearch::dispatch($palletDelivery);
         HydrateFulfilmentCustomer::dispatch($fulfilmentCustomer);
         BroadcastFulfilmentCustomerNotification::dispatch(
             $palletDelivery->group,
