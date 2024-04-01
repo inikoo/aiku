@@ -39,7 +39,7 @@ class IndexFulfilmentCustomerFromWebhook
         return match ($this->type) {
             CustomerWebhookTypeEnum::JSON->value  => IndexPallets::run($fulfilmentCustomer),
             CustomerWebhookTypeEnum::HUMAN->value => Inertia::render(
-                'Org/Fulfilment/Pallets',
+                'Webhooks',
                 [
                     'title'       => __('pallets'),
                     'pageHead'    => [
