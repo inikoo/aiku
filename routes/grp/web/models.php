@@ -23,7 +23,7 @@ use App\Actions\Fulfilment\Pallet\UpdatePalletNotReceived;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\BookInPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\DeletePalletFromDelivery;
-use App\Actions\Fulfilment\PalletDelivery\ExportPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\PdfPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
@@ -97,6 +97,7 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('pallet-upload', [ImportPallet::class,'fromGrp'])->name('pallet.import');
     Route::post('pallet', StorePalletFromDelivery::class)->name('pallet.store');
     Route::post('multiple-pallet', StoreMultiplePallets::class)->name('multiple-pallets.store');
+    Route::get('export', PdfPalletDelivery::class)->name('pdf');
 
 
 });
@@ -116,7 +117,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::patch('', UpdateFulfilmentCustomer::class)->name('update');
     Route::post('pallet-delivery', StorePalletDelivery::class)->name('pallet-delivery.store');
     Route::delete('pallet-delivery/{palletDelivery:id}/pallet/{pallet:id}', DeletePalletFromDelivery::class)->name('pallet-delivery.pallet.delete');
-    Route::get('pallet-delivery/{palletDelivery:id}/export', ExportPalletDelivery::class)->name('pallet-delivery.export');
+    Route::get('pallet-delivery/{palletDelivery:id}/export', PdfPalletDelivery::class)->name('pallet-delivery.export');
     Route::patch('pallet-delivery/{palletDelivery:id}/timeline', UpdatePalletDeliveryTimeline::class)->name('pallet-delivery.timeline.update');
     Route::post('pallet-return', StorePalletReturn::class)->name('pallet-return.store');
 

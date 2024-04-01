@@ -166,7 +166,8 @@ class ShowPalletDelivery extends OrgAction
                 PalletDeliveryStateEnum::CONFIRMED => [
                     [
                         'type'    => 'button',
-                        'style'   => 'save',
+                        'style'   => 'primary',
+                        'icon'    => 'fal fa-check',
                         'tooltip' => __('Mark as received'),
                         'label'   => __('receive'),
                         'key'     => 'action',
@@ -194,9 +195,8 @@ class ShowPalletDelivery extends OrgAction
                     'target'        => '_blank',
                     'key'           => 'action',
                     'route'         => [
-                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.export',
+                        'name'       => 'grp.models.pallet-delivery.pdf',
                         'parameters' => [
-                            'fulfilmentCustomer' => $palletDelivery->fulfilment_customer_id,
                             'palletDelivery'     => $palletDelivery->id
                         ]
                     ]

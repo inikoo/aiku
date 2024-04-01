@@ -36,7 +36,7 @@ class FulfilmentCustomerHydratePallets
     public function handle(FulfilmentCustomer $fulfilmentCustomer): void
     {
         $stats = [
-            'number_pallets' => Pallet::where('fulfilment_customer_id', $fulfilmentCustomer->id)->count()
+            'number_pallets' => $fulfilmentCustomer->pallets()->count()
         ];
 
         $stats=array_merge($stats, $this->getEnumStats(
