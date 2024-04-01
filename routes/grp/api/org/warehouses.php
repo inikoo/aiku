@@ -18,6 +18,7 @@ use App\Actions\Fulfilment\UniversalScan\ShowUniversalScan;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\Location\UI\ShowLocation;
 use App\Actions\Inventory\Warehouse\UI\IndexWarehouses;
+use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
 
 Route::get('/', [IndexWarehouses::class, 'inOrganisation'])->name('index');
@@ -25,6 +26,7 @@ Route::get('areas', [IndexWarehouseAreas::class, 'inOrganisation'])->name('areas
 
 Route::prefix("{warehouse:id}")->name("warehouses.")
     ->group(function () {
+        Route::get('/', ShowWarehouse::class)->name('show')->withoutScopedBindings();
         Route::get('scanners/{ulid}', ShowUniversalScan::class)->name('universal.scan.show');
 
         Route::get('locations', [IndexLocations::class, 'inWarehouse'])->name('locations.index');

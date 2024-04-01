@@ -10,6 +10,8 @@ namespace App\Models\Inventory;
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
 use App\Models\Helpers\Issue;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Search\UniversalSearch;
@@ -143,9 +145,19 @@ class Warehouse extends Model implements Auditable
         return $this->belongsToMany(Fulfilment::class);
     }
 
-    public function pallets(): BelongsToMany
+    public function pallets(): HasMany
     {
-        return $this->belongsToMany(Pallet::class);
+        return $this->hasMany(Pallet::class);
+    }
+
+    public function palletDeliveries(): HasMany
+    {
+        return $this->hasMany(PalletDelivery::class);
+    }
+
+    public function palletReturns(): HasMany
+    {
+        return $this->hasMany(PalletReturn::class);
     }
 
 }
