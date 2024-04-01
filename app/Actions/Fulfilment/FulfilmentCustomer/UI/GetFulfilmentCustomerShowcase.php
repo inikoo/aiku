@@ -22,8 +22,9 @@ class GetFulfilmentCustomerShowcase
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): array
     {
+        $irisDomain = $fulfilmentCustomer->fulfilment->shop->website->domain;
+
         return [
-            'website'             => $fulfilmentCustomer->fulfilment->shop->website,
             'customer'            => CustomersResource::make($fulfilmentCustomer->customer)->getArray(),
             'fulfilment_customer' => FulfilmentCustomerResource::make($fulfilmentCustomer)->getArray(),
             'updateRoute'         => [
@@ -33,6 +34,7 @@ class GetFulfilmentCustomerShowcase
             'pieData'               => $this->getDashboardData($fulfilmentCustomer),
             'webhook'               => [
                 'webhook_access_key'    => $fulfilmentCustomer->webhook_access_key,
+                'domain'                => (app()->environment('local') ? 'http://' : 'https://') . $irisDomain.'/webhooks/',
                 'route'                 => [
                     'name'       => 'grp.org.fulfilments.show.crm.customers.show.webhook.fetch',
                     'parameters' => array_values($request->route()->originalParameters())

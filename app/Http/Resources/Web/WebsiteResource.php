@@ -23,13 +23,11 @@ class WebsiteResource extends JsonResource
             'code'               => $website->code,
             'name'               => $website->name,
             'domain'             => $website->domain,
-            'url'                => app()->environment('local') ? 'http://'.$website->domain : 'https://'.$website->domain,
+            'url'                => app()->environment('local') ? 'http://'.$website->domain.'/' : 'https://'.$website->domain.'/',
             'state'              => $website->state,
             'state_label'        => $website->state->labels()[$website->state->value],
             'state_icon'         => $website->state->stateIcon()[$website->state->value],
             'status'             => $website->status
-
-
         ];
     }
 }
