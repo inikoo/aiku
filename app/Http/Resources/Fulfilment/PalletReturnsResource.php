@@ -17,6 +17,7 @@ class PalletReturnsResource extends JsonResource
         $palletReturn = $this;
 
         return [
+            'id'                 => $palletReturn->id,
             'slug'               => $palletReturn->slug,
             'reference'          => $palletReturn->reference,
             'state'              => $palletReturn->state,

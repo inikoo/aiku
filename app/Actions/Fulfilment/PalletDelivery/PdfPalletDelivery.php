@@ -41,7 +41,8 @@ class PdfPalletDelivery
         $pdf = PDF::loadView('pickings.templates.pdf.delivery', [
             'filename' => $filename,
             'delivery' => $palletDelivery,
-            'customer' => $palletDelivery->fulfilmentCustomer->customer
+            'customer' => $palletDelivery->fulfilmentCustomer->customer,
+            'shop'     => $palletDelivery->fulfilment->shop
         ], [], $config);
 
         return $pdf->stream($filename);

@@ -6,6 +6,7 @@
  */
 
 
+use App\Actions\Fulfilment\FulfilmentCustomer\IndexFulfilmentCustomerFromWebhook;
 use App\Actions\UI\Iris\Appointment\ShowPublicAppointment;
 use Inertia\Inertia;
 use App\Actions\UI\Iris\ShowHome;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowHome::class)->name('home');
 
+Route::get('webhooks/{fulfilmentCustomer:webhook_access_key}', IndexFulfilmentCustomerFromWebhook::class)->name('fulfilment-customer.webhook.show');
 
 Route::prefix("disclosure")
     ->name("disclosure.")

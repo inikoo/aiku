@@ -28,12 +28,12 @@ Route::prefix("{warehouse:id}")->name("warehouses.")
         Route::get('scanners/{ulid}', ShowUniversalScan::class)->name('universal.scan.show');
 
         Route::get('locations', [IndexLocations::class, 'inWarehouse'])->name('locations.index');
-        Route::get('areas/{warehouseArea:id}/locations', [IndexLocations::class, 'inWarehouseArea'])->name('areas.locations.index');
-        Route::get('locations/{location}', [ShowLocation::class, 'inWarehouse'])->name('locations.show');
-        Route::patch('locations/{location}/pallets/{pallet:id}', UpdatePalletLocation::class)->name('pallets.location.update')->withoutScopedBindings();
+        Route::get('areas/{warehouseArea:id}/locations', [IndexLocations::class, 'inWarehouseArea'])->name('areas.locations.index')->withoutScopedBindings();
+        Route::get('locations/{location:id}', [ShowLocation::class, 'inWarehouse'])->name('locations.show')->withoutScopedBindings();
+        Route::patch('locations/{location:id}/pallets/{pallet:id}', UpdatePalletLocation::class)->name('pallets.location.update')->withoutScopedBindings();
 
-        Route::prefix("fulfilments/{fulfilment}")->name("fulfilments.")->group(function () {
-            Route::get('locations/{location}/pallets', [IndexPallets::class, 'inLocation'])->name('locations.pallets.index');
+        Route::prefix("fulfilments/{fulfilment:id}")->name("fulfilments.")->group(function () {
+            Route::get('locations/{location:id}/pallets', [IndexPallets::class, 'inLocation'])->name('locations.pallets.index')->withoutScopedBindings();
             Route::get('pallets', IndexPallets::class)->name('pallets.index');
             Route::get('pallets/{pallet:id}', ShowPallet::class)->name('pallets.show')->withoutScopedBindings();
             Route::patch('pallets/{pallet:id}/return', ReturnPalletToCustomer::class)->name('pallets.return')->withoutScopedBindings();
@@ -42,11 +42,13 @@ Route::prefix("{warehouse:id}")->name("warehouses.")
 
         Route::prefix('pallet-deliveries')->name('pallet-delivery.')->group(function () {
             Route::get('/', [IndexPalletDeliveries::class, 'inWarehouse'])->name('index');
-            Route::get('{palletDelivery}', [ShowPalletDelivery::class, 'inWarehouse'])->name('show');
+            Route::get('{palletDelivery:id}', [ShowPalletDelivery::class, 'inWarehouse'])->name('show')->withoutScopedBindings();
+            Route::get('{palletDelivery:id}/pallets', [IndexPallets::class, 'fromDelivery'])->name('pallets.index')->withoutScopedBindings();
         });
 
         Route::prefix('pallet-returns')->name('pallet-return.')->group(function () {
             Route::get('/', [IndexPalletReturns::class, 'inWarehouse'])->name('index');
-            Route::get('{palletReturn}', [ShowPalletReturn::class, 'inWarehouse'])->name('show');
+            Route::get('{palletReturn:id}', [ShowPalletReturn::class, 'inWarehouse'])->name('show')->withoutScopedBindings();
+            Route::get('{palletReturn:id}/pallets', [IndexPallets::class, 'fromReturn'])->name('pallets.index')->withoutScopedBindings();
         });
     });

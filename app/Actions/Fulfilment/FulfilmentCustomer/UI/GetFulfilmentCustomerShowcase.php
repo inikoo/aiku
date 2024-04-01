@@ -14,13 +14,16 @@ use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Sales\CustomersResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use Lorisleiva\Actions\Concerns\AsObject;
+use Lorisleiva\Actions\ActionRequest;
 
 class GetFulfilmentCustomerShowcase
 {
     use AsObject;
 
-    public function handle(FulfilmentCustomer $fulfilmentCustomer): array
+    public function handle(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): array
     {
+        $irisDomain = $fulfilmentCustomer->fulfilment->shop->website->domain;
+
         return [
             'customer'            => CustomersResource::make($fulfilmentCustomer->customer)->getArray(),
             'fulfilment_customer' => FulfilmentCustomerResource::make($fulfilmentCustomer)->getArray(),
@@ -29,7 +32,14 @@ class GetFulfilmentCustomerShowcase
                 'parameters' => [$fulfilmentCustomer->id]
             ],
             'pieData'               => $this->getDashboardData($fulfilmentCustomer),
-            'webhook_access_key'    => $fulfilmentCustomer->webhook_access_key
+            'webhook'               => [
+                'webhook_access_key'    => $fulfilmentCustomer->webhook_access_key,
+                'domain'                => (app()->environment('local') ? 'http://' : 'https://') . $irisDomain.'/webhooks/',
+                'route'                 => [
+                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.webhook.fetch',
+                    'parameters' => array_values($request->route()->originalParameters())
+                ],
+            ]
         ];
     }
 

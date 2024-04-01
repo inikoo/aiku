@@ -315,6 +315,24 @@ class IndexPallets extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
+    public function fromDelivery(Organisation $organisation, Warehouse $warehouse, PalletDelivery $palletDelivery, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $warehouse;
+        $this->initialisationFromWarehouse($warehouse, $request);
+
+        return $this->handle($palletDelivery);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function fromReturn(Organisation $organisation, Warehouse $warehouse, PalletReturn $palletReturn, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $warehouse;
+        $this->initialisationFromWarehouse($warehouse, $request);
+
+        return $this->handle($palletReturn);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
     public function inLocation(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, Location $location, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $location;

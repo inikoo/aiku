@@ -22,6 +22,7 @@ class PalletDeliveriesResource extends JsonResource
         $palletDelivery = $this;
 
         return [
+            'id'                 => $palletDelivery->id,
             'slug'               => $palletDelivery->slug,
             'reference'          => $palletDelivery->reference,
             'state'              => $palletDelivery->state,

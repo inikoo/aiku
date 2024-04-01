@@ -120,9 +120,8 @@ class ShowFulfilmentCustomer extends OrgAction
                             'tooltip' => __('Edit Customer'),
                             'label'   => __('Edit Customer'),
                             'route'   => [
-                                'method'     => 'post',
-                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
-                                'parameters' => [$fulfilmentCustomer->id]
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.edit',
+                                'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],
                     ]
@@ -133,14 +132,9 @@ class ShowFulfilmentCustomer extends OrgAction
                     'navigation' => $navigation
                 ],
 
-                'fetchWebhookRoute' => [
-                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.webhook.fetch',
-                    'parameters' => array_values($request->route()->originalParameters())
-                ],
-
                 CustomerFulfilmentTabsEnum::SHOWCASE->value => $this->tab == CustomerFulfilmentTabsEnum::SHOWCASE->value ?
-                    fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer)
-                    : Inertia::lazy(fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer)),
+                    fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)
+                    : Inertia::lazy(fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)),
 
 
                 CustomerFulfilmentTabsEnum::PALLETS->value => $this->tab == CustomerFulfilmentTabsEnum::PALLETS->value ?

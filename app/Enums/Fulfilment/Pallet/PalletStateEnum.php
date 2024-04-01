@@ -27,6 +27,7 @@ enum PalletStateEnum: string
     case BOOKED_IN    = 'booked-in';
     case SETTLED      = 'settled';
 
+    case PICKING    = 'picking';
     case PICKED     = 'picked';
     case NOT_PICKED = 'not-picked';
 
@@ -42,8 +43,9 @@ enum PalletStateEnum: string
             'not-received' => __('Not Received'),
             'settled'      => __('Settled'),
 
-            'picked'     => __('Picked'),
-            'not-picked' => __('Not Picked'),
+            'picking'     => __('Picking'),
+            'picked'      => __('Picked'),
+            'not-picked'  => __('Not Picked'),
         ];
     }
 
@@ -92,6 +94,12 @@ enum PalletStateEnum: string
                 'class'   => 'text-gray-400',
                 'color'   => 'gray'
             ],
+            'picking'       => [
+                'tooltip' => __('Picking'),
+                'icon'    => 'fal fa-check',
+                'class'   => 'text-green-400',
+                'color'   => 'green'
+            ],
             'picked'       => [
                 'tooltip' => __('Picked'),
                 'icon'    => 'fal fa-check',
@@ -125,6 +133,7 @@ enum PalletStateEnum: string
             'received'     => $stats->number_pallets_state_received,
             'booked-in'    => $stats->number_pallets_state_booked_in,
             'settled'      => $stats->number_pallets_state_settled,
+            'picking'      => $stats->number_pallets_state_picking,
             'picked'       => $stats->number_pallets_state_picked,
             'not-picked'   => $stats->number_pallets_state_not_picked
         ];

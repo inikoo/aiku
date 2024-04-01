@@ -7,6 +7,7 @@
 
 
 use App\Actions\CRM\Customer\StoreCustomer;
+use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\CRM\Prospect\ImportShopProspects;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
@@ -57,7 +58,11 @@ use App\Actions\Inventory\Location\Tags\SyncTagsLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\ImportWarehouseArea;
+use App\Actions\Market\Product\DeleteProduct;
+use App\Actions\Market\Product\StoreProduct;
+use App\Actions\Market\Product\UpdateProduct;
 use App\Actions\Market\Shop\StoreShop;
+use App\Actions\OMS\Order\StoreOrder;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
@@ -82,9 +87,17 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('/shop/', StoreShop::class)->name('shop.store');
     Route::post('/fulfilment/', StoreFulfilment::class)->name('fulfilment.store');
 
-    Route::post('/shop/{shop:id}/customer/', StoreCustomer::class)->name('shop.customer.store');
+    Route::post('/shop/{shop:id}/customer', StoreCustomer::class)->name('shop.customer.store');
+    Route::patch('/shop/{shop:id}/customer/{customer:id}', UpdateCustomer::class)->name('shop.customer.update')->withoutScopedBindings();
     Route::post('/shop/{shop:id}/fulfilment/{fulfilment:id}/customer', StoreFulfilmentCustomer::class)->name('shop.fulfilment-customer.store')->withoutScopedBindings();
+    Route::patch('/shop/{shop:id}/fulfilment/{fulfilment:id}/customer/{fulfilmentCustomer:id}', UpdateFulfilmentCustomer::class)->name('shop.fulfilment-customer.update')->withoutScopedBindings();
 
+    Route::post('/shop/{shop:id}/product/', [StoreProduct::class, 'inShop'])->name('show.product.store');
+    Route::delete('/shop/{shop:id}/product/{product:id}', [DeleteProduct::class, 'inShop'])->name('shop.product.delete');
+
+    Route::post('/product/', StoreProduct::class)->name('product.store');
+    Route::patch('/product/{product:id}', UpdateProduct::class)->name('product.update');
+    Route::delete('/product/{product:id}', UpdateProduct::class)->name('product.delete');
 });
 
 Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->group(function () {
@@ -197,7 +210,6 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
 Route::patch('/shop/{shop:id}', UpdateShop::class)->name('shop.update');
 Route::delete('/shop/{shop:id}', DeleteShop::class)->name('shop.delete');
 
-Route::patch('/customer/{customer:id}', UpdateCustomer::class)->name('customer.update');
 Route::post('/shop/{shop:id}/customer/', StoreCustomer::class)->name('shop.customer.store');
 Route::post('/shop/{shop:id}/department/', [StoreProductCategory::class, 'inShop'])->name('shop.department.store');
 Route::post('/shop/{shop:id}/website/', StoreWebsite::class)->name('shop.website.store');
