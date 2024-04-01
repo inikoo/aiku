@@ -9,7 +9,7 @@ import { Head } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faBox, faExchange, faInventory, faWarehouse, faMapSigns, faPallet } from "@fal"
-import { computed, defineAsyncComponent, ref } from "vue"
+import { computed, defineAsyncComponent, provide, ref } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 import ModelDetails from "@/Components/ModelDetails.vue"
 import TableHistories from "@/Components/Tables/TableHistories.vue"
@@ -19,6 +19,8 @@ import LocationShowcase from "@/Components/Showcases/Org/LocationShowcase.vue"
 import TablePallets from "@/Components/Tables/TablePallets.vue"
 
 library.add(faInventory, faExchange, faBox, faWarehouse, faMapSigns, faPallet)
+
+provide('isMovePallet', true)  // To conditionally render 'Move Pallet' button
 
 // const ModelChangelog = defineAsyncComponent(() => import("@/Components/ModelChangelog.vue"))
 

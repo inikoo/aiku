@@ -725,7 +725,7 @@ watch(() => props.name, () => {
                     <slot name="table">
                         <table class="divide-y divide-gray-200 bg-white w-full">
                             <thead class="bg-gray-50">
-                                <tr class="border-t border-gray-200">
+                                <tr class="border-t border-gray-200 divide-x divide-gray-200">
                                     <HeaderCell v-for="column in queryBuilderProps.columns"
                                         :key="`table-${name}-header-${column.key}`" :cell="header(column.key)"
                                         :type="columnsType[column.key]" :column="column"
