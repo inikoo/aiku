@@ -42,6 +42,7 @@ const props = defineProps<{
         }
         webhook: {
             webhook_access_key: string | null
+            domain: string
             route: routeType
         }
     },
@@ -70,12 +71,12 @@ const optionRadio = [
 // Section: Webhook
 const isWebhookLoading = ref(false)
 const webhookValue = ref(props.data.webhook.webhook_access_key || '')
-const onRetrieveWebhook = async () => {
+const onFetchWebhook = async () => {
     isWebhookLoading.value = true
     try {
-        const response: { webhook_access_key: string} = await axios.get(route(props.data.webhook.route.name, props.data.webhook.route.parameters))
+        const response: { data: { webhook_access_key: string } } = await axios.get(route(props.data.webhook.route.name, props.data.webhook.route.parameters))
         // console.log('response', response)
-        webhookValue.value = response?.webhook_access_key || 'xxx'
+        webhookValue.value = response?.data?.webhook_access_key || ''
     } catch (error) {
         notify({
             title: trans("Something wrong"),
@@ -90,9 +91,8 @@ const onRetrieveWebhook = async () => {
 </script>
 
 <template>
-    <!-- <pre>{{props}}</pre> -->
     <!-- Section: Stats box -->
-    <div class="px-4 py-5 md:px-6 lg:px-8 grid grid-cols-2 gap-x-4 gap-y-3">
+    <div class="px-4 py-5 md:px-6 lg:px-8 grid grid-cols-2 gap-x-8 gap-y-3">
         <!-- Section: Radio -->
         <TabSelector :optionRadio="optionRadio" :radioValue="radioValue" :updateRoute="data.updateRoute"/>
         
@@ -100,17 +100,18 @@ const onRetrieveWebhook = async () => {
         <div class="flex justify-center flex-col">
             <div class="whitespace-nowrap text-gray-500">The webhook: </div>
             <div v-if="webhookValue" class="bg-white border border-gray-300 flex items-center justify-between mx-auto rounded-md md:w-full md:max-w-2xl ">
-                <a href="#" target="_blank" class="pl-4 md:pl-5 inline-block py-2 text-xxs md:text-base text-gray-400 w-full" v-tooltip="'Click to visit link'">{{ webhookValue }}</a>
+                <a :href="data.webhook.domain + webhookValue + '?type=human'" target="_blank" class="truncate pl-4 md:pl-5 inline-block py-2 text-xxs md:text-base text-gray-400 w-full" v-tooltip="'Click to visit link'">
+                    {{ data.webhook.domain + webhookValue + '?type=human' }}
+                </a>
                 
-                <div @click="() => onRetrieveWebhook()" class="cursor-pointer h-full aspect-square flex justify-center items-center">
-                    <FontAwesomeIcon icon='fal fa-sync' class='text-gray-500' :class="isWebhookLoading ? 'animate-spin' : ''" aria-hidden='true' />
+                <div @click="() => onFetchWebhook()" class="cursor-pointer h-full aspect-square flex justify-center items-center">
+                    <FontAwesomeIcon icon='fal fa-sync' class='text-gray-400 hover:text-gray-600' :class="isWebhookLoading ? 'animate-spin' : ''" aria-hidden='true' />
                 </div>
                 
-                <Button :style="'tertiary'" class="" size="l" @click="useCopyText('dsadsa')" title="Copy url to clipboard">
-                    <FontAwesomeIcon icon='far fa-link' class='text-gray-500' aria-hidden='true' />
-                </Button>
+                <Button :style="'tertiary'" icon='far fa-link' class="" size="l" @click="useCopyText(data.webhook.domain + webhookValue + '?type=human')" tooltip="Copy url to clipboard" />
             </div>
-            <Button v-else label="Click to retrieve webhook" :loading="isWebhookLoading" @click="() => onRetrieveWebhook()" />
+
+            <Button v-else label="Click to retrieve webhook" :loading="isWebhookLoading" @click="() => onFetchWebhook()" />
         </div>
         
         <!-- Section: Profile box -->
