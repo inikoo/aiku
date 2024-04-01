@@ -1,38 +1,39 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { trans } from 'laravel-vue-i18n'
-import { faYinYang } from '@fal';
+import { faYinYang } from '@fal'
 import { capitalize } from "@/Composables/capitalize"
 
 library.add(faYinYang);
 
 
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { library } from "@fortawesome/fontawesome-svg-core";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { library } from "@fortawesome/fontawesome-svg-core"
 
 const props = defineProps<{
     cell: {
         key: string
         type?: string  // For width of the column
-        label: string | {
-            type: string,
-            tooltip: string,
-            data: object
-        }
+        label: {
+            type: string  // 'icon', 'text'
+            tooltip?: string
+            data: string | string[] // 'Pallets', ['fal', 'fa-yinyang']
+        } | string
         sortable: boolean
         hidden: boolean
         sorted: string
-        onSort: any
+        onSort: Function
+        tooltip?: string
     }
     column: {
         key: string
     }
     resource: any
-}>();
+}>()
 
 function onClick() {
     if (props.cell.sortable) {
-        props.cell.onSort(props.cell.key);
+        props.cell.onSort(props.cell.key)
     }
 }
 
@@ -42,16 +43,24 @@ const isCellNumber = computed(() => {
 </script>
 
 <template>
+    <!-- <pre>{{ cell.onSort }}</pre> -->
     <th v-show="!cell.hidden" class="font-normal">
         <component :is="cell.sortable ? 'button' : 'div'" class="py-1" :class="[cell.type == 'avatar' || cell.type == 'icon' ? 'px-2 flex justify-center w-fit mx-auto' : 'px-6 w-full']" :dusk="cell.sortable ? `sort-${cell.key}` : null" @click.prevent="onClick">
             <slot name="pagehead" :data="{isCellNumber : isCellNumber, cell}">
-                <span class="flex flex-row items-center" :class="{'justify-center': cell.type == 'avatar' || cell.type == 'icon', 'justify-end': isCellNumber}">
+                <div class="flex flex-row items-center" :class="{'justify-center': cell.type == 'avatar' || cell.type == 'icon', 'justify-end': isCellNumber}">
                     <div v-if="typeof cell.label === 'object'">
                         <FontAwesomeIcon v-if="cell.label.type === 'icon'" :title="capitalize(cell.label.tooltip)"
                             aria-hidden="true" :icon="cell.label.data" size="lg" />
-                        <FontAwesomeIcon v-else :title="'icon'" aria-hidden="true" :icon="cell.label" size="lg" />
+
+                        <div v-else-if="cell.label.type === 'text'"  v-tooltip="cell.label.tooltip">
+                            {{ cell.label.data || ''}}
+                        </div>
+
+                        <div v-else class="text-gray-400 italic pl-5 pr-3">
+                        </div>
                     </div>
-                    <span v-else class="capitalize">{{ cell.label ? trans(cell.label) : ''}}</span>
+                    
+                    <span v-else class="capitalize" v-tooltip="cell.tooltip">{{ cell.label || ''}}</span>
 
                     <!-- Icon: arrow for sort -->
                     <svg v-if="cell.sortable" aria-hidden="true" class="w-3 h-3 ml-2" :class="{
@@ -67,7 +76,7 @@ const isCellNumber = computed(() => {
                         <path v-if="cell.sorted === 'desc'" fill="currentColor"
                             d="M41 288h238c21.4 0 32.1 25.9 17 41L177 448c-9.4 9.4-24.6 9.4-33.9 0L24 329c-15.1-15.1-4.4-41 17-41z" />
                     </svg>
-                </span>
+                </div>
             </slot>
         </component>
     </th>
