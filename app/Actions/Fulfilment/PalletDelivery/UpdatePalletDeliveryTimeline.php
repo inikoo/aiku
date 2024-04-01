@@ -31,22 +31,22 @@ class UpdatePalletDeliveryTimeline extends OrgAction
         }
 
         match ($modelData['state']) {
-            PalletDeliveryStateEnum::IN_PROCESS->value     => $modelData['in_process_at']           = now(),
-            PalletDeliveryStateEnum::SUBMITTED->value      => $modelData['submitted_at']            = now(),
-            PalletDeliveryStateEnum::CONFIRMED->value      => $modelData['confirmed_at']            = now(),
-            PalletDeliveryStateEnum::RECEIVED->value       => $modelData['received_at']             = now(),
-            PalletDeliveryStateEnum::DONE->value           => $modelData['done_at']                 = now(),
-            default                                        => null
+            PalletDeliveryStateEnum::IN_PROCESS->value          => $modelData['in_process_at']                = now(),
+            PalletDeliveryStateEnum::SUBMITTED->value           => $modelData['submitted_at']                 = now(),
+            PalletDeliveryStateEnum::CONFIRMED->value           => $modelData['confirmed_at']                 = now(),
+            PalletDeliveryStateEnum::RECEIVED->value            => $modelData['received_at']                  = now(),
+            PalletDeliveryStateEnum::BOOKED_IN->value           => $modelData['booked_in_at']                 = now(),
+            default                                             => null
         };
 
         $palletDelivery->pallets()->update([
             'state' => match ($modelData['state']) {
-                PalletDeliveryStateEnum::IN_PROCESS->value     => PalletStateEnum::IN_PROCESS,
-                PalletDeliveryStateEnum::SUBMITTED->value      => PalletStateEnum::SUBMITTED,
-                PalletDeliveryStateEnum::CONFIRMED->value      => PalletStateEnum::BOOKED_IN,
-                PalletDeliveryStateEnum::RECEIVED->value       => PalletStateEnum::RECEIVED,
-                PalletDeliveryStateEnum::DONE->value           => PalletStateEnum::SETTLED,
-                default                                        => null
+                PalletDeliveryStateEnum::IN_PROCESS->value          => PalletStateEnum::IN_PROCESS,
+                PalletDeliveryStateEnum::SUBMITTED->value           => PalletStateEnum::SUBMITTED,
+                PalletDeliveryStateEnum::CONFIRMED->value           => PalletStateEnum::CONFIRMED,
+                PalletDeliveryStateEnum::RECEIVED->value            => PalletStateEnum::RECEIVED,
+                PalletDeliveryStateEnum::BOOKED_IN->value           => PalletStateEnum::BOOKED_IN,
+                default                                             => null
             }
         ]);
 

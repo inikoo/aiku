@@ -49,15 +49,19 @@ use Illuminate\Support\Carbon;
  * @property int $number_pallets_state_confirmed
  * @property int $number_pallets_state_received
  * @property int $number_pallets_state_not_received
+ * @property int $number_pallets_state_booking_in
  * @property int $number_pallets_state_booked_in
- * @property int $number_pallets_state_settled
+ * @property int $number_pallets_state_picking
  * @property int $number_pallets_state_picked
- * @property int $number_pallets_state_not_picked
- * @property int $number_pallets_status_in_process
+ * @property int $number_pallets_state_damaged
+ * @property int $number_pallets_state_lost
+ * @property int $number_pallets_state_dispatched
+ * @property int $number_pallets_status_receiving
+ * @property int $number_pallets_status_not_received
  * @property int $number_pallets_status_storing
- * @property int $number_pallets_status_damaged
- * @property int $number_pallets_status_lost
+ * @property int $number_pallets_status_returning
  * @property int $number_pallets_status_returned
+ * @property int $number_pallets_status_incident
  * @property int $number_stored_items
  * @property int $number_stored_items_type_pallet
  * @property int $number_stored_items_type_box

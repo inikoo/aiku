@@ -42,7 +42,7 @@ function palletRoute(pallet: {}) {
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],
-                    pallet['reference']
+                    pallet['slug']
                 ])
         case 'grp.org.warehouses.show.fulfilment.pallets.index':
             return route(
@@ -50,7 +50,7 @@ function palletRoute(pallet: {}) {
                 [
                     route().params['organisation'],
                     route().params['warehouse'],
-                    pallet['reference']
+                    pallet['slug']
                 ])
 
         case 'grp.org.warehouses.show.infrastructure.locations.show':
@@ -60,7 +60,7 @@ function palletRoute(pallet: {}) {
                     route().params['organisation'],
                     route().params['warehouse'],
                     route().params['location'],
-                    pallet['reference']
+                    pallet['slug']
                 ])
         case 'grp.org.fulfilments.show.crm.customers.show':
             return route(
@@ -69,7 +69,7 @@ function palletRoute(pallet: {}) {
                     route().params['organisation'],
                     route().params['fulfilment'],
                     route().params['fulfilmentCustomer'],
-                    pallet['reference']
+                    pallet['slug']
                 ])
 
         default:
@@ -142,7 +142,7 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
         const indexToDelete = props.data.data.findIndex(item => item.reference === palletReference);
         // Check if the element exists (index !== -1)
         if (indexToDelete !== -1) {
-            props.data.meta.total = props.data.meta.total-1 
+            props.data.meta.total = props.data.meta.total-1
             props.data.data.splice(indexToDelete, 1)
         }
 
@@ -177,7 +177,7 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
 
         <!-- Column: State -->
         <template #cell(state)="{ item: pallet }">
-            <Icon :data="pallet['state_icon']" class="px-1" />
+            <Icon :data="pallet['status_icon']" />   <Icon :data="pallet['state_icon']"  />
         </template>
 
         <!-- Column: Notes -->
@@ -224,7 +224,7 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
                                     :options="locationsList"
                                     :noResultsText="isLoading ? 'loading...' : 'No Result'"
                                 >
-                
+
                                 </Multiselect>
                                 <!-- <p v-if="error.location_id" class="mt-2 text-sm text-red-600">{{ error.location_id }}</p> -->
                             </div>
@@ -242,7 +242,7 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
                         </div>
                     </template>
                 </Popover>
-                
+
                 <!-- Action: Set as storing, damaged, lost -->
                 <div v-if="item.status === 'storing'" class="flex gap-x-1 gap-y-2">
                     <Button label="Set as damaged" type="negative" iconRight="fal fa-fragile" size="xs" />

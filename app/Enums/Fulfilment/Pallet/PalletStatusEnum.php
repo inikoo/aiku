@@ -19,31 +19,75 @@ enum PalletStatusEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS = 'in-process';
-    case STORING    = 'storing';
-    case DAMAGED    = 'damaged';
-    case LOST       = 'lost';
-    case RETURNED   = 'returned';
+    case RECEIVING    = 'receiving';
+    case NOT_RECEIVED = 'not-received';
+    case STORING      = 'storing';
+    case RETURNING    = 'returning';
+    case RETURNED     = 'returned';
+    case INCIDENT     = 'incident';
 
     public static function labels($forElements = false): array
     {
         $labels = [
-            'in-process' => __('In process'),
-            'storing'    => __('Storing'),
-            'damaged'    => __('Damaged'),
-            'lost'       => __('Lost'),
-            'returned'   => __('Returned'),
+            'receiving'    => __('Receiving'),
+            'not-received' => __('Not received'),
+            'storing'      => __('Storing'),
+            'returning'    => __('Returning'),
+            'returned'     => __('Returned'),
+            'incident'     => __('Incidents'),
+
         ];
 
-        if ($forElements) {
-            unset($labels['in-process']);
-        }
 
         return $labels;
     }
 
-    public static function count(Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent, $forElements = false): array
+    public static function statusIcon(): array
     {
+        return [
+            'receiving'   => [
+                'tooltip' => __('In process'),
+                'icon'    => 'fal fa-seedling',
+                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
+                'color'   => 'lime'  // Color for box (Retina)
+            ],
+            'not-received' => [
+                'tooltip' => __('not received'),
+                'icon'    => 'fal fa-times',
+                'class'   => 'text-red-500',
+                'color'   => 'red'
+            ],
+            'storing'    => [
+                'tooltip' => __('Storing'),
+                'icon'    => 'fal fa-check-double',
+                'class'   => 'text-purple-500',
+                'color'   => 'purple'
+            ],
+            'incident'      => [
+                'tooltip' => __('Incident'),
+                'icon'    => 'fal fa-sad-cry',
+                'class'   => 'text-red-600',
+                'color'   => 'gray'
+            ],
+            'returning'       => [
+                'tooltip' => __('Returning'),
+                'icon'    => 'fal fa-check',
+                'class'   => 'text-green-400',
+                'color'   => 'green'
+            ],
+            'returned'       => [
+                'tooltip' => __('Returned'),
+                'icon'    => 'fal fa-check',
+                'class'   => 'text-green-400',
+                'color'   => 'green'
+            ],
+        ];
+    }
+
+    public static function count(
+        Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent,
+        $forElements = false
+    ): array {
         if ($parent instanceof FulfilmentCustomer) {
             $stats = $parent;
         } elseif ($parent instanceof Organisation) {
@@ -52,19 +96,14 @@ enum PalletStatusEnum: string
             $stats = $parent->stats;
         }
 
-        $count = [
-            'in-process' => $stats->number_pallets_status_in_process,
-            'storing'    => $stats->number_pallets_status_storing,
-            'damaged'    => $stats->number_pallets_status_damaged,
-            'lost'       => $stats->number_pallets_status_lost,
-            'returned'   => $stats->number_pallets_status_returned,
+        return [
+            'receiving'    => $stats->number_pallets_status_receiving,
+            'not-received' => $stats->number_pallets_status_not_received,
+            'storing'      => $stats->number_pallets_status_storing,
+            'returning'    => $stats->number_pallets_status_returning,
+            'incident'     => $stats->number_pallets_status_incident,
+            'returned'     => $stats->number_pallets_status_returned,
         ];
-
-        if ($forElements) {
-            unset($count['in-process']);
-        }
-
-        return $count;
     }
 
 }

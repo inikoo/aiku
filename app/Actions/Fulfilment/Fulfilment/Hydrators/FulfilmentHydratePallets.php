@@ -68,16 +68,6 @@ class FulfilmentHydratePallets
             }
         ));
 
-        $stats=array_merge($stats, $this->getEnumStats(
-            model:'pallets',
-            field: 'type',
-            enum: PalletTypeEnum::class,
-            models: Pallet::class,
-            where: function ($q) use ($fulfilment) {
-                $q->where('fulfilment_id', $fulfilment->id);
-            }
-        ));
-
         $fulfilment->stats()->update($stats);
     }
 }

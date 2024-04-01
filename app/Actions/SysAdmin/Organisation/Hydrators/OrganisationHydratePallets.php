@@ -68,16 +68,6 @@ class OrganisationHydratePallets
             }
         ));
 
-        $stats=array_merge($stats, $this->getEnumStats(
-            model:'pallets',
-            field: 'type',
-            enum: PalletTypeEnum::class,
-            models: Pallet::class,
-            where: function ($q) use ($organisation) {
-                $q->where('organisation_id', $organisation->id);
-            }
-        ));
-
         $organisation->fulfilmentStats()->update($stats);
     }
 }

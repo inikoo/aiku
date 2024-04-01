@@ -56,17 +56,7 @@ class IndexPallets extends OrgAction
                     $query->whereIn('pallets.status', $elements);
                 }
             ],
-            'state'  => [
-                'label'    => __('State'),
-                'elements' => array_merge_recursive(
-                    PalletStateEnum::labels(),
-                    PalletStateEnum::count($parent)
-                ),
 
-                'engine' => function ($query, $elements) {
-                    $query->whereIn('pallets.state', $elements);
-                }
-            ],
 
         ];
     }
@@ -101,7 +91,7 @@ class IndexPallets extends OrgAction
                 $query->where('pallets.fulfilment_id', $parent->id);
                 break;
             case "Warehouse":
-                $query->where('warehouse_id', $parent->id);
+                $query->where('pallets.warehouse_id', $parent->id);
                 break;
             case "PalletDelivery":
                 $query->where('pallet_delivery_id', $parent->id);
@@ -158,7 +148,7 @@ class IndexPallets extends OrgAction
             $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
             $query->addSelect('locations.code as location_code', 'locations.slug as location_slug', 'locations.id as location_id');
         }
-        if ($parent instanceof Fulfilment) {
+        if ($parent instanceof Fulfilment or $parent instanceof Warehouse or $parent instanceof Organisation) {
             $query->leftJoin('fulfilment_customers', 'fulfilment_customers.id', 'pallets.fulfilment_customer_id');
             $query->leftJoin('customers', 'customers.id', 'fulfilment_customers.customer_id');
             $query->addSelect('customers.name as fulfilment_customer_name', 'customers.slug as fulfilment_customer_slug');
@@ -302,7 +292,7 @@ class IndexPallets extends OrgAction
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilmentCustomer);
+        return $this->handle($fulfilmentCustomer, 'pallets');
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -311,7 +301,7 @@ class IndexPallets extends OrgAction
         $this->parent = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request);
 
-        return $this->handle($warehouse);
+        return $this->handle($warehouse, 'pallets');
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -320,7 +310,7 @@ class IndexPallets extends OrgAction
         $this->parent = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request);
 
-        return $this->handle($palletDelivery);
+        return $this->handle($palletDelivery, 'pallets');
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -329,7 +319,7 @@ class IndexPallets extends OrgAction
         $this->parent = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request);
 
-        return $this->handle($palletReturn);
+        return $this->handle($palletReturn, 'pallets');
     }
 
     /** @noinspection PhpUnusedParameterInspection */

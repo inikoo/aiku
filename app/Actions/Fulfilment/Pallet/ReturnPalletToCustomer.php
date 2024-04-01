@@ -29,7 +29,7 @@ class ReturnPalletToCustomer extends OrgAction
     {
         return $this->update($pallet, [
             'location_id' => null,
-            'state'       => PalletStateEnum::SETTLED,
+            'state'       => PalletStateEnum::DISPATCHED,
             'status'      => PalletStatusEnum::RETURNED
         ]);
     }
