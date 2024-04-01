@@ -8,7 +8,6 @@
 namespace App\Actions\Fulfilment\PalletDelivery;
 
 use App\Actions\Traits\WithExportData;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -51,7 +50,7 @@ class PdfPalletDelivery
     /**
      * @throws \Mpdf\MpdfException
      */
-    public function asController( PalletDelivery $palletDelivery, ActionRequest $request): Response
+    public function asController(PalletDelivery $palletDelivery, ActionRequest $request): Response
     {
         return $this->handle($palletDelivery);
     }
