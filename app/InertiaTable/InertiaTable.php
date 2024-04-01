@@ -254,7 +254,6 @@ class InertiaTable
         bool $sortable = false,
         bool $searchable = false,
         string $type = null,
-        string $tooltip = null
     ): self {
 
 
@@ -270,11 +269,21 @@ class InertiaTable
                 sortable: $sortable,
                 sorted: false,
                 type: $type,
-                tooltip: $tooltip
             )
         )->values();
 
         if ($searchable) {
+
+            if(is_array($column->label)){
+
+                if(is_array($column->label['data'])){
+                    $column->label = $column->label['search'];
+                }else{
+                    $column->label = $column->label['data'];
+                }
+
+            }
+
             $this->searchInput($column->key, $column->label);
         }
 
