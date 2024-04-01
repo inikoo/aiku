@@ -47,19 +47,19 @@ export const useHeadlineText = () => {
 // 2-3: Navigation and box (bg & text color)
 // 4-5: Button and mini-box (bg & text color)
 export const useColorTheme = [
-    ['#4f46e5', '#f3f4f6', '#A9D1E4', '#4f46e5', '#4f46e5', '#f3f4f6'],  // Deep Sea Serenity 
-    ['#E5F2F0', '#332925', '#38674F', '#E5F2F0', '#F5D9B9', '#332925'],  // Nature's Embrace
-    ['#FFFFFF', '#333333', '#F28B00', '#333333', '#D6C7E2', '#333333'],  // Modern Brights 
-    ['#F8F8F8', '#000000', '#2F4F4F', '#F8F8F8', '#424242', '#000000'],  // Classic Sophistication 
-    ['#D1EBF2', '#2F4F4F', '#F8F8F8', '#2F4F4F', '#F28B00', '#2F4F4F'],  // Limitless Sky 
+    ['#4f46e5', '#f3f4f6', '#362cdb', '#fde047', '#4f46e5', '#f3f4f6', '#fcd34d', '#374151'],  // Deep Sea Serenity 
+    ['#f43f5e', '#F5F5F5', '#E3B7C8', '#000000', '#D6C7E2', '#000000', '#fca5a5', '#374151'],  // Rosewater Blush 
+    // ['#E5F2F0', '#332925', '#38674F', '#E5F2F0', '#F5D9B9', '#332925', '#E5F2F0', '#374151'],  // Nature's Embrace
+    // ['#FFFFFF', '#333333', '#F28B00', '#333333', '#D6C7E2', '#333333', '#FFFFFF', '#374151'],  // Modern Brights 
+    // ['#F8F8F8', '#000000', '#2F4F4F', '#F8F8F8', '#424242', '#000000', '#F8F8F8', '#374151'],  // Classic Sophistication 
+    // ['#D1EBF2', '#2F4F4F', '#F8F8F8', '#2F4F4F', '#F28B00', '#2F4F4F', '#D1EBF2', '#374151'],  // Limitless Sky 
 
-    ['#f43f5e', '#F5F5F5', '#E3B7C8', '#000000', '#D6C7E2', '#000000'],  // Rosewater Blush 
-    ['#000000', '#f2f2f2', '#424242', '#f2f2f2', '#8e44ad', '#ffffff'],  // Amoled
-    ['#f59e0b', '#000000', '#2F2F2F', '#cccccc', '#2F4F4F', '#FFFFFF'],  // Citrus Afterglow 
-    ['#1F2937', '#cccccc', '#3F007E', '#cccccc', '#A9D1E4', '#000000'],  // Starlight Sonata 
-    ['#84CC16 ', '#000000', '#333333', '#cccccc', '#20C997', '#000000'],  // Tropical Oasis 
+    ['#000000', '#f2f2f2', '#424242', '#fde047', '#8e44ad', '#ffffff', '#fcd34d', '#374151'],  // Amoled
+    // ['#f59e0b', '#000000', '#2F2F2F', '#cccccc', '#2F4F4F', '#FFFFFF', '#f59e0b', '#374151'],  // Citrus Afterglow 
+    // ['#1F2937', '#cccccc', '#3F007E', '#cccccc', '#A9D1E4', '#000000', '#1F2937', '#374151'],  // Starlight Sonata 
+    // ['#84CC16 ', '#000000', '#333333', '#cccccc', '#20C997', '#000000', '#84CC16 ', '#374151'],  // Tropical Oasis 
 
-    ['#333333', '#cccccc', '#2F4F4F', '#cccccc', '#007bff', '#ffffff'],  // Midnight
-    ['#0F1626', '#FFFFFF', '#1e293b', '#f1f5f9', '#0f172a', '#e2e8f0'],  // Black and White (Retina)
+    // ['#333333', '#cccccc', '#2F4F4F', '#cccccc', '#007bff', '#ffffff', '#333333', '#374151'],  // Midnight
+    // ['#0F1626', '#FFFFFF', '#1e293b', '#f1f5f9', '#0f172a', '#e2e8f0', '#0F1626', '#374151'],  // Black and White (Retina)
     // ['#xxxxxx', '#xxxxxx', '#xxxxxx', '#xxxxxx', '#xxxxxx', '#xxxxxx'],
 ]
