@@ -295,7 +295,7 @@ class IndexPallets extends OrgAction
                                 ]
                             ]
                         ]
-                    ]
+                    ],
                 ],
                 'data'        => PalletsResource::collection($pallets),
             ]
