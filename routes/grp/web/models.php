@@ -38,6 +38,7 @@ use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
+use App\Actions\Fulfilment\PalletReturnItem\UpdatePalletReturnItem;
 use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPallet;
@@ -126,6 +127,8 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
 Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::delete('', DeletePallet::class)->name('delete');
     Route::patch('', UpdatePallet::class)->name('update');
+
+    Route::patch('pallet-return-item', UpdatePalletReturnItem::class)->name('pallet-return-item.update');
 
     Route::post('stored-items', SyncStoredItemToPallet::class)->name('stored-items.update');
     Route::patch('booked-in', UpdatePalletBookedIn::class)->name('booked-in');

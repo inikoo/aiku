@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\Fulfilment;
 
+use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -17,6 +18,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $slug
  * @property mixed $notes
  * @property mixed $state
+ * @property mixed $pivot
  * @property mixed $status
  * @property mixed $location_slug
  * @property mixed $location_code
@@ -40,9 +42,9 @@ class PalletReturnItemsResource extends JsonResource
             'fulfilment_customer_slug' => $this->fulfilment_customer_slug,
             'fulfilment_customer_id'   => $this->fulfilment_customer_id,
             'notes'                    => (string)$this->notes,
-            'state'                    => $this->state,
-            'state_label'              => $this->state->labels()[$this->state->value],
-            'state_icon'               => $this->state->stateIcon()[$this->state->value],
+            'state'                    => $this->pivot->state,
+            'state_label'              => PalletReturnItemStateEnum::labels()[$this->pivot->state],
+            'state_icon'               => PalletReturnItemStateEnum::stateIcon()[$this->pivot->state],
             'status'                   => $this->status,
             'status_label'             => $this->status->labels()[$this->status->value],
             'status_icon'              => $this->status->statusIcon()[$this->status->value],
@@ -56,11 +58,11 @@ class PalletReturnItemsResource extends JsonResource
             'stored_items_quantity' => (int)$this->storedItems()->sum('quantity'),
             'updateRoute'           => match (request()->routeIs('retina.*')) {
                 true => [
-                    'name'       => 'retina.models.pallet.update',
+                    'name'       => 'retina.models.pallet.pallet-return-item.update',
                     'parameters' => $this->id
                 ],
                 default => [
-                    'name'       => 'grp.models.pallet.update',
+                    'name'       => 'grp.models.pallet.pallet-return-item.update',
                     'parameters' => $this->id
                 ]
             },
