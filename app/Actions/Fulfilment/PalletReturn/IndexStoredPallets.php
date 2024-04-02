@@ -84,7 +84,7 @@ class IndexStoredPallets extends OrgAction
         $query = QueryBuilder::for(Pallet::class);
 
         $query->where('fulfilment_customer_id', $parent->id);
-        $query->where('state', PalletStateEnum::BOOKED_IN);
+        $query->where('state', PalletStateEnum::STORING);
         $query->where('status', '!=', PalletStatusEnum::RETURNED);
 
         return $query->defaultSort('pallets.reference')

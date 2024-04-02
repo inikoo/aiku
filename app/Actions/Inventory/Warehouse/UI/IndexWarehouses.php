@@ -10,6 +10,7 @@ namespace App\Actions\Inventory\Warehouse\UI;
 use App\Actions\OrgAction;
 use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Http\Resources\Inventory\WarehouseResource;
+use App\Http\Resources\Inventory\WarehousesResource;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -125,7 +126,7 @@ class IndexWarehouses extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $warehouses): AnonymousResourceCollection
     {
-        return WarehouseResource::collection($warehouses);
+        return WarehousesResource::collection($warehouses);
     }
 
 

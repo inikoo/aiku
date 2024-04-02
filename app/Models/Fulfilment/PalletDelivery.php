@@ -77,14 +77,15 @@ class PalletDelivery extends Model
 
     protected $guarded = [];
     protected $casts   = [
-        'state'              => PalletDeliveryStateEnum::class,
-        'in_process_at'      => 'datetime',
-        'submitted_at'       => 'datetime',
-        'confirmed_at'       => 'datetime',
-        'received_at'        => 'datetime',
-        'not_received_at'    => 'datetime',
-        'booked_in_at'       => 'datetime',
-        'data'               => 'array'
+        'state'               => PalletDeliveryStateEnum::class,
+        'in_process_at'       => 'datetime',
+        'submitted_at'        => 'datetime',
+        'confirmed_at'        => 'datetime',
+        'received_at'         => 'datetime',
+        'not_received_at'     => 'datetime',
+        'booked_in_at'        => 'datetime',
+        'booking_in_at'       => 'datetime',
+        'data'                => 'array'
     ];
 
     public function getRouteKeyName(): string

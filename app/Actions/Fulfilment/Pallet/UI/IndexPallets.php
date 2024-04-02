@@ -119,7 +119,7 @@ class IndexPallets extends OrgAction
 
 
         if ($this->selectStoredPallets) {
-            $query->where('pallets.state', PalletStateEnum::BOOKED_IN);
+            $query->where('pallets.state', PalletStateEnum::STORING);
         }
 
 
@@ -334,7 +334,7 @@ class IndexPallets extends OrgAction
         $this->parent = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request);
 
-        return $this->handle($palletDelivery, 'pallets');
+        return $this->handle($palletDelivery);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -343,7 +343,7 @@ class IndexPallets extends OrgAction
         $this->parent = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request);
 
-        return $this->handle($palletReturn, 'pallets');
+        return $this->handle($palletReturn);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
