@@ -16,6 +16,8 @@ use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\UI\PalletDeliveryTabsEnum;
+use App\Http\Resources\CRM\CustomerResource;
+use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -28,7 +30,6 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\Http\Resources\Sales\CustomersResource;
 
 class ShowPalletDelivery extends OrgAction
 {
@@ -341,7 +342,7 @@ class ShowPalletDelivery extends OrgAction
 
                 'data'             => PalletDeliveryResource::make($palletDelivery),
                 'box_stats'        => [
-                    'customer'          => CustomersResource::make($palletDelivery->fulfilmentCustomer->customer)->getArray(),
+                    'customer'          => CustomerResource::make($palletDelivery->fulfilmentCustomer->customer)->getArray(),
                     'delivery_status'   => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
                     'total_pallet'      => []
                 ],
