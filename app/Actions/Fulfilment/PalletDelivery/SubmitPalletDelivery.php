@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\PalletDelivery;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
+use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateUniversalSearch;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -39,6 +40,8 @@ class SubmitPalletDelivery extends OrgAction
                 'state'     => PalletStateEnum::SUBMITTED
             ]);
             $pallet->generateSlug();
+
+            PalletHydrateUniversalSearch::run($pallet);
         }
 
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
