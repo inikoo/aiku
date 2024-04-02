@@ -37,6 +37,8 @@ class PalletDeliveryResource extends JsonResource
                 : PalletDeliveryStateEnum::NOT_RECEIVED->value]
         );
 
+        // dd(PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value]);
+
         return [
             'id'               => $palletDelivery->id,
             'customer_name'    => $palletDelivery->fulfilmentCustomer->customer->name,
