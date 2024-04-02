@@ -14,9 +14,13 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from 'chart.js'
 import Image from '@/Components/Image.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { Pie } from 'vue-chartjs'
+import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
 
+const props = defineProps<{
+    title: string
+    pageHead: PageHeadingTypes
+}>()
 
-defineProps(["title", "pageHead", "flatTreeMaps"])
 library.add(faTruckCouch)
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)
 
@@ -181,7 +185,7 @@ const options = {
 
 <template>
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead" />
 
     <div class="px-4 py-4 space-y-8">
         <div class="px-10 space-y-1">
@@ -190,16 +194,6 @@ const options = {
             </div>
 
             <div class="flex items-center gap-x-16">
-                <!-- Donut -->
-                <div class="w-64 h-full">
-                    <Pie :data="{
-                        labels: Object.entries(dataStats).map(([, value]) => value.label),
-                        datasets: [{
-                            data: Object.entries(dataStats).map(([, value]) => value.count),
-                            hoverOffset: 4
-                        }]
-                    }" :options="options" />
-                </div>
 
                 <!-- Section: Stats -->
                 <div class="grid grid-cols-2 gap-2">
