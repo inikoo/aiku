@@ -5,11 +5,11 @@
   -->
 
 <script setup lang="ts">
-import { Head, useForm, router } from '@inertiajs/vue3'
+import { Head, useForm, router, Link } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
-import { computed, ref, watch } from "vue"
+import { computed, ref, watch, onMounted } from 'vue'
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from "@/Components/Tables/TableHistories.vue"
 import TablePalletDeliveryPallets from '@/Components/Tables/TablePalletDeliveryPallets.vue'
@@ -23,6 +23,7 @@ import { trans } from "laravel-vue-i18n"
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
+import JsBarcode from 'jsbarcode'
 
 import { PalletDelivery } from '@/types/Pallet'
 import { Table } from '@/types/Table'
@@ -174,6 +175,14 @@ watch(() => props.data, (newValue) => {
     timeline.value = newValue.data
 }, { deep: true })
 
+onMounted(() => {
+    JsBarcode('#palletDeliveryBarcode', 'pad-' + route().v().params.palletDelivery, {
+        lineColor: "rgb(41 37 36)",
+        width: '2',
+        height: '100%',
+        displayValue: false
+    });
+})
 
 </script>
 
@@ -294,41 +303,30 @@ watch(() => props.data, (newValue) => {
     </PageHeading>
 
     <!-- Section: Timeline -->
-    <div v-if="timeline.state != 'in-process'" class="border-b border-gray-200">
+    <div v-if="timeline.state != 'in-process'" class="border-b border-gray-200 pb-2">
         <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="6" />
     </div>
 
     <!-- Box -->
-    <div class="h-min grid grid-cols-4 gap-x-2 px-6 py-4 border-b border-gray-200">
-        <!-- Stats: User name -->
-        <BoxStatsPalletDelivery tooltip="Customer" :label="data?.data.customer_name" icon="fal fa-user">
+    <div class="h-min grid grid-cols-4 border-b border-gray-200 divide-x divide-gray-300">
+        <!-- Box: Customer -->
+        <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" tooltip="Customer" :label="data?.data.customer_name" icon="fal fa-user">
             <!-- Field: Contact name -->
-            <div v-if="box_stats.customer.contact_name" class="flex items-center w-full flex-none gap-x-2">
+            <Link as="a" v-if="box_stats.customer.contact_name" :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, route().params.fulfilment, box_stats.customer.slug])" class="flex items-center w-full flex-none gap-x-2 cursor-pointer">
                 <dt v-tooltip="'Contact name'" class="flex-none">
                     <span class="sr-only">Contact name</span>
                     <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <dd class="text-xs text-gray-500">{{ box_stats.customer.contact_name }}</dd>
-            </div>
+            </Link>
 
             <!-- Field: Contact name -->
-            <div v-if="box_stats.customer.company_name" class="flex items-center w-full flex-none gap-x-2">
+            <div v-if="box_stats.customer.company_name" class="flex items-center w-full flex-none gap-x-2 cursor-pointer">
                 <dt v-tooltip="'Company name'" class="flex-none">
                     <span class="sr-only">Company name</span>
                     <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <dd class="text-xs text-gray-500">{{ box_stats.customer.company_name }}</dd>
-            </div>
-
-            <!-- Field: Created at -->
-            <div v-if="box_stats.customer?.created_at" class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Created at'" class="flex-none">
-                    <span class="sr-only">Created at</span>
-                    <FontAwesomeIcon icon='fal fa-calendar-alt' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">
-                    <time datetime="2023-01-31">{{ useFormatTime(box_stats.customer?.created_at) }}</time>
-                </dd>
             </div>
             
             <!-- Field: Email -->
@@ -350,8 +348,8 @@ watch(() => props.data, (newValue) => {
             </div>
         </BoxStatsPalletDelivery>
 
-        <!-- Box: Delivery status -->
-        <BoxStatsPalletDelivery tooltip="Delivery status" :label="capitalize(data?.data.state)" icon="fal fa-truck-couch">
+        <!-- Box: Status -->
+        <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" :tooltip="trans('Status')" :label="capitalize(data?.data.state)" icon="fal fa-truck-couch">
             <div class="flex items-center w-full flex-none gap-x-2">
                 <dt class="flex-none">
                     <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
@@ -361,14 +359,24 @@ watch(() => props.data, (newValue) => {
             </div>
         </BoxStatsPalletDelivery>
 
-        <!-- Box: Total pallet -->
-        <BoxStatsPalletDelivery tooltip="Total pallet" :percentage="0">
+        <!-- Box: Pallet -->
+        <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" :tooltip="trans('Pallets')" :percentage="0">
             <div class="flex items-end gap-x-3">
                 <dt class="flex-none">
                     <span class="sr-only">Total pallet</span>
                     <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
                 <dd class="text-gray-600 leading-none text-3xl font-medium">{{ data?.data.number_pallets }}</dd>
+            </div>
+        </BoxStatsPalletDelivery>
+
+        <!-- Box: Barcode -->
+        <BoxStatsPalletDelivery>
+            <div class="h-full w-full px-2 flex flex-col items-center -mt-2">
+                <svg id="palletDeliveryBarcode" class="w-full" />
+                <div class="text-xxs md:text-xs text-gray-500 -mt-4">
+                    pad-{{ route().params.palletDelivery }}
+                </div>
             </div>
         </BoxStatsPalletDelivery>
     </div>
