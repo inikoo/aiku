@@ -34,7 +34,7 @@ class ConfirmPalletReturn extends OrgAction
                 'state' => PalletStateEnum::CONFIRMED
             ]);
 
-            $palletReturn->pallets()->sync([
+            $palletReturn->pallets()->syncWithoutDetaching([
                 $pallet->id => [
                     'state' => PalletStateEnum::CONFIRMED
                 ]

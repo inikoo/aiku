@@ -8,7 +8,7 @@
 import { trans } from 'laravel-vue-i18n'
 import { faSave as fadSave } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faDownload, faPlus as falPlus } from '@fal'
+import {faDownload, faFileExport, faPlus as falPlus} from '@fal'
 import { faArrowLeft, faPencil, faTrashAlt, faPersonDolly } from '@far'
 import { faPlus, faSave, faUpload, faTrashUndoAlt } from '@fas'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -19,7 +19,7 @@ import { inject } from 'vue'
 // const layout = useLayoutStore()
 const layout: any = inject('layout', {})
 
-library.add(faPlus, faSave, fadSave, faUpload, faDownload, falPlus, faArrowLeft, faPencil, faTrashAlt, faSpinnerThird, faTrashUndoAlt, faPersonDolly)
+library.add(faPlus, faSave, fadSave, faUpload, faDownload, falPlus, faArrowLeft, faPencil, faTrashAlt, faSpinnerThird, faTrashUndoAlt, faPersonDolly, faFileExport)
 
 
 const props = withDefaults(defineProps<{
@@ -159,7 +159,7 @@ const getActionIcon = (icon: any) => {
             sizeClass
         ]"
         :disabled="loading || style == 'disabled'"
-        v-tooltip="tooltip ?? undefined"    
+        v-tooltip="tooltip ?? undefined"
     >
         <slot>
             <slot name="loading">
@@ -209,7 +209,7 @@ const getActionIcon = (icon: any) => {
     &:focus {
         box-shadow: 0 0 0 2px v-bind('layout?.app?.theme[4]') !important;
     }
-    
+
     &:disabled {
         background-color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4] + "22"} 70%, black)`') !important;
     }

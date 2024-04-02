@@ -35,7 +35,7 @@ class PickingPalletReturn extends OrgAction
                 'state' => PalletStateEnum::PICKING
             ]);
 
-            $palletReturn->pallets()->sync([
+            $palletReturn->pallets()->syncWithoutDetaching([
                 $pallet->id => [
                     'state' => PalletStateEnum::PICKING
                 ]
