@@ -19,7 +19,7 @@ class ShowUniversalScan extends OrgAction
 {
     public function handle(string $ulid): UniversalSearch
     {
-        return UniversalSearch::where('ulid', $ulid)->firstOrFail();
+        return UniversalSearch::where('slug', $ulid)->firstOrFail();
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse, string $ulid, ActionRequest $request): UniversalSearch
