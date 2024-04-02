@@ -13,8 +13,7 @@ use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
-use App\Models\Market\Shop;
-use App\Models\SysAdmin\Organisation;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Rules\IUnique;
 use Exception;
 use Illuminate\Console\Command;
@@ -22,11 +21,14 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
+use Symfony\Component\HttpFoundation\Response;
 
 class StoreWebUser extends OrgAction
 {
     private Customer $customer;
+    private Customer|FulfilmentCustomer $parent;
 
     public function handle(Customer $customer, array $modelData): Webuser
     {
@@ -64,6 +66,9 @@ class StoreWebUser extends OrgAction
             return true;
         }
 
+        if ($this->parent instanceof FulfilmentCustomer) {
+            return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+        }
         return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
     }
 
@@ -86,7 +91,7 @@ class StoreWebUser extends OrgAction
             ],
 
 
-            'source_id'  => [
+            'source_id' => [
                 'sometimes',
                 'nullable',
                 'string',
@@ -128,10 +133,30 @@ class StoreWebUser extends OrgAction
         return $rules;
     }
 
-    public function asController(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): Webuser
+    public function prepareForValidation(ActionRequest $request): void
     {
-        $this->initialisationFromShop($shop, $request);
+        if ($this->get('type') === null) {
+            $this->fill(['type' => WebUserTypeEnum::WEB]);
+        }
 
+        if (!$this->customer->hasUsers()) {
+            $this->fill(['is_root' => true]);
+        }
+    }
+
+    public function inFulfilmentCustomer(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Webuser
+    {
+        $this->parent   = $fulfilmentCustomer;
+        $this->customer = $fulfilmentCustomer->customer;
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+        return $this->handle($fulfilmentCustomer->customer, $this->validatedData);
+    }
+
+    public function inCustomer(Customer $customer, ActionRequest $request): Webuser
+    {
+        $this->parent   = $customer;
+        $this->customer = $customer;
+        $this->initialisationFromShop($customer->shop, $request);
         return $this->handle($customer, $this->validatedData);
     }
 
@@ -163,13 +188,12 @@ class StoreWebUser extends OrgAction
 
         if ($command->option('password')) {
             $password = $command->option('password');
+        } elseif (app()->isLocal() || app()->environment('testing')) {
+            $password = 'hello';
         } else {
-            if (app()->isLocal() || app()->environment('testing')) {
-                $password = 'hello';
-            } else {
-                $password = $command->secret('Enter the password');
-            }
+            $password = $command->secret('Enter the password');
         }
+
 
         $data = [
             'username' => $command->argument('username'),
@@ -190,5 +214,24 @@ class StoreWebUser extends OrgAction
         return 0;
     }
 
+    public function htmlResponse(WebUser $webUser): Response
+    {
+        if ($this->parent instanceof FulfilmentCustomer) {
+            return Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.web-users.show', [
+                'organisation'       => $webUser->organisation->slug,
+                'fulfilment'         => $this->parent->fulfilment->slug,
+                'fulfilmentCustomer' => $this->parent->slug,
+                'webUser'            => $webUser->slug
+            ]));
+        }
+
+
+        return Inertia::location(route('grp.org.shops.show.crm.customers.show.web-users.show', [
+            'organisation' => $webUser->organisation->slug,
+            'shop'         => $this->parent->shop->slug,
+            'customer'     => $this->parent->slug,
+            'webUser'      => $webUser->slug
+        ]));
+    }
 
 }

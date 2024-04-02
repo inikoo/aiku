@@ -15,7 +15,6 @@ const props = defineProps<{
 }>();
 
 
-console.log(props.data);
 
 function webUserRoute(webUser: WebUser) {
     console.log(route().current());
@@ -50,6 +49,7 @@ function webUserRoute(webUser: WebUser) {
 </script>
 
 <template>
+
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(username)="{ item: webUser }">
             <Link :href="webUserRoute(webUser)" class="specialUnderline">

@@ -9,7 +9,6 @@ namespace App\Actions\CRM\WebUser;
 
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 use App\Http\Resources\CRM\WebUserResource;
 use App\Models\CRM\Customer;
@@ -41,14 +40,8 @@ class ShowWebUser extends OrgAction
         return $this->authorizeWebUserScope($request);
     }
 
-    public function inOrganisation(WebUser $webUser, ActionRequest $request): WebUser
-    {
-        $this->initialisation($request);
 
-        return $this->handle($webUser);
-    }
 
-    /** @noinspection PhpUnusedParameterInspection */
     public function asController(Organisation $organisation, Shop $shop, Customer $customer, WebUser $webUser, ActionRequest $request): WebUser
     {
         $this->parent=$customer;
@@ -178,14 +171,14 @@ class ShowWebUser extends OrgAction
             array_merge(
                 ShowCustomer::make()->getBreadcrumbs(
                     'grp.org.shops.show.crm.customers.show',
-                    ['customer' => $routeParameters['customer']]
+                    Arr::except($routeParameters, 'webUser')
                 ),
                 $headCrumb(
-                    $routeParameters['webUser'],
+                    $webUser,
                     [
                         'index' => [
                             'name'       => 'grp.org.shops.show.crm.customers.show.web-users.index',
-                            'parameters' => [$routeParameters['customer']->slug]
+                            'parameters' => Arr::except($routeParameters, 'webUser')
                         ],
                         'model' => [
                             'name'       => 'grp.org.shops.show.crm.customers.show.web-users.show',
@@ -197,30 +190,7 @@ class ShowWebUser extends OrgAction
             ),
 
 
-            'shops.show.customers.show',
-            'shops.show.customers.edit'
-            => array_merge(
-                (new ShowShop())->getBreadcrumbs($routeParameters),
-                $headCrumb(
-                    $routeParameters['customer'],
-                    [
-                        'index' => [
-                            'name'       => 'shops.show.customers.index',
-                            'parameters' => [
-                                $routeParameters['shop']->slug,
-                            ]
-                        ],
-                        'model' => [
-                            'name'       => 'shops.show.customers.show',
-                            'parameters' => [
-                                $routeParameters['shop']->slug,
-                                $routeParameters['customer']->slug
-                            ]
-                        ]
-                    ],
-                    $suffix
-                )
-            ),
+
             default => []
         };
     }

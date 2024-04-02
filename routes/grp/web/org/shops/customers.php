@@ -10,6 +10,7 @@ use App\Actions\CRM\Customer\UI\CreateCustomer;
 use App\Actions\CRM\Customer\UI\EditCustomer;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
+use App\Actions\CRM\WebUser\CreateWebUser;
 use App\Actions\CRM\WebUser\EditWebUser;
 use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\CRM\WebUser\ShowWebUser;
@@ -17,9 +18,16 @@ use App\Actions\OMS\Order\UI\ShowOrder;
 
 Route::get('', IndexCustomers::class)->name('index');
 Route::get('create', CreateCustomer::class)->name('create');
-Route::get('{customer}', ShowCustomer::class)->name('show');
-Route::get('{customer}/edit', EditCustomer::class)->name('edit');
-Route::get('{customer}/orders/{order}', [ShowOrder::class, 'inCustomerInShop'])->name('show.orders.show');
-Route::get('{customer}/web-users', [IndexWebUsers::class, 'inCustomerInShop'])->name('show.web-users.index');
-Route::get('{customer}/web-users/{webUser}', [ShowWebUser::class, 'inCustomerInShop'])->name('show.web-users.show');
-Route::get('{customer}/web-users/{webUser}/edit', [EditWebUser::class, 'inCustomerInShop'])->name('show.web-users.edit');
+Route::get('/edit', EditCustomer::class)->name('edit');
+Route::prefix('{customer}')->as('show')->group(function () {
+    Route::get('', ShowCustomer::class);
+    Route::get('/orders/{order}', [ShowOrder::class, 'inCustomerInShop'])->name('.orders.show');
+    Route::prefix('web-users')->as('.web-users')->group(function () {
+        Route::get('', [IndexWebUsers::class, 'inCustomerInShop'])->name('.index');
+        Route::get('create', CreateWebUser::class)->name('.create');
+        Route::prefix('{webUser}')->group(function () {
+            Route::get('', ShowWebUser::class)->name('.show');
+            Route::get('edit', [EditWebUser::class, 'inCustomerInShop'])->name('.edit');
+        });
+    });
+});

@@ -81,7 +81,7 @@ enum CustomerFulfilmentTabsEnum: string
             CustomerFulfilmentTabsEnum::WEB_USERS => [
                 'align' => 'right',
                 'title' => __('users'),
-                'icon'  => 'fal fa-terminal',
+                'icon'  => 'fal fa-globe',
                 'type'  => 'icon',
             ],
             CustomerFulfilmentTabsEnum::SHOWCASE => [

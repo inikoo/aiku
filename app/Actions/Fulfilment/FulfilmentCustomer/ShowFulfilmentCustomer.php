@@ -55,8 +55,12 @@ class ShowFulfilmentCustomer extends OrgAction
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.view");
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): FulfilmentCustomer
-    {
+    public function asController(
+        Organisation $organisation,
+        Fulfilment $fulfilment,
+        FulfilmentCustomer $fulfilmentCustomer,
+        ActionRequest $request
+    ): FulfilmentCustomer {
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(CustomerFulfilmentTabsEnum::values());
 
         return $this->handle($fulfilmentCustomer);
@@ -64,11 +68,9 @@ class ShowFulfilmentCustomer extends OrgAction
 
     public function htmlResponse(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Response
     {
-
         $webUsersMeta = $this->getWebUserMeta($fulfilmentCustomer->customer, $request);
 
         $navigation = CustomerFulfilmentTabsEnum::navigation();
-
 
 
         if (!$fulfilmentCustomer->pallets_storage) {
@@ -94,20 +96,20 @@ class ShowFulfilmentCustomer extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'navigation'  => [
+                'navigation' => [
                     'previous' => $this->getPrevious($fulfilmentCustomer, $request),
                     'next'     => $this->getNext($fulfilmentCustomer, $request),
                 ],
-                'pageHead'    => [
-                    'icon'    => [
+                'pageHead' => [
+                    'icon' => [
                         'title' => __('customer'),
                         'icon'  => 'fal fa-user'
                     ],
-                    'meta'    => array_filter([
+                    'meta' => array_filter([
                         $webUsersMeta
                     ]),
-                    'title'   => $fulfilmentCustomer->customer->name,
-                    'edit'    => $this->canEdit ? [
+                    'title' => $fulfilmentCustomer->customer->name,
+                    'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                             'parameters' => array_values($request->route()->originalParameters())
@@ -127,7 +129,7 @@ class ShowFulfilmentCustomer extends OrgAction
                     ]
                 ],
 
-                'tabs'        => [
+                'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => $navigation
                 ],
@@ -142,28 +144,51 @@ class ShowFulfilmentCustomer extends OrgAction
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($fulfilmentCustomer))),
 
                 CustomerFulfilmentTabsEnum::STORED_ITEMS->value => $this->tab == CustomerFulfilmentTabsEnum::STORED_ITEMS->value ?
-                    fn () => StoredItemResource::collection(IndexStoredItems::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLETS->value))
-                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItems::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLETS->value))),
+                    fn () => StoredItemResource::collection(
+                        IndexStoredItems::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLETS->value)
+                    )
+                    : Inertia::lazy(
+                        fn () => StoredItemResource::collection(
+                            IndexStoredItems::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLETS->value)
+                        )
+                    ),
 
                 CustomerFulfilmentTabsEnum::STORED_ITEM_RETURNS->value => $this->tab == CustomerFulfilmentTabsEnum::STORED_ITEM_RETURNS->value ?
                     fn () => StoredItemReturnsResource::collection(IndexStoredItemReturns::run($fulfilmentCustomer))
-                    : Inertia::lazy(fn () => StoredItemReturnsResource::collection(IndexStoredItemReturns::run($fulfilmentCustomer))),
+                    : Inertia::lazy(
+                        fn () => StoredItemReturnsResource::collection(IndexStoredItemReturns::run($fulfilmentCustomer))
+                    ),
 
                 CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value => $this->tab == CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value ?
                     fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer))
-                    : Inertia::lazy(fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer))),
+                    : Inertia::lazy(
+                        fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer))
+                    ),
 
                 CustomerFulfilmentTabsEnum::PALLET_RETURNS->value => $this->tab == CustomerFulfilmentTabsEnum::PALLET_RETURNS->value ?
-                    fn () => PalletReturnsResource::collection(IndexPalletReturns::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLET_RETURNS->value))
-                    : Inertia::lazy(fn () => PalletReturnsResource::collection(IndexPalletReturns::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLET_RETURNS->value))),
+                    fn () => PalletReturnsResource::collection(
+                        IndexPalletReturns::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLET_RETURNS->value)
+                    )
+                    : Inertia::lazy(
+                        fn () => PalletReturnsResource::collection(
+                            IndexPalletReturns::run(
+                                $fulfilmentCustomer,
+                                CustomerFulfilmentTabsEnum::PALLET_RETURNS->value
+                            )
+                        )
+                    ),
 
                 CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value ?
                     fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($fulfilmentCustomer))
-                    : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($fulfilmentCustomer))),
+                    : Inertia::lazy(
+                        fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($fulfilmentCustomer))
+                    ),
 
                 CustomerFulfilmentTabsEnum::WEB_USERS->value => $this->tab == CustomerFulfilmentTabsEnum::WEB_USERS->value ?
                     fn () => WebUsersResource::collection(IndexWebUsers::run($fulfilmentCustomer->customer))
-                    : Inertia::lazy(fn () => WebUsersResource::collection(IndexWebUsers::run($fulfilmentCustomer->customer))),
+                    : Inertia::lazy(
+                        fn () => WebUsersResource::collection(IndexWebUsers::run($fulfilmentCustomer->customer))
+                    ),
 
 
             ]
@@ -171,25 +196,26 @@ class ShowFulfilmentCustomer extends OrgAction
             ->table(
                 IndexPalletDeliveries::make()->tableStructure(
                     $fulfilmentCustomer,
-                    modelOperations:
-                        [
-                            'createLink' => [
-                                [
-                                    'type'    => 'button',
-                                    'style'   => 'create',
-                                    'tooltip' => __('Create new delivery order'),
-                                    'label'   => __('New pallet delivery'),
-                                    'options' => [
-                                        'warehouses' => WarehouseResource::collection($fulfilmentCustomer->fulfilment->warehouses)
-                                    ],
-                                    'route'   => [
-                                        'method'     => 'post',
-                                        'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
-                                        'parameters' => [$fulfilmentCustomer->id]
-                                    ]
+                    modelOperations: [
+                        'createLink' => [
+                            [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('Create new delivery order'),
+                                'label'   => __('New pallet delivery'),
+                                'options' => [
+                                    'warehouses' => WarehouseResource::collection(
+                                        $fulfilmentCustomer->fulfilment->warehouses
+                                    )
+                                ],
+                                'route' => [
+                                    'method'     => 'post',
+                                    'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
+                                    'parameters' => [$fulfilmentCustomer->id]
                                 ]
                             ]
-                        ],
+                        ]
+                    ],
                     prefix: CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value,
                 )
             )
@@ -268,24 +294,28 @@ class ShowFulfilmentCustomer extends OrgAction
                 )
             )->table(
                 IndexWebUsers::make()->tableStructure(
-                    parent: $fulfilmentCustomer->customer,
-                    modelOperations:
-                        [
-                            'createLink' => [
-                                [
-                                    'type'    => 'button',
-                                    'style'   => 'create',
-                                    'tooltip' => __('Create new web user'),
-                                    'label'   => __('Create Web User'),
-                                    'route'   => [
-                                        'method'     => 'get',
-                                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.web-users.create',
-                                        'parameters' => [$fulfilmentCustomer->organisation->slug, $fulfilmentCustomer->fulfilment->slug, $fulfilmentCustomer->customer->slug]
+                    parent: $fulfilmentCustomer,
+                    modelOperations: [
+                        'createLink' => [
+                            [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('Create new web user'),
+                                'label'   => __('Create Web User'),
+                                'route'   => [
+                                    'method'     => 'get',
+                                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.web-users.create',
+                                    'parameters' => [
+                                        $fulfilmentCustomer->organisation->slug,
+                                        $fulfilmentCustomer->fulfilment->slug,
+                                        $fulfilmentCustomer->customer->slug
                                     ]
                                 ]
                             ]
-                        ],
-                    prefix: CustomerFulfilmentTabsEnum::WEB_USERS->value
+                        ]
+                    ],
+                    prefix: CustomerFulfilmentTabsEnum::WEB_USERS->value,
+                    canEdit: $this->canEdit
                 )
             );
     }
@@ -314,13 +344,13 @@ class ShowFulfilmentCustomer extends OrgAction
                         ],
 
                     ],
-                    'suffix'         => $suffix
+                    'suffix' => $suffix
 
                 ],
             ];
         };
 
-        if(Arr::get($routeParameters, 'pallet')) {
+        if (Arr::get($routeParameters, 'pallet')) {
             $pallet             = Pallet::where('reference', $routeParameters['pallet'])->first();
             $fulfilmentCustomer = $pallet->fulfilmentCustomer->slug;
         } else {
@@ -342,7 +372,10 @@ class ShowFulfilmentCustomer extends OrgAction
                     ],
                     'model' => [
                         'name'       => 'grp.org.fulfilments.show.crm.customers.show',
-                        'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
+                        'parameters' => Arr::only(
+                            $routeParameters,
+                            ['organisation', 'fulfilment', 'fulfilmentCustomer']
+                        )
                     ]
                 ]
             )

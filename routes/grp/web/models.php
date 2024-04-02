@@ -9,6 +9,7 @@
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\CRM\Prospect\ImportShopProspects;
+use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
@@ -92,7 +93,6 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('/shop/{shop:id}/customer', StoreCustomer::class)->name('shop.customer.store');
     Route::patch('/shop/{shop:id}/customer/{customer:id}', UpdateCustomer::class)->name('shop.customer.update')->withoutScopedBindings();
     Route::post('/shop/{shop:id}/fulfilment/{fulfilment:id}/customer', StoreFulfilmentCustomer::class)->name('shop.fulfilment-customer.store')->withoutScopedBindings();
-    Route::patch('/shop/{shop:id}/fulfilment/{fulfilment:id}/customer/{fulfilmentCustomer:id}', UpdateFulfilmentCustomer::class)->name('shop.fulfilment-customer.update')->withoutScopedBindings();
 
     Route::post('/shop/{shop:id}/product/', [StoreProduct::class, 'inShop'])->name('show.product.store');
     Route::delete('/shop/{shop:id}/product/{product:id}', [DeleteProduct::class, 'inShop'])->name('shop.product.delete');
@@ -143,6 +143,8 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
 Route::patch('{storedItem:id}/stored-items', MoveStoredItem::class)->name('stored-items.move');
 
 Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
+    Route::patch('', UpdateFulfilmentCustomer::class)->name('update')->withoutScopedBindings();
+
     Route::post('stored-item-return', StoreStoredItemReturn::class)->name('stored-item-return.store');
     Route::post('stored-items', StoreStoredItem::class)->name('stored-items.store');
     Route::patch('', UpdateFulfilmentCustomer::class)->name('update');
@@ -151,6 +153,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::get('pallet-delivery/{palletDelivery:id}/export', PdfPalletDelivery::class)->name('pallet-delivery.export');
     Route::patch('pallet-delivery/{palletDelivery:id}/timeline', UpdatePalletDeliveryTimeline::class)->name('pallet-delivery.timeline.update');
     Route::post('pallet-return', StorePalletReturn::class)->name('pallet-return.store');
+    Route::post('', [StoreWebUser::class,'inFulfilmentCustomer'])->name('web-user.store');
 
     Route::prefix('pallet-return/{palletReturn:id}')->name('pallet-return.')->group(function () {
         Route::delete('pallet/{pallet:id}', DeletePalletFromReturn::class)->name('pallet.delete');
@@ -208,6 +211,10 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
 });
 
 Route::patch('/web-user/{webUser:id}', UpdateWebUser::class)->name('web-user.update');
+
+Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
+    Route::post('', [StoreWebUser::class,'inCustomer'])->name('web-user.store');
+});
 
 
 /*

@@ -38,6 +38,7 @@ class IndexWebUsers extends OrgAction
 
     public function handle(Shop|Organisation|Customer|FulfilmentCustomer|Website $parent, $prefix = null): LengthAwarePaginator
     {
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('username', $value);
@@ -62,6 +63,7 @@ class IndexWebUsers extends OrgAction
         } else {
             $queryBuilder->where('shop_id', $parent->id);
         }
+
 
 
         return $queryBuilder
@@ -104,9 +106,10 @@ class IndexWebUsers extends OrgAction
         )->table($this->tableStructure($this->parent));
     }
 
-    public function tableStructure(Shop|Organisation|Customer|FulfilmentCustomer|Website $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Shop|Organisation|Customer|FulfilmentCustomer|Website $parent, ?array $modelOperations = null, $prefix = null, $canEdit=false): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix, $parent, $canEdit) {
+
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -114,6 +117,45 @@ class IndexWebUsers extends OrgAction
             }
             $table
                 ->withModelOperations($modelOperations)
+                ->withEmptyState(
+                    match (class_basename($parent)) {
+                        'Customer' => [
+                            'title'       => __("Customer don't have any login credentials"),
+                            'count'       => $parent->stats->number_web_users,
+                            'action'      => $canEdit && $parent->stats->number_web_users == 0
+                                ?
+                                [
+                                    'type'    => 'button',
+                                    'style'   => 'create',
+                                    'tooltip' => __('new website user'),
+                                    'label'   => __('website user'),
+                                    'route'   => [
+                                        'name'       => 'grp.org.shops.show.crm.customers.show.web-users.create',
+                                        'parameters' => [$parent->organisation->slug,$parent->shop->slug,$parent->slug]
+                                    ]
+                                ] : null
+
+                        ],
+                        'FulfilmentCustomer' => [
+                            'title'       => __("Customer don't have any login credentials"),
+                            'count'       => $parent->customer->stats->number_web_users,
+                            'action'      => $canEdit && $parent->customer->stats->number_web_users == 0
+                                ?
+                                [
+                                    'type'    => 'button',
+                                    'style'   => 'create',
+                                    'tooltip' => __('new website user'),
+                                    'label'   => __('website user'),
+                                    'route'   => [
+                                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.web-users.create',
+                                        'parameters' => [$parent->organisation->slug,$parent->fulfilment->slug,$parent->slug]
+                                    ]
+                                ] : null
+
+                        ],
+                        default => null
+                    }
+                )
                 ->withGlobalSearch()
                 ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
               // ->column(key: 'email', label: __('email'), canBeHidden: false, sortable: true, searchable: true)
