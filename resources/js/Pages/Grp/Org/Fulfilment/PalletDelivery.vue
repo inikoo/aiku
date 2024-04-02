@@ -23,13 +23,16 @@ import { trans } from "laravel-vue-i18n"
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
+
 import { PalletDelivery } from '@/types/Pallet'
 import { Table } from '@/types/Table'
 import { Tabs as TSTabs } from '@/types/Tabs'
-import { useLayoutStore } from '@/Stores/layout'
+import { Customer } from '@/types/customer'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus, faFilePdf } from '@fal'
+import { useFormatTime } from '@/Composables/useFormatTime'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus, faFilePdf)
 
 const props = defineProps<{
@@ -38,6 +41,11 @@ const props = defineProps<{
     pallets?: Table
     data?: {
         data: PalletDelivery
+    }
+    box_stats: {
+        customer: Customer
+        delivery_status: {}
+        total_pallet: {}
     }
     history?: {}
     pageHead: PageHeadingTypes
@@ -55,7 +63,7 @@ const props = defineProps<{
     },
 }>()
 
-// console.log('props', props)
+// console.log('props', props.box_stats.customer)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -285,16 +293,84 @@ watch(() => props.data, (newValue) => {
         </template>
     </PageHeading>
 
+    <!-- Section: Timeline -->
     <div v-if="timeline.state != 'in-process'" class="border-b border-gray-200">
         <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="6" />
     </div>
 
     <!-- Box -->
-    <div class="h-16 grid grid-cols-4 gap-x-2 px-6 my-4 border-b border-gray-200">
+    <div class="h-min grid grid-cols-4 gap-x-2 px-6 py-4 border-b border-gray-200">
         <!-- Stats: User name -->
-        <BoxStatsPalletDelivery :layout="useLayoutStore()" tooltip="Customer name" :label="data?.data.customer_name" icon="fal fa-user" />
-        <BoxStatsPalletDelivery :layout="useLayoutStore()" tooltip="Delivery status" :label="capitalize(data?.data.state)" icon="fal fa-truck-couch" />
-        <BoxStatsPalletDelivery :layout="useLayoutStore()" tooltip="Total pallet" :label="data?.data.number_pallets" icon="fal fa-pallet" />
+        <BoxStatsPalletDelivery tooltip="Customer" :label="data?.data.customer_name" icon="fal fa-user">
+            <!-- Field: Contact name -->
+            <div v-if="box_stats.customer.contact_name" class="flex items-center w-full flex-none gap-x-2">
+                <dt v-tooltip="'Contact name'" class="flex-none">
+                    <span class="sr-only">Contact name</span>
+                    <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">{{ box_stats.customer.contact_name }}</dd>
+            </div>
+
+            <!-- Field: Contact name -->
+            <div v-if="box_stats.customer.company_name" class="flex items-center w-full flex-none gap-x-2">
+                <dt v-tooltip="'Company name'" class="flex-none">
+                    <span class="sr-only">Company name</span>
+                    <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">{{ box_stats.customer.company_name }}</dd>
+            </div>
+
+            <!-- Field: Created at -->
+            <div v-if="box_stats.customer?.created_at" class="flex items-center w-full flex-none gap-x-2">
+                <dt v-tooltip="'Created at'" class="flex-none">
+                    <span class="sr-only">Created at</span>
+                    <FontAwesomeIcon icon='fal fa-calendar-alt' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">
+                    <time datetime="2023-01-31">{{ useFormatTime(box_stats.customer?.created_at) }}</time>
+                </dd>
+            </div>
+            
+            <!-- Field: Email -->
+            <div v-if="box_stats.customer?.email" class="flex items-center w-full flex-none gap-x-2">
+                <dt v-tooltip="'Email'" class="flex-none">
+                    <span class="sr-only">Email</span>
+                    <FontAwesomeIcon icon='fal fa-envelope' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">{{ box_stats.customer?.email }}</dd>
+            </div>
+            
+            <!-- Field: Phone -->
+            <div v-if="box_stats.customer?.phone" class="flex items-center w-full flex-none gap-x-2">
+                <dt v-tooltip="'Phone'" class="flex-none">
+                    <span class="sr-only">Phone</span>
+                    <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">{{ box_stats.customer?.phone }}</dd>
+            </div>
+        </BoxStatsPalletDelivery>
+
+        <!-- Box: Delivery status -->
+        <BoxStatsPalletDelivery tooltip="Delivery status" :label="capitalize(data?.data.state)" icon="fal fa-truck-couch">
+            <div class="flex items-center w-full flex-none gap-x-2">
+                <dt class="flex-none">
+                    <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
+                    <FontAwesomeIcon :icon='box_stats.delivery_status.icon' :class='box_stats.delivery_status.class' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">{{ box_stats.delivery_status.tooltip }}</dd>
+            </div>
+        </BoxStatsPalletDelivery>
+
+        <!-- Box: Total pallet -->
+        <BoxStatsPalletDelivery tooltip="Total pallet" :percentage="0">
+            <div class="flex items-end gap-x-3">
+                <dt class="flex-none">
+                    <span class="sr-only">Total pallet</span>
+                    <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="text-gray-600 leading-none text-3xl font-medium">{{ data?.data.number_pallets }}</dd>
+            </div>
+        </BoxStatsPalletDelivery>
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
