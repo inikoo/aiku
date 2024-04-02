@@ -9,6 +9,7 @@
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\CRM\Prospect\ImportShopProspects;
+use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
@@ -206,6 +207,9 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
     Route::post('launch', LaunchWebsite::class)->name('launch');
 });
 
+Route::patch('/web-user/{webUser:id}', UpdateWebUser::class)->name('web-user.update');
+
+
 /*
 
 
@@ -223,7 +227,6 @@ Route::post('stored-items/customer/{customer:id}', StoreStoredItem::class)->name
 Route::patch('stored-items/{storedItem:id}', UpdateStoredItem::class)->name('stored-items.update');
 
 Route::delete('/website/{website:id}', DeleteWebsite::class)->name('website.delete');
-Route::patch('/web-user/{webUser:id}', UpdateWebUser::class)->name('web-user.update');
 
 
 

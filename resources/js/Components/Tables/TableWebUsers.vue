@@ -26,20 +26,24 @@ function webUserRoute(webUser: WebUser) {
                 [route().params.organisation, route().params.fulfilment, route().params.fulfilmentCustomer, webUser.slug]
             );
 
-        case "grp.org.shops.show.web.webUsers.index":
+        case "grp.org.shops.show.web.web-users.index":
             return route(
-                "grp.org.shops.show.web.webUsers.show",
+                "grp.org.shops.show.web.web-users.show",
                 [route().params.organisation, route().params.shop, webUser.slug]
             );
-        case "grp.org.fulfilments.show.web.webUsers.index":
+        case "grp.org.fulfilments.show.web.web-users.index":
             return route(
-                "grp.org.fulfilments.show.web.webUsers.show",
+                "grp.org.fulfilments.show.web.web-users.show",
                 [route().params.organisation, route().params.fulfilment, webUser.slug]);
 
         case  "grp.org.shops.show.web.websites.show":
             return route(
                 "grp.org.shops.show.web.websites.show.web-users.show",
                 [route().params.organisation, route().params.shop, route().params.website, webUser.slug]);
+        case 'grp.org.fulfilments.show.crm.customers.show':
+            return route(
+                "grp.org.fulfilments.show.crm.customers.show.web-users.show",
+                [route().params.organisation, route().params.fulfilment,  route().params.fulfilmentCustomer, webUser.slug]);
     }
 }
 

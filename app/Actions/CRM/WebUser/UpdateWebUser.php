@@ -12,8 +12,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Models\CRM\WebUser;
-use App\Models\Market\Shop;
-use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
@@ -25,6 +23,7 @@ class UpdateWebUser extends OrgAction
     use WithActionUpdate;
 
     private WebUser $webUser;
+    private bool $strict=true;
 
     public function handle(WebUser $webUser, array $modelData): WebUser
     {
@@ -111,10 +110,10 @@ class UpdateWebUser extends OrgAction
         return $rules;
     }
 
-    public function asController(Organisation $organisation, Shop $shop, WebUser $webUser, ActionRequest $request): WebUser
+    public function asController(WebUser $webUser, ActionRequest $request): WebUser
     {
         $this->webUser = $webUser;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($webUser->shop, $request);
 
         return $this->handle($webUser, $this->validatedData);
     }
