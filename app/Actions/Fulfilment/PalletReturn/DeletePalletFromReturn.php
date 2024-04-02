@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\PalletReturn;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\CRM\WebUser;
@@ -28,7 +29,9 @@ class DeletePalletFromReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, Pallet $pallet): bool
     {
-        $this->update($pallet, ['pallet_return_id' => null, 'status' => PalletStatusEnum::STORING]);
+        $this->update($pallet, ['pallet_return_id' => null,
+            'status'                               => PalletStatusEnum::STORING,
+            'state'                                => PalletStateEnum::STORING]);
         $palletReturn->pallets()->detach([$pallet->id]);
 
         HydrateFulfilmentCustomer::dispatch($palletReturn->fulfilmentCustomer);
