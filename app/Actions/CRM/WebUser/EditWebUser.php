@@ -7,17 +7,23 @@
 
 namespace App\Actions\CRM\WebUser;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Market\Shop;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditWebUser extends InertiaAction
+class EditWebUser extends OrgAction
 {
+    private Fulfilment|Shop $parent;
+    private Customer|FulfilmentCustomer $scope;
+
     public function handle(WebUser $webUser): WebUser
     {
         return $webUser;
@@ -25,39 +31,51 @@ class EditWebUser extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("crm.customers.edit");
+        if($this->parent instanceof Fulfilment) {
+            return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.view");
+
+        }
+
+        return false;
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-
-    public function inCustomerInTenant(Customer $customer, WebUser $webUser, ActionRequest $request): WebUser
+    public function asController(Organisation $organisation, Shop $shop, Customer $customer, WebUser $webUser, ActionRequest $request): WebUser
     {
-        $this->initialisation($request);
+        $this->parent=$shop;
+        $this->scope =$customer;
+
+        $this->initialisationFromShop($shop, $request);
 
         return $this->handle($webUser);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inCustomerInShop(Shop $shop, Customer $customer, WebUser $webUser, ActionRequest $request): WebUser
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, WebUser $webUser, ActionRequest $request): WebUser
     {
-        $this->initialisation($request);
+        $this->parent=$fulfilment;
+        $this->scope =$fulfilmentCustomer;
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($webUser);
     }
+
 
 
     public function htmlResponse(WebUser $webUser, ActionRequest $request): Response
     {
-        $scope     = match ($request->route()->getName()) {
-            'grp.org.shops.show.crm.customers.show.web-users.edit' => $request->route()->originalParameters()()['customer'],
-            default                                                => app('currentTenant')
-        };
+        $scope     = $this->scope;
         $container = null;
         if (class_basename($scope) == 'Customer') {
             $container = [
                 'icon'    => ['fal', 'fa-user'],
                 'tooltip' => __('Customer'),
                 'label'   => Str::possessive($scope->name)
+            ];
+        } elseif (class_basename($scope) == 'FulfilmentCustomer') {
+            $container = [
+                'icon'    => ['fal', 'fa-user'],
+                'tooltip' => __('Customer'),
+                'label'   => Str::possessive($scope->customer->name)
             ];
         }
 
