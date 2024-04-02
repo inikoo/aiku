@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\PalletReturn\Hydrators\HydratePalletReturns;
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -32,15 +33,17 @@ class StorePalletToReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        foreach (Arr::get($modelData, 'pallets') as $pallet) {
-            $pallet = Pallet::find($pallet);
+        $palletIds = Arr::get($modelData, 'pallets');
 
-            $pallet->update([
-                'pallet_return_id' => $palletReturn->id,
-                'status'           => PalletStatusEnum::RETURNED
-            ]);
-        }
+        $palletReturn->pallets()->sync($palletIds);
 
+        Pallet::whereIn('id', $palletIds)->update([
+            'pallet_return_id' => $palletReturn->id,
+            'status'           => PalletStatusEnum::STORING,
+            'state'            => PalletStateEnum::IN_PROCESS
+        ]);
+
+        $palletReturn->refresh();
         HydratePalletReturns::run($palletReturn);
 
         return $palletReturn;

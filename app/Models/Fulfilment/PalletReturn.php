@@ -15,7 +15,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
@@ -125,9 +125,9 @@ class PalletReturn extends Model
         return $this->belongsTo(FulfilmentCustomer::class);
     }
 
-    public function pallets(): HasMany
+    public function pallets(): BelongsToMany
     {
-        return $this->hasMany(Pallet::class, 'pallet_return_id');
+        return $this->belongsToMany(Pallet::class, 'pallet_return_items')->withPivot('state');
     }
 
     public function stats(): HasOne
