@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -200,7 +201,7 @@ class IndexPalletReturnItems extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $pallets): AnonymousResourceCollection
     {
-        return PalletsResource::collection($pallets);
+        return PalletReturnItemsResource::collection($pallets);
     }
 
 

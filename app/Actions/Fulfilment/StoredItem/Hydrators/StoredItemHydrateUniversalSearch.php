@@ -20,9 +20,12 @@ class StoredItemHydrateUniversalSearch
         $storedItem->universalSearch()->updateOrCreate(
             [],
             [
-                'section'     => 'fulfilment',
-                'title'       => $storedItem->code,
-                'description' => $storedItem->notes
+                'group_id'        => $storedItem->group_id,
+                'organisation_id' => $storedItem->organisation_id,
+                'section'         => 'fulfilment',
+                'title'           => $storedItem->code,
+                'description'     => $storedItem->notes,
+                'slug'            => 'sto-'.$storedItem->code,
             ]
         );
     }
