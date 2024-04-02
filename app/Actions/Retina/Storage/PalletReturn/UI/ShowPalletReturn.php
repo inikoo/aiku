@@ -69,7 +69,7 @@ class ShowPalletReturn extends RetinaAction
                             'route' => [
                                 'name'       => 'retina.models.pallet-return.pallet.store',
                                 'parameters' => [
-                                    'palletReturn'       => $palletReturn->reference
+                                    'palletReturn'       => $palletReturn->slug
                                 ]
                             ]
                         ],
@@ -113,7 +113,7 @@ class ShowPalletReturn extends RetinaAction
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
                             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                            'palletReturn'       => $palletReturn->reference
+                            'palletReturn'       => $palletReturn->slug
                         ]
                     ]
                 ],
@@ -125,7 +125,7 @@ class ShowPalletReturn extends RetinaAction
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
                             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                            'palletReturn'       => $palletReturn->reference
+                            'palletReturn'       => $palletReturn->slug
                         ]
                     ],
                     'download' => [
@@ -134,7 +134,7 @@ class ShowPalletReturn extends RetinaAction
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
                             'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
-                            'palletReturn'       => $palletReturn->reference
+                            'palletReturn'       => $palletReturn->slug
                         ]
                     ],
                 ],
@@ -190,7 +190,7 @@ class ShowPalletReturn extends RetinaAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $palletReturn->reference,
+                            'label' => $palletReturn->slug,
                         ],
 
                     ],
@@ -199,7 +199,7 @@ class ShowPalletReturn extends RetinaAction
             ];
         };
 
-        $palletReturn = PalletReturn::where('reference', $routeParameters['palletReturn'])->first();
+        $palletReturn = PalletReturn::where('slug', $routeParameters['palletReturn'])->first();
 
         return match ($routeName) {
             'retina.storage.pallet-returns.show' => array_merge(
@@ -247,26 +247,26 @@ class ShowPalletReturn extends RetinaAction
 
         return match (class_basename($this->parent)) {
             'Warehouse' => [
-                'label' => $palletReturn->reference,
+                'label' => $palletReturn->slug,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
                         'organisation'   => $palletReturn->organisation->slug,
                         'warehouse'      => $palletReturn->warehouse->slug,
-                        'palletReturn'   => $palletReturn->reference
+                        'palletReturn'   => $palletReturn->slug
                     ]
 
                 ]
             ],
             'FulfilmentCustomer' => [
-                'label' => $palletReturn->reference,
+                'label' => $palletReturn->slug,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
                         'organisation'       => $palletReturn->organisation->slug,
                         'fulfilment'         => $palletReturn->fulfilment->slug,
                         'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->slug,
-                        'palletReturn'       => $palletReturn->reference
+                        'palletReturn'       => $palletReturn->slug
                     ]
 
                 ]

@@ -1,4 +1,5 @@
 import { Timeline } from "@/types/Timeline"
+import { Customer } from '@/types/customer'
 
 export interface PalletCustomer {
     slug: string
@@ -37,4 +38,16 @@ export interface PalletDelivery {
     reference: string
     state: string
     timeline: Timeline[]
+}
+
+// Box Stats in Pallet Delivery
+export interface PDBoxStats {
+    fulfilment_customer: Customer
+    delivery_status: PalletStatus
+}
+
+export interface PalletStatus {
+    tooltip: string
+    icon: string
+    class: string
 }

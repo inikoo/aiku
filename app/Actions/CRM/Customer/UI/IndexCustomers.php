@@ -9,13 +9,13 @@ namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-
 use App\Enums\Market\Shop\ShopTypeEnum;
-use App\Http\Resources\Sales\CustomersResource;
+use App\Http\Resources\CRM\CustomersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -24,7 +24,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexCustomers extends OrgAction
 {

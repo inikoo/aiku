@@ -6,10 +6,14 @@ import { inject } from 'vue'
 const layout = inject('layout', {})
 
 const props = defineProps<{
-    tooltip: string
+    tooltip?: string
     label?: string | number
     icon?: string | string[]
     percentage?: number
+    color?: {
+        bgColor?: string
+        textColor?: string
+    }
 }>()
 </script>
 
@@ -17,8 +21,8 @@ const props = defineProps<{
     <div class="relative flex flex-col justify-start" >
         <div v-if="tooltip" class="absolute top-0 left-0 text-xs border-b border-r border-gray-300 rounded-br py-0.5 pl-3 pr-4 shadow-sm"
             :style="{
-                backgroundColor: null,
-                color: layout?.app?.theme[0]
+                backgroundColor: color?.bgColor || '#fff',
+                color: color?.textColor || layout?.app?.theme[0]
             }"
         >
             {{ trans(tooltip) }}

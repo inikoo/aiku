@@ -27,7 +27,7 @@ class DeletePalletFromDelivery extends OrgAction
 
     public function handle(PalletDelivery $palletDelivery, Pallet $pallet): bool
     {
-        $this->update($pallet, ['pallet_delivery_id' => null]);
+        $this->update($pallet, ['pallet_delivery_id' => null, 'customer_reference' => null]);
 
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
 

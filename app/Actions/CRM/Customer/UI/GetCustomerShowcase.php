@@ -7,7 +7,7 @@
 
 namespace App\Actions\CRM\Customer\UI;
 
-use App\Http\Resources\Sales\CustomersResource;
+use App\Http\Resources\CRM\CustomersResource;
 use App\Models\CRM\Customer;
 use Lorisleiva\Actions\Concerns\AsObject;
 

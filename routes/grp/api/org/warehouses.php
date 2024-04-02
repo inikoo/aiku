@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
+use App\Actions\Fulfilment\PalletReturnItem\UI\IndexPalletReturnItems;
 use App\Actions\Fulfilment\UniversalScan\ShowUniversalScan;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\Location\UI\ShowLocation;
@@ -51,6 +52,6 @@ Route::prefix("{warehouse:id}")->name("warehouses.")
         Route::prefix('pallet-returns')->name('pallet-return.')->group(function () {
             Route::get('/', [IndexPalletReturns::class, 'inWarehouse'])->name('index');
             Route::get('{palletReturn:id}', [ShowPalletReturn::class, 'inWarehouse'])->name('show')->withoutScopedBindings();
-            Route::get('{palletReturn:id}/pallets', [IndexPallets::class, 'fromReturn'])->name('pallets.index')->withoutScopedBindings();
+            Route::get('{palletReturn:id}/pallets', [IndexPalletReturnItems::class, 'fromReturn'])->name('pallets.index')->withoutScopedBindings();
         });
     });

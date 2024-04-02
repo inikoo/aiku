@@ -25,16 +25,16 @@ import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
 import JsBarcode from 'jsbarcode'
 
-import { PalletDelivery } from '@/types/Pallet'
+import { PalletDelivery, PDBoxStats } from '@/types/Pallet'
 import { Table } from '@/types/Table'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { Customer } from '@/types/customer'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus, faFilePdf } from '@fal'
+import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt } from '@fal'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus, faFilePdf)
+library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt)
 
 const props = defineProps<{
     title: string
@@ -43,11 +43,7 @@ const props = defineProps<{
     data?: {
         data: PalletDelivery
     }
-    box_stats: {
-        customer: Customer
-        delivery_status: {}
-        total_pallet: {}
-    }
+    box_stats: PDBoxStats
     history?: {}
     pageHead: PageHeadingTypes
     updateRoute: {
@@ -64,7 +60,7 @@ const props = defineProps<{
     },
 }>()
 
-// console.log('props', props.box_stats.customer)
+console.log('props', props.box_stats.fulfilment_customer)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -216,9 +212,10 @@ onMounted(() => {
                             <PureInput
                                 v-model="formMultiplePallet.number_pallets"
                                 autofocus
-                                placeholder="1-1000"
+                                placeholder="1-100"
                                 type="number"
                                 :minValue="1"
+                                :maxValue="100"
                                 @update:modelValue="() => formMultiplePallet.errors.number_pallets = ''"
                                 @keydown.enter="() => formMultiplePallet.number_pallets ? handleFormSubmitAddMultiplePallet(action.button, closed) : ''"
                             />
@@ -311,40 +308,53 @@ onMounted(() => {
     <div class="h-min grid grid-cols-4 border-b border-gray-200 divide-x divide-gray-300">
         <!-- Box: Customer -->
         <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" tooltip="Customer" :label="data?.data.customer_name" icon="fal fa-user">
+            <!-- Field: Reference -->
+            <Link as="a" v-if="box_stats.fulfilment_customer.customer.reference"
+                :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, box_stats.fulfilment_customer.fulfilment.slug, box_stats.fulfilment_customer.slug])" 
+                class="flex items-center w-fit flex-none gap-x-2 cursor-pointer specialUnderlineSecondary">
+                <dt v-tooltip="'Company name'" class="flex-none">
+                    <span class="sr-only">Reference</span>
+                    <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.reference }}</dd>
+            </Link>
+            
             <!-- Field: Contact name -->
-            <Link as="a" v-if="box_stats.customer.contact_name" :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, route().params.fulfilment, box_stats.customer.slug])" class="flex items-center w-full flex-none gap-x-2 cursor-pointer">
+            <div v-if="box_stats.fulfilment_customer.customer.contact_name"
+                class="flex items-center w-full flex-none gap-x-2 cursor-pointer">
                 <dt v-tooltip="'Contact name'" class="flex-none">
                     <span class="sr-only">Contact name</span>
                     <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.customer.contact_name }}</dd>
-            </Link>
+                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.contact_name }}</dd>
+            </div>
 
-            <!-- Field: Contact name -->
-            <div v-if="box_stats.customer.company_name" class="flex items-center w-full flex-none gap-x-2 cursor-pointer">
+
+            <!-- Field: Company name -->
+            <div v-if="box_stats.fulfilment_customer.customer.company_name" class="flex items-center w-full flex-none gap-x-2 cursor-pointer">
                 <dt v-tooltip="'Company name'" class="flex-none">
                     <span class="sr-only">Company name</span>
                     <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.customer.company_name }}</dd>
+                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.company_name }}</dd>
             </div>
             
             <!-- Field: Email -->
-            <div v-if="box_stats.customer?.email" class="flex items-center w-full flex-none gap-x-2">
+            <div v-if="box_stats.fulfilment_customer?.customer.email" class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Email'" class="flex-none">
                     <span class="sr-only">Email</span>
                     <FontAwesomeIcon icon='fal fa-envelope' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.customer?.email }}</dd>
+                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer?.customer.email }}</dd>
             </div>
             
             <!-- Field: Phone -->
-            <div v-if="box_stats.customer?.phone" class="flex items-center w-full flex-none gap-x-2">
+            <div v-if="box_stats.fulfilment_customer?.customer.phone" class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Phone'" class="flex-none">
                     <span class="sr-only">Phone</span>
                     <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.customer?.phone }}</dd>
+                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer?.customer.phone }}</dd>
             </div>
         </BoxStatsPalletDelivery>
 

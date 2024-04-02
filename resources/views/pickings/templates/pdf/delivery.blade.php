@@ -25,7 +25,12 @@
         td {
             vertical-align: top;
         }
-
+        .barcode {
+            padding: 1.5mm;
+            margin: 0;
+            vertical-align: top;
+            color: #000000;
+        }
         .items td {
             border-left: 0.1mm solid #000000;
             border-right: 0.1mm solid #000000;
@@ -115,7 +120,7 @@
 
             <td style="text-align: right;">
                 <div>
-                    <barcode code="{{ 'pad-'.$delivery->slug }}" type="C128B" class="barcode" />
+                    <barcode code="{{ 'pad-'.$delivery->slug }}" type="C128B" />
                 </div>
                 <div>
                     <b>{{ 'pad-'.$delivery->slug }}</b>

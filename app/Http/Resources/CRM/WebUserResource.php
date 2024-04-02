@@ -7,7 +7,6 @@
 
 namespace App\Http\Resources\CRM;
 
-use App\Http\Resources\Sales\CustomersResource;
 use App\Models\CRM\WebUser;
 use Illuminate\Http\Resources\Json\JsonResource;
 

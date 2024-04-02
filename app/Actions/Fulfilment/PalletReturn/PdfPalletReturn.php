@@ -38,7 +38,7 @@ class PdfPalletReturn
             'auto_page_break_margin' => 10
         ];
 
-        $pdf = PDF::loadView('pickings.templates.pdf.return', [
+        $pdf = PDF::chunkLoadView('<html-separator/>', 'pickings.templates.pdf.return', [
             'filename' => $filename,
             'return'   => $palletReturn,
             'customer' => $palletReturn->fulfilmentCustomer->customer,

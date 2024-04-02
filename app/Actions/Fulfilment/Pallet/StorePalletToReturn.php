@@ -128,10 +128,10 @@ class StorePalletToReturn extends OrgAction
                 'organisation'           => $palletReturn->organisation->slug,
                 'fulfilment'             => $palletReturn->fulfilment->slug,
                 'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
-                'palletReturn'           => $palletReturn->reference
+                'palletReturn'           => $palletReturn->slug
             ]),
             default => Redirect::route('retina.storage.pallet-returns.show', [
-                'palletReturn'     => $palletReturn->reference
+                'palletReturn'     => $palletReturn->slug
             ])
         };
     }
