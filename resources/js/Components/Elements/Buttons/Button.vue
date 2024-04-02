@@ -55,7 +55,7 @@ else if ( props.type == 'secondary' || props.type == 'edit' || props.style == 's
     styleClass = 'buttonSecondary'
 }
 
-else if (props.type == 'tertiary' || props.style == 'tertiary' || props.type == 'exit' || props.style == 'exit' ) styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70'
+else if (props.type == 'tertiary' || props.style == 'tertiary' || props.type == 'exit' || props.style == 'exit' || props.style == 'exitEdit' ) styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70'
 else if (props.type == 'dashed' || props.style == 'dashed' ) styleClass = 'bg-transparent border border-dashed border-gray-300 text-gray-700 hover:bg-gray-200/70'
 else if (props.type == 'rainbow' || props.style == 'rainbow' ) styleClass = 'bg-indigo-500 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
 
@@ -108,6 +108,8 @@ const getActionLabel = (label: string | undefined) => {
                 return trans("create")
             case "exit":
                 return trans("exit")
+            case "exitEdit":
+                return trans("exit edit")
             case "cancel":
                 return trans("cancel")
             case "delete":
@@ -132,6 +134,7 @@ const getActionIcon = (icon: any) => {
                 return ["fas", "fa-save"]
             case "cancel":
             case "exit":
+            case "exitEdit":
                 return ["far", "fa-arrow-left"]
             case "create":
                 return ["fas", "fa-plus"]

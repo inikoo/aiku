@@ -269,6 +269,22 @@ class ShowFulfilmentCustomer extends OrgAction
             )->table(
                 IndexWebUsers::make()->tableStructure(
                     parent: $fulfilmentCustomer->customer,
+                    modelOperations:
+                        [
+                            'createLink' => [
+                                [
+                                    'type'    => 'button',
+                                    'style'   => 'create',
+                                    'tooltip' => __('Create new web user'),
+                                    'label'   => __('Create Web User'),
+                                    'route'   => [
+                                        'method'     => 'get',
+                                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.web-users.create',
+                                        'parameters' => [$fulfilmentCustomer->organisation->slug, $fulfilmentCustomer->fulfilment->slug, $fulfilmentCustomer->customer->slug]
+                                    ]
+                                ]
+                            ]
+                        ],
                     prefix: CustomerFulfilmentTabsEnum::WEB_USERS->value
                 )
             );
