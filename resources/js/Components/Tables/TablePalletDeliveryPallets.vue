@@ -15,7 +15,7 @@ import { Link, router, useForm } from "@inertiajs/vue3"
 import Icon from "@/Components/Icon.vue"
 import { faTimesSquare } from "@fas"
 import { faTrashAlt, faPaperPlane, faInventory } from "@far"
-import { faSignOutAlt, faTruckLoading, faTimes } from "@fal"
+import { faSignOutAlt, faTruckLoading, faStickyNote, faTimes } from "@fal"
 import { useLayoutStore } from "@/Stores/retinaLayout"
 import FieldEditableTable from "@/Components/FieldEditableTable.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
@@ -26,7 +26,7 @@ import StoredItemProperty from '@/Components/StoredItemsProperty.vue'
 import { routeType } from "@/types/route"
 import { Table as TSTable } from "@/types/Table"
 
-library.add( faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading, faTimesSquare, faTimes )
+library.add( faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading, faStickyNote, faTimesSquare, faTimes )
 
 const props = defineProps<{
 	data: TSTable
@@ -97,7 +97,13 @@ const onSaved = async (pallet: { form : {}}, fieldName: string) => {
 			<div v-if="state == 'in-process'" class="w-full">
 				<FieldEditableTable :data="item" @onSave="onSaved" fieldName="customer_reference" placeholder="Enter customer reference" />
 			</div>
-			<div v-else>{{ item["customer_reference"] }}</div>
+			<div v-else>
+                {{ item.customer_reference }}
+                <span v-if="item.notes" class="text-gray-400 text-xs ml-1">
+                    <FontAwesomeIcon icon='fal fa-sticky-note' class='text-gray-400' fixed-width aria-hidden='true' />
+                    {{ item.notes }}
+                </span>
+            </div>
 		</template>
 
         <!-- Column: Notes -->

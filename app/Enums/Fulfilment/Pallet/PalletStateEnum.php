@@ -19,21 +19,29 @@ enum PalletStateEnum: string
 {
     use EnumHelperTrait;
 
+    // Status: receiving
     case IN_PROCESS   = 'in-process';
     case SUBMITTED    = 'submitted';
     case CONFIRMED    = 'confirmed';
     case RECEIVED     = 'received';
+    case BOOKING_IN   = 'booking-in';
+    case BOOKED_IN    = 'booked-in';
+
+    // Status: not-received
     case NOT_RECEIVED = 'not-received';
 
-    case BOOKING_IN = 'booking-in';
-    case BOOKED_IN  = 'booked-in';
+    // Status: storing
     case STORING    = 'storing';
 
+    // Status: returning
     case PICKING = 'picking';
     case PICKED  = 'picked';
 
+    // Status: incident
     case DAMAGED    = 'damaged';
     case LOST       = 'lost';
+
+    // Status: returned
     case DISPATCHED = 'dispatched';
 
 
