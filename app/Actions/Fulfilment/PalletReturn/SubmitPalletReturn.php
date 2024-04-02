@@ -46,7 +46,7 @@ class SubmitPalletReturn extends OrgAction
                 'state' => $modelData['state']
             ]);
 
-            $palletReturn->pallets()->sync([$pallet->id => [
+            $palletReturn->pallets()->syncWithoutDetaching([$pallet->id => [
                 'state' => $modelData['state']
             ]]);
         }

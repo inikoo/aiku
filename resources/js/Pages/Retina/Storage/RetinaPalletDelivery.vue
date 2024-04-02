@@ -232,7 +232,7 @@ watch(() => props.data, (newValue) => {
     </PageHeading>
 
     <div v-if="timeline.state != 'in-process'" class="border-b border-gray-200">
-        <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="5" />
+        <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="6" />
     </div>
 
     <!-- Box: Stats -->

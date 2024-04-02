@@ -8,7 +8,7 @@
 import { trans } from 'laravel-vue-i18n'
 import { faSave as fadSave } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faDownload, faPlus as falPlus } from '@fal'
+import {faDownload, faFileExport, faPlus as falPlus} from '@fal'
 import { faArrowLeft, faPencil, faTrashAlt, faPersonDolly } from '@far'
 import { faPlus, faSave, faUpload, faTrashUndoAlt } from '@fas'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -19,7 +19,7 @@ import { inject } from 'vue'
 // const layout = useLayoutStore()
 const layout: any = inject('layout', {})
 
-library.add(faPlus, faSave, fadSave, faUpload, faDownload, falPlus, faArrowLeft, faPencil, faTrashAlt, faSpinnerThird, faTrashUndoAlt, faPersonDolly)
+library.add(faPlus, faSave, fadSave, faUpload, faDownload, falPlus, faArrowLeft, faPencil, faTrashAlt, faSpinnerThird, faTrashUndoAlt, faPersonDolly, faFileExport)
 
 
 const props = withDefaults(defineProps<{
@@ -55,7 +55,7 @@ else if ( props.type == 'secondary' || props.type == 'edit' || props.style == 's
     styleClass = 'buttonSecondary'
 }
 
-else if (props.type == 'tertiary' || props.style == 'tertiary' || props.type == 'exit' || props.style == 'exit' ) styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70'
+else if (props.type == 'tertiary' || props.style == 'tertiary' || props.type == 'exit' || props.style == 'exit' || props.style == 'exitEdit' ) styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70'
 else if (props.type == 'dashed' || props.style == 'dashed' ) styleClass = 'bg-transparent border border-dashed border-gray-300 text-gray-700 hover:bg-gray-200/70'
 else if (props.type == 'rainbow' || props.style == 'rainbow' ) styleClass = 'bg-indigo-500 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
 
@@ -108,6 +108,8 @@ const getActionLabel = (label: string | undefined) => {
                 return trans("create")
             case "exit":
                 return trans("exit")
+            case "exitEdit":
+                return trans("exit edit")
             case "cancel":
                 return trans("cancel")
             case "delete":
@@ -132,6 +134,7 @@ const getActionIcon = (icon: any) => {
                 return ["fas", "fa-save"]
             case "cancel":
             case "exit":
+            case "exitEdit":
                 return ["far", "fa-arrow-left"]
             case "create":
                 return ["fas", "fa-plus"]
@@ -159,7 +162,7 @@ const getActionIcon = (icon: any) => {
             sizeClass
         ]"
         :disabled="loading || style == 'disabled'"
-        v-tooltip="tooltip ?? undefined"    
+        v-tooltip="tooltip ?? undefined"
     >
         <slot>
             <slot name="loading">
@@ -209,7 +212,7 @@ const getActionIcon = (icon: any) => {
     &:focus {
         box-shadow: 0 0 0 2px v-bind('layout?.app?.theme[4]') !important;
     }
-    
+
     &:disabled {
         background-color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4] + "22"} 70%, black)`') !important;
     }

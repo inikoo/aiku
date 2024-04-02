@@ -35,7 +35,7 @@ class StorePalletToReturn extends OrgAction
     {
         $palletIds = Arr::get($modelData, 'pallets');
 
-        $palletReturn->pallets()->sync($palletIds);
+        $palletReturn->pallets()->syncWithoutDetaching($palletIds);
 
         Pallet::whereIn('id', $palletIds)->update([
             'pallet_return_id' => $palletReturn->id,

@@ -9,12 +9,12 @@ namespace App\Actions\Fulfilment\PalletDelivery;
 
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
+use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateUniversalSearch;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydratePallets;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePallets;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
@@ -44,6 +44,8 @@ class SubmitPalletDelivery extends OrgAction
                 'state'     => PalletStateEnum::SUBMITTED
             ]);
             $pallet->generateSlug();
+
+            PalletHydrateUniversalSearch::run($pallet);
         }
 
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);

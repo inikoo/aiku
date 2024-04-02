@@ -179,7 +179,7 @@ onMounted(() => {
     JsBarcode('#palletDeliveryBarcode', 'pad-' + route().v().params.palletDelivery, {
         lineColor: "rgb(41 37 36)",
         width: '2',
-        height: '100%',
+        height: '50%',
         displayValue: false
     });
 })
@@ -374,7 +374,7 @@ onMounted(() => {
         <BoxStatsPalletDelivery>
             <div class="h-full w-full px-2 flex flex-col items-center -mt-2">
                 <svg id="palletDeliveryBarcode" class="w-full" />
-                <div class="text-xxs md:text-xs text-gray-500 -mt-4">
+                <div class="text-xxs md:text-xxs text-gray-500 -mt-1">
                     pad-{{ route().params.palletDelivery }}
                 </div>
             </div>
