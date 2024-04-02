@@ -25,7 +25,6 @@ class UpdatePalletReturnStateFromItems extends HydrateModel
         $palletNotPickedCount = $palletReturn->pallets()
             ->wherePivot('state', PalletReturnItemStateEnum::NOT_PICKED)->count();
 
-
         if (($palletPickedCount + $palletNotPickedCount) == $palletCount) {
             PickedPalletReturn::run($palletReturn);
         }
