@@ -7,7 +7,9 @@
 
 namespace App\Http\Resources\UniversalSearch;
 
+use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Http\Resources\Fulfilment\PalletResource;
+use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\HumanResources\EmployeeSearchResultResource;
 use App\Http\Resources\Inventory\LocationResource;
@@ -26,13 +28,15 @@ class UniversalSearchResource extends JsonResource
             'model_type' => $this->model_type,
             'model'      => $this->when(true, function () {
                 return match (class_basename($this->resource->model)) {
-                    'Website'  => new WebsiteSearchResultResource($this->resource->model),
-                    'User'     => new UserSearchResultResource($this->resource->model),
-                    'Employee' => new EmployeeSearchResultResource($this->resource->model),
-                    'Location' => new LocationResource($this->resource->model),
-                    'Pallet'   => new PalletResource($this->resource->model),
-                    'Item'     => new StoredItemResource($this->resource->model),
-                    default    => [],
+                    'Website'        => new WebsiteSearchResultResource($this->resource->model),
+                    'User'           => new UserSearchResultResource($this->resource->model),
+                    'Employee'       => new EmployeeSearchResultResource($this->resource->model),
+                    'Location'       => new LocationResource($this->resource->model),
+                    'Pallet'         => new PalletResource($this->resource->model),
+                    'Item'           => new StoredItemResource($this->resource->model),
+                    'PalletDelivery' => new PalletDeliveryResource($this->resource->model),
+                    'PalletReturn'   => new PalletReturnResource($this->resource->model),
+                    default          => [],
                 };
             }),
         ];
