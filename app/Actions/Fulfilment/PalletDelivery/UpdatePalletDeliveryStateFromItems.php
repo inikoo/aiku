@@ -31,7 +31,7 @@ class UpdatePalletDeliveryStateFromItems
         $palletReceivedCount = $palletStateReceivedCount + $palletStateNotReceivedCount + $palletStateBookedInCount;
 
 
-        print "pallets $palletCount received $palletReceivedCount $palletStateBookedInCount $palletStateNotReceivedCount $palletStateReceivedCount\n";
+       //print "pallets $palletCount received $palletReceivedCount $palletStateBookedInCount $palletStateNotReceivedCount $palletStateReceivedCount\n";
 
 
         if (in_array($palletDelivery->state->value, [

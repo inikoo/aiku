@@ -10,6 +10,7 @@ namespace App\Actions\Inventory\Warehouse;
 use App\Actions\HydrateModel;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateFulfilments;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateLocations;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateStocks;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateWarehouseAreas;
 use App\Models\Inventory\Warehouse;
@@ -17,7 +18,7 @@ use Illuminate\Support\Collection;
 
 class HydrateWarehouse extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:warehouses {organisations?*} {--i|id=}';
+    public string $commandSignature = 'warehouse:hydrate {organisations?*} {--s|slugs=}';
 
     public function handle(Warehouse $warehouse): void
     {
@@ -25,6 +26,7 @@ class HydrateWarehouse extends HydrateModel
         WarehouseHydrateStocks::run($warehouse);
         WarehouseHydrateWarehouseAreas::run($warehouse);
         WarehouseHydrateFulfilments::run($warehouse);
+        WarehouseHydratePallets::run($warehouse);
     }
 
     protected function getModel(string $slug): Warehouse

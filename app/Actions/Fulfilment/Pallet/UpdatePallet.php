@@ -47,6 +47,8 @@ class UpdatePallet extends OrgAction
         }
 
 
+
+
         return $pallet;
     }
 
