@@ -3,7 +3,7 @@ import { Head, useForm, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
-import { computed, ref, watch } from "vue"
+import { computed, ref, watch, inject } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from "@/Components/Tables/TableHistories.vue"
 import RetinaTablePalletDeliveryPallets from '@/Components/Tables/RetinaTablePalletDeliveryPallets.vue'
@@ -16,11 +16,10 @@ import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 import { trans } from "laravel-vue-i18n"
 import { routeType } from '@/types/route'
 import { Table } from '@/types/Table'
-import { PalletDelivery } from '@/types/Pallet'
+import { PalletDelivery, PDBoxStats } from '@/types/Pallet'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
-import { useLayoutStore } from '@/Stores/retinaLayout'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -47,7 +46,10 @@ const props = defineProps<{
         index: routeType
         store: routeType
     }
+    box_stats: PDBoxStats
 }>()
+
+const layout = inject('layout', {})
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -167,8 +169,16 @@ watch(() => props.data, (newValue) => {
                     <div class="w-[250px]">
                         <span class="text-xs px-1 my-2">Number of pallets : </span>
                         <div>
-                            <PureInput v-model="formMultiplePallet.number_pallets" placeholder="1" type="number"
-                                :minValue="1" autofocus />
+                            <PureInput
+                                v-model="formMultiplePallet.number_pallets"
+                                placeholder="1-100"
+                                type="number"
+                                :minValue="1"
+                                :maxValue="100"
+                                autofocus
+                                @update:modelValue="() => formMultiplePallet.errors.number_pallets = ''"
+                                @keydown.enter="() => formMultiplePallet.number_pallets ? onAddMultiplePallet(action.button, closed) : ''"
+                            />
                             <p v-if="get(formMultiplePallet, ['errors', 'customer_reference'])"
                                 class="mt-2 text-sm text-red-600">
                                 {{ formMultiplePallet.errors.number_pallets }}
@@ -231,18 +241,34 @@ watch(() => props.data, (newValue) => {
         </template>
     </PageHeading>
 
+    <!-- Section: Timeline -->
     <div v-if="timeline.state != 'in-process'" class="border-b border-gray-200">
         <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="6" />
     </div>
 
     <!-- Box: Stats -->
-    <div class="h-16 grid grid-cols-4 gap-x-2 px-4 my-4">
-        <BoxStatsPalletDelivery :layout="useLayoutStore()" tooltip="Delivery status" :label="data?.data.state" icon="fal fa-truck-couch" />
-        <BoxStatsPalletDelivery :layout="useLayoutStore()" tooltip="Total pallet" :label="pallets?.meta.total" icon="fal fa-pallet" />
+    <div class="h-min grid grid-cols-4 border-b border-gray-200 divide-x divide-gray-300">
+        <!-- Box: Status -->
+        <BoxStatsPalletDelivery :color="{bgColor: layout.app.theme[0], textColor: layout.app.theme[1]}" class=" pb-2 py-5 px-3" :tooltip="trans('Status')" :label="capitalize(data?.data.state)" icon="fal fa-truck-couch">
+            <div class="flex items-center w-full flex-none gap-x-2">
+                <dt class="flex-none">
+                    <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
+                    <FontAwesomeIcon :icon='box_stats.delivery_status.icon' :class='box_stats.delivery_status.class' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">{{ box_stats.delivery_status.tooltip }}</dd>
+            </div>
+        </BoxStatsPalletDelivery>
 
-        <!-- <div class="relative flex flex-col justify-between p-4 rounded-md bg-fuchsia-200/70 border border-fuchsia-300 overflow-hidden">
-
-        </div> -->
+        <!-- Box: Pallet -->
+        <BoxStatsPalletDelivery :color="{bgColor: layout.app.theme[0], textColor: layout.app.theme[1]}" class=" pb-2 py-5 px-3" :tooltip="trans('Pallets')" :percentage="0">
+            <div class="flex items-end gap-x-3">
+                <dt class="flex-none">
+                    <span class="sr-only">Total pallet</span>
+                    <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="text-gray-600 leading-none text-3xl font-medium">{{ data?.data.number_pallets }}</dd>
+            </div>
+        </BoxStatsPalletDelivery>
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />

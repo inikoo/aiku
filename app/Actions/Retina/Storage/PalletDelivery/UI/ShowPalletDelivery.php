@@ -128,6 +128,10 @@ class ShowPalletDelivery extends RetinaAction
                     ] : []
                 ],
 
+                'box_stats'        => [
+                    'delivery_status'   => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
+                ],
+
                 'updateRoute' => [
                     'route' => [
                         'name'       => 'grp.models.fulfilment-customer.pallet-delivery.timeline.update',
