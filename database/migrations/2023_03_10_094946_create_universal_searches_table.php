@@ -14,12 +14,16 @@ return new class () extends Migration {
     {
         Schema::create('universal_searches', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('ulid')->nullable();
+            $table->string('slug')->nullable()->index();
             $table->boolean('in_organisation')->default(true);
+            $table->unsignedSmallInteger('group_id')->nullable()->index();
+            $table->foreign('group_id')->references('id')->on('groups');
             $table->unsignedSmallInteger('organisation_id')->nullable()->index();
             $table->foreign('organisation_id')->references('id')->on('organisations');
             $table->unsignedSmallInteger('shop_id')->nullable()->index();
             $table->foreign('shop_id')->references('id')->on('shops');
+            $table->unsignedSmallInteger('warehouse_id')->nullable()->index();
+            $table->foreign('warehouse_id')->references('id')->on('warehouses');
             $table->unsignedSmallInteger('website_id')->nullable()->index();
             $table->foreign('website_id')->references('id')->on('websites');
             $table->unsignedInteger('customer_id')->nullable()->index();

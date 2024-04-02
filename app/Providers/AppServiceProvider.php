@@ -70,6 +70,7 @@ class AppServiceProvider extends ServiceProvider
                 'Agent'                  => 'App\Models\SupplyChain\Agent',
                 'TradeUnit'              => 'App\Models\Goods\TradeUnit',
                 'Website'                => 'App\Models\Web\Website',
+                'Webpage'                => 'App\Models\Web\Webpage',
                 'Warehouse'              => 'App\Models\Inventory\Warehouse',
                 'WarehouseArea'          => 'App\Models\Inventory\WarehouseArea',
                 'Location'               => 'App\Models\Inventory\Location',
@@ -78,7 +79,15 @@ class AppServiceProvider extends ServiceProvider
                 'PaymentAccount'         => 'App\Models\Inventory\PaymentAccount',
                 'PaymentServiceProvider' => 'App\Models\Inventory\PaymentServiceProvider',
                 'Workplace'              => 'App\Models\HumanResources\Workplace',
-                'OrgStock'               => 'App\Models\Inventory\OrgStock'
+                'OrgStock'               => 'App\Models\Inventory\OrgStock',
+                'OrgStockFamily'         => 'App\Models\Inventory\OrgStockFamily',
+                'Stock'                  => 'App\Models\SupplyChain\Stock',
+                'StockFamily'            => 'App\Models\SupplyChain\StockFamily',
+                'Pallet'                 => 'App\Models\Fulfilment\Pallet',
+                'PalletDelivery'         => 'App\Models\Fulfilment\PalletDelivery',
+                'PalletReturn'           => 'App\Models\Fulfilment\PalletReturn',
+                'StoredItem'             => 'App\Models\Fulfilment\StoredItem',
+                'Invoice'                => 'App\Models\Accounting\Invoice',
 
 
             ]

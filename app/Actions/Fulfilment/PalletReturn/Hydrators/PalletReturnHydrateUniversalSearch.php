@@ -20,9 +20,11 @@ class PalletReturnHydrateUniversalSearch
         $palletReturn->universalSearch()->updateOrCreate(
             [],
             [
-                'section' => 'fulfilment',
-                'title'   => $palletReturn->reference,
-                'ulid'    => $palletReturn->slug,
+                'group_id'        => $palletReturn->group_id,
+                'organisation_id' => $palletReturn->organisation_id,
+                'section'         => 'fulfilment',
+                'title'           => $palletReturn->reference,
+                'slug'            => 'par-'.$palletReturn->slug,
             ]
         );
     }

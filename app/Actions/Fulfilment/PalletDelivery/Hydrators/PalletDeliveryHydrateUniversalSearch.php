@@ -20,9 +20,12 @@ class PalletDeliveryHydrateUniversalSearch
         $palletDelivery->universalSearch()->updateOrCreate(
             [],
             [
-                'section' => 'fulfilment',
-                'title'   => $palletDelivery->reference,
-                'ulid'    => $palletDelivery->slug,
+                'group_id'        => $palletDelivery->group_id,
+                'organisation_id' => $palletDelivery->organisation_id,
+                'warehouse_id'    => $palletDelivery->warehouse_id,
+                'section'         => 'fulfilment',
+                'title'           => $palletDelivery->reference,
+                'slug'            => 'pad-'.$palletDelivery->slug,
             ]
         );
     }
