@@ -9,14 +9,15 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
+use App\Actions\Fulfilment\PalletReturnItem\UI\IndexPalletReturnItems;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\UI\PalletReturnTabsEnum;
+use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
-use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
@@ -309,8 +310,8 @@ class ShowPalletReturn extends OrgAction
                 'data' => PalletReturnResource::make($palletReturn),
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
-                    fn () => PalletsResource::collection(IndexPallets::run($palletReturn))
-                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($palletReturn))),
+                    fn () => PalletReturnItemsResource::collection(IndexPalletReturnItems::run($palletReturn))
+                    : Inertia::lazy(fn () => PalletReturnItemsResource::collection(IndexPalletReturnItems::run($palletReturn))),
             ]
         )->table(
             IndexPallets::make()->tableStructure(

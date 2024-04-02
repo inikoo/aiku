@@ -13,6 +13,7 @@ use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\UI\PalletDeliveryTabsEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
@@ -41,8 +42,12 @@ class ShowPalletDelivery extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
-    {
+    public function asController(
+        Organisation $organisation,
+        Fulfilment $fulfilment,
+        PalletDelivery $palletDelivery,
+        ActionRequest $request
+    ): PalletDelivery {
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletDeliveryTabsEnum::values());
 
@@ -50,8 +55,12 @@ class ShowPalletDelivery extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
-    {
+    public function inWarehouse(
+        Organisation $organisation,
+        Warehouse $warehouse,
+        PalletDelivery $palletDelivery,
+        ActionRequest $request
+    ): PalletDelivery {
         $this->parent = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletDeliveryTabsEnum::values());
 
@@ -59,8 +68,13 @@ class ShowPalletDelivery extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
-    {
+    public function inFulfilmentCustomer(
+        Organisation $organisation,
+        Fulfilment $fulfilment,
+        FulfilmentCustomer $fulfilmentCustomer,
+        PalletDelivery $palletDelivery,
+        ActionRequest $request
+    ): PalletDelivery {
         $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletDeliveryTabsEnum::values());
 
@@ -83,6 +97,7 @@ class ShowPalletDelivery extends OrgAction
                 'label'   => Str::possessive($this->parent->customer->reference)
             ];
         }
+        $palletStateReceivedCount = $palletDelivery->pallets()->where('state', PalletStateEnum::RECEIVED)->count();
 
         $actions = [];
         if ($this->canEdit) {
@@ -113,20 +128,20 @@ class ShowPalletDelivery extends OrgAction
                                 'route' => [
                                     'name'       => 'grp.models.pallet-delivery.multiple-pallets.store',
                                     'parameters' => [
-                                        'palletDelivery'     => $palletDelivery->id
+                                        'palletDelivery' => $palletDelivery->id
                                     ]
                                 ]
                             ],
                             [
-                                'type'      => 'button',
-                                'style'     => 'secondary',
-                                'icon'      => 'fal fa-plus',
-                                'label'     => __('add pallet'),
-                                'tooltip'   => __('Add single pallet'),
-                                'route'     => [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'label'   => __('add pallet'),
+                                'tooltip' => __('Add single pallet'),
+                                'route'   => [
                                     'name'       => 'grp.models.pallet-delivery.pallet.store',
                                     'parameters' => [
-                                        'palletDelivery'     => $palletDelivery->id
+                                        'palletDelivery' => $palletDelivery->id
                                     ]
                                 ]
                             ],
@@ -181,25 +196,42 @@ class ShowPalletDelivery extends OrgAction
                         ]
                     ],
                 ],
+                PalletDeliveryStateEnum::BOOKING_IN => [
+                    $palletStateReceivedCount == 0 ? [
+                        'type'    => 'button',
+                        'style'   => 'primary',
+                        'icon'    => 'fal fa-check',
+                        'tooltip' => __('Confirm booking'),
+                        'label'   => __('Save booking'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'post',
+                            'name'       => 'grp.models.pallet-delivery.booked-in',
+                            'parameters' => [
+                                'palletDelivery' => $palletDelivery->id
+                            ]
+                        ]
+                    ] : null,
+                ],
                 default => []
             };
 
-            if(!in_array($palletDelivery->state, [
+            if (!in_array($palletDelivery->state, [
                 PalletDeliveryStateEnum::IN_PROCESS,
                 PalletDeliveryStateEnum::SUBMITTED
             ])) {
                 $actions[] = [
-                    'type'          => 'button',
-                    'style'         => 'tertiary',
-                    'label'         => 'PDF',
-                    'target'        => '_blank',
-                    'icon'          => 'fal fa-file-pdf',
-                    'key'           => 'action',
-                    'label'         => 'PDF',
-                    'route'         => [
+                    'type'   => 'button',
+                    'style'  => 'tertiary',
+                    'label'  => 'PDF',
+                    'target' => '_blank',
+                    'icon'   => 'fal fa-file-pdf',
+                    'key'    => 'action',
+                    'label'  => 'PDF',
+                    'route'  => [
                         'name'       => 'grp.models.pallet-delivery.pdf',
                         'parameters' => [
-                            'palletDelivery'     => $palletDelivery->id
+                            'palletDelivery' => $palletDelivery->id
                         ]
                     ]
                 ];
@@ -214,11 +246,11 @@ class ShowPalletDelivery extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'  => [
+                'navigation' => [
                     'previous' => $this->getPrevious($palletDelivery, $request),
                     'next'     => $this->getNext($palletDelivery, $request),
                 ],
-                'pageHead'    => [
+                'pageHead' => [
                     'container' => $container,
                     'title'     => $palletDelivery->reference,
                     'icon'      => [
@@ -253,11 +285,11 @@ class ShowPalletDelivery extends OrgAction
 
                 'upload' => [
                     'event'   => 'action-progress',
-                    'channel' => 'grp.personal.'.$this->organisation->id
+                    'channel' => 'grp.personal.' . $this->organisation->id
                 ],
 
                 'uploadRoutes' => [
-                    'history'  => [
+                    'history' => [
                         'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.pallets.uploads.history',
                         'parameters' => [
                             'organisation'       => $palletDelivery->organisation->slug,
@@ -280,8 +312,8 @@ class ShowPalletDelivery extends OrgAction
                 'locationRoute' => [
                     'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
                     'parameters' => [
-                        'organisation'       => $palletDelivery->organisation->slug,
-                        'warehouse'          => $palletDelivery->warehouse->slug
+                        'organisation' => $palletDelivery->organisation->slug,
+                        'warehouse'    => $palletDelivery->warehouse->slug
                     ]
                 ],
                 'storedItemsRoute' => [
@@ -350,12 +382,13 @@ class ShowPalletDelivery extends OrgAction
                         ],
 
                     ],
-                    'suffix'         => $suffix
+                    'suffix' => $suffix
                 ],
             ];
         };
 
         $palletDelivery = PalletDelivery::where('slug', $routeParameters['palletDelivery'])->first();
+
 
         return match ($routeName) {
             'grp.org.fulfilments.show.operations.pallet-deliveries.show' =>
@@ -370,7 +403,10 @@ class ShowPalletDelivery extends OrgAction
                         ],
                         'model' => [
                             'name'       => 'grp.org.fulfilments.show.operations.pallet-deliveries.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'palletDelivery'])
+                            'parameters' => Arr::only(
+                                $routeParameters,
+                                ['organisation', 'fulfilment', 'palletDelivery']
+                            )
                         ]
                     ],
                     $suffix
@@ -378,17 +414,25 @@ class ShowPalletDelivery extends OrgAction
             ),
             'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show' =>
             array_merge(
-                ShowFulfilmentCustomer::make()->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])),
+                ShowFulfilmentCustomer::make()->getBreadcrumbs(
+                    Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
+                ),
                 $headCrumb(
                     $palletDelivery,
                     [
                         'index' => [
                             'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.index',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
+                            'parameters' => Arr::only(
+                                $routeParameters,
+                                ['organisation', 'fulfilment', 'fulfilmentCustomer']
+                            )
                         ],
                         'model' => [
                             'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer', 'palletDelivery'])
+                            'parameters' => Arr::only(
+                                $routeParameters,
+                                ['organisation', 'fulfilment', 'fulfilmentCustomer', 'palletDelivery']
+                            )
                         ]
                     ],
                     $suffix

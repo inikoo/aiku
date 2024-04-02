@@ -27,6 +27,7 @@ enum PalletStateEnum: string
 
     case BOOKING_IN = 'booking-in';
     case BOOKED_IN  = 'booked-in';
+    case STORING    = 'storing';
 
     case PICKING = 'picking';
     case PICKED  = 'picked';
@@ -46,6 +47,7 @@ enum PalletStateEnum: string
             'received'     => __('Received'),
             'booking-in'   => __('Booking in'),
             'booked-in'    => __('Booked in'),
+            'storing'      => __('Storing'),
             'picking'      => __('Picking'),
             'picked'       => __('Picked'),
             'dispatched'   => __('Dispatched'),
@@ -87,18 +89,25 @@ enum PalletStateEnum: string
                 'class'   => 'text-red-500',
                 'color'   => 'red'
             ],
-            'booked-in' => [
-                'tooltip' => __('Booked in'),
-                'icon'    => 'fal fa-check-double',
-                'class'   => 'text-purple-500',
-                'color'   => 'purple'
-            ],
             'booking-in' => [
                 'tooltip' => __('Booking in'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-purple-500',
                 'color'   => 'purple'
             ],
+            'booked-in' => [
+                'tooltip' => __('Booked in'),
+                'icon'    => 'fal fa-check-double',
+                'class'   => 'text-purple-300',
+                'color'   => 'purple'
+            ],
+            'storing' => [
+                'tooltip' => __('Storing'),
+                'icon'    => 'fal fa-check-double',
+                'class'   => 'text-purple-500',
+                'color'   => 'purple'
+            ],
+
             'dispatched' => [
                 'tooltip' => __('Dispatched'),
                 'icon'    => 'fal fa-sign-out-alt',
@@ -149,15 +158,14 @@ enum PalletStateEnum: string
             'confirmed'    => $stats->number_pallets_state_confirmed,
             'not-received' => $stats->number_pallets_state_not_received,
             'received'     => $stats->number_pallets_state_received,
-
-            'booked-in'  => $stats->number_pallets_state_booked_in,
-            'booking-in' => $stats->number_pallets_state_booking_in,
-
-            'picking'    => $stats->number_pallets_state_picking,
-            'picked'     => $stats->number_pallets_state_picked,
-            'dispatched' => $stats->number_pallets_state_disoatched,
-            'lost'       => $stats->number_pallets_state_lost,
-            'damaged'    => $stats->number_pallets_state_damaged,
+            'booking-in'   => $stats->number_pallets_state_booking_in,
+            'booked-in'    => $stats->number_pallets_state_booked_in,
+            'storing'      => $stats->number_pallets_state_storing,
+            'picking'      => $stats->number_pallets_state_picking,
+            'picked'       => $stats->number_pallets_state_picked,
+            'dispatched'   => $stats->number_pallets_state_disoatched,
+            'lost'         => $stats->number_pallets_state_lost,
+            'damaged'      => $stats->number_pallets_state_damaged,
 
         ];
     }

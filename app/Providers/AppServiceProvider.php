@@ -77,6 +77,8 @@ class AppServiceProvider extends ServiceProvider
                 'Payment'                => 'App\Models\Accounting\Payment',
                 'PaymentAccount'         => 'App\Models\Inventory\PaymentAccount',
                 'PaymentServiceProvider' => 'App\Models\Inventory\PaymentServiceProvider',
+                'Workplace'              => 'App\Models\HumanResources\Workplace',
+                'OrgStock'               => 'App\Models\Inventory\OrgStock'
 
 
             ]

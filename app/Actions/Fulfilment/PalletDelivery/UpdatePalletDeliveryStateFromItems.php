@@ -31,7 +31,7 @@ class UpdatePalletDeliveryStateFromItems
         $palletReceivedCount = $palletStateReceivedCount + $palletStateNotReceivedCount + $palletStateBookedInCount;
 
 
-        print "$palletCount $palletReceivedCount $palletStateBookedInCount $palletStateNotReceivedCount $palletStateReceivedCount\n";
+        print "pallets $palletCount received $palletReceivedCount $palletStateBookedInCount $palletStateNotReceivedCount $palletStateReceivedCount\n";
 
 
         if (in_array($palletDelivery->state->value, [
@@ -48,13 +48,9 @@ class UpdatePalletDeliveryStateFromItems
                 return NotReceivedPalletDelivery::run($palletDelivery);
             }
 
-            if ($palletStateReceivedCount == 0) {
-                return BookInPalletDelivery::run($palletDelivery);
-            }
-
             return $this->update(
                 $palletDelivery,
-                ['state' => PalletDeliveryStateEnum::RECEIVED]
+                ['state' => PalletDeliveryStateEnum::BOOKING_IN]
             );
         }
 

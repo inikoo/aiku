@@ -150,7 +150,7 @@ const onSaved = async (pallet: { form : {}}, fieldName: string) => {
 			</div>
 
             <!-- State: Received -->
-			<div v-else-if="props.state == 'received' || props.state == 'not-received'" class="flex">
+			<div v-else-if="props.state == 'received' || props.state == 'booking-in'  || props.state == 'not-received'" class="flex">
                 <ButtonEditTable
                     class="mx-2"
                     :type="pallet.state == 'not-received' ? 'secondary' : 'negative'"

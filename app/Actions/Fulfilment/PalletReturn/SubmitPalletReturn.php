@@ -11,7 +11,6 @@ use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
@@ -44,8 +43,12 @@ class SubmitPalletReturn extends OrgAction
                     container: $palletReturn->fulfilmentCustomer,
                     modelType: SerialReferenceModelEnum::PALLET
                 ),
-                'state' => PalletStateEnum::SUBMITTED
+                'state' => $modelData['state']
             ]);
+
+            $palletReturn->pallets()->sync([$pallet->id => [
+                'state' => $modelData['state']
+            ]]);
         }
 
         HydrateFulfilmentCustomer::dispatch($palletReturn->fulfilmentCustomer);

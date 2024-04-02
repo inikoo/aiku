@@ -43,6 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_pallets_state_not_received
  * @property int $number_pallets_state_booking_in
  * @property int $number_pallets_state_booked_in
+ * @property int $number_pallets_state_storing
  * @property int $number_pallets_state_picking
  * @property int $number_pallets_state_picked
  * @property int $number_pallets_state_damaged
@@ -73,6 +74,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_pallet_deliveries_state_confirmed
  * @property int $number_pallet_deliveries_state_received
  * @property int $number_pallet_deliveries_state_not_received
+ * @property int $number_pallet_deliveries_state_booking_in
  * @property int $number_pallet_deliveries_state_booked_in
  * @property int $number_pallet_returns
  * @property int $number_pallet_returns_state_in_process

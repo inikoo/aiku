@@ -34,6 +34,12 @@ class PickingPalletReturn extends OrgAction
             $pallet->update([
                 'state' => PalletStateEnum::PICKING
             ]);
+
+            $palletReturn->pallets()->sync([
+                $pallet->id => [
+                    'state' => PalletStateEnum::PICKING
+                ]
+            ]);
         }
 
         HydrateFulfilmentCustomer::dispatch($palletReturn->fulfilmentCustomer);

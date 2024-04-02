@@ -28,7 +28,8 @@ class DeletePalletFromReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, Pallet $pallet): bool
     {
-        $this->update($pallet, ['pallet_return_id' => null, 'status' => PalletStatusEnum::IN_PROCESS]);
+        $this->update($pallet, ['pallet_return_id' => null, 'status' => PalletStatusEnum::STORING]);
+        $palletReturn->pallets()->detach([$pallet->id]);
 
         HydrateFulfilmentCustomer::dispatch($palletReturn->fulfilmentCustomer);
 
