@@ -78,7 +78,9 @@ const stats = [
 <template>
     <!-- <pre>{{ data.scheduledActivities }}</pre> -->
 
-    <FlatTreeMap class="mx-4" v-for="(treeMap, idx) in data.flatTreeMaps" :key="idx" :nodes="treeMap" />
+    <div class="mt-2">
+        <FlatTreeMap class="mx-4" v-for="(treeMap, idx) in data.flatTreeMaps" :key="idx" :nodes="treeMap" mode="compact" />
+    </div>
 
     <div class="px-4 py-6">
         <div class="grid grid-cols-3 gap-x-4">

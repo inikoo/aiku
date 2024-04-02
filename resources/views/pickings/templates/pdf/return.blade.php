@@ -113,8 +113,13 @@
                 </div>
             </td>
 
-            <td style="text-align: right;">Delivery Note No.<br/>
-                <b>{{ $return->reference }}</b>
+            <td style="text-align: right;">
+                <div>
+                    <barcode code="{{ 'par-'.$return->slug }}" type="C128B" class="barcode" />
+                </div>
+                <div>
+                    <b>{{ 'par-'.$return->slug }}</b>
+                </div>
             </td>
 
         </tr>
