@@ -162,7 +162,6 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
 
 <template>
     <!-- <pre>{{ props.data.data[0] }}</pre> -->
-    {{ isMovePallet }}
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Reference -->
         <template #cell(reference)="{ item: pallet }">
