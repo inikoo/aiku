@@ -91,14 +91,14 @@ function customerRoute(palletDelivery: PalletDelivery) {
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Reference -->
         <template #cell(reference)="{ item: palletDelivery }">
-            <Link :href="palletDeliveryRoute(palletDelivery)" class="specialUnderlineSecondary">
+            <Link :href="palletDeliveryRoute(palletDelivery)" class="specialUnderline">
                 {{ palletDelivery['reference'] }}
             </Link>
         </template>
 
         <!-- Column: Customer -->
         <template #cell(customer_name)="{ item: palletDelivery }">
-            <Link :href="customerRoute(palletDelivery)" class="specialUnderline">
+            <Link :href="customerRoute(palletDelivery)" class="specialUnderlineSecondary">
                 {{ palletDelivery['customer_name'] }}
             </Link>
         </template>

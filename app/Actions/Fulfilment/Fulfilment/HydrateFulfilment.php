@@ -7,6 +7,8 @@
 
 namespace App\Actions\Fulfilment\Fulfilment;
 
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletDeliveries;
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletReturns;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateWarehouses;
 use App\Actions\HydrateModel;
@@ -23,6 +25,9 @@ class HydrateFulfilment extends HydrateModel
     {
         FulfilmentHydrateWarehouses::run($fulfilment);
         FulfilmentHydratePallets::run($fulfilment);
+        FulfilmentHydratePalletDeliveries::run($fulfilment);
+        FulfilmentHydratePalletReturns::run($fulfilment);
+
     }
 
     protected function getModel(string $slug): Fulfilment

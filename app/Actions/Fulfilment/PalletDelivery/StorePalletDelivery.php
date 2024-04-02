@@ -7,7 +7,8 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
-use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletDeliveries;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateUniversalSearch;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
@@ -67,7 +68,8 @@ class StorePalletDelivery extends OrgAction
         $palletDelivery->stats()->create();
 
         PalletDeliveryHydrateUniversalSearch::dispatch($palletDelivery);
-        HydrateFulfilmentCustomer::dispatch($fulfilmentCustomer);
+        FulfilmentCustomerHydratePalletDeliveries::dispatch($fulfilmentCustomer);
+        FulfilmentHydratePalletDeliveries::dispatch($fulfilmentCustomer->fulfilment);
         BroadcastFulfilmentCustomerNotification::dispatch(
             $palletDelivery->group,
             $palletDelivery,

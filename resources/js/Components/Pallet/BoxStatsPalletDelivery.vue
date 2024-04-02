@@ -14,11 +14,11 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="ring-1 ring-gray-300 rounded-md relative flex flex-col justify-start pb-2 py-5 px-3" >
-        <div class="absolute top-0 left-0 text-xxs rounded-br py-0.5 px-1"
+    <div class="relative flex flex-col justify-start" >
+        <div v-if="tooltip" class="absolute top-0 left-0 text-xs border-b border-r border-gray-300 rounded-br py-0.5 pl-3 pr-4 shadow-sm"
             :style="{
-                backgroundColor: layout?.app?.theme[2],
-                color: layout?.app?.theme[3]
+                backgroundColor: null,
+                color: layout?.app?.theme[0]
             }"
         >
             {{ trans(tooltip) }}

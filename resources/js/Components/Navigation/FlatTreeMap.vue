@@ -3,7 +3,7 @@
   -  Created: Wed, 14 Sept 2022 18:26:10 Malaysia Time, Kuala Lumpur, Malaysia
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
-<script setup>
+<script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faEmptySet, faStar, faWrench, faWarehouse, faStore, faCashRegister, faMoneyCheckAlt, faTasks } from '@fal'
@@ -12,19 +12,22 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { capitalize } from "@/Composables/capitalize"
 library.add(faEmptySet, faStar, faWrench, faWarehouse, faStore, faCashRegister, faMoneyCheckAlt, faTasks)
 
-const props = defineProps(['nodes'])
+const props = defineProps<{
+    nodes: {}
+    mode?: string
+}>()
 
 const locale = useLocaleStore()
 </script>
 
 <template>
-    <nav aria-label="Progress" class="py-1 md:py-0 mt-3">
+    <nav aria-label="Tree maps" class="py-1 md:py-0" :class="[mode == 'compact' ? 'mt-2' : 'mt-3']">
         <ol v-if="nodes" role="list" class="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0">
             <li v-for="(node, nodeIdx) in nodes" :key="node.name" class="relative flex flex-1 items-center">
                 <!-- Main Tree -->
                 <component :is="node.href?.name ? Link : 'div'"  :href="node.href?.name ? route(node.href.name, node.href.parameters) : '#'" class="group flex-1 items-center">
-                    <div class="flex items-center px-4 text-lg xl:px-6 py-4 font-medium gap-x-4">
-                        <FontAwesomeIcon v-if="node.icon" size="lg" :icon="node.icon" class="flex-shrink-0 text-gray-400" aria-hidden="true" />
+                    <div class="flex items-center px-4 text-lg xl:px-6 font-medium gap-x-4" :class="[mode == 'compact' ? 'py-2' : 'py-4']">
+                        <FontAwesomeIcon v-if="node.icon" :size="mode == 'compact' ? undefined : 'lg'" :icon="node.icon" class="flex-shrink-0 text-gray-400" aria-hidden="true" fixed-width />
                         <p class="md:leading-none md:text-sm lg:text-base inline capitalize font-medium text-gray-500 group-hover:text-gray-600">
                             <span class="hidden lg:inline">{{ node.name }}</span>
                             <span class="inline lg:hidden">{{ node.shortName ? node.shortName : node.name }}</span>
@@ -32,25 +35,24 @@ const locale = useLocaleStore()
 
                         <!-- Bars and count -->
                         <span v-if="node.index" class="font-medium whitespace-nowrap text-gray-400">
-                            <FontAwesomeIcon icon="fal fa-bars" class="mr-1" />
+                            <FontAwesomeIcon icon="fal fa-bars" class="mr-1" fixed-width />
                             <span v-if="node.index.number">{{ locale.number(node.index.number) }}</span>
-                            <FontAwesomeIcon v-else icon="fal fa-empty-set" />
+                            <FontAwesomeIcon v-else icon="fal fa-empty-set" fixed-width />
                         </span>
                     </div>
                 </component>
 
                 <!-- Sublink on right each section (Marketplace) -->
                 <div v-if="node.rightSubLink" class="pr-4 " :title="capitalize(node.rightSubLink.tooltip)">
-                    <!-- {{ importIcon(node.rightSubLink.icon) }} -->
                     <component :is="node.rightSubLink?.href?.name ? Link : 'div'"  :href="node.href?.name ? route(node.rightSubLink.href.name, node.rightSubLink.href.parameters) : '#'"
                         class="w-9 h-9 flex justify-center items-center specialBox">
-                        <FontAwesomeIcon v-if="node.rightSubLink?.icon" :icon="node.rightSubLink.icon" class="flex-shrink-0 " aria-hidden="true" />
+                        <FontAwesomeIcon v-if="node.rightSubLink?.icon" :icon="node.rightSubLink.icon" class="flex-shrink-0 " aria-hidden="true" fixed-width />
                     </component>
                 </div>
 
                 <template v-if="nodeIdx !== nodes.length - 1">
                     <!-- Arrow separator for lg screens and up -->
-                    <div class="hidden h-full w-5 md:block" aria-hidden="true">
+                    <div class="hidden w-5 md:block" aria-hidden="true" :class="[mode == 'compact' ? 'h-11' : 'h-full']">
                         <svg class="h-full w-full text-gray-300" viewBox="0 0 22 80" fill="none" preserveAspectRatio="none">
                             <path d="M0 -2L20 40L0 82" vector-effect="non-scaling-stroke" stroke="currentcolor"
                                 stroke-linejoin="round" />

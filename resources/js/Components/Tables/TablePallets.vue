@@ -131,7 +131,7 @@ const getLocationsList = async () => {
     }
 }
 
-// On submit move pallet
+// Method: On submit move pallet
 const onMovePallet = async (url: string, locationId: number, palletReference: string, closePopup: Function) => {
     try {
         axios.patch(url, {
@@ -165,7 +165,7 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
         <!-- Column: Reference -->
         <template #cell(reference)="{ item: pallet }">
             <Link :href="palletRoute(pallet)" class="specialUnderline">
-                {{ pallet['reference'] }}
+                {{ pallet.reference }}
             </Link>
         </template>
 

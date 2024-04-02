@@ -15,6 +15,7 @@ library.add(faNarwhal, faBusinessTime, faUserTie, falSignout, faTruck, faSignOut
 import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js'
 import { inject } from 'vue'
+import {trans} from "laravel-vue-i18n";
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
 const props = defineProps<{
@@ -77,8 +78,10 @@ const stats = [
 <template>
     <!-- <pre>{{ data.scheduledActivities }}</pre> -->
 
-    <FlatTreeMap class="mx-4" v-for="(treeMap, idx) in data.flatTreeMaps" :key="idx" :nodes="treeMap" />
-    
+    <div class="mt-2">
+        <FlatTreeMap class="mx-4" v-for="(treeMap, idx) in data.flatTreeMaps" :key="idx" :nodes="treeMap" mode="compact" />
+    </div>
+
     <div class="px-4 py-6">
         <div class="grid grid-cols-3 gap-x-4">
             <!-- <div class="col-span-2 flex flex-col gap-y-8">
@@ -97,8 +100,7 @@ const stats = [
             <!-- Section: Scheduled activities -->
             <div class="bg-slate-50 rounded-lg ring-1 ring-slate-300 py-4">
                 <div class="px-6 pb-3 border-b border-gray-300">
-                    <div class="font-semibold text-lg">Scheduled activities</div>
-                    <div class="text-slate-400">April 2024</div>
+                    <div class="font-semibold text-lg">{{trans('Pending tasks')}}</div>
                 </div>
 
                 <div class="px-6 mt-4 flex flex-col gap-y-4">
