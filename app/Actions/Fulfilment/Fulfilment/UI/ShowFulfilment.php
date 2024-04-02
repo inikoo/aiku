@@ -27,7 +27,6 @@ class ShowFulfilment extends OrgAction
     use AsAction;
     use WithInertia;
 
-
     public function handle(Fulfilment $fulfilment): Fulfilment
     {
         return $fulfilment;
@@ -50,34 +49,32 @@ class ShowFulfilment extends OrgAction
 
     private function getDashboard(ActionRequest $request): array
     {
+        // dd($this->organisation->fulfilmentStats);
+
         return [
             'flatTreeMaps' => [
+                // [
+                //     [
+                //         'name'  => __('Fulfilment Shops'),
+                //         'icon'  => ['fal', 'fa-pallet-alt'],
+                //         'href'  => [
+                //             'name'       => 'grp.org.fulfilments.index',
+                //             'parameters' => $request->route()->originalParameters()
+                //         ],
+                //         'index' => [
+                //             'number' => $this->organisation->marketStats->number_shops_type_fulfilment
+                //         ],
+
+                //     ],
+                // ],
 
                 [
-                    [
-                        'name'  => __('Fulfilment Shops'),
-                        'icon'  => ['fal', 'fa-pallet-alt'],
-                        'href'  => [
-                            'name'       => 'grp.org.fulfilments.index',
-                            'parameters' => $request->route()->originalParameters()
-                        ],
-                        'index' => [
-                            'number' => $this->organisation->marketStats->number_shops_type_fulfilment
-                        ],
-
-                    ],
-                ],
-
-                [
-
-
                     [
                         'name'  => __('Customers'),
                         'icon'  => ['fal', 'fa-user-tie'],
                         'index' => [
                             'number' => $this->organisation->fulfilmentStats->number_customers_with_stored_items
                         ],
-
                     ],
                     [
                         'name'  => __('Stored Items'),
@@ -85,18 +82,92 @@ class ShowFulfilment extends OrgAction
                         'index' => [
                             'number' => $this->organisation->fulfilmentStats->number_stored_items
                         ],
-
                     ],
-
                     [
                         'name'  => __('Orders'),
                         'icon'  => ['fal', 'fa-business-time'],
                         'index' => [
                             'number' => $this->organisation->fulfilmentStats->number_customers_with_pallets
                         ],
-
                     ]
-                ]
+                ],
+                [
+                    [
+                        'name'  => __('Pallets'),
+                        'icon'  => ['fal', 'fa-pallet'],
+                        'index' => [
+                            'number' => $this->organisation->fulfilmentStats->number_pallets
+                        ],
+                    ],
+                    [
+                        'name'  => __('Deliveries'),
+                        'icon'  => ['fal', 'fa-truck-couch'],
+                        'index' => [
+                            'number' => $this->organisation->fulfilmentStats->number_pallet_deliveries
+                        ],
+                    ],
+                    [
+                        'name'  => __('Returns'),
+                        'icon'  => ['fal', 'fa-sign-out'],
+                        'index' => [
+                            'number' => $this->organisation->fulfilmentStats->number_pallet_returns
+                        ],
+                    ]
+                ],
+                [
+                    [
+                        'name'  => __('Products'),
+                        'icon'  => ['fal', 'fa-cube'],
+                        'index' => [
+                            'number' => 0  // TODO
+                        ],
+                    ],
+                    [
+                        'name'  => __('Proformas'),
+                        'icon'  => ['fal', 'fa-receipt'],
+                        'index' => [
+                            'number' => 0  // TODO
+                        ],
+                    ],
+                    [
+                        'name'  => __('Invoices'),
+                        'icon'  => ['fal', 'fa-file-invoice-dollar'],
+                        'index' => [
+                            'number' => 0  // TODO
+                        ],
+                    ]
+                ],
+            ],
+            'scheduledActivities' => [
+                [
+                    'icon'          => 'fal fa-pallet',
+                    'title'         => __('pallets  '),
+                    'description'   => (
+                        $this->organisation->fulfilmentStats->number_pallets_state_in_process
+                        + $this->organisation->fulfilmentStats->number_pallets_state_submitted
+                        + $this->organisation->fulfilmentStats->number_pallets_state_confirmed
+                    ) . ' ' . __('pendings')
+                ],
+                [
+                    'icon'          => 'fal fa-truck-couch',
+                    'title'         => __('pallet delivery'),
+                    'description'   => (
+                        $this->organisation->fulfilmentStats->number_pallet_deliveries_state_in_process
+                        + $this->organisation->fulfilmentStats->number_pallet_deliveries_state_submitted
+                        + $this->organisation->fulfilmentStats->number_pallet_deliveries_state_confirmed
+                    ) . ' ' . __('pendings')
+                ],
+                [
+                    'icon'          => 'fal fa-sign-out',
+                    'title'         => __('pallet returns'),
+                    'description'   => (
+                        $this->organisation->fulfilmentStats->number_pallet_returns_state_in_process
+                        + $this->organisation->fulfilmentStats->number_pallet_returns_state_submitted
+                        + $this->organisation->fulfilmentStats->number_pallet_returns_state_confirmed
+                        + $this->organisation->fulfilmentStats->number_pallet_returns_state_picking
+                        + $this->organisation->fulfilmentStats->number_pallet_returns_state_picked
+                    ) . ' ' . __('pendings')
+                ],
             ]
         ];
     }
