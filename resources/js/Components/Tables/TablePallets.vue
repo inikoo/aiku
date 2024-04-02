@@ -43,7 +43,7 @@ function palletRoute(pallet: PalletCustomer) {
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],
-                    pallet.slug
+                    pallet.id
                 ])
         case 'grp.org.warehouses.show.fulfilment.pallets.index':
             return route(
@@ -51,7 +51,7 @@ function palletRoute(pallet: PalletCustomer) {
                 [
                     route().params['organisation'],
                     route().params['warehouse'],
-                    pallet.slug
+                    pallet.id
                 ])
 
         case 'grp.org.warehouses.show.infrastructure.locations.show':
@@ -61,7 +61,7 @@ function palletRoute(pallet: PalletCustomer) {
                     route().params['organisation'],
                     route().params['warehouse'],
                     route().params['location'],
-                    pallet.slug
+                    pallet.id
                 ])
         case 'grp.org.fulfilments.show.crm.customers.show':
             return route(
@@ -70,7 +70,7 @@ function palletRoute(pallet: PalletCustomer) {
                     route().params['organisation'],
                     route().params['fulfilment'],
                     route().params['fulfilmentCustomer'],
-                    pallet.slug
+                    pallet.id
                 ])
 
         default:
@@ -140,12 +140,12 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
         })
 
         // Delete data in Frontend
-        const indexToDelete = props.data.data.findIndex(item => item.reference === palletReference);
+       /*  const indexToDelete = props.data.data.findIndex(item => item.reference === palletReference);
         // Check if the element exists (index !== -1)
         if (indexToDelete !== -1) {
             props.data.meta.total = props.data.meta.total-1
             props.data.data.splice(indexToDelete, 1)
-        }
+        } */
 
         notify({
             title: "Pallet moved!",
@@ -162,6 +162,7 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
 
 <template>
     <!-- <pre>{{ props.data.data[0] }}</pre> -->
+    {{ isMovePallet }}
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Reference -->
         <template #cell(reference)="{ item: pallet }">
@@ -173,7 +174,7 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
         <!-- Column: Pallet Reference -->
         <template #cell(pallet_referencexxx)="{ item: pallet }">
             <Link :href="palletRoute(pallet)" class="specialUnderline">
-                {{ pallet.reference }}aaaaaaa
+                {{ pallet.reference }}
             </Link>
         </template>
 
@@ -214,7 +215,7 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
         <template #cell(actions)="{ item }">
             <div class="flex gap-x-1 gap-y-1.5">
                 <!-- Action: Move Pallet -->
-                <Popover v-if="isMovePallet" width="w-full" class="relative">
+                <Popover v-if="item.status === 'storing' && isMovePallet" width="w-full" class="relative">
                     <template #button>
                         <Button @click="() => (locationsList.length ? '' : getLocationsList(), palletSelected?.[item.reference] ? '' : palletSelected = {[item.reference]: item.location_id})" type="secondary" tooltip="Move pallet to another location" label="Move pallet" :key="item.index" :size="'xs'" />
                     </template>
@@ -252,11 +253,11 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
                 </Popover>
 
                 <!-- Action: Set as storing, damaged, lost -->
-                <div v-if="item.status === 'storing'" class="flex gap-x-1 gap-y-2">
+                <div v-if="item.status === 'storing' && isMovePallet" class="flex gap-x-1 gap-y-2">
                     <Button label="Set as damaged" type="negative" iconRight="fal fa-fragile" size="xs" />
                     <Button label="Set as lost" type="negative" iconRight="fal fa-ghost" size="xs" />
                 </div>
-                <div v-else-if="item.status === 'lost' || item.status === 'damaged'">
+                <div v-else-if="(item.status === 'lost' || item.status === 'damaged') && isMovePallet">
                     <Button label="Undo" type="tertiary" icon="fal fa-box-up" size="xs" v-tooltip="`Set pallet as stored`" />
                 </div>
             </div>
