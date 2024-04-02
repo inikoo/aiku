@@ -213,16 +213,19 @@ class ShowFulfilmentCustomer extends OrgAction
                     ],
                     prefix: CustomerFulfilmentTabsEnum::PALLET_RETURNS->value
                 )
-            )->table(
+            )
+            ->table(
                 IndexPallets::make()->tableStructure(
                     parent: $fulfilmentCustomer,
                     prefix: CustomerFulfilmentTabsEnum::PALLETS->value
                 )
-            )->table(
+            )
+            ->table(
                 IndexStoredItems::make()->tableStructure(
                     parent: $fulfilmentCustomer->storedItems
                 )
-            )->table(
+            )
+            ->table(
                 IndexStoredItemReturns::make()->tableStructure(
                     parent: $fulfilmentCustomer,
                     modelOperations: [
@@ -241,6 +244,32 @@ class ShowFulfilmentCustomer extends OrgAction
                         ],
                     ],
                     prefix: CustomerFulfilmentTabsEnum::STORED_ITEM_RETURNS->value,
+                )
+            )
+            ->table(
+                IndexPalletReturns::make()->tableStructure(
+                    $fulfilmentCustomer,
+                    modelOperations: [
+                        'createLink' => [
+                            [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('Create new pallet return'),
+                                'label'   => __('Pallet return'),
+                                'route'   => [
+                                    'method'     => 'post',
+                                    'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
+                                    'parameters' => [$fulfilmentCustomer->id]
+                                ]
+                            ]
+                        ],
+                    ],
+                    prefix: CustomerFulfilmentTabsEnum::PALLET_RETURNS->value
+                )
+            )->table(
+                IndexWebUsers::make()->tableStructure(
+                    parent: $fulfilmentCustomer->customer,
+                    prefix: CustomerFulfilmentTabsEnum::WEB_USERS->value
                 )
             );
     }

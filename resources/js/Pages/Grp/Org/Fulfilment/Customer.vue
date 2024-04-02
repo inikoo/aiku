@@ -16,6 +16,8 @@ import TablePalletReturns from "@/Components/Tables/TablePalletReturns.vue"
 
 import ModelDetails from "@/Components/ModelDetails.vue"
 import TablePallets from "@/Components/Tables/TablePallets.vue"
+import TableWebUsers from "@/Components/Tables/TableWebUsers.vue"
+
 import TableStoredItemReturn from "@/Components/Tables/TableStoredItemReturn.vue"
 import { useTabChange } from "@/Composables/tab-change"
 import { computed, defineAsyncComponent, inject, onMounted, onUnmounted, ref } from "vue"
@@ -52,6 +54,7 @@ const props = defineProps<{
     dispatched_emails?: {}
     pallet_deliveries?: {}
     pallet_returns?: {}
+    web_users?: {}
 }>()
 
 let currentTab = ref(props.tabs.current)
@@ -70,6 +73,7 @@ const component = computed(() => {
         details: ModelDetails,
         history: ModelChangelog,
         dispatched_emails: TableDispatchedEmails,
+        web_users: TableWebUsers
     }
 
     return components[currentTab.value]

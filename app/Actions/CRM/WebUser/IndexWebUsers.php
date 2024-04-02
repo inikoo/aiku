@@ -85,7 +85,7 @@ class IndexWebUsers extends OrgAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $webusers, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $webUsers, ActionRequest $request): Response
     {
         return Inertia::render(
             'Org/Shop/CRM/WebUsers',
@@ -98,7 +98,7 @@ class IndexWebUsers extends OrgAction
                 'pageHead'    => [
                     'title' => __('web users'),
                 ],
-                'data'        => WebUsersResource::collection($webusers),
+                'data'        => WebUsersResource::collection($webUsers),
 
             ]
         )->table($this->tableStructure($this->parent));
