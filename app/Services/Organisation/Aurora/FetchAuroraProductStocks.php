@@ -29,7 +29,7 @@ class FetchAuroraProductStocks extends FetchAurora
                 $product=$this->parseProduct($this->organisation->id.':'.$modelData->{'Product Part Product ID'});
                 if($product->state!=ProductStateEnum::DISCONTINUED) {
                     print "\nWarning: Part SKU ".$modelData->{'Product Part Part SKU'}." not found in `Product Part Bridge`\n";
-                    abort(404, "Error fetching products-stock relation");
+                    //abort(404, "Error fetching products-stock relation");
                 }
             }
         }
