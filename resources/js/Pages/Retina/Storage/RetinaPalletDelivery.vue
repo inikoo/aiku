@@ -272,8 +272,16 @@ watch(() => props.data, (newValue) => {
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab" :tableKey="tableKey"
-        :storedItemsRoute="storedItemsRoute" @renderTableKey="() => (console.log('emit render', changeTableKey()))" />
+    <component
+        :is="component"
+        :data="props[currentTab]"
+        :state="timeline.state"
+        :key="timeline.state"
+        :tab="currentTab"
+        :tableKey="tableKey"
+        :storedItemsRoute="storedItemsRoute"
+        @renderTableKey="() => (console.log('emit render', changeTableKey()))"
+    />
 
     <UploadExcel :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
         upload: get(dataModal, 'uploadRoutes', {}),

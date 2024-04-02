@@ -84,6 +84,7 @@ watch(
 	<component
 		:is="component"
 		:data="props[currentTab]"
+        :key="timeline.state"
 		:state="timeline.state"
 		:tab="currentTab"
         app="retina"
