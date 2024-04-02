@@ -47,73 +47,14 @@ class ShowFulfilment extends OrgAction
         return $this->handle($fulfilment);
     }
 
-    private function getDashboard(ActionRequest $request): array
+    private function getDashboard(Fulfilment $fulfilment): array
     {
         // dd($this->organisation->fulfilmentStats);
 
         return [
             'flatTreeMaps' => [
-                // [
-                //     [
-                //         'name'  => __('Fulfilment Shops'),
-                //         'icon'  => ['fal', 'fa-pallet-alt'],
-                //         'href'  => [
-                //             'name'       => 'grp.org.fulfilments.index',
-                //             'parameters' => $request->route()->originalParameters()
-                //         ],
-                //         'index' => [
-                //             'number' => $this->organisation->marketStats->number_shops_type_fulfilment
-                //         ],
 
-                //     ],
-                // ],
 
-                [
-                    [
-                        'name'  => __('Customers'),
-                        'icon'  => ['fal', 'fa-user-tie'],
-                        'index' => [
-                            'number' => $this->organisation->fulfilmentStats->number_customers_with_stored_items
-                        ],
-                    ],
-                    [
-                        'name'  => __('Stored Items'),
-                        'icon'  => ['fal', 'fa-narwhal'],
-                        'index' => [
-                            'number' => $this->organisation->fulfilmentStats->number_stored_items
-                        ],
-                    ],
-                    [
-                        'name'  => __('Orders'),
-                        'icon'  => ['fal', 'fa-business-time'],
-                        'index' => [
-                            'number' => $this->organisation->fulfilmentStats->number_customers_with_pallets
-                        ],
-                    ]
-                ],
-                [
-                    [
-                        'name'  => __('Pallets'),
-                        'icon'  => ['fal', 'fa-pallet'],
-                        'index' => [
-                            'number' => $this->organisation->fulfilmentStats->number_pallets
-                        ],
-                    ],
-                    [
-                        'name'  => __('Deliveries'),
-                        'icon'  => ['fal', 'fa-truck-couch'],
-                        'index' => [
-                            'number' => $this->organisation->fulfilmentStats->number_pallet_deliveries
-                        ],
-                    ],
-                    [
-                        'name'  => __('Returns'),
-                        'icon'  => ['fal', 'fa-sign-out'],
-                        'index' => [
-                            'number' => $this->organisation->fulfilmentStats->number_pallet_returns
-                        ],
-                    ]
-                ],
                 [
                     [
                         'name'  => __('Products'),
@@ -121,6 +62,14 @@ class ShowFulfilment extends OrgAction
                         'index' => [
                             'number' => 0  // TODO
                         ],
+                    ],
+                    [
+                        'name'  => __('Customers'),
+                        'icon'  => ['fal', 'fa-user-tie'],
+                        'index' => [
+                            'number' => $fulfilment->shop->crmStats->number_customers
+                        ],
+
                     ],
                     [
                         'name'  => __('Proformas'),
@@ -133,9 +82,47 @@ class ShowFulfilment extends OrgAction
                         'name'  => __('Invoices'),
                         'icon'  => ['fal', 'fa-file-invoice-dollar'],
                         'index' => [
-                            'number' => 0  // TODO
+                            'number' => $fulfilment->shop->stats->number_invoices
                         ],
-                    ]
+                    ],
+
+
+                ],
+                [
+                    [
+                        'name'  => __('Pallets'),
+                        'icon'  => ['fal', 'fa-pallet'],
+                        'index' => [
+                            'number' => $this->organisation->fulfilmentStats->number_pallets_status_storing
+                        ],
+                    ],
+                    [
+                        'name'  => __('Stored Items'),
+                        'icon'  => ['fal', 'fa-narwhal'],
+                        'index' => [
+                            'number' => $this->organisation->fulfilmentStats->number_stored_items
+                        ],
+                    ],
+
+                ],
+                [
+                    [
+                        'name'  => __('Deliveries'),
+                        'icon'  => ['fal', 'fa-truck-couch'],
+                        'index' => [
+                            'number' => $fulfilment->stats->number_pallet_deliveries
+                        ],
+                    ],
+                    [
+                        'name'  => __('Returns'),
+                        'icon'  => ['fal', 'fa-sign-out'],
+                        'index' => [
+                            'number' => $this->organisation->fulfilmentStats->number_pallet_returns
+                        ],
+                    ],
+
+
+
                 ],
             ],
             'scheduledActivities' => [
@@ -201,8 +188,8 @@ class ShowFulfilment extends OrgAction
 
                 FulfilmentTabsEnum::DASHBOARD->value => $this->tab == FulfilmentTabsEnum::DASHBOARD->value
                     ?
-                    fn () => $this->getDashboard($request)
-                    : Inertia::lazy(fn () => $this->getDashboard($request)),
+                    fn () => $this->getDashboard($fulfilment)
+                    : Inertia::lazy(fn () => $this->getDashboard($fulfilment)),
 
 
 
