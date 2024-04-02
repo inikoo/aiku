@@ -15,7 +15,7 @@ const layout = useLayoutStore()
 
 <template>
     <div>
-        resources/js/Pages/Grp/Dashboard/OrganisationDashboard.vue
-        <pre>{{ layout.navigation }}</pre>
+        <!-- resources/js/Pages/Grp/Dashboard/OrganisationDashboard.vue
+        <pre>{{ layout.navigation }}</pre> -->
     </div>
 </template>

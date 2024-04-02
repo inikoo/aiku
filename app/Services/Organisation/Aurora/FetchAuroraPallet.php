@@ -17,23 +17,24 @@ class FetchAuroraPallet extends FetchAurora
 {
     protected function parseModel(): void
     {
+        $customer = $this->parseCustomer(
+            $this->organisation->id . ':' . $this->auroraModelData->{'Fulfilment Asset Customer Key'}
+        );
 
-        $customer                     = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Customer Key'});
-
-        $shop=$customer->shop;
+        $shop = $customer->shop;
 
 
-        if(!$customer) {
+        if (!$customer) {
             print_r($this->auroraModelData);
             dd("Error Customer not found");
         }
 
-        if($shop->type!=ShopTypeEnum::FULFILMENT) {
+        if ($shop->type != ShopTypeEnum::FULFILMENT) {
             print_r($this->auroraModelData);
             dd("Error Shop not fulfilment");
         }
 
-        if(!$customer->is_fulfilment) {
+        if (!$customer->is_fulfilment) {
             print_r($this->auroraModelData);
             dd('error customer not fulfilment');
         }
@@ -41,26 +42,30 @@ class FetchAuroraPallet extends FetchAurora
 
         $this->parsedData['customer'] = $customer;
 
-        $warehouse = $this->parseWarehouse($this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Warehouse Key'});
+        $warehouse = $this->parseWarehouse(
+            $this->organisation->id . ':' . $this->auroraModelData->{'Fulfilment Asset Warehouse Key'}
+        );
 
 
         $location_id = null;
         if ($this->auroraModelData->{'Fulfilment Asset Location Key'}) {
-            $location    = $this->parseLocation($this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Location Key'});
+            $location = $this->parseLocation(
+                $this->organisation->id . ':' . $this->auroraModelData->{'Fulfilment Asset Location Key'}
+            );
             $location_id = $location?->id;
         }
 
-        $state  = match ($this->auroraModelData->{'Fulfilment Asset State'}) {
+        $state = match ($this->auroraModelData->{'Fulfilment Asset State'}) {
             'InProcess' => PalletStateEnum::IN_PROCESS,
             'Received'  => PalletStateEnum::RECEIVED,
             'BookedIn'  => PalletStateEnum::BOOKED_IN,
-            default     => PalletStateEnum::SETTLED
+            default     => PalletStateEnum::DISPATCHED
         };
         $status = match ($this->auroraModelData->{'Fulfilment Asset State'}) {
-            'InProcess', 'Received' => PalletStatusEnum::IN_PROCESS,
+            'InProcess', 'Received' => PalletStatusEnum::RECEIVING,
             'BookedIn' => PalletStatusEnum::STORING,
             'BookedOut', 'Invoiced' => PalletStatusEnum::RETURNED,
-            'Lost' => PalletStatusEnum::LOST,
+            'Lost' => PalletStatusEnum::INCIDENT,
         };
 
         $type = match ($this->auroraModelData->{'Fulfilment Asset Type'}) {
@@ -85,10 +90,10 @@ class FetchAuroraPallet extends FetchAurora
             $reference = null;
         }
 
-        $notes=(string)$this->auroraModelData->{'Fulfilment Asset Note'};
-        $notes=strip_tags($notes);
-        $notes=str_replace('&nbsp;', ' ', $notes);
-        $notes=trim($notes);
+        $notes = (string)$this->auroraModelData->{'Fulfilment Asset Note'};
+        $notes = strip_tags($notes);
+        $notes = str_replace('&nbsp;', ' ', $notes);
+        $notes = trim($notes);
 
         $this->parsedData['pallet'] = [
             'warehouse_id'       => $warehouse->id,
@@ -99,7 +104,7 @@ class FetchAuroraPallet extends FetchAurora
             'notes'              => $notes,
             'created_at'         => $this->auroraModelData->{'Fulfilment Asset From'} ?? null,
             'received_at'        => $received_at,
-            'source_id'          => $this->organisation->id.':'.$this->auroraModelData->{'Fulfilment Asset Key'},
+            'source_id'          => $this->organisation->id . ':' . $this->auroraModelData->{'Fulfilment Asset Key'},
         ];
         if ($location_id) {
             $this->parsedData['pallet']['location_id'] = $location_id;

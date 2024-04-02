@@ -290,7 +290,7 @@ watch(() => props.data, (newValue) => {
     </div>
 
     <!-- Box -->
-    <div class="h-16 grid grid-cols-4 gap-x-2 px-6 my-4">
+    <div class="h-16 grid grid-cols-4 gap-x-2 px-6 my-4 border-b border-gray-200">
         <!-- Stats: User name -->
         <BoxStatsPalletDelivery :layout="useLayoutStore()" tooltip="Customer name" :label="data?.data.customer_name" icon="fal fa-user" />
         <BoxStatsPalletDelivery :layout="useLayoutStore()" tooltip="Delivery status" :label="capitalize(data?.data.state)" icon="fal fa-truck-couch" />

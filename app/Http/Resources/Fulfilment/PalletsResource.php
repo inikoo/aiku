@@ -41,18 +41,20 @@ class PalletsResource extends JsonResource
             'fulfilment_customer_id'   => $this->fulfilment_customer_id,
             'notes'                    => (string)$this->notes,
             'state'                    => $this->state,
+            'state_label'              => $this->state->labels()[$this->state->value],
+            'state_icon'               => $this->state->stateIcon()[$this->state->value],
             'status'                   => $this->status,
+            'status_label'             => $this->status->labels()[$this->status->value],
+            'status_icon'              => $this->status->statusIcon()[$this->status->value],
             'location'                 => $this->location_slug,
             'location_code'            => $this->location_code,
             'location_id'              => $this->location_id,
-            'state_label'              => $this->state->labels()[$this->state->value],
-            'state_icon'               => $this->state->stateIcon()[$this->state->value],
             'stored_items'             => $this->storedItems->map(fn ($storedItem) => [
                 'reference' => $storedItem->reference,
                 'quantity'  => (int)$storedItem->pivot->quantity,
             ]),
-            'stored_items_quantity'    => (int)$this->storedItems()->sum('quantity'),
-            'updateRoute'              => match (request()->routeIs('retina.*')) {
+            'stored_items_quantity' => (int)$this->storedItems()->sum('quantity'),
+            'updateRoute'           => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet.update',
                     'parameters' => $this->id
@@ -62,7 +64,7 @@ class PalletsResource extends JsonResource
                     'parameters' => $this->id
                 ]
             },
-            'deleteRoute'              => match (request()->routeIs('retina.*')) {
+            'deleteRoute' => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet.delete',
                     'parameters' => $this->id
@@ -72,7 +74,7 @@ class PalletsResource extends JsonResource
                     'parameters' => $this->id
                 ]
             },
-            'deleteFromDeliveryRoute'  => match (request()->routeIs('retina.*')) {
+            'deleteFromDeliveryRoute' => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet-delivery.pallet.delete',
                     'parameters' => [$this->pallet_delivery_id, $this->id]
@@ -82,7 +84,7 @@ class PalletsResource extends JsonResource
                     'parameters' => [$this->fulfilment_customer_id, $this->pallet_delivery_id, $this->id]
                 ]
             },
-            'deleteFromReturnRoute'    => match (request()->routeIs('retina.*')) {
+            'deleteFromReturnRoute' => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet-return.pallet.delete',
                     'parameters' => [$this->pallet_return_id, $this->id]
@@ -92,23 +94,27 @@ class PalletsResource extends JsonResource
                     'parameters' => [$this->fulfilment_customer_id, $this->pallet_return_id, $this->id]
                 ]
             },
-            'notReceivedRoute'         => [
+            'notReceivedRoute' => [
                 'name'       => 'grp.models.pallet.not-received',
-                'parameters' => [ $this->id]
+                'parameters' => [$this->id]
             ],
-            'undoNotReceivedRoute'     => [
+            'undoNotReceivedRoute' => [
                 'name'       => 'grp.models.pallet.undo-not-received',
                 'parameters' => [$this->id]
             ],
-            'bookInRoute'              => [
+            'bookInRoute' => [
                 'name'       => 'grp.models.pallet.booked-in',
                 'parameters' => [$this->id]
             ],
-            'updateLocationRoute'              => [
+            'undoBookInRoute' => [
+                'name'       => 'grp.models.pallet.undo-booked-in',
+                'parameters' => [$this->id]
+            ],
+            'updateLocationRoute' => [
                 'name'       => 'grp.models.warehouse.pallets.location.update',
                 'parameters' => [$this->warehouse_id, $this->id]
             ],
-            'storeStoredItemRoute'     => match (request()->routeIs('retina.*')) {
+            'storeStoredItemRoute' => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet.stored-items.update',
                     'parameters' => [$this->id]

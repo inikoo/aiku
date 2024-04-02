@@ -68,6 +68,8 @@ class StorePallet extends OrgAction
             $pallet->generateSlug();
             $pallet->save();
         }
+        $pallet->refresh();
+
 
         if ($this->parent instanceof PalletDelivery) {
             HydratePalletDeliveries::run($this->parent);
@@ -80,7 +82,6 @@ class StorePallet extends OrgAction
             WarehouseAreaHydratePallets::dispatch($pallet->location->warehouseArea);
         }
 
-        $pallet->refresh();
 
         PalletHydrateUniversalSearch::dispatch($pallet);
 

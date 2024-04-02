@@ -21,7 +21,7 @@ class PalletHydrateUniversalSearch
             [],
             [
                 'section' => 'fulfilment',
-                'title'   => $pallet->reference,
+                'title'   => $pallet->reference??$pallet->id,
                 'ulid'    => $pallet->slug,
             ]
         );

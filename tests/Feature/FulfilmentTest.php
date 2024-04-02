@@ -128,7 +128,7 @@ test('create pallet no delivery', function (FulfilmentCustomer $fulfilmentCustom
 
     expect($pallet)->toBeInstanceOf(Pallet::class)
         ->and($pallet->state)->toBe(PalletStateEnum::IN_PROCESS)
-        ->and($pallet->status)->toBe(PalletStatusEnum::IN_PROCESS)
+        ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING)
         ->and($pallet->type)->toBe(PalletTypeEnum::PALLET)
         ->and($pallet->notes)->toBe('')
         ->and($pallet->source_id)->toBeNull()

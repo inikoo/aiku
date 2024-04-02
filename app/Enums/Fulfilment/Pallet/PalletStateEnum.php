@@ -24,55 +24,58 @@ enum PalletStateEnum: string
     case CONFIRMED    = 'confirmed';
     case RECEIVED     = 'received';
     case NOT_RECEIVED = 'not-received';
-    case BOOKING_IN   = 'booking-in';
-    case BOOKED_IN    = 'booked-in';
-    case SETTLED      = 'settled';
 
-    case PICKING    = 'picking';
-    case PICKED     = 'picked';
-    case NOT_PICKED = 'not-picked';
+    case BOOKING_IN = 'booking-in';
+    case BOOKED_IN  = 'booked-in';
+
+    case PICKING = 'picking';
+    case PICKED  = 'picked';
+
+    case DAMAGED    = 'damaged';
+    case LOST       = 'lost';
+    case DISPATCHED = 'dispatched';
 
 
     public static function labels(): array
     {
         return [
-            'in-process'    => __('In process'),
-            'submitted'     => __('Submitted'),
-            'confirmed'     => __('Confirmed'),
-            'received'      => __('Received'),
-            'booking-in'    => __('Booking in'),
-            'booked-in'     => __('Booked in'),
-            'not-received'  => __('Not Received'),
-            'settled'       => __('Settled'),
-
-            'picking'     => __('Picking'),
-            'picked'      => __('Picked'),
-            'not-picked'  => __('Not Picked'),
+            'in-process'   => __('In process'),
+            'submitted'    => __('Submitted'),
+            'confirmed'    => __('Confirmed'),
+            'not-received' => __('Not Received'),
+            'received'     => __('Received'),
+            'booking-in'   => __('Booking in'),
+            'booked-in'    => __('Booked in'),
+            'picking'      => __('Picking'),
+            'picked'       => __('Picked'),
+            'dispatched'   => __('Dispatched'),
+            'lost'         => __('Lost'),
+            'damaged'      => __('Damaged'),
         ];
     }
 
     public static function stateIcon(): array
     {
         return [
-            'in-process'   => [
+            'in-process' => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
                 'color'   => 'lime'  // Color for box (Retina)
             ],
-            'submitted'    => [
+            'submitted' => [
                 'tooltip' => __('Submitted'),
                 'icon'    => 'fal fa-share',
                 'class'   => 'text-indigo-400',
                 'color'   => 'indigo'
             ],
-            'confirmed'    => [
+            'confirmed' => [
                 'tooltip' => __('Confirmed'),
                 'icon'    => 'fal fa-spell-check',
                 'class'   => 'text-emerald-500',
                 'color'   => 'emerald'
             ],
-            'received'     => [
+            'received' => [
                 'tooltip' => __('Received'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-slate-500',
@@ -84,47 +87,54 @@ enum PalletStateEnum: string
                 'class'   => 'text-red-500',
                 'color'   => 'red'
             ],
-            'booked-in'    => [
+            'booked-in' => [
                 'tooltip' => __('Booked in'),
                 'icon'    => 'fal fa-check-double',
                 'class'   => 'text-purple-500',
                 'color'   => 'purple'
             ],
-            'booking-in'    => [
+            'booking-in' => [
                 'tooltip' => __('Booking in'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-purple-500',
                 'color'   => 'purple'
             ],
-            'settled'      => [
-                'tooltip' => __('Settled'),
+            'dispatched' => [
+                'tooltip' => __('Dispatched'),
                 'icon'    => 'fal fa-sign-out-alt',
                 'class'   => 'text-gray-400',
                 'color'   => 'gray'
             ],
-            'picking'       => [
+            'picking' => [
                 'tooltip' => __('Picking'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-green-400',
                 'color'   => 'green'
             ],
-            'picked'       => [
+            'picked' => [
                 'tooltip' => __('Picked'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-green-400',
                 'color'   => 'green'
             ],
-            'not-picked'   => [
+            'damaged' => [
+                'tooltip' => __('Damaged'),
+                'icon'    => 'fal fa-fragile',
+                'class'   => 'text-red-400',
+                'color'   => 'red'
+            ],
+            'lost' => [
                 'tooltip' => __('Not Picked'),
-                'icon'    => 'fal fa-times',
+                'icon'    => 'fal fa-ghost',
                 'class'   => 'text-red-400',
                 'color'   => 'red'
             ]
         ];
     }
 
-    public static function count(Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent): array
-    {
+    public static function count(
+        Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent
+    ): array {
         if ($parent instanceof FulfilmentCustomer) {
             $stats = $parent;
         } elseif ($parent instanceof Organisation) {
@@ -139,12 +149,16 @@ enum PalletStateEnum: string
             'confirmed'    => $stats->number_pallets_state_confirmed,
             'not-received' => $stats->number_pallets_state_not_received,
             'received'     => $stats->number_pallets_state_received,
-            'booked-in'    => $stats->number_pallets_state_booked_in,
-            'booking-in'   => $stats->number_pallets_state_booking_in,
-            'settled'      => $stats->number_pallets_state_settled,
-            'picking'      => $stats->number_pallets_state_picking,
-            'picked'       => $stats->number_pallets_state_picked,
-            'not-picked'   => $stats->number_pallets_state_not_picked
+
+            'booked-in'  => $stats->number_pallets_state_booked_in,
+            'booking-in' => $stats->number_pallets_state_booking_in,
+
+            'picking'    => $stats->number_pallets_state_picking,
+            'picked'     => $stats->number_pallets_state_picked,
+            'dispatched' => $stats->number_pallets_state_disoatched,
+            'lost'       => $stats->number_pallets_state_lost,
+            'damaged'    => $stats->number_pallets_state_damaged,
+
         ];
     }
 

@@ -36,6 +36,12 @@ function customerRoute(pallet: object) {
 <template>
     <!-- <pre>{{data}}</pre> -->
     <Table :resource="data" :name="tab" class="mt-5">
+
+        <!-- <template #cell(reference)>
+        
+            asdsadsadsa
+        </template> -->
+
         <!-- Column: State -->
 		<template #cell(state)="{ item: palletDelivery }">
             <div v-if="app == 'retina'" class="px-3">

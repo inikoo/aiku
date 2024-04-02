@@ -32,7 +32,7 @@ class DispatchedPalletReturn extends OrgAction
 
         foreach ($palletReturn->pallets as $pallet) {
             $pallet->update([
-                'state'  => PalletStateEnum::SETTLED,
+                'state'  => PalletStateEnum::DISPATCHED,
                 'status' => PalletStatusEnum::RETURNED
             ]);
         }
