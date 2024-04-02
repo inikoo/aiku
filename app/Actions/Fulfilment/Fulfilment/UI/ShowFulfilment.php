@@ -133,7 +133,7 @@ class ShowFulfilment extends OrgAction
                         $this->organisation->fulfilmentStats->number_pallets_state_in_process
                         + $this->organisation->fulfilmentStats->number_pallets_state_submitted
                         + $this->organisation->fulfilmentStats->number_pallets_state_confirmed
-                    ) . ' ' . __('pendings')
+                    ) . ' ' . __('pending')
                 ],
                 [
                     'icon'          => 'fal fa-truck-couch',
@@ -142,7 +142,7 @@ class ShowFulfilment extends OrgAction
                         $this->organisation->fulfilmentStats->number_pallet_deliveries_state_in_process
                         + $this->organisation->fulfilmentStats->number_pallet_deliveries_state_submitted
                         + $this->organisation->fulfilmentStats->number_pallet_deliveries_state_confirmed
-                    ) . ' ' . __('pendings')
+                    ) . ' ' . __('pending')
                 ],
                 [
                     'icon'          => 'fal fa-sign-out',
@@ -153,7 +153,7 @@ class ShowFulfilment extends OrgAction
                         + $this->organisation->fulfilmentStats->number_pallet_returns_state_confirmed
                         + $this->organisation->fulfilmentStats->number_pallet_returns_state_picking
                         + $this->organisation->fulfilmentStats->number_pallet_returns_state_picked
-                    ) . ' ' . __('pendings')
+                    ) . ' ' . __('pending')
                 ],
             ]
         ];
