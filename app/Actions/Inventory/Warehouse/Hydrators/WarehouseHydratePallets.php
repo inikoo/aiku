@@ -68,15 +68,6 @@ class WarehouseHydratePallets
             }
         ));
 
-        $stats = array_merge($stats, $this->getEnumStats(
-            model: 'pallets',
-            field: 'type',
-            enum: PalletTypeEnum::class,
-            models: Pallet::class,
-            where: function ($q) use ($warehouse) {
-                $q->where('warehouse_id', $warehouse->id);
-            }
-        ));
 
         $warehouse->stats()->update($stats);
     }

@@ -7,10 +7,14 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateUniversalSearch;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePallets;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
@@ -52,7 +56,15 @@ class SubmitPalletDelivery extends OrgAction
             'Pallet Delivery has been submitted.'
         );
 
-        return $this->update($palletDelivery, $modelData);
+        $palletDelivery= $this->update($palletDelivery, $modelData);
+
+        FulfilmentCustomerHydratePallets::dispatch($palletDelivery->fulfilmentCustomer);
+        FulfilmentHydratePallets::dispatch($palletDelivery->fulfilment);
+        OrganisationHydratePallets::dispatch($palletDelivery->organisation);
+        WarehouseHydratePallets::dispatch($palletDelivery->warehouse);
+
+        return $palletDelivery;
+
     }
 
     public function authorize(ActionRequest $request): bool

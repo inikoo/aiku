@@ -7,8 +7,12 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePallets;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
@@ -36,13 +40,18 @@ class ConfirmPalletDelivery extends OrgAction
         }
 
         foreach ($palletDelivery->pallets as $pallet) {
+            // todo use UpdatePallet action
             $pallet->update([
                 'state'     => PalletStateEnum::CONFIRMED
             ]);
         }
 
+        //todo move this to UpdatePallet action
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
-
+        FulfilmentCustomerHydratePallets::dispatch($palletDelivery->fulfilmentCustomer);
+        FulfilmentHydratePallets::dispatch($palletDelivery->fulfilment);
+        OrganisationHydratePallets::dispatch($palletDelivery->organisation);
+        WarehouseHydratePallets::dispatch($palletDelivery->warehouse);
 
         return $this->update($palletDelivery, $modelData);
     }

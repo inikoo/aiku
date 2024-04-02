@@ -19,6 +19,7 @@ import axios from 'axios'
 import { inject, ref } from 'vue'
 import { notify } from '@kyvg/vue3-notification'
 import type { Meta, Links } from '@/types/Table'
+import { PalletCustomer } from '@/types/Pallet'
 
 library.add( faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp )
 
@@ -34,7 +35,7 @@ const props = defineProps<{
 }>()
 
 
-function palletRoute(pallet: {}) {
+function palletRoute(pallet: PalletCustomer) {
     switch (route().current()) {
         case 'grp.org.fulfilments.show.operations.pallets.index':
             return route(
@@ -42,7 +43,7 @@ function palletRoute(pallet: {}) {
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],
-                    pallet['slug']
+                    pallet.slug
                 ])
         case 'grp.org.warehouses.show.fulfilment.pallets.index':
             return route(
@@ -50,7 +51,7 @@ function palletRoute(pallet: {}) {
                 [
                     route().params['organisation'],
                     route().params['warehouse'],
-                    pallet['slug']
+                    pallet.slug
                 ])
 
         case 'grp.org.warehouses.show.infrastructure.locations.show':
@@ -60,7 +61,7 @@ function palletRoute(pallet: {}) {
                     route().params['organisation'],
                     route().params['warehouse'],
                     route().params['location'],
-                    pallet['slug']
+                    pallet.slug
                 ])
         case 'grp.org.fulfilments.show.crm.customers.show':
             return route(
@@ -69,7 +70,7 @@ function palletRoute(pallet: {}) {
                     route().params['organisation'],
                     route().params['fulfilment'],
                     route().params['fulfilmentCustomer'],
-                    pallet['slug']
+                    pallet.slug
                 ])
 
         default:
@@ -77,8 +78,8 @@ function palletRoute(pallet: {}) {
     }
 }
 
-function fulfilmentCustomerRoute(pallet: {}) {
-    console.log(route().current())
+function fulfilmentCustomerRoute(pallet: PalletCustomer) {
+    // console.log(route().current())
     switch (route().current()) {
 
         case 'grp.org.fulfilments.show.operations.pallets.index':
@@ -87,7 +88,7 @@ function fulfilmentCustomerRoute(pallet: {}) {
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],
-                    pallet['fulfilment_customer_slug']
+                    pallet.fulfilment_customer_slug
                 ])
 
         default:
@@ -166,6 +167,13 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
         <template #cell(reference)="{ item: pallet }">
             <Link :href="palletRoute(pallet)" class="specialUnderline">
                 {{ pallet.reference }}
+            </Link>
+        </template>
+        
+        <!-- Column: Pallet Reference -->
+        <template #cell(pallet_referencexxx)="{ item: pallet }">
+            <Link :href="palletRoute(pallet)" class="specialUnderline">
+                {{ pallet.reference }}aaaaaaa
             </Link>
         </template>
 
