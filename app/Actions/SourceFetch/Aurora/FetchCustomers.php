@@ -98,15 +98,17 @@ class FetchCustomers extends FetchAction
             }
 
 
+
             if (in_array('web-users', $with)) {
                 foreach (
                     DB::connection('aurora')
                         ->table('Website User Dimension')
                         ->where('Website User Customer Key', $sourceData[1])
                         ->select('Website User Key as source_id')
-                        ->orderBy('source_id')->get() as $order
+                        ->orderBy('source_id')->get() as $webUserData
                 ) {
-                    FetchWebUsers::run($organisationSource, $order->source_id);
+
+                    FetchWebUsers::run($organisationSource, $webUserData->source_id);
                 }
             }
 
