@@ -141,7 +141,7 @@ class StorePalletReturn extends OrgAction
                     'organisation'           => $palletReturn->organisation->slug,
                     'fulfilment'             => $palletReturn->fulfilment->slug,
                     'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
-                    'palletReturn'           => $palletReturn->reference
+                    'palletReturn'           => $palletReturn->slug
                 ]
             ]
         ];
@@ -156,10 +156,10 @@ class StorePalletReturn extends OrgAction
                 'organisation'           => $palletReturn->organisation->slug,
                 'fulfilment'             => $palletReturn->fulfilment->slug,
                 'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
-                'palletReturn'           => $palletReturn->reference
+                'palletReturn'           => $palletReturn->slug
             ])),
             default => Inertia::location(route('retina.storage.pallet-returns.show', [
-                'palletReturn'         => $palletReturn->reference
+                'palletReturn'         => $palletReturn->slug
             ]))
         };
     }
