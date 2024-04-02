@@ -24,6 +24,7 @@ class DeletePallet extends OrgAction
 
     public function handle(Pallet $pallet): Pallet
     {
+        $this->update($pallet, ['customer_reference' => null]);
         $pallet->delete();
 
         HydratePalletDeliveries::run($pallet->palletDelivery);
