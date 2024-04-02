@@ -24,17 +24,19 @@ enum PalletDeliveryStateEnum: string
     case CONFIRMED    = 'confirmed';
     case RECEIVED     = 'received';
     case NOT_RECEIVED = 'not-received';
+    case BOOKING_IN   = 'booking-in';
     case BOOKED_IN    = 'booked-in';
 
     public static function labels(): array
     {
         return [
-            'in-process'     => __('In Process'),
-            'submitted'      => __('Submitted'),
-            'confirmed'      => __('Confirmed'),
-            'received'       => __('Received'),
-            'not-received'   => __('Not Received'),
-            'booked-in'      => __('Booked In')
+            'in-process'   => __('In Process'),
+            'submitted'    => __('Submitted'),
+            'confirmed'    => __('Confirmed'),
+            'received'     => __('Received'),
+            'not-received' => __('Not Received'),
+            'booking-in'   => __('Booking In'),
+            'booked-in'    => __('Booked In')
         ];
     }
 
@@ -47,31 +49,37 @@ enum PalletDeliveryStateEnum: string
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
                 'color'   => 'lime'  // Color for box (Retina)
             ],
-            'submitted'  => [
+            'submitted' => [
                 'tooltip' => __('Submitted'),
                 'icon'    => 'fal fa-share',
                 'class'   => 'text-indigo-400',
                 'color'   => 'indigo'
             ],
-            'confirmed'  => [
+            'confirmed' => [
                 'tooltip' => __('Confirmed'),
                 'icon'    => 'fal fa-spell-check',
                 'class'   => 'text-emerald-500',
                 'color'   => 'emerald'
             ],
-            'received'   => [
+            'received' => [
                 'tooltip' => __('Received'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-slate-500',
                 'color'   => 'slate'
             ],
-            'not-received'   => [
+            'not-received' => [
                 'tooltip' => __('Not Received'),
                 'icon'    => 'fal fa-cross',
                 'class'   => 'text-red-500',
                 'color'   => 'slate'
             ],
-            'booked-in'  => [
+            'booking-in' => [
+                'tooltip' => __('Booking in'),
+                'icon'    => 'fal fa-check',
+                'class'   => 'text-purple-500',
+                'color'   => 'purple'
+            ],
+            'booked-in' => [
                 'tooltip' => __('Booked in'),
                 'icon'    => 'fal fa-check-double',
                 'class'   => 'text-purple-500',
@@ -80,8 +88,9 @@ enum PalletDeliveryStateEnum: string
         ];
     }
 
-    public static function count(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent): array
-    {
+    public static function count(
+        Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent
+    ): array {
         if ($parent instanceof FulfilmentCustomer) {
             $stats = $parent;
         } else {
@@ -94,6 +103,7 @@ enum PalletDeliveryStateEnum: string
             'confirmed'    => $stats->number_pallet_deliveries_state_confirmed,
             'received'     => $stats->number_pallet_deliveries_state_received,
             'not-received' => $stats->number_pallet_deliveries_state_not_received,
+            'booking-in'   => $stats->number_pallet_deliveries_state_booking_in,
             'booked-in'    => $stats->number_pallet_deliveries_state_booked_in,
         ];
     }

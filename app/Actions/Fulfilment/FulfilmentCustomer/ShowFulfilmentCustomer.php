@@ -296,7 +296,7 @@ class ShowFulfilmentCustomer extends OrgAction
                         'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment'])
                     ],
                     'model' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.index',
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show',
                         'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
                     ]
                 ]

@@ -8,6 +8,17 @@ use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * App\Models\PalletReturnItem
+ *
+ * @property PalletReturnItemStateEnum $state
+ * @property-read Pallet|null $pallet
+ * @property-read PalletReturn|null $palletReturn
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletReturnItem newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletReturnItem newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|PalletReturnItem query()
+ * @mixin \Eloquent
+ */
 class PalletReturnItem extends Model
 {
     protected $guarded = [];

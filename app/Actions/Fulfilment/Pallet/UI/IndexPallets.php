@@ -14,6 +14,7 @@ use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -224,14 +225,19 @@ class IndexPallets extends OrgAction
             $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true);
 
 
-            if (($parent instanceof Organisation or $parent instanceof Fulfilment or $parent instanceof Warehouse or $parent instanceof PalletDelivery or $parent instanceof PalletReturn) and in_array($parent->state, [PalletDeliveryStateEnum::RECEIVED, PalletDeliveryStateEnum::BOOKED_IN]) and request(
+            if (($parent instanceof Organisation or $parent instanceof Fulfilment or $parent instanceof Warehouse or $parent instanceof PalletDelivery or $parent instanceof PalletReturn) and in_array($parent->state, [PalletDeliveryStateEnum::RECEIVED,PalletDeliveryStateEnum::BOOKED_IN, PalletDeliveryStateEnum::BOOKING_IN]) and request(
             )->user() instanceof User) {
                 $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
             }
 
 
+            if(
+                !($parent instanceof PalletDelivery and  $parent->state==PalletDeliveryStateEnum::BOOKED_IN)or ($parent instanceof PalletReturn and ($parent->state==PalletReturnStateEnum::DISPATCHED or $parent->state==PalletReturnStateEnum::CANCEL))
+            ) {
+                $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
 
-            $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
+            }
+
 
             $table->defaultSort('reference');
         };
