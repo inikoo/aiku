@@ -33,7 +33,7 @@ class StoreWebUser extends OrgAction
         data_set($modelData, 'language_id', $customer->shop->language_id, overwrite: false);
         data_set($modelData, 'group_id', $customer->group_id);
         data_set($modelData, 'organisation_id', $customer->organisation_id);
-        data_set($modelData, 'shop_id', $customer->organisation_id);
+        data_set($modelData, 'shop_id', $customer->shop_id);
 
         if (!$customer->shop->website) {
             abort(422, 'Website not set up');
@@ -41,7 +41,7 @@ class StoreWebUser extends OrgAction
         if (Arr::exists($modelData, 'password')) {
             $modelData['password'] = Hash::make($modelData['password']);
         }
-        /** @var \App\Models\CRM\WebUser $webUser */
+        /** @var WebUser $webUser */
         $webUser = $customer->webUsers()->create(
             array_merge(
                 $modelData,
