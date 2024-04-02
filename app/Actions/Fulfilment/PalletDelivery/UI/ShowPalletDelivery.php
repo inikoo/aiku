@@ -27,6 +27,7 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use App\Http\Resources\Sales\CustomersResource;
 
 class ShowPalletDelivery extends OrgAction
 {
@@ -307,6 +308,12 @@ class ShowPalletDelivery extends OrgAction
                 ],
 
                 'data'             => PalletDeliveryResource::make($palletDelivery),
+                'box_stats'        => [
+                    'customer'          => CustomersResource::make($palletDelivery->fulfilmentCustomer->customer)->getArray(),
+                    'delivery_status'   => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
+                    'total_pallet'      => []
+                ],
+
 
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPallets::run($palletDelivery, 'pallets'))
