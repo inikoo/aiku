@@ -37,7 +37,7 @@ class UpdatePalletReturnItem extends OrgAction
     {
         $state = Arr::get($modelData, 'state');
 
-        $pallet->palletReturn->pallets()->sync([
+        $pallet->palletReturn->pallets()->syncWithoutDetaching([
             $pallet->id => [
                 'state' => $state
             ]

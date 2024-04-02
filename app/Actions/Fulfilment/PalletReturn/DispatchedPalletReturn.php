@@ -35,6 +35,12 @@ class DispatchedPalletReturn extends OrgAction
                 'state'  => PalletStateEnum::DISPATCHED,
                 'status' => PalletStatusEnum::RETURNED
             ]);
+
+            $palletReturn->pallets()->syncWithoutDetaching([
+                $pallet->id => [
+                    'state' => PalletReturnStateEnum::DISPATCHED
+                ]
+            ]);
         }
 
         HydrateFulfilmentCustomer::dispatch($palletReturn->fulfilmentCustomer);
