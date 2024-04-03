@@ -251,12 +251,13 @@ class ShowPalletDelivery extends OrgAction
                     'next'     => $this->getNext($palletDelivery, $request),
                 ],
                 'pageHead' => [
-                    'container' => $container,
+                    // 'container' => $container,
                     'title'     => $palletDelivery->reference,
                     'icon'      => [
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => $palletDelivery->reference
                     ],
+                    'model'     => __('pallet delivery'),
                     'iconRight' => $palletDelivery->state->stateIcon()[$palletDelivery->state->value],
                     'edit'      => $this->canEdit ? [
                         'route' => [

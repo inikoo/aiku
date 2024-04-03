@@ -239,6 +239,10 @@ return [
     'cloudflare_api_token'  => env('CLOUDFLARE_API_TOKEN'),
     'cloudflare_api_url'    => env('CLOUDFLARE_API_URL'),
     'cloudflare_account_id' => env('CLOUDFLARE_ACCOUNT_ID'),
+    'local'                 => [
+        'retina_domain' => env('LOCAL_RETINA_DOMAIN'),
+    ],
+
 
 
     'currency_exchange'=> [
