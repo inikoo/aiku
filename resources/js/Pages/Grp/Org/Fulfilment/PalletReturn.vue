@@ -9,28 +9,31 @@ import { Head, Link } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
-import { computed, onMounted, ref, watch } from "vue"
+import { computed, onMounted, ref, watch, inject } from 'vue'
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from "@/Components/Tables/TableHistories.vue"
 import Timeline from "@/Components/Utils/Timeline.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Modal from "@/Components/Utils/Modal.vue"
+import BoxNote from "@/Components/Pallet/BoxNote.vue"
 import TablePalletReturn from "@/Components/PalletReturn/tablePalletReturn.vue"
 import TablePalletReturnsDelivery from "@/Components/Tables/TablePalletReturnsDelivery.vue"
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
-import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn.ts"
+import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn"
 import Tag from "@/Components/Tag.vue"
 import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
 import JsBarcode from "jsbarcode"
 import { BoxStats } from '@/types/Pallet'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt  } from '@fal'
+import { faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import PureTextarea from "@/Components/Pure/PureTextarea.vue"
 import { trans } from "laravel-vue-i18n"
 library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt )
+
+const layout = inject('layout', {})
 
 const props = defineProps<{
     title: string
@@ -81,6 +84,32 @@ onMounted(() => {
     })
 })
 
+const notesData = [
+    {
+        label: 'Customer',
+        note: 'xxxxxxxx',
+        editable: false,
+        bgColor: '#7da7f4',
+        color: 'blue',
+        field: 'customer_notes'
+    },
+    {
+        label: 'Public',
+        note: 'ccccccccccc',
+        editable: true,
+        bgColor: '#ff7dbd',
+        color: 'pink',
+        field: 'public_notes'
+    },
+    {
+        label: 'Private',
+        editable: true,
+        note: '',
+        bgColor: '#8e44ad',
+        color: 'purple',
+        field: 'internal_notes'
+    },
+]
 </script>
 
 <template>
@@ -94,11 +123,17 @@ onMounted(() => {
         </template>
     </PageHeading>
 
+    <!-- Section: Note -->
+    <div class="h-fit lg:max-h-64 w-full flex lg:justify-center border-b border-gray-300">
+        <BoxNote v-for="(note, index) in notesData" :key="index+note.label" :noteData="note" />
+    </div>
+
+    <!-- Section: Timeline -->
     <div class="border-b border-gray-200"> 
         <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="Object.entries(timeline.timeline).length" />
     </div>
 
-    <!-- Box -->
+    <!-- Section: Box -->
     <div class="h-min grid grid-cols-4 border-b border-gray-200 divide-x divide-gray-300">
         <!-- Box: Customer -->
         <BoxStatsPalletDelivery class="pb-2 pt-5 px-3" tooltip="Customer">
@@ -114,8 +149,7 @@ onMounted(() => {
             </Link>
             
             <!-- Field: Contact name -->
-            <div v-if="box_stats.fulfilment_customer.customer.contact_name"
-                class="flex items-center w-full flex-none gap-x-2 cursor-pointer">
+            <div v-if="box_stats.fulfilment_customer.customer.contact_name" class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Contact name'" class="flex-none">
                     <span class="sr-only">Contact name</span>
                     <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
@@ -125,7 +159,7 @@ onMounted(() => {
 
 
             <!-- Field: Company name -->
-            <div v-if="box_stats.fulfilment_customer.customer.company_name" class="flex items-center w-full flex-none gap-x-2 cursor-pointer">
+            <div v-if="box_stats.fulfilment_customer.customer.company_name" class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Company name'" class="flex-none">
                     <span class="sr-only">Company name</span>
                     <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
