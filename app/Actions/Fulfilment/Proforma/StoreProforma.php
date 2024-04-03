@@ -90,7 +90,7 @@ class StoreProforma extends OrgAction
         return $this->handle($fulfilmentCustomer, $this->validateAttributes());
     }
 
-    public string $commandSignature = 'proforma:create {fulfillment-customer}';
+    public string $commandSignature = 'proforma:create {fulfilment-customer}';
 
     public function asCommand(Command $command): int
     {

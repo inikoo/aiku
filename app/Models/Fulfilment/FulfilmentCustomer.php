@@ -12,6 +12,7 @@ use App\Models\FulfilmentProforma;
 use App\Models\Helpers\SerialReference;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -101,6 +102,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemReturn> $storedItemReturns
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer onlyTrashed()
@@ -112,6 +114,7 @@ use Spatie\Sluggable\SlugOptions;
 class FulfilmentCustomer extends Model
 {
     use SoftDeletes;
+    use HasUniversalSearch;
     use HasSlug;
 
     protected $guarded = [];

@@ -45,7 +45,7 @@ function handleSearchInput() {
 
 const resultsSearch = ref()
 const paramsToString = computed(() => {
-    return route().v().params ? '&' + Object.entries(route().v().params).map(([key, value]) => `param_${key}=${value}`).join('&') : ''
+    return route().v().params ? '&' + Object.entries(route().v().params).map(([key, value]) => `${key}=${value}`).join('&') : ''
 })
 
 const fetchApi = async (query: string) => {

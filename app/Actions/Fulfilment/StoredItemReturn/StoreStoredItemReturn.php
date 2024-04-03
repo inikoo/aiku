@@ -156,7 +156,7 @@ class StoreStoredItemReturn extends OrgAction
         };
     }
 
-    public string $commandSignature = 'stored-item-returns:create {fulfillment-customer}';
+    public string $commandSignature = 'stored-item-returns:create {fulfilment-customer}';
 
     public function asCommand(Command $command): int
     {

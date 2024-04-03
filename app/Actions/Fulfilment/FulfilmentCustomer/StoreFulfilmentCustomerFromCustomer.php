@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Utils\Abbreviate;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
@@ -57,6 +58,8 @@ class StoreFulfilmentCustomerFromCustomer extends OrgAction
                 'format'          => Abbreviate::run($customerFulfilment->slug).'-p%04d'
             ]
         );
+
+        FulfilmentCustomerHydrateUniversalSearch::dispatch($customerFulfilment);
 
         return $customerFulfilment;
     }

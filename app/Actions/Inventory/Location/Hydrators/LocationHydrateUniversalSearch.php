@@ -20,12 +20,14 @@ class LocationHydrateUniversalSearch
         $location->universalSearch()->updateOrCreate(
             [],
             [
-                'group_id'        => $location->group_id,
-                'organisation_id' => $location->organisation_id,
-                'warehouse_id'    => $location->warehouse_id,
-                'section'         => 'inventory',
-                'title'           => $location->code,
-                'slug'            => 'loc-'.$location->slug,
+                'group_id'          => $location->group_id,
+                'organisation_id'   => $location->organisation_id,
+                'organisation_slug' => $location->organisation->slug,
+                'warehouse_id'      => $location->warehouse_id,
+                'warehouse_slug'    => $location->warehouse->slug,
+                'section'           => 'inventory',
+                'title'             => $location->code,
+                'slug'              => 'loc-'.$location->slug,
             ]
         );
     }

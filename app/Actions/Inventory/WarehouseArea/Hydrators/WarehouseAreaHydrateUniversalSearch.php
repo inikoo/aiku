@@ -20,8 +20,13 @@ class WarehouseAreaHydrateUniversalSearch
         $warehouseArea->universalSearch()->updateOrCreate(
             [],
             [
-                'section' => 'inventory',
-                'title'   => trim($warehouseArea->code.' '.$warehouseArea->name),
+                'group_id'          => $warehouseArea->group_id,
+                'organisation_id'   => $warehouseArea->organisation_id,
+                'organisation_slug' => $warehouseArea->organisation->slug,
+                'warehouse_id'      => $warehouseArea->warehouse_id,
+                'warehouse_slug'    => $warehouseArea->warehouse->slug,
+                'section'           => 'inventory',
+                'title'             => trim($warehouseArea->code.' '.$warehouseArea->name),
             ]
         );
     }

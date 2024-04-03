@@ -22,6 +22,7 @@ class UserHydrateUniversalSearch
         $user->universalSearch()->updateOrCreate(
             [],
             [
+                'group_id'       => $user->group_id,
                 'section'        => 'sysadmin',
                 'title'          => $user->username,
                 'description'    => trim($user->email.' '.$user->contact_name)

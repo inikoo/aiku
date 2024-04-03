@@ -20,10 +20,17 @@ use Laravel\Scout\Searchable;
  * @property string|null $slug
  * @property int|null $group_id
  * @property int|null $organisation_id
+ * @property string|null $organisation_slug
  * @property int|null $shop_id
+ * @property string|null $shop_slug
+ * @property int|null $fulfilment_id
+ * @property string|null $fulfilment_slug
  * @property int|null $warehouse_id
+ * @property string|null $warehouse_slug
  * @property int|null $website_id
+ * @property string|null $website_slug
  * @property int|null $customer_id
+ * @property string|null $customer_slug
  * @property string|null $model_type
  * @property int|null $model_id
  * @property string|null $section

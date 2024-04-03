@@ -20,9 +20,12 @@ class WarehouseHydrateUniversalSearch
         $warehouse->universalSearch()->updateOrCreate(
             [],
             [
-                'section'     => 'inventory',
-                'title'       => trim($warehouse->name.' '.$warehouse->code),
-                'description' => ''
+                'group_id'          => $warehouse->group_id,
+                'organisation_id'   => $warehouse->organisation_id,
+                'organisation_slug' => $warehouse->organisation->slug,
+                'section'           => 'inventory',
+                'title'             => trim($warehouse->name.' '.$warehouse->code),
+                'description'       => ''
             ]
         );
     }

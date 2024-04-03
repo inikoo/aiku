@@ -105,7 +105,7 @@ const footerAbout = [
                 </div>
                 <!-- About -->
                 <div class="space-y-2">
-                    <p class="text-xl text-white">About AW-Fulfillment</p>
+                    <p class="text-xl text-white">About AW-Fulfilment</p>
                     <div class="flex flex-col gap-y-1">
                         <Link v-for="about in footerAbout" :href="about.href" class="text-slate-400 hover:text-slate-200">
                             {{ about.label }}
