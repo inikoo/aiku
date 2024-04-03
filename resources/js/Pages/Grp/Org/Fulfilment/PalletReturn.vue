@@ -5,11 +5,11 @@
   -->
 
 <script setup lang="ts">
-import { Head, useForm, router } from "@inertiajs/vue3"
+import { Head, Link } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
-import { computed, ref, watch } from "vue"
+import { computed, onMounted, ref, watch } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from "@/Components/Tables/TableHistories.vue"
 import Timeline from "@/Components/Utils/Timeline.vue"
@@ -21,6 +21,16 @@ import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn.ts"
 import Tag from "@/Components/Tag.vue"
+import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
+import JsBarcode from "jsbarcode"
+import { BoxStats } from '@/types/Pallet'
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt  } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import PureTextarea from "@/Components/Pure/PureTextarea.vue"
+import { trans } from "laravel-vue-i18n"
+library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt )
 
 const props = defineProps<{
     title: string
@@ -35,9 +45,13 @@ const props = defineProps<{
         index: routeType,
         store: routeType
     }
+    box_stats: BoxStats
 }>()
+
+// console.log('qwewqewq', props.box_stats)
+
 let currentTab = ref(props.tabs.current)
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
+const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const timeline = ref({ ...props.data.data })
 const openModal = ref(false)
 
@@ -58,6 +72,15 @@ watch(
     { deep: true }
 )
 
+onMounted(() => {
+    JsBarcode('#palletReturnBarcode', 'par-' + route().v().params.palletDelivery, {
+        lineColor: "rgb(41 37 36)",
+        width: 2,
+        height: '50%',
+        displayValue: false
+    })
+})
+
 </script>
 
 <template>
@@ -73,6 +96,80 @@ watch(
 
     <div class="border-b border-gray-200"> 
         <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="Object.entries(timeline.timeline).length" />
+    </div>
+
+    <!-- Box -->
+    <div class="h-min grid grid-cols-4 border-b border-gray-200 divide-x divide-gray-300">
+        <!-- Box: Customer -->
+        <BoxStatsPalletDelivery class="pb-2 pt-5 px-3" tooltip="Customer">
+            <!-- Field: Reference -->
+            <Link as="a" v-if="box_stats.fulfilment_customer.customer.reference"
+                :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, box_stats.fulfilment_customer.fulfilment.slug, box_stats.fulfilment_customer.slug])" 
+                class="flex items-center w-fit flex-none gap-x-2 cursor-pointer specialUnderlineSecondary">
+                <dt v-tooltip="'Company name'" class="flex-none">
+                    <span class="sr-only">Reference</span>
+                    <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.reference }}</dd>
+            </Link>
+            
+            <!-- Field: Contact name -->
+            <div v-if="box_stats.fulfilment_customer.customer.contact_name"
+                class="flex items-center w-full flex-none gap-x-2 cursor-pointer">
+                <dt v-tooltip="'Contact name'" class="flex-none">
+                    <span class="sr-only">Contact name</span>
+                    <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.contact_name }}</dd>
+            </div>
+
+
+            <!-- Field: Company name -->
+            <div v-if="box_stats.fulfilment_customer.customer.company_name" class="flex items-center w-full flex-none gap-x-2 cursor-pointer">
+                <dt v-tooltip="'Company name'" class="flex-none">
+                    <span class="sr-only">Company name</span>
+                    <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.company_name }}</dd>
+            </div>
+            
+            <!-- Field: Email -->
+            <div v-if="box_stats.fulfilment_customer?.customer.email" class="flex items-center w-full flex-none gap-x-2">
+                <dt v-tooltip="'Email'" class="flex-none">
+                    <span class="sr-only">Email</span>
+                    <FontAwesomeIcon icon='fal fa-envelope' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer?.customer.email }}</dd>
+            </div>
+            
+            <!-- Field: Phone -->
+            <div v-if="box_stats.fulfilment_customer?.customer.phone" class="flex items-center w-full flex-none gap-x-2">
+                <dt v-tooltip="'Phone'" class="flex-none">
+                    <span class="sr-only">Phone</span>
+                    <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer?.customer.phone }}</dd>
+            </div>
+            
+            <!-- Field: Location -->
+            <div v-if="box_stats.fulfilment_customer?.customer?.location?.length" class="flex items-center w-full flex-none gap-x-2">
+                <dt v-tooltip="'Phone'" class="flex-none">
+                    <span class="sr-only">Location</span>
+                    <FontAwesomeIcon icon='fal fa-map-marker-alt' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer?.customer.location.join(", ") }}</dd>
+            </div>
+        </BoxStatsPalletDelivery>
+
+        <!-- Box: Barcode -->
+        <BoxStatsPalletDelivery>
+            <div class="h-full w-full px-2 flex flex-col items-center -mt-2">
+                <svg id="palletReturnBarcode" class="w-full" />
+                <div class="text-xxs md:text-xxs text-gray-500 -mt-1">
+                    par-{{ route().params.palletReturn }}
+                </div>
+            </div>
+        </BoxStatsPalletDelivery>
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
