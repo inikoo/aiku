@@ -20,12 +20,16 @@ class PalletDeliveryHydrateUniversalSearch
         $palletDelivery->universalSearch()->updateOrCreate(
             [],
             [
-                'group_id'        => $palletDelivery->group_id,
-                'organisation_id' => $palletDelivery->organisation_id,
-                'warehouse_id'    => $palletDelivery->warehouse_id,
-                'section'         => 'fulfilment',
-                'title'           => $palletDelivery->reference,
-                'slug'            => 'pad-'.$palletDelivery->slug,
+                'group_id'          => $palletDelivery->group_id,
+                'organisation_id'   => $palletDelivery->organisation_id,
+                'organisation_slug' => $palletDelivery->organisation->slug,
+                'warehouse_id'      => $palletDelivery->warehouse_id,
+                'warehouse_slug'    => $palletDelivery->warehouse->slug,
+                'fulfilment_id'     => $palletDelivery->fulfilment_id,
+                'fulfilment_slug'   => $palletDelivery->fulfilment->slug,
+                'section'           => 'fulfilment',
+                'title'             => $palletDelivery->reference,
+                'slug'              => 'pad-'.$palletDelivery->slug,
             ]
         );
     }

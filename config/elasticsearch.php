@@ -30,6 +30,12 @@ return [
                     'shop_slug'         => [
                         'type' => 'keyword',
                     ],
+                    'fulfilment_id'         => [
+                        'type' => 'keyword',
+                    ],
+                    'fulfilment_slug'         => [
+                        'type' => 'keyword',
+                    ],
                     'website_id'      => [
                         'type' => 'keyword',
                     ],

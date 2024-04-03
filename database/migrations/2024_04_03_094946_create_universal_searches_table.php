@@ -23,6 +23,9 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id')->nullable()->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->string('shop_slug')->nullable();
+            $table->unsignedSmallInteger('fulfilment_id')->nullable()->index();
+            $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
+            $table->string('fulfilment_slug')->nullable();
             $table->unsignedSmallInteger('warehouse_id')->nullable()->index();
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
             $table->string('warehouse_slug')->nullable();

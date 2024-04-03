@@ -130,7 +130,7 @@ class StorePalletDeliveryFromPallet extends OrgAction
         ]));
     }
 
-    public string $commandSignature = 'pallet-deliveries:create {fulfillment-customer}';
+    public string $commandSignature = 'pallet-deliveries:create {fulfilment-customer}';
 
     public function asCommand(Command $command): int
     {

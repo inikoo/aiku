@@ -20,9 +20,16 @@ class PalletHydrateUniversalSearch
         $pallet->universalSearch()->updateOrCreate(
             [],
             [
-                'section' => 'fulfilment',
-                'title'   => $pallet->reference??$pallet->id,
-                'slug'    => 'pal-'.$pallet->slug,
+                'group_id'          => $pallet->group_id,
+                'organisation_id'   => $pallet->organisation_id,
+                'organisation_slug' => $pallet->organisation->slug,
+                'fulfilment_id'     => $pallet->fulfilment_id,
+                'fulfilment_slug'   => $pallet->fulfilment->slug,
+                'warehouse_id'      => $pallet->warehouse_id,
+                'warehouse_slug'    => $pallet->warehouse->slug,
+                'section'           => 'fulfilment',
+                'title'             => $pallet->reference??$pallet->id,
+                'slug'              => 'pal-'.$pallet->slug,
             ]
         );
     }
