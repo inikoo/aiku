@@ -17,13 +17,14 @@ class EmployeeHydrateUniversalSearch
 
     public function handle(Employee $employee): void
     {
-
         $employee->universalSearch()->updateOrCreate(
             [],
             [
-                'section'     => 'hr',
-                'title'       => trim($employee->slug.' '.$employee->worker_number.' '.$employee->contact_name),
-                'description' => $employee->work_email.' '.$employee->job_title
+                'group_id'        => $employee->group_id,
+                'organisation_id' => $employee->organisation_id,
+                'section'         => 'hr',
+                'title'           => trim($employee->slug . ' ' . $employee->worker_number . ' ' . $employee->contact_name),
+                'description'     => $employee->work_email . ' ' . $employee->job_title
             ]
         );
     }

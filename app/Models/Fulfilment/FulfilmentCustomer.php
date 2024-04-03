@@ -40,9 +40,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_pallets_state_submitted
  * @property int $number_pallets_state_confirmed
  * @property int $number_pallets_state_received
- * @property int $number_pallets_state_not_received
  * @property int $number_pallets_state_booking_in
  * @property int $number_pallets_state_booked_in
+ * @property int $number_pallets_state_not_received
  * @property int $number_pallets_state_storing
  * @property int $number_pallets_state_picking
  * @property int $number_pallets_state_picked

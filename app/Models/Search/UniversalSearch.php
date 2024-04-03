@@ -17,10 +17,11 @@ use Laravel\Scout\Searchable;
  * App\Models\Search\UniversalSearch
  *
  * @property int $id
- * @property string|null $ulid
- * @property bool $in_organisation
+ * @property string|null $slug
+ * @property int|null $group_id
  * @property int|null $organisation_id
  * @property int|null $shop_id
+ * @property int|null $warehouse_id
  * @property int|null $website_id
  * @property int|null $customer_id
  * @property string|null $model_type

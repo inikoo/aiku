@@ -19,7 +19,8 @@ class WorkplaceHydrateUniversalSearch
         $workplace->universalSearch()->updateOrCreate(
             [],
             [
-                'in_organisation' => true,
+                'group_id'        => $workplace->group_id,
+                'organisation_id' => $workplace->organisation_id,
                 'section'         => 'hr',
                 'title'           => $workplace->name,
             ]
