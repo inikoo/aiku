@@ -20,6 +20,7 @@ import { inject, ref } from 'vue'
 import { notify } from '@kyvg/vue3-notification'
 import type { Meta, Links } from '@/types/Table'
 import { PalletCustomer } from '@/types/Pallet'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 library.add( faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp )
 
@@ -176,6 +177,17 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
                 {{ pallet.reference }}
             </Link>
         </template>
+        
+        <!-- Column: Customer Reference -->
+		<template #cell(customer_reference)="{ item: item }">
+			<div>
+                {{ item.customer_reference }}
+                <span v-if="item.notes" class="text-gray-400 text-xs ml-1">
+                    <FontAwesomeIcon icon='fal fa-sticky-note' class='text-gray-400' fixed-width aria-hidden='true' />
+                    {{ item.notes }}
+                </span>
+            </div>
+		</template>
 
         <template #cell(fulfilment_customer_namex)="{ item: pallet }">
             <Link :href="fulfilmentCustomerRoute(pallet)" class="specialUnderlineSecondary">

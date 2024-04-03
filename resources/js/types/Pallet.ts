@@ -1,5 +1,5 @@
 import { Timeline } from "@/types/Timeline"
-import { Customer } from '@/types/customer'
+import { FulfilmentCustomer } from '@/types/Customer'
 
 export interface PalletCustomer {
     slug: string
@@ -42,8 +42,34 @@ export interface PalletDelivery {
 
 // Box Stats in Pallet Delivery
 export interface PDBoxStats {
-    fulfilment_customer: Customer
     delivery_status: PalletStatus
+    fulfilment_customer: {
+        customer: {
+            slug: string
+            reference: string
+            name: string
+            contact_name: string
+            company_name: string
+            location: string[]
+            email: string
+            phone: string
+            created_at: string
+        }
+        fulfilment: {
+            name: string
+            slug: string
+        }
+        number_pallet_deliveries: number
+        number_pallet_returns: number
+        number_pallets: number
+        number_pallets_state_received: number
+        number_stored_items: number
+        radioTabs: {
+            dropshipping: boolean
+            items_storage: boolean
+            pallets_storage: boolean
+        }
+    }
 }
 
 export interface PalletStatus {

@@ -28,13 +28,14 @@ import JsBarcode from 'jsbarcode'
 import { PalletDelivery, PDBoxStats } from '@/types/Pallet'
 import { Table } from '@/types/Table'
 import { Tabs as TSTabs } from '@/types/Tabs'
-import { Customer } from '@/types/customer'
+
+import '@/Composables/Icon/PalletDeliveryStateEnum'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt } from '@fal'
+import { faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone } from '@fal'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt)
+library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone)
 
 const props = defineProps<{
     title: string
@@ -60,7 +61,7 @@ const props = defineProps<{
     },
 }>()
 
-console.log('props', props.box_stats.fulfilment_customer)
+console.log('props', props.box_stats)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)

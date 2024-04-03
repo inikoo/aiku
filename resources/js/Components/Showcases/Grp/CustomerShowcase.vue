@@ -49,6 +49,7 @@ const props = defineProps<{
     tab: string
 }>()
 
+// console.log('dataaaa', props.data)
 // Tabs radio: v-model
 const radioValue = ref<string[]>(Object.keys(props.data.fulfilment_customer.radioTabs).filter(key => props.data.fulfilment_customer.radioTabs[key]))
 

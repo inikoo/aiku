@@ -4,7 +4,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-export interface Customer {
+export interface FulfilmentCustomer {
     slug: string
     reference: string
     name: string
@@ -18,5 +18,4 @@ export interface Customer {
     shop_slug: string
     shop_code: string
     number_active_clients: number
-
 }
