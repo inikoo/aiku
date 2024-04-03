@@ -177,5 +177,4 @@ enum PalletStateEnum: string
 
         ];
     }
-
 }

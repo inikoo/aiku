@@ -47,6 +47,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $cancel_at
  * @property string|null $date
  * @property array|null $data
+ * @property string|null $customer_notes
+ * @property string|null $public_notes
+ * @property string|null $internal_notes
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at

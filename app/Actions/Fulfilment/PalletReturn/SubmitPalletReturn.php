@@ -8,9 +8,11 @@
 namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
+use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
@@ -38,12 +40,13 @@ class SubmitPalletReturn extends OrgAction
         }
 
         foreach ($palletReturn->pallets as $pallet) {
-            $pallet->update([
+            UpdatePallet::run($pallet, [
                 'reference' => GetSerialReference::run(
                     container: $palletReturn->fulfilmentCustomer,
                     modelType: SerialReferenceModelEnum::PALLET
                 ),
-                'state' => $modelData['state']
+                'state'  => $modelData['state'],
+                'status' => PalletStatusEnum::RECEIVING
             ]);
 
             $palletReturn->pallets()->syncWithoutDetaching([$pallet->id => [

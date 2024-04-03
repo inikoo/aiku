@@ -30,6 +30,9 @@ return new class () extends Migration {
                 $table->dateTimeTz("{$state->snake()}_at")->nullable();
             }
             $table->dateTimeTz('date')->nullable();
+            $table->text('customer_notes')->nullable();
+            $table->text('public_notes')->nullable();
+            $table->text('internal_notes')->nullable();
             $table->jsonb('data')->nullable();
             $table->timestampsTz();
             $this->softDeletes($table);

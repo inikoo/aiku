@@ -8,9 +8,11 @@
 namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
+use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -30,8 +32,9 @@ class ConfirmPalletReturn extends OrgAction
         $modelData['state']                                       = PalletReturnStateEnum::CONFIRMED;
 
         foreach ($palletReturn->pallets as $pallet) {
-            $pallet->update([
-                'state' => PalletStateEnum::CONFIRMED
+            UpdatePallet::run($pallet, [
+                'state'  => PalletStateEnum::CONFIRMED,
+                'status' => PalletStatusEnum::RECEIVING
             ]);
 
             $palletReturn->pallets()->syncWithoutDetaching([

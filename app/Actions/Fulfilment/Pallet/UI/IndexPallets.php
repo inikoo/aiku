@@ -122,6 +122,9 @@ class IndexPallets extends OrgAction
             $query->where('pallets.state', PalletStateEnum::STORING);
         }
 
+        if(!$parent instanceof PalletDelivery and !$parent instanceof PalletReturn) {
+            $query->whereNotNull('pallets.slug');
+        }
 
         if (!$parent instanceof PalletDelivery) {
             $query->where('pallets.state', '!=', PalletStateEnum::IN_PROCESS);
