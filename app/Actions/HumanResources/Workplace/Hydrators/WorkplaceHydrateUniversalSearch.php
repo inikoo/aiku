@@ -21,6 +21,7 @@ class WorkplaceHydrateUniversalSearch
             [
                 'group_id'        => $workplace->group_id,
                 'organisation_id' => $workplace->organisation_id,
+                'organisation_slug'=>$workplace->organisation->slug,
                 'section'         => 'hr',
                 'title'           => $workplace->name,
             ]

@@ -20,19 +20,53 @@ class IndexUniversalSearch extends InertiaAction
     use AsController;
 
 
-    public function handle(string $query): Collection
+    public function handle(string $query, ?array $sections, ?string $organisationSlug): Collection
     {
-        return UniversalSearch::search($query)->get();
+        $query = UniversalSearch::search($query)->where('group_id', group()->id);
 
+        if ($sections && count($sections) > 0) {
+            $query->whereIn('section',$sections);
+        }
+
+
+        if ($organisationSlug) {
+            $query->where('organisation_slug', $organisationSlug);
+        }
+
+        return $query->get();
     }
 
     public function asController(ActionRequest $request): AnonymousResourceCollection
     {
-
-
-        $searchResults=$this->handle($request->input('q', ''));
+        $searchResults = $this->handle(
+            query: $request->input('q', ''),
+            sections: $this->parseSections($request->input('route_src')),
+            organisationSlug: $request->input('organisation')
+        );
         return UniversalSearchResource::collection($searchResults);
+    }
 
+    public function parseSections($routeName): array|null
+    {
+
+        if (str_starts_with($routeName,'grp.org.')) {
+            return $this->parseOrganisationSections(
+                preg_replace('/^grp\.org./','', $routeName)
+            );
+
+        }
+        return null;
+
+    }
+
+    public function parseOrganisationSections($route): array|null
+    {
+
+        if(str_starts_with($route,'hr.')){
+            return ['hr'];
+        }
+
+        return null;
     }
 
 

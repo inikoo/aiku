@@ -35,7 +35,7 @@ library.add(faHeart, faComputerClassic, faDiscord)
         <div class="flex justify-between">
             <!-- Left: Logo Section -->
             <div class="pl-4 flex items-center gap-x-1.5 py-1">
-                <Image class="h-4 select-none hidden md:inline" :src="logoSrc" alt="T-Wowsbar" />
+                <Image class="h-4 select-none hidden md:inline" :src="logoSrc" alt="T-aiku" />
                 <span class="text-slate-400	text-xs hidden md:inline">
                     {{ trans('Made with') }}
                     <FontAwesomeIcon icon='fas fa-heart' class="text-red-500 mx-1" aria-hidden='true' />

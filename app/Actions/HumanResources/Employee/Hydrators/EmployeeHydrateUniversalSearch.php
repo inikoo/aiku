@@ -22,6 +22,7 @@ class EmployeeHydrateUniversalSearch
             [
                 'group_id'        => $employee->group_id,
                 'organisation_id' => $employee->organisation_id,
+                'organisation_slug'=>$employee->organisation->slug,
                 'section'         => 'hr',
                 'title'           => trim($employee->slug . ' ' . $employee->worker_number . ' ' . $employee->contact_name),
                 'description'     => $employee->work_email . ' ' . $employee->job_title
