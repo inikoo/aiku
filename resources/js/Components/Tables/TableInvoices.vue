@@ -5,31 +5,35 @@
   -->
 
 <script setup lang="ts">
-import {Link} from '@inertiajs/vue3';
-import Table from '@/Components/Table/Table.vue';
-import {Invoice} from "@/types/invoice";
+import { Link } from '@inertiajs/vue3'
+import Table from '@/Components/Table/Table.vue'
+import { Invoice } from "@/types/invoice"
+import { useLocaleStore } from '@/Stores/locale'
+import { useFormatTime } from '../../Composables/useFormatTime copy'
+
+console.log(useLocaleStore())
 
 const props = defineProps<{
-    data: object,
+    data: {}
     tab?: string
 }>()
 
 
 function invoiceRoute(invoice: Invoice) {
-  console.log(route().current())
+    // console.log(route().current())
     switch (route().current()) {
         case 'shops.show.invoices.index':
             return route(
                 'shops.show.invoices.show',
-                [invoice.slug, invoice.slug]);
-      case 'grp.org.fulfilments.show.operations.invoices.index':
+                [invoice.slug, invoice.slug])
+        case 'grp.org.fulfilments.show.operations.invoices.index':
             return route(
                 'grp.org.fulfilments.show.operations.invoices.show',
-                [route().params['organisation'],route().params['fulfilment'],invoice.slug]);
+                [route().params['organisation'], route().params['fulfilment'], invoice.slug])
         default:
             return route(
                 'grp.org.accounting.invoices.show',
-                [route().params['organisation'],invoice.slug]);
+                [route().params['organisation'], invoice.slug])
     }
 }
 
@@ -38,18 +42,22 @@ function invoiceRoute(invoice: Invoice) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(number)="{ item: invoice }">
-            <Link :href="invoiceRoute(invoice)">
-                {{ invoice["number"]}}
+            <Link :href="invoiceRoute(invoice)" class="specialUnderline py-0.5">
+                {{ invoice.number }}
             </Link>
         </template>
 
-      <template #cell(net)="{ item: invoice }">
+        <template #cell(date)="{ item }">
+            <div class="text-gray-500">
+                {{ useFormatTime(item.date) }}
+            </div>
+        </template>
 
-          {{ invoice["net"]}}  {{ invoice["currency_code"]}}  {{ invoice["currency_symbol"]}}
-
-      </template>
+        <template #cell(net)="{ item: invoice }">
+            <div class="text-gray-500">
+                {{ useLocaleStore().currencyFormat(invoice.currency_code, invoice.net) }}
+            </div>
+        </template>
 
     </Table>
 </template>
-
-
