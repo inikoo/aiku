@@ -36,6 +36,9 @@ Route::middleware(["auth"])->group(function () {
     Route::prefix("models")
         ->name("models.")
         ->group(__DIR__."/models.php");
+    Route::prefix("search")
+        ->name("search.")
+        ->group(__DIR__."/search.php");
     /*
 
     Route::prefix("account")
@@ -72,9 +75,7 @@ Route::middleware(["auth"])->group(function () {
     Route::prefix("products")
         ->name("products.")
         ->group(__DIR__."/products.php");
-    Route::prefix("search")
-        ->name("search.")
-        ->group(__DIR__."/search.php");
+
     Route::prefix("oms")
         ->name("oms.")
         ->group(__DIR__."/oms.php");

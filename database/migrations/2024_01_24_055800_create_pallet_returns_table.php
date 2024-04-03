@@ -31,6 +31,9 @@ return new class () extends Migration {
                 }
                 $table->dateTimeTz('date')->nullable();
                 $table->jsonb('data')->nullable();
+                $table->text('customer_notes')->nullable();
+                $table->text('public_notes')->nullable();
+                $table->text('internal_notes')->nullable();
                 $table->timestampsTz();
                 $this->softDeletes($table);
             });

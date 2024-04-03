@@ -22,15 +22,13 @@ class IndexUniversalSearch extends InertiaAction
 
     public function handle(string $query): Collection
     {
-        return UniversalSearch::search($query)
-            ->within(UniversalSearch::make()->searchableAs().'_'.app('currentTenant')->slug)
-            ->get()
-            ->load('model');
+        return UniversalSearch::search($query)->get();
 
     }
 
     public function asController(ActionRequest $request): AnonymousResourceCollection
     {
+
 
         $searchResults=$this->handle($request->input('q', ''));
         return UniversalSearchResource::collection($searchResults);

@@ -50,7 +50,7 @@ const paramsToString = computed(() => {
 
 const fetchApi = async (query: string) => {
     if (query !== '') {
-        await fetch(`${location.origin}/?q=${query}&route_src=${route().current()}${paramsToString.value}`)
+        await fetch(`${location.origin}/search?q=${query}&route_src=${route().current()}${paramsToString.value}`)
             .then(response => {
                 response.json().then((data: Object) => {
                     resultsSearch.value = data

@@ -88,6 +88,7 @@ class AppServiceProvider extends ServiceProvider
                 'PalletReturn'           => 'App\Models\Fulfilment\PalletReturn',
                 'StoredItem'             => 'App\Models\Fulfilment\StoredItem',
                 'Invoice'                => 'App\Models\Accounting\Invoice',
+                'SupplierProduct'        => 'App\Models\SupplyChain\SupplierProduct',
 
 
             ]

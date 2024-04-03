@@ -11,9 +11,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * App\Models\PalletReturnItem
  *
+ * @property int $id
+ * @property int $pallet_id
+ * @property int $pallet_return_id
+ * @property int|null $picked_from_location_id
  * @property PalletReturnItemStateEnum $state
- * @property-read Pallet|null $pallet
- * @property-read PalletReturn|null $palletReturn
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read Pallet $pallet
+ * @property-read PalletReturn $palletReturn
  * @method static \Illuminate\Database\Eloquent\Builder|PalletReturnItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PalletReturnItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PalletReturnItem query()

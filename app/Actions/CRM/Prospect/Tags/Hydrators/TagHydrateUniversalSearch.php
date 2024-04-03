@@ -19,7 +19,6 @@ class TagHydrateUniversalSearch
         $tag->universalSearch()->updateOrCreate(
             [],
             [
-                'in_organisation' => true,
                 'section'         => 'crm',
                 'title'           => trim($tag->label),
                 'description'     => trim($tag->number_subjects)
