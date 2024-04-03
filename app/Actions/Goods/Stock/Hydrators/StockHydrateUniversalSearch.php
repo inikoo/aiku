@@ -20,7 +20,8 @@ class StockHydrateUniversalSearch
         $stock->universalSearch()->updateOrCreate(
             [],
             [
-                'section'     => 'supply-chain',
+                'group_id'    => $stock->group_id,
+                'section'     => 'goods',
                 'title'       => trim($stock->code.' '.$stock->name),
                 'description' => ''
             ]
