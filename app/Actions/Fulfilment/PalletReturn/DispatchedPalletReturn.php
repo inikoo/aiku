@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
+use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -31,7 +32,7 @@ class DispatchedPalletReturn extends OrgAction
         $modelData['state']                                        = PalletReturnStateEnum::DISPATCHED;
 
         foreach ($palletReturn->pallets as $pallet) {
-            $pallet->update([
+            UpdatePallet::run($pallet, [
                 'state'  => PalletStateEnum::DISPATCHED,
                 'status' => PalletStatusEnum::RETURNED
             ]);

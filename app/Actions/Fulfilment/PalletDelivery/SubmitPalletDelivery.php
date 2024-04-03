@@ -11,6 +11,7 @@ use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateUniversalSearch;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
+use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\OrgAction;
@@ -36,7 +37,7 @@ class SubmitPalletDelivery extends OrgAction
         $modelData['state']        = PalletDeliveryStateEnum::SUBMITTED;
 
         foreach ($palletDelivery->pallets as $pallet) {
-            $pallet->update([
+            UpdatePallet::run($pallet, [
                 'reference' => GetSerialReference::run(
                     container: $palletDelivery->fulfilmentCustomer,
                     modelType: SerialReferenceModelEnum::PALLET

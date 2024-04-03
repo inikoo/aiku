@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
+use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -38,7 +39,7 @@ class SubmitPalletReturn extends OrgAction
         }
 
         foreach ($palletReturn->pallets as $pallet) {
-            $pallet->update([
+            UpdatePallet::run($pallet, [
                 'reference' => GetSerialReference::run(
                     container: $palletReturn->fulfilmentCustomer,
                     modelType: SerialReferenceModelEnum::PALLET
