@@ -20,6 +20,9 @@ import TablePalletReturnsDelivery from "@/Components/Tables/TablePalletReturnsDe
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn.ts"
+import { trans } from "laravel-vue-i18n"
+import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
+import PureTextarea from "@/Components/Pure/PureTextarea.vue"
 
 const props = defineProps<{
 	title: string
@@ -78,6 +81,14 @@ watch(
 	<div class="border-b border-gray-200">
 		<Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="Object.entries(timeline.timeline).length" />
 	</div>
+
+    <!-- Todo -->
+    <!-- Box: Notes -->
+    <!-- <BoxStatsPalletDelivery class="pb-2 pt-6 px-2" tooltip="Notes">
+        <div class="h-full w-full px-2 flex flex-col items-center">
+            <PureTextarea full :placeholder="trans('Enter notes for this pallet return')" />
+        </div>
+    </BoxStatsPalletDelivery> -->
 
 	<Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     

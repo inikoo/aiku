@@ -128,7 +128,7 @@ onBeforeUnmount(() => {
 
 <template>
     <Head :title="capitalize(title)"/>
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead" />
 
 
     <!-- If overflow-hidden, affect to Multiselect on Address -->

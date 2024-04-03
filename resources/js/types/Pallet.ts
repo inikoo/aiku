@@ -41,7 +41,7 @@ export interface PalletDelivery {
 }
 
 // Box Stats in Pallet Delivery
-export interface PDBoxStats {
+export interface BoxStats {
     delivery_status: PalletStatus
     fulfilment_customer: {
         customer: {
