@@ -7,13 +7,9 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
-use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
-use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
-use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePallets;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
@@ -34,7 +30,6 @@ class BookedInPalletDelivery extends OrgAction
 
         foreach ($palletDelivery->pallets as $pallet) {
             if ($pallet->state == PalletStateEnum::BOOKED_IN) {
-                //todo use UpdatePallet action
                 UpdatePallet::run($pallet, [
                     'state'  => PalletStateEnum::STORING,
                     'status' => PalletStatusEnum::STORING
@@ -45,12 +40,9 @@ class BookedInPalletDelivery extends OrgAction
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
-        //todo move this to UpdatePallet action
-        HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
-        FulfilmentCustomerHydratePallets::dispatch($palletDelivery->fulfilmentCustomer);
-        FulfilmentHydratePallets::dispatch($palletDelivery->fulfilment);
-        OrganisationHydratePallets::dispatch($palletDelivery->organisation);
-        WarehouseHydratePallets::dispatch($palletDelivery->warehouse);
+
+        SendPalletDeliveryNotification::run($palletDelivery);
+
         return $palletDelivery;
     }
 

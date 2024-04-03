@@ -7,9 +7,14 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
+use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryStateFromItems;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturnStateFromItems;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePallets;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
@@ -44,10 +49,13 @@ class UpdatePallet extends OrgAction
             if($pallet->pallet_return_id) {
                 UpdatePalletReturnStateFromItems::run($pallet->palletReturn);
             }
+
+            HydrateFulfilmentCustomer::dispatch($pallet->fulfilmentCustomer);
+            FulfilmentCustomerHydratePallets::dispatch($pallet->fulfilmentCustomer);
+            FulfilmentHydratePallets::dispatch($pallet->fulfilment);
+            OrganisationHydratePallets::dispatch($pallet->organisation);
+            WarehouseHydratePallets::dispatch($pallet->warehouse);
         }
-
-
-
 
         return $pallet;
     }

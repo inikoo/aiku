@@ -12,6 +12,7 @@ use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -33,7 +34,8 @@ class PickingPalletReturn extends OrgAction
 
         foreach ($palletReturn->pallets as $pallet) {
             UpdatePallet::run($pallet, [
-                'state' => PalletStateEnum::PICKING
+                'state'  => PalletStateEnum::PICKING,
+                'status' => PalletStatusEnum::RETURNING
             ]);
 
             $palletReturn->pallets()->syncWithoutDetaching([

@@ -12,6 +12,7 @@ use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Models\Fulfilment\PalletDelivery;
@@ -30,11 +31,13 @@ class ReceivedPalletDelivery extends OrgAction
 
         foreach ($palletDelivery->pallets as $pallet) {
             UpdatePallet::run($pallet, [
-                'state' => PalletStateEnum::RECEIVED
+                'state'  => PalletStateEnum::RECEIVED,
+                'status' => PalletStatusEnum::RECEIVING
             ]);
         }
 
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
+        SendPalletDeliveryNotification::run($palletDelivery);
 
         return $this->update($palletDelivery, $modelData);
     }
