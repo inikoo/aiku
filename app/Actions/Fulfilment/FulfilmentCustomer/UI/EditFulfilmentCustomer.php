@@ -79,6 +79,11 @@ class EditFulfilmentCustomer extends OrgAction
                                     'label' => __('company'),
                                     'value' => $fulfilmentCustomer->customer->company_name
                                 ],
+                                'email'        => [
+                                    'type'  => 'input',
+                                    'label' => __('Email'),
+                                    'value' => $fulfilmentCustomer->customer->email
+                                ],
                                 'phone'        => [
                                     'type'  => 'phone',
                                     'label' => __('Phone'),
@@ -91,7 +96,7 @@ class EditFulfilmentCustomer extends OrgAction
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'      => 'grp.models.org.shop.fulfilment-customer.update',
+                            'name'      => 'grp.models.fulfilment-customer.update',
                             'parameters'=> [
                                 'organisation'               => $fulfilmentCustomer->organisation->id,
                                 'shop'                       => $fulfilmentCustomer->fulfilment->shop->id,

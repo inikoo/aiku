@@ -24,6 +24,7 @@ enum CustomerTabsEnum: string
     case DATA              = 'data';
     case ATTACHMENTS       = 'attachments';
     case DISPATCHED_EMAILS = 'dispatched_emails';
+    case WEB_USERS         = 'web_users';
 
 
     public function blueprint(): array
@@ -63,6 +64,12 @@ enum CustomerTabsEnum: string
             CustomerTabsEnum::SHOWCASE => [
                 'title' => __('customer'),
                 'icon'  => 'fas fa-info-circle',
+            ],
+            CustomerTabsEnum::WEB_USERS => [
+                'align' => 'right',
+                'title' => __('users'),
+                'icon'  => 'fal fa-globe',
+                'type'  => 'icon',
             ],
         };
     }

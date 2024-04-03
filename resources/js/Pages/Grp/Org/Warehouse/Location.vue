@@ -20,7 +20,6 @@ import TablePallets from "@/Components/Tables/TablePallets.vue"
 
 library.add(faInventory, faExchange, faBox, faWarehouse, faMapSigns, faPallet)
 
-provide('isMovePallet', true)  // To conditionally render 'Move Pallet' button
 
 // const ModelChangelog = defineAsyncComponent(() => import("@/Components/ModelChangelog.vue"))
 

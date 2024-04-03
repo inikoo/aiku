@@ -24,15 +24,9 @@ class UpdateFulfilmentCustomer extends OrgAction
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): FulfilmentCustomer
     {
-
-        if(Arr::exists($modelData, 'contact_name')
-            or Arr::exists($modelData, 'company_name')
-            or Arr::exists($modelData, 'phone')) {
-            UpdateCustomer::run($fulfilmentCustomer->customer, $modelData);
-
-            return $fulfilmentCustomer;
-        }
-
+        $customerData = Arr::only($modelData, ['contact_name', 'company_name', 'email', 'phone']);
+        UpdateCustomer::run($fulfilmentCustomer->customer, $customerData);
+        Arr::forget($modelData, ['contact_name', 'company_name', 'email', 'phone']);
         return $this->update($fulfilmentCustomer, $modelData, ['data']);
     }
 
@@ -50,6 +44,7 @@ class UpdateFulfilmentCustomer extends OrgAction
         return [
             'contact_name'    => ['sometimes', 'string'],
             'company_name'    => ['sometimes', 'string'],
+            'email'           => ['sometimes', 'string'],
             'phone'           => ['sometimes', 'string'],
             'pallets_storage' => ['sometimes', 'boolean'],
             'items_storage'   => ['sometimes', 'boolean'],
@@ -58,15 +53,25 @@ class UpdateFulfilmentCustomer extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, Shop $shop, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): FulfilmentCustomer
-    {
+    public function asController(
+        Organisation $organisation,
+        Shop $shop,
+        Fulfilment $fulfilment,
+        FulfilmentCustomer $fulfilmentCustomer,
+        ActionRequest $request
+    ): FulfilmentCustomer {
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
-    public function action(Organisation $organisation, Shop $shop, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, array $modelData): FulfilmentCustomer
-    {
+    public function action(
+        Organisation $organisation,
+        Shop $shop,
+        Fulfilment $fulfilment,
+        FulfilmentCustomer $fulfilmentCustomer,
+        array $modelData
+    ): FulfilmentCustomer {
         $this->asAction = true;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
 

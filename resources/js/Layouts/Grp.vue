@@ -26,7 +26,7 @@ import { faSearch, faBell } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faSearch, faBell, faTachometerAltFast, faGlobe)
 provide('layout', useLayoutStore())
-
+provide('isMovePallet', true)  // To conditionally render 'Move Pallet' button
 
 initialiseApp()
 

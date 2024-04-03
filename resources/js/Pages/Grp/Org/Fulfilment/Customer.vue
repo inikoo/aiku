@@ -24,7 +24,7 @@ import { computed, defineAsyncComponent, inject, onMounted, onUnmounted, ref } f
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import TablePalletDeliveries from '@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveries.vue'
 import Popover from '@/Components/Popover.vue'
-import CustomerShowcase from "@/Components/Showcases/Grp/CustomerShowcase.vue"
+import FulfilmentCustomerShowcase from "@/Components/Showcases/Grp/FulfilmentCustomerShowcase.vue"
 import CustomerInvoices from "@/Components/Fulfilment/CustomerInvoices.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import Multiselect from "@vueform/multiselect"
@@ -63,7 +63,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
 
     const components = {
-        showcase: CustomerShowcase,
+        showcase: FulfilmentCustomerShowcase,
         pallets: TablePallets,
         stored_items: TableStoredItems,
         stored_item_returns: TableStoredItemReturn,

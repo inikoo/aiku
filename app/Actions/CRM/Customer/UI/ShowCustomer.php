@@ -7,6 +7,7 @@
 
 namespace App\Actions\CRM\Customer\UI;
 
+use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OMS\Order\UI\IndexOrders;
@@ -16,6 +17,7 @@ use App\Actions\Traits\WithWebUserMeta;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\UI\CustomerTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
+use App\Http\Resources\CRM\WebUsersResource;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\CRM\Customer;
@@ -66,8 +68,12 @@ class ShowCustomer extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): Customer
-    {
+    public function asController(
+        Organisation $organisation,
+        Shop $shop,
+        Customer $customer,
+        ActionRequest $request
+    ): Customer {
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(CustomerTabsEnum::values());
 
@@ -101,26 +107,26 @@ class ShowCustomer extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'  => [
+                'navigation' => [
                     'previous' => $this->getPrevious($customer, $request),
                     'next'     => $this->getNext($customer, $request),
                 ],
-                'pageHead'    => [
-                    'title'   => $customer->name,
-                    'icon'    => [
+                'pageHead' => [
+                    'title' => $customer->name,
+                    'icon'  => [
                         'icon'  => ['fal', 'fa-user'],
                         'title' => __('customer')
                     ],
-                    'meta'    => array_filter([
+                    'meta' => array_filter([
                         $shopMeta,
                         $webUsersMeta
                     ]),
-                    'actions'     => [
+                    'actions' => [
                         $this->canDelete ? $this->getDeleteActionIcon($request) : null,
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
                     ],
                 ],
-                'tabs'        => [
+                'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => CustomerTabsEnum::navigation()
 
@@ -143,11 +149,42 @@ class ShowCustomer extends OrgAction
                 CustomerTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerTabsEnum::DISPATCHED_EMAILS->value ?
                     fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($customer))
                     : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($customer))),
+                CustomerTabsEnum::WEB_USERS->value => $this->tab == CustomerTabsEnum::WEB_USERS->value ?
+                    fn () => WebUsersResource::collection(IndexWebUsers::run($customer))
+                    : Inertia::lazy(
+                        fn () => WebUsersResource::collection(IndexWebUsers::run($customer))
+                    ),
 
             ]
         )->table(IndexOrders::make()->tableStructure($customer))
             //    ->table(IndexProducts::make()->tableStructure($customer))
-            ->table(IndexDispatchedEmails::make()->tableStructure($customer));
+            ->table(IndexDispatchedEmails::make()->tableStructure($customer))
+            ->table(
+                IndexWebUsers::make()->tableStructure(
+                    parent: $customer,
+                    modelOperations: [
+                        'createLink' => [
+                            [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('Create new web user'),
+                                'label'   => __('Create Web User'),
+                                'route'   => [
+                                    'method'     => 'get',
+                                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.web-users.create',
+                                    'parameters' => [
+                                        $customer->organisation->slug,
+                                        $customer->shop->slug,
+                                        $customer->slug
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    prefix: CustomerTabsEnum::WEB_USERS->value,
+                    canEdit: $this->canEdit
+                )
+            );
     }
 
 
@@ -158,7 +195,6 @@ class ShowCustomer extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
-
         $headCrumb = function (Customer $customer, array $routeParameters, string $suffix = null) {
             return [
                 [
@@ -175,13 +211,14 @@ class ShowCustomer extends OrgAction
                         ],
 
                     ],
-                    'suffix'         => $suffix
+                    'suffix' => $suffix
 
                 ],
             ];
         };
 
-        $customer=Customer::where('slug', $routeParameters['customer'])->first();
+        $customer = Customer::where('slug', $routeParameters['customer'])->first();
+
 
         return match ($routeName) {
             'grp.org.customers.show',
@@ -196,7 +233,7 @@ class ShowCustomer extends OrgAction
                         ],
                         'model' => [
                             'name'       => 'grp.org.customers.customers.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation','customer'])
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'customer'])
                         ]
                     ],
                     $suffix
@@ -206,17 +243,17 @@ class ShowCustomer extends OrgAction
             'grp.org.shops.show.crm.customers.show',
             'grp.org.shops.show.crm.customers.edit'
             => array_merge(
-                (new ShowShop())->getBreadcrumbs($routeParameters),
+                ShowShop::make()->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'shop'])),
                 $headCrumb(
                     $customer,
                     [
                         'index' => [
                             'name'       => 'grp.org.shops.show.crm.customers.index',
-                            'parameters' => Arr::only($routeParameters, ['organisation','shop'])
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'shop'])
                         ],
                         'model' => [
                             'name'       => 'grp.org.shops.show.crm.customers.show',
-                            'parameters' => Arr::only($routeParameters, ['organisation','shop','customer'])
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'shop', 'customer'])
                         ]
                     ],
                     $suffix
@@ -228,11 +265,14 @@ class ShowCustomer extends OrgAction
 
     public function getPrevious(Customer $customer, ActionRequest $request): ?array
     {
-        $previous = Customer::where('slug', '<', $customer->slug)->when(true, function ($query) use ($customer, $request) {
-            if ($request->route()->getName() == 'shops.show.customers.show') {
-                $query->where('customers.shop_id', $customer->shop_id);
+        $previous = Customer::where('slug', '<', $customer->slug)->when(
+            true,
+            function ($query) use ($customer, $request) {
+                if ($request->route()->getName() == 'shops.show.customers.show') {
+                    $query->where('customers.shop_id', $customer->shop_id);
+                }
             }
-        })->orderBy('slug', 'desc')->first();
+        )->orderBy('slug', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
@@ -262,8 +302,8 @@ class ShowCustomer extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation'=> $customer->organisation->slug,
-                        'customer'    => $customer->slug
+                        'organisation' => $customer->organisation->slug,
+                        'customer'     => $customer->slug
                     ]
 
                 ]
@@ -273,9 +313,9 @@ class ShowCustomer extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation'=> $customer->organisation->slug,
-                        'shop'        => $customer->shop->slug,
-                        'customer'    => $customer->slug
+                        'organisation' => $customer->organisation->slug,
+                        'shop'         => $customer->shop->slug,
+                        'customer'     => $customer->slug
                     ]
 
                 ]

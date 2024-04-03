@@ -15,7 +15,7 @@ import {
     faGraduationCap,
     faMoneyBill,
     faPaperclip, faPaperPlane, faStickyNote,
-    faTags,faCube,faCodeBranch
+    faTags,faCube,faCodeBranch,faShoppingCart
 } from '@fal';
 import ModelDetails from "@/Components/ModelDetails.vue";
 import TableOrders from "@/Components/Tables/TableOrders.vue";
@@ -37,7 +37,8 @@ library.add(
     faPaperclip,
     faPaperPlane,
     faCube,
-    faCodeBranch
+    faCodeBranch,
+    faShoppingCart
 )
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
@@ -53,9 +54,12 @@ const props = defineProps<{
     orders?: object
     products?: object
     dispatched_emails?: object
+    web_users?: object
 }>()
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+
+
 
 const component = computed(() => {
 
@@ -66,6 +70,7 @@ const component = computed(() => {
         details: ModelDetails,
         history: ModelChangelog,
         dispatched_emails: TableDispatchedEmails,
+        web_users: TableWebUsers,
     };
     return components[currentTab.value];
 
@@ -78,6 +83,7 @@ import {
     TransitionChild,
     TransitionRoot,
 } from "@headlessui/vue";
+import TableWebUsers from "@/Components/Tables/TableWebUsers.vue";
 
 
 const isOpen = ref(false);
@@ -94,6 +100,7 @@ const webUserForm = useForm({
 </script>
 
 <template>
+
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <!--

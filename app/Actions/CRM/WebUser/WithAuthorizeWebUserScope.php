@@ -19,7 +19,7 @@ trait WithAuthorizeWebUserScope
             $this->canEdit   = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
             $this->canDelete = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
 
-            return $request->user()->hasPermissionTo("crm.customers.view");
+            return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
         } elseif ($this->parent instanceof FulfilmentCustomer) {
             $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
             $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
