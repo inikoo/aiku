@@ -5,130 +5,51 @@
   -->
 
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
-import { useCopyText } from '@/Composables/useCopyText'
-import CustomerShowcaseStats from '@/Components/Showcases/Grp/CustomerShowcaseStats.vue'
-
 import { routeType } from '@/types/route'
-import { PalletCustomer, PieCustomer } from '@/types/Pallet'
-import { trans } from 'laravel-vue-i18n'
-import TabSelector from '@/Components/Elements/TabSelector.vue'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faLink} from '@far'
 import { faSync, faCalendarAlt, faEnvelope, faPhone } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import Button from '@/Components/Elements/Buttons/Button.vue'
-import axios from 'axios'
-import { notify } from '@kyvg/vue3-notification'
+
 library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone)
 
 const props = defineProps<{
     data: {
-        customer: PalletCustomer
-        fulfilment_customer: {
-            radioTabs: {
-                [key: string]: boolean
-            }
-            number_pallets?: number
-            number_pallets_state_received?: number
-            number_stored_items?: number
-            number_pallets_deliveries?: number
-            number_pallets_returns?: number
-        }
+        customer: object
         updateRoute: routeType
-        pieData: {
-            [key: string]: PieCustomer
-        }
-        webhook: {
-            webhook_access_key: string | null
-            domain: string
-            route: routeType
-        }
+
     },
     tab: string
 }>()
 
-// Tabs radio: v-model
-const radioValue = ref<string[]>(Object.keys(props.data.fulfilment_customer.radioTabs).filter(key => props.data.fulfilment_customer.radioTabs[key]))
 
-// Tabs radio: options
-const optionRadio = [
-    {
-        value: 'pallets_storage',
-        label: 'Pallet Storage'
-    },
-    {
-        value: 'items_storage',
-        label: 'Items Storage'
-    },
-    {
-        value: 'dropshipping',
-        label: 'Dropshipping'
-    },
-]
 
-// Section: Webhook
-const isWebhookLoading = ref(false)
-const webhookValue = ref(props.data.webhook.webhook_access_key || '')
-const onFetchWebhook = async () => {
-    isWebhookLoading.value = true
-    try {
-        const response: { data: { webhook_access_key: string } } = await axios.get(route(props.data.webhook.route.name, props.data.webhook.route.parameters))
-        // console.log('response', response)
-        webhookValue.value = response?.data?.webhook_access_key || ''
-    } catch (error) {
-        notify({
-            title: trans("Something wrong"),
-            text: trans("Failed to retrieve webhook. Please try again."),
-            type: "error"
-        })
-    }
-
-    isWebhookLoading.value = false
-}
 
 </script>
 
 <template>
     <!-- Section: Stats box -->
     <div class="px-4 py-5 md:px-6 lg:px-8 grid grid-cols-2 gap-x-8 gap-y-3">
-        <!-- Section: Radio -->
-        <TabSelector :optionRadio="optionRadio" :radioValue="radioValue" :updateRoute="data.updateRoute"/>
-        
-        <!-- Section: Webhook -->
-        <div class="flex justify-center flex-col">
-            <div class="whitespace-nowrap text-gray-500">The webhook: </div>
-            <div v-if="webhookValue" class="bg-white border border-gray-300 flex items-center justify-between mx-auto rounded-md md:w-full md:max-w-2xl ">
-                <a :href="data.webhook.domain + webhookValue + '?type=human'" target="_blank" class="truncate pl-4 md:pl-5 inline-block py-2 text-xxs md:text-base text-gray-400 w-full" v-tooltip="'Click to visit link'">
-                    {{ data.webhook.domain + webhookValue + '?type=human' }}
-                </a>
-                
-                <div @click="() => onFetchWebhook()" class="cursor-pointer h-full aspect-square flex justify-center items-center">
-                    <FontAwesomeIcon icon='fal fa-sync' class='text-gray-400 hover:text-gray-600' :class="isWebhookLoading ? 'animate-spin' : ''" aria-hidden='true' />
-                </div>
-                
-                <Button :style="'tertiary'" icon='far fa-link' class="" size="l" @click="useCopyText(data.webhook.domain + webhookValue + '?type=human')" tooltip="Copy url to clipboard" />
-            </div>
 
-            <Button v-else label="Click to retrieve webhook" :loading="isWebhookLoading" @click="() => onFetchWebhook()" />
-        </div>
+     
         
         <!-- Section: Profile box -->
-        <div v-if="props.data.fulfilment_customer.radioTabs.dropshipping" class="">
+        <div >
             <h2 class="sr-only">Customer profile</h2>
             <div class="rounded-lg shadow-sm ring-1 ring-gray-900/5">
                 <dl class="flex flex-wrap">
                     <!-- Profile: Header -->
                     <div class="flex w-full py-6">
-                        <div class="flex-auto pl-6">
+                        <div v-if="data.number_active_clients" class="flex-auto pl-6">
                             <dt class="text-sm font-semibold leading-6 text-gray-900">Total Clients</dt>
-                            <dd class="mt-1 text-base font-semibold leading-6 text-gray-900">{{ data.customer.number_active_clients || 0 }}</dd>
+                            <dd class="mt-1 text-base font-semibold leading-6 text-gray-900">{{ data.number_active_clients || 0 }}</dd>
                         </div>
                         <div class="flex-none self-end px-6 pt-4">
                             <dt class="sr-only">Reference</dt>
                             <dd class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                                {{ data.customer.reference }}
+                                {{ data.reference }}
                             </dd>
                         </div>
                     </div>
@@ -136,21 +57,21 @@ const onFetchWebhook = async () => {
                     <!-- Section: Field -->
                     <div class="flex flex-col gap-y-3 border-t border-gray-900/5 w-full py-6">
                         <!-- Field: Contact name -->
-                        <div v-if="data.customer.contact_name" class="flex items-center w-full flex-none gap-x-4 px-6">
+                        <div v-if="data.contact_name" class="flex items-center w-full flex-none gap-x-4 px-6">
                             <dt v-tooltip="'Contact name'" class="flex-none">
                                 <span class="sr-only">Contact name</span>
                                 <FontAwesomeIcon icon='fal fa-user' class='text-gray-400' fixed-width aria-hidden='true' />
                             </dt>
-                            <dd class="text-gray-500">{{ data.customer.contact_name }}</dd>
+                            <dd class="text-gray-500">{{ data.contact_name }}</dd>
                         </div>
 
                         <!-- Field: Contact name -->
-                        <div v-if="data.customer.company_name" class="flex items-center w-full flex-none gap-x-4 px-6">
+                        <div v-if="data.company_name" class="flex items-center w-full flex-none gap-x-4 px-6">
                             <dt v-tooltip="'Company name'" class="flex-none">
                                 <span class="sr-only">Company name</span>
                                 <FontAwesomeIcon icon='fal fa-building' class='text-gray-400' fixed-width aria-hidden='true' />
                             </dt>
-                            <dd class="text-gray-500">{{ data.customer.company_name }}</dd>
+                            <dd class="text-gray-500">{{ data.company_name }}</dd>
                         </div>
 
                         <!-- Field: Created at -->
@@ -186,8 +107,7 @@ const onFetchWebhook = async () => {
             </div>
         </div>
 
-        <!-- Box Group: Pallets -->
-        <CustomerShowcaseStats :pieData="data.pieData"/>
+
     </div>
 </template>
 
