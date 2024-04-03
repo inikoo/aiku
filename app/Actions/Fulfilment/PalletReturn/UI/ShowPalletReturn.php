@@ -248,12 +248,9 @@ class ShowPalletReturn extends OrgAction
 
                 'updateRoute' => [
                     'route' => [
-                        'name'       => 'grp.models.fulfilment-customer.pallet-return.timeline.update',
+                        'name'       => 'grp.models.pallet-return.update',
                         'parameters' => [
-                            'organisation'       => $palletReturn->organisation->slug,
-                            'fulfilment'         => $palletReturn->fulfilment->slug,
-                            'fulfilmentCustomer' => $palletReturn->fulfilmentCustomer->id,
-                            'palletReturn'       => $palletReturn->reference
+                            'palletReturn'       => $palletReturn->id
                         ]
                     ]
                 ],

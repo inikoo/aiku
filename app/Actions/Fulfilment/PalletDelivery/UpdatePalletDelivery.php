@@ -1,0 +1,137 @@
+<?php
+/*
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Wed, 24 Jan 2024 16:14:16 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Fulfilment\PalletDelivery;
+
+use App\Actions\OrgAction;
+use App\Actions\Traits\WithActionUpdate;
+use App\Models\CRM\Customer;
+use App\Models\CRM\WebUser;
+use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\PalletDelivery;
+use App\Models\SysAdmin\Organisation;
+use Exception;
+use Illuminate\Console\Command;
+use Inertia\Inertia;
+use Lorisleiva\Actions\ActionRequest;
+use Lorisleiva\Actions\Concerns\AsAction;
+use Lorisleiva\Actions\Concerns\WithAttributes;
+use Symfony\Component\HttpFoundation\Response;
+
+class UpdatePalletDelivery extends OrgAction
+{
+    use AsAction;
+    use WithAttributes;
+    use WithActionUpdate;
+
+    public Customer $customer;
+    /**
+     * @var true
+     */
+    private bool $action = false;
+
+    public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
+    {
+        return $this->update($palletDelivery, $modelData);
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if($this->action) {
+            return true;
+        }
+
+        if ($request->user() instanceof WebUser) {
+            // TODO: Raul please do the permission for the web user
+            return true;
+        }
+
+        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+    }
+
+    public function rules(): array
+    {
+        return [
+            'customer_notes'=> ['sometimes','nullable','string'],
+            'public_notes'  => ['sometimes','nullable','string'],
+            'internal_notes'=> ['sometimes','nullable','string'],
+        ];
+    }
+
+
+    public function fromRetina(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
+    {
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
+        $this->fulfilment   = $fulfilmentCustomer->fulfilment;
+
+        $this->initialisation($request->get('website')->organisation, $request);
+        return $this->handle($palletDelivery, $this->validatedData);
+    }
+
+
+    public function asController(Organisation $organisation, PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
+    {
+        $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
+        return $this->handle($palletDelivery, $this->validatedData);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function action(Organisation $organisation, PalletDelivery $palletDelivery, $modelData): PalletDelivery
+    {
+        $this->action = true;
+        $this->initialisationFromFulfilment($palletDelivery->fulfilment, $modelData);
+        $this->setRawAttributes($modelData);
+
+        return $this->handle($palletDelivery, $this->validateAttributes());
+    }
+
+    public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
+    {
+        $routeName = $request->route()->getName();
+
+        return match ($routeName) {
+            'grp.models.fulfilment-customer.pallet-delivery.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
+                'organisation'           => $palletDelivery->organisation->slug,
+                'fulfilment'             => $palletDelivery->fulfilment->slug,
+                'fulfilmentCustomer'     => $palletDelivery->fulfilmentCustomer->slug,
+                'palletDelivery'         => $palletDelivery->slug
+            ])),
+            default => Inertia::location(route('retina.storage.pallet-deliveries.show', [
+                'palletDelivery'         => $palletDelivery->slug
+            ]))
+        };
+    }
+
+    public string $commandSignature = 'pallet-deliveries:update {pallet-delivery}';
+
+    public function asCommand(Command $command): int
+    {
+        $this->asAction = true;
+
+        try {
+            $palletDelivery = PalletDelivery::where('slug', $command->argument('pallet-delivery'))->firstOrFail();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+            return 1;
+        }
+
+        try {
+            $this->initialisationFromFulfilment($palletDelivery->fulfilment, []);
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+
+            return 1;
+        }
+
+        $palletDelivery = $this->handle($palletDelivery, modelData: $this->validatedData);
+
+        $command->info("Pallet delivery $palletDelivery->reference updated successfully 🎉");
+
+        return 0;
+    }
+}

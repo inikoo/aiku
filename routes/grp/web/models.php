@@ -31,6 +31,7 @@ use App\Actions\Fulfilment\PalletDelivery\PdfPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DeletePalletFromReturn;
@@ -40,6 +41,7 @@ use App\Actions\Fulfilment\PalletReturn\PickingPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\PickedPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
+use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\PalletReturnItem\UpdatePalletReturnItem;
 use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
@@ -104,6 +106,8 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 
 Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->group(function () {
 
+    Route::patch('/', UpdatePalletDelivery::class)->name('update');
+
     Route::post('submit', SubmitPalletDelivery::class)->name('submit');
     Route::post('confirm', ConfirmPalletDelivery::class)->name('confirm');
     Route::post('received', ReceivedPalletDelivery::class)->name('received');
@@ -120,8 +124,8 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
 
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
 
+    Route::patch('/', UpdatePalletReturn::class)->name('update');
     Route::get('pdf', PdfPalletReturn::class)->name('pdf');
-
 
 });
 
