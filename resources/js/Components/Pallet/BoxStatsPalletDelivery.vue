@@ -43,7 +43,7 @@ const props = defineProps<{
                 <div class="flex gap-x-3">
                     <dt class="flex-none">
                         <span class="sr-only">Contact name</span>
-                        <FontAwesomeIcon :icon='icon' class='text-gray-400' fixed-width aria-hidden='true' />
+                        <FontAwesomeIcon v-if="icon" :icon='icon' class='text-gray-400' fixed-width aria-hidden='true' />
                     </dt>
                     <dd class="text-gray-500">{{ label }}</dd>
                 </div>

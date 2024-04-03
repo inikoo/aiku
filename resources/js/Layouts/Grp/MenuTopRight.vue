@@ -3,7 +3,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
 import { trans } from 'laravel-vue-i18n'
 import { useLayoutStore } from '@/Stores/layout'
 import { router } from '@inertiajs/vue3'
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useLiveUsers } from '@/Stores/active-users'
 import SearchBar from "@/Components/SearchBar.vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -37,18 +37,37 @@ const logoutAuth = () => {
     useLiveUsers().unsubscribe()  // Unsubscribe from Laravel Echo
 }
 
+onMounted(() => {
+    if (typeof window !== 'undefined') {
+        document.addEventListener('keydown', (event) => {
+            // console.log('event', event)
+            if(event.ctrlKey && event.key === 'k') {
+                event.preventDefault()
+                showSearchDialog.value = !showSearchDialog.value
+            }
+        })
+    }
+})
+
+onUnmounted(() => {
+    document.removeEventListener('keydown', () => false)
+})
+
 </script>
 
 <template>
     <!-- Avatar Group -->
     <div class="flex justify-between gap-x-2">
-        <div class="flex">
+        <div class="flex items-center">
             <!-- Button: Search -->
             <button @click="showSearchDialog = !showSearchDialog" id="search"
-                class="h-8 w-fit flex items-center justify-center gap-x-3 ring-1 ring-gray-300 rounded-md pl-3 pr-6 text-gray-500 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                class="h-7 w-fit flex items-center justify-center gap-x-3 ring-1 ring-gray-300 rounded-md px-3 text-gray-500 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
                 <span class="sr-only">{{ trans("Search") }}</span>
-                <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-search" />
-                <span class="whitespace-nowrap text-gray-400 tracking-tight font-normal">Search something...</span>
+                <FontAwesomeIcon aria-hidden="true" size="sm" icon="fa-regular fa-search" />
+                <div class="whitespace-nowrap flex items-center justify-end text-gray-500/80 tracking-tight space-x-1">
+                    <span class="ring-1 ring-gray-400 bg-gray-100 px-2 py-0.5 text-xs rounded">Ctrl</span>
+                    <span class="ring-1 ring-gray-400 bg-gray-100 px-1.5 py-0.5 text-xs rounded">K</span>
+                </div>
                 <SearchBar :isOpen="showSearchDialog" @close="(e) => showSearchDialog = e" />
             </button>
 

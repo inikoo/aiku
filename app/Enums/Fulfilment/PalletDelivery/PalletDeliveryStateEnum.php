@@ -42,6 +42,7 @@ enum PalletDeliveryStateEnum: string
 
     public static function stateIcon(): array
     {
+        // Icon is imported in resources/js/Composables/Icon/PalletDeliveryStateEnum.ts
         return [
             'in-process' => [
                 'tooltip' => __('In process'),

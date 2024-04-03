@@ -20,6 +20,7 @@ use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -229,8 +230,9 @@ class ShowPalletReturn extends OrgAction
                     'next'     => $this->getNext($palletReturn, $request),
                 ],
                 'pageHead' => [
-                    'container' => $container,
+                    // 'container' => $container,
                     'title'     => $palletReturn->reference,
+                    'model'     => __('pallet return'),
                     'icon'      => [
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => $palletReturn->reference
@@ -306,8 +308,11 @@ class ShowPalletReturn extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => PalletReturnTabsEnum::navigation()
                 ],
-
-                'data' => PalletReturnResource::make($palletReturn),
+                'data'             => PalletReturnResource::make($palletReturn),
+                'box_stats'        => [
+                    'fulfilment_customer'          => FulfilmentCustomerResource::make($palletReturn->fulfilmentCustomer)->getArray(),
+                    'delivery_status'              => PalletReturnStateEnum::stateIcon()[$palletReturn->state->value],
+                ],
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
                     fn () => PalletReturnItemsResource::collection(IndexPalletReturnItems::run($palletReturn))

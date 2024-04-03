@@ -107,7 +107,7 @@ class IndexCustomers extends OrgAction
             ])
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
             ->leftJoin('shops', 'shops.id', 'shop_id')
-            ->allowedSorts(['reference', 'name', 'number_active_clients', 'slug'])
+            ->allowedSorts(['reference', 'name', 'number_active_clients', 'slug', 'created_at'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();

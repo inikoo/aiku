@@ -10,10 +10,24 @@ import { faEmptySet, faStar, faWrench, faWarehouse, faStore, faCashRegister, faM
 import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { capitalize } from "@/Composables/capitalize"
+import { routeType } from '@/types/route'
 library.add(faEmptySet, faStar, faWrench, faWarehouse, faStore, faCashRegister, faMoneyCheckAlt, faTasks)
 
 const props = defineProps<{
-    nodes: {}
+    nodes: {
+        index?: {
+            number: number
+        }
+        name: string
+        href: routeType
+        icon: string | string[]
+        shortName: string
+        rightSubLink: {
+            icon: string
+            href: routeType
+            tooltip: string
+        }
+    }[]
     mode?: string
 }>()
 
