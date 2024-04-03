@@ -27,13 +27,13 @@ class BroadcastFulfilmentCustomerNotification implements ShouldBroadcast
     public Group $group;
     public PalletDelivery|PalletReturn|StoreStoredItemReturn $parent;
 
-    public function __construct(Group $group, PalletDelivery|PalletReturn|StoreStoredItemReturn $parent, string $title, string $text)
+    public function __construct(Group $group, PalletDelivery|PalletReturn|StoreStoredItemReturn $parent)
     {
         $this->parent = $parent;
         $this->group  = $group;
         $this->data   = [
-            'title' => $title,
-            'text'  => $text
+            'title' => $parent->state->notifications()[$parent->state->value]['title'],
+            'text'  => $parent->state->notifications()[$parent->state->value]['subtitle']
         ];
     }
 

@@ -9,7 +9,7 @@ namespace App\Actions\Retina\Storage\Pallet\UI;
 
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Storage\ShowStorageDashboard;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -39,8 +39,8 @@ class IndexPallets extends RetinaAction
             'state' => [
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
-                    PalletStateEnum::labels(),
-                    PalletStateEnum::count($this->customer->fulfilmentCustomer)
+                    PalletStatusEnum::labels(forElements: true),
+                    PalletStatusEnum::count($this->customer->fulfilmentCustomer, forElements: true)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -83,7 +83,6 @@ class IndexPallets extends RetinaAction
         }
 
         foreach ($this->getElementGroups() as $key => $elementGroup) {
-
             $query->whereElementGroup(
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
@@ -109,6 +108,13 @@ class IndexPallets extends RetinaAction
                     ->pageName($prefix.'Page');
             }
 
+            foreach ($this->getElementGroups() as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
 
             $emptyStateData = [
                 'icons' => ['fal fa-pallet'],

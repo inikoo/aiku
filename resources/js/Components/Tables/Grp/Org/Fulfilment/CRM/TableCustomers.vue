@@ -5,9 +5,9 @@
   -->
 
 <script setup lang="ts">
-import {Link} from '@inertiajs/vue3';
-import Table from '@/Components/Table/Table.vue';
-import {Customer} from "@/types/customer";
+import { Link } from '@inertiajs/vue3'
+import Table from '@/Components/Table/Table.vue'
+import { FulfilmentCustomer } from "@/types/Customer"
 
 const props = defineProps<{
     data: object,
@@ -16,7 +16,7 @@ const props = defineProps<{
 
 
 
-function customerRoute(customer: Customer) {
+function customerRoute(customer: FulfilmentCustomer) {
     switch (route().current()) {
         default:
             return route(
@@ -25,7 +25,7 @@ function customerRoute(customer: Customer) {
                     route().params['organisation'],
                     route().params['fulfilment'],
                     customer.slug
-                ]);
+                ])
     }
 }
 
@@ -40,5 +40,3 @@ function customerRoute(customer: Customer) {
         </template>
     </Table>
 </template>
-
-

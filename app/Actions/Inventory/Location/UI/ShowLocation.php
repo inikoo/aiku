@@ -17,6 +17,7 @@ use App\Enums\UI\LocationTabsEnum;
 use App\Enums\UI\PalletDeliveryTabsEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\Inventory\LocationResource;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
@@ -150,7 +151,7 @@ class ShowLocation extends OrgAction
 
     public function jsonResponse(Location $location): JsonResource
     {
-        return new JsonResource($location);
+        return LocationResource::make($location);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array

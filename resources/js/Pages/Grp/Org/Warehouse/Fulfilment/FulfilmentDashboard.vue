@@ -15,10 +15,12 @@ import Image from '@/Components/Image.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { Pie } from 'vue-chartjs'
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
+import FlatTreeMap from '@/Components/Navigation/FlatTreeMap.vue'
 
 const props = defineProps<{
     title: string
     pageHead: PageHeadingTypes
+    flatTreeMaps: {}
 }>()
 
 library.add(faTruckCouch)
@@ -186,6 +188,10 @@ const options = {
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
+
+    <div v-if="data?.flatTreeMaps" class="mt-2">
+        <FlatTreeMap class="mx-4" v-for="(treeMap, idx) in data.flatTreeMaps" :key="idx" :nodes="treeMap" mode="compact" />
+    </div>
 
     <div class="px-4 py-4 space-y-8">
         <div class="px-10 space-y-1">

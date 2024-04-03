@@ -6,13 +6,16 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from 'chart.js'
 import { useLocaleStore } from "@/Stores/locale"
 import { PieCustomer } from '@/types/Pallet'
 
+import '@/Composables/Icon/PalletStateEnum.ts'
+import '@/Composables/Icon/PalletDeliveryStateEnum.ts'
+import '@/Composables/Icon/PalletReturnStateEnum.ts'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheckCircle, faInfoCircle, faExclamationTriangle } from '@fal'
-import { faSeedling, faShare, faSpellCheck, faCheck, faTimes, faSignOutAlt, faTruck, faCheckDouble, faCross } from '@fal'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import CountUp from 'vue-countup-v3'
-library.add(faCheckCircle, faInfoCircle, faExclamationTriangle, faSeedling, faShare, faSpellCheck, faCheck, faTimes, faSignOutAlt, faTruck, faCheckDouble, faCross)
+library.add(faCheckCircle, faInfoCircle, faExclamationTriangle)
 
 ChartJS.register(ArcElement, Tooltip, Legend, Colors)
 const locale = useLocaleStore()

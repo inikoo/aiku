@@ -42,6 +42,7 @@ enum PalletDeliveryStateEnum: string
 
     public static function stateIcon(): array
     {
+        // Icon is imported in resources/js/Composables/Icon/PalletDeliveryStateEnum.ts
         return [
             'in-process' => [
                 'tooltip' => __('In process'),
@@ -105,6 +106,40 @@ enum PalletDeliveryStateEnum: string
             'not-received' => $stats->number_pallet_deliveries_state_not_received,
             'booking-in'   => $stats->number_pallet_deliveries_state_booking_in,
             'booked-in'    => $stats->number_pallet_deliveries_state_booked_in,
+        ];
+    }
+
+    public static function notifications(): array
+    {
+        return [
+            'in-process'   => [
+                'title'    => __('Pallet Delivery Created'),
+                'subtitle' => __('Pallet Delivery has been created')
+            ],
+            'submitted'    => [
+                'title'    => __('Pallet Delivery Submitted'),
+                'subtitle' => __('Pallet Delivery has been submitted')
+            ],
+            'confirmed'    => [
+                'title'    => __('Pallet Delivery Confirmed'),
+                'subtitle' => __('Pallet Delivery has been confirmed')
+            ],
+            'received'     => [
+                'title'    => __('Pallet Delivery Received'),
+                'subtitle' => __('Pallet Delivery has been Received')
+            ],
+            'not-received' => [
+                'title'    => __('Pallet Delivery Not Received'),
+                'subtitle' => __('Pallet Delivery has not been received')
+            ],
+            'booking-in'   => [
+                'title'    => __('Pallet Delivery Booking In'),
+                'subtitle' => __('Pallet Delivery has been booking in')
+            ],
+            'booked-in'    => [
+                'title'    => __('Pallet Delivery Booked In'),
+                'subtitle' => __('Pallet Delivery has been booked in')
+            ],
         ];
     }
 }

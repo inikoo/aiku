@@ -25,16 +25,17 @@ import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
 import JsBarcode from 'jsbarcode'
 
-import { PalletDelivery, PDBoxStats } from '@/types/Pallet'
+import { PalletDelivery, BoxStats } from '@/types/Pallet'
 import { Table } from '@/types/Table'
 import { Tabs as TSTabs } from '@/types/Tabs'
-import { Customer } from '@/types/customer'
+
+import '@/Composables/Icon/PalletDeliveryStateEnum'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt } from '@fal'
+import { faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone } from '@fal'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt)
+library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone)
 
 const props = defineProps<{
     title: string
@@ -43,7 +44,6 @@ const props = defineProps<{
     data?: {
         data: PalletDelivery
     }
-    box_stats: PDBoxStats
     history?: {}
     pageHead: PageHeadingTypes
     updateRoute: {
@@ -52,15 +52,14 @@ const props = defineProps<{
     uploadRoutes: {
         download: routeType
         history: routeType
-    },
+    }
     locationRoute : routeType
     storedItemsRoute : {
         index: routeType
         store: routeType
-    },
+    }
+    box_stats: BoxStats
 }>()
-
-console.log('props', props.box_stats.fulfilment_customer)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -174,7 +173,7 @@ watch(() => props.data, (newValue) => {
 onMounted(() => {
     JsBarcode('#palletDeliveryBarcode', 'pad-' + route().v().params.palletDelivery, {
         lineColor: "rgb(41 37 36)",
-        width: '2',
+        width: 2,
         height: '50%',
         displayValue: false
     });

@@ -11,6 +11,7 @@ use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryStateFromItems;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Inventory\Warehouse;
@@ -23,12 +24,13 @@ class UpdatePalletNotReceived extends OrgAction
 
     private Pallet $pallet;
 
-    public function handle(Pallet $pallet, $state): Pallet
+    public function handle(Pallet $pallet): Pallet
     {
-        $modelData['state']       = $state;
+        $modelData['state']       = PalletStateEnum::NOT_RECEIVED;
+        $modelData['status']      = PalletStatusEnum::NOT_RECEIVED;
         $modelData['location_id'] = null;
 
-        $pallet = $this->update($pallet, $modelData, ['data']);
+        $pallet = UpdatePallet::run($pallet, $modelData, ['data']);
 
         UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
 
@@ -48,23 +50,23 @@ class UpdatePalletNotReceived extends OrgAction
     {
         $this->initialisationFromWarehouse($pallet->warehouse, $request);
 
-        return $this->handle($pallet, PalletStateEnum::NOT_RECEIVED);
+        return $this->handle($pallet);
     }
 
     public function undo(Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->initialisationFromWarehouse($pallet->warehouse, $request);
 
-        return $this->handle($pallet, PalletStateEnum::RECEIVED);
+        return $this->handle($pallet);
     }
 
-    public function action(Warehouse $warehouse, Pallet $pallet, $state, int $hydratorsDelay = 0): Pallet
+    public function action(Warehouse $warehouse, Pallet $pallet, int $hydratorsDelay = 0): Pallet
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromWarehouse($warehouse, []);
 
-        return $this->handle($pallet, $state);
+        return $this->handle($pallet);
     }
 
     public function jsonResponse(Pallet $pallet): PalletResource

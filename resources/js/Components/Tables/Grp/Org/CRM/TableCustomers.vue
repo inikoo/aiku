@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { Link } from "@inertiajs/vue3";
 import Table from "@/Components/Table/Table.vue";
-import { Customer } from "@/types/customer";
+import { FulfilmentCustomer } from "@/types/Customer";
 import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
 import { useFormatTime } from "@/Composables/useFormatTime";
 import { useLocaleStore } from "@/Stores/locale";
@@ -20,7 +20,7 @@ const props = defineProps<{
 const locale = useLocaleStore();
 
 
-function customerRoute(customer: Customer) {
+function customerRoute(customer: FulfilmentCustomer) {
     switch (route().current()) {
         case "shops.show.customers.index":
             return route(
@@ -41,7 +41,7 @@ function customerRoute(customer: Customer) {
     }
 }
 
-function shopRoute(customer: Customer) {
+function shopRoute(customer: FulfilmentCustomer) {
     switch (route().current()) {
         case "shops.show.customers.index":
             return route(

@@ -589,22 +589,22 @@ watch(() => props.name, () => {
         <!--suppress HtmlUnknownAttribute -->
         <fieldset v-else ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0"
                   :class="{ 'opacity-75': isVisiting }">
-            <div class="my-2">
+            <div class="my-0">
                 <!-- Wrapper -->
-                <div class="grid grid-flow-col justify-between flex-nowrap px-4">
+                <div class="grid grid-flow-col justify-between flex-nowrap pr-4">
 
                     <!-- Left Section: Records, -->
                     <div class="flex space-x-2">
                         <!-- Result Number -->
-                        <div class="flex gap-2 items-center">
+                        <div class="flex gap-0 items-center">
                             <div
-                                class="grid border rounded-md border-gray-300 justify-end items-center text-base font-normal text-gray-700"
+                                class="grid border-r rounded-md border-gray-300 justify-end items-center text-base font-normal text-gray-700"
                                 title="Results">
                                 <div v-if="compResourceMeta.total"
-                                     class="px-2 py-1.5 whitespace-nowrap flex gap-x-1 flex-nowrap">
+                                    class="px-2 py-1.5 whitespace-nowrap flex gap-x-1 flex-nowrap">
                                     <span class="font-semibold tabular-nums">
                                         <CountUp :endVal="compResourceMeta.total" :duration="1.2" :scrollSpyOnce="true"
-                                                 :options="{
+                                            :options="{
                                             formattingFn: (number) => locale.number(number)
                                         }"/>
                                     </span>

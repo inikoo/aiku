@@ -25,6 +25,9 @@ export const useLocaleStore = defineStore('locale', {
     actions: {
         number(number: number) {
             return new Intl.NumberFormat(this.language.code).format(number)
+        },
+        currencyFormat(currency: string, amount: number) {
+            return new Intl.NumberFormat(this.language.code, { style: 'currency', currency: currency }).format(amount)
         }
     }
 })
