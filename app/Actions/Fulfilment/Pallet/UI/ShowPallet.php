@@ -172,7 +172,7 @@ class ShowPallet extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
-        $pallet=Pallet::where('reference', $routeParameters['pallet'])->first();
+        $pallet=Pallet::where('slug', $routeParameters['pallet'])->first();
 
         return match (class_basename($this->parent)) {
             'Warehouse'    => $this->getBreadcrumbsFromWarehouse($pallet, $routeName, $suffix),

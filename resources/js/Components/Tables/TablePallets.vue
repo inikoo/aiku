@@ -43,7 +43,7 @@ function palletRoute(pallet: PalletCustomer) {
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],
-                    pallet.id
+                    pallet.slug
                 ])
         case 'grp.org.warehouses.show.fulfilment.pallets.index':
             return route(
@@ -51,7 +51,7 @@ function palletRoute(pallet: PalletCustomer) {
                 [
                     route().params['organisation'],
                     route().params['warehouse'],
-                    pallet.id
+                    pallet.slug
                 ])
 
         case 'grp.org.warehouses.show.infrastructure.locations.show':
@@ -61,7 +61,7 @@ function palletRoute(pallet: PalletCustomer) {
                     route().params['organisation'],
                     route().params['warehouse'],
                     route().params['location'],
-                    pallet.id
+                    pallet.slug
                 ])
         case 'grp.org.fulfilments.show.crm.customers.show':
             return route(
@@ -70,7 +70,7 @@ function palletRoute(pallet: PalletCustomer) {
                     route().params['organisation'],
                     route().params['fulfilment'],
                     route().params['fulfilmentCustomer'],
-                    pallet.id
+                    pallet.slug
                 ])
 
         default:
@@ -169,7 +169,7 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
                 {{ pallet.reference }}
             </component>
         </template>
-        
+
         <!-- Column: Pallet Reference -->
         <template #cell(pallet_referencexxx)="{ item: pallet }">
             <Link :href="palletRoute(pallet)" class="specialUnderline">

@@ -62,7 +62,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
 
     Route::prefix('pallets')->as('.pallets.')->group(function () {
         Route::get('', [IndexPallets::class, 'inFulfilmentCustomer'])->name('index');
-        Route::get('{pallet:reference}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('show');
+        Route::get('{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('show');
         Route::get('{pallet:id}/locations', [IndexLocations::class, 'fromPallet'])->name('locations.index');
     });
 
