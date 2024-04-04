@@ -71,80 +71,132 @@ enum PalletStateEnum: string
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime'  // Color for box (Retina)
+                'color'   => 'lime',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
             ],
             'submitted' => [
                 'tooltip' => __('Submitted'),
                 'icon'    => 'fal fa-share',
                 'class'   => 'text-indigo-400',
-                'color'   => 'indigo'
+                'color'   => 'indigo',
+                'app'     => [
+                    'name' => 'share',
+                    'type' => 'font-awesome-5'
+                ]
             ],
             'confirmed' => [
                 'tooltip' => __('Confirmed'),
                 'icon'    => 'fal fa-spell-check',
                 'class'   => 'text-emerald-500',
-                'color'   => 'emerald'
+                'color'   => 'emerald',
+                'app'     => [
+                    'name' => 'spell-check',
+                    'type' => 'font-awesome-5'
+                ]
             ],
             'received' => [
                 'tooltip' => __('Received'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-slate-500',
-                'color'   => 'slate'
+                'color'   => 'slate',
+                'app'     => [
+                    'name' => 'check',
+                    'type' => 'font-awesome-5'
+                ]
             ],
             'not-received' => [
                 'tooltip' => __('not received'),
                 'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500',
-                'color'   => 'red'
+                'color'   => 'red',
+                'app'     => [
+                    'name' => 'times',
+                    'type' => 'font-awesome-5'
+                ]
             ],
             'booking-in' => [
                 'tooltip' => __('Booking in'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-purple-500',
-                'color'   => 'purple'
+                'color'   => 'purple',
+                'app'     => [
+                    'name' => 'check',
+                    'type' => 'font-awesome-5'
+                ]
             ],
             'booked-in' => [
                 'tooltip' => __('Booked in'),
                 'icon'    => 'fal fa-check-double',
                 'class'   => 'text-purple-300',
-                'color'   => 'purple'
+                'color'   => 'purple',
+                'app'     => [
+                    'name' => 'check-double',
+                    'type' => 'font-awesome-5'
+                ]
             ],
             'storing' => [
                 'tooltip' => __('Storing'),
                 'icon'    => 'fal fa-check-double',
                 'class'   => 'text-purple-500',
-                'color'   => 'purple'
+                'color'   => 'purple',
+                'app'     => [
+                    'name' => 'check-double',
+                    'type' => 'font-awesome-5'
+                ]
             ],
 
             'dispatched' => [
                 'tooltip' => __('Dispatched'),
                 'icon'    => 'fal fa-sign-out-alt',
                 'class'   => 'text-gray-400',
-                'color'   => 'gray'
+                'color'   => 'gray',
+                'app'     => [
+                    'name' => 'sign-out-alt',
+                    'type' => 'font-awesome-5'
+                ]
             ],
             'picking' => [
                 'tooltip' => __('Picking'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-green-400',
-                'color'   => 'green'
+                'color'   => 'green',
+                'app'     => [
+                    'name' => 'check',
+                    'type' => 'font-awesome-5'
+                ]
             ],
             'picked' => [
                 'tooltip' => __('Picked'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-green-400',
-                'color'   => 'green'
+                'color'   => 'green',
+                'app'     => [
+                    'name' => 'check',
+                    'type' => 'font-awesome-5'
+                ]
             ],
             'damaged' => [
                 'tooltip' => __('Damaged'),
                 'icon'    => 'fal fa-fragile',
                 'class'   => 'text-red-400',
-                'color'   => 'red'
+                'color'   => 'red',
+                'app'     => [
+                    'name' => 'glass-fragile',
+                    'type' => 'material-community'
+                ]
             ],
             'lost' => [
                 'tooltip' => __('Not Picked'),
                 'icon'    => 'fal fa-ghost',
                 'class'   => 'text-red-400',
-                'color'   => 'red'
+                'color'   => 'red',
+                'app'     => [
+                    'name' => 'ghost',
+                    'type' => 'font-awesome-5'
+                ]
             ]
         ];
     }
