@@ -20,7 +20,7 @@ return new class () extends Migration {
             $table->string('model_type');
             $table->unsignedInteger('model_id');
             $table->string('scope');
-            $table=$this->dateIntervals($table,['shop_amount','org_amount','group_amount']);
+            $table=$this->dateIntervals($table, ['shop_amount','org_amount','group_amount']);
             $table->index(['model_id', 'model_type']);
             $table->unique(['model_id', 'model_type', 'scope']);
 
