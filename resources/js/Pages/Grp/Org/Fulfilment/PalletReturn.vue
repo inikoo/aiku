@@ -24,12 +24,11 @@ import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletR
 import Tag from "@/Components/Tag.vue"
 import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
 import JsBarcode from "jsbarcode"
-import { BoxStats } from '@/types/Pallet'
+import { BoxStats, PDRNotes } from '@/types/Pallet'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import PureTextarea from "@/Components/Pure/PureTextarea.vue"
 import { trans } from "laravel-vue-i18n"
 library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt )
 
@@ -49,6 +48,7 @@ const props = defineProps<{
         store: routeType
     }
     box_stats: BoxStats
+    notes_data: PDRNotes[]
 }>()
 
 // console.log('qwewqewq', props.box_stats)
@@ -84,32 +84,6 @@ onMounted(() => {
     })
 })
 
-const notesData = [
-    {
-        label: 'Customer',
-        note: 'xxxxxxxx',
-        editable: false,
-        bgColor: '#7da7f4',
-        color: 'blue',
-        field: 'customer_notes'
-    },
-    {
-        label: 'Public',
-        note: 'ccccccccccc',
-        editable: true,
-        bgColor: '#ff7dbd',
-        color: 'pink',
-        field: 'public_notes'
-    },
-    {
-        label: 'Private',
-        editable: true,
-        note: '',
-        bgColor: '#8e44ad',
-        color: 'purple',
-        field: 'internal_notes'
-    },
-]
 </script>
 
 <template>
@@ -125,7 +99,7 @@ const notesData = [
 
     <!-- Section: Note -->
     <div class="h-fit lg:max-h-64 w-full flex lg:justify-center border-b border-gray-300">
-        <BoxNote v-for="(note, index) in notesData" :key="index+note.label" :noteData="note" />
+        <BoxNote v-for="(note, index) in notes_data" :key="index+note.label" :noteData="note" :updateRoute="updateRoute" />
     </div>
 
     <!-- Section: Timeline -->

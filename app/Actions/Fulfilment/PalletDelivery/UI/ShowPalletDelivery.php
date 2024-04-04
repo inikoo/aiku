@@ -273,11 +273,9 @@ class ShowPalletDelivery extends OrgAction
                 ],
 
                 'updateRoute' => [
-                    'route' => [
-                        'name'       => 'grp.models.pallet-delivery.update',
-                        'parameters' => [
-                            'palletDelivery'     => $palletDelivery->id
-                        ]
+                    'name'       => 'grp.models.pallet-delivery.update',
+                    'parameters' => [
+                        'palletDelivery'     => $palletDelivery->id
                     ]
                 ],
 
@@ -341,6 +339,29 @@ class ShowPalletDelivery extends OrgAction
                 'box_stats'        => [
                     'fulfilment_customer'          => FulfilmentCustomerResource::make($palletDelivery->fulfilmentCustomer)->getArray(),
                     'delivery_status'              => PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value],
+                ],
+                'notes_data'             => [
+                    [
+                        'label'         => __('Customer'),
+                        'note'          => $palletDelivery->customer_notes ?? '',
+                        'editable'      => false,
+                        'color'         => 'blue',
+                        'field'         => 'customer_notes'
+                    ],
+                    [
+                        'label'         => __('Public'),
+                        'note'          => $palletDelivery->public_notes ?? '',
+                        'editable'      => true,
+                        'color'         => 'pink',
+                        'field'         => 'public_notes'
+                    ],
+                    [
+                        'label'         => __('Private'),
+                        'note'          => $palletDelivery->internal_notes ?? '',
+                        'editable'      => true,
+                        'color'         => 'purple',
+                        'field'         => 'internal_notes'
+                    ],
                 ],
 
 

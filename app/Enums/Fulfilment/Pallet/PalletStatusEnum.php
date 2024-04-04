@@ -49,37 +49,61 @@ enum PalletStatusEnum: string
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime'  // Color for box (Retina)
+                'color'   => 'lime',  // Color for box (Retina)
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
             ],
             'not-received' => [
                 'tooltip' => __('not received'),
                 'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500',
-                'color'   => 'red'
+                'color'   => 'red',
+                'app'     => [
+                    'name' => 'times',
+                    'type' => 'font-awesome-5'
+                ]
             ],
             'storing'    => [
                 'tooltip' => __('Storing'),
                 'icon'    => 'fal fa-check-double',
                 'class'   => 'text-purple-500',
-                'color'   => 'purple'
+                'color'   => 'purple',
+                'app'     => [
+                    'name' => 'check-double',
+                    'type' => 'font-awesome-5'
+                ]
             ],
             'incident'      => [
                 'tooltip' => __('Incident'),
                 'icon'    => 'fal fa-sad-cry',
                 'class'   => 'text-red-600',
-                'color'   => 'gray'
+                'color'   => 'gray',
+                'app'     => [
+                    'name' => 'sad-cry',
+                    'type' => 'font-awesome-5'
+                ]
             ],
             'returning'       => [
                 'tooltip' => __('Returning'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-green-400',
-                'color'   => 'green'
+                'color'   => 'green',
+                'app'     => [
+                    'name' => 'check',
+                    'type' => 'font-awesome-5'
+                ]
             ],
             'returned'       => [
                 'tooltip' => __('Returned'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-green-400',
-                'color'   => 'green'
+                'color'   => 'green',
+                'app'     => [
+                    'name' => 'check',
+                    'type' => 'font-awesome-5'
+                ]
             ],
         ];
     }
