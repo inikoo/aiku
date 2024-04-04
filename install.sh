@@ -5,7 +5,7 @@
 #
 
 DB=aiku
-DB=aiku
+DB_COLLATE=C.UTF-8
 BACKUP_DB=aiku_elasticserch_backup
 
 echo -e "🧼 Cleaning storage"
