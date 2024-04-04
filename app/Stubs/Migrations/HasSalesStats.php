@@ -13,13 +13,13 @@ use Illuminate\Database\Schema\Blueprint;
 trait HasSalesStats
 {
     use HasDateIntervalsStats;
-    public function salesStats(Blueprint $table): Blueprint
-    {
 
+    public function salesStats(Blueprint $table, $dateIntervals): Blueprint
+    {
         $table->unsignedInteger('number_orders')->default(0);
 
         foreach (OrderStateEnum::cases() as $case) {
-            $table->unsignedInteger('number_orders_state_'.$case->snake())->default(0);
+            $table->unsignedInteger('number_orders_state_' . $case->snake())->default(0);
         }
 
         $table->unsignedInteger('number_invoices')->default(0);
@@ -30,6 +30,6 @@ trait HasSalesStats
         $table->unsignedSmallInteger('currency_id')->nullable();
         $table->foreign('currency_id')->references('id')->on('currencies');
 
-        return $this->dateIntervals($table);
+        return $this->dateIntervals($table, $dateIntervals);
     }
 }
