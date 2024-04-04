@@ -16,6 +16,7 @@ use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -23,7 +24,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexMarketplaceSupplierProducts extends InertiaAction
 {
@@ -209,7 +209,7 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
 
             'grp.org.procurement.marketplace.agents.show.supplier-products.index' =>
             array_merge(
-                (new \App\Actions\Procurement\Agent\UI\ShowMarketplaceAgent())->getBreadcrumbs($routeParameters),
+                (new \App\Actions\SupplyChain\Agent\UI\ShowAgent())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => 'grp.org.procurement.marketplace.agents.show.supplier-products.index',

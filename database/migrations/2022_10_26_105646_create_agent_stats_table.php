@@ -12,9 +12,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasProcurementStats;
-
-
-
     public function up(): void
     {
         Schema::create('agent_stats', function (Blueprint $table) {

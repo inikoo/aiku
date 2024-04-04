@@ -59,10 +59,10 @@ class IndexMarketAgents extends OrgAction
             ->leftJoin('agent_stats', 'agent_stats.agent_id', '=', 'agents.id')
             ->defaultSort('agents.code')
             ->select(['code', 'name', 'slug', 'number_suppliers', 'number_supplier_products', 'location'
-          //  DB::raw(' (select count(*) from agent_organisation where agent_organisation.agent_id=agents.id and  agent_organisation.organisation_id=? )  as adoption',$this->organisation->id)
+          //  DB::raw(' (select count(*) from org_agents where org_agents.agent_id=agents.id and  org_agents.organisation_id=? )  as adoption',$this->organisation->id)
             ])
             ->selectRaw('
-                (select count(*) from agent_organisation where agent_organisation.agent_id=agents.id and  agent_organisation.organisation_id=? )  as adoption', [$this->organisation->id])
+                (select count(*) from org_agents where org_agents.agent_id=agents.id and  org_agents.organisation_id=? )  as adoption', [$this->organisation->id])
 
 
             ->allowedFilters([$globalSearch])

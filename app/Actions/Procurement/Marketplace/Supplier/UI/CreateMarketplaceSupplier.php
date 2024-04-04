@@ -11,6 +11,7 @@ use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\Assets\Country\UI\GetCountriesOptions;
 use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\InertiaAction;
+use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Helpers\Address;
 use App\Models\SupplyChain\Agent;
@@ -262,7 +263,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                     ],
                     'route'     =>
                         match (class_basename($owner)) {
-                            'AgentOrganisation' => [
+                            'OrgAgent' => [
                                 'name'       => 'grp.models.agent.supplier.store',
                                 'arguments'  => $owner->slug
                             ],
@@ -304,10 +305,10 @@ class CreateMarketplaceSupplier extends InertiaAction
         return array_merge(
             match ($routeName) {
                 'grp.org.procurement.marketplace.agents.show.suppliers.create' =>
-                \App\Actions\Procurement\Agent\UI\ShowMarketplaceAgent::make()->getBreadcrumbs(
+                \App\Actions\SupplyChain\Agent\UI\ShowAgent::make()->getBreadcrumbs(
                     routeParameters: $routeParameters,
                 ),
-                default => IndexMarketplaceSuppliers::make()->getBreadcrumbs(
+                default => IndexSuppliers::make()->getBreadcrumbs(
                     routeName: preg_replace('/create$/', 'index', $routeName),
                     routeParameters: $routeParameters,
                 ),

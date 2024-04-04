@@ -5,14 +5,14 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\AgentOrganisation\UI;
+namespace App\Actions\Procurement\OrgAgent\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\AgentTabsEnum;
+use App\Enums\UI\AgentOrganisationTabsEnum;
 use App\Http\Resources\Procurement\AgentResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Procurement\AgentOrganisation;
+use App\Models\Procurement\OrgAgent;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -37,7 +37,7 @@ class IndexAgents extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(AgentOrganisation::class);
+        $queryBuilder = QueryBuilder::for(OrgAgent::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
@@ -51,9 +51,9 @@ class IndexAgents extends InertiaAction
             ->defaultSort('organisations.code')
             ->leftJoin('organisations', 'organisation_id', 'organisations.id')
             ->select(['organisations.code', 'name', 'slug', 'location', 'number_suppliers', 'number_purchase_orders', 'number_supplier_products'])
-            ->leftJoin('agents', 'agents.id', 'agent_organisation.agent_id')
+            ->leftJoin('agents', 'agents.id', 'org_agents.agent_id')
             ->leftJoin('agent_stats', 'agent_stats.agent_id', 'agents.id')
-            ->where('agent_organisation.organisation_id', app('currentTenant')->id)
+            ->where('org_agents.organisation_id', app('currentTenant')->id)
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -109,7 +109,7 @@ class IndexAgents extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request)->withTab(AgentTabsEnum::values());
+        $this->initialisation($request)->withTab(AgentOrganisationTabsEnum::values());
 
         return $this->handle();
     }

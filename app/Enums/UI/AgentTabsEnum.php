@@ -18,14 +18,10 @@ enum AgentTabsEnum: string
     case SHOWCASE            = 'showcase';
     case  SUPPLIERS          = 'suppliers';
     case SUPPLIER_PRODUCTS   = 'supplier_products';
-    case PURCHASE_ORDERS     = 'purchase_orders';
-    case DELIVERIES          = 'deliveries';
-    case SYSTEM_USERS        = 'system_users';
 
     case HISTORY             = 'history';
 
     case DATA                = 'data';
-    case IMAGES              = 'images';
 
 
 
@@ -40,6 +36,12 @@ enum AgentTabsEnum: string
                 'type'  => 'icon',
                 'align' => 'right',
             ],
+            AgentTabsEnum::HISTORY     => [
+                'title' => __('history'),
+                'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
             AgentTabsEnum::SUPPLIERS  => [
                 'title' => __('suppliers'),
                 'icon'  => 'fal fa-person-dolly',
@@ -48,30 +50,11 @@ enum AgentTabsEnum: string
                 'title' => __('products'),
                 'icon'  => 'fal fa-box-usd',
             ],
-            AgentTabsEnum::PURCHASE_ORDERS     => [
-                'title' => __('purchase orders'),
-                'icon'  => 'fal fa-clipboard',
-            ],AgentTabsEnum::DELIVERIES     => [
-                'title' => __('deliveries'),
-                'icon'  => 'fal fa-truck',
-            ],AgentTabsEnum::IMAGES     => [
-                'title' => __('images'),
-                'icon'  => 'fal fa-camera-retro',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],AgentTabsEnum::SYSTEM_USERS     => [
-                'title' => __('system user'),
-                'icon'  => 'fal fa-terminal',
-            ],AgentTabsEnum::HISTORY     => [
-                'title' => __('history'),
-                'icon'  => 'fal fa-clock',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
             AgentTabsEnum::SHOWCASE => [
-                'title' => __('agent'),
+                'title' => __('OrgAgent'),
                 'icon'  => 'fas fa-info-circle',
             ],
+
         };
     }
 }

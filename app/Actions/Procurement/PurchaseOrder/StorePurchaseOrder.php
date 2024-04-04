@@ -70,7 +70,7 @@ class StorePurchaseOrder
 
         if ($this->provider->products->where('state', '<>', SupplierProductStateEnum::DISCONTINUED)->count() == 0) {
             $message = match (class_basename($this->provider)) {
-                'AgentOrganisation'    => 'You can not create purchase order if the agent dont have any product',
+                'OrgAgent'             => 'You can not create purchase order if the agent dont have any product',
                 'Supplier'             => 'You can not create purchase order if the supplier dont have any product',
             };
             $validator->errors()->add('purchase_order', $message);

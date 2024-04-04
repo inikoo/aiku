@@ -5,16 +5,16 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Procurement\AgentOrganisation\UI;
+namespace App\Actions\Procurement\OrgAgent\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
-use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\Procurement\SupplierPurchaseOrder\UI\IndexSupplierPurchaseOrders;
+use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\AgentTabsEnum;
+use App\Enums\UI\AgentOrganisationTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
@@ -27,7 +27,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowAgent extends InertiaAction
+class ShowOrgAgent extends InertiaAction
 {
     public function handle(Agent $agent): Agent
     {
@@ -47,7 +47,7 @@ class ShowAgent extends InertiaAction
         if ($agent->trashed()) {
             return Redirect::route($request->route()->getName(), $request->route()->originalParameters());
         }
-        $this->initialisation($request)->withTab(AgentTabsEnum::values());
+        $this->initialisation($request)->withTab(AgentOrganisationTabsEnum::values());
 
         return $this->handle($agent);
     }
@@ -55,7 +55,7 @@ class ShowAgent extends InertiaAction
     public function htmlResponse(Agent $agent, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Procurement/AgentOrganisation',
+            'Procurement/OrgAgent',
             [
                 'title'       => __('agent'),
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -128,15 +128,15 @@ class ShowAgent extends InertiaAction
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => AgentTabsEnum::navigation()
+                    'navigation' => AgentOrganisationTabsEnum::navigation()
                 ],
 
-                AgentTabsEnum::SHOWCASE->value => $this->tab == AgentTabsEnum::SHOWCASE->value ?
+                AgentOrganisationTabsEnum::SHOWCASE->value => $this->tab == AgentOrganisationTabsEnum::SHOWCASE->value ?
                     fn () => GetAgentShowcase::run($agent)
                     : Inertia::lazy(fn () => GetAgentShowcase::run($agent)),
 
 
-                AgentTabsEnum::PURCHASE_ORDERS->value   => $this->tab == AgentTabsEnum::PURCHASE_ORDERS->value
+                AgentOrganisationTabsEnum::PURCHASE_ORDERS->value   => $this->tab == AgentOrganisationTabsEnum::PURCHASE_ORDERS->value
                     ?
                     fn () => PurchaseOrderResource::collection(
                         IndexSupplierPurchaseOrders::run(
@@ -150,7 +150,7 @@ class ShowAgent extends InertiaAction
                             prefix: 'purchase_orders'
                         )
                     )),
-                AgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == AgentTabsEnum::SUPPLIER_PRODUCTS->value
+                AgentOrganisationTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == AgentOrganisationTabsEnum::SUPPLIER_PRODUCTS->value
                     ?
                     fn () => SupplierProductResource::collection(
                         IndexSupplierProducts::run(
@@ -164,7 +164,7 @@ class ShowAgent extends InertiaAction
                             prefix: 'supplier_products'
                         )
                     )),
-                AgentTabsEnum::SUPPLIERS->value         => $this->tab == AgentTabsEnum::SUPPLIERS->value
+                AgentOrganisationTabsEnum::SUPPLIERS->value         => $this->tab == AgentOrganisationTabsEnum::SUPPLIERS->value
                     ?
                     fn () => SupplierResource::collection(
                         IndexSuppliers::run(
@@ -179,7 +179,7 @@ class ShowAgent extends InertiaAction
                         )
                     )),
 
-                AgentTabsEnum::HISTORY->value => $this->tab == AgentTabsEnum::HISTORY->value ?
+                AgentOrganisationTabsEnum::HISTORY->value => $this->tab == AgentOrganisationTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($agent))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($agent)))
             ]

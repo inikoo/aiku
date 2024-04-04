@@ -38,8 +38,8 @@ class UpdateAgent extends GrpAction
         $agent = $this->update($agent, Arr::only($modelData, 'status'));
         if ($agent->wasChanged('status')) {
 
-            foreach($agent->organisations as $organisation) {
-                OrganisationHydrateProcurement::dispatch($organisation);
+            foreach($agent->orgAgents as $orgAgent) {
+                OrganisationHydrateProcurement::dispatch($orgAgent->organisation);
             }
 
             GroupHydrateSupplyChain::run($this->group);

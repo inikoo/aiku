@@ -9,7 +9,7 @@ namespace App\Actions\Procurement\Supplier\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\AgentOrganisation\UI\ShowAgent;
+use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\SupplierDelivery\UI\IndexSupplierDeliveries;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
@@ -222,7 +222,7 @@ class ShowSupplier extends InertiaAction
             ),
             'grp.procurement.agents.show.suppliers.show' =>
             array_merge(
-                (new ShowAgent())->getBreadcrumbs(
+                (new ShowOrgAgent())->getBreadcrumbs(
                     ['agent'=> $routeParameters['agent']]
                 ),
                 $headCrumb(

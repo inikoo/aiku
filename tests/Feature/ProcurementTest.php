@@ -19,7 +19,6 @@ use App\Actions\Procurement\PurchaseOrder\UpdateStateToManufacturedPurchaseOrder
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToReceivedPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToSettledPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToSubmittedPurchaseOrder;
-use App\Actions\Procurement\Supplier\StoreSupplier;
 use App\Actions\Procurement\SupplierDelivery\StoreSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UpdateStateToCheckedSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UpdateStateToDispatchSupplierDelivery;
@@ -29,6 +28,7 @@ use App\Actions\Procurement\SupplierDeliveryItem\StoreSupplierDeliveryItem;
 use App\Actions\Procurement\SupplierDeliveryItem\StoreSupplierDeliveryItemBySelectedPurchaseOrderItem;
 use App\Actions\Procurement\SupplierDeliveryItem\UpdateStateToCheckedSupplierDeliveryItem;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
+use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Models\Procurement\PurchaseOrder;

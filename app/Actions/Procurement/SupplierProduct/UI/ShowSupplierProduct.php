@@ -9,7 +9,7 @@ namespace App\Actions\Procurement\SupplierProduct\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\AgentOrganisation\UI\GetAgentShowcase;
+use App\Actions\Procurement\OrgAgent\UI\GetAgentShowcase;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\SupplierProductTabsEnum;

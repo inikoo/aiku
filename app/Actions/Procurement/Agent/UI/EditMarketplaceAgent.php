@@ -11,6 +11,7 @@ use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\Assets\Country\UI\GetCountriesOptions;
 use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\InertiaAction;
+use App\Actions\SupplyChain\Agent\UI\ShowAgent;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\SupplyChain\Agent;
 use Inertia\Inertia;
@@ -159,7 +160,7 @@ class EditMarketplaceAgent extends InertiaAction
 
     public function getBreadcrumbs(array $routeParameters): array
     {
-        return ShowMarketplaceAgent::make()->getBreadcrumbs(
+        return ShowAgent::make()->getBreadcrumbs(
             routeParameters: $routeParameters,
             suffix: '('.__('editing').')'
         );

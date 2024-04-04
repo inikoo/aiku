@@ -7,9 +7,9 @@
 
 namespace App\Models\SupplyChain;
 
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Models\Assets\Currency;
 use App\Models\Helpers\Issue;
+use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\SupplierDelivery;
 use App\Models\Search\UniversalSearch;
@@ -71,6 +71,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read Collection<int, OrgSupplier> $orgSuppliers
  * @property-read Collection<int, \App\Models\SupplyChain\SupplierProduct> $products
  * @property-read Collection<int, PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\SupplyChain\SupplierStats|null $stats
@@ -126,9 +127,6 @@ class Supplier extends Model implements HasMedia, Auditable
 
         static::updated(function (Supplier $supplier) {
             if (!$supplier->wasRecentlyCreated) {
-                if ($supplier->wasChanged('status')) {
-                    OrganisationHydrateProcurement::dispatch(app('currentTenant'));
-                }
                 if ($supplier->wasChanged(['contact_name', 'company_name'])) {
                     $supplier->name = $supplier->company_name == '' ? $supplier->contact_name : $supplier->company_name;
                 }
@@ -184,6 +182,10 @@ class Supplier extends Model implements HasMedia, Auditable
         return $this->morphMany(SupplierDelivery::class, 'provider');
     }
 
+    public function orgSuppliers(): HasMany
+    {
+        return $this->hasMany(OrgSupplier::class);
+    }
 
 
 }

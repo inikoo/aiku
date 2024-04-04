@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Procurement\AgentOrganisation\UI;
+namespace App\Actions\Procurement\OrgAgent\UI;
 
 use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\Assets\Country\UI\GetCountriesOptions;
@@ -158,7 +158,7 @@ class EditAgent extends InertiaAction
 
     public function getBreadcrumbs(array $routeParameters): array
     {
-        return ShowAgent::make()->getBreadcrumbs(
+        return ShowOrgAgent::make()->getBreadcrumbs(
             routeParameters: $routeParameters,
             suffix: '('.__('editing').')'
         );

@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Tue, 25 Oct 2022 11:01:21 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 03 Apr 2024 20:49:22 Central Indonesia Time, Bali Office , Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\Supplier;
+namespace App\Actions\SupplyChain\Supplier;
 
 use App\Actions\GrpAction;
 use App\Actions\Helpers\Address\UpdateAddress;

@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\Supplier;
 
-use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
+use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
 use App\Models\SupplyChain\Agent;
 use Lorisleiva\Actions\Concerns\AsAction;
 

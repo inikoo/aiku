@@ -1,19 +1,22 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Wed, 15 Mar 2023 14:14:56 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 04 Apr 2024 10:49:36 Central Indonesia Time, Bali Office , Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Procurement\Supplier\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\SupplyChain\Agent\UI\ShowAgent;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Http\Resources\Procurement\SupplierResource;
+use App\Http\Resources\Procurement\MarketplaceSupplierResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Procurement\OrgSupplier;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -21,45 +24,21 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexSuppliers extends InertiaAction
 {
-    protected function getSupplierElementGroups(Organisation|Agent $parent): void
-    {
-        $this->elementGroups =
-            [
-                'status' => [
-                    'label'    => __('status'),
-                    'elements' => [
-                        'active'   => [__('active'), $parent->stats->number_suppliers],
-                        'archived' => [__('archived'), $parent->stats->number_archived_suppliers]
-                    ],
-
-                    'engine' => function ($query, $elements) {
-                        $query->whereIn('state', $elements);
-                    }
-
-                ],
-
-            ];
-    }
-
     public function handle(Agent|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('suppliers.code', 'ILIKE', "$value%")
-                    ->orWhere('suppliers.name', 'ILIKE', "%$value%");
+                $query->whereAnyWordStartWith('suppliers.contact_name', $value)
+                    ->orWhere('suppliers.slug', 'ILIKE', "$value%");
             });
         });
 
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
-
-        $parent->suppliers()->count();
-
 
         $queryBuilder = QueryBuilder::for(Supplier::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
@@ -73,23 +52,22 @@ class IndexSuppliers extends InertiaAction
 
         return $queryBuilder
             ->defaultSort('suppliers.code')
-            ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'suppliers.location as supplier_locations', 'number_supplier_products', 'number_purchase_orders'])
-            ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', 'suppliers.id')
+            ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', '=', 'suppliers.id')
+            ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'number_supplier_products', 'suppliers.location'])
+            ->addSelect([
+                'adoption' => OrgSupplier::select('org_suppliers.status')
+                    ->whereColumn('org_suppliers.supplier_id', 'suppliers.id')
+                    ->where('org_suppliers.organisation_id', app('currentTenant')->id)
+                    ->limit(1)
+            ])
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Agent') {
-                    //                    $query->where('suppliers.owner_type', 'supplier');
-                    $query->where('suppliers.owner_id', $parent->id);
-                    $query->leftJoin('agents', 'suppliers.owner_id', 'agents.id');
-                    $query->addSelect('agents.slug as agent_slug');
-                    $query->addSelect('agents.name as agent_name');
+                    $query->where('suppliers.agent_id', $parent->id);
                 } else {
-                    $query ->leftJoin('organisation_supplier', 'suppliers.id', 'organisation_supplier.supplier_id');
-                    $query->where('suppliers.owner_type', 'Organisation');
-                    $query->where('organisation_supplier.organisation_id', app('currentTenant')->id);
-
+                    $query->whereNull('suppliers.agent_id');
                 }
             })
-            ->allowedSorts(['code', 'name', 'agent_name', 'supplier_locations', 'number_supplier_products', 'number_purchase_orders'])
+            ->allowedSorts(['code', 'name', 'number_supplier_products'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -103,13 +81,6 @@ class IndexSuppliers extends InertiaAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
-            foreach ($this->elementGroups as $key => $elementGroup) {
-                $table->elementGroup(
-                    key: $key,
-                    label: $elementGroup['label'],
-                    elements: $elementGroup['elements']
-                );
-            }
 
             $table
                 ->withModelOperations($modelOperations)
@@ -118,31 +89,35 @@ class IndexSuppliers extends InertiaAction
                     [
                         'title'       => __('no suppliers'),
                         'description' => $this->canEdit ? __('Get started by creating a new supplier.') : null,
-                        'count'       => app('currentTenant')->inventoryStats->number_warehouse_areas,
+                        'count'       => app('currentTenant')->stats->number_agents,
                         'action'      => $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new supplier'),
                             'label'   => __('supplier'),
                             'route'   => [
-                                'name'       => 'grp.procurement.suppliers.create',
+                                'name'       => 'grp.org.procurement.marketplace.suppliers.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : null
                     ]
                 )
+                ->column(key: 'adoption', label: [
+                    'type'    => 'icon',
+                    'data'    => ['fal', 'fa-yin-yang'],
+                    'tooltip' => __('adoption')
+                ], canBeHidden: false)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'supplier_locations', label: __('location'), canBeHidden: false)
-                ->column(key: 'number_supplier_products', label: __('products'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_purchase_orders', label: __('purchase orders'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'location', label: __('location'), canBeHidden: false)
+                ->column(key: 'number_supplier_products', label: __('supplier products'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('procurement.suppliers.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
 
         return
             (
@@ -153,58 +128,117 @@ class IndexSuppliers extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
+
         $this->initialisation($request);
-        $this->getSupplierElementGroups(app('currentTenant'));
+
         return $this->handle(app('currentTenant'));
     }
 
     public function inAgent(Agent $agent, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
-        $this->getSupplierElementGroups($agent);
+
         return $this->handle($agent);
     }
 
     public function jsonResponse(LengthAwarePaginator $suppliers): AnonymousResourceCollection
     {
-        return SupplierResource::collection($suppliers);
+        return MarketplaceSupplierResource::collection($suppliers);
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $suppliers): Response
+    public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request): Response
     {
+        $parent = $request->route()->originalParameters() == []
+            ?
+            app('currentTenant')
+            :
+            $request->route()->originalParameters()['agent'];
+
+        $title = match (class_basename($parent)) {
+            'OrgAgent'          => __('suppliers'),
+            default             => __("supplier's marketplace")
+        };
+
         return Inertia::render(
-            'Procurement/Suppliers',
+            'Procurement/MarketplaceSuppliers',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('suppliers'),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
+                'title'       => $title,
                 'pageHead'    => [
-                    'title' => __('suppliers'),
+                    'title'  => $title,
+                    'actions'=> [
+                        $this->canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new supplier'),
+                            'label'   => __('supplier'),
+                            'route'   =>
+                                match (class_basename($parent)) {
+                                    'OrgAgent' => [
+                                        'name'       => 'grp.org.procurement.marketplace.agents.show.suppliers.create',
+                                        'parameters' => array_values($request->route()->originalParameters())
+                                    ],
+                                    default => [
+                                        'name'       => 'grp.org.procurement.marketplace.suppliers.create',
+                                        'parameters' => array_values($request->route()->originalParameters())
+                                    ],
+                                },
+                        ] : false,
+                    ]
                 ],
-                'data'        => SupplierResource::collection($suppliers),
+                'data'        => MarketplaceSupplierResource::collection($suppliers),
 
 
             ]
         )->table($this->tableStructure());
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return
+        $headCrumb = function (array $routeParameters = []) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __("supplier's marketplace"),
+                        'icon'  => 'fal fa-bars'
+                    ],
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'grp.org.procurement.marketplace.suppliers.index' =>
             array_merge(
                 ProcurementDashboard::make()->getBreadcrumbs(),
-                [
+                $headCrumb(
                     [
-                        'type'   => 'simple',
-                        'simple' => [
-                            'route' => [
-                                'name' => 'grp.procurement.suppliers.index'
-                            ],
-                            'label' => __('suppliers'),
-                            'icon'  => 'fal fa-bars'
-                        ]
+                        'name' => 'grp.org.procurement.marketplace.suppliers.index',
+                        null
                     ]
-                ]
-            );
+                ),
+            ),
+
+
+            'grp.org.procurement.marketplace.agents.show.suppliers.index' =>
+            array_merge(
+                (new ShowAgent())->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.procurement.marketplace.agents.show.suppliers.index',
+                        'parameters' =>
+                            [
+                                $routeParameters['agent']->slug
+                            ]
+                    ]
+                )
+            ),
+            default => []
+        };
     }
 }

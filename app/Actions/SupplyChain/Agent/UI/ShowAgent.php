@@ -1,17 +1,20 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 18 Jan 2024 16:20:26 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Wed, 03 Apr 2024 20:10:25 Central Indonesia Time, Bali Office , Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\Agent\UI;
+namespace App\Actions\SupplyChain\Agent\UI;
 
-use App\Actions\InertiaAction;
-use App\Actions\Procurement\Marketplace\Supplier\UI\IndexMarketplaceSuppliers;
+use App\Actions\GrpAction;
+use App\Actions\Procurement\Agent\UI\DeletedMarketplaceAgentTrait;
+use App\Actions\Procurement\Agent\UI\GetMarketplaceAgentShowcase;
 use App\Actions\Procurement\Marketplace\SupplierProduct\UI\IndexMarketplaceSupplierProducts;
-use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\MarketplaceAgentTabsEnum;
+use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
+use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+use App\Enums\UI\AgentTabsEnum;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Http\Resources\Procurement\MarketplaceSupplierProductResource;
 use App\Http\Resources\Procurement\MarketplaceSupplierResource;
@@ -21,33 +24,26 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowMarketplaceAgent extends InertiaAction
+class ShowAgent extends GrpAction
 {
     use DeletedMarketplaceAgentTrait;
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit = $request->user()->hasPermissionTo('supply-chain.edit');
+        return $request->user()->hasPermissionTo('supply-chain.view');
+    }
 
     public function handle(Agent $agent): Agent
     {
         return $agent;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        /** @var Organisation $organisation */
-        $organisation      = app('currentTenant');
-        $agentID           =$request->route()->originalParameters()()['agent']->id;
-        $agentIsOwned      =$organisation->myAgents->contains($agentID);
-
-        $this->canEdit   = $agentIsOwned and $request->user()->hasPermissionTo('procurement.edit') ;
-        $this->canDelete = $agentIsOwned and $request->user()->hasPermissionTo('procurement.edit');
-
-
-        return $request->user()->hasPermissionTo("procurement.view");
-    }
 
 
     public function asController(Agent $agent, ActionRequest $request): Agent
     {
-        $this->initialisation($request)->withTab(MarketplaceAgentTabsEnum::values());
+        $this->initialisation(app('group'), $request)->withTab(AgentTabsEnum::values());
 
         return $this->handle($agent);
     }
@@ -130,34 +126,34 @@ class ShowMarketplaceAgent extends InertiaAction
                 ],
                 'tabs'                                    => [
                     'current'    => $this->tab,
-                    'navigation' => MarketplaceAgentTabsEnum::navigation()
+                    'navigation' => AgentTabsEnum::navigation()
                 ],
-                MarketplaceAgentTabsEnum::SHOWCASE->value => $this->tab == MarketplaceAgentTabsEnum::SHOWCASE->value ?
+                AgentTabsEnum::SHOWCASE->value => $this->tab == AgentTabsEnum::SHOWCASE->value ?
                     fn () => GetMarketplaceAgentShowcase::run($agent)
                     : Inertia::lazy(fn () => GetMarketplaceAgentShowcase::run($agent)),
 
-                MarketplaceAgentTabsEnum::SUPPLIERS->value => $this->tab == MarketplaceAgentTabsEnum::SUPPLIERS->value
+                AgentTabsEnum::SUPPLIERS->value => $this->tab == AgentTabsEnum::SUPPLIERS->value
                     ?
                     fn () => MarketplaceSupplierResource::collection(
-                        IndexMarketplaceSuppliers::run(
+                        IndexSuppliers::run(
                             parent: $agent,
                             prefix: 'suppliers'
                         )
                     )
                     : Inertia::lazy(fn () => MarketplaceSupplierResource::collection(
-                        IndexMarketplaceSuppliers::run(
+                        IndexSuppliers::run(
                             parent: $agent,
                             prefix: 'suppliers'
                         )
                     )),
 
-                MarketplaceAgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == MarketplaceAgentTabsEnum::SUPPLIER_PRODUCTS->value ?
+                AgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == AgentTabsEnum::SUPPLIER_PRODUCTS->value ?
                     fn () => MarketplaceSupplierProductResource::collection(IndexMarketplaceSupplierProducts::run($agent))
                     : Inertia::lazy(fn () => MarketplaceSupplierProductResource::collection(IndexMarketplaceSupplierProducts::run($agent))),
 
             ]
         )->table(
-            IndexMarketplaceSuppliers::make()->tableStructure(
+            IndexSuppliers::make()->tableStructure(
                 /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
@@ -194,24 +190,26 @@ class ShowMarketplaceAgent extends InertiaAction
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
+
+        $agent=Agent::where('slug', $routeParameters['agent'])->first();
         return array_merge(
-            (new ProcurementDashboard())->getBreadcrumbs(),
+            ShowSupplyChainDashboard::make()->getBreadcrumbs(),
             [
                 [
                     'type'           => 'modelWithIndex',
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.org.procurement.marketplace.agents.index',
+                                'name' => 'grp.supply-chain.agents.index',
                             ],
-                            'label' => __("agent's marketplace"),
+                            'label' => __("agents"),
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.org.procurement.marketplace.agents.show',
-                                'parameters' => [$routeParameters['agent']->slug]
+                                'name'       => 'grp.supply-chain.agents.show',
+                                'parameters' => $routeParameters
                             ],
-                            'label' => $routeParameters['agent']->code,
+                            'label' => $agent->organisation->code,
                         ],
                     ],
                     'suffix'         => $suffix,
@@ -223,16 +221,16 @@ class ShowMarketplaceAgent extends InertiaAction
 
     public function getPrevious(Agent $agent, ActionRequest $request): ?array
     {
-        $previous = Agent::where('code', '<', $agent->code)->orderBy('code', 'desc')->first();
+        $previous = Organisation::where('group_id', $agent->group_id)->where('type', OrganisationTypeEnum::AGENT)->where('code', '<', $agent->organisation->code)->orderBy('code', 'desc')->first();
 
-        return $this->getNavigation($previous, $request->route()->getName());
+        return $this->getNavigation($previous->agent, $request->route()->getName());
     }
 
     public function getNext(Agent $agent, ActionRequest $request): ?array
     {
-        $next = Agent::where('code', '>', $agent->code)->orderBy('code')->first();
+        $next = Organisation::where('group_id', $agent->group_id)->where('type', OrganisationTypeEnum::AGENT)->where('code', '>', $agent->organisation->code)->orderBy('code')->first();
 
-        return $this->getNavigation($next, $request->route()->getName());
+        return $this->getNavigation($next->agent, $request->route()->getName());
     }
 
     private function getNavigation(?Agent $agent, string $routeName): ?array
@@ -242,8 +240,8 @@ class ShowMarketplaceAgent extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.org.procurement.marketplace.agents.show' => [
-                'label' => $agent->name,
+            'grp.supply-chain.agents.show' => [
+                'label' => $agent->organisation->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
