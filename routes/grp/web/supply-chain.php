@@ -62,7 +62,7 @@ Route::get('/agents/export', ExportAgents::class)->name('agents.export');
 
 
 Route::get('/agents/{agent}', ShowOrgAgent::class)->name('agents.show');
-Route::get('/agents/{agent}/edit', EditAgent::class)->name('agents.edit');
+Route::get('/agents/{agent}/edit', EditOrgAgent::class)->name('agents.edit');
 Route::get('/agents/{agent}/delete', RemoveAgent::class)->name('agents.remove');
 
 Route::get('/agents/{agent}/suppliers', [IndexSuppliers::class, 'inAgent'])->name('agents.show.suppliers.index');

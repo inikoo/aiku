@@ -6,8 +6,8 @@
  */
 
 
-use App\Actions\Procurement\OrgAgent\UI\EditAgent;
-use App\Actions\Procurement\OrgAgent\UI\IndexAgents;
+use App\Actions\Procurement\OrgAgent\UI\EditOrgAgent;
+use App\Actions\Procurement\OrgAgent\UI\IndexOrgAgents;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\CreatePurchaseOrder;
@@ -47,10 +47,10 @@ Route::get('/suppliers/{supplier}/delete', RemoveSupplier::class)->name('supplie
 
 Route::get('/agents/export', ExportAgents::class)->name('agents.export');
 
-Route::get('/agents', IndexAgents::class)->name('agents.index');
+Route::get('/agents', IndexOrgAgents::class)->name('agents.index');
 
 Route::get('/agents/{agent}', ShowOrgAgent::class)->name('agents.show');
-Route::get('/agents/{agent}/edit', EditAgent::class)->name('agents.edit');
+Route::get('/agents/{agent}/edit', EditOrgAgent::class)->name('agents.edit');
 Route::get('/agents/{agent}/delete', RemoveAgent::class)->name('agents.remove');
 
 Route::get('/agents/{agent}/suppliers', [IndexSuppliers::class, 'inAgent'])->name('agents.show.suppliers.index');
@@ -84,13 +84,3 @@ Route::get('/supplier-deliveries', IndexSupplierDeliveries::class)->name('suppli
 Route::get('/supplier-deliveries/create', CreateSupplierDelivery::class)->name('supplier-deliveries.create');
 Route::get('/supplier-deliveries/{supplierDelivery}', ShowSupplierDelivery::class)->name('supplier-deliveries.show');
 Route::get('/supplier-deliveries/{supplierDelivery}/edit', EditSupplierDelivery::class)->name('supplier-deliveries.edit');
-
-
-Route::prefix("marketplace")
-    ->name("marketplace.")
-    ->group(
-        function () {
-            $parent='shop';
-            require __DIR__.'/procurement-marketplace.php';
-        }
-    );

@@ -1,24 +1,24 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 18 Jan 2024 16:20:26 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Thu, 04 Apr 2024 19:02:34 Central Indonesia Time, Bali Office , Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\Agent\UI;
+namespace App\Actions\SupplyChain\Agent\UI;
 
 use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\Assets\Country\UI\GetCountriesOptions;
 use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\InertiaAction;
-use App\Actions\SupplyChain\Agent\UI\ShowAgent;
+use App\Actions\Procurement\Agent\UI\RemoveMarketplaceAgent;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\SupplyChain\Agent;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditMarketplaceAgent extends InertiaAction
+class EditAgent extends InertiaAction
 {
     public function handle(Agent $agent): Agent
     {

@@ -18,7 +18,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditAgent extends InertiaAction
+class EditOrgAgent extends InertiaAction
 {
     public function handle(Agent $agent): Agent
     {

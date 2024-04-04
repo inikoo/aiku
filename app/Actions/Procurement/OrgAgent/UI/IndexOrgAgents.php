@@ -22,7 +22,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexAgents extends InertiaAction
+class IndexOrgAgents extends InertiaAction
 {
     public function handle($prefix = null): LengthAwarePaginator
     {
