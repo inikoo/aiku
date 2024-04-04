@@ -158,8 +158,8 @@ const label = {
                                                 </MenuItem>
                                             </div>
 
+                                            <!-- Dropdown: Organisation -->
                                             <div v-if="layoutStore.organisations.data.length > 1">
-                                                <!-- Dropdown: Organisation -->
                                                 <div class="flex items-center gap-x-1.5 px-1 mb-1">
                                                     <FontAwesomeIcon icon="fal fa-building" class="text-gray-400 text-xxs" aria-hidden="true" />
                                                     <span class="text-[9px] leading-none text-gray-400">{{ trans("Organisations") }}</span>
@@ -167,6 +167,29 @@ const label = {
                                                 </div>
                                                 <div class="max-h-52 overflow-y-auto space-y-1.5">
                                                     <MenuItem v-for="(item) in layoutStore.organisations.data" v-slot="{ active }">
+                                                        <div @click="() => router.visit(route('grp.org.dashboard.show', { organisation: item.slug }))" :class="[
+                                                            item.slug == layoutStore.currentParams?.organisation ? 'bg-slate-300 text-slate-600' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
+                                                            'group flex gap-x-2 w-full justify-start items-center rounded pl-2 pr-4 py-2 text-sm cursor-pointer',
+                                                        ]">
+                                                            <div class="h-5 aspect-square rounded-full overflow-hidden ring-1 ring-slate-200 bg-slate-50">
+                                                                <Image v-show="imageSkeleton[item.slug]" :src="item.logo" @onLoadImage="() => imageSkeleton[item.slug] = true" />
+                                                                <div v-show="!imageSkeleton[item.slug]" class="skeleton w-5 h-5" />
+                                                            </div>
+                                                            <div class="font-semibold whitespace-nowrap">{{ useTruncate(item.label, 20) }}</div>
+                                                        </div>
+                                                    </MenuItem>
+                                                </div>
+                                            </div>
+
+                                            <!-- Dropdown: Agents -->
+                                            <div v-if="layoutStore.agents?.data?.length > 1">
+                                                <div class="flex items-center gap-x-1.5 px-1 mb-1">
+                                                    <FontAwesomeIcon icon="fal fa-building" class="text-gray-400 text-xxs" aria-hidden="true" />
+                                                    <span class="text-[9px] leading-none text-gray-400">{{ trans("Agents") }}</span>
+                                                    <hr class="w-full rounded-full border-slate-300">
+                                                </div>
+                                                <div class="max-h-52 overflow-y-auto space-y-1.5">
+                                                    <MenuItem v-for="(item) in layoutStore.agents?.data" v-slot="{ active }">
                                                         <div @click="() => router.visit(route('grp.org.dashboard.show', { organisation: item.slug }))" :class="[
                                                             item.slug == layoutStore.currentParams?.organisation ? 'bg-slate-300 text-slate-600' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
                                                             'group flex gap-x-2 w-full justify-start items-center rounded pl-2 pr-4 py-2 text-sm cursor-pointer',
