@@ -20,6 +20,7 @@ class SupplierHydrateUniversalSearch
         $supplier->universalSearch()->updateOrCreate(
             [],
             [
+                'group_id'       => $supplier->group_id,
                 'section'        => 'procurement',
                 'title'          => trim($supplier->name.' '.$supplier->email.' '.$supplier->company_name.' '.$supplier->contact_name),
                 'description'    => ''

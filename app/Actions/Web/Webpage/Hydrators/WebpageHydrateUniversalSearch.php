@@ -20,9 +20,16 @@ class WebpageHydrateUniversalSearch
         $webpage->universalSearch()->updateOrCreate(
             [],
             [
-                'section'     => 'web',
-                'title'       => trim($webpage->code.' '.$webpage->url),
-                'description' => ''
+                'group_id'          => $webpage->group_id,
+                'website_id'        => $webpage->website_id,
+                'website_slug'      => $webpage->website->slug,
+                'shop_id'           => $webpage->website->shop_id,
+                'shop_slug'         => $webpage->website->shop->slug,
+                'organisation_id'   => $webpage->organisation_id,
+                'organisation_slug' => $webpage->organisation->slug,
+                'section'           => 'web',
+                'title'             => trim($webpage->code.' '.$webpage->url),
+                'description'       => ''
             ]
         );
     }

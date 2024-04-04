@@ -8,8 +8,8 @@ const props = withDefaults(defineProps<{
     readonly?: boolean
     inputName?: string
     counter?: boolean
-    full: boolean
-    rows: number
+    full?: boolean
+    rows?: number
 }>(), {
     rows: 3
 })

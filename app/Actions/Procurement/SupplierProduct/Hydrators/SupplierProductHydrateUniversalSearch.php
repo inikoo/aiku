@@ -20,6 +20,7 @@ class SupplierProductHydrateUniversalSearch
         $supplierProduct->universalSearch()->updateOrCreate(
             [],
             [
+                'group_id'       => $supplierProduct->group_id,
                 'section'        => 'procurement',
                 'title'          => trim($supplierProduct->code.' '.$supplierProduct->name),
                 'description'    => ''

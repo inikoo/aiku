@@ -20,7 +20,8 @@ class StockFamilyHydrateUniversalSearch
         $stockFamily->universalSearch()->updateOrCreate(
             [],
             [
-                'section'     => 'inventory',
+                'group_id'    => $stockFamily->group_id,
+                'section'     => 'goods',
                 'title'       => join(' ', array_unique([$stockFamily->code, $stockFamily->name])),
                 'description' => ''
             ]

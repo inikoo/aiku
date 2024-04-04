@@ -7,16 +7,17 @@
 
 namespace App\Actions\SupplyChain\Agent;
 
-use App\Actions\HydrateModel;
-
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSupplierProducts;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Models\SupplyChain\Agent;
-use Illuminate\Support\Collection;
+use Illuminate\Console\Command;
+use Lorisleiva\Actions\Concerns\AsAction;
 
-class HydrateAgent extends HydrateModel
+class HydrateAgent
 {
-    public string $commandSignature = 'hydrate:agents {organisations?*} {--i|id=} ';
+    use asAction;
+
+    public string $commandSignature = 'agents:hydrate';
 
     public function handle(Agent $agent): void
     {
@@ -24,14 +25,13 @@ class HydrateAgent extends HydrateModel
         AgentHydrateSupplierProducts::run($agent);
     }
 
-
-    protected function getModel(string $slug): Agent
+    public function asCommand(Command $command): int
     {
-        return Agent::where('slug', $slug)->first();
-    }
 
-    protected function getAllModels(): Collection
-    {
-        return Agent::withTrashed()->get();
+        $command->withProgressBar(Agent::all(), function (Agent $agent) {
+            $this->handle($agent);
+        });
+
+        return 0;
     }
 }

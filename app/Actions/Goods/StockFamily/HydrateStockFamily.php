@@ -8,26 +8,23 @@
 namespace App\Actions\Goods\StockFamily;
 
 use App\Actions\Goods\StockFamily\Hydrators\StockFamilyHydrateStocks;
-use App\Actions\HydrateModel;
 use App\Models\SupplyChain\StockFamily;
 use Exception;
 use Illuminate\Console\Command;
+use Lorisleiva\Actions\Concerns\AsAction;
 
-class HydrateStockFamily extends HydrateModel
+class HydrateStockFamily
 {
-    public string $commandSignature = 'stock-family:hydrate {--s|slug=} ';
+    use AsAction;
+    public string $commandSignature = 'stock-family:hydrate {--s|slug=}';
 
     public function handle(StockFamily $stockFamily): void
     {
         StockFamilyHydrateStocks::run($stockFamily);
-
     }
-
 
     public function asCommand(Command $command): int
     {
-
-
         if($command->option('slug')) {
             try {
                 $stockFamily = StockFamily::where('slug', $command->option('slug'))->firstorFail();
