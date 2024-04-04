@@ -24,7 +24,7 @@ import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletR
 import Tag from "@/Components/Tag.vue"
 import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
 import JsBarcode from "jsbarcode"
-import { BoxStats } from '@/types/Pallet'
+import { BoxStats, PDRNotes } from '@/types/Pallet'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt } from '@fal'
@@ -49,7 +49,7 @@ const props = defineProps<{
         store: routeType
     }
     box_stats: BoxStats
-    notes_data: {}[]
+    notes_data: PDRNotes[]
 }>()
 
 // console.log('qwewqewq', props.box_stats)

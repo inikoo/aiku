@@ -2,21 +2,19 @@
 // import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { trans } from 'laravel-vue-i18n'
 
-const props = withDefaults(defineProps<{
+defineOptions({
+    inheritAttrs: false
+})
+
+const props = defineProps<{
     modelValue: string
     placeholder?: string
-    readonly?: boolean
-    inputName?: string
     counter?: boolean
     full?: boolean
-    rows?: number
-}>(), {
-    rows: 3
-})
+}>()
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string): void
-    (e: 'keydownctrlenter'): void
 }>()
 </script>
 
@@ -25,17 +23,14 @@ const emits = defineEmits<{
         <textarea
             :value="modelValue"
             @input="(event: any) => emits('update:modelValue', event.target.value)"
-            :id="inputName"
-            :name="inputName"
+            v-bind="$attrs"
             :placeholder="placeholder || trans('Enter text here')"
-            :rows="rows"
-            @keydown.ctrl.enter="emits('keydownctrlenter')"
             class="block w-full rounded-md shadow-sm text-gray-600 placeholder:text-gray-400 placeholder:italic placeholder:text-xs border-gray-300 focus:border-gray-500 focus:ring-gray-500 sm:text-sm" />
     </div>
     <div v-if="counter" class="grid grid-flow-col text-xs italic text-gray-500 mt-2 space-x-12 justify-start">
         <p class="">
             <!-- {{ pageBody.layout.profile.fields.about.notes }} -->
-            {{ trans('Letters') }}: {{ modelValue.length }}
+            {{ trans('Letters') }}: {{ modelValue.length }}<span v-if="$attrs.maxLength">/{{ $attrs.maxLength }}</span>
         </p>
         <p class="">
             <!-- {{ pageBody.layout.profile.fields.about.notes }} -->

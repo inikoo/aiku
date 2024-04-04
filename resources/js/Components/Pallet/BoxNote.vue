@@ -11,19 +11,12 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import axios from 'axios'
 import { routeType } from '@/types/route'
 import { notify } from '@kyvg/vue3-notification'
+import { PDRNotes } from '@/types/Pallet'
 library.add(faPencil, faStickyNote, faTrash, faSparkles, faLock, faTimes)
 
 const layout = inject('layout', {})
 const props = defineProps<{
-    noteData: {
-        label: string
-        note: string
-        editable?: boolean
-        bgColor?: string
-        color?: string
-        lockMessage?: string
-        field: string  // customer_notes, public_notes, internal_notes
-    }
+    noteData: PDRNotes
     updateRoute: routeType
 }>()
 
@@ -104,10 +97,10 @@ const onSubmitNote = async () => {
 		<div class="min-h-72 max-h-96 px-2 overflow-auto">
             <div class="text-xl font-semibold mb-2">{{ noteData.label }}'s note</div>
 			<div class="relative">
-                <div @click="() => noteModalValue = ''" class="absolute top-1 right-1 text-red-400 hover:text-red-600 text-xxs cursor-pointer">
+                <div v-if="noteModalValue" @click="() => noteModalValue = ''" class="absolute top-1 right-1 text-red-400 hover:text-red-600 text-xxs cursor-pointer">
                     Clear
                 </div>
-                <PureTextarea v-model="noteModalValue" :rows="6" @keydownctrlenter="() => onSubmitNote()" />
+                <PureTextarea v-model="noteModalValue" counter rows="6" @keydown.ctrl.enter="() => onSubmitNote()" maxLength="5000" />
             </div>
 
             <div class="flex justify-end gap-x-2 mt-3">
