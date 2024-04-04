@@ -103,6 +103,11 @@ export const initialiseApp = () => {
             layout.organisations = usePage().props.layout.organisations
         }
 
+        // Set Organisations (for Multiselect in TopBar)
+        if (usePage().props.layout?.agents) {
+            layout.agents = usePage().props.layout.agents
+        }
+
         // Set Navigation (for LeftSidebar)
         if (usePage().props.layout?.navigation) {
             layout.navigation = usePage().props.layout.navigation ?? null;

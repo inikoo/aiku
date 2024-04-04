@@ -181,7 +181,7 @@ onMounted(() => {
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :state="timeline.state" :tab="currentTab" />
+    <component :is="component" :data="props[currentTab]" :state="timeline.state" :key="timeline.state" :tab="currentTab" />
 
     <Modal :isOpen="openModal" @onClose="openModal = false">
         <div class="min-h-72 max-h-96 px-2 overflow-auto">

@@ -71,10 +71,10 @@ const selectedTabGraph = ref(0)
 
 <template>
     <div class="px-4 py-6 grid grid-cols-3 gap-x-6">
-        <div class="border border-gray-200 rounded-md shadow">
+        <div v-if="false" class="border border-gray-200 rounded-md shadow">
         </div>
 
-        <div class="bg-slate-50 col-span-2 border border-gray-200 rounded-md shadow flex flex-col gap-y-8">
+        <div v-if="false" class="bg-slate-50 col-span-2 border border-gray-200 rounded-md shadow flex flex-col gap-y-8">
             <!-- <dl
                 class="grid grid-cols-1 gap-x-8 gap-y-10 text-slate-600 sm:grid-cols-2 sm:gap-y-16 lg:mx-0 lg:max-w-none lg:grid-cols-4">
                 <div v-for="stat in stats" :key="stat.id"
@@ -102,5 +102,7 @@ const selectedTabGraph = ref(0)
                 <Line :data="dataStats" :options="config" />
             </div>
         </div>
+
+        <!-- TODO: PKA-1550 -->
     </div>
 </template>

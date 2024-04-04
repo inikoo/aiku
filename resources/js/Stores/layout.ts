@@ -61,6 +61,7 @@ interface OrganisationState {
 export const useLayoutStore = defineStore("layout", {
     state: () => (
         {
+            agents: null,
             app: {
                 name: "",  // For styling navigation depend on which App
                 color: null as unknown | Colors,  // Styling layout color
