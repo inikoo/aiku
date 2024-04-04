@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\AgentOrganisation\UI;
+namespace App\Actions\Procurement\OrgAgent\UI;
 
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\SupplyChain\Agent;

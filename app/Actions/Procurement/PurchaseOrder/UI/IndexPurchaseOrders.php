@@ -68,7 +68,7 @@ class IndexPurchaseOrders extends InertiaAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'provider', label: __('AgentOrganisation/Supplier'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'provider', label: __('OrgAgent/Supplier'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'created_by', label: __('Created by'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'author', label: __('state'), canBeHidden: false, sortable: true, searchable: true)

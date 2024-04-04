@@ -174,7 +174,7 @@ class ShowMarketplaceSupplier extends InertiaAction
                 )
             ),
             'grp.org.procurement.marketplace.agents.show.suppliers.show' => array_merge(
-                (new \App\Actions\Procurement\Agent\UI\ShowMarketplaceAgent())->getBreadcrumbs(
+                (new \App\Actions\SupplyChain\Agent\UI\ShowAgent())->getBreadcrumbs(
                     ['agent' => $routeParameters['agent']]
                 ),
                 $headCrumb(

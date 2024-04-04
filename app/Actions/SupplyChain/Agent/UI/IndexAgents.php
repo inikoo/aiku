@@ -8,11 +8,12 @@
 namespace App\Actions\SupplyChain\Agent\UI;
 
 use App\Actions\GrpAction;
-use App\Actions\UI\SupplyChain\ShowSupplyChainDashboard;
+use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
 use App\Http\Resources\Procurement\AgentResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Group;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -20,10 +21,15 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexAgents extends GrpAction
 {
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit = $request->user()->hasPermissionTo('supply-chain.edit');
+        return $request->user()->hasPermissionTo('supply-chain.view');
+    }
+
     protected function getElementGroups(Group $group): array
     {
         return
@@ -42,7 +48,7 @@ class IndexAgents extends GrpAction
                         ]
                     ],
                     'engine'   => function ($query, $elements) {
-                        $query->where('status', array_pop($elements) === 'active');
+                        $query->where('agents.status', array_pop($elements) === 'active');
                     }
 
                 ],
@@ -134,11 +140,7 @@ class IndexAgents extends GrpAction
         };
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->hasPermissionTo('supply-chain.edit');
-        return $request->user()->hasPermissionTo('supply-chain.view');
-    }
+
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {

@@ -7,9 +7,9 @@
 
 namespace App\Actions\Procurement\Agent\UI;
 
-use App\Actions\Procurement\Marketplace\Supplier\UI\IndexMarketplaceSuppliers;
 use App\Actions\Procurement\Marketplace\SupplierProduct\UI\IndexMarketplaceSupplierProducts;
-use App\Enums\UI\MarketplaceAgentTabsEnum;
+use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
+use App\Enums\UI\AgentTabsEnum;
 use App\Http\Resources\Procurement\MarketplaceSupplierProductResource;
 use App\Http\Resources\Procurement\MarketplaceSupplierResource;
 use App\Models\SupplyChain\Agent;
@@ -46,33 +46,33 @@ trait DeletedMarketplaceAgentTrait
                 ],
                 'tabs'                                     => [
                     'current'    => $this->tab,
-                    'navigation' => MarketplaceAgentTabsEnum::navigation()
+                    'navigation' => AgentTabsEnum::navigation()
                 ],
-                MarketplaceAgentTabsEnum::SHOWCASE->value => $this->tab == MarketplaceAgentTabsEnum::SHOWCASE->value ?
+                AgentTabsEnum::SHOWCASE->value => $this->tab == AgentTabsEnum::SHOWCASE->value ?
                     fn () => GetMarketplaceAgentShowcase::run($agent)
                     : Inertia::lazy(fn () => GetMarketplaceAgentShowcase::run($agent)),
 
-                MarketplaceAgentTabsEnum::SUPPLIERS->value => $this->tab == MarketplaceAgentTabsEnum::SUPPLIERS->value ?
+                AgentTabsEnum::SUPPLIERS->value => $this->tab == AgentTabsEnum::SUPPLIERS->value ?
                     fn () => MarketplaceSupplierResource::collection(
-                        IndexMarketplaceSuppliers::run(
+                        IndexSuppliers::run(
                             parent: $agent,
                             prefix: 'suppliers'
                         )
                     )
                     : Inertia::lazy(fn () => MarketplaceSupplierResource::collection(
-                        IndexMarketplaceSuppliers::run(
+                        IndexSuppliers::run(
                             parent: $agent,
                             prefix: 'suppliers'
                         )
                     )),
 
-                MarketplaceAgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == MarketplaceAgentTabsEnum::SUPPLIER_PRODUCTS->value ?
+                AgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == AgentTabsEnum::SUPPLIER_PRODUCTS->value ?
                     fn () => MarketplaceSupplierProductResource::collection(IndexMarketplaceSupplierProducts::run($agent))
                     : Inertia::lazy(fn () => MarketplaceSupplierProductResource::collection(IndexMarketplaceSupplierProducts::run($agent))),
 
             ]
         )->table(
-            IndexMarketplaceSuppliers::make()->tableStructure(
+            IndexSuppliers::make()->tableStructure(
                 /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [

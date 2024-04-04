@@ -7,10 +7,10 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Procurement\Supplier\StoreSupplier;
-use App\Actions\Procurement\Supplier\UpdateSupplier;
-use App\Actions\SysAdmin\Organisation\AttachSupplierToOrganisation;
-use App\Models\Procurement\OrganisationSupplier;
+use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
+use App\Actions\SupplyChain\Supplier\StoreSupplier;
+use App\Actions\SupplyChain\Supplier\UpdateSupplier;
+use App\Models\Procurement\OrgSupplier;
 use App\Models\SupplyChain\Supplier;
 use App\Services\Organisation\SourceOrganisationService;
 
@@ -45,7 +45,7 @@ trait FetchSuppliersTrait
         if ($supplier) {
 
             if ($supplier->agent_id) {
-                OrganisationSupplier::where('supplier_id', $supplier->id)
+                OrgSupplier::where('supplier_id', $supplier->id)
                     ->where('organisation_id', $organisationSource->getOrganisation()->id)
                     ->update(
                         [
@@ -53,7 +53,7 @@ trait FetchSuppliersTrait
                         ]
                     );
             } else {
-                AttachSupplierToOrganisation::run(
+                StoreOrgSupplier::make()->run(
                     $organisationSource->getOrganisation(),
                     $supplier,
                     [
@@ -68,7 +68,7 @@ trait FetchSuppliersTrait
                 }
             }
         } elseif ($baseSupplier) {
-            AttachSupplierToOrganisation::run(
+            StoreOrgSupplier::make()->run(
                 $organisationSource->getOrganisation(),
                 $baseSupplier,
                 [

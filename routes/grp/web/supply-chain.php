@@ -6,37 +6,17 @@
  */
 
 
-use App\Actions\Procurement\AgentOrganisation\UI\EditAgent;
-
-use App\Actions\Procurement\AgentOrganisation\UI\ShowAgent;
-use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrders;
-use App\Actions\Procurement\PurchaseOrder\UI\CreatePurchaseOrder;
-use App\Actions\Procurement\PurchaseOrder\UI\EditPurchaseOrder;
-use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
-use App\Actions\Procurement\PurchaseOrder\UI\ShowPurchaseOrder;
-use App\Actions\Procurement\Supplier\ExportSuppliers;
-use App\Actions\Procurement\Supplier\UI\EditSupplier;
-use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
-use App\Actions\Procurement\Supplier\UI\RemoveSupplier;
-use App\Actions\Procurement\Supplier\UI\ShowSupplier;
-use App\Actions\Procurement\SupplierDelivery\ExportSupplierDeliveries;
-use App\Actions\Procurement\SupplierDelivery\UI\CreateSupplierDelivery;
-use App\Actions\Procurement\SupplierDelivery\UI\EditSupplierDelivery;
-use App\Actions\Procurement\SupplierDelivery\UI\IndexSupplierDeliveries;
-use App\Actions\Procurement\SupplierDelivery\UI\ShowSupplierDelivery;
-use App\Actions\Procurement\SupplierProduct\ExportSupplierProducts;
-use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
-use App\Actions\Procurement\SupplierProduct\UI\ShowSupplierProduct;
-use App\Actions\Procurement\SupplierPurchaseOrder\UI\CreateSupplierPurchaseOrder;
-use App\Actions\Procurement\SupplierPurchaseOrder\UI\EditSupplierPurchaseOrder;
-use App\Actions\Procurement\SupplierPurchaseOrder\UI\IndexSupplierPurchaseOrders;
-use App\Actions\Procurement\SupplierPurchaseOrder\UI\ShowSupplierPurchaseOrder;
-use App\Actions\SupplyChain\Agent\ExportAgents;
 use App\Actions\SupplyChain\Agent\UI\CreateAgent;
 use App\Actions\SupplyChain\Agent\UI\IndexAgents;
-use App\Actions\SupplyChain\Agent\UI\RemoveAgent;
+use App\Actions\SupplyChain\Agent\UI\ShowAgent;
 use App\Actions\SupplyChain\Supplier\UI\CreateSupplier;
-use App\Actions\UI\SupplyChain\ShowSupplyChainDashboard;
+use App\Actions\SupplyChain\Supplier\UI\EditSupplier;
+use App\Actions\SupplyChain\Supplier\UI\ExportSuppliers;
+use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
+use App\Actions\SupplyChain\Supplier\UI\ShowSupplier;
+use App\Actions\SupplyChain\SupplierProduct\UI\IndexSupplierProducts;
+use App\Actions\SupplyChain\SupplierProduct\UI\ShowSupplierProduct;
+use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowSupplyChainDashboard::class)->name('dashboard');
@@ -59,7 +39,6 @@ Route::prefix("suppliers")->name("suppliers.")->group(
         Route::get('export', ExportSuppliers::class)->name('export');
         Route::get('{supplier}', ShowSupplier::class)->name('show');
         Route::get('{supplier}/edit', EditSupplier::class)->name('edit');
-        Route::get('{supplier}/delete', RemoveSupplier::class)->name('remove');
 
 
     }
@@ -82,7 +61,7 @@ Route::get('/agents/export', ExportAgents::class)->name('agents.export');
 
 
 
-Route::get('/agents/{agent}', ShowAgent::class)->name('agents.show');
+Route::get('/agents/{agent}', ShowOrgAgent::class)->name('agents.show');
 Route::get('/agents/{agent}/edit', EditAgent::class)->name('agents.edit');
 Route::get('/agents/{agent}/delete', RemoveAgent::class)->name('agents.remove');
 

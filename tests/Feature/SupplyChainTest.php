@@ -7,10 +7,16 @@
 
 
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
-use App\Actions\Procurement\Supplier\StoreSupplier;
+use App\Actions\Procurement\OrgAgent\StoreOrgAgent;
+use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
 use App\Actions\SupplyChain\Agent\StoreAgent;
+use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Models\Goods\TradeUnit;
+use App\Models\OrgAgentStats;
+use App\Models\OrgSupplierStats;
+use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgSupplier;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
@@ -121,7 +127,6 @@ test('create supplier product in agent supplier', function ($supplier) {
 })->depends('create supplier in agent');
 
 
-
 test('create trade unit', function () {
     $tradeUnit = StoreTradeUnit::make()->action(
         $this->group,
@@ -131,3 +136,29 @@ test('create trade unit', function () {
 
     return $tradeUnit;
 });
+
+test('create org-agent', function ($agent) {
+    $orgAgent=StoreOrgAgent::make()->action(
+        $this->organisation,
+        $agent,
+        []
+    );
+
+    expect($orgAgent)->toBeInstanceOf(OrgAgent::class)
+        ->and($orgAgent->stats)->toBeInstanceOf(OrgAgentStats::class);
+
+    return $agent;
+})->depends('create agent');
+
+test('create org-supplier', function ($supplier) {
+    $orgSupplier = StoreOrgSupplier::make()->action(
+        $this->organisation,
+        $supplier,
+        []
+    );
+
+    expect($orgSupplier)->toBeInstanceOf(OrgSupplier::class)
+        ->and($orgSupplier->stats)->toBeInstanceOf(OrgSupplierStats::class);
+
+    return $supplier;
+})->depends('create independent supplier');

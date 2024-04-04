@@ -5,28 +5,28 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasGroupOrganisationRelationship;
     public function up(): void
     {
-        Schema::create('supplier_product_organisation', function (Blueprint $table) {
+        Schema::create('org_supplier_products', function (Blueprint $table) {
             $table->increments('id');
+            $table = $this->groupOrgRelationship($table);
             $table->unsignedInteger('supplier_product_id');
             $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
-            $table->unsignedSmallInteger('organisation_id');
-            $table->foreign('organisation_id')->references('id')->on('organisations');
             $table->timestampsTz();
             $table->string('source_id')->index()->nullable();
-
         });
     }
 
 
     public function down(): void
     {
-        Schema::dropIfExists('supplier_product_organisation');
+        Schema::dropIfExists('org_supplier_products');
     }
 };

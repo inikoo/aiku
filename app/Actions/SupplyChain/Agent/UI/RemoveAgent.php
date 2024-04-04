@@ -8,7 +8,7 @@
 namespace App\Actions\SupplyChain\Agent\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\AgentOrganisation\UI\ShowAgent;
+use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Models\SupplyChain\Agent;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -84,7 +84,7 @@ class RemoveAgent extends InertiaAction
 
     public function getBreadcrumbs(array $routeParameters): array
     {
-        return ShowAgent::make()->getBreadcrumbs(
+        return ShowOrgAgent::make()->getBreadcrumbs(
             routeParameters: $routeParameters,
             suffix: '('.__('deleting').')'
         );

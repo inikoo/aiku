@@ -11,7 +11,7 @@ use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\Assets\Country\UI\GetCountriesOptions;
 use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\AgentOrganisation\UI\IndexAgents;
+use App\Actions\Procurement\OrgAgent\UI\IndexAgents;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Helpers\Address;
 use Inertia\Inertia;

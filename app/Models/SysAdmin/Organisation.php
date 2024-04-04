@@ -35,11 +35,10 @@ use App\Models\Inventory\WarehouseArea;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
 use App\Models\Media\Media;
-use App\Models\Procurement\AgentOrganisation;
+use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\PurchaseOrder;
-use App\Models\Procurement\OrganisationSupplier;
+use App\Models\Procurement\OrgSupplier;
 use App\Models\SupplyChain\Agent;
-use App\Models\SupplyChain\Supplier;
 use App\Models\Traits\HasLogo;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
@@ -47,7 +46,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -85,7 +83,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationAccountingStats|null $accountingStats
  * @property-read Address|null $address
  * @property-read Agent|null $agent
- * @property-read Collection<int, Agent> $agents
  * @property-read Collection<int, \App\Models\SysAdmin\OrganisationAuthorisedModels> $authorisedModels
  * @property-read Collection<int, ClockingMachine> $clockingMachines
  * @property-read Country $country
@@ -107,7 +104,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationMailStats|null $mailStats
  * @property-read \App\Models\SysAdmin\OrganisationMarketStats|null $marketStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
+ * @property-read Collection<int, OrgAgent> $orgAgents
  * @property-read Collection<int, OrgStock> $orgStocks
+ * @property-read Collection<int, OrgSupplier> $orgSuppliers
  * @property-read Collection<int, PaymentAccount> $paymentAccounts
  * @property-read Collection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read Collection<int, Payment> $payments
@@ -121,7 +120,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Shipper> $shippers
  * @property-read Collection<int, Shop> $shops
  * @property-read \App\Models\SysAdmin\OrganisationStats|null $stats
- * @property-read Collection<int, Supplier> $suppliers
  * @property-read Timezone $timezone
  * @property-read Collection<int, WarehouseArea> $warehouseAreas
  * @property-read Collection<int, Warehouse> $warehouses
@@ -379,21 +377,17 @@ class Organisation extends Model implements HasMedia
         return $this->hasMany(Webpage::class);
     }
 
-    public function agents(): BelongsToMany
+    public function orgAgents(): HasMany
     {
-        return $this->belongsToMany(Agent::class)
-            ->using(AgentOrganisation::class)
-            ->withPivot(['source_id', 'status'])
-            ->withTimestamps();
+        return $this->hasMany(OrgAgent::class);
     }
 
-    public function suppliers(): BelongsToMany
+    public function orgSuppliers(): HasMany
     {
-        return $this->belongsToMany(Supplier::class)
-            ->using(OrganisationSupplier::class)
-            ->withPivot(['source_id'])
-            ->withTimestamps();
+        return $this->hasMany(OrgSupplier::class);
     }
+
+
 
     public function agent(): HasOne
     {

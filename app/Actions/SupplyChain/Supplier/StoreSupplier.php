@@ -1,18 +1,18 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 29 Nov 2023 23:07:51 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Wed, 03 Apr 2024 20:48:26 Central Indonesia Time, Bali Office , Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\Supplier;
+namespace App\Actions\SupplyChain\Supplier;
 
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\GrpAction;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
+use App\Actions\Procurement\OrgSupplier\StoreOrgSupplierFromSupplierInAgent;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateUniversalSearch;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSuppliers;
-use App\Actions\SupplyChain\Supplier\AttachAgentSupplierToOrganisations;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplyChain;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
@@ -53,7 +53,7 @@ class StoreSupplier extends GrpAction
             $group = $parent;
         }
 
-        /** @var \App\Models\SupplyChain\Supplier $supplier */
+        /** @var Supplier $supplier */
         $supplier = $parent->suppliers()->create($modelData);
         $supplier->stats()->create();
         SetCurrencyHistoricFields::run($supplier->currency, $supplier->created_at);
@@ -68,7 +68,7 @@ class StoreSupplier extends GrpAction
 
         if ($supplier->agent_id) {
             AgentHydrateSuppliers::dispatch($supplier->agent);
-            AttachAgentSupplierToOrganisations::run($supplier);
+            StoreOrgSupplierFromSupplierInAgent::run($supplier);
         }
 
         SupplierHydrateUniversalSearch::dispatch($supplier);

@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\SupplierProduct\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\AgentOrganisation\UI\ShowAgent;
+use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\InertiaTable\InertiaTable;
@@ -172,7 +172,7 @@ class IndexSupplierProducts extends InertiaAction
 
             'grp.procurement.agents.show.supplier-products.index' =>
             array_merge(
-                (new ShowAgent())->getBreadcrumbs($routeParameters['supplierProduct']),
+                (new ShowOrgAgent())->getBreadcrumbs($routeParameters['supplierProduct']),
                 $headCrumb(
                     [
                         'name'      => 'grp.procurement.agents.show.supplier-products.index',

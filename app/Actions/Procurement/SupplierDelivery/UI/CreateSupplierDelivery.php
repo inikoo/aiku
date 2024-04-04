@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\SupplierDelivery\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\AgentOrganisation\UI\HasUIAgents;
+use App\Actions\Procurement\OrgAgent\UI\HasUIAgents;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

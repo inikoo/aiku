@@ -11,7 +11,7 @@ use App\Actions\GrpAction;
 use App\Actions\Procurement\HistoricSupplierProduct\StoreHistoricSupplierProduct;
 use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Actions\Procurement\SupplierProduct\Hydrators\SupplierProductHydrateUniversalSearch;
-use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSuppliers;
+use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSupplierProducts;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplyChain;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
@@ -58,7 +58,7 @@ class StoreSupplierProduct extends GrpAction
         }
 
         SupplierHydrateSupplierProducts::dispatch($supplier)->delay($this->hydratorsDelay);
-        AgentHydrateSuppliers::dispatchIf($supplierProduct->agent_id, $supplierProduct->agent)->delay($this->hydratorsDelay);
+        AgentHydrateSupplierProducts::dispatchIf($supplierProduct->agent_id, $supplierProduct->agent)->delay($this->hydratorsDelay);
         SupplierProductHydrateUniversalSearch::dispatch($supplierProduct);
 
 

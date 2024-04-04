@@ -5,93 +5,103 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Procurement\Marketplace\Supplier\UI;
+namespace App\Actions\SupplyChain\Supplier\UI;
 
 use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\Assets\Country\UI\GetCountriesOptions;
 use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
-use App\Http\Resources\Helpers\AddressFormFieldsResource;
-use App\Models\Helpers\Address;
+use App\Actions\Procurement\Supplier\UI\ShowSupplier;
+use App\Http\Resources\Helpers\AddressResource;
 use App\Models\SupplyChain\Agent;
-use App\Models\SysAdmin\Organisation;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
+use App\Models\SupplyChain\Supplier;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateMarketplaceSupplier extends InertiaAction
+class EditSupplier extends InertiaAction
 {
-    public function handle(Organisation|Agent $owner, ActionRequest $request): Response
+    public function handle(Supplier $supplier): Supplier
     {
-        $container = null;
-        if (class_basename($owner) == 'Agent') {
-            $container = [
-                'icon'    => ['fal', 'fa-people-arrows'],
-                'tooltip' => __('Shop'),
-                'label'   => Str::possessive($owner->name)
-            ];
-        }
+        return $supplier;
+    }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
+
+        return $request->user()->hasPermissionTo("procurement.view");
+    }
+
+    public function asController(Supplier $supplier, ActionRequest $request): Supplier
+    {
+        $this->initialisation($request);
+        return $this->handle($supplier);
+    }
+
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inAgent(Agent $agent, Supplier $supplier, ActionRequest $request): Supplier
+    {
+        $this->initialisation($request);
+        return $this->handle($supplier);
+    }
+
+    public function htmlResponse(Supplier $supplier, ActionRequest $request): Response
+    {
         return Inertia::render(
-            'CreateModel',
+            'EditModel',
             [
+                'title'       => __('edit supplier'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('new supplier'),
+                'navigation'                              => [
+                    'previous' => $this->getPrevious($supplier, $request),
+                    'next'     => $this->getNext($supplier, $request),
+                ],
                 'pageHead'    => [
-                    'title'        => __('new supplier'),
-                    'container'    => $container,
-                    'actions'      => [
+                    'title'     => $supplier->code,
+                    'actions'   => [
                         [
                             'type'  => 'button',
-                            'style' => 'cancel',
-                            'label' => __('cancel'),
-                            'route' => match ($request->route()->getName()) {
-                                'grp.org.procurement.marketplace.agents.show.suppliers.create' =>
-                                [
-                                    'name'       => 'grp.org.procurement.marketplace.agents.show',
-                                    'parameters' => array_values($request->route()->originalParameters())
-                                ],
-                                default => [
-                                    'name'       => 'grp.org.procurement.marketplace.suppliers.index',
-                                    'parameters' => array_values($request->route()->originalParameters())
-                                ],
-                            }
+                            'style' => 'exitEdit',
+                            'route' => [
+                                'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
                         ]
                     ]
                 ],
+
                 'formData'    => [
                     'blueprint' => [
                         [
-                            'title'  => __('ID/contact details'),
+                            'title'  => __('ID/contact details '),
                             'icon'   => 'fal fa-address-book',
                             'fields' => [
 
                                 'code'         => [
                                     'type'     => 'input',
-                                    'label'    => __('code'),
-                                    'value'    => '',
+                                    'label'    => __('code '),
+                                    'value'    => $supplier->code,
                                     'required' => true,
                                 ],
                                 'company_name' => [
                                     'type'  => 'input',
                                     'label' => __('company'),
-                                    'value' => ''
+                                    'value' => $supplier->company_name
                                 ],
                                 'contact_name' => [
                                     'type'  => 'input',
                                     'label' => __('contact name'),
-                                    'value' => ''
+                                    'value' => $supplier->contact_name
                                 ],
                                 'email'        => [
                                     'type'    => 'input',
                                     'label'   => __('email'),
-                                    'value'   => '',
+                                    'value'   => $supplier->email,
                                     'options' => [
                                         'inputType' => 'email'
                                     ]
@@ -99,22 +109,12 @@ class CreateMarketplaceSupplier extends InertiaAction
                                 'phone'        => [
                                     'type'    => 'phone',
                                     'label'   => __('phone'),
-                                    'value'   => '',
-                                    'options' => [
-                                        'defaultCountry' => class_basename($owner) == 'Agent' ? $owner->getAddress()->country->code : null
-                                    ]
+                                    'value'   => $supplier->phone,
                                 ],
                                 'address'      => [
                                     'type'    => 'address',
                                     'label'   => __('Address'),
-                                    'value'   => AddressFormFieldsResource::make(
-                                        new Address(
-                                            [
-                                                'country_id' => class_basename($owner) == 'Agent' ? $owner->getAddress()->country_id : app('currentTenant')->country_id,
-
-                                            ]
-                                        )
-                                    )->getArray(),
+                                    'value'   => AddressResource::make($supplier->getAddress())->getArray(),
                                     'options' => [
                                         'countriesAddressData' => GetAddressData::run()
 
@@ -233,7 +233,7 @@ class CreateMarketplaceSupplier extends InertiaAction
                         */
 
                         [
-                            'title'  => __('settings'),
+                            'title'  => __('settings '),
                             'icon'   => 'fa-light fa-cog',
                             'fields' => [
                                 'currency_id' => [
@@ -241,9 +241,9 @@ class CreateMarketplaceSupplier extends InertiaAction
                                     'label'       => __('currency'),
                                     'placeholder' => __('Select a currency'),
                                     'options'     => GetCurrenciesOptions::run(),
-                                    'value'       => class_basename($owner) == 'Agent' ? $owner->currency_id : null,
-                                    'required'    => true,
+                                    'value'       => $supplier->currency_id,
                                     'searchable'  => true,
+                                    'required'    => true,
                                     'mode'        => 'single'
                                 ],
 
@@ -251,9 +251,8 @@ class CreateMarketplaceSupplier extends InertiaAction
                                     'type'        => 'select',
                                     'label'       => __("Product's country of origin"),
                                     'placeholder' => __('Select a country'),
-                                    'value'       => class_basename($owner) == 'Agent' ? Arr::get($owner->data, 'default_product_country_origin') : null,
+                                    'value'       => $supplier->code,
                                     'options'     => GetCountriesOptions::run(),
-                                    'searchable'  => true,
                                     'mode'        => 'single'
                                 ],
                             ]
@@ -261,72 +260,79 @@ class CreateMarketplaceSupplier extends InertiaAction
 
 
                     ],
-                    'route'     =>
-                        match (class_basename($owner)) {
-                            'OrgAgent' => [
-                                'name'       => 'grp.models.agent.supplier.store',
-                                'arguments'  => $owner->slug
-                            ],
-                            default => [
-                                'name' => 'grp.models.supplier.store',
-                            ]
-                        }
+                    'args' => [
+                        'updateRoute' => [
+                            'name'      => 'grp.models.supplier.update',
+                            'parameters'=> $supplier->slug
 
-
+                        ],
+                    ]
                 ],
-
             ]
         );
-    }
-
-    public function authorize(ActionRequest $request): bool
-    {
-        return $request->user()->hasPermissionTo('procurement.edit');
-    }
-
-
-    public function asController(ActionRequest $request): Response
-    {
-        $this->initialisation($request);
-
-        return $this->handle(owner: app('currentTenant'), request: $request);
-    }
-
-    public function inAgent(Agent $agent, ActionRequest $request): Response
-    {
-        $this->initialisation($request);
-
-        return $this->handle(owner: $agent, request: $request);
     }
 
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return array_merge(
-            match ($routeName) {
-                'grp.org.procurement.marketplace.agents.show.suppliers.create' =>
-                \App\Actions\SupplyChain\Agent\UI\ShowAgent::make()->getBreadcrumbs(
-                    routeParameters: $routeParameters,
-                ),
-                default => IndexSuppliers::make()->getBreadcrumbs(
-                    routeName: preg_replace('/create$/', 'index', $routeName),
-                    routeParameters: $routeParameters,
-                ),
-            },
-            [
-                [
-                    'type'          => 'creatingModel',
-                    'creatingModel' => [
+        return ShowSupplier::make()->getBreadcrumbs(
+            routeName: preg_replace('/edit$/', 'show', $routeName),
+            routeParameters: $routeParameters,
+            suffix: '('.__('editing').')'
+        );
+    }
 
+    public function getPrevious(Supplier $supplier, ActionRequest $request): ?array
+    {
+        $previous = Supplier::where('code', '<', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
+            if ($request->route()->getName() == 'grp.org.procurement.marketplace.agents.show.suppliers.show') {
+                $query->where('suppliers.agent_id', $supplier->agent_id);
+            }
+        })->orderBy('code', 'desc')->first();
 
-                        'label' => match ($routeName) {
-                            'grp.org.procurement.marketplace.agents.show.suppliers.create' => __("creating agent's supplier"),
-                            default                                                        => __("creating supplier")
-                        }
+        return $this->getNavigation($previous, $request->route()->getName());
 
+    }
+
+    public function getNext(Supplier $supplier, ActionRequest $request): ?array
+    {
+        $next = Supplier::where('code', '>', $supplier->code)->when(true, function ($query) use ($supplier, $request) {
+            if ($request->route()->getName() == 'grp.procurement.agents.show.suppliers.show') {
+                $query->where('suppliers.agent_id', $supplier->agent_id);
+            }
+        })->orderBy('code')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Supplier $supplier, string $routeName): ?array
+    {
+        if(!$supplier) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'grp.procurement.suppliers.edit'=> [
+                'label'=> $supplier->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'supplier'  => $supplier->slug
                     ]
+
+                ]
+            ],
+            'grp.procurement.agents.show.suppliers.edit' => [
+                'label'=> $supplier->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'agent'     => $supplier->agent->slug,
+                        'supplier'  => $supplier->slug
+                    ]
+
                 ]
             ]
-        );
+        };
     }
 }

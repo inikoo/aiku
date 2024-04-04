@@ -8,7 +8,8 @@
 namespace App\Models\SupplyChain;
 
 use App\Models\Assets\Currency;
-use App\Models\Procurement\AgentOrganisation;
+use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\SupplierDelivery;
 use App\Models\Search\UniversalSearch;
@@ -24,7 +25,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -54,8 +54,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Currency|null $currency
  * @property-read Group $group
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read Collection<int, OrgAgent> $orgAgents
+ * @property-read Collection<int, OrgSupplier> $orgSuppliers
  * @property-read Organisation $organisation
- * @property-read Collection<int, Organisation> $organisations
  * @property-read Collection<int, \App\Models\SupplyChain\SupplierProduct> $products
  * @property-read Collection<int, PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\SupplyChain\AgentStats|null $stats
@@ -144,12 +145,16 @@ class Agent extends Model implements HasMedia, Auditable
         return $this->morphMany(SupplierDelivery::class, 'provider');
     }
 
-    public function organisations(): BelongsToMany
+    public function orgAgents(): HasMany
     {
-        return $this->belongsToMany(Organisation::class)
-            ->using(AgentOrganisation::class)
-            ->withPivot(['source_id'])
-            ->withTimestamps();
+        return $this->hasMany(OrgAgent::class);
+
+    }
+
+    public function orgSuppliers(): HasMany
+    {
+        return $this->hasMany(OrgSupplier::class);
+
     }
 
 }

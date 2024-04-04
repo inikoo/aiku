@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Procurement\OrgAgent\StoreOrgAgent;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Agent\UpdateAgent;
-use App\Actions\SysAdmin\Organisation\AttachAgentToOrganisation;
 use App\Models\SupplyChain\Agent;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
@@ -41,7 +41,7 @@ class FetchAgents extends FetchAction
 
 
             if ($agent) {
-                AttachAgentToOrganisation::run(
+                StoreOrgAgent::make()->action(
                     $organisation,
                     $agent,
                     [
@@ -61,7 +61,7 @@ class FetchAgents extends FetchAction
                     ->where('Agent Key', $sourceData[1])
                     ->update(['aiku_id' => $agent->id]);
             } elseif ($baseAgent) {
-                AttachAgentToOrganisation::run(
+                StoreOrgAgent::make()->action(
                     $organisation,
                     $baseAgent,
                     [

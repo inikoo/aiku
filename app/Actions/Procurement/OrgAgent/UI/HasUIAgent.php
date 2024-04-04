@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Procurement\AgentOrganisation\UI;
+namespace App\Actions\Procurement\OrgAgent\UI;
 
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Models\SupplyChain\Agent;

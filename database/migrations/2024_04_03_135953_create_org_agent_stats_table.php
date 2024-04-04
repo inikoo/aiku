@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 21 Apr 2023 13:17:44 Malaysia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Wed, 03 Apr 2024 22:02:57 Central Indonesia Time, Sanur , Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 use App\Stubs\Migrations\HasProcurementStats;
@@ -14,10 +14,10 @@ return new class () extends Migration {
     use HasProcurementStats;
     public function up(): void
     {
-        Schema::create('agent_stats', function (Blueprint $table) {
+        Schema::create('org_agent_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('agent_id')->index();
-            $table->foreign('agent_id')->references('id')->on('agents');
+            $table->unsignedSmallInteger('org_agent_id')->index();
+            $table->foreign('org_agent_id')->references('id')->on('org_agents');
             $table = $this->suppliersStats($table);
             $table = $this->supplierProductsStats($table);
             $table = $this->purchaseOrdersStats($table);
@@ -26,8 +26,9 @@ return new class () extends Migration {
         });
     }
 
+
     public function down(): void
     {
-        Schema::dropIfExists('agent_stats');
+        Schema::dropIfExists('org_agent_stats');
     }
 };

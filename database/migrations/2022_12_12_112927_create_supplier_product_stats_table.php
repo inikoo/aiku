@@ -10,12 +10,10 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('supplier_product_stats', function (Blueprint $table) {
             $table->increments('id');
-
-
             $table->unsignedInteger('supplier_product_id')->index();
             $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
             $table->timestampsTz();
@@ -23,7 +21,7 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('supplier_product_stats');
     }
