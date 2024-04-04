@@ -130,6 +130,7 @@ const onSaved = async (pallet: { form : {}}, fieldName: string) => {
             <div class="flex gap-x-1 gap-y-2 items-center">
                 {{ pallet.location }}
                 <LocationFieldDelivery
+                    :key="pallet.state"
                     :pallet="pallet"
                     @renderTableKey="() => emits('renderTableKey')"
                     :locationRoute="locationRoute"
@@ -158,8 +159,7 @@ const onSaved = async (pallet: { form : {}}, fieldName: string) => {
 				<ButtonEditTable
 					class="mx-2"
 					type="secondary"
-                    label="Set as received"
-					tooltip="Set as received"
+                    label="Undo"
                     :capitalize="false"
 					:size="'xs'"
 					:key="pallet.index"

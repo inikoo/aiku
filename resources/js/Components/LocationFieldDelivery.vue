@@ -49,7 +49,7 @@ const onSaveError = (errorValue: any) => {
 
 <template>
     <div class="relative">
-    <!-- <pre>{{ isPalletDamaged }}</pre> -->
+    <!-- <pre>{{ pallet.state }}</pre> -->
         <Popover width="w-full">
             <template #button>
                 <!-- <Button :type="pallet.state == 'booked-in' ? 'primary' : 'tertiary'" :icon="['fal', 'inventory']"
@@ -58,7 +58,7 @@ const onSaveError = (errorValue: any) => {
                     <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='' fixed-width aria-hidden='true' />
                 </div>
 
-                <Button v-else
+                <Button v-else-if="pallet.state !== 'not-received'"
                     type="primary"
                     label="Set location"
                     tooltip="Set location for pallet"

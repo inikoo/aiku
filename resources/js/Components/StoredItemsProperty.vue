@@ -21,7 +21,7 @@ library.add(faPlus)
 const props = defineProps<{
     pallet: {}
     storedItemsRoute: {}
-    state: string
+    state?: string
 }>()
 
 
