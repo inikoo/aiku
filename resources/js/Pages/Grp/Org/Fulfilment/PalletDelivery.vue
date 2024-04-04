@@ -325,7 +325,7 @@ onMounted(() => {
             
             <!-- Field: Contact name -->
             <div v-if="box_stats.fulfilment_customer.customer.contact_name"
-                class="flex items-center w-full flex-none gap-x-2 cursor-pointer">
+                class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Contact name'" class="flex-none">
                     <span class="sr-only">Contact name</span>
                     <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
@@ -335,7 +335,7 @@ onMounted(() => {
 
 
             <!-- Field: Company name -->
-            <div v-if="box_stats.fulfilment_customer.customer.company_name" class="flex items-center w-full flex-none gap-x-2 cursor-pointer">
+            <div v-if="box_stats.fulfilment_customer.customer.company_name" class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Company name'" class="flex-none">
                     <span class="sr-only">Company name</span>
                     <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />

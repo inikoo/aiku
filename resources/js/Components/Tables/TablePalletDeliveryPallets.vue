@@ -98,9 +98,9 @@ const onSaved = async (pallet: { form : {}}, fieldName: string) => {
 			<div v-if="state == 'in-process'" class="w-full">
 				<FieldEditableTable :data="item" @onSave="onSaved" fieldName="customer_reference" placeholder="Enter customer reference" />
 			</div>
-			<div v-else>
-                {{ item.customer_reference }}
-                <span v-if="item.notes" class="text-gray-400 text-xs ml-1">
+			<div v-else class="space-x-1 space-y-2">
+                <span v-if="item.customer_reference">{{ item.customer_reference }}</span>
+                <span v-if="item.notes" class="text-gray-400 text-xs">
                     <FontAwesomeIcon icon='fal fa-sticky-note' class='text-gray-400' fixed-width aria-hidden='true' />
                     {{ item.notes }}
                 </span>
@@ -123,6 +123,18 @@ const onSaved = async (pallet: { form : {}}, fieldName: string) => {
                 :storedItemsRoute="storedItemsRoute"
                 :state="props.state"
             />
+		</template>
+
+        <!-- Column: Stored Items -->
+		<template #cell(location)="{ item: pallet }">
+            <div class="flex gap-x-1 gap-y-2 items-center">
+                {{ pallet.location }}
+                <LocationFieldDelivery
+                    :pallet="pallet"
+                    @renderTableKey="() => emits('renderTableKey')"
+                    :locationRoute="locationRoute"
+                />
+            </div>
 		</template>
 
         <!-- Column: Actions -->
@@ -179,10 +191,7 @@ const onSaved = async (pallet: { form : {}}, fieldName: string) => {
                     :data="pallet"
                     @onSuccess="() => emits('renderTableKey')"
                     /> -->
-                <LocationFieldDelivery
-                    :pallet="pallet"
-                    @renderTableKey="() => emits('renderTableKey')"
-                    :locationRoute="locationRoute" />
+                
 			</div>
 		</template>
 	</Table>
