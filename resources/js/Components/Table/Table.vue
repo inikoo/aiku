@@ -15,7 +15,7 @@ import EmptyState from '@/Components/Utils/EmptyState.vue'
 import {Link, useForm} from "@inertiajs/vue3"
 import {trans} from 'laravel-vue-i18n'
 
-import {computed, getCurrentInstance, onMounted, onUnmounted, ref, toRefs, Transition, watch, onBeforeMount } from 'vue';
+import {computed, getCurrentInstance, onMounted, onUnmounted, ref, toRefs, Transition, watch, onBeforeMount, reactive } from 'vue';
 import qs from 'qs';
 import clone from 'lodash-es/clone';
 import filter from 'lodash-es/filter';
@@ -27,6 +27,11 @@ import map from 'lodash-es/map';
 import {useLocaleStore} from '@/Stores/locale';
 import CountUp from 'vue-countup-v3';
 // import { cloneDeep } from 'lodash';
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faCheckSquare, faCheck } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faCheckSquare, faCheck)
 
 const locale = useLocaleStore();
 
@@ -124,12 +129,20 @@ const props = defineProps(
         exportLinks: {
             type: Object
         },
+        isCheckBox: {
+            type: Boolean
+        },
         useForm : {
             type: Boolean,
             default: false,
             required: false,
         }
     });
+
+const emits = defineEmits<{
+    (e: 'onSelectRow', value: {[key: string]: boolean}): void
+}>()
+
 const app = getCurrentInstance();
 const $inertia = app ? app.appContext.config.globalProperties.$inertia : props.inertia;
 const updates = ref(0);
@@ -579,6 +592,27 @@ watch(() => props.name, () => {
     queryBuilderData.value.sort = null
     resetQuery()
 })
+
+const selectRow: {[key: string]: boolean} = reactive({})
+
+// To preserve the object selectRow
+if (props.isCheckBox) {
+    for(const row in props.resource.data){
+        selectRow[props.resource.data[row].id] = false
+    }
+}
+
+// On select select all
+const onClickSelectAll = (state: boolean) => {
+    for(const row in props.resource.data){
+        selectRow[props.resource.data[row].id] = !state
+    }
+}
+
+watch(selectRow, () => {
+    emits('onSelectRow', selectRow)
+}, {deep: true})
+
 </script>
 
 <template>
@@ -727,6 +761,11 @@ watch(() => props.name, () => {
                         <table class="divide-y divide-gray-200 bg-white w-full">
                             <thead class="bg-gray-50">
                                 <tr class="border-t border-gray-200 divide-x divide-gray-200">
+                                    <div v-if="isCheckBox" @click="() => onClickSelectAll(Object.values(selectRow).every((value) => value === true))" class="py-1.5 cursor-pointer">
+                                        <FontAwesomeIcon v-if="Object.values(selectRow).every((value) => value === true)" icon='fal fa-check-square' class='mx-auto block h-5 my-auto' fixed-width aria-hidden='true' />
+                                        <FontAwesomeIcon v-else icon='fal fa-square' class='mx-auto block h-5 my-auto' fixed-width aria-hidden='true' />
+                                    </div>
+
                                     <HeaderCell v-for="column in queryBuilderProps.columns"
                                         :key="`table-${name}-header-${column.key}`" :cell="header(column.key)"
                                         :type="columnsType[column.key]" :column="column"
@@ -745,6 +784,13 @@ watch(() => props.name, () => {
                                                 striped ? 'hover:bg-gray-100' : 'hover:bg-gray-50'
                                             ]"
                                     >
+                                        <!-- Column: Check box -->
+                                        <td v-if="isCheckBox" key="checkbox" class="h-full" >
+                                            <div v-if="selectRow[item.id]" class="absolute inset-0 bg-lime-500/10 -z-10"/>
+                                            <FontAwesomeIcon v-if="selectRow[item.id] === true" @click="selectRow[item.id] = !selectRow[item.id]" icon='fal fa-check-square' class='p-2 cursor-pointer' fixed-width aria-hidden='true' />
+                                            <FontAwesomeIcon v-else @click="selectRow[item.id] = !selectRow[item.id]" icon='fal fa-square' class='p-2 cursor-pointer' fixed-width aria-hidden='true' />
+                                        </td>
+
                                         <td v-for="(column,index) in queryBuilderProps.columns" v-show="show(column.key)"
                                             :key="`table-${name}-row-${key}-column-${column.key}`"
                                             class="text-sm py-2 text-gray-700 whitespace-normal h-full"
