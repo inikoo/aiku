@@ -86,7 +86,8 @@ const onSubmitNote = async () => {
 
         <!-- Section: Note -->
         <!-- <h3 class="font-medium ">Customer's note</h3> -->
-        <div @click="noteData.editable ? isModalOpen = true : false"
+        <div @dblclick="noteData.editable ? isModalOpen = true : false"
+            v-tooltip="trans('Double click to edit')"
             class="rounded-md mx-auto flex items-center px-4 mt-4 text-white"
             :class="noteData.editable ? 'cursor-pointer' : ''">
             <p class="text-sm hover:text-gray-300">{{ noteData.note || '' }}</p>
