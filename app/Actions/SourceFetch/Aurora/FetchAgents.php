@@ -22,6 +22,8 @@ class FetchAgents extends FetchAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Agent
     {
+        setPermissionsTeamId($organisationSource->getOrganisation()->group_id);
+
         if ($agentData = $organisationSource->fetchAgent($organisationSourceId)) {
             $organisation = $organisationSource->getOrganisation();
 

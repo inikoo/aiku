@@ -30,25 +30,34 @@ class UserOrganisationResource extends JsonResource
         $user = self::$user;
 
         return [
-            'id'                    => $organisation->id,
-            'slug'                  => $organisation->slug,
-            'code'                  => $organisation->code,
-            'label'                 => $organisation->name,
-            'logo'                  => $organisation->logoImageSources(48, 48),
-            'route'                 => [
+            'id'    => $organisation->id,
+            'slug'  => $organisation->slug,
+            'code'  => $organisation->code,
+            'label' => $organisation->name,
+            'type'  => $organisation->type,
+            'logo'  => $organisation->logoImageSources(48, 48),
+            'route' => [
                 'name'       => 'grp.org.dashboard.show',
                 'parameters' => [
                     $organisation->slug
                 ]
             ],
-            'authorised_shops'            => ShopsNavigationResource::collection($user->authorisedShops()->where('organisation_id', $organisation->id)->get()),
-            'authorised_fulfilments'      => FulfilmentsNavigationResource::collection($user->authorisedFulfilments()->where('organisation_id', $organisation->id)->get()),
-            'authorised_warehouses'       => WarehousesNavigationResource::collection($user->authorisedWarehouses()->where('organisation_id', $organisation->id)->get()),
+            'authorised_shops' => ShopsNavigationResource::collection(
+                $user->authorisedShops()->where('organisation_id', $organisation->id)->get()
+            ),
+            'authorised_fulfilments' => FulfilmentsNavigationResource::collection(
+                $user->authorisedFulfilments()->where('organisation_id', $organisation->id)->get()
+            ),
+            'authorised_warehouses' => WarehousesNavigationResource::collection(
+                $user->authorisedWarehouses()->where('organisation_id', $organisation->id)->get()
+            ),
         ];
     }
 
-    public static function collectionForUser($resource, User $user): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
-    {
+    public static function collectionForUser(
+        $resource,
+        User $user
+    ): \Illuminate\Http\Resources\Json\AnonymousResourceCollection {
         //you can add as many params as you want.
         self::$user = $user;
 
