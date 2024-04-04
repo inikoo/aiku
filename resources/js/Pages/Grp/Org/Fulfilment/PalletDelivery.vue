@@ -17,6 +17,7 @@ import Timeline from '@/Components/Utils/Timeline.vue'
 import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import PureInput from '@/Components/Pure/PureInput.vue'
+import BoxNote from "@/Components/Pallet/BoxNote.vue"
 import { get } from 'lodash'
 import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 import { trans } from "laravel-vue-i18n"
@@ -25,7 +26,7 @@ import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
 import JsBarcode from 'jsbarcode'
 
-import { PalletDelivery, BoxStats } from '@/types/Pallet'
+import { PalletDelivery, BoxStats, PDRNotes } from '@/types/Pallet'
 import { Table } from '@/types/Table'
 import { Tabs as TSTabs } from '@/types/Tabs'
 
@@ -46,9 +47,7 @@ const props = defineProps<{
     }
     history?: {}
     pageHead: PageHeadingTypes
-    updateRoute: {
-        route: routeType
-    }
+    updateRoute: routeType
     uploadRoutes: {
         download: routeType
         history: routeType
@@ -59,6 +58,7 @@ const props = defineProps<{
         store: routeType
     }
     box_stats: BoxStats
+    notes_data: PDRNotes[]
 }>()
 
 const currentTab = ref(props.tabs.current)
@@ -297,6 +297,11 @@ onMounted(() => {
             </div>
         </template>
     </PageHeading>
+
+    <!-- Section: Note -->
+    <div class="h-fit lg:max-h-64 w-full flex lg:justify-center border-b border-gray-300">
+        <BoxNote v-for="(note, index) in notes_data" :key="index+note.label" :noteData="note" :updateRoute="updateRoute" />
+    </div>
 
     <!-- Section: Timeline -->
     <div v-if="timeline.state != 'in-process'" class="border-b border-gray-200 pb-2">

@@ -247,11 +247,9 @@ class ShowPalletReturn extends OrgAction
                 ],
 
                 'updateRoute' => [
-                    'route' => [
-                        'name'       => 'grp.models.pallet-return.update',
-                        'parameters' => [
-                            'palletReturn'       => $palletReturn->id
-                        ]
+                    'name'       => 'grp.models.pallet-return.update',
+                    'parameters' => [
+                        'palletReturn'       => $palletReturn->id
                     ]
                 ],
 
@@ -309,6 +307,29 @@ class ShowPalletReturn extends OrgAction
                 'box_stats'        => [
                     'fulfilment_customer'          => FulfilmentCustomerResource::make($palletReturn->fulfilmentCustomer)->getArray(),
                     'delivery_status'              => PalletReturnStateEnum::stateIcon()[$palletReturn->state->value],
+                ],
+                'notes_data'             => [
+                    [
+                        'label'         => __('Customer'),
+                        'note'          => $palletReturn->customer_notes ?? '',
+                        'editable'      => false,
+                        'color'         => 'blue',
+                        'field'         => 'customer_notes'
+                    ],
+                    [
+                        'label'         => __('Public'),
+                        'note'          => $palletReturn->public_notes ?? '',
+                        'editable'      => true,
+                        'color'         => 'pink',
+                        'field'         => 'public_notes'
+                    ],
+                    [
+                        'label'         => __('Private'),
+                        'note'          => $palletReturn->internal_notes ?? '',
+                        'editable'      => true,
+                        'color'         => 'purple',
+                        'field'         => 'internal_notes'
+                    ],
                 ],
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?

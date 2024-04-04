@@ -77,3 +77,14 @@ export interface PalletStatus {
     icon: string
     class: string
 }
+
+// Pallet Delivery and Return notes
+export interface PDRNotes {
+    label: string
+    note: string
+    editable?: boolean
+    bgColor?: string
+    color?: string
+    lockMessage?: string
+    field: string  // customer_notes, public_notes, internal_notes
+}
