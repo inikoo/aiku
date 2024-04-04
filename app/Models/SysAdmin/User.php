@@ -176,12 +176,12 @@ class User extends Authenticatable implements HasMedia, Auditable
 
     public function authorisedShopOrganisations(): MorphToMany
     {
-        return $this->morphedByMany(Organisation::class, 'model', 'user_has_authorised_models')->where('organisations.type',OrganisationTypeEnum::SHOP)->withTimestamps();
+        return $this->morphedByMany(Organisation::class, 'model', 'user_has_authorised_models')->where('organisations.type', OrganisationTypeEnum::SHOP)->withTimestamps();
     }
 
     public function authorisedAgentsOrganisations(): MorphToMany
     {
-        return $this->morphedByMany(Organisation::class, 'model', 'user_has_authorised_models')->where('organisations.type',OrganisationTypeEnum::AGENT)->withTimestamps();
+        return $this->morphedByMany(Organisation::class, 'model', 'user_has_authorised_models')->where('organisations.type', OrganisationTypeEnum::AGENT)->withTimestamps();
     }
 
     public function authorisedShops(): MorphToMany
