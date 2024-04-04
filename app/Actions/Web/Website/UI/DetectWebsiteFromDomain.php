@@ -21,11 +21,12 @@ class DetectWebsiteFromDomain
     public function handle($domain): Website
     {
         if(app()->environment('local')) {
-            $domain = config('app.local.retina_domain');
+            $domain = 'fulfilment.test';
         }
         if(app()->environment('staging')) {
             $domain = str_replace('canary.', '', $domain);
         }
+        // dd($domain);
 
         /** @var Website $website */
         $website= Website::where('domain', $domain)->first();

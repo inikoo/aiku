@@ -23,6 +23,7 @@ import Footer from '@/Layouts/Iris/Footer.vue'
 
             <!-- Section: Navigation Tab -->
             <NavigationMenu />
+            
             <!-- Main Content -->
             <main
                 class="text-gray-700">
