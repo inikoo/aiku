@@ -36,15 +36,16 @@ const dropdownCompanies = [
                 </a>
             </div>
 
-            <div class="flex lg:hidden">
+            <!-- <div class="flex lg:hidden">
                 <button type="button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
                     @click="isMobileMenuOpen = true">
                     <span class="sr-only">Open main menu</span>
                     <FontAwesomeIcon icon='fal fa-bars' class='' aria-hidden='true' />
                 </button>
-            </div>
+            </div> -->
 
-            <PopoverGroup class="hidden lg:flex lg:gap-x-12">
+            <!-- Page list -->
+            <!-- <PopoverGroup class="hidden lg:flex lg:gap-x-12">
                 <a href="#" class="text-sm font-semibold leading-6 text-gray-700">Features</a>
                 <a href="#" class="text-sm font-semibold leading-6 text-gray-700">Marketplace</a>
 
@@ -70,13 +71,13 @@ const dropdownCompanies = [
                         </PopoverPanel>
                     </transition>
                 </Popover>
-            </PopoverGroup>
+            </PopoverGroup> -->
 
-            <div class="hidden lg:flex lg:flex-1 lg:justify-end">
+            <!-- <div class="hidden lg:flex lg:flex-1 lg:justify-end">
                 <a :href="grpDomain" class="bg-indigo-600 px-3 py-2 rounded text-sm font-semibold leading-none text-white">
                     Log in
                 </a>
-            </div>
+            </div> -->
         </nav>
 
         <!-- Mobile: Right sidebar -->
@@ -101,6 +102,7 @@ const dropdownCompanies = [
                                 Home
                             </a>
                         </div>
+                        
                         <div class="py-6">
                             <a :href="grpDomain"
                                 class="bg-indigo-600 rounded px-3 py-1.5 font-semibold leading-none text-white hover:bg-indigo-700">

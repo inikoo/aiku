@@ -42,20 +42,23 @@ const onSubmitNote = async () => {
     isSubmitNoteLoading.value = false
     isModalOpen.value = false
 }
+
+const fallbackBgColor = '#f9fafb'  // Background
+const fallbackColor = '#374151'  // Color
 </script>
 
 <template>
     <div class="relative w-full py-2 pt-4"
         :style="{
-            backgroundColor: noteData.bgColor || '#2f2f2f'
+            backgroundColor: noteData.bgColor || fallbackBgColor
         }"
     >
         <!-- Section: Header -->
         <div class="absolute top-0 left-0 w-full flex gap-x-1 pr-4 lg:pr-0 justify-between lg:justify-normal">
             <div class="w-full flex justify-between text-xs truncate text-center py-0.5 pl-3 pr-4" :style="{
                 // borderBottom: `color-mix(in srgb, ${noteData.bgColor} 80%, black) solid 1px`,
-                backgroundColor: noteData.bgColor ? `color-mix(in srgb, ${noteData.bgColor} 90%, white)` : '#2f2f2f',
-                color: '#fff'
+                backgroundColor: noteData.bgColor ? `color-mix(in srgb, ${noteData.bgColor} 80%, white)` : fallbackBgColor,
+                color: fallbackColor + '77'
             }">
                 <div>
                     <FontAwesomeIcon icon='fas fa-sticky-note' class='' fixed-width aria-hidden='true' />
@@ -66,8 +69,12 @@ const onSubmitNote = async () => {
                 <template v-if="noteData.editable">
                     <!-- Icon: pencil (edit) -->
                     <div v-if="noteData.note" @click="isModalOpen = true" v-tooltip="trans('Edit note')" class="group px-0.5 cursor-pointer w-fit h-5">
-                        <FontAwesomeIcon icon='fas fa-pencil' size="xs" class='text-white group-hover:text-gray-100'
-                            fixed-width aria-hidden='true' />
+                        <FontAwesomeIcon icon='fas fa-pencil' size="xs" class='group-hover:text-gray-100'
+                            fixed-width aria-hidden='true'
+                            :style="{
+                                color: fallbackColor
+                            }"
+                        />
                     </div>
 
                     <!-- Icon: -->
@@ -90,7 +97,13 @@ const onSubmitNote = async () => {
             v-tooltip="trans('Double click to edit')"
             class="rounded-md mx-auto flex items-center px-4 mt-4 text-white"
             :class="noteData.editable ? 'cursor-pointer' : ''">
-            <p class="text-sm hover:text-gray-300">{{ noteData.note || '' }}</p>
+            <p class="text-sm hover:text-gray-300"
+                :style="{
+                    color: fallbackColor
+                }"
+            >
+                {{ noteData.note || '' }}
+            </p>
         </div>
     </div>
 
