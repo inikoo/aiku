@@ -1,5 +1,62 @@
 import { Timeline } from "@/types/Timeline"
 import { FulfilmentCustomer } from '@/types/Customer'
+import { routeType } from "@/types/route"
+
+export interface Pallet {
+    id: number
+    slug?: string
+    reference: string
+    customer_reference: string
+    fulfilment_customer_name?: string
+    fulfilment_customer_slug?: string
+    fulfilment_customer_id: number
+    notes: string
+    state: string
+    state_label: string
+    state_icon: {
+        tooltip: string
+        icon: string
+        class: string
+        color: string
+        app: {
+            name: string
+            type: string
+        }
+    }
+    status: string
+    status_label: string
+    status_icon: {
+        tooltip: string
+        icon: string
+        class: string
+        color: string
+        app: {
+            name: string
+            type: string
+        }
+    }
+    location: string
+    location_code: string
+    location_id: number
+    stored_items: any[]
+    stored_items_quantity: number
+    updateRoute: routeType
+    deleteRoute: routeType
+    deleteFromDeliveryRoute: routeType
+    deleteFromReturnRoute: routeType
+    notReceivedRoute: routeType
+    undoNotReceivedRoute: routeType
+    bookInRoute: routeType
+    undoBookInRoute: routeType
+    updateLocationRoute: routeType
+    storeStoredItemRoute: routeType
+    index: number
+    editingIndicator: {
+        loading: boolean
+        isSucces: boolean
+        isFailed: boolean
+    }
+}
 
 export interface PalletCustomer {
     slug: string

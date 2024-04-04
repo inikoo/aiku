@@ -5,10 +5,6 @@
   -->
 
 <script setup lang="ts">
-import { library } from "@fortawesome/fontawesome-svg-core"
-import { faTimesSquare } from "@fas"
-import { faTrashAlt, faPaperPlane, faInventory } from "@far"
-import { faSignOutAlt, faTruckLoading, faTimes } from "@fal"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ref, defineEmits } from "vue"
 import ButtonEditTable from "@/Components/ButtonEditTable.vue"
@@ -16,12 +12,17 @@ import Popover from '@/Components/Popover.vue'
 import SelectQuery from '@/Components/SelectQuery.vue'
 import { useForm } from "@inertiajs/vue3"
 import { routeType } from "@/types/route"
+import { Pallet } from "@/types/Pallet"
 
-library.add(
-    faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading, faTimesSquare, faTimes
-)
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faTimesSquare } from "@fas"
+import { faTrashAlt, faPaperPlane, faInventory } from "@far"
+import { faSignOutAlt, faTruckLoading, faPencil, faTimes } from "@fal"
+library.add( faTrashAlt, faSignOutAlt, faPaperPlane, faInventory, faTruckLoading, faPencil, faTimesSquare, faTimes )
+
 const props = defineProps<{
-    pallet: object,
+    pallet: Pallet
     locationRoute?: routeType
 }>()
 
@@ -30,6 +31,8 @@ const emits = defineEmits<{
 }>()
 const location = useForm({ ...props.pallet })
 const error = ref({})
+
+const isPalletDamaged = ref(props.pallet.state === 'damaged')
 
 const onSaveSuccess = (closed: Function) => {
     closed()
@@ -46,10 +49,21 @@ const onSaveError = (errorValue: any) => {
 
 <template>
     <div class="relative">
+    <!-- <pre>{{ isPalletDamaged }}</pre> -->
         <Popover width="w-full">
             <template #button>
-                <Button :type="pallet.state == 'booked-in' ? 'primary' : 'tertiary'" :icon="['fal', 'inventory']"
-                    tooltip="Set location for pallet" :key="pallet.index" :size="'xs'" />
+                <!-- <Button :type="pallet.state == 'booked-in' ? 'primary' : 'tertiary'" :icon="['fal', 'inventory']"
+                    tooltip="Set location for pallet" :key="pallet.index" :size="'xs'" /> -->
+                <div v-if="pallet.location" class="text-gray-400">
+                    <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='' fixed-width aria-hidden='true' />
+                </div>
+
+                <Button v-else
+                    type="primary"
+                    label="Set location"
+                    tooltip="Set location for pallet"
+                    :key="pallet.index"
+                    :size="'xs'" />
             </template>
 
             <template #content="{ close: closed }">
@@ -71,7 +85,7 @@ const onSaveError = (errorValue: any) => {
                         />
                         
                         <div class="flex gap-x-1 items-center mt-2 pl-0.5">
-                            <input type="checkbox" id="checkboxLocation" class="rounded border-gray-300 text-red-500 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <input v-model="isPalletDamaged" type="checkbox" id="checkboxLocation" class="rounded border-gray-300 text-red-500 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                             <label for="checkboxLocation" class="select-none cursor-pointer text-gray-500">Set as damaged</label>
                         </div>
 
@@ -89,7 +103,7 @@ const onSaveError = (errorValue: any) => {
                             :size="'xs'"
                             :disabled="!location.location_id"
                             @onError="onSaveError"
-                            :dataToSubmit="{ location_id: location.data().location_id }"
+                            :dataToSubmit="{ location_id: location.data().location_id, damaged: isPalletDamaged}"
                             routeName="bookInRoute"
                             :data="pallet" />
                     </div>

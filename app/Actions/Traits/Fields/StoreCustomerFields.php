@@ -57,7 +57,7 @@ trait StoreCustomerFields
                             ],
                         ],
                         'label' => __('interest'),
-                        'value' => []
+                        'value' => ['allow_fulfilment']
                     ],
                     'address'      => [
                         'type'    => 'address',
