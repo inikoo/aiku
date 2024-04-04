@@ -8,6 +8,7 @@
 namespace App\Models\SysAdmin;
 
 use App\Actions\SysAdmin\User\SendLinkResetPassword;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\Assets\Language;
 use App\Models\Fulfilment\Fulfilment;
@@ -60,8 +61,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property string|null $legacy_password source password
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $authorisedAgentsOrganisations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Fulfilment> $authorisedFulfilments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $authorisedOrganisations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $authorisedShopOrganisations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Shop> $authorisedShops
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $authorisedWarehouses
  * @property-read Media|null $avatar
@@ -169,6 +172,16 @@ class User extends Authenticatable implements HasMedia, Auditable
     public function authorisedOrganisations(): MorphToMany
     {
         return $this->morphedByMany(Organisation::class, 'model', 'user_has_authorised_models')->withTimestamps();
+    }
+
+    public function authorisedShopOrganisations(): MorphToMany
+    {
+        return $this->morphedByMany(Organisation::class, 'model', 'user_has_authorised_models')->where('organisations.type',OrganisationTypeEnum::SHOP)->withTimestamps();
+    }
+
+    public function authorisedAgentsOrganisations(): MorphToMany
+    {
+        return $this->morphedByMany(Organisation::class, 'model', 'user_has_authorised_models')->where('organisations.type',OrganisationTypeEnum::AGENT)->withTimestamps();
     }
 
     public function authorisedShops(): MorphToMany

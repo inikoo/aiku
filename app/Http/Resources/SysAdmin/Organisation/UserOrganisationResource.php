@@ -13,6 +13,7 @@ use App\Http\Resources\UI\ShopsNavigationResource;
 use App\Http\Resources\UI\WarehousesNavigationResource;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class UserOrganisationResource extends JsonResource
@@ -57,7 +58,7 @@ class UserOrganisationResource extends JsonResource
     public static function collectionForUser(
         $resource,
         User $user
-    ): \Illuminate\Http\Resources\Json\AnonymousResourceCollection {
+    ): AnonymousResourceCollection {
         //you can add as many params as you want.
         self::$user = $user;
 

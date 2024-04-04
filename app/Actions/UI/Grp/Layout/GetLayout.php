@@ -25,12 +25,14 @@ class GetLayout
         return [
 
             'group'         => GroupResource::make(app('group'))->getArray(),
-            'organisations' => UserOrganisationResource::collectionForUser($user->authorisedOrganisations, $user),
-            'navigation'    => [
+            'organisations' => UserOrganisationResource::collectionForUser($user->authorisedShopOrganisations, $user),
+            'agents'        => UserOrganisationResource::collectionForUser($user->authorisedAgentsOrganisations, $user),
+
+            'navigation' => [
                 'grp' => GetGroupNavigation::run($user),
                 'org' => GetOrganisationsLayout::run($user),
             ],
-            'app_theme'     => $user->settings['app_theme'] ?? null,
+            'app_theme' => $user->settings['app_theme'] ?? null,
 
 
         ];
