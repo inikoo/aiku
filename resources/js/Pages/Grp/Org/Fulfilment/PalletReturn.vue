@@ -49,6 +49,7 @@ const props = defineProps<{
         store: routeType
     }
     box_stats: BoxStats
+    notes_data: {}[]
 }>()
 
 // console.log('qwewqewq', props.box_stats)
@@ -84,32 +85,6 @@ onMounted(() => {
     })
 })
 
-const notesData = [
-    {
-        label: 'Customer',
-        note: 'xxxxxxxx',
-        editable: false,
-        bgColor: '#7da7f4',
-        color: 'blue',
-        field: 'customer_notes'
-    },
-    {
-        label: 'Public',
-        note: 'ccccccccccc',
-        editable: true,
-        bgColor: '#ff7dbd',
-        color: 'pink',
-        field: 'public_notes'
-    },
-    {
-        label: 'Private',
-        editable: true,
-        note: '',
-        bgColor: '#8e44ad',
-        color: 'purple',
-        field: 'internal_notes'
-    },
-]
 </script>
 
 <template>
@@ -125,7 +100,7 @@ const notesData = [
 
     <!-- Section: Note -->
     <div class="h-fit lg:max-h-64 w-full flex lg:justify-center border-b border-gray-300">
-        <BoxNote v-for="(note, index) in notesData" :key="index+note.label" :noteData="note" />
+        <BoxNote v-for="(note, index) in notes_data" :key="index+note.label" :noteData="note" :updateRoute="updateRoute" />
     </div>
 
     <!-- Section: Timeline -->

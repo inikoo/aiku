@@ -56,9 +56,9 @@ class UpdatePalletReturn extends OrgAction
     public function rules(): array
     {
         return [
-            'customer_notes'=> ['sometimes','nullable','string'],
-            'public_notes'  => ['sometimes','nullable','string'],
-            'internal_notes'=> ['sometimes','nullable','string'],
+            'customer_notes'=> ['sometimes','nullable','string', 'max:5000'],
+            'public_notes'  => ['sometimes','nullable','string', 'max:5000'],
+            'internal_notes'=> ['sometimes','nullable','string', 'max:5000'],
         ];
     }
 
