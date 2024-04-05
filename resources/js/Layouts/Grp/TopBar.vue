@@ -6,8 +6,7 @@
 
 <script setup lang="ts">
 import { Link, router } from "@inertiajs/vue3"
-import { useLayoutStore } from "@/Stores/layout"
-import { reactive } from "vue"
+import { reactive, inject } from "vue"
 import MenuPopoverList from "@/Layouts/Grp/MenuPopoverList.vue"
 import TopBarSelectButton from "@/Layouts/Grp/TopBarSelectButton.vue"
 import { Menu, MenuItem, MenuItems } from "@headlessui/vue"
@@ -21,6 +20,7 @@ import { faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faU
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { useTruncate } from "@/Composables/useTruncate"
 import MenuTopRight from "@/Layouts/Grp/MenuTopRight.vue"
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus,
     faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows
@@ -39,7 +39,7 @@ defineEmits<{
 // To handle skeleton image in dropdown
 const imageSkeleton: { [key: string]: boolean } = reactive({})
 
-const layoutStore = useLayoutStore()
+const layoutStore = inject('layout', layoutStructure)
 
 // For label
 const label = {
