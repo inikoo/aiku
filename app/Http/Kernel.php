@@ -131,18 +131,7 @@ class Kernel extends HttpKernel
             BindGroupInstance::class,
             SubstituteBindings::class,
         ],
-        // for use in cypress
-        'web'         => [
-            EncryptCookies::class,
-            AddQueuedCookiesToResponse::class,
-            StartSession::class,
-            ShareErrorsFromSession::class,
-            VerifyCsrfToken::class,
-            SubstituteBindings::class,
-            // HandleInertiaRequests::class,
-            SetLocale::class,
-            LogUserRequestMiddleware::class,
-        ],
+
         'broadcast'   => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
