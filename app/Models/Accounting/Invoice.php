@@ -48,9 +48,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $currency_id
  * @property string $group_exchange
  * @property string $org_exchange
- * @property string $net
- * @property string $total
- * @property string $payment
+ * @property string $net_amount
+ * @property string $total_amount
+ * @property string $payment_amount
  * @property string $group_net_amount
  * @property string $org_net_amount
  * @property string|null $date

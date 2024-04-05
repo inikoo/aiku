@@ -63,7 +63,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $parent
  * @property-read Collection<int, \App\Models\Market\Product> $products
- * @property-read SalesStats|null $salesStats
+ * @property-read ProductSalesStats|null $salesStats
  * @property-read SalesStats|null $salesTenantCurrencyStats
  * @property-read \App\Models\Market\Shop|null $shop
  * @property-read \App\Models\Market\ProductCategoryStats|null $stats
