@@ -15,7 +15,6 @@ use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\Helpers\Address;
@@ -87,7 +86,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\CRM\Appointment> $appointments
  * @property-read Collection<int, CustomerClient> $clients
  * @property-read FulfilmentCustomer|null $fulfilmentCustomer
- * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
  * @property-read Group $group
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
@@ -232,11 +230,6 @@ class Customer extends Model implements HasMedia
     public function stocks(): MorphMany
     {
         return $this->morphMany(Stock::class, 'owner', 'owner_type', 'owner_id', 'id');
-    }
-
-    public function fulfilmentOrders(): HasMany
-    {
-        return $this->hasMany(FulfilmentOrder::class);
     }
 
     public function orders(): HasMany

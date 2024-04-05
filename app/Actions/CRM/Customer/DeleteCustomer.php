@@ -9,7 +9,6 @@ namespace App\Actions\CRM\Customer;
 
 use App\Actions\CRM\WebUser\DeleteWebUser;
 use App\Actions\Dropshipping\CustomerClient\DeleteCustomerClient;
-use App\Actions\Fulfilment\FulfilmentOrder\DeleteFulfilmentOrder;
 use App\Actions\Goods\Stock\DeleteStock;
 use App\Actions\Market\Product\DeleteProduct;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateCustomers;
@@ -74,14 +73,6 @@ class DeleteCustomer
         foreach ($customer->orders as $order) {
             DeleteOrder::run(
                 order: $order,
-                skipHydrate: true,
-                deletedData: $dependantDeletedData
-            );
-        }
-
-        foreach ($customer->fulfilmentOrders as $fulfilmentOrder) {
-            DeleteFulfilmentOrder::run(
-                fulfilmentOrder: $fulfilmentOrder,
                 skipHydrate: true,
                 deletedData: $dependantDeletedData
             );

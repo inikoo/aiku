@@ -24,7 +24,6 @@ use App\Models\CRM\Appointment;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentOrder;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
 use App\Models\Helpers\SerialReference;
@@ -98,7 +97,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Currency $currency
  * @property-read Collection<int, Customer> $customers
  * @property-read Fulfilment|null $fulfilment
- * @property-read Collection<int, FulfilmentOrder> $fulfilmentOrders
  * @property-read Group $group
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
@@ -213,11 +211,6 @@ class Shop extends Model
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
-    }
-
-    public function fulfilmentOrders(): HasMany
-    {
-        return $this->hasMany(FulfilmentOrder::class);
     }
 
     public function products(): HasMany
