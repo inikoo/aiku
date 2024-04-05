@@ -22,7 +22,7 @@ class GetFulfilmentCustomerShowcase
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): array
     {
-        $irisDomain = $fulfilmentCustomer->fulfilment->shop->website->domain;
+        $irisDomain = $fulfilmentCustomer->fulfilment->shop?->website?->domain;
 
         return [
             'customer'            => CustomersResource::make($fulfilmentCustomer->customer)->getArray(),
