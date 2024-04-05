@@ -24,10 +24,12 @@ class ShowDashboard
         $group = Group::first();
         $sales = [
             'sales'         => JsonResource::make($group->salesStats),
+            'currency'      => $group->currency,
             'organisations' => $group->organisations->map(function (Organisation $organisation) {
                 return [
-                    'name'  => $organisation->name,
-                    'sales' => $organisation->salesStats
+                    'name'     => $organisation->name,
+                    'currency' => $organisation->currency,
+                    'sales'    => $organisation->salesStats
                 ];
             })
         ];
