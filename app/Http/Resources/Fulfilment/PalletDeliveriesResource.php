@@ -28,11 +28,11 @@ class PalletDeliveriesResource extends JsonResource
             'state'              => $palletDelivery->state,
             'state_label'        => $palletDelivery->state->labels()[$palletDelivery->state->value],
             'state_icon'         => $palletDelivery->state->stateIcon()[$palletDelivery->state->value],
-            'pallets'            => $palletDelivery->number_pallets,
             'customer_reference' => $palletDelivery->customer_reference,
             'number_pallets'     => $palletDelivery->number_pallets,
             'customer_name'      => $this->customer_name,
-            'customer_slug'      => $this->customer_slug
+            'customer_slug'      => $this->customer_slug,
+            'dispatched_date'    => $palletDelivery->dispatched_at
         ];
     }
 }

@@ -21,7 +21,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id');
             $table->foreign('shop_id')->references('id')->on('shops')->onUpdate('cascade')->onDelete('cascade');
 
-            $table=$this->salesStats($table,['shop_amount','org_amount','group_amount']);
+            $table=$this->salesStats($table, ['shop_amount','org_amount','group_amount']);
 
             $table->timestampsTz();
             $table->unique(['shop_id', 'currency_id']);

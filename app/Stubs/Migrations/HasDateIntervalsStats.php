@@ -17,7 +17,7 @@ trait HasDateIntervalsStats
     public function dateIntervals(Blueprint $table, array $subjects=[]): Blueprint
     {
 
-        foreach($subjects as $subject){
+        foreach($subjects as $subject) {
             $subject=$subject ? $subject.'_' : '';
 
             foreach (PeriodsEnum::values() as $col) {
