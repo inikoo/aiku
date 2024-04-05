@@ -41,7 +41,7 @@ onMounted(() => {
     if (typeof window !== 'undefined') {
         document.addEventListener('keydown', (event) => {
 
-            if( ( isUserMac?event.metaKey : event.ctrlKey) && event.key === 'k') {
+            if( ( isUserMac ? event.metaKey : event.ctrlKey ) && event.key === 'k') {
                 event.preventDefault()
                 showSearchDialog.value = !showSearchDialog.value
             }
