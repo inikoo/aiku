@@ -13,9 +13,12 @@ use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateInvoices;
+use App\Actions\Market\Shop\Hydrators\ShopHydrateSales;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInvoices;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSales;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateInvoices;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSales;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\CRM\Customer;
@@ -62,7 +65,7 @@ class StoreInvoice extends OrgAction
         data_set($modelData, 'tax_liability_at', $date, overwrite: false);
 
 
-        /** @var \App\Models\Accounting\Invoice $invoice */
+        /** @var Invoice $invoice */
         $invoice = $parent->invoices()->create($modelData);
         $invoice->stats()->create();
 
@@ -73,6 +76,10 @@ class StoreInvoice extends OrgAction
         ShopHydrateInvoices::dispatch($invoice->shop)->delay($this->hydratorsDelay);
         OrganisationHydrateInvoices::dispatch($invoice->organisation)->delay($this->hydratorsDelay);
         GroupHydrateInvoices::dispatch($invoice->group)->delay($this->hydratorsDelay);
+
+        ShopHydrateSales::dispatch($invoice->shop)->delay($this->hydratorsDelay);
+        OrganisationHydrateSales::dispatch($invoice->organisation)->delay($this->hydratorsDelay);
+        GroupHydrateSales::dispatch($invoice->group)->delay($this->hydratorsDelay);
 
         InvoiceHydrateUniversalSearch::dispatch($invoice);
 

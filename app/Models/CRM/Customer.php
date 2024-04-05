@@ -74,7 +74,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $is_fulfilment
  * @property bool $is_dropshipping
  * @property array $data
- * @property mixed $settings
+ * @property array $settings
  * @property string|null $internal_notes
  * @property string|null $warehouse_notes
  * @property int|null $prospects_sender_email_id

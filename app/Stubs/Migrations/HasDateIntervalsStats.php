@@ -7,7 +7,7 @@
 
 namespace App\Stubs\Migrations;
 
-use App\Enums\DateIntervals\PeriodsEnum;
+use App\Enums\DateIntervals\DateIntervalEnum;
 use App\Enums\DateIntervals\PreviousQuartersEnum;
 use App\Enums\DateIntervals\PreviousYearsEnum;
 use Illuminate\Database\Schema\Blueprint;
@@ -20,17 +20,17 @@ trait HasDateIntervalsStats
         foreach($subjects as $subject) {
             $subject=$subject ? $subject.'_' : '';
 
-            foreach (PeriodsEnum::values() as $col) {
-                $table->decimal($subject.$col)->default(0);
+            foreach (DateIntervalEnum::values() as $col) {
+                $table->decimal($subject.$col, 16)->default(0);
             }
-            foreach (PeriodsEnum::lastYearValues() as $col) {
-                $table->decimal($subject.$col.'_ly')->default(0);
+            foreach (DateIntervalEnum::lastYearValues() as $col) {
+                $table->decimal($subject.$col.'_ly', 16)->default(0);
             }
             foreach (PreviousYearsEnum::values() as $col) {
-                $table->decimal($subject.$col)->default(0);
+                $table->decimal($subject.$col, 16)->default(0);
             }
             foreach (PreviousQuartersEnum::values() as $col) {
-                $table->decimal($subject.$col)->default(0);
+                $table->decimal($subject.$col, 16)->default(0);
             }
         }
 

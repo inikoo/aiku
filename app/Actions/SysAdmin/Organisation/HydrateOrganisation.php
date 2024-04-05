@@ -21,10 +21,12 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePaymentServiceProviders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProspects;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSales;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStocks;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouse;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWeb;
 use App\Actions\Traits\WithNormalise;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
 
@@ -49,8 +51,14 @@ class HydrateOrganisation extends HydrateModel
         OrganisationHydrateJobPositions::run($organisation);
         OrganisationHydrateStocks::run($organisation);
         OrganisationHydrateInvoices::run($organisation);
-        OrganisationHydrateDepartments::run($organisation);
-        OrganisationHydrateFamilies::run($organisation);
+        OrganisationHydrateSales::run($organisation);
+
+
+        if($organisation->type==OrganisationTypeEnum::SHOP) {
+            OrganisationHydrateDepartments::run($organisation);
+            OrganisationHydrateFamilies::run($organisation);
+        }
+
     }
 
 

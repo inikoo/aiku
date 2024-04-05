@@ -124,6 +124,8 @@ class FetchInvoices extends FetchAction
             $query->whereNull('aiku_id');
         }
 
+        $query->orderBy('Invoice Date', 'desc');
+
         return $query;
     }
 
