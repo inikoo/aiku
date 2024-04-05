@@ -21,13 +21,17 @@ class ShopResource extends JsonResource
 {
     public function toArray($request): array
     {
+        /** @var \App\Models\Market\Shop $shop */
+        $shop = $this;
+
         return [
-            'id'      => $this->id,
-            'slug'    => $this->slug,
-            'code'    => $this->code,
-            'name'    => $this->name,
-            'type'    => $this->type,
-            'state'   => $this->state,
+            'id'      => $shop->id,
+            'slug'    => $shop->slug,
+            'code'    => $shop->code,
+            'name'    => $shop->name,
+            'type'    => $shop->type,
+            'state'   => $shop->state,
+            'sales'   => $shop->salesStats
         ];
     }
 }

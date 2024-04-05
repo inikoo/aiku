@@ -29,13 +29,16 @@ defineProps({
 
 onMounted(() => {
     if (typeof window !== 'undefined') {
-        document.addEventListener('keydown', (e) => e.keyCode == 191 ? document.getElementById("tableinput").focus() : '')
+        document.addEventListener('keydown', (e) => e.key == '/' ? document.getElementById("tableinput")?.focus() : false)
+        document.addEventListener('keydown', (e) => e.key == 'Escape' ? document.getElementById("tableinput")?.blur() : false)
     }
 })
 
 onUnmounted(() => {
     document.removeEventListener('keydown', () => false)
 })
+
+const isUserMac = navigator.platform.includes('Mac')  // To check the user's Operating System
 
 </script>
 
@@ -52,7 +55,8 @@ onUnmounted(() => {
             <FontAwesomeIcon icon="fal fa-filter" class="h-4 w-4" aria-hidden="true"
                 :class="[value ? 'text-gray-500' : 'text-gray-400']" 
             />
-            <span class="ring-1 ring-gray-400 bg-gray-100 px-2 py-0.5 text-xs rounded">Alt</span>
+            <span v-if="isUserMac" class="ring-1 ring-gray-400 bg-gray-100 px-2 leading-none text-xl rounded">⌥</span>
+            <span v-else class="ring-1 ring-gray-400 bg-gray-100 px-2 py-0.5 text-xs rounded">Alt</span>
             <span class="ring-1 ring-gray-400 bg-gray-100 px-2 py-0.5 text-xs rounded">/</span>
         </div>
 

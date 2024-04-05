@@ -182,6 +182,11 @@ class ShowShop extends OrgAction
                     'navigation' => ShopTabsEnum::navigation()
                 ],
 
+                ShopTabsEnum::SHOWCASE->value => $this->tab == ShopTabsEnum::SHOWCASE->value
+                    ?
+                    fn () => ShopResource::make($shop)
+                    : Inertia::lazy(fn () => ShopResource::make($shop)),
+
                 ShopTabsEnum::DEPARTMENTS->value => $this->tab == ShopTabsEnum::DEPARTMENTS->value
                     ?
                     fn () => DepartmentsResource::collection(
