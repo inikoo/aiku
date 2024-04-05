@@ -57,15 +57,7 @@ class StoreProduct extends OrgAction
                 ]
             );
         }
-        $product->salesStats()->create([
-            'scope' => 'sales'
-        ]);
 
-        if ($product->shop->currency_id != $parent->organisation->currency_id) {
-            $product->salesStats()->create([
-                'scope' => 'sales-organisation-currency'
-            ]);
-        }
 
 
         ShopHydrateProducts::dispatch($product->shop);

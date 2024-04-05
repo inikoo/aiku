@@ -42,15 +42,6 @@ class StoreProductCategory extends OrgAction
         $productCategory = ProductCategory::create($modelData);
 
         $productCategory->stats()->create();
-        $productCategory->salesStats()->create([
-            'scope' => 'sales'
-        ]);
-
-        if ($productCategory->shop->currency_id != $parent->organisation->currency_id) {
-            $productCategory->salesStats()->create([
-                'scope' => 'sales-organisation-currency'
-            ]);
-        }
 
         ProductCategoryHydrateUniversalSearch::dispatch($productCategory);
 
