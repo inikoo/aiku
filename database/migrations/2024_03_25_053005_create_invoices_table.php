@@ -30,9 +30,9 @@ return new class () extends Migration {
             $table->foreign('currency_id')->references('id')->on('currencies');
             $table->decimal('group_exchange', 16, 4)->default(1);
             $table->decimal('org_exchange', 16, 4)->default(1);
-            $table->decimal('net', 16)->default(0);
-            $table->decimal('total', 16)->default(0);
-            $table->decimal('payment', 16)->default(0);
+            $table->decimal('net_amount', 16)->default(0);
+            $table->decimal('total_amount', 16)->default(0);
+            $table->decimal('payment_amount', 16)->default(0);
             $table->decimal('group_net_amount', 16)->default(0);
             $table->decimal('org_net_amount', 16)->default(0);
             $table->dateTimeTz('date')->index()->nullable();

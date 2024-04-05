@@ -44,11 +44,11 @@ class UpdateInvoice extends OrgAction
                     ]
                 ),
             ],
-            'currency_id'      => ['sometimes', 'required', 'exists:currencies,id'],
-            'net'              => ['sometimes', 'required', 'numeric'],
-            'total'            => ['sometimes', 'required', 'numeric'],
-            'date'             => ['sometimes', 'date'],
-            'tax_liability_at' => ['sometimes', 'date'],
+            'currency_id'             => ['sometimes', 'required', 'exists:currencies,id'],
+            'net_amount'              => ['sometimes', 'required', 'numeric'],
+            'total_amount'            => ['sometimes', 'required', 'numeric'],
+            'date'                    => ['sometimes', 'date'],
+            'tax_liability_at'        => ['sometimes', 'date'],
         ];
     }
 

@@ -25,7 +25,11 @@ return new class () extends Migration {
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
 
+            $table->unsignedInteger('product_id')->index();
+            $table->foreign('product_id')->references('id')->on('products');
 
+            $table->unsignedInteger('product_category_id')->index();
+            $table->foreign('product_category_id')->references('id')->on('product_categories');
 
             $table->unsignedInteger('order_id');
             $table->foreign('order_id')->references('id')->on('orders');
@@ -38,9 +42,13 @@ return new class () extends Migration {
 
 
             $table->decimal('quantity', 16, 3);
-            $table->decimal('net', 16)->default(0);
-            $table->decimal('discounts', 16)->default(0);
-            $table->decimal('tax', 16)->default(0);
+            $table->decimal('net_mount', 16)->default(0);
+            $table->decimal('group_amount', 16)->default(0);
+            $table->decimal('net_amount', 16)->default(0);
+
+
+            $table->decimal('discounts_amount', 16)->default(0);
+            $table->decimal('tax_amount', 16)->default(0);
             $table->decimal('group_exchange', 16, 4)->default(1);
             $table->decimal('org_exchange', 16, 4)->default(1);
             $table->unsignedSmallInteger('tax_band_id')->nullable()->index();

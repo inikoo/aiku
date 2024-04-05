@@ -43,14 +43,14 @@ class FetchAuroraInvoice extends FetchAurora
             $taxLiabilityAt = $this->auroraModelData->{'Invoice Date'};
         }
         $this->parsedData['invoice'] = [
-            'number'           => $this->auroraModelData->{'Invoice Public ID'},
-            'type'             => strtolower($this->auroraModelData->{'Invoice Type'}),
-            'created_at'       => $this->auroraModelData->{'Invoice Date'},
-            'date'             => $this->auroraModelData->{'Invoice Date'},
-            'tax_liability_at' => $taxLiabilityAt,
-            'exchange'         => $this->auroraModelData->{'Invoice Currency Exchange'},
-            'net'              => $this->auroraModelData->{'Invoice Total Net Amount'},
-            'total'            => $this->auroraModelData->{'Invoice Total Amount'},
+            'number'                  => $this->auroraModelData->{'Invoice Public ID'},
+            'type'                    => strtolower($this->auroraModelData->{'Invoice Type'}),
+            'created_at'              => $this->auroraModelData->{'Invoice Date'},
+            'date'                    => $this->auroraModelData->{'Invoice Date'},
+            'tax_liability_at'        => $taxLiabilityAt,
+            'exchange'                => $this->auroraModelData->{'Invoice Currency Exchange'},
+            'net_amount'              => $this->auroraModelData->{'Invoice Total Net Amount'},
+            'total_amount'            => $this->auroraModelData->{'Invoice Total Amount'},
 
             'org_exchange'   => GetHistoricCurrencyExchange::run($this->parsedData['parent']->shop->currency, $this->parsedData['parent']->organisation->currency, $date),
             'group_exchange' => GetHistoricCurrencyExchange::run($this->parsedData['parent']->shop->currency, $this->parsedData['parent']->group->currency, $date),
