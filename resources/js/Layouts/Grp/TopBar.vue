@@ -101,7 +101,7 @@ const label = {
                             || (layoutStore.organisations.data?.find(organisation => organisation.slug == layoutStore.currentParams.organisation) && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('shops'))
                             || (layoutStore.navigation.org?.[layoutStore.currentParams.organisation]?.warehouses_navigation && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouse'))
                         "
-                             class="flex border border-gray-300 rounded-md">
+                            class="flex border border-gray-300 rounded-md">
                             <!-- Dropdown: Organisations -->
                             <Menu v-if="layoutStore.group || (layoutStore.organisations.data.length > 1)" as="div" class="relative inline-block text-left">
                                 <TopBarSelectButton
@@ -123,7 +123,7 @@ const label = {
                                                 <MenuItem v-slot="{ active }">
                                                     <div @click="() => router.visit(route('grp.dashboard.show'))" :class="[
                                                         !layoutStore.currentParams?.organisation ? 'bg-slate-300 text-slate-600' : active ? 'bg-slate-200/75 text-indigo-600' : 'text-slate-600']"
-                                                         class="group flex w-full gap-x-2 items-center rounded pl-3 pr-2 py-2 text-sm cursor-pointer"
+                                                        class="group flex w-full gap-x-2 items-center rounded pl-3 pr-2 py-2 text-sm cursor-pointer"
                                                     >
                                                         <FontAwesomeIcon icon="fal fa-city" class="" ariaa-hidden="true" />
                                                         <div class="space-x-1">

@@ -15,32 +15,25 @@ import MetaLabel from "@/Components/Headings/MetaLabel.vue"
 import Container from "@/Components/Headings/Container.vue"
 import Action from "@/Components/Forms/Fields/Action.vue"
 import SubNavigation from "@//Components/Navigation/SubNavigation.vue"
-import { Action as ActionTS } from "@/types/Action"
-import { routeType } from "@/types/route"
 import { kebabCase } from "lodash"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { faNarwhal } from "@fas"
 import { faLayerPlus } from "@far"
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
 
-interface Icon {
-    icon: string[] | string;
-}
-
-library.add(faTruckCouch, faUpload, faMapSigns, faNarwhal, faLayerPlus, faPallet, faWarehouse, faEmptySet);
+library.add(faTruckCouch, faUpload, faMapSigns, faNarwhal, faLayerPlus, faPallet, faWarehouse, faEmptySet)
 
 const props = defineProps<{
     data: PageHeadingTypes
     dataToSubmit?: any
     dataToSubmitIsDirty?: any
-}>();
-
+}>()
 
 if (props.dataToSubmit && props.data.actionActualMethod) {
-    props.dataToSubmit["_method"] = props.data.actionActualMethod;
+    props.dataToSubmit["_method"] = props.data.actionActualMethod
 }
 
-const originUrl = location.origin;
+const originUrl = location.origin
 </script>
 
 

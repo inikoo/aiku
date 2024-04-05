@@ -9,6 +9,8 @@ import { useLayoutStore } from '@/Stores/layout'
 import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler, ScriptableContext  } from 'chart.js'
 import { ref } from 'vue'
+import { Head } from '@inertiajs/vue3'
+import { trans } from 'laravel-vue-i18n'
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
 
 const layout = useLayoutStore()
@@ -70,6 +72,7 @@ const selectedTabGraph = ref(0)
 </script>
 
 <template>
+    <Head :title="trans('Dashboard')" />
     <div class="px-4 py-6 grid grid-cols-3 gap-x-6">
         <div v-if="false" class="border border-gray-200 rounded-md shadow">
         </div>
