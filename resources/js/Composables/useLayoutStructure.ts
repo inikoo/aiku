@@ -6,7 +6,11 @@ import { Navigation, grpNavigation, orgNavigation } from "@/types/Navigation"
 import { Image } from "@/types/Image"
 
 export const layoutStructure = {
-    agents: null,
+    agents: {
+        // currentOrganisations: '',
+        data: {} as OrganisationsData[]
+    },
+    agentsState: {} as {[key: string]: OrganisationState},
     app: {
         name: "",  // For styling navigation depend on which App
         color: null as unknown | Colors,  // Styling layout color
