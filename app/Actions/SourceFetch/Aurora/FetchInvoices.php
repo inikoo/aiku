@@ -64,7 +64,7 @@ class FetchInvoices extends FetchAction
                             strict: false
                         );
                     } catch (Exception $e) {
-                        $this->recordError($organisationSource, $e, $invoiceData['product'], 'Invoice', 'store');
+                        $this->recordError($organisationSource, $e, $invoiceData['invoice'], 'Invoice', 'store');
 
                         return null;
                     }
