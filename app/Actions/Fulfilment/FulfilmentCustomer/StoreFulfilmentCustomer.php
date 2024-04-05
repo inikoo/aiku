@@ -37,10 +37,13 @@ class StoreFulfilmentCustomer extends OrgAction
 
     public function handle(Fulfilment $fulfilment, array $modelData): FulfilmentCustomer
     {
-        $modelData['data']['interest'] = $modelData['interest'];
+        data_set($modelData, 'pallets_storage', in_array('pallets_storage', $modelData['interest']));
+        data_set($modelData, 'items_storage', in_array('items_storage', $modelData['interest']));
+        data_set($modelData, 'dropshipping', in_array('dropshipping', $modelData['interest']));
+
         $customer                      = StoreCustomer::make()->action($fulfilment->shop, $modelData);
 
-        UpdateFulfilmentCustomer::run($customer->fulfilmentCustomer, Arr::only($modelData, 'data'));
+        UpdateFulfilmentCustomer::run($customer->fulfilmentCustomer, Arr::except($modelData, 'interest'));
 
         return $customer->fulfilmentCustomer;
     }
