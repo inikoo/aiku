@@ -6,12 +6,15 @@
  */
 
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
+use App\Stubs\Migrations\HasSalesStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasGroupOrganisationRelationship;
+    use HasSalesStats;
+
     public function up(): void
     {
 
@@ -22,6 +25,8 @@ return new class () extends Migration {
             $table->foreign('org_stock_id')->references('id')->on('org_stocks');
 
             $table->unsignedSmallInteger('number_locations')->default(0);
+
+            $table=$this->salesStats($table, ['shop_amount','org_amount','group_amount']);
 
             $table->timestampsTz();
         });

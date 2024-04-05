@@ -23,6 +23,13 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
+
+            $table->unsignedInteger('org_family_stock_id')->index();
+            $table->foreign('org_family_stock_id')->references('id')->on('org_family_stocks');
+
+            $table->unsignedInteger('org_stock_id')->index();
+            $table->foreign('org_stock_id')->references('id')->on('org_stocks');
+
             $table->string('number')->index();
             $table->string('type')->default(DeliveryNoteTypeEnum::ORDER->value)->index();
 
