@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Models\Market\ProductCategory;
-use App\Models\Market\ShopSalesStats;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -11,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * App\Models\Market\ShopSalesStats
  *
  * @property int $id
- * @property int $shop_id
+ * @property int $product_category_id
  * @property int $number_orders
  * @property int $number_orders_state_creating
  * @property int $number_orders_state_submitted
@@ -133,10 +132,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Market\Shop $shop
- * @method static \Illuminate\Database\Eloquent\Builder|ShopSalesStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopSalesStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopSalesStats query()
+ * @property-read ProductCategory $productCategory
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductCategorySalesStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductCategorySalesStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductCategorySalesStats query()
  * @mixin \Eloquent
  */
 class ProductCategorySalesStats extends Model

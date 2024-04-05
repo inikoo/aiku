@@ -10,7 +10,6 @@ namespace App\Models\Market;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTradeUnitCompositionEnum;
 use App\Enums\Market\Product\ProductTypeEnum;
-use App\Models\BI\SalesStats;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Media\Media;
@@ -71,7 +70,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Market\HistoricProduct> $historicRecords
  * @property-read MediaCollection<int, Media> $images
  * @property-read MediaCollection<int, Media> $media
- * @property-read SalesStats|null $salesStats
+ * @property-read ProductSalesStats|null $salesStats
  * @property-read \App\Models\Market\Shop|null $shop
  * @property-read \App\Models\Market\ProductStats|null $stats
  * @property-read Collection<int, TradeUnit> $tradeUnits

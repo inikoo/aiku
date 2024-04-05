@@ -22,7 +22,10 @@ use Illuminate\Support\Carbon;
  * @property int $group_id
  * @property int $organisation_id
  * @property int $delivery_note_id
+ * @property int $stock_family_id
  * @property int $stock_id
+ * @property int $org_stock_family_id
+ * @property int $org_stock_id
  * @property int $transaction_id
  * @property int|null $picking_id
  * @property DeliveryNoteItemStateEnum $state

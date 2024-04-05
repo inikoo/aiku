@@ -24,15 +24,19 @@ use Illuminate\Support\Carbon;
  * @property int $organisation_id
  * @property int $shop_id
  * @property int $customer_id
+ * @property int $product_id
+ * @property int $product_category_id
  * @property int $order_id
  * @property int|null $invoice_id
  * @property int|null $transaction_id
  * @property string|null $item_type
  * @property int|null $item_id
  * @property string $quantity
- * @property string $net
- * @property string $discounts
- * @property string $tax
+ * @property string $net_mount
+ * @property string $group_amount
+ * @property string $net_amount
+ * @property string $discounts_amount
+ * @property string $tax_amount
  * @property string $group_exchange
  * @property string $org_exchange
  * @property int|null $tax_band_id
