@@ -1,18 +1,16 @@
 <script setup lang="ts">
-import PureInput from "@/Components/Pure/PureInput.vue"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExclamationCircle, faCheckCircle } from '@fas'
 import { faCopy } from '@fal'
 import { faSpinnerThird } from '@fad'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import TabSelector from '@/Components/Elements/TabSelector.vue'
-import { set, get } from "lodash"
+import { get } from "lodash"
 library.add(faExclamationCircle, faCheckCircle, faSpinnerThird, faCopy)
-import { ref, watch, defineEmits } from "vue"
 
 const props = defineProps<{
     form: any
     fieldName: string
+    fieldData: any  // declare to avoid warning
     options: {
         value: string
         label: string

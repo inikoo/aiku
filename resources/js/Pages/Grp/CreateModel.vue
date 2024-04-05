@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import {  useForm } from '@inertiajs/vue3'
+import {  Head, useForm } from '@inertiajs/vue3'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExclamationCircle, faCheckCircle, faAsterisk } from '@fas'
@@ -30,10 +30,15 @@ import Interest from '@/Components/Forms/Fields/Interest.vue'
 
 import { ref, onMounted } from 'vue'
 import Textarea from "@/Components/Forms/Fields/Textarea.vue"
+import PageHeading from '@/Components/Headings/PageHeading.vue'
+import { capitalize } from '@/Composables/capitalize'
+import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
 
 library.add(faExclamationCircle, faAsterisk, faCheckCircle, faPhone)
 
 const props = defineProps<{
+    title: string
+    pageHead: PageHeadingTypes
     formData: {
         blueprint: {
             title?: string
@@ -117,11 +122,14 @@ onMounted(() => {
 </script>
 
 <template>
+    <Head :title="capitalize(title)" />
+    <PageHeading :data="pageHead"></PageHeading>
+    
     <div class="rounded-lg bg-white shadow">
         <div class="divide-y divide-gray-200 lg:grid grid-flow-col lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
 
-            <!-- Left Tab: Navigation -->
-            <aside class="py-0 lg:col-span-3 lg:h-full">
+            <!-- Left Tab: Left navigation -->
+            <aside v-if="true" class="bg-gray-50 py-0 lg:col-span-3 lg:h-full">
                 <div class="sticky top-16">
                     <!-- <template v-for="(item, key) in formData['blueprint']">
                         <div v-if="item.title || item.icon" @click="jumpToElement(`field${key}`)" :class="[
