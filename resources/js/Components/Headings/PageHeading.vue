@@ -78,7 +78,7 @@ const originUrl = location.origin
                         <FontAwesomeIcon v-if="item.leftIcon"
                             :title="capitalize(item.leftIcon.tooltip)"
                             aria-hidden="true" :icon="item.leftIcon.icon" class="text-gray-400 pr-2" />
-                        <Link v-if="item.href" :href="`${route(item.href.name, item.href.parameters)}`"
+                        <Link v-if="item.href" :href="route(item.href.name, item.href.parameters)"
                             :class="[
                                 $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), '')) ? 'text-org-600 font-medium' : 'text-org-300 hover:text-org-500'
                             ]"
