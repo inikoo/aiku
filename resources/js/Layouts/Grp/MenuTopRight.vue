@@ -40,8 +40,8 @@ const logoutAuth = () => {
 onMounted(() => {
     if (typeof window !== 'undefined') {
         document.addEventListener('keydown', (event) => {
-            // console.log('event', event)
-            if(event.ctrlKey && event.key === 'k') {
+
+            if( ( isUserMac?event.metaKey : event.ctrlKey) && event.key === 'k') {
                 event.preventDefault()
                 showSearchDialog.value = !showSearchDialog.value
             }
