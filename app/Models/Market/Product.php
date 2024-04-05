@@ -14,6 +14,7 @@ use App\Models\BI\SalesStats;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Media\Media;
+use App\Models\ProductSalesStats;
 use App\Models\Search\UniversalSearch;
 use App\Models\Traits\HasImages;
 use App\Models\Traits\HasUniversalSearch;
@@ -26,7 +27,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -152,9 +152,9 @@ class Product extends Model implements HasMedia
         )->withPivot(['quantity','notes'])->withTimestamps();
     }
 
-    public function salesStats(): MorphOne
+    public function salesStats(): HasOne
     {
-        return $this->morphOne(SalesStats::class, 'model')->where('scope', 'sales');
+        return $this->hasOne(ProductSalesStats::class);
     }
 
     public function historicRecords(): HasMany

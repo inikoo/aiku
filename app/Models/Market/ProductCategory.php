@@ -11,6 +11,7 @@ use App\Actions\Market\Shop\Hydrators\ShopHydrateDepartments;
 use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\BI\SalesStats;
+use App\Models\ProductSalesStats;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -142,9 +143,9 @@ class ProductCategory extends Model implements Auditable
         return $this->hasOne(ProductCategoryStats::class);
     }
 
-    public function salesStats(): MorphOne
+    public function salesStats(): HasOne
     {
-        return $this->morphOne(SalesStats::class, 'model')->where('scope', 'sales');
+        return $this->hasOne(ProductSalesStats::class);
     }
 
     public function salesTenantCurrencyStats(): MorphOne
