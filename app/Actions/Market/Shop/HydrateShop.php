@@ -37,9 +37,10 @@ class HydrateShop extends HydrateModel
         ShopHydrateOrders::run($shop);
         ShopHydrateDepartments::run($shop);
         ShopHydrateFamilies::run($shop);
-        ShopHydrateInvoices::run($shop);
+        //ShopHydrateInvoices::run($shop);
         ShopHydrateSales::run($shop);
         ShopHydrateProducts::run($shop);
+
     }
 
 
