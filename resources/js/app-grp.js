@@ -11,9 +11,11 @@ import * as Sentry from '@sentry/vue';
 import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
 import Layout from '@/Layouts/Grp.vue'
+import { capitalize } from '@/Composables/capitalize.ts'
 
-const appName = window.document.getElementsByTagName('title')[0]?.innerText ||
-    'aiku';
+
+const appName = capitalize(window.document.getElementsByTagName('title')[0]?.innerText) ||
+    'Aiku';
 
 createInertiaApp(
     {
