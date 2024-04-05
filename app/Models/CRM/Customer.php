@@ -124,7 +124,7 @@ class Customer extends Model implements HasMedia
 
     protected $casts = [
         'data'        => 'array',
-        'settings'    => 'settings',
+        'settings'    => 'array',
         'location'    => 'array',
         'state'       => CustomerStateEnum::class,
         'status'      => CustomerStatusEnum::class,

@@ -5,65 +5,41 @@
   -->
 
 <script setup lang="ts">
-import { Link, router } from "@inertiajs/vue3";
-import { useLayoutStore } from "@/Stores/layout";
-import { reactive } from "vue";
-import MenuPopoverList from "@/Layouts/Grp/MenuPopoverList.vue";
-import TopBarSelectButton from "@/Layouts/Grp/TopBarSelectButton.vue";
-import { Menu, MenuItem, MenuItems } from "@headlessui/vue";
-import { Disclosure } from "@headlessui/vue";
-import Button from "@/Components/Elements/Buttons/Button.vue";
-import { trans } from "laravel-vue-i18n";
-import Image from "@/Components/Image.vue";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { faChevronDown } from "@far";
-import {
-    faTerminal,
-    faUserAlien,
-    faCog,
-    faCity,
-    faBuilding,
-    faNetworkWired,
-    faUserHardHat,
-    faCalendar,
-    faStopwatch,
-    faStoreAlt,
-    faWarehouseAlt,
-    faChartNetwork,
-    faFolderTree,
-    faFolder,
-    faCube,
-    faUserPlus,
-    faBox,
-    faBoxesAlt,
-    faMoneyCheckAlt,
-    faCashRegister,
-    faCoins,
-    faFileInvoiceDollar,
-  faReceipt
-} from "@fal";
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { useTruncate } from "@/Composables/useTruncate";
-import MenuTopRight from "@/Layouts/Grp/MenuTopRight.vue";
+import { Link, router } from "@inertiajs/vue3"
+import { useLayoutStore } from "@/Stores/layout"
+import { reactive } from "vue"
+import MenuPopoverList from "@/Layouts/Grp/MenuPopoverList.vue"
+import TopBarSelectButton from "@/Layouts/Grp/TopBarSelectButton.vue"
+import { Menu, MenuItem, MenuItems } from "@headlessui/vue"
+import { Disclosure } from "@headlessui/vue"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import { trans } from "laravel-vue-i18n"
+import Image from "@/Components/Image.vue"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faChevronDown } from "@far"
+import { faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus, faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows } from "@fal"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { useTruncate } from "@/Composables/useTruncate"
+import MenuTopRight from "@/Layouts/Grp/MenuTopRight.vue"
 
 library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus,
-    faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt
+    faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows
 );
 
 const props = defineProps<{
     sidebarOpen: boolean
     logoRoute: string
     urlPrefix: string
-}>();
+}>()
 
 defineEmits<{
     (e: "sidebarOpen", value: boolean): void
-}>();
+}>()
 
 // To handle skeleton image in dropdown
-const imageSkeleton: { [key: string]: boolean } = reactive({});
+const imageSkeleton: { [key: string]: boolean } = reactive({})
 
-const layoutStore = useLayoutStore();
+const layoutStore = useLayoutStore()
 
 // For label
 const label = {
@@ -71,7 +47,7 @@ const label = {
     shopSelect: trans("Go to shop"),
     warehouseSelect: trans("Select warehouses"),
     fulfilmentSelect: trans("Select fulfilments")
-};
+}
 
 </script>
 
@@ -125,7 +101,7 @@ const label = {
                             || (layoutStore.organisations.data?.find(organisation => organisation.slug == layoutStore.currentParams.organisation) && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('shops'))
                             || (layoutStore.navigation.org?.[layoutStore.currentParams.organisation]?.warehouses_navigation && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouse'))
                         "
-                             class="flex border border-gray-300 rounded-md">
+                            class="flex border border-gray-300 rounded-md">
                             <!-- Dropdown: Organisations -->
                             <Menu v-if="layoutStore.group || (layoutStore.organisations.data.length > 1)" as="div" class="relative inline-block text-left">
                                 <TopBarSelectButton
@@ -147,7 +123,7 @@ const label = {
                                                 <MenuItem v-slot="{ active }">
                                                     <div @click="() => router.visit(route('grp.dashboard.show'))" :class="[
                                                         !layoutStore.currentParams?.organisation ? 'bg-slate-300 text-slate-600' : active ? 'bg-slate-200/75 text-indigo-600' : 'text-slate-600']"
-                                                         class="group flex w-full gap-x-2 items-center rounded pl-3 pr-2 py-2 text-sm cursor-pointer"
+                                                        class="group flex w-full gap-x-2 items-center rounded pl-3 pr-2 py-2 text-sm cursor-pointer"
                                                     >
                                                         <FontAwesomeIcon icon="fal fa-city" class="" ariaa-hidden="true" />
                                                         <div class="space-x-1">

@@ -37,7 +37,7 @@ class CreateCustomer extends InertiaAction
                     'actions'      => [
                         [
                             'type'  => 'button',
-                            'style' => 'cancel',
+                            'style' => 'exitEdit',
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => match ($request->route()->getName()) {

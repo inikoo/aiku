@@ -17,6 +17,7 @@ use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
@@ -36,8 +37,13 @@ class StoreFulfilmentCustomer extends OrgAction
 
     public function handle(Fulfilment $fulfilment, array $modelData): FulfilmentCustomer
     {
+        data_set($modelData, 'pallets_storage', in_array('pallets_storage', $modelData['interest']));
+        data_set($modelData, 'items_storage', in_array('items_storage', $modelData['interest']));
+        data_set($modelData, 'dropshipping', in_array('dropshipping', $modelData['interest']));
 
-        $customer = StoreCustomer::make()->action($fulfilment->shop, $modelData);
+        $customer                      = StoreCustomer::make()->action($fulfilment->shop, $modelData);
+
+        UpdateFulfilmentCustomer::run($customer->fulfilmentCustomer, Arr::except($modelData, 'interest'));
 
         return $customer->fulfilmentCustomer;
     }
@@ -69,6 +75,7 @@ class StoreFulfilmentCustomer extends OrgAction
             'contact_address'          => ['sometimes', new ValidAddress()],
             'delivery_address'         => ['sometimes', 'required', new ValidAddress()],
 
+            'interest'         => ['sometimes', 'required'],
 
             'timezone_id' => ['nullable', 'exists:timezones,id'],
             'language_id' => ['nullable', 'exists:languages,id'],

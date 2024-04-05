@@ -79,7 +79,11 @@ const fallbackColor = '#374151'  // Color
 
                     <!-- Icon: -->
                     <div v-else="!noteData.note" @click="isModalOpen = true" class="h-5 cursor-pointer">
-                        <FontAwesomeIcon v-tooltip="trans('Add note')" icon='fas fa-sparkles' class='' fixed-width aria-hidden='true' />
+                        <FontAwesomeIcon v-tooltip="trans('Add note')" icon='fas fa-sparkles' class='' fixed-width aria-hidden='true'
+                            :style="{
+                                    color: fallbackColor
+                                }"
+                        />
                     </div>
                 </template>
 

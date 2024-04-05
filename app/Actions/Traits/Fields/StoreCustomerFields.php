@@ -44,20 +44,20 @@ trait StoreCustomerFields
                         'type'    => 'interest',
                         'options' => [
                             [
-                                'value' => 'allow_stocks',
-                                'label' => 'Allow stocks'
+                                'value' => 'pallets_storage',
+                                'label' => __('Pallets Storage')
                             ],
                             [
-                                'value' => 'allow_fulfilment',
-                                'label' => 'Allow fulfilment'
+                                'value' => 'items_storage',
+                                'label' => __('Items Storage')
                             ],
                             [
-                                'value' => 'allow_dropshipping',
-                                'label' => 'Allow dropshipping'
+                                'value' => 'dropshipping',
+                                'label' => __('Dropshipping')
                             ],
                         ],
-                        'label' => __('interest'),
-                        'value' => ['allow_fulfilment']
+                        'label' => __('User interest'),
+                        'value' => ['pallets_storage']
                     ],
                     'address'      => [
                         'type'    => 'address',

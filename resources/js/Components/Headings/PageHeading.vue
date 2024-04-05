@@ -5,64 +5,35 @@
   -->
 
 <script setup lang="ts">
-import { Link } from "@inertiajs/vue3";
+import { Link } from "@inertiajs/vue3"
 
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faMapSigns, faPallet, faTruckCouch, faUpload, faWarehouse, faEmptySet } from "@fal";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { capitalize } from "@/Composables/capitalize";
-import MetaLabel from "@/Components/Headings/MetaLabel.vue";
-import Container from "@/Components/Headings/Container.vue";
-import Action from "@/Components/Forms/Fields/Action.vue";
-import SubNavigation from "@//Components/Navigation/SubNavigation.vue";
-import { Action as ActionTS } from "@/types/Action";
-import { routeType } from "@/types/route";
-import { kebabCase } from "lodash";
-import Button from "../Elements/Buttons/Button.vue";
-import { faNarwhal } from "@fas";
-import { faLayerPlus } from "@far";
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faMapSigns, faPallet, faTruckCouch, faUpload, faWarehouse, faEmptySet } from "@fal"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { capitalize } from "@/Composables/capitalize"
+import MetaLabel from "@/Components/Headings/MetaLabel.vue"
+import Container from "@/Components/Headings/Container.vue"
+import Action from "@/Components/Forms/Fields/Action.vue"
+import SubNavigation from "@//Components/Navigation/SubNavigation.vue"
+import { kebabCase } from "lodash"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import { faNarwhal } from "@fas"
+import { faLayerPlus } from "@far"
+import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
 
-interface Icon {
-    icon: string[] | string;
-}
-
-library.add(faTruckCouch, faUpload, faMapSigns, faNarwhal, faLayerPlus, faPallet, faWarehouse, faEmptySet);
+library.add(faTruckCouch, faUpload, faMapSigns, faNarwhal, faLayerPlus, faPallet, faWarehouse, faEmptySet)
 
 const props = defineProps<{
-    data: {
-        title: string
-        noCapitalise?: boolean
-        icon: {
-            icon: Icon
-            tooltip: string
-        }
-        actionActualMethod?: string
-        subNavigation?: any
-        meta?: any
-        actions?: ActionTS[]
-        iconRight?: {
-            title: string
-            icon: string
-            tooltip?: string
-            class: string
-        }
-        container: {
-            tooltip: any
-            icon: Icon
-            label: string
-            href: routeType
-        }
-    },
+    data: PageHeadingTypes
     dataToSubmit?: any
     dataToSubmitIsDirty?: any
-}>();
-
+}>()
 
 if (props.dataToSubmit && props.data.actionActualMethod) {
-    props.dataToSubmit["_method"] = props.data.actionActualMethod;
+    props.dataToSubmit["_method"] = props.data.actionActualMethod
 }
 
-const originUrl = location.origin;
+const originUrl = location.origin
 </script>
 
 
@@ -76,10 +47,8 @@ const originUrl = location.origin;
             <div class="flex leading-none py-1 items-center gap-x-2 font-bold text-gray-700 text-2xl tracking-tight ">
                 <div v-if="data.container" class="text-slate-500 text-lg">
                     <Link v-if="data.container.href"
-                          :href="route(
-                            data.container.href['name'],
-                            data.container.href['parameters']
-                    )">
+                        :href="route(data.container.href['name'], data.container.href['parameters'])"
+                    >
                         <Container :data="data.container" />
                     </Link>
                     <div v-else class="flex items-center gap-x-1">
@@ -88,15 +57,18 @@ const originUrl = location.origin;
                 </div>
                 <div v-if="data.icon" class="inline text-gray-400">
                     <FontAwesomeIcon :title="capitalize(data.icon.tooltip ?? '')" aria-hidden="true"
-                                     :icon="data.icon.icon || data.icon" size="sm" class="" />
+                        :icon="data.icon.icon || data.icon" size="sm" class="" />
                     <!-- <FontAwesomeIcon v-if="data.iconBis" :title="capitalize(data.iconBis.tooltip ?? '')" aria-hidden="true"
                         :icon="data.iconBis.icon" size="sm" class="" :class="data.iconBis.class"/> -->
                 </div>
                 <h2 :class="!data.noCapitalise? 'capitalize' : ''">
                     <span v-if="data.model" class="text-gray-500 mr-2">{{ data.model }}</span> {{ data.title }}
                 </h2>
-                <FontAwesomeIcon v-if="data.iconRight" :title="capitalize(data.iconRight.tooltip ?? '')" aria-hidden="true"
-                                 :icon="data.iconRight.icon" class="h-4" :class="data.iconRight.class" />
+                <FontAwesomeIcon v-if="data.iconRight"
+                    :title="capitalize(data.iconRight.tooltip || '')"
+                    :icon="data.iconRight.icon" class="h-4" :class="data.iconRight.class"
+                    aria-hidden="true"
+                />
             </div>
 
             <!-- Section: mini Tabs -->
@@ -104,10 +76,10 @@ const originUrl = location.origin;
                 <div class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6 text-gray-500 text-xs pt-2">
                     <div v-for="item in data.meta" class="flex items-center">
                         <FontAwesomeIcon v-if="item.leftIcon"
-                                         :title="capitalize(item.leftIcon.tooltip)"
-                                         aria-hidden="true" :icon="item.leftIcon.icon" class="text-gray-400 pr-2" />
-                        <Link v-if="item.href" :href="`${route(item.href.name, item.href.parameters)}`"
-                              :class="[
+                            :title="capitalize(item.leftIcon.tooltip)"
+                            aria-hidden="true" :icon="item.leftIcon.icon" class="text-gray-400 pr-2" />
+                        <Link v-if="item.href" :href="route(item.href.name, item.href.parameters)"
+                            :class="[
                                 $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), '')) ? 'text-org-600 font-medium' : 'text-org-300 hover:text-org-500'
                             ]"
                         >
@@ -134,23 +106,25 @@ const originUrl = location.origin;
                         <!-- ButtonGroup -->
                         <slot v-if="action.type == 'buttonGroup'" :name="`button-group-${action.key}`" :action="{ action }">
                             <div class="rounded-md flex" :class="[(action.button?.length || 0) > 1 ? 'shadow' : '']">
-                                <slot v-for="(button, index) in action.button" :name="'button-group-' + kebabCase(button.label)" :action="{ button }">
-                                    <Link
-                                        :href="`${route(button.route.name, button.route.parameters)}`" class=""
-                                        :method="button.route.method ?? 'get'"
-                                        :as="button.target ? 'a' : 'div'"
-                                        :target="button.target"
-                                    >
-                                        <Button :style="button.style" :label="button.label"
-                                                :icon="button.icon"
-                                                :iconRight="action.iconRight"
-                                                :key="`ActionButton${button.label}${button.style}`" :tooltip="button.tooltip"
-                                                class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
-                                                :class="{'rounded-l-md': index === 0, 'rounded-r-md ': index === action.button?.length - 1}"
+                                <template v-if="action.button?.length">
+                                    <slot v-for="(button, index) in action.button" :name="'button-group-' + kebabCase(button.label)" :action="{ button }">
+                                        <Link
+                                            :href="`${route(button.route.name, button.route.parameters)}`" class=""
+                                            :method="button.route.method ?? 'get'"
+                                            :as="button.target ? 'a' : 'div'"
+                                            :target="button.target"
                                         >
-                                        </Button>
-                                    </Link>
-                                </slot>
+                                            <Button :style="button.style" :label="button.label"
+                                                    :icon="button.icon"
+                                                    :iconRight="action.iconRight"
+                                                    :key="`ActionButton${button.label}${button.style}`" :tooltip="button.tooltip"
+                                                    class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
+                                                    :class="{'rounded-l-md': index === 0, 'rounded-r-md ': index === action.button?.length - 1}"
+                                            >
+                                            </Button>
+                                        </Link>
+                                    </slot>
+                                </template>
                             </div>
                         </slot>
                     </template>

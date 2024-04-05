@@ -21,7 +21,7 @@ class DetectWebsiteFromDomain
     public function handle($domain): Website
     {
         if(app()->environment('local')) {
-            $domain = 'fulfilment.test';
+            $domain = config('app.local.retina_domain');
         }
         if(app()->environment('staging')) {
             $domain = str_replace('canary.', '', $domain);

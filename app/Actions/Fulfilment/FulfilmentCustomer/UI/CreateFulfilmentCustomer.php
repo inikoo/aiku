@@ -42,7 +42,7 @@ class CreateFulfilmentCustomer extends OrgAction
                     'actions'      => [
                         [
                             'type'  => 'button',
-                            'style' => 'cancel',
+                            'style' => 'exitEdit',
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => preg_replace('/create$/', 'index', $request->route()->getName()),

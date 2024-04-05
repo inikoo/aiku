@@ -67,6 +67,7 @@ class EditFulfilmentCustomer extends OrgAction
                     'blueprint' => [
                         [
                             'title'  => __('contact information'),
+                            'label'  => __('contact'),
                             'fields' => [
 
                                 'contact_name' => [

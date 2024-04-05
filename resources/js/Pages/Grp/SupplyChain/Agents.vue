@@ -5,22 +5,22 @@
   -->
 
 <script setup lang="ts">
-import {Head} from '@inertiajs/vue3';
-import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableMarketplaceAgents from "@/Components/Tables/TableAgents.vue";
+import { Head } from '@inertiajs/vue3'
+import PageHeading from '@/Components/Headings/PageHeading.vue'
+import TableMarketplaceAgents from "@/Components/Tables/TableAgents.vue"
 import { capitalize } from "@/Composables/capitalize"
 
-const props = defineProps <{
-    pageHead: object
+const props = defineProps<{
+    pageHead: {}
     title: string
-    data:object
+    data: {}
 }>()
 </script>
 
 
 <template>
-    <Head :title="capitalize(title)"/>
+
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <TableMarketplaceAgents :data="data" />
 </template>
-
