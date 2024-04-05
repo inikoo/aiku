@@ -30,6 +30,7 @@ return new class () extends Migration {
                 $table->boolean('pallets_storage')->default(true);
                 $table->boolean('items_storage')->default(false);
                 $table->boolean('dropshipping')->default(false);
+
                 $table = $this->fulfilmentStats($table);
                 $table->jsonb('data');
                 $table->timestampsTz();
