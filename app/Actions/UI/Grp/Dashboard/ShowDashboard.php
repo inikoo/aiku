@@ -7,6 +7,9 @@
 
 namespace App\Actions\UI\Grp\Dashboard;
 
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -17,10 +20,23 @@ class ShowDashboard
 
     public function handle(): Response
     {
+        /** @var Group $group */
+        $group = Group::first();
+        $sales = [
+            'sales'         => JsonResource::make($group->salesStats),
+            'organisations' => $group->organisations->map(function (Organisation $organisation) {
+                return [
+                    'name'  => $organisation->name,
+                    'sales' => $organisation->salesStats
+                ];
+            })
+        ];
+
         return Inertia::render(
             'Dashboard/Dashboard',
             [
-            'breadcrumbs' => $this->getBreadcrumbs(__('dashboard')),
+                'breadcrumbs' => $this->getBreadcrumbs(__('dashboard')),
+                'group'       => $sales,
             ]
         );
     }
