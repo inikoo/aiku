@@ -2,7 +2,7 @@
 import Multiselect from "@vueform/multiselect"
 
 const props = defineProps<{
-    modelValue: string | number
+    modelValue: any
     placeholder?: string
     mode?: "single" | "multiple" | "tags"
     required?: boolean
@@ -11,6 +11,7 @@ const props = defineProps<{
         label: string
     }[] | string[]
     caret?: boolean
+    object?: boolean  // so the value is full object instead of just key 'value'
 }>()
 
 const emits = defineEmits<{
@@ -33,6 +34,7 @@ const emits = defineEmits<{
             :closeOnSelect="mode == 'multiple' ? false : true"
             :canDeselect="!required"
             :hideSelected="false"
+            :object="object"
             :searchable="!!searchable"
             :caret="caret ?? true"
         >
