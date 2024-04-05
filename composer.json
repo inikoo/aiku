@@ -73,7 +73,6 @@
         "barryvdh/laravel-ide-helper": "^2.12",
         "deployer/deployer": "^7.3",
         "fakerphp/faker": "^1.9.1",
-        "laracasts/cypress": "^3.0",
         "laravel/breeze": "^1.11",
         "laravel/envoy": "^2.8",
         "laravel/pint": "^1.0",
