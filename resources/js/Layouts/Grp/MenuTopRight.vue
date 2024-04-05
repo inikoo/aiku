@@ -53,6 +53,8 @@ onUnmounted(() => {
     document.removeEventListener('keydown', () => false)
 })
 
+const isUserMac = navigator.platform.includes('Mac')  // To check the user's Operating System
+
 </script>
 
 <template>
@@ -65,7 +67,8 @@ onUnmounted(() => {
                 <span class="sr-only">{{ trans("Search") }}</span>
                 <FontAwesomeIcon aria-hidden="true" size="sm" icon="fa-regular fa-search" />
                 <div class="whitespace-nowrap flex items-center justify-end text-gray-500/80 tracking-tight space-x-1">
-                    <span class="ring-1 ring-gray-400 bg-gray-100 px-2 py-0.5 text-xs rounded">Ctrl</span>
+                    <span v-if="isUserMac" class="ring-1 ring-gray-400 bg-gray-100 px-2 leading-none text-xl rounded">⌘</span>
+                    <span v-else class="ring-1 ring-gray-400 bg-gray-100 px-2 py-0.5 text-xs rounded">Ctrl</span>
                     <span class="ring-1 ring-gray-400 bg-gray-100 px-1.5 py-0.5 text-xs rounded">K</span>
                 </div>
                 <SearchBar :isOpen="showSearchDialog" @close="(e) => showSearchDialog = e" />

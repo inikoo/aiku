@@ -6,8 +6,7 @@
 
 <script setup lang="ts">
 import { Link, router } from "@inertiajs/vue3"
-import { useLayoutStore } from "@/Stores/layout"
-import { reactive } from "vue"
+import { reactive, inject } from "vue"
 import MenuPopoverList from "@/Layouts/Grp/MenuPopoverList.vue"
 import TopBarSelectButton from "@/Layouts/Grp/TopBarSelectButton.vue"
 import { Menu, MenuItem, MenuItems } from "@headlessui/vue"
@@ -21,6 +20,7 @@ import { faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faU
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { useTruncate } from "@/Composables/useTruncate"
 import MenuTopRight from "@/Layouts/Grp/MenuTopRight.vue"
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus,
     faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows
@@ -39,15 +39,20 @@ defineEmits<{
 // To handle skeleton image in dropdown
 const imageSkeleton: { [key: string]: boolean } = reactive({})
 
-const layoutStore = useLayoutStore()
+const layoutStore = inject('layout', layoutStructure)
 
 // For label
 const label = {
-    organisationSelect: trans("Select organisation"),
+    // organisationSelect: trans("Select organisation"),
+    // agentSelect: trans("Select Agent"),
     shopSelect: trans("Go to shop"),
     warehouseSelect: trans("Select warehouses"),
     fulfilmentSelect: trans("Select fulfilments")
 }
+
+// console.log('agents', layoutStore.currentParams?.organisation)
+// console.log('agents', layoutStore.agents.data)
+// console.log('agents', layoutStore.agents.data.find((item) => item.slug == layoutStore.currentParams?.organisation))
 
 </script>
 
@@ -102,12 +107,26 @@ const label = {
                             || (layoutStore.navigation.org?.[layoutStore.currentParams.organisation]?.warehouses_navigation && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouse'))
                         "
                             class="flex border border-gray-300 rounded-md">
-                            <!-- Dropdown: Organisations -->
+                            <!-- Dropdown: Topbar -->
                             <Menu v-if="layoutStore.group || (layoutStore.organisations.data.length > 1)" as="div" class="relative inline-block text-left">
                                 <TopBarSelectButton
-                                    :icon="layoutStore.currentParams?.organisation ? 'fal fa-building' : 'fal fa-city'"
-                                    :activeButton="!!(layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation))"
-                                    :label="layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label ?? label.organisationSelect"
+                                    :icon="
+                                        layoutStore.currentParams?.organisation
+                                            ? layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
+                                                ? 'fal fa-building'
+                                                : layoutStore.agents.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
+                                                    ? 'fal fa-people-arrows'
+                                                    : 'fal fa-city'
+                                            : 'fal fa-city'
+                                    "
+                                    :activeButton="!!(layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation)) || !!layoutStore.agents.data.find((item) => item.slug == layoutStore.currentParams?.organisation)"
+                                    :label="
+                                        layoutStore.currentParams?.organisation
+                                            ? layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
+                                                ?? layoutStore.agents.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
+                                                ?? 'Select organisation/agent'
+                                            : 'Select organisation/agent'
+                                    "
                                 />
                                 <transition>
                                     <MenuItems
@@ -160,7 +179,7 @@ const label = {
                                             <!-- Dropdown: Agents -->
                                             <div v-if="layoutStore.agents?.data?.length > 1">
                                                 <div class="flex items-center gap-x-1.5 px-1 mb-1">
-                                                    <FontAwesomeIcon icon="fal fa-building" class="text-gray-400 text-xxs" aria-hidden="true" />
+                                                    <FontAwesomeIcon icon="fal fa-people-arrows" class="text-gray-400 text-xxs" aria-hidden="true" />
                                                     <span class="text-[9px] leading-none text-gray-400">{{ trans("Agents") }}</span>
                                                     <hr class="w-full rounded-full border-slate-300">
                                                 </div>
