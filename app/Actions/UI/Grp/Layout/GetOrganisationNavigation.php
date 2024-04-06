@@ -82,6 +82,37 @@ class GetOrganisationNavigation
             $navigation['fulfilments_navigation'][$fulfilment->slug] = GetFulfilmentNavigation::run($fulfilment, $user);
         }
 
+        if ($user->hasPermissionTo("dispatching.$organisation->id.view")) {
+            $navigation["dispatching"] = [
+                "root"  => "grp.org.dispatch.",
+                "label" => __("dispatching"),
+                "icon"  => ["fal", "fa-conveyor-belt-alt"],
+                "route" => [
+                    "name"       => "grp.org.dispatch.backlog",
+                    "parameters" => [$organisation->slug],
+                ],
+                "topMenu" => [
+                    'subsections' => [
+                        [
+                            'icon'  => ['fal', 'fa-tasks-alt'],
+                            'route' => [
+                                "name"       => "grp.org.dispatch.backlog",
+                                "parameters" => [$organisation->slug],
+                            ]
+                        ],
+                        [
+                            'label' => __('delivery notes'),
+                            'icon'  => ['fal', 'fa-truck'],
+                            'route' => [
+                                "name"       => "grp.org.dispatch.delivery-notes",
+                                "parameters" => [$organisation->slug],
+                            ]
+                        ],
+                    ]
+                ],
+            ];
+        }
+
 
         if ($user->hasPermissionTo("inventory.$organisation->id.view")) {
             $navigation["inventory"] = [

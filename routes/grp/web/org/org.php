@@ -44,6 +44,10 @@ Route::prefix("reports")
     ->name("reports.")
     ->group(__DIR__."/reports.php");
 
+Route::prefix("dispatch")
+    ->name("dispatch.")
+    ->group(__DIR__ . "/dispatch.php");
+
 /*
 
 Route::prefix("crm")
@@ -78,9 +82,7 @@ Route::prefix("search")
 Route::prefix("oms")
     ->name("oms.")
     ->group(__DIR__."/orders.php");
-Route::prefix("dispatch")
-    ->name("dispatch.")
-    ->group(__DIR__."/dispatch.php");
+
 
 
 Route::prefix("marketing")
