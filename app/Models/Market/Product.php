@@ -15,6 +15,8 @@ use App\Models\Helpers\Barcode;
 use App\Models\Media\Media;
 use App\Models\ProductSalesStats;
 use App\Models\Search\UniversalSearch;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasImages;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -67,9 +69,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Collection<int, Barcode> $barcode
+ * @property-read Group $group
  * @property-read Collection<int, \App\Models\Market\HistoricProduct> $historicRecords
  * @property-read MediaCollection<int, Media> $images
  * @property-read MediaCollection<int, Media> $media
+ * @property-read Organisation $organisation
  * @property-read ProductSalesStats|null $salesStats
  * @property-read \App\Models\Market\Shop|null $shop
  * @property-read \App\Models\Market\ProductStats|null $stats
@@ -123,20 +127,16 @@ class Product extends Model implements HasMedia
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);
     }
-    /*
-        protected static function booted(): void
-        {
-            static::updated(function (Product $product) {
-                if ($product->wasChanged('state')) {
 
-                    if ($product->family_id) {
-                        FamilyHydrateProducts::dispatch($product->family);
-                     }
-                    ShopHydrateProducts::dispatch($product->shop);
-                }
-            });
-        }
-    */
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
 
     public function shop(): BelongsTo
     {

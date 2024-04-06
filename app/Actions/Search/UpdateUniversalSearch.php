@@ -30,6 +30,10 @@ class UpdateUniversalSearch extends HydrateModel
         $command->line('Employees');
         $command->call('employee:search');
 
+        $command->line('Products');
+        $command->call('product:search');
+        $command->line('Product categories');
+        $command->call('product-category:search');
 
         $command->line('Customers');
         $command->call('customer:search');
