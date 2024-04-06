@@ -18,7 +18,7 @@ use App\Actions\Fulfilment\StoredItemReturn\UI\IndexStoredItemReturns;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithWebUserMeta;
-use App\Enums\UI\CustomerFulfilmentTabsEnum;
+use App\Enums\UI\Fulfilment\CustomerFulfilmentTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\CRM\WebUsersResource;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;

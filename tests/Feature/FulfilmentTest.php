@@ -14,7 +14,7 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
-use App\Enums\UI\FulfilmentsTabsEnum;
+use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
@@ -23,7 +23,6 @@ use App\Models\Fulfilment\Pallet;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
-
 use App\Models\Web\Website;
 use Inertia\Testing\AssertableInertia;
 

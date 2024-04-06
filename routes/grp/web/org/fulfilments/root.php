@@ -18,8 +18,12 @@ Route::prefix('{fulfilment}')->name('show.')
 
 
 
+
         Route::name("operations.")
             ->group(__DIR__."/operations.php");
+
+        Route::name("products.")
+             ->group(__DIR__."/products.php");
 
         Route::name("crm.")
             ->group(__DIR__."/crm.php");

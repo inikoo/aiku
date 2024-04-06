@@ -18,6 +18,8 @@ use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
 
 Route::get('', ShowFulfilment::class)->name('dashboard');
 
+
+
 Route::get('/pallets', IndexPallets::class)->name('pallets.index');
 Route::get('/pallets/{pallet}', ShowPallet::class)->name('pallets.show');
 Route::get('/pallets/create', CreatePallet::class)->name('pallets.create');
