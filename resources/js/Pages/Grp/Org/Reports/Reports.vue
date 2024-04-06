@@ -7,14 +7,9 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import {useLocaleStore} from '@/Stores/locale';
 import { capitalize } from "@/Composables/capitalize"
 
-
-const locale = useLocaleStore();
-
-
-const props = defineProps<{
+defineProps<{
     title: string,
     pageHead: object,
 }>()

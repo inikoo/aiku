@@ -5,8 +5,9 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\BusinessIntelligence;
+namespace App\Actions\UI\Reports;
 
+use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Market\Shop;
@@ -17,25 +18,26 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class BusinessIntelligenceDashboard
+class IndexReports extends OrgAction
 {
     use AsAction;
     use WithInertia;
 
-    public function handle($scope)
+    public function handle(Organisation|Shop $scope): Shop|Organisation
     {
         return $scope;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("crm.view");
+        return $request->user()->hasPermissionTo('org-reports.' . $this->organisation->id);
     }
 
 
-    public function inOrganisation(): Organisation
+    public function asController(Organisation $organisation, ActionRequest $request): Organisation
     {
-        return $this->handle(app('currentTenant'));
+        $this->initialisation($organisation, $request);
+        return $this->handle($organisation);
     }
 
     public function inShop(Shop $shop): Shop
@@ -46,27 +48,26 @@ class BusinessIntelligenceDashboard
 
     public function htmlResponse(Organisation|Shop $scope, ActionRequest $request): Response
     {
-
         $container = null;
         if (class_basename($scope) == 'Shop') {
             $container = [
                 'icon'    => ['fal', 'fa-store-alt'],
-                'tooltip' => __('Shop'),
-                'label'   => Str::possessive($scope->name)
+                'tooltip' => Str::possessive($scope->name) . ' ' . __('Reports'),
+                'label'   => $scope->code
             ];
         }
 
 
         return Inertia::render(
-            'BI/BusinessIntelligenceDashboard',
+            'Org/Reports/Reports',
             [
-                'breadcrumbs'  => $this->getBreadcrumbs(
+                'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => 'BI',
-                'pageHead'    => [
-                    'title'     => __('business intelligence'),
+                'title'    => 'BI',
+                'pageHead' => [
+                    'title'     => __('reports'),
                     'container' => $container
                 ],
 
@@ -78,25 +79,7 @@ class BusinessIntelligenceDashboard
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-
-
         return match ($routeName) {
-            'business_intelligence.shops.show.dashboard' =>
-            array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
-                [
-                    [
-                        'type'   => 'simple',
-                        'simple' => [
-                            'route' => [
-                                'name'       => 'business_intelligence.shops.show.dashboard',
-                                'parameters' => $routeParameters
-                            ],
-                            'label' => __('BI').' ('.$routeParameters['shop']->code.')',
-                        ]
-                    ]
-                ]
-            ),
             default =>
             array_merge(
                 ShowDashboard::make()->getBreadcrumbs(),
@@ -105,9 +88,10 @@ class BusinessIntelligenceDashboard
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'business_intelligence.dashboard'
+                                'name'       => 'grp.org.reports.index',
+                                'parameters' => $routeParameters
                             ],
-                            'label' => __('BI').' ('.__('all shops').')',
+                            'label' => __('Reports')
                         ]
                     ]
                 ]

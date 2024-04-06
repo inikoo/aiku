@@ -8,7 +8,4 @@
 
 use App\Actions\UI\Reports\IndexReports;
 
-Route::get('/', [IndexReports::class,'inOrganisation'])->name('dashboard');
-
-
-Route::get('/{shop}', [IndexReports::class,'inShop'])->name('shops.show.dashboard');
+Route::get('/', IndexReports::class)->name('index');

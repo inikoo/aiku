@@ -9,7 +9,7 @@ namespace App\Enums\SysAdmin\Authorisation;
 
 enum GroupPermissionsEnum: string
 {
-    case GROUP_BUSINESS_INTELLIGENCE = 'group-business-intelligence';
+    case GROUP_REPORTS               = 'group-reports';
     case SYSADMIN                    = 'sysadmin';
     case SYSADMIN_EDIT               = 'sysadmin.edit';
     case SYSADMIN_VIEW               = 'sysadmin.view';

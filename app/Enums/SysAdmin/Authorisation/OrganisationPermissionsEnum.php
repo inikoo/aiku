@@ -11,7 +11,7 @@ use App\Models\SysAdmin\Organisation;
 
 enum OrganisationPermissionsEnum: string
 {
-    case ORG_BUSINESS_INTELLIGENCE = 'org-business-intelligence';
+    case ORG_REPORTS = 'org-reports';
 
 
     case ACCOUNTING      = 'accounting';
