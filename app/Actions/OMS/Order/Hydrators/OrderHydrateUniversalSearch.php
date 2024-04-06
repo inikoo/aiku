@@ -20,9 +20,16 @@ class OrderHydrateUniversalSearch
         $order->universalSearch()->updateOrCreate(
             [],
             [
-                'section'        => 'oms',
-                'title'          => $order->number,
-                'description'    => ''
+                'group_id'          => $order->group_id,
+                'organisation_id'   => $order->organisation_id,
+                'organisation_slug' => $order->organisation->slug,
+                'shop_id'           => $order->shop_id,
+                'shop_slug'         => $order->shop->slug,
+                'customer_id'       => $order->customer_id,
+                'customer_slug'     => $order->customer->slug,
+                'section'           => 'oms',
+                'title'             => $order->number,
+                'description'       => ''
             ]
         );
     }
