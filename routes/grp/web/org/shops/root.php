@@ -19,6 +19,8 @@ Route::prefix('{shop}')->name('show.')
             ->group(__DIR__."/catalogue.php");
         Route::name("crm.")
             ->group(__DIR__."/crm.php");
+        Route::name("orders.")
+            ->group(__DIR__."/orders.php");
 
         Route::prefix("websites")
             ->name("web.websites.")

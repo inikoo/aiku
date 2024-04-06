@@ -17,11 +17,15 @@ use App\Actions\OMS\Order\UI\IndexOrders;
 use App\Actions\OMS\Order\UI\ShowOrder;
 use App\Actions\OMS\UI\OMSDashboard;
 
+Route::get('/orders/', IndexOrders::class)->name('orders.index');
+
+
+
+/*
 Route::get('/', OMSDashboard::class)->name('dashboard');
 
 Route::get('/create', CreateOrder::class)->name('orders/create');
 
-Route::get('/orders/', [IndexOrders::class, 'inOrganisation'])->name('orders.index');
 Route::get('/orders/{order}', [ShowOrder::class, 'inOrganisation'])->name('orders.show');
 Route::get('/orders/{order}/delivery-notes/{deliveryNote}', [ShowDeliveryNote::class, 'inOrder'])->name('orders.show.delivery-notes.show');
 Route::get('/orders/{order}/payments/{payment}', [ShowPayment::class,'inOrder'])->name('orders.show.orders.show.payments.show');
@@ -45,3 +49,4 @@ Route::get('/shops/{shop}/delivery-notes/{deliveryNote}', [ShowDeliveryNote::cla
 
 Route::get('/shops/{shop}/invoices/', [IndexInvoices::class, 'InShop'])->name('shops.show.invoices.index');
 Route::get('/shops/{shop}/invoices/{invoice}', [ShowInvoice::class, 'InShop'])->name('shops.show.invoices.show');
+*/

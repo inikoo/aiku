@@ -139,6 +139,7 @@ enum RolesEnum: string
                 ShopPermissionsEnum::PRODUCTS,
                 ShopPermissionsEnum::WEB,
                 ShopPermissionsEnum::CRM,
+                ShopPermissionsEnum::ORDERS,
                 ShopPermissionsEnum::SUPERVISOR_CRM,
                 ShopPermissionsEnum::SUPERVISOR_PRODUCTS
             ],

@@ -81,7 +81,7 @@ Route::prefix("search")
     ->group(__DIR__."/search.php");
 Route::prefix("oms")
     ->name("oms.")
-    ->group(__DIR__."/oms.php");
+    ->group(__DIR__."/orders.php");
 Route::prefix("dispatch")
     ->name("dispatch.")
     ->group(__DIR__."/dispatch.php");
