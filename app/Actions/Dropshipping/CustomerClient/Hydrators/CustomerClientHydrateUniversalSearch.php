@@ -20,7 +20,14 @@ class CustomerClientHydrateUniversalSearch
         $customerClient->universalSearch()->updateOrCreate(
             [],
             [
-                'section' => 'crm',
+                'group_id'          => $customerClient->group_id,
+                'organisation_id'   => $customerClient->organisation_id,
+                'organisation_slug' => $customerClient->organisation->slug,
+                'shop_id'           => $customerClient->shop_id,
+                'shop_slug'         => $customerClient->shop->slug,
+                'customer_id'       => $customerClient->customer_id,
+                 'customer_slug'    => $customerClient->customer->slug,
+                'section'           => 'crm',
 
                 'title' => join(
                     ' ',

@@ -16,6 +16,8 @@ use App\Enums\CRM\Prospect\ProspectSuccessStatusEnum;
 use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
 use App\Models\Search\UniversalSearch;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,6 +31,7 @@ use Illuminate\Support\Carbon;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 use Spatie\Tags\HasTags;
+use Spatie\Tags\Tag;
 
 /**
  * App\Models\CRM\Prospect
@@ -75,7 +78,9 @@ use Spatie\Tags\HasTags;
  * @property string|null $source_id
  * @property-read Address|null $address
  * @property-read \App\Models\CRM\Customer|null $customer
- * @property Collection<int, \Spatie\Tags\Tag> $tags
+ * @property-read Group $group
+ * @property-read Organisation $organisation
+ * @property Collection<int, Tag> $tags
  * @property-read Shop $shop
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\CRM\ProspectFactory factory($count = null, $state = [])
@@ -185,6 +190,16 @@ class Prospect extends Model
     public function shop(): BelongsTo
     {
         return $this->belongsTo(Shop::class);
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
     }
 
     public function customer(): BelongsTo

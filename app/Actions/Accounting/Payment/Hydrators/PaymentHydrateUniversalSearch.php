@@ -20,8 +20,15 @@ class PaymentHydrateUniversalSearch
         $payment->universalSearch()->updateOrCreate(
             [],
             [
-                'section' => 'accounting',
-                'title'   => $payment->reference,
+                'group_id'          => $payment->group_id,
+                'organisation_id'   => $payment->organisation_id,
+                'organisation_slug' => $payment->organisation->slug,
+                'shop_id'           => $payment->shop_id,
+                'shop_slug'         => $payment->shop->slug,
+                'customer_id'       => $payment->customer_id,
+                'customer_slug'     => $payment->customer->slug,
+                'section'           => 'accounting',
+                'title'             => $payment->reference,
             ]
         );
     }
