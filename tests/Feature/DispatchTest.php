@@ -25,6 +25,7 @@ use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Dispatch\DeliveryNote;
+use App\Models\Dispatch\Shipment;
 use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
 use App\Models\OMS\Transaction;
@@ -161,23 +162,25 @@ test('remove delivery note', function ($deliveryNote) {
 
 
 test('create shipment', function ($deliveryNote, $shipper) {
+
     $arrayData              = [
-        'code' => 'AAA'
+        'reference' => 'AAA'
     ];
     $shipper['api_shipper'] = '';
 
     $shipment = StoreShipment::make()->action($deliveryNote, $shipper, $arrayData);
-    expect($shipment->code)->toBe($arrayData['code']);
+    expect($shipment)->toBeInstanceOf(Shipment::class)
+        ->and($shipment->reference)->toBe($arrayData['reference']);
 
     return $shipment;
 })->depends('create delivery note', 'create shipper');
 
 test('update shipment', function ($lastShipment) {
     $arrayData = [
-        'code' => 'BBB'
+        'reference' => 'BBB'
     ];
 
     $shipment = UpdateShipment::make()->action($lastShipment, $arrayData);
 
-    expect($shipment->code)->toBe($arrayData['code']);
+    expect($shipment->reference)->toBe($arrayData['reference']);
 })->depends('create shipment');

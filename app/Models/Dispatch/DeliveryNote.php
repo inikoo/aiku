@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -51,7 +52,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool|null $restocking
  * @property string|null $email
  * @property string|null $phone
- * @property int|null $shipment_id
  * @property string|null $weight
  * @property int $number_stocks
  * @property int $number_picks
@@ -78,7 +78,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Collection<int, Order> $orders
  * @property-read Organisation $organisation
- * @property-read \App\Models\Dispatch\Shipment|null $shipments
+ * @property-read Collection<int, \App\Models\Dispatch\Shipment> $shipments
  * @property-read Shop $shop
  * @property-read \App\Models\Dispatch\DeliveryNoteStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
@@ -174,8 +174,8 @@ class DeliveryNote extends Model
         return $this->hasMany(DeliveryNoteItem::class);
     }
 
-    public function shipments(): BelongsTo
+    public function shipments(): BelongsToMany
     {
-        return $this->belongsTo(Shipment::class);
+        return $this->belongsToMany(Shipment::class);
     }
 }

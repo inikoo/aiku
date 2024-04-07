@@ -1,23 +1,20 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 07 Apr 2024 10:03:45 Central Indonesia Time, Sanur , Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 namespace Database\Factories\Dispatch;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Dispatch\Shipment>
- */
 class ShipmentFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition()
+    public function definition(): array
     {
         return [
-            'code' => fake()->lexify()
+            'reference' => fake()->lexify()
         ];
     }
 }
