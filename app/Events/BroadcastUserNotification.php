@@ -7,6 +7,9 @@
 
 namespace App\Events;
 
+use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Group;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -14,7 +17,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class BroadcastNotification implements ShouldBroadcast
+class BroadcastUserNotification implements ShouldBroadcast
 {
     use Dispatchable;
     use InteractsWithSockets;
@@ -23,12 +26,14 @@ class BroadcastNotification implements ShouldBroadcast
     public array $data;
     public Group $group;
 
-    public function __construct(Group $group, string $title, string $text)
+    public function __construct(Group $group, PalletDelivery|PalletReturn|Pallet $parent, string $title, string $text)
     {
         $this->group = $group;
         $this->data  = [
             'title' => $title,
-            'text'  => $text
+            'body'  => $text,
+            'type'  => class_basename($parent),
+            'id'    => $parent->id
         ];
     }
 

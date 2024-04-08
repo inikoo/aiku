@@ -5,6 +5,7 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Support\Arr;
 use NotificationChannels\Fcm\FcmChannel;
 use NotificationChannels\Fcm\FcmMessage;
 
@@ -32,7 +33,7 @@ class MeasurementShareNotification extends Notification
      */
     public function via($notifiable)
     {
-        return [FcmChannel::class];
+        return [FcmChannel::class, 'database'];
     }
 
     /**
@@ -73,8 +74,13 @@ class MeasurementShareNotification extends Notification
      */
     public function toArray($notifiable)
     {
+        $measurement = $this->measurement;
+
         return [
-            //
+            'title' => Arr::get($measurement, 'title'),
+            'body'  => Arr::get($measurement, 'body'),
+            'type'  => Arr::get($measurement, 'type'),
+            'id'    => Arr::get($measurement, 'id')
         ];
     }
 }

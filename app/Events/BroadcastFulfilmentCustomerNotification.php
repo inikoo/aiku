@@ -33,7 +33,9 @@ class BroadcastFulfilmentCustomerNotification implements ShouldBroadcast
         $this->group  = $group;
         $this->data   = [
             'title' => $parent->state->notifications()[$parent->state->value]['title'],
-            'text'  => $parent->state->notifications()[$parent->state->value]['subtitle']
+            'body'  => $parent->state->notifications()[$parent->state->value]['subtitle'],
+            'type'  => class_basename($parent),
+            'id'    => $parent->id
         ];
     }
 
