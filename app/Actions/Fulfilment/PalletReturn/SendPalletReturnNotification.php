@@ -20,6 +20,8 @@ class SendPalletReturnNotification extends OrgAction
 
     public function handle(PalletReturn $palletReturn): void
     {
+        $palletReturn->refresh();
+
         broadcast(new BroadcastFulfilmentCustomerNotification(
             $palletReturn->group,
             $palletReturn

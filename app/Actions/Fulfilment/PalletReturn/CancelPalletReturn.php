@@ -30,12 +30,14 @@ class CancelPalletReturn extends OrgAction
         $modelData[PalletReturnStateEnum::CANCEL->value.'_at']    = now();
         $modelData['state']                                       = PalletReturnStateEnum::CANCEL;
 
-        $palletReturn->pallets()->update(['status' => PalletStatusEnum::IN_PROCESS]);
+        $palletReturn->pallets()->update(['status' => PalletStatusEnum::STORING]);
+
+        $palletReturn = $this->update($palletReturn, $modelData);
 
         HydrateFulfilmentCustomer::dispatch($palletReturn->fulfilmentCustomer);
         SendPalletReturnNotification::run($palletReturn);
 
-        return $this->update($palletReturn, $modelData);
+        return $palletReturn;
     }
 
     public function authorize(ActionRequest $request): bool

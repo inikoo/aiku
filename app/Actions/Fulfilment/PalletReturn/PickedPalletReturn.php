@@ -28,10 +28,12 @@ class PickedPalletReturn extends OrgAction
         $modelData[PalletReturnStateEnum::PICKED->value.'_at']   = now();
         $modelData['state']                                      = PalletReturnStateEnum::PICKED;
 
+        $palletReturn = $this->update($palletReturn, $modelData);
+
         HydrateFulfilmentCustomer::dispatch($palletReturn->fulfilmentCustomer);
         SendPalletReturnNotification::run($palletReturn);
 
-        return $this->update($palletReturn, $modelData);
+        return $palletReturn;
     }
 
     public function authorize(ActionRequest $request): bool
