@@ -35,6 +35,7 @@ class DeletePalletFromReturn extends OrgAction
         $palletReturn->pallets()->detach([$pallet->id]);
 
         HydrateFulfilmentCustomer::dispatch($palletReturn->fulfilmentCustomer);
+        SendPalletReturnNotification::run($palletReturn);
 
         return true;
     }

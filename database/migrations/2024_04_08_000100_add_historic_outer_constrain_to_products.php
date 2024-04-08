@@ -13,8 +13,8 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->foreign('current_historic_outer_id')->references('id')->on('historic_outers');
-            $table->foreign('main_outer_id')->references('id')->on('outers');
+            // $table->foreign('current_historic_outer_id')->references('id')->on('historic_outers');
+            // $table->foreign('main_outer_id')->references('id')->on('outers');
 
         });
     }

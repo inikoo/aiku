@@ -120,14 +120,14 @@ const navigations: Navigation = {
             </Popover>
         </div>
         <div class="flex gap-x-4 h-full items-center ">
-            <Link href="#" class="space-x-1 text-gray-300 hover:text-white hover:-translate-y-0.5 transition-all duration-75 ease-in-out">
+           <!--  <Link href="/app/login" class="space-x-1 text-gray-300 hover:text-white hover:-translate-y-0.5 transition-all duration-75 ease-in-out">
                 <FontAwesomeIcon fixed-width icon='fas fa-user-plus' class='opacity-80' aria-hidden='true' />
                 Register
-            </Link>
-            <Link href="#" class="space-x-1 text-gray-300 hover:text-white hover:-translate-y-0.5 transition-all duration-75 ease-in-out">
+            </Link> -->
+            <a href="/app/login" class="space-x-1 text-gray-300 hover:text-white hover:-translate-y-0.5 transition-all duration-75 ease-in-out">
                 <FontAwesomeIcon fixed-width icon='fas fa-sign-in' class='opacity-80' aria-hidden='true' />
                 Login
-            </Link>
+            </a>
         </div>
     </div>
 </template>

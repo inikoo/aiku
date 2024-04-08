@@ -29,7 +29,7 @@ class DeletePalletFromDelivery extends OrgAction
     {
         $this->update($pallet, ['pallet_delivery_id' => null, 'customer_reference' => null]);
 
-        HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
+        HydrateFulfilmentCustomer::run($palletDelivery->fulfilmentCustomer);
 
         return true;
     }

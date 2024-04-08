@@ -33,6 +33,7 @@ class CancelPalletReturn extends OrgAction
         $palletReturn->pallets()->update(['status' => PalletStatusEnum::IN_PROCESS]);
 
         HydrateFulfilmentCustomer::dispatch($palletReturn->fulfilmentCustomer);
+        SendPalletReturnNotification::run($palletReturn);
 
         return $this->update($palletReturn, $modelData);
     }

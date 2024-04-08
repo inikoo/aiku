@@ -11,6 +11,7 @@ use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Warehouse;
 use App\Models\PalletReturnStats;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
@@ -55,6 +56,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property-read Customer|null $customer
+ * @property-read Group|null $group
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Organisation $organisation
@@ -101,6 +103,11 @@ class PalletReturn extends Model
             ->generateSlugsFrom('reference')
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
     }
 
     public function customer(): BelongsTo

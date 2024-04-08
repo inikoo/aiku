@@ -52,9 +52,9 @@ class SubmitPalletDelivery extends OrgAction
 
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
 
-        SendPalletDeliveryNotification::run($palletDelivery);
-
         $palletDelivery= $this->update($palletDelivery, $modelData);
+
+        SendPalletDeliveryNotification::run($palletDelivery);
 
         FulfilmentCustomerHydratePallets::dispatch($palletDelivery->fulfilmentCustomer);
         FulfilmentHydratePallets::dispatch($palletDelivery->fulfilment);
