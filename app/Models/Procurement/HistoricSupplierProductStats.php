@@ -33,7 +33,7 @@ class HistoricSupplierProductStats extends Model
     /*
     public function historicProduct(): BelongsTo
     {
-        return $this->belongsTo(HistoricProduct::class);
+        return $this->belongsTo(HistoricOuter::class);
     }
     */
 }

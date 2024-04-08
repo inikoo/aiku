@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Market\HistoricProduct\StoreHistoricProduct;
-use App\Actions\Market\HistoricProduct\UpdateHistoricProduct;
-use App\Models\Market\HistoricProduct;
+use App\Actions\Market\HistoricOuter\StoreHistoricOuter;
+use App\Actions\Market\HistoricOuter\UpdateHistoricOuter;
+use App\Models\Market\HistoricOuter;
 use App\Services\Organisation\SourceOrganisationService;
 use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -19,10 +19,10 @@ class FetchHistoricServices
     use AsAction;
 
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $source_id): ?HistoricProduct
+    public function handle(SourceOrganisationService $organisationSource, int $source_id): ?HistoricOuter
     {
-        if ($historicServiceData = $organisationSource->fetchHistoricService($source_id)) {
-            if ($historicService = HistoricProduct::withTrashed()->where('source_id', $historicServiceData['historic_service']['source_id'])
+        if ($historicProductData = $organisationSource->fetchHistoricService($source_id)) {
+            if ($historicProduct = HistoricOuter::withTrashed()->where('source_id', $historicProductData['historic_service']['source_id'])
                 ->first()) {
                 $historicService = UpdateHistoricProduct::run(
                     historicService: $historicService,

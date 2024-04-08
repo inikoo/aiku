@@ -127,7 +127,6 @@ class Customer extends Model implements HasMedia
         'state'       => CustomerStateEnum::class,
         'status'      => CustomerStatusEnum::class,
         'trade_state' => CustomerTradeStateEnum::class
-
     ];
 
     protected $attributes = [

@@ -9,12 +9,12 @@ namespace App\Enums\Market\Product;
 
 use App\Enums\EnumHelperTrait;
 
-enum ProductTradeUnitCompositionEnum: string
+enum ProductUnitRelationshipType: string
 {
     use EnumHelperTrait;
 
-    case MATCH                 = 'match';
-    case MULTIPLE              = 'multiple';
-    case MULTIPLE_REPACKED     = 'multiple_repacked';
-    case MIX                   = 'mix';
+    case SINGLE                 = 'single';
+    case MULTIPLE               = 'multiple';
+    case MULTIPLE_REPACKED      = 'multiple_repacked';
+    case MIX                    = 'mix';
 }

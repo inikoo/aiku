@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Market\Product\StoreProduct;
+use App\Actions\Market\Product\StorePhysicalGood;
 use App\Actions\Market\Product\UpdateProduct;
-use App\Models\Market\HistoricProduct;
+use App\Models\Market\HistoricOuter;
 use App\Models\Market\Product;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -31,11 +31,17 @@ class FetchServices extends FetchAction
                     skipHistoric: true
                 );
             } else {
-                $product = StoreProduct::run(
-                    shop:         $productData['shop'],
-                    modelData:    $productData['product'],
-                    skipHistoric: true
-                );
+                try {
+
+                    $product = StorePhysicalGood::make()->action(
+                        parent:         $serviceData['shop'],
+                        modelData:    $serviceData['service'],
+                        skipHistoric: true
+                    );
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $serviceData['service'], 'Product', 'store');
+                    return null;
+                }
             }
 
 

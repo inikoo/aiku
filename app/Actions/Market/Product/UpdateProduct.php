@@ -27,7 +27,7 @@ class UpdateProduct extends OrgAction
         if (!$skipHistoric and $product->wasChanged(
             ['price', 'code', 'name', 'units']
         )) {
-            //todo create HistoricProduct and update current_historic_product_id if
+            //todo create HistoricOuter and update current_historic_outer_id if
         }
         ProductHydrateUniversalSearch::dispatch($product);
 

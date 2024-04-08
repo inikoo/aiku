@@ -13,27 +13,27 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
 /**
- * App\Models\Market\HistoricProductStats
+ * App\Models\Market\HistoricOuterStats
  *
  * @property int $id
- * @property int $historic_product_id
+ * @property int $historic_outer_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @method static Builder|HistoricProductStats newModelQuery()
- * @method static Builder|HistoricProductStats newQuery()
- * @method static Builder|HistoricProductStats query()
+ * @method static Builder|HistoricOuterStats newModelQuery()
+ * @method static Builder|HistoricOuterStats newQuery()
+ * @method static Builder|HistoricOuterStats query()
  * @mixin Eloquent
  */
-class HistoricProductStats extends Model
+class HistoricOuterStats extends Model
 {
-    protected $table = 'historic_product_stats';
+    protected $table = 'historic_outer_stats';
 
     protected $guarded = [];
 
     /*
     public function historicProduct(): BelongsTo
     {
-        return $this->belongsTo(HistoricProduct::class);
+        return $this->belongsTo(HistoricOuter::class);
     }
     */
 }

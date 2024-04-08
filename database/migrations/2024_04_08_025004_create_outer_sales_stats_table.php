@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 08 Apr 2024 10:50:50 Central Indonesia Time, Bali Office , Indonesia
+ * Created: Mon, 08 Apr 2024 10:50:24 Central Indonesia Time, Bali Office , Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -12,13 +12,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasSalesStats;
-
     public function up(): void
     {
-        Schema::create('product_sales_stats', function (Blueprint $table) {
+        Schema::create('outer_sales_stats', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('product_id')->index();
-            $table->foreign('product_id')->references('id')->on('products');
+            $table->unsignedInteger('outer_id')->index();
+            $table->foreign('outer_id')->references('id')->on('outers');
             $table=$this->salesStats($table, ['shop_amount','org_amount','group_amount']);
             $table->timestampsTz();
         });
@@ -27,6 +26,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('product_sales_stats');
+        Schema::dropIfExists('outer_sales_stats');
     }
 };

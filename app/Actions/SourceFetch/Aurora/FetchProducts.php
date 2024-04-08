@@ -7,10 +7,10 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Market\Product\StoreProduct;
+use App\Actions\Market\Product\StorePhysicalGood;
 use App\Actions\Market\Product\SyncProductTradeUnits;
 use App\Actions\Market\Product\UpdateProduct;
-use App\Models\Market\HistoricProduct;
+use App\Models\Market\HistoricOuter;
 use App\Models\Market\Product;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
@@ -39,7 +39,7 @@ class FetchProducts extends FetchAction
                 }
             } else {
                 try {
-                    $product = StoreProduct::make()->action(
+                    $product = StorePhysicalGood::make()->action(
                         parent: $productData['parent'],
                         modelData: $productData['product'],
                         skipHistoric: true
@@ -58,14 +58,14 @@ class FetchProducts extends FetchAction
                 ->update(['aiku_id' => $product->id]);
 
 
-            $historicProduct = HistoricProduct::where('source_id', $productData['historic_product_source_id'])->first();
+            $historicProduct = HistoricOuter::where('source_id', $productData['historic_outer_source_id'])->first();
             if (!$historicProduct) {
-                $historicProduct = FetchHistoricProducts::run($organisationSource, $productData['historic_product_source_id']);
+                $historicProduct = FetchHistoricProducts::run($organisationSource, $productData['historic_outer_source_id']);
             }
 
             $product->update(
                 [
-                    'current_historic_product_id' => $historicProduct->id
+                    'current_historic_outer_id' => $historicProduct->id
                 ]
             );
 

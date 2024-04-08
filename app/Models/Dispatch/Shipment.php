@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $organisation_id
  * @property int|null $shop_id
  * @property int|null $shipper_id
+ * @property int|null $customer_id
  * @property string $status
  * @property string|null $reference
  * @property string|null $tracking

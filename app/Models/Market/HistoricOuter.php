@@ -19,7 +19,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Market\HistoricProduct
+ * App\Models\Market\HistoricOuter
  *
  * @property int $id
  * @property int $group_id
@@ -27,6 +27,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property bool $status
  * @property int $product_id
+ * @property int $outer_id
  * @property string $price unit price
  * @property string|null $code
  * @property string|null $name
@@ -35,16 +36,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read \App\Models\Market\Product $product
- * @property-read \App\Models\Market\HistoricProductStats|null $stats
- * @method static Builder|HistoricProduct newModelQuery()
- * @method static Builder|HistoricProduct newQuery()
- * @method static Builder|HistoricProduct onlyTrashed()
- * @method static Builder|HistoricProduct query()
- * @method static Builder|HistoricProduct withTrashed()
- * @method static Builder|HistoricProduct withoutTrashed()
+ * @property-read \App\Models\Market\HistoricOuterStats|null $stats
+ * @method static Builder|HistoricOuter newModelQuery()
+ * @method static Builder|HistoricOuter newQuery()
+ * @method static Builder|HistoricOuter onlyTrashed()
+ * @method static Builder|HistoricOuter query()
+ * @method static Builder|HistoricOuter withTrashed()
+ * @method static Builder|HistoricOuter withoutTrashed()
  * @mixin Eloquent
  */
-class HistoricProduct extends Model
+class HistoricOuter extends Model
 {
     use SoftDeletes;
     use HasSlug;
@@ -76,6 +77,6 @@ class HistoricProduct extends Model
 
     public function stats(): HasOne
     {
-        return $this->hasOne(HistoricProductStats::class);
+        return $this->hasOne(HistoricOuterStats::class);
     }
 }

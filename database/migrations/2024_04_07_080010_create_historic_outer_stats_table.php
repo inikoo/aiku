@@ -10,19 +10,19 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
-        Schema::create('historic_product_stats', function (Blueprint $table) {
+        Schema::create('historic_outer_stats', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('historic_product_id')->index();
-            $table->foreign('historic_product_id')->references('id')->on('historic_products');
+            $table->unsignedInteger('historic_outer_id')->index();
+            $table->foreign('historic_outer_id')->references('id')->on('historic_outers');
             $table->timestampsTz();
         });
     }
 
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('historic_product_stats');
+        Schema::dropIfExists('historic_outer_stats');
     }
 };
