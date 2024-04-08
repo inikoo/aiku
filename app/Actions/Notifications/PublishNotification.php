@@ -35,8 +35,8 @@ class PublishNotification
     {
         $user    = User::where('username', 'aiku')->first();
         $content = [
-            'title' => 'Subject/Title',
-            'body'  => 'Hello'
+            'title' => 'Pallet delivery has been returned',
+            'body'  => 'Hello, customer\'s pallet has been returned'
         ];
 
         $this->handle($user, $content);

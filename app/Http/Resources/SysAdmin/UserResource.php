@@ -43,7 +43,6 @@ class UserResource extends JsonResource
             'updated_at'    => $user->updated_at,
             'roles'         => $user->getRoleNames()->toArray(),
             'permissions'   => $user->getAllPermissions()->pluck('name')->toArray()
-
         ];
     }
 }

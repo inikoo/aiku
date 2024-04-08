@@ -32,7 +32,7 @@ class MeasurementShareNotification extends Notification
      */
     public function via($notifiable)
     {
-        return [FcmChannel::class];
+        return [FcmChannel::class, 'database'];
     }
 
     /**
@@ -73,8 +73,11 @@ class MeasurementShareNotification extends Notification
      */
     public function toArray($notifiable)
     {
+        $measurement = $this->measurement;
+
         return [
-            //
+            'title' => $measurement['title'],
+            'body'  => $measurement['body']
         ];
     }
 }
