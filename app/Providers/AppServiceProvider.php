@@ -50,6 +50,19 @@ class AppServiceProvider extends ServiceProvider
 
         Relation::morphMap(
             [
+                // Accounting
+                'Invoice'                => 'App\Models\Accounting\Invoice',
+
+                // Assets
+
+                // CRM
+                'Customer'               => 'App\Models\CRM\Customer',
+                'Prospect'               => 'App\Models\CRM\Prospect',
+                'CustomerClient'         => 'App\Models\Dropshipping\CustomerClient',
+
+                // Dispatch
+                'DeliveryNote'          => 'App\Models\Dispatch\DeliveryNote',
+
                 'Admin'                  => 'App\Models\SysAdmin\Admin',
                 'JobPosition'            => 'App\Models\HumanResources\JobPosition',
                 'Group'                  => 'App\Models\SysAdmin\Group',
@@ -57,8 +70,6 @@ class AppServiceProvider extends ServiceProvider
                 'User'                   => 'App\Models\SysAdmin\User',
                 'Employee'               => 'App\Models\HumanResources\Employee',
                 'Guest'                  => 'App\Models\SysAdmin\Guest',
-                'Customer'               => 'App\Models\CRM\Customer',
-                'Prospect'               => 'App\Models\Deals\Prospect',
                 'Shop'                   => 'App\Models\Market\Shop',
                 'Fulfilment'             => 'App\Models\Fulfilment\Fulfilment',
                 'ProductCategory'        => 'App\Models\Market\ProductCategory',
@@ -87,7 +98,6 @@ class AppServiceProvider extends ServiceProvider
                 'PalletDelivery'         => 'App\Models\Fulfilment\PalletDelivery',
                 'PalletReturn'           => 'App\Models\Fulfilment\PalletReturn',
                 'StoredItem'             => 'App\Models\Fulfilment\StoredItem',
-                'Invoice'                => 'App\Models\Accounting\Invoice',
                 'SupplierProduct'        => 'App\Models\SupplyChain\SupplierProduct',
 
 

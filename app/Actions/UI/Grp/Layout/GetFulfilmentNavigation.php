@@ -21,6 +21,53 @@ class GetFulfilmentNavigation
 
         if ($user->hasPermissionTo("fulfilment.$fulfilment->id.view")) {
 
+            $navigation['products'] = [
+                'root'  => 'grp.org.fulfilments.show.products.',
+                'label' => __('Products'),
+                'icon'  => ['fal', 'fa-cube'],
+
+                'route' => [
+                    'name'       => 'grp.org.fulfilments.show.products.index',
+                    'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
+                ],
+
+                'topMenu' => [
+                    'subSections' => [
+                        [
+                            'label'   => __('rent'),
+                            'icon'    => ['fal', 'fa-garage'],
+                            'root'    => 'grp.org.fulfilments.show.products.rent.',
+                            'route'   => [
+                                'name'       => 'grp.org.fulfilments.show.products.rent.index',
+                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
+                            ],
+                        ],
+                        [
+                            'label'   => __('services'),
+                            'icon'    => ['fal', 'fa-concierge-bell'],
+                            'root'    => 'grp.org.fulfilments.show.products.services.',
+                            'route'   => [
+                                'name'       => 'grp.org.fulfilments.show.products.services.index',
+                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
+                            ],
+                        ],
+                        [
+                            'label'   => __('goods'),
+                            'icon'    => ['fal', 'fa-cube'],
+                            'root'    => 'grp.org.fulfilments.show.products.goods.',
+                            'route'   => [
+                                'name'       => 'grp.org.fulfilments.show.products.goods.index',
+                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
+                            ],
+                        ],
+
+
+
+
+                    ]
+                ]
+
+            ];
 
             $navigation['operations'] = [
                 'root'  => 'grp.org.fulfilments.show.operations.',
@@ -34,16 +81,7 @@ class GetFulfilmentNavigation
 
                 'topMenu' => [
                     'subSections' => [
-                        [
-                            'label'   => __('products'),
-                            'tooltip' => __('Products'),
-                            'icon'    => ['fal', 'fa-cube'],
-                            'root'    => 'grp.org.fulfilments.show.operations.products.',
-                            'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
-                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
-                            ],
-                        ],
+
                         [
                             'label'   => __('pallets'),
                             'tooltip' => __('Pallets'),

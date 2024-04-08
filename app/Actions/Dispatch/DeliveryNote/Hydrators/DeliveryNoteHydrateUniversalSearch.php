@@ -20,9 +20,16 @@ class DeliveryNoteHydrateUniversalSearch
         $deliveryNote->universalSearch()->updateOrCreate(
             [],
             [
-                'section'        => 'dispatch',
-                'title'          => $deliveryNote->number,
-                'description'    => $deliveryNote->email
+                'group_id'          => $deliveryNote->group_id,
+                'organisation_id'   => $deliveryNote->organisation_id,
+                'organisation_slug' => $deliveryNote->organisation->slug,
+                'shop_id'           => $deliveryNote->shop_id,
+                'shop_slug'         => $deliveryNote->shop->slug,
+                'customer_id'       => $deliveryNote->customer_id,
+                'customer_slug'     => $deliveryNote->customer->slug,
+                'section'           => 'dispatch',
+                'title'             => $deliveryNote->number,
+                'description'       => $deliveryNote->email
             ]
         );
     }

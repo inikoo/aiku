@@ -20,9 +20,14 @@ class ProductCategoryHydrateUniversalSearch
         $productCategory->universalSearch()->updateOrCreate(
             [],
             [
-                'section'     => 'shops',
-                'title'       => $productCategory->name,
-                'description' => $productCategory->code
+                'group_id'          => $productCategory->group_id,
+                'organisation_id'   => $productCategory->organisation_id,
+                'organisation_slug' => $productCategory->organisation->slug,
+                'shop_id'           => $productCategory->shop_id,
+                'shop_slug'         => $productCategory->shop->slug,
+                'section'           => 'shops',
+                'title'             => $productCategory->name,
+                'description'       => $productCategory->code
             ]
         );
     }

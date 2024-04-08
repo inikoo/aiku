@@ -11,7 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Enums\Market\Shop\ShopTypeEnum;
-use App\Enums\UI\FulfilmentTabsEnum;
+use App\Enums\UI\Fulfilment\FulfilmentTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Shop;

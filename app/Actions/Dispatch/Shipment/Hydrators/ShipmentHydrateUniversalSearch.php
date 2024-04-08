@@ -20,9 +20,16 @@ class ShipmentHydrateUniversalSearch
         $shipment->universalSearch()->updateOrCreate(
             [],
             [
-                'section'        => 'dispatch',
-                'title'          => $shipment->tracking??'',
-                'description'    => ''
+                'group_id'          => $shipment->group_id,
+                'organisation_id'   => $shipment->organisation_id,
+                'organisation_slug' => $shipment->organisation->slug,
+                'shop_id'           => $shipment->shop_id,
+                'shop_slug'         => $shipment->shop->slug,
+                'customer_id'       => $shipment->customer_id,
+                'customer_slug'     => $shipment->customer->slug,
+                'section'           => 'dispatch',
+                'title'             => $shipment->tracking??'',
+                'description'       => ''
             ]
         );
     }

@@ -8,10 +8,11 @@
 namespace App\Actions\Dispatch\Shipment;
 
 use App\Actions\Dispatch\Shipment\Hydrators\ShipmentHydrateUniversalSearch;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dispatch\Shipment;
 
-class UpdateShipment
+class UpdateShipment extends OrgAction
 {
     use WithActionUpdate;
 
@@ -25,15 +26,13 @@ class UpdateShipment
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:shipments', 'between:2,9', 'alpha']
+            'reference' => ['required',  'max:64', 'string']
         ];
     }
 
     public function action(Shipment $shipment, array $modelData): Shipment
     {
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
-
-        return $this->handle($shipment, $validatedData);
+        $this->initialisation($shipment->organisation, $modelData);
+        return $this->handle($shipment, $this->validatedData);
     }
 }

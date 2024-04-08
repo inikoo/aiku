@@ -54,6 +54,29 @@ export const initialiseApp = () => {
                 }))
             }
 
+            if(layout.currentParams?.agent) {
+                // Set current shop, current warehouse, current fulfilment
+                layout.agentsState = {
+                    ...layout.agentsState,
+                    [layout.currentParams.agent]: {
+                        currentShop: route().params.shop ?? layout.agentsState?.[layout.currentParams.agent]?.currentShop,
+                        currentWarehouse: route().params.warehouse ?? layout.agentsState?.[layout.currentParams.agent]?.currentWarehouse,
+                        currentFulfilment: route().params.fulfilment ?? layout.agentsState?.[layout.currentParams.agent]?.currentFulfilment,
+                        currentType: route().params.shop ? 'shop' : route().params.fulfilment ? 'fulfilment' : layout.agentsState?.[layout.currentParams.agent]?.currentType
+                    }
+                }
+
+                localStorage.setItem('layout', JSON.stringify({
+                    ...storageLayout,
+                    [layout.currentParams.agent]: {
+                        currentShop: layout.agentsState?.[layout.currentParams.agent]?.currentShop,
+                        currentWarehouse: layout.agentsState?.[layout.currentParams.agent]?.currentWarehouse,
+                        currentFulfilment: layout.agentsState?.[layout.currentParams.agent]?.currentFulfilment,
+                        currentType: layout.agentsState?.[layout.currentParams.agent]?.currentType
+                    }
+                }))
+            }
+
             // console.log('qq', usePage().props.auth.user)
 
             const dataActiveUser = {

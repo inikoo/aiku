@@ -157,7 +157,7 @@ class IndexEmployees extends OrgAction
 
             return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
         } else {
-            return $request->user()->hasPermissionTo('group-business-intelligence');
+            return $request->user()->hasPermissionTo('group-reports');
         }
     }
 

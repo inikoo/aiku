@@ -179,17 +179,17 @@ class GetShopNavigation
             ];
         }
 
-        if ($user->hasPermissionTo("oms.$shop->id.view")) {
+        if ($user->hasPermissionTo("orders.$shop->id.view")) {
             $navigation["oms"] = [
                 "scope" => "shops",
                 "label" => __("Orders"),
                 "icon"  => ["fal", "fa-shopping-cart"],
                 "route" => [
-                    "name"       => "grp.oms.dashboard",
+                    "name"       => 'grp.org.shops.show.orders.orders.index',
                     "parameters" => [$shop->organisation->slug, $shop->slug],
                 ],
                 "topMenu" => [
-                    "subSections" => [
+                    "subSectionsx" => [
                         [
                             "label"   => "OMS",
                             "tooltip" => "OMS",

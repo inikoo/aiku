@@ -7,10 +7,11 @@
 
 namespace App\Actions\OMS\Order\UI;
 
-use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\OrgAction;
+use App\Enums\UI\OMS\OrdersTabsEnum;
 use App\Enums\UI\TabsAbbreviationEnum;
+use App\Http\Resources\OMS\OrdersResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
@@ -22,11 +23,14 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexOrders extends InertiaAction
+class IndexOrders extends OrgAction
 {
+    private Organisation|Shop $parent;
+
     public function handle(Organisation|Shop|Customer $parent): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -68,16 +72,19 @@ class IndexOrders extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure(Organisation|Shop $parent, $prefix=null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
+        return function (InertiaTable $table) use ($parent, $prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
-                ->name(TabsAbbreviationEnum::ORDERS->value)
-                ->pageName(TabsAbbreviationEnum::ORDERS->value.'Page')
                 ->withEmptyState(
                     [
                         'title' => __("No orders found"),
-                        'count' => $parent->orders->count()
+                        'count' => $parent->salesStats->number_orders
                     ]
                 );
 
@@ -88,13 +95,8 @@ class IndexOrders extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('shops.products.edit');
-
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('shops.products.view')
-            );
+        $this->canEdit =$request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+        return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
     }
 
 
@@ -104,10 +106,8 @@ class IndexOrders extends InertiaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $orders, ActionRequest $request)
+    public function htmlResponse(LengthAwarePaginator $orders, ActionRequest $request): Response
     {
-        $parent = $request->route()->originalParameters()() == [] ? app('currentTenant') : last($request->route()->originalParameters()());
-
         return Inertia::render(
             'OMS/Orders',
             [
@@ -118,33 +118,37 @@ class IndexOrders extends InertiaAction
                 'title'       => __('orders'),
                 'pageHead'    => [
                     'title'   => __('orders'),
-                    'create'  => $this->canEdit && $request->route()->getName()=='shops.show.orders.index' ? [
-                        'route' => [
-                            'name'       => 'shops.show.orders.create',
-                            'parameters' => array_values($request->route()->originalParameters())
-                        ],
-                        'label'=> __('order')
-                    ] : false,
                 ],
                 'data'        => OrderResource::collection($orders),
+                'tabs'        => [
+                    'current'    => $this->tab,
+                    'navigation' => OrdersTabsEnum::navigation(),
+                ],
+                OrdersTabsEnum::BACKLOG->value => $this->tab == OrdersTabsEnum::BACKLOG->value ?
+                    fn () => GetOrdersBackLog::run($this->parent, $request)
+                    : Inertia::lazy(fn () => GetOrdersBackLog::run($this->parent, $request)),
+                OrdersTabsEnum::ORDERS->value => $this->tab == OrdersTabsEnum::ORDERS->value ?
+                    fn () => OrdersResource::collection($orders)
+                    : Inertia::lazy(fn () => OrdersResource::collection($orders)),
 
 
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure($this->parent, OrdersTabsEnum::ORDERS->value));
     }
 
 
-    public function inOrganisation(ActionRequest $request): LengthAwarePaginator
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent=$organisation;
+        $this->initialisation($organisation, $request)->withTab(OrdersTabsEnum::values());
 
-        $this->initialisation($request);
-
-        return $this->handle(parent: app('currentTenant'));
+        return $this->handle(parent: $organisation);
     }
 
-    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->parent=$shop;
+        $this->initialisationFromShop($shop, $request)->withTab(OrdersTabsEnum::values());
 
         return $this->handle(parent: $shop);
     }
@@ -165,48 +169,16 @@ class IndexOrders extends InertiaAction
         };
 
         return match ($routeName) {
-            'grp.crm.orders.index' =>
-            array_merge(
-                (new ShowShop())->getBreadcrumbs($routeParameters),
-                $headCrumb(
-                    [
-                        'name' => 'grp.crm.orders.index',
-                        null
-                    ]
-                ),
-            ),
-            'grp.crm.shops.show.orders.index' =>
-            array_merge(
-                (new ShowShop())->getBreadcrumbs($routeParameters),
-                $headCrumb(
-                    [
-                        'name'       => 'grp.crm.shops.show.orders.index',
-                        'parameters' => $routeParameters
-                    ]
-                )
-            ),
-            'orders.index'            =>
 
-            array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
-                $headCrumb(
-                    [
-                        'name'=> 'orders.index',
-                        null
-                    ]
-                ),
-            ),
 
-            'shops.show.orders.index' =>
+
+            'grp.org.shops.show.orders.orders.index' =>
             array_merge(
                 (new ShowShop())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name'      => 'shops.show.orders.index',
-                        'parameters'=>
-                            [
-                                $routeParameters['shop']
-                            ]
+                        'name'      => 'grp.org.shops.show.orders.orders.index',
+                        'parameters'=> $routeParameters
                     ]
                 )
             ),

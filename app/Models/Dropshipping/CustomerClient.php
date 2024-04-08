@@ -12,6 +12,8 @@ use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
 use App\Models\Search\UniversalSearch;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -50,6 +52,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read Collection<int, Address> $addresses
  * @property-read Customer|null $customer
+ * @property-read Group $group
+ * @property-read Organisation $organisation
  * @property-read Shop|null $shop
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Dropshipping\CustomerClientFactory factory($count = null, $state = [])
@@ -120,6 +124,16 @@ class CustomerClient extends Model
     public function shop(): BelongsTo
     {
         return $this->belongsTo(Shop::class);
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(Group::class);
     }
 
     public function customer(): BelongsTo

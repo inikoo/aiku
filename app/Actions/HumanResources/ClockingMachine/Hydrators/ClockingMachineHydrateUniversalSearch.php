@@ -20,9 +20,12 @@ class ClockingMachineHydrateUniversalSearch
         $clockingMachine->universalSearch()->updateOrCreate(
             [],
             [
-                'section'     => 'hr',
-                'title'       => $clockingMachine->name,
-                'description' => $clockingMachine->workplace->name
+                'group_id'          => $clockingMachine->group_id,
+                'organisation_id'   => $clockingMachine->organisation_id,
+                'organisation_slug' => $clockingMachine->organisation->slug,
+                'section'           => 'hr',
+                'title'             => $clockingMachine->name,
+                'description'       => $clockingMachine->workplace->name
             ]
         );
     }

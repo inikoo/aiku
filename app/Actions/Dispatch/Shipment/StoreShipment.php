@@ -13,21 +13,32 @@ use App\Actions\Dispatch\Shipment\ApiCalls\DpdSkCallShipperApi;
 use App\Actions\Dispatch\Shipment\ApiCalls\PostmenCallShipperApi;
 use App\Actions\Dispatch\Shipment\ApiCalls\WhistlGbCallShipperApi;
 use App\Actions\Dispatch\Shipment\Hydrators\ShipmentHydrateUniversalSearch;
+use App\Actions\OrgAction;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dispatch\Shipment;
 use App\Models\Dispatch\Shipper;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreShipment
+class StoreShipment extends OrgAction
 {
     use AsAction;
     use WithAttributes;
 
     public function handle(DeliveryNote $deliveryNote, Shipper $shipper, array $modelData): Shipment
     {
-        $modelData['shipper_id'] = $shipper->id;
-        $modelData['data']       = $deliveryNote;
+
+        $modelData=array_merge(
+            $modelData,
+            [
+                'group_id'        => $deliveryNote->group_id,
+                'organisation_id' => $deliveryNote->organisation_id,
+                'shop_id'         => $deliveryNote->shop_id,
+                'customer_id'     => $deliveryNote->customer_id,
+            ]
+        );
+
+        /** @var Shipment $shipment */
         $shipment                =match($shipper->api_shipper) {
             'apc-gb'=> ApcGbCallShipperApi::run($deliveryNote, $shipper),
             'dpd-gb'=> DpdGbCallShipperApi::run($deliveryNote, $shipper),
@@ -36,6 +47,12 @@ class StoreShipment
             'whl-gb'=> WhistlGbCallShipperApi::run($deliveryNote, $shipper),
             default => $shipper->shipments()->create($modelData),
         };
+
+        $shipment->deliveryNotes()->attach($deliveryNote->id);
+        $shipment->refresh();
+
+
+
         ShipmentHydrateUniversalSearch::dispatch($shipment);
 
         return $shipment;
@@ -44,15 +61,13 @@ class StoreShipment
     public function rules(): array
     {
         return [
-            'code' => ['required', 'unique:shipments', 'between:2,9', 'alpha']
+            'reference' => ['required',  'max:64', 'string']
         ];
     }
 
     public function action(DeliveryNote $deliveryNote, Shipper $shipper, array $modelData): Shipment
     {
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
-
-        return $this->handle($deliveryNote, $shipper, $validatedData);
+        $this->initialisation($deliveryNote->organisation, $modelData);
+        return $this->handle($deliveryNote, $shipper, $this->validatedData);
     }
 }

@@ -173,7 +173,7 @@ class FetchAuroraEmployee extends FetchAurora
                 18 => 'shop-manager',
                 9  => 'shop-clerk',
 
-                14, 5 => 'business-intelligence-analyst',
+                14, 5 => 'reports-analyst',
                 29 => 'marketing-broadcaster-clerk',
                 30 => 'marketing-broadcaster-manager',
                 32 => 'fulfilment-manager',

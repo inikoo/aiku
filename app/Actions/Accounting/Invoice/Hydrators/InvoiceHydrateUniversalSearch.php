@@ -20,8 +20,15 @@ class InvoiceHydrateUniversalSearch
         $invoice->universalSearch()->updateOrCreate(
             [],
             [
-                'section'        => 'accounting',
-                'title'          => $invoice->number,
+                'group_id'          => $invoice->group_id,
+                'organisation_id'   => $invoice->organisation_id,
+                'organisation_slug' => $invoice->organisation->slug,
+                'shop_id'           => $invoice->shop_id,
+                'shop_slug'         => $invoice->shop->slug,
+                'customer_id'       => $invoice->customer_id,
+                'customer_slug'     => $invoice->customer->slug,
+                'section'           => 'accounting',
+                'title'             => $invoice->number,
             ]
         );
     }

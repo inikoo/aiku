@@ -35,8 +35,6 @@ return new class () extends Migration {
             $table->string('phone')->nullable();
 
 
-            $table->unsignedInteger('shipment_id')->nullable()->index();
-            $table->foreign('shipment_id')->references('id')->on('shipments');
 
             $table->decimal('weight', 16)->nullable()->default(0);
             $table->unsignedSmallInteger('number_stocks')->default(0);

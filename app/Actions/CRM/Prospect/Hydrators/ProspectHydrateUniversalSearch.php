@@ -20,9 +20,14 @@ class ProspectHydrateUniversalSearch
         $prospect->universalSearch()->updateOrCreate(
             [],
             [
-                'section'     => 'crm',
-                'title'       => trim($prospect->name.' '.$prospect->contact_name),
-                'description' => trim($prospect->email.' '.$prospect->company_name)
+                'group_id'          => $prospect->group_id,
+                'organisation_id'   => $prospect->organisation_id,
+                'organisation_slug' => $prospect->organisation->slug,
+                'shop_id'           => $prospect->shop_id,
+                'shop_slug'         => $prospect->shop->slug,
+                'section'           => 'crm',
+                'title'             => trim($prospect->name.' '.$prospect->contact_name),
+                'description'       => trim($prospect->email.' '.$prospect->company_name)
             ]
         );
     }

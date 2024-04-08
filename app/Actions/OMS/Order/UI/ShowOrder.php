@@ -13,7 +13,7 @@ use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
-use App\Enums\UI\OrderTabsEnum;
+use App\Enums\UI\OMS\OrderTabsEnum;
 use App\Http\Resources\Accounting\InvoicesResource;
 use App\Http\Resources\Accounting\PaymentsResource;
 use App\Http\Resources\Delivery\DeliveryNoteResource;

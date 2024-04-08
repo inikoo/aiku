@@ -82,7 +82,7 @@ enum RolesEnum: string
     {
         return match ($this) {
             RolesEnum::SUPER_ADMIN => [
-                GroupPermissionsEnum::GROUP_BUSINESS_INTELLIGENCE,
+                GroupPermissionsEnum::GROUP_REPORTS,
                 GroupPermissionsEnum::SYSADMIN,
                 GroupPermissionsEnum::SUPPLY_CHAIN,
                 GroupPermissionsEnum::ORGANISATIONS,
@@ -102,7 +102,7 @@ enum RolesEnum: string
             ],
 
             RolesEnum::ORG_ADMIN => [
-                OrganisationPermissionsEnum::ORG_BUSINESS_INTELLIGENCE,
+                OrganisationPermissionsEnum::ORG_REPORTS,
                 OrganisationPermissionsEnum::PROCUREMENT,
                 OrganisationPermissionsEnum::HUMAN_RESOURCES,
                 OrganisationPermissionsEnum::SUPERVISOR,
@@ -139,6 +139,7 @@ enum RolesEnum: string
                 ShopPermissionsEnum::PRODUCTS,
                 ShopPermissionsEnum::WEB,
                 ShopPermissionsEnum::CRM,
+                ShopPermissionsEnum::ORDERS,
                 ShopPermissionsEnum::SUPERVISOR_CRM,
                 ShopPermissionsEnum::SUPERVISOR_PRODUCTS
             ],

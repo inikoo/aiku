@@ -22,14 +22,27 @@ class UpdateUniversalSearch extends HydrateModel
 
     public function asCommand(Command $command): int
     {
+        $command->line('Guests');
+        $command->call('guests:search');
+
         $command->line('Workplaces');
         $command->call('workplace:search');
         $command->line('Employees');
         $command->call('employee:search');
 
+        $command->line('Products');
+        $command->call('product:search');
+        $command->line('Product categories');
+        $command->call('product-category:search');
 
         $command->line('Customers');
         $command->call('customer:search');
+
+        $command->line('Orders');
+        $command->call('order:search');
+
+        $command->line('Invoices');
+        $command->call('invoice:search');
 
         $command->line('Employees');
         $command->call('fulfilment-customer:search');

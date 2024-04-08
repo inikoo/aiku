@@ -40,6 +40,14 @@ Route::prefix("accounting")
     ->name("accounting.")
     ->group(__DIR__."/accounting.php");
 
+Route::prefix("reports")
+    ->name("reports.")
+    ->group(__DIR__."/reports.php");
+
+Route::prefix("dispatch")
+    ->name("dispatch.")
+    ->group(__DIR__ . "/dispatch.php");
+
 /*
 
 Route::prefix("crm")
@@ -49,16 +57,8 @@ Route::prefix("crm")
 Route::prefix("account")
     ->name("account.")
     ->group(__DIR__."/account.php");
-Route::prefix("bi")
-    ->name("business_intelligence.")
-    ->group(__DIR__."/business_intelligence.php");
 
-Route::prefix("hr")
-    ->name("hr.")
-    ->group(__DIR__."/hr.php");
-Route::prefix("inventory")
-    ->name("inventory.")
-    ->group(__DIR__."/warehouses.php");
+
 
 Route::prefix("dropshipping")
     ->name("dropshipping.")
@@ -81,10 +81,8 @@ Route::prefix("search")
     ->group(__DIR__."/search.php");
 Route::prefix("oms")
     ->name("oms.")
-    ->group(__DIR__."/oms.php");
-Route::prefix("dispatch")
-    ->name("dispatch.")
-    ->group(__DIR__."/dispatch.php");
+    ->group(__DIR__."/orders.php");
+
 
 
 Route::prefix("marketing")

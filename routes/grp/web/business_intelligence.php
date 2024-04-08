@@ -6,9 +6,9 @@
  */
 
 
-use App\Actions\UI\BusinessIntelligence\BusinessIntelligenceDashboard;
+use App\Actions\UI\Reports\IndexReports;
 
-Route::get('/', [BusinessIntelligenceDashboard::class,'inOrganisation'])->name('dashboard');
+Route::get('/', [IndexReports::class,'inOrganisation'])->name('dashboard');
 
 
-Route::get('/{shop}', [BusinessIntelligenceDashboard::class,'inShop'])->name('shops.show.dashboard');
+Route::get('/{shop}', [IndexReports::class,'inShop'])->name('shops.show.dashboard');
