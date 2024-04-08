@@ -1,11 +1,11 @@
 <?php
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 24 Apr 2023 20:22:54 Malaysia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Mon, 08 Apr 2024 15:23:05 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Profile;
+namespace App\Actions\UI\Notification;
 
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\SysAdmin\NotificationResource;
