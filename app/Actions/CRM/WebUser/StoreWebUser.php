@@ -141,8 +141,8 @@ class StoreWebUser extends OrgAction
 
         if (!$this->customer->hasUsers()) {
             $this->fill(['is_root' => true]);
-        }elseif($this->get('is_root')==null){
-                $this->fill(['is_root' => false]);
+        } elseif($this->get('is_root')==null) {
+            $this->fill(['is_root' => false]);
 
         }
     }

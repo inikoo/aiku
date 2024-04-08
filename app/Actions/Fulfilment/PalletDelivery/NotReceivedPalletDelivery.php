@@ -30,13 +30,10 @@ class NotReceivedPalletDelivery extends OrgAction
         SendPalletDeliveryNotification::run($palletDelivery);
 
         return $palletDelivery;
-
     }
 
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
-
-
 }
