@@ -13,10 +13,11 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Group;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class BroadcastFulfilmentCustomerNotification
+class BroadcastFulfilmentCustomerNotification implements ShouldQueue
 {
     use Dispatchable;
     use InteractsWithSockets;
