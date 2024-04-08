@@ -18,6 +18,7 @@ return new class () extends Migration {
     {
         Schema::create('outers', function (Blueprint $table) {
             $table->increments('id');
+            $table->boolean('is_main')->index();
             $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');

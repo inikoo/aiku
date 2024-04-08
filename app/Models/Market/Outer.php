@@ -24,6 +24,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Market\Outer
  *
  * @property int $id
+ * @property bool $is_main
  * @property int $group_id
  * @property int $organisation_id
  * @property int|null $shop_id

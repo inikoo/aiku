@@ -10,23 +10,25 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Market\Product\StorePhysicalGood;
 use App\Actions\Market\Product\UpdateProduct;
 use App\Models\Market\Product;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 use App\Services\Organisation\SourceOrganisationService;
 
 class FetchServices extends FetchAction
 {
-    public string $commandSignature = 'fetch:services {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:services {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--N|only_new : Fetch only new}  {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Product
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Product
     {
-        if ($productData = $organisationSource->fetchProduct($organisationSourceId)) {
-            if ($product = Product::where('source_id', $productData['product']['source_id'])
+
+        if ($serviceData = $organisationSource->fetchService($organisationSourceId)) {
+
+            if ($product = Product::where('source_id', $serviceData['service']['source_id'])
                 ->first()) {
-                $product = UpdateProduct::run(
+                $product = UpdateProduct::make()->action(
                     product:      $product,
-                    modelData:    $productData['product'],
+                    modelData:    $serviceData['service'],
                     skipHistoric: true
                 );
             } else {
@@ -43,16 +45,30 @@ class FetchServices extends FetchAction
                 }
             }
 
+            $sourceData = explode(':', $product->source_id);
 
-            $historicProduct = HistoricProduct::where('source_id', $productData['historic_product_source_id'])->first();
+            DB::connection('aurora')->table('Product Dimension')
+                ->where('Product ID', $sourceData[1])
+                ->update(['aiku_id' => $product->id]);
 
-            if (!$historicProduct) {
-                $historicProduct = FetchHistoricProducts::run($organisationSource, $productData['historic_product_source_id']);
+
+            $historicService = HistoricOuter::where('source_id', $serviceData['historic_service_source_id'])->first();
+            if (!$historicService) {
+                $historicService = FetchHistoricServices::run(
+                    $organisationSource,
+                    $serviceData['historic_service_source_id']
+                );
             }
 
             $product->update(
                 [
-                    'current_historic_product_id' => $historicProduct->id
+                    'current_historic_outer_id' => $historicService->id
+                ]
+            );
+
+            $product->update(
+                [
+                    'current_historic_outer_id' => $historicService->id
                 ]
             );
 
@@ -65,15 +81,38 @@ class FetchServices extends FetchAction
 
     public function getModelsQuery(): Builder
     {
-        return DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Product Dimension')
             ->where('Product Type', 'Service')
             ->select('Product ID as source_id')
             ->orderBy('Product ID');
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        $sourceData = explode(':', $this->shop->source_id);
+        if ($this->shop) {
+            $query->where('Product Store Key', $sourceData[1]);
+        }
+
+        return $query;
     }
 
     public function count(): ?int
     {
-        return DB::connection('aurora')->table('Product Dimension')->where('Product Type', 'Service')->count();
+        $query = DB::connection('aurora')->table('Product Dimension')
+            ->where('Product Type', 'Service');
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        $sourceData = explode(':', $this->shop->source_id);
+        if ($this->shop) {
+            $query->where('Product Store Key', $sourceData[1]);
+        }
+
+        return $query->count();
     }
 }

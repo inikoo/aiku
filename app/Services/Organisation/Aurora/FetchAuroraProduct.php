@@ -22,6 +22,10 @@ class FetchAuroraProduct extends FetchAurora
             return;
         }
 
+        if ($this->auroraModelData->{'is_variant'} != 'No') {
+            return;
+        }
+
         $this->parsedData['shop']   = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Product Store Key'});
         $this->parsedData['parent'] = $this->parsedData['shop'];
         if ($this->auroraModelData->{'Product Family Category Key'}) {
@@ -90,8 +94,9 @@ class FetchAuroraProduct extends FetchAurora
             'data'                  => $data,
             'settings'              => $settings,
             'created_at'            => $created_at,
-            'trade_unit_composition'=> ProductUnitRelationshipType::MATCH->value,
+            'trade_unit_composition'=> ProductUnitRelationshipType::SINGLE,
             'source_id'             => $this->organisation->id.':'.$this->auroraModelData->{'Product ID'},
+
         ];
     }
 

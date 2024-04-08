@@ -8,9 +8,7 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Market\Product\StorePhysicalGood;
-use App\Actions\Market\Product\SyncProductTradeUnits;
 use App\Actions\Market\Product\UpdateProduct;
-use App\Models\Market\HistoricOuter;
 use App\Models\Market\Product;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
@@ -24,7 +22,25 @@ class FetchProducts extends FetchAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Product
     {
         if ($productData = $organisationSource->fetchProduct($organisationSourceId)) {
-            //print_r($productData['product']);
+
+
+
+            $sourceData = explode(':', $productData['product']['source_id']);
+
+
+            $tradeUnits =$organisationSource->fetchProductStocks($sourceData[1])['trade_units'];
+
+            if(count($tradeUnits)==0) {
+                return null;
+            }
+
+            data_set(
+                $productData,
+                'product.trade_units',
+                $tradeUnits
+            );
+
+
             if ($product = Product::withTrashed()->where('source_id', $productData['product']['source_id'])
                 ->first()) {
                 try {
@@ -58,22 +74,7 @@ class FetchProducts extends FetchAction
                 ->update(['aiku_id' => $product->id]);
 
 
-            $historicProduct = HistoricOuter::where('source_id', $productData['historic_outer_source_id'])->first();
-            if (!$historicProduct) {
-                $historicProduct = FetchHistoricProducts::run($organisationSource, $productData['historic_outer_source_id']);
-            }
 
-            $product->update(
-                [
-                    'current_historic_outer_id' => $historicProduct->id
-                ]
-            );
-
-
-            $tradeUnits = $organisationSource->fetchProductStocks($sourceData[1]);
-
-
-            SyncProductTradeUnits::run($product, $tradeUnits['product_stocks']);
 
 
             return $product;
@@ -88,6 +89,7 @@ class FetchProducts extends FetchAction
         $query = DB::connection('aurora')
             ->table('Product Dimension')
             ->where('Product Type', 'Product')
+            ->where('is_variant', 'No')
             ->select('Product ID as source_id')
             ->orderBy('Product ID');
 
@@ -96,7 +98,8 @@ class FetchProducts extends FetchAction
         }
 
         if ($this->shop) {
-            $query->where('Product Store Key', $this->shop->source_id);
+            $sourceData = explode(':', $this->shop->source_id);
+            $query->where('Product Store Key', $sourceData[1]);
         }
 
         return $query;
@@ -104,14 +107,17 @@ class FetchProducts extends FetchAction
 
     public function count(): ?int
     {
-        $query = DB::connection('aurora')->table('Product Dimension')->where('Product Type', 'Product');
+        $query = DB::connection('aurora')->table('Product Dimension')
+            ->where('is_variant', 'No')
+            ->where('Product Type', 'Product');
 
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
 
         if ($this->shop) {
-            $query->where('Product Store Key', $this->shop->source_id);
+            $sourceData = explode(':', $this->shop->source_id);
+            $query->where('Product Store Key', $sourceData[1]);
         }
 
         return $query->count();

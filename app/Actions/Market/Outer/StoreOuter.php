@@ -53,6 +53,7 @@ class StoreOuter extends OrgAction
     public function rules(): array
     {
         return [
+            'is_main'     => ['required', 'boolean'],
             'code'        => [
                 'required',
                 'max:32',
