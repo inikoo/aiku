@@ -77,7 +77,9 @@ class MeasurementShareNotification extends Notification
 
         return [
             'title' => $measurement['title'],
-            'body'  => $measurement['body']
+            'body'  => $measurement['body'],
+            'type'  => $measurement['type'],
+            'id'    => $measurement['id']
         ];
     }
 }

@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI;
 
-use App\Events\BroadcastNotification;
+use App\Events\BroadcastUserNotification;
 use App\Models\SysAdmin\Group;
 use Exception;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -19,7 +19,7 @@ class SendNotification
 
     public function handle(Group $group, string $title, string $text): void
     {
-        BroadcastNotification::dispatch($group, $title, $text);
+        BroadcastUserNotification::dispatch($group, $title, $text);
     }
 
     public string $commandSignature = 'send:notification {group} {message?}';
