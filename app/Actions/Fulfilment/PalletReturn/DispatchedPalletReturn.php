@@ -45,6 +45,7 @@ class DispatchedPalletReturn extends OrgAction
         }
 
         HydrateFulfilmentCustomer::dispatch($palletReturn->fulfilmentCustomer);
+        SendPalletReturnNotification::dispatch($palletReturn);
 
         return $this->update($palletReturn, $modelData);
     }

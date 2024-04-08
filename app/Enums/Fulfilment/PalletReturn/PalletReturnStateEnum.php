@@ -135,4 +135,38 @@ enum PalletReturnStateEnum: string
             'cancel'       => $stats->number_pallet_returns_state_cancel
         ];
     }
+
+    public static function notifications(string $reference): array
+    {
+        return [
+            'in-process'   => [
+                'title'    => __("Pallet Return $reference Created"),
+                'subtitle' => __('Pallet return has been created')
+            ],
+            'submitted'    => [
+                'title'    => __("Pallet Return $reference Submitted"),
+                'subtitle' => __('Pallet return has been submitted')
+            ],
+            'confirmed'    => [
+                'title'    => __("Pallet Return $reference Confirmed"),
+                'subtitle' => __('Pallet return has been confirmed')
+            ],
+            'picking'     => [
+                'title'    => __("Pallet Return $reference Picking"),
+                'subtitle' => __('Pallet return is picking')
+            ],
+            'picked' => [
+                'title'    => __("Pallet Return $reference Picked"),
+                'subtitle' => __('Pallet return has been picked')
+            ],
+            'dispatched'   => [
+                'title'    => __("Pallet Return $reference Dispatched"),
+                'subtitle' => __('Pallet return has been dispatched')
+            ],
+            'cancel'    => [
+                'title'    => __("Pallet Return $reference Cancelled"),
+                'subtitle' => __('Pallet return has been cancelled')
+            ],
+        ];
+    }
 }
