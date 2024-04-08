@@ -141,11 +141,15 @@ class StoreWebUser extends OrgAction
 
         if (!$this->customer->hasUsers()) {
             $this->fill(['is_root' => true]);
+        }elseif($this->get('is_root')==null){
+                $this->fill(['is_root' => false]);
+
         }
     }
 
     public function inFulfilmentCustomer(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Webuser
     {
+        dd($request->all());
         $this->parent   = $fulfilmentCustomer;
         $this->customer = $fulfilmentCustomer->customer;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);

@@ -98,7 +98,18 @@ class IndexWebUsers extends OrgAction
                 ),
                 'title'       => __('web users'),
                 'pageHead'    => [
-                    'title' => __('web users'),
+                    'title'   => __('web users'),
+                    'actions' => [
+                        ($this->canEdit &&  ($this->parent instanceof Customer || $this->parent instanceof  FulfilmentCustomer)) ? [
+                            'type'  => 'button',
+                            'style' => 'create',
+                            'label' => __('website user'),
+                            'route' => [
+                                'name'       => $this->parent instanceof Customer ? 'grp.org.shops.show.crm.customers.show.web-users.create' : 'grp.org.fulfilments.show.crm.customers.show.web-users.create',
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ] : false
+                    ]
                 ],
                 'data'        => WebUsersResource::collection($webUsers),
 
@@ -188,6 +199,14 @@ class IndexWebUsers extends OrgAction
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle(parent: $fulfilmentCustomer);
+    }
+
+    public function asController(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $customer;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle(parent: $customer);
     }
 
 

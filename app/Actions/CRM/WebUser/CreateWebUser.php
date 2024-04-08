@@ -99,6 +99,12 @@ class CreateWebUser extends OrgAction
                                         'label' => __('password'),
                                         'value' => ''
                                     ],
+                                    'is_root' => [
+                                        'type'  => 'toggle',
+                                        'label' => __('Admin'),
+                                        'value' => ''
+                                    ],
+
                                 ]
                             ]
                         ],
