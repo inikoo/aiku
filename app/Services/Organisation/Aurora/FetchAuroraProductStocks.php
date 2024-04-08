@@ -7,7 +7,6 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Enums\Market\Product\ProductStateEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraProductStocks extends FetchAurora
@@ -17,23 +16,23 @@ class FetchAuroraProductStocks extends FetchAurora
         $productStocks = [];
         foreach ($this->auroraModelData as $modelData) {
             $orgStock   = $this->parseOrgStock($this->organisation->id.':'.$modelData->{'Product Part Part SKU'});
+
             if ($orgStock) {
                 foreach ($orgStock->stock->tradeUnits as $tradeUnit) {
-                    $productStocks[$tradeUnit->id] = [
-                        'quantity' => $modelData->{'Product Part Ratio'} * $tradeUnit->pivot->quantity,
-                        'notes'    => $modelData->{'Product Part Note'} ?? null
+                    $productStocks[]=[
+                        'trade_unit_id' => $tradeUnit->id,
+                        'quantity'      => $modelData->{'Product Part Ratio'} * $tradeUnit->pivot->quantity,
+                        'notes'         => $modelData->{'Product Part Note'} ?? null
                     ];
-                }
-            } else {
 
-                $product=$this->parseProduct($this->organisation->id.':'.$modelData->{'Product Part Product ID'});
-                if($product->state!=ProductStateEnum::DISCONTINUED) {
-                    print "\nWarning: Part SKU ".$modelData->{'Product Part Part SKU'}." not found in `Product Part Bridge`\n";
-                    //abort(404, "Error fetching products-stock relation");
+
                 }
             }
+            //else {
+            //print "Warning: Part SKU ".$modelData->{'Product Part Part SKU'}." not found in `Product Part Bridge`\n";
+            //}
         }
-        $this->parsedData['product_stocks'] = $productStocks;
+        $this->parsedData['trade_units'] = $productStocks;
     }
 
 

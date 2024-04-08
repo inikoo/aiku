@@ -10,9 +10,11 @@ namespace App\Actions\Market\Product;
 use App\Actions\Market\Product\Hydrators\ProductHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Market\Product\ProductTypeEnum;
 use App\Http\Resources\Market\ProductsResource;
 use App\Models\Market\Product;
 use App\Rules\IUnique;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateProduct extends OrgAction
@@ -60,11 +62,10 @@ class UpdateProduct extends OrgAction
                     ]
                 ),
             ],
-            'units'       => ['sometimes', 'required', 'numeric'],
-            'price'       => ['sometimes', 'required', 'numeric'],
             'rrp'         => ['sometimes', 'required', 'numeric'],
             'name'        => ['sometimes', 'required', 'max:250', 'string'],
             'description' => ['sometimes', 'required', 'max:1500'],
+            'type'        => ['sometimes', 'required', Rule::enum(ProductTypeEnum::class)],
         ];
     }
 

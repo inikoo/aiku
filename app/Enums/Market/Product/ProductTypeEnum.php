@@ -13,14 +13,18 @@ enum ProductTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case PHYSICAL_GOOD    = 'physical_good';
-    case SERVICE          = 'service';
+    case PHYSICAL_GOOD         = 'physical_good';
+    case SERVICE               = 'service';
+    case SUBSCRIPTION          = 'subscription';
+    case RENTAL                = 'rental';
 
     public static function labels(): array
     {
         return [
-            'physical_good' => 'Physical Good',
-            'service'       => 'Service',
+            'physical_good'      => __('Physical good'),
+            'service'            => __('Service'),
+            'subscription'       => __('Subscription'),
+            'rental'             => __('Rental'),
         ];
     }
 

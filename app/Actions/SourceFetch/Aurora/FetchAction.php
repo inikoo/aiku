@@ -125,6 +125,10 @@ class FetchAction
                 'fetch:products',
                 'fetch:webpages',
                 'fetch:invoices',
+                'fetch:orders',
+                'fetch:delivery-notes',
+                'fetch:products',
+                'fetch:services'
             ]) and $command->option('shop')) {
             $this->shop = Shop::where('slug', $command->option('shop'))->firstOrFail();
         }
@@ -339,8 +343,8 @@ class FetchAction
             'model_type' => $modelType,
             'error_on'   => $errorOn
         ]);
-        //print_r($modelData);
-        //print_r($e->getMessage());
+        print_r($modelData);
+        print_r($e->getMessage());
     }
 
     public function recordChange($organisationSource, $wasChanged): void

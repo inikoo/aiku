@@ -15,7 +15,7 @@ class SetProductMainOuter
 {
     use AsAction;
 
-    public function handle(Product $product, Outer $mainOuter)
+    public function handle(Product $product, Outer $mainOuter): Product
     {
         $product->update(
             [
@@ -25,6 +25,9 @@ class SetProductMainOuter
                 'main_outer_available'=> $mainOuter->available,
             ]
         );
+
+        $product->outers()->where('id', '!=', $mainOuter->id)->update(['is_main' => false]);
+        $mainOuter->update(['is_main' => true]);
 
 
 

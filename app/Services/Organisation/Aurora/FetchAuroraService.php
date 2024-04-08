@@ -7,6 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
+use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTypeEnum;
 use Illuminate\Support\Facades\DB;
 
@@ -40,9 +41,31 @@ class FetchAuroraService extends FetchAurora
 
         $this->parsedData['historic_service_source_id'] = $this->auroraModelData->{'Product Current Key'};
 
+        $owner_type = 'Shop';
+        $owner_id   = $this->parsedData['shop']->id;
+
+        $state = match ($this->auroraModelData->{'Product Status'}) {
+            'InProcess'     => ProductStateEnum::IN_PROCESS,
+            'Discontinuing' => ProductStateEnum::DISCONTINUING,
+            'Discontinued'  => ProductStateEnum::DISCONTINUED,
+            default         => ProductStateEnum::ACTIVE
+        };
+
+        $code = $this->cleanTradeUnitReference($this->auroraModelData->{'Product Code'});
+
+
+        $type= ProductTypeEnum::SERVICE;
+        if(preg_match('/rent/i', $code)) {
+            $type= ProductTypeEnum::RENTAL;
+        }
+
+
         $this->parsedData['service'] = [
-            'type'       => ProductTypeEnum::SERVICE,
-            'code'       => $this->auroraModelData->{'Product Code'},
+            'type'       => $type,
+            'owner_type' => $owner_type,
+            'owner_id'   => $owner_id,
+            'state'      => $state,
+            'code'       => $code,
             'name'       => $this->auroraModelData->{'Product Name'},
             'price'      => round($unit_price, 2),
             'status'     => $status,

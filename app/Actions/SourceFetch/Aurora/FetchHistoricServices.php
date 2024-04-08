@@ -11,7 +11,7 @@ use App\Actions\Market\HistoricOuter\StoreHistoricOuter;
 use App\Actions\Market\HistoricOuter\UpdateHistoricOuter;
 use App\Models\Market\HistoricOuter;
 use App\Services\Organisation\SourceOrganisationService;
-use JetBrains\PhpStorm\NoReturn;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class FetchHistoricServices
@@ -24,19 +24,23 @@ class FetchHistoricServices
         if ($historicProductData = $organisationSource->fetchHistoricService($source_id)) {
             if ($historicProduct = HistoricOuter::withTrashed()->where('source_id', $historicProductData['historic_service']['source_id'])
                 ->first()) {
-                $historicService = UpdateHistoricProduct::run(
-                    historicService: $historicService,
-                    modelData:       $historicServiceData['historic_service'],
+                $historicProduct = UpdateHistoricOuter::run(
+                    historicProduct: $historicProduct,
+                    modelData:       $historicProductData['historic_service'],
                 );
             } else {
-                $historicService = StoreHistoricProduct::run(
-                    service:   $historicServiceData['service'],
-                    modelData: $historicServiceData['historic_service']
+                $historicProduct = StoreHistoricOuter::run(
+                    product:   $historicProductData['service'],
+                    modelData: $historicProductData['historic_service']
                 );
             }
+            $sourceData = explode(':', $historicProduct->source_id);
 
+            DB::connection('aurora')->table('Product History Dimension')
+                ->where('Product Key', $sourceData[1])
+                ->update(['aiku_id'=>$historicProduct->id]);
 
-            return $historicService;
+            return $historicProduct;
         }
 
 

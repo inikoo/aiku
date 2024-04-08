@@ -27,7 +27,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StorePhysicalGood extends OrgAction
 {
-    private bool |null $state=null;
+    private ProductStateEnum|null $state=null;
     private ProductCategory|Shop $parent;
 
     public function handle(Shop|ProductCategory $parent, array $modelData, bool $skipHistoric = false): Product
@@ -56,6 +56,7 @@ class StorePhysicalGood extends OrgAction
         $price=Arr::get($modelData, 'price');
         data_forget($modelData, 'price');
 
+
         /** @var Product $product */
         $product = $parent->products()->create($modelData);
         $product->stats()->create();
@@ -63,9 +64,11 @@ class StorePhysicalGood extends OrgAction
         $outer=StoreOuter::run(
             product: $product,
             modelData: [
-                'code'  => $product->code,
-                'price' => $price,
-                'name'  => $product->name,
+                'code'   => $product->code,
+                'price'  => $price,
+                'name'   => $product->name,
+                'state'  => $product->state,
+                'is_main'=> true
             ],
             skipHistoric: $skipHistoric
         );
@@ -127,7 +130,7 @@ class StorePhysicalGood extends OrgAction
 
         ];
 
-        if($this->state and $this->state==ProductStateEnum::DISCONTINUED) {
+        if($this->state==ProductStateEnum::DISCONTINUED) {
             $rules['code']= [
                 'required',
                 'max:32',
