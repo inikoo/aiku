@@ -9,7 +9,6 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Market\Product\StorePhysicalGood;
 use App\Actions\Market\Product\UpdateProduct;
-use App\Models\Market\HistoricOuter;
 use App\Models\Market\Product;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;

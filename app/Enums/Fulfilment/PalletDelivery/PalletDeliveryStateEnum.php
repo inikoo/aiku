@@ -137,35 +137,35 @@ enum PalletDeliveryStateEnum: string
         ];
     }
 
-    public static function notifications(): array
+    public static function notifications(string $reference): array
     {
         return [
             'in-process'   => [
-                'title'    => __('Pallet Delivery Created'),
+                'title'    => __("Pallet Delivery $reference Created"),
                 'subtitle' => __('Pallet Delivery has been created')
             ],
             'submitted'    => [
-                'title'    => __('Pallet Delivery Submitted'),
+                'title'    => __("Pallet Delivery $reference Submitted"),
                 'subtitle' => __('Pallet Delivery has been submitted')
             ],
             'confirmed'    => [
-                'title'    => __('Pallet Delivery Confirmed'),
+                'title'    => __("Pallet Delivery $reference Confirmed"),
                 'subtitle' => __('Pallet Delivery has been confirmed')
             ],
             'received'     => [
-                'title'    => __('Pallet Delivery Received'),
+                'title'    => __("Pallet Delivery $reference Received"),
                 'subtitle' => __('Pallet Delivery has been Received')
             ],
             'not-received' => [
-                'title'    => __('Pallet Delivery Not Received'),
+                'title'    => __("Pallet Delivery $reference Not Received"),
                 'subtitle' => __('Pallet Delivery has not been received')
             ],
             'booking-in'   => [
-                'title'    => __('Pallet Delivery Booking In'),
+                'title'    => __("Pallet Delivery $reference Booking In"),
                 'subtitle' => __('Pallet Delivery has been booking in')
             ],
             'booked-in'    => [
-                'title'    => __('Pallet Delivery Booked In'),
+                'title'    => __("Pallet Delivery $reference Booked In"),
                 'subtitle' => __('Pallet Delivery has been booked in')
             ],
         ];
