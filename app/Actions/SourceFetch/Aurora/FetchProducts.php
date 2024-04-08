@@ -7,7 +7,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Market\Product\StoreProduct;
+use App\Actions\Market\Product\StorePhysicalGood;
 use App\Actions\Market\Product\SyncProductTradeUnits;
 use App\Actions\Market\Product\UpdateProduct;
 use App\Models\Market\HistoricProduct;
@@ -39,7 +39,7 @@ class FetchProducts extends FetchAction
                 }
             } else {
                 try {
-                    $product = StoreProduct::make()->action(
+                    $product = StorePhysicalGood::make()->action(
                         parent: $productData['parent'],
                         modelData: $productData['product'],
                         skipHistoric: true

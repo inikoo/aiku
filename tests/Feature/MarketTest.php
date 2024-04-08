@@ -5,9 +5,19 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Goods\TradeUnit\StoreTradeUnit;
+use App\Actions\Market\Product\DeleteProduct;
+use App\Actions\Market\Product\StorePhysicalGood;
+use App\Actions\Market\Product\UpdateProduct;
+use App\Actions\Market\ProductCategory\StoreProductCategory;
+use App\Actions\Market\ProductCategory\UpdateProductCategory;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Market\Shop\UpdateShop;
+use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
+use App\Models\Goods\TradeUnit;
+use App\Models\Market\Product;
+use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
@@ -22,6 +32,14 @@ beforeEach(function () {
     $this->organisation = createOrganisation();
     $this->guest        = createAdminGuest($this->organisation->group);
     $this->warehouse    = createWarehouse();
+
+    if(!isset($this->tradeUnit)) {
+        $this->tradeUnit = StoreTradeUnit::make()->action(
+            $this->organisation->group,
+            TradeUnit::factory()->definition()
+        );
+    }
+
 });
 
 test('create shop', function () {
@@ -92,3 +110,99 @@ test('create website from command', function (Shop $shop) {
     $shop->refresh();
     expect($shop->website)->toBeInstanceOf(Website::class);
 })->depends('create shop');
+
+
+test('create department', function ($shop) {
+
+    $departmentData = ProductCategory::factory()->definition();
+    data_set($departmentData, 'type', ProductCategoryTypeEnum::DEPARTMENT->value);
+
+    $department = StoreProductCategory::make()->action($shop, $departmentData);
+    expect($department)->toBeInstanceOf(ProductCategory::class);
+
+    return $department;
+})->depends('create shop');
+
+test('create sub department', function ($productCategory) {
+
+    $subDepartmentData = ProductCategory::factory()->definition();
+    data_set($subDepartmentData, 'type', ProductCategoryTypeEnum::SUB_DEPARTMENT->value);
+    $subDepartment = StoreProductCategory::make()->action($productCategory, $subDepartmentData);
+    expect($subDepartment)->toBeInstanceOf(ProductCategory::class);
+
+    return $subDepartment;
+})->depends('create department');
+
+test('create second department', function ($shop) {
+    $departmentData = ProductCategory::factory()->definition();
+    data_set($departmentData, 'type', ProductCategoryTypeEnum::DEPARTMENT->value);
+
+    $department = StoreProductCategory::make()->action($shop, $departmentData);
+    expect($department)->toBeInstanceOf(ProductCategory::class);
+
+    return $department;
+})->depends('create shop');
+
+test('update department', function ($department) {
+    $newName    = 'Updated Department Name';
+    $department = UpdateProductCategory::make()->action(
+        $department,
+        [
+        'name' => $newName
+    ]
+    );
+
+    expect($department->name)->toBe($newName);
+    return $department;
+})->depends('create department');
+
+test('create family', function ($department) {
+    $familyData = ProductCategory::factory()->definition();
+    data_set($familyData, 'type', ProductCategoryTypeEnum::FAMILY->value);
+
+    $family = StoreProductCategory::make()->action($department, $familyData);
+    expect($family)->toBeInstanceOf(ProductCategory::class);
+
+    return $department;
+})->depends('update department');
+
+
+test('create product', function ($shop) {
+
+    $tradeUnits=[
+        [
+            'trade_unit_id' => $this->tradeUnit->id,
+            'quantity'      => 1,
+        ]
+    ];
+
+    $productData = array_merge(
+        Product::factory()->definition(),
+        [
+            'trade_units'=> $tradeUnits,
+            'price'      => 100,
+        ]
+    );
+
+
+
+    $product     = StorePhysicalGood::make()->action($shop, $productData);
+    $this->assertModelExists($product);
+
+    return $product;
+})->depends('create shop');
+
+test('update product', function ($product) {
+    $productData = [
+        'name' => 'Updated Product Name',
+    ];
+    $product = UpdateProduct::make()->action($product, $productData);
+
+    $this->assertModelExists($product);
+})->depends('create product');
+
+test('delete product', function ($product) {
+    $product = DeleteProduct::run($product);
+
+    $this->assertModelExists($product);
+})->depends('create product');

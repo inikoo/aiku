@@ -26,7 +26,7 @@ class DeleteProduct
     public function handle(Product $product, array $deletedData = [], bool $skipHydrate = false): Product
     {
         $product->delete();
-        $product->historicRecords()->delete();
+        $product->outers()->delete();
         $product = $this->update($product, $deletedData, ['data']);
         if (!$skipHydrate) {
             //todo fix this

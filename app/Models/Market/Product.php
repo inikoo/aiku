@@ -8,7 +8,7 @@
 namespace App\Models\Market;
 
 use App\Enums\Market\Product\ProductStateEnum;
-use App\Enums\Market\Product\ProductTradeUnitCompositionEnum;
+use App\Enums\Market\Product\ProductUnitRelationshipType;
 use App\Enums\Market\Product\ProductTypeEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
@@ -43,25 +43,26 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
+ * @property int|null $shop_id
  * @property string $slug
  * @property string $code
  * @property string|null $name
  * @property string|null $description
  * @property ProductTypeEnum $type
- * @property int $owner_id
  * @property string $owner_type
- * @property int $parent_id
+ * @property int $owner_id
  * @property string $parent_type
- * @property int|null $current_historic_product_id
- * @property int|null $shop_id
- * @property ProductStateEnum|null $state
- * @property bool|null $status
- * @property ProductTradeUnitCompositionEnum $trade_unit_composition
- * @property string|null $units units per outer
- * @property string $price unit price
- * @property string|null $rrp RRP per outer
- * @property int|null $available
+ * @property int $parent_id
+ * @property int|null $current_historic_outer_id
+ * @property ProductStateEnum $state
+ * @property bool $status
+ * @property ProductUnitRelationshipType $unit_relationship_type
+ * @property int|null $main_outer_id
+ * @property string|null $main_outer_units units per outer
+ * @property string|null $main_outer_price unit price
+ * @property int|null $main_outer_available
  * @property int|null $image_id
+ * @property string|null $rrp RRP per outer
  * @property array $settings
  * @property array $data
  * @property Carbon|null $created_at
@@ -70,10 +71,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read Collection<int, Barcode> $barcode
  * @property-read Group $group
- * @property-read Collection<int, \App\Models\Market\HistoricProduct> $historicRecords
+ * @property-read Collection<int, \App\Models\Market\HistoricOuter> $historicOuters
  * @property-read MediaCollection<int, Media> $images
  * @property-read MediaCollection<int, Media> $media
  * @property-read Organisation $organisation
+ * @property-read Collection<int, \App\Models\Market\Outer> $outers
  * @property-read ProductSalesStats|null $salesStats
  * @property-read \App\Models\Market\Shop|null $shop
  * @property-read \App\Models\Market\ProductStats|null $stats
@@ -104,7 +106,7 @@ class Product extends Model implements HasMedia
         'status'                 => 'boolean',
         'type'                   => ProductTypeEnum::class,
         'state'                  => ProductStateEnum::class,
-        'trade_unit_composition' => ProductTradeUnitCompositionEnum::class
+        'unit_relationship_type' => ProductUnitRelationshipType::class
     ];
 
     protected $attributes = [
@@ -156,7 +158,7 @@ class Product extends Model implements HasMedia
         return $this->hasOne(ProductSalesStats::class);
     }
 
-    public function historicRecords(): HasMany
+    public function historicOuters(): HasMany
     {
         return $this->hasMany(HistoricProduct::class);
     }
@@ -176,6 +178,11 @@ class Product extends Model implements HasMedia
     public function barcode(): MorphToMany
     {
         return $this->morphToMany(Barcode::class, 'barcodeable');
+    }
+
+    public function outers(): HasMany
+    {
+        return $this->hasMany(Outer::class);
     }
 
 }

@@ -8,6 +8,7 @@
 namespace App\Services\Organisation\Aurora;
 
 use App\Enums\Market\Product\ProductStateEnum;
+use App\Enums\Market\Product\ProductUnitRelationshipType;
 use App\Enums\Market\Product\ProductTypeEnum;
 use Illuminate\Support\Facades\DB;
 
@@ -77,19 +78,20 @@ class FetchAuroraProduct extends FetchAurora
 
 
         $this->parsedData['product'] = [
-            'type'       => ProductTypeEnum::PHYSICAL_GOOD,
-            'owner_type' => $owner_type,
-            'owner_id'   => $owner_id,
-            'code'       => $code,
-            'name'       => $this->auroraModelData->{'Product Name'},
-            'price'      => round($unit_price, 2),
-            'units'      => round($units, 3),
-            'status'     => $status,
-            'state'      => $state,
-            'data'       => $data,
-            'settings'   => $settings,
-            'created_at' => $created_at,
-            'source_id'  => $this->organisation->id.':'.$this->auroraModelData->{'Product ID'},
+            'type'                  => ProductTypeEnum::PHYSICAL_GOOD,
+            'owner_type'            => $owner_type,
+            'owner_id'              => $owner_id,
+            'code'                  => $code,
+            'name'                  => $this->auroraModelData->{'Product Name'},
+            'price'                 => round($unit_price, 2),
+            'units'                 => round($units, 3),
+            'status'                => $status,
+            'state'                 => $state,
+            'data'                  => $data,
+            'settings'              => $settings,
+            'created_at'            => $created_at,
+            'trade_unit_composition'=> ProductUnitRelationshipType::MATCH->value,
+            'source_id'             => $this->organisation->id.':'.$this->auroraModelData->{'Product ID'},
         ];
     }
 
