@@ -70,7 +70,7 @@ class StorePalletDelivery extends OrgAction
         FulfilmentCustomerHydratePalletDeliveries::dispatch($fulfilmentCustomer);
         FulfilmentHydratePalletDeliveries::dispatch($fulfilmentCustomer->fulfilment);
 
-        SendPalletDeliveryNotification::dispatch($palletDelivery);
+        SendPalletDeliveryNotification::run($palletDelivery);
 
         return $palletDelivery;
     }
