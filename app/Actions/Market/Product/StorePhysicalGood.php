@@ -66,7 +66,8 @@ class StorePhysicalGood extends OrgAction
                 'code'  => $product->code,
                 'price' => $price,
                 'name'  => $product->name,
-            ]
+            ],
+            skipHistoric: $skipHistoric
         );
 
         SetProductMainOuter::run(
@@ -82,11 +83,12 @@ class StorePhysicalGood extends OrgAction
         return $product;
     }
 
-    public function getUnitRelationshipType(array $tradeUnits)
+    public function getUnitRelationshipType(array $tradeUnits): ?ProductUnitRelationshipType
     {
         if(count($tradeUnits)==1) {
             return ProductUnitRelationshipType::SINGLE;
         }
+        return null;
 
     }
 
