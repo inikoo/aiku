@@ -160,7 +160,7 @@ class Product extends Model implements HasMedia
 
     public function historicOuters(): HasMany
     {
-        return $this->hasMany(HistoricProduct::class);
+        return $this->hasMany(HistoricOuter::class);
     }
 
     public function stats(): HasOne

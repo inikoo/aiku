@@ -5,16 +5,16 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Market\HistoricProduct;
+namespace App\Actions\Market\HistoricOuter;
 
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\Market\HistoricProduct;
+use App\Models\Market\HistoricOuter;
 
-class UpdateHistoricProduct
+class UpdateHistoricOuter
 {
     use WithActionUpdate;
 
-    public function handle(HistoricProduct $historicProduct, array $modelData): HistoricProduct
+    public function handle(HistoricOuter $historicProduct, array $modelData): HistoricOuter
     {
         return $this->update($historicProduct, $modelData);
     }

@@ -74,7 +74,7 @@ class AppServiceProvider extends ServiceProvider
                 'Fulfilment'             => 'App\Models\Fulfilment\Fulfilment',
                 'ProductCategory'        => 'App\Models\Market\ProductCategory',
                 'Product'                => 'App\Models\Market\Product',
-                'HistoricProduct'        => 'App\Models\Market\HistoricProduct',
+                'HistoricOuter'          => 'App\Models\Market\HistoricOuter',
                 'Supplier'               => 'App\Models\SupplyChain\Supplier',
                 'WebUser'                => 'App\Models\CRM\WebUser',
                 'Order'                  => 'App\Models\OMS\Order',

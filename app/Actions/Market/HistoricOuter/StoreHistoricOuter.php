@@ -5,30 +5,30 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Market\HistoricProduct;
+namespace App\Actions\Market\HistoricOuter;
 
-use App\Models\Market\HistoricProduct;
-use App\Models\Market\Product;
+use App\Models\Market\HistoricOuter;
+use App\Models\Market\Outer;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class StoreHistoricProduct
+class StoreHistoricOuter
 {
     use AsAction;
 
-    public function handle(Product $product, array $modelData = []): HistoricProduct
+    public function handle(Outer $outer, array $modelData = []): HistoricOuter
     {
         $historicProductData = [
-            'code'       => Arr::get($modelData, 'code', $product->code),
-            'name'       => Arr::get($modelData, 'name', $product->name),
-            'price'      => Arr::get($modelData, 'price', $product->price),
-            'units'      => Arr::get($modelData, 'units', $product->units),
+            'code'       => Arr::get($modelData, 'code', $outer->code),
+            'name'       => Arr::get($modelData, 'name', $outer->name),
+            'price'      => Arr::get($modelData, 'price', $outer->price),
+            'units'      => Arr::get($modelData, 'units', $outer->units),
             'source_id'  => Arr::get($modelData, 'source_id'),
         ];
         if (Arr::get($modelData, 'created_at')) {
             $historicProductData['created_at'] = Arr::get($modelData, 'created_at');
         } else {
-            $historicProductData['created_at'] = $product->created_at;
+            $historicProductData['created_at'] = $outer->created_at;
         }
         if (Arr::get($modelData, 'deleted_at')) {
             $historicProductData['deleted_at'] = Arr::get($modelData, 'deleted_at');
@@ -39,11 +39,12 @@ class StoreHistoricProduct
             $historicProductData['status'] = true;
         }
 
-        data_set($historicProductData, 'organisation_id', $product->organisation_id);
-        data_set($historicProductData, 'group_id', $product->group_id);
+        data_set($historicProductData, 'organisation_id', $outer->organisation_id);
+        data_set($historicProductData, 'group_id', $outer->group_id);
+        data_set($historicProductData, 'product_id', $outer->product_id);
 
-        /** @var HistoricProduct $historicProduct */
-        $historicProduct = $product->historicRecords()->create($historicProductData);
+        /** @var HistoricOuter $historicProduct */
+        $historicProduct = $outer->historicRecords()->create($historicProductData);
         $historicProduct->stats()->create();
 
         return $historicProduct;

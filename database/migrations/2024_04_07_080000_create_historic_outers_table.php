@@ -15,7 +15,7 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::create('historic_products', function (Blueprint $table) {
+        Schema::create('historic_outers', function (Blueprint $table) {
             $table->increments('id');
             $table = $this->groupOrgRelationship($table);
 
@@ -25,6 +25,9 @@ return new class () extends Migration {
 
             $table->unsignedInteger('product_id')->index();
             $table->foreign('product_id')->references('id')->on('products');
+
+            $table->unsignedInteger('outer_id')->index();
+            $table->foreign('outer_id')->references('id')->on('outers');
 
             $table->unsignedDecimal('price', 18)->comment('unit price');
             $table->string('code')->nullable();
@@ -40,6 +43,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('historic_products');
+        Schema::dropIfExists('historic_outers');
     }
 };

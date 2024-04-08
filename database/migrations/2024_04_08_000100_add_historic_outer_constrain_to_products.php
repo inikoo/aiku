@@ -10,18 +10,22 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->foreign('current_historic_product_id')->references('id')->on('historic_products');
+            $table->foreign('current_historic_outer_id')->references('id')->on('historic_outers');
+            $table->foreign('main_outer_id')->references('id')->on('outers');
+
         });
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->dropForeign('current_historic_product_id');
+            $table->dropForeign('current_historic_outer_id');
+            $table->dropForeign('current_main_outer_id');
+
         });
     }
 };
