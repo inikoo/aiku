@@ -35,7 +35,8 @@ class FcmToken extends Model
 
         self::creating(function ($model) {
             $parsedUserAgent = (new Browser())->parse(request()->server('HTTP_USER_AGENT'));
-            $model->platform = $parsedUserAgent;
+
+            $model->platform = $parsedUserAgent->userAgent();
         });
     }
 

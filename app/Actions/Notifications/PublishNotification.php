@@ -7,9 +7,8 @@
 
 namespace App\Actions\Notifications;
 
-use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
-use Illuminate\Support\Collection;
+use App\Notifications\MeasurementShareNotification;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -21,28 +20,25 @@ class PublishNotification
     public string $commandSignature   = 'notification:publish';
     public string $commandDescription = 'Publish push notification';
 
-    public function handle(Collection $users, $content, $target = ['mail', 'fcm']): void
+    public function handle(User $user, $content, $target = ['fcm']): void
     {
-        foreach ($users as $user) {
-            if(in_array('fcm', $target)) {
-                PublishPushNotification::dispatch($user, $content);
-            }
+        if (in_array('fcm', $target)) {
+            $user->notify(new MeasurementShareNotification($content));
+        }
 
-            //if(in_array('mail', $target)) {
-            //                SendEmailAddress::run($content, $user->email);
-            //}
+        if (in_array('mail', $target)) {
+            $user->notify();
         }
     }
 
     public function asCommand(): void
     {
-        Organisation::where('slug', 'aw')->first()->makeCurrent();
-        $users   = User::where('username', 'aiku')->get();
+        $user    = User::where('username', 'aiku')->first();
         $content = [
             'title' => 'Subject/Title',
             'body'  => 'Hello'
         ];
 
-        $this->handle($users, $content);
+        $this->handle($user, $content);
     }
 }
