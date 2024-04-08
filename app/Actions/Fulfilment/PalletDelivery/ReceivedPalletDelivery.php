@@ -36,10 +36,12 @@ class ReceivedPalletDelivery extends OrgAction
             ]);
         }
 
+        $palletDelivery = $this->update($palletDelivery, $modelData);
+
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
         SendPalletDeliveryNotification::run($palletDelivery);
 
-        return $this->update($palletDelivery, $modelData);
+        return $palletDelivery;
     }
 
     public function authorize(ActionRequest $request): bool

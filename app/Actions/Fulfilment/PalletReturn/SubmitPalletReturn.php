@@ -54,10 +54,12 @@ class SubmitPalletReturn extends OrgAction
             ]]);
         }
 
+        $palletReturn = $this->update($palletReturn, $modelData);
+
         HydrateFulfilmentCustomer::dispatch($palletReturn->fulfilmentCustomer);
         SendPalletReturnNotification::run($palletReturn);
 
-        return $this->update($palletReturn, $modelData);
+        return $palletReturn;
     }
 
     public function authorize(ActionRequest $request): bool

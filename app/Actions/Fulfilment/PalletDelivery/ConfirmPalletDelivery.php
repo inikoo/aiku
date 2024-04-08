@@ -43,9 +43,11 @@ class ConfirmPalletDelivery extends OrgAction
             ]);
         }
 
+        $palletDelivery = $this->update($palletDelivery, $modelData);
+
         SendPalletDeliveryNotification::run($palletDelivery);
 
-        return $this->update($palletDelivery, $modelData);
+        return $palletDelivery;
     }
 
     public function authorize(ActionRequest $request): bool

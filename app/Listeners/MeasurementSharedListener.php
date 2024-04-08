@@ -4,9 +4,8 @@ namespace App\Listeners;
 
 use App\Events\BroadcastFulfilmentCustomerNotification;
 use App\Notifications\MeasurementShareNotification;
-use Illuminate\Contracts\Queue\ShouldQueue;
 
-class MeasurementSharedListener implements ShouldQueue
+class MeasurementSharedListener
 {
     /**
      * Create the event listener.

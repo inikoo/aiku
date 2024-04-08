@@ -66,9 +66,11 @@ class StorePalletReturn extends OrgAction
         $palletReturn = $fulfilmentCustomer->palletReturns()->create($modelData);
         $palletReturn->stats()->create();
 
+
         PalletReturnHydrateUniversalSearch::dispatch($palletReturn);
         FulfilmentCustomerHydratePalletReturns::dispatch($fulfilmentCustomer);
         FulfilmentHydratePalletReturns::dispatch($fulfilmentCustomer->fulfilment);
+
         SendPalletReturnNotification::run($palletReturn);
 
         return $palletReturn;
