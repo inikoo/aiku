@@ -7,14 +7,13 @@
 
 namespace App\Actions\Accounting\PaymentServiceProvider;
 
-use App\Actions\OrgAction;
+use App\Actions\GrpAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Accounting\PaymentServiceProvidersResource;
+use App\Http\Resources\Accounting\PaymentServiceProviderResource;
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdatePaymentServiceProvider extends OrgAction
+class UpdatePaymentServiceProvider extends GrpAction
 {
     use WithActionUpdate;
 
@@ -31,29 +30,12 @@ class UpdatePaymentServiceProvider extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+        return $request->user()->hasPermissionTo("sysadmin.edit");
     }
 
     public function rules(): array
     {
         return [
-            'code' => [
-                'sometimes',
-                'required',
-                'between:2,16',
-                'alpha_dash',
-                new IUnique(
-                    table: 'payment_service_providers',
-                    extraConditions: [
-                        ['column' => 'group_id', 'value' => $this->organisation->group_id],
-                        [
-                            'column'   => 'id',
-                            'operator' => '!=',
-                            'value'    => $this->paymentServiceProvider->id
-                        ],
-                    ]
-                ),
-            ],
             'name'      => [
                 'sometimes',
                 'required',
@@ -66,7 +48,7 @@ class UpdatePaymentServiceProvider extends OrgAction
     public function asController(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): PaymentServiceProvider
     {
         $this->paymentServiceProvider = $paymentServiceProvider;
-        $this->initialisation($paymentServiceProvider->organisation, $request);
+        $this->initialisation($paymentServiceProvider->group, $request);
 
         return $this->handle($paymentServiceProvider, $this->validatedData);
     }
@@ -75,13 +57,13 @@ class UpdatePaymentServiceProvider extends OrgAction
     {
         $this->asAction               = true;
         $this->paymentServiceProvider = $paymentServiceProvider;
-        $this->initialisation($paymentServiceProvider->organisation, $modelData);
+        $this->initialisation($paymentServiceProvider->group, $modelData);
 
         return $this->handle($paymentServiceProvider, $this->validatedData);
     }
 
-    public function jsonResponse(PaymentServiceProvider $paymentServiceProvider): PaymentServiceProvidersResource
+    public function jsonResponse(PaymentServiceProvider $paymentServiceProvider): PaymentServiceProviderResource
     {
-        return new PaymentServiceProvidersResource($paymentServiceProvider);
+        return new PaymentServiceProviderResource($paymentServiceProvider);
     }
 }

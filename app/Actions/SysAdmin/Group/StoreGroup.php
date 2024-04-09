@@ -34,6 +34,7 @@ class StoreGroup
         $group = Group::create($modelData);
         app()->instance('group', $group);
         SeedGroupPermissions::run($group);
+        SeedGroupPaymentServiceProviders::run($group);
 
         $group->supplyChainStats()->create();
         $group->sysadminStats()->create();

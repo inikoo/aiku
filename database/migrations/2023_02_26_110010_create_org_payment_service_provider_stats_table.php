@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 27 Feb 2023 09:57:41 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 09 Apr 2024 20:48:49 Central Indonesia Time, Bali Office , Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 use App\Stubs\Migrations\HasPaymentStats;
@@ -15,10 +15,10 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::create('payment_service_provider_stats', function (Blueprint $table) {
+        Schema::create('org_payment_service_provider_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedInteger('payment_service_provider_id')->index();
-            $table->foreign('payment_service_provider_id')->references('id')->on('payment_service_providers');
+            $table->unsignedInteger('org_payment_service_provider_id')->index();
+            $table->foreign('org_payment_service_provider_id')->references('id')->on('org_payment_service_providers');
             $table = $this->paymentAccountStats($table);
             $table = $this->paymentStats($table);
             $table->timestampsTz();
@@ -28,6 +28,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('payment_service_provider_stats');
+        Schema::dropIfExists('org_payment_service_provider_stats');
     }
 };

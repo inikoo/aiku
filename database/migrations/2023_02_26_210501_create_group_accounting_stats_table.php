@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Stubs\Migrations\HasPaymentStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -20,6 +21,11 @@ return new class () extends Migration {
                 $table->smallIncrements('id');
                 $table->unsignedSmallInteger('group_id');
                 $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+
+                $table->unsignedSmallInteger('number_payment_service_providers')->default(0);
+                foreach (PaymentServiceProviderTypeEnum::cases() as $case) {
+                    $table->unsignedInteger("number_payment_service_providers_type_{$case->snake()}")->default(0);
+                }
 
                 $table = $this->paymentServiceProviderStats($table);
                 $table = $this->paymentAccountStats($table);

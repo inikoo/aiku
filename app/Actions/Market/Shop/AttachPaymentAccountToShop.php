@@ -25,7 +25,7 @@ class AttachPaymentAccountToShop
             ]
         );
 
-        $shop->paymentServiceProviders()->attach(
+        $shop->orgPaymentServiceProviders()->attach(
             $paymentAccount->paymentServiceProvider,
             [
                 'currency_id' => $shop->currency_id

@@ -41,6 +41,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property int $payment_service_provider_id
+ * @property int $org_payment_service_provider_id
  * @property int $payment_account_id
  * @property int $shop_id
  * @property int $customer_id
@@ -65,6 +66,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Currency $currency
  * @property-read Customer $customer
  * @property-read Group $group
+ * @property-read \App\Models\Accounting\OrgPaymentServiceProvider $orgPaymentServiceProvider
  * @property-read Organisation $organisation
  * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
  * @property-read Shop $shop
@@ -140,6 +142,11 @@ class Payment extends Model
             })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
+    }
+
+    public function orgPaymentServiceProvider(): BelongsTo
+    {
+        return $this->belongsTo(OrgPaymentServiceProvider::class);
     }
 
     public function shop(): BelongsTo

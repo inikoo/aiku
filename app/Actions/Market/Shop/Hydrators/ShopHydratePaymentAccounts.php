@@ -31,8 +31,8 @@ class ShopHydratePaymentAccounts
     public function handle(Shop $shop): void
     {
         $stats = [
-            'number_payment_service_providers' => $shop->paymentServiceProviders()->count(),
-            'number_payment_accounts'          => $shop->paymentAccounts()->count(),
+            'number_org_payment_service_providers' => $shop->orgPaymentServiceProviders()->count(),
+            'number_payment_accounts'              => $shop->paymentAccounts()->count(),
         ];
 
         $shop->accountingStats()->update($stats);

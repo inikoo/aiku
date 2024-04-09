@@ -7,7 +7,7 @@
 
 namespace App\Actions\SysAdmin\Organisation;
 
-use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
+use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\Mail\Outbox\SeedOrganisationOutboxes;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrganisations;
@@ -15,6 +15,7 @@ use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
@@ -94,23 +95,23 @@ class StoreOrganisation
         $organisation->webStats()->create();
 
 
+
         if ($organisation->type == OrganisationTypeEnum::SHOP) {
-            StorePaymentServiceProvider::make()->action(
+
+            $paymentServiceProvider = PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::ACCOUNT)->first();
+
+            StoreOrgPaymentServiceProvider::make()->action(
+                $paymentServiceProvider,
                 organisation: $organisation,
                 modelData: [
-                    'type' => PaymentServiceProviderTypeEnum::ACCOUNT->value,
-                    'code' => $organisation->slug . '-accounts',
-                    'name' => "Internal accounts ($organisation->slug)",
+                    'code' => 'account-'.$organisation->code,
                 ]
             );
         }
 
-
         GroupHydrateOrganisations::dispatch($group);
         SetOrganisationLogo::dispatch($organisation);
         SeedOrganisationOutboxes::run();
-
-
         return $organisation;
     }
 

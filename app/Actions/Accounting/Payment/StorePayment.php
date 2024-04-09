@@ -42,6 +42,7 @@ class StorePayment extends OrgAction
 
         data_set($modelData, 'group_id', $customer->group_id);
         data_set($modelData, 'organisation_id', $customer->organisation_id);
+        data_set($modelData, 'org_payment_service_provider_id', $paymentAccount->org_payment_service_provider_id);
         data_set($modelData, 'payment_service_provider_id', $paymentAccount->payment_service_provider_id);
         data_set($modelData, 'customer_id', $customer->id);
         data_set($modelData, 'shop_id', $customer->shop_id);
@@ -55,12 +56,13 @@ class StorePayment extends OrgAction
         $payment = $paymentAccount->payments()->create($modelData);
 
         match ($paymentAccount->paymentServiceProvider->code) {
-            PaymentServiceProviderEnum::CHECKOUT->value => Checkout::run($payment, $modelData),
-            PaymentServiceProviderEnum::XENDIT->value   => MakePaymentUsingInvoice::run($payment)
+            PaymentServiceProviderEnum::CHECKOUT_COM->value => Checkout::run($payment, $modelData),
+            PaymentServiceProviderEnum::XENDIT->value       => MakePaymentUsingInvoice::run($payment),
+            default                                         => null
         };
 
-        // GroupHydratePayments::dispatch($payment->group)->delay($this->hydratorsDelay);
-        // OrganisationHydratePayments::dispatch($paymentAccount->organisation)->delay($this->hydratorsDelay);
+        GroupHydratePayments::dispatch($payment->group)->delay($this->hydratorsDelay);
+        OrganisationHydratePayments::dispatch($paymentAccount->organisation)->delay($this->hydratorsDelay);
         PaymentServiceProviderHydratePayments::dispatch($payment->paymentAccount->paymentServiceProvider)->delay($this->hydratorsDelay);
         PaymentAccountHydratePayments::dispatch($payment->paymentAccount)->delay($this->hydratorsDelay);
         ShopHydratePayments::dispatch($payment->shop)->delay($this->hydratorsDelay);

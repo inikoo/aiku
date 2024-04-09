@@ -35,6 +35,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property int $payment_service_provider_id
+ * @property int $org_payment_service_provider_id
  * @property PaymentAccountTypeEnum $type
  * @property string $code
  * @property string $name
@@ -46,6 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\Accounting\OrgPaymentServiceProvider $orgPaymentServiceProvider
  * @property-read Organisation $organisation
  * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
@@ -99,6 +101,11 @@ class PaymentAccount extends Model implements Auditable
     public function paymentServiceProvider(): BelongsTo
     {
         return $this->belongsTo(PaymentServiceProvider::class);
+    }
+
+    public function orgPaymentServiceProvider(): BelongsTo
+    {
+        return $this->belongsTo(OrgPaymentServiceProvider::class);
     }
 
     public function payments(): HasMany

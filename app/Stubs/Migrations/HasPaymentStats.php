@@ -17,9 +17,9 @@ trait HasPaymentStats
 {
     public function paymentServiceProviderStats(Blueprint $table): Blueprint
     {
-        $table->unsignedSmallInteger('number_payment_service_providers')->default(0);
+        $table->unsignedSmallInteger('number_org_payment_service_providers')->default(0);
         foreach (PaymentServiceProviderTypeEnum::cases() as $case) {
-            $table->unsignedInteger("number_payment_service_providers_type_{$case->snake()}")->default(0);
+            $table->unsignedInteger("number_org_payment_service_providers_type_{$case->snake()}")->default(0);
         }
         return $table;
     }

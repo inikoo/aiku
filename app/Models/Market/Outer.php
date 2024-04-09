@@ -40,6 +40,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $source_id
  * @property-read Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Market\HistoricOuter> $historicRecords
  * @property-read Organisation $organisation

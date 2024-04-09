@@ -12,23 +12,23 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('payment_service_provider_shop', function (Blueprint $table) {
+        Schema::create('org_payment_service_provider_shop', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->unsignedSmallInteger('payment_service_provider_id')->index();
-            $table->foreign('payment_service_provider_id')->references('id')->on('payment_service_providers');
+            $table->unsignedSmallInteger('org_payment_service_provider_id')->index();
+            $table->foreign('org_payment_service_provider_id')->references('id')->on('org_payment_service_providers');
             $table->unsignedSmallInteger('currency_id');
             $table->foreign('currency_id')->references('id')->on('currencies');
             $table->jsonb('data');
             $table->timestampsTz();
-            $table->unique(['shop_id', 'payment_service_provider_id']);
+            $table->unique(['shop_id', 'org_payment_service_provider_id']);
         });
     }
 
 
     public function down(): void
     {
-        Schema::dropIfExists('payment_service_provider_shop');
+        Schema::dropIfExists('org_payment_service_provider_shop');
     }
 };

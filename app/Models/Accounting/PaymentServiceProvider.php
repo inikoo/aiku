@@ -9,7 +9,6 @@ namespace App\Models\Accounting;
 
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Models\SysAdmin\Group;
-use App\Models\SysAdmin\Organisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -29,9 +28,8 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Payments\PaymentServiceProvider
  *
  * @property int $id
- * @property string $slug
  * @property int $group_id
- * @property int $organisation_id
+ * @property string $slug
  * @property PaymentServiceProviderTypeEnum $type
  * @property string $code
  * @property string $name
@@ -40,10 +38,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Accounting\PaymentAccount> $accounts
  * @property-read Group $group
- * @property-read Organisation $organisation
+ * @property-read Collection<int, \App\Models\Accounting\OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read \App\Models\Accounting\PaymentServiceProviderStats|null $stats
  * @method static \Database\Factories\Accounting\PaymentServiceProviderFactory factory($count = null, $state = [])
@@ -86,6 +83,11 @@ class PaymentServiceProvider extends Model
             ->doNotGenerateSlugsOnUpdate();
     }
 
+    public function orgPaymentServiceProviders(): HasMany
+    {
+        return $this->hasMany(OrgPaymentServiceProvider::class);
+    }
+
     public function payments(): HasManyThrough
     {
         return $this->hasManyThrough(Payment::class, PaymentAccount::class);
@@ -101,10 +103,6 @@ class PaymentServiceProvider extends Model
         return $this->hasOne(PaymentServiceProviderStats::class);
     }
 
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
 
     public function group(): BelongsTo
     {

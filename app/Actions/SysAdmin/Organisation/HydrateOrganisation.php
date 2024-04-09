@@ -18,7 +18,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateJobPositions;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrders;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePaymentServiceProviders;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgPaymentServiceProviders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProspects;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSales;
@@ -42,7 +42,7 @@ class HydrateOrganisation extends HydrateModel
         OrganisationHydrateMarket::run($organisation);
         OrganisationHydratePayments::run($organisation);
         OrganisationHydratePaymentAccounts::run($organisation);
-        OrganisationHydratePaymentServiceProviders::run($organisation);
+        OrganisationHydrateOrgPaymentServiceProviders::run($organisation);
         OrganisationHydrateCustomers::run($organisation);
         OrganisationHydrateOrders::run($organisation);
         OrganisationHydrateProcurement::run($organisation);

@@ -12,11 +12,11 @@ use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Market\Shop\ShopStateEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentAccountShop;
-use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\Accounting\PaymentServiceProviderShop;
+use App\Models\Accounting\OrgPaymentServiceProviderShop;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Timezone;
@@ -103,10 +103,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Market\ShopMailStats|null $mailStats
  * @property-read Collection<int, OfferCampaign> $offerCampaigns
  * @property-read Collection<int, Order> $orders
+ * @property-read Collection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read Organisation $organisation
  * @property-read Collection<int, Outbox> $outboxes
  * @property-read Collection<int, PaymentAccount> $paymentAccounts
- * @property-read Collection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read Collection<int, Payment> $payments
  * @property-read Collection<int, \App\Models\Market\ProductCategory> $productCategories
  * @property-read Collection<int, \App\Models\Market\Product> $products
@@ -263,9 +263,9 @@ class Shop extends Model
         return $this->belongsTo(Timezone::class);
     }
 
-    public function paymentServiceProviders(): BelongsToMany
+    public function orgPaymentServiceProviders(): BelongsToMany
     {
-        return $this->belongsToMany(PaymentServiceProvider::class)->using(PaymentServiceProviderShop::class)
+        return $this->belongsToMany(OrgPaymentServiceProvider::class)->using(OrgPaymentServiceProviderShop::class)
             ->withTimestamps();
     }
     public function paymentAccounts(): BelongsToMany

@@ -43,12 +43,12 @@ class OrganisationHydratePayments
             ->sum('org_amount');
 
         $stats = [
-            'number_payments'                     => $organisation->payments()->count(),
-            'number_payment_service_providers'    => $organisation->paymentServiceProviders()->count(),
-            'number_payment_accounts'             => $organisation->paymentAccounts()->count(),
-            'org_amount'                          => $amountOrganisationCurrencySuccessfullyPaid + $amountOrganisationCurrencyRefunded,
-            'org_amount_successfully_paid'        => $amountOrganisationCurrencySuccessfullyPaid,
-            'org_amount_refunded'                 => $amountOrganisationCurrencyRefunded,
+            'number_payments'                         => $organisation->payments()->count(),
+            'number_org_payment_service_providers'    => $organisation->orgPaymentServiceProviders()->count(),
+            'number_payment_accounts'                 => $organisation->paymentAccounts()->count(),
+            'org_amount'                              => $amountOrganisationCurrencySuccessfullyPaid + $amountOrganisationCurrencyRefunded,
+            'org_amount_successfully_paid'            => $amountOrganisationCurrencySuccessfullyPaid,
+            'org_amount_refunded'                     => $amountOrganisationCurrencyRefunded,
         ];
 
         $stats = array_merge(

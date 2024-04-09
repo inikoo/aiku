@@ -322,7 +322,7 @@ Route::post('/agent/{supplier:id}/purchase-order', [StorePurchaseOrder::class, '
 Route::post('/supplier/{supplier:id}/purchase-order', [StorePurchaseOrder::class, 'inSupplier'])->name('supplier.purchase-order.store');
 
 
-Route::post('/provider', StorePaymentServiceProvider::class)->name('payment-service-provider.store');
+Route::post('/provider', StoreOrgPaymentServiceProvider::class)->name('payment-service-provider.store');
 Route::patch('/provider/{paymentServiceProvider:id}', UpdatePaymentServiceProvider::class)->name('payment-service-provider.update');
 Route::delete('/provider/{paymentServiceProvider:id}', DeletePaymentServiceProvider::class)->name('payment-service-provider.delete');
 

@@ -7,12 +7,14 @@
 
 namespace App\Actions\Accounting\PaymentAccount;
 
+use App\Actions\Accounting\OrgPaymentServiceProvider\Hydrators\OrgPaymentServiceProviderHydratePaymentAccounts;
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydratePaymentAccounts;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePaymentAccounts;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePaymentAccounts;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
+use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Rules\IUnique;
@@ -24,13 +26,13 @@ class StorePaymentAccount extends OrgAction
 {
     public string $commandSignature = 'payment-account:create {provider} {type}';
 
-    public function handle(PaymentServiceProvider $paymentServiceProvider, array $modelData): PaymentAccount
+    public function handle(OrgPaymentServiceProvider $orgPaymentServiceProvider, array $modelData): PaymentAccount
     {
-        data_set($modelData, 'group_id', 1);
-        data_set($modelData, 'organisation_id', 1);
-
+        data_set($modelData, 'group_id', $orgPaymentServiceProvider->group_id);
+        data_set($modelData, 'organisation_id', $orgPaymentServiceProvider->organisation_id);
+        data_set($modelData, 'payment_service_provider_id', $orgPaymentServiceProvider->payment_service_provider_id);
         /** @var PaymentAccount $paymentAccount */
-        $paymentAccount = $paymentServiceProvider->accounts()->create($modelData);
+        $paymentAccount = $orgPaymentServiceProvider->accounts()->create($modelData);
         $paymentAccount->stats()->create();
 
         if($paymentAccount->type==PaymentAccountTypeEnum::ACCOUNT) {
@@ -43,11 +45,12 @@ class StorePaymentAccount extends OrgAction
             );
         }
 
+        PaymentServiceProviderHydratePaymentAccounts::dispatch($orgPaymentServiceProvider->paymentServiceProvider);
+        OrganisationHydratePaymentAccounts::dispatch($orgPaymentServiceProvider->organisation);
+        GroupHydratePaymentAccounts::dispatch($orgPaymentServiceProvider->group);
+        OrgPaymentServiceProviderHydratePaymentAccounts::dispatch($orgPaymentServiceProvider);
 
 
-        PaymentServiceProviderHydratePaymentAccounts::dispatch($paymentServiceProvider);
-        // OrganisationHydratePaymentAccounts::dispatch($paymentServiceProvider->organisation);
-        // GroupHydratePaymentAccounts::dispatch($paymentServiceProvider->group);
 
         return $paymentAccount;
     }
@@ -82,12 +85,12 @@ class StorePaymentAccount extends OrgAction
         ];
     }
 
-    public function action(PaymentServiceProvider $paymentServiceProvider, array $modelData): PaymentAccount
+    public function action(OrgPaymentServiceProvider $orgPaymentServiceProvider, array $modelData): PaymentAccount
     {
         $this->asAction = true;
-        $this->initialisation($paymentServiceProvider->organisation, $modelData);
+        $this->initialisation($orgPaymentServiceProvider->organisation, $modelData);
 
-        return $this->handle($paymentServiceProvider, $this->validatedData);
+        return $this->handle($orgPaymentServiceProvider, $this->validatedData);
     }
 
     public function asCommand(Command $command): int

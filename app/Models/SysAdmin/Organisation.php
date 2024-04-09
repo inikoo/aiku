@@ -11,9 +11,9 @@ use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
-use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
@@ -105,10 +105,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationMarketStats|null $marketStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read Collection<int, OrgAgent> $orgAgents
+ * @property-read Collection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read Collection<int, OrgStock> $orgStocks
  * @property-read Collection<int, OrgSupplier> $orgSuppliers
  * @property-read Collection<int, PaymentAccount> $paymentAccounts
- * @property-read Collection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read Collection<int, Payment> $payments
  * @property-read \App\Models\SysAdmin\OrganisationProcurementStats|null $procurementStats
  * @property-read Collection<int, ProductCategory> $productCategories
@@ -270,9 +270,9 @@ class Organisation extends Model implements HasMedia
         return $this->belongsTo(Language::class);
     }
 
-    public function accountsServiceProvider(): PaymentServiceProvider
+    public function accountsServiceProvider(): OrgPaymentServiceProvider
     {
-        return PaymentServiceProvider::where('organisation_id', $this->id)->where('type', PaymentServiceProviderTypeEnum::ACCOUNT)->first();
+        return OrgPaymentServiceProvider::where('organisation_id', $this->id)->where('type', PaymentServiceProviderTypeEnum::ACCOUNT)->first();
     }
 
     public function group(): BelongsTo
@@ -320,9 +320,9 @@ class Organisation extends Model implements HasMedia
         return $this->hasMany(ClockingMachine::class);
     }
 
-    public function paymentServiceProviders(): HasMany
+    public function orgPaymentServiceProviders(): HasMany
     {
-        return $this->hasMany(PaymentServiceProvider::class);
+        return $this->hasMany(OrgPaymentServiceProvider::class);
     }
 
     public function paymentAccounts(): HasMany

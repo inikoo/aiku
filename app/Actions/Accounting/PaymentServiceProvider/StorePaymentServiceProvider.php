@@ -7,22 +7,22 @@
 
 namespace App\Actions\Accounting\PaymentServiceProvider;
 
-use App\Actions\OrgAction;
+use App\Actions\GrpAction;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\Group;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class StorePaymentServiceProvider extends OrgAction
+class StorePaymentServiceProvider extends GrpAction
 {
-    public function handle(array $modelData): PaymentServiceProvider
+    public function handle(Group $group, array $modelData): PaymentServiceProvider
     {
         /** @var PaymentServiceProvider $paymentServiceProvider */
-        $paymentServiceProvider = PaymentServiceProvider::create($modelData);
+        $paymentServiceProvider = $group->paymentServiceProviders()->create($modelData);
         $paymentServiceProvider->stats()->create();
 
         return $paymentServiceProvider;
@@ -47,7 +47,7 @@ class StorePaymentServiceProvider extends OrgAction
                 new IUnique(
                     table: 'payment_service_providers',
                     extraConditions: [
-                        ['column' => 'group_id', 'value' => $this->organisation->group_id],
+                        ['column' => 'group_id', 'value' => $this->group->id],
                     ]
                 ),
             ],
@@ -61,20 +61,14 @@ class StorePaymentServiceProvider extends OrgAction
         ];
     }
 
-    public function action(Organisation $organisation, array $modelData): PaymentServiceProvider
+    public function action(Group $group, array $modelData): PaymentServiceProvider
     {
         $this->asAction = true;
-        $this->initialisation($organisation, $modelData);
-
-        return $this->handle($organisation, $this->validatedData);
+        $this->initialisation($group, $modelData);
+        return $this->handle($group, $this->validatedData);
     }
 
-    public function asController(Organisation $organisation, ActionRequest $request): PaymentServiceProvider
-    {
-        $this->initialisation($organisation, $request);
 
-        return $this->handle($organisation, $this->validatedData);
-    }
 
     public function htmlResponse(PaymentServiceProvider $paymentServiceProvider): RedirectResponse
     {

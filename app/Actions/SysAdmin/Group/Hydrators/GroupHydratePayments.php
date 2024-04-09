@@ -44,8 +44,6 @@ class GroupHydratePayments
 
         $stats = [
             'number_payments'                       => $group->payments()->count(),
-            'number_payment_service_providers'      => $group->paymentServiceProviders()->count(),
-            'number_payment_accounts'               => $group->paymentAccounts()->count(),
             'group_amount'                          => $amountGroupCurrencySuccessfullyPaid + $amountGroupCurrencyRefunded,
             'group_amount_successfully_paid'        => $amountGroupCurrencySuccessfullyPaid,
             'group_amount_refunded'                 => $amountGroupCurrencyRefunded,

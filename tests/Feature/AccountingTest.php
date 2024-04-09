@@ -5,22 +5,22 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
 use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
-use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
 use App\Actions\Accounting\PaymentServiceProvider\UpdatePaymentServiceProvider;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Market\Shop\StoreShop;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
+use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\CRM\Customer;
 use App\Models\Market\Shop;
-use Illuminate\Validation\ValidationException;
 
 beforeAll(function () {
     loadDB('test_base_database.dump');
@@ -32,89 +32,94 @@ beforeEach(function () {
 });
 
 
-test('create payment service provider', function () {
-    expect($this->organisation->accountingStats->number_payment_service_providers)->toBe(1)
-        ->and($this->organisation->accountingStats->number_payment_service_providers_type_account)->toBe(1);
+test('add payment service provider to organisation', function () {
+    expect($this->organisation->accountingStats->number_org_payment_service_providers)->toBe(1)
+        ->and($this->organisation->accountingStats->number_org_payment_service_providers_type_account)->toBe(1)
+        ->and($this->group->accountingStats->number_payment_service_providers)->toBe(10);
 
     $modelData = PaymentServiceProvider::factory()->definition();
     data_set($modelData, 'type', PaymentServiceProviderTypeEnum::CASH->value);
-    $paymentServiceProvider = StorePaymentServiceProvider::make()->action(
+
+
+    $paymentServiceProvider    =PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first();
+    $orgPaymentServiceProvider = StoreOrgPaymentServiceProvider::make()->action(
+        paymentServiceProvider:$paymentServiceProvider,
         organisation: $this->organisation,
         modelData: $modelData
     );
     $this->organisation->refresh();
-    expect($paymentServiceProvider)->toBeInstanceOf(PaymentServiceProvider::class)
-        ->and($this->group->accountingStats->number_payment_service_providers)->toBe(2)
-        ->and($this->group->accountingStats->number_payment_service_providers_type_account)->toBe(1)
-        ->and($this->group->accountingStats->number_payment_service_providers_type_cash)->toBe(1)
-        ->and($this->organisation->accountingStats->number_payment_service_providers)->toBe(2)
-        ->and($this->organisation->accountingStats->number_payment_service_providers_type_cash)->toBe(1);
+    expect($orgPaymentServiceProvider)->toBeInstanceOf(OrgPaymentServiceProvider::class)
+        ->and($this->organisation->accountingStats->number_org_payment_service_providers)->toBe(2)
+        ->and($this->organisation->accountingStats->number_org_payment_service_providers_type_cash)->toBe(1);
 
-    return $paymentServiceProvider;
+    return $orgPaymentServiceProvider;
 });
 
-test('can not update payment service provider type', function ($paymentServiceProvider) {
+test('can not update payment service provider type', function () {
+    $paymentServiceProvider =PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first();
     $paymentServiceProvider = UpdatePaymentServiceProvider::make()->action($paymentServiceProvider, ['type' => PaymentServiceProviderTypeEnum::BANK->value]);
     expect($paymentServiceProvider->type)->not->toBe(PaymentServiceProviderTypeEnum::BANK->value);
-})->depends('create payment service provider');
-
-test('update payment service provider code and name', function ($paymentServiceProvider) {
-    $paymentServiceProvider = UpdatePaymentServiceProvider::make()->action(
-        $paymentServiceProvider,
-        ['code' => 'hello', 'name' => 'new name']
-    );
-    expect($paymentServiceProvider->code)->toBe('hello')->and($paymentServiceProvider->name)->toBe('new name');
-})->depends('create payment service provider');
-
-test('can not create payment service same code ', function () {
-    $modelData = PaymentServiceProvider::factory()->definition();
-    data_set($modelData, 'type', PaymentServiceProviderTypeEnum::BANK->value);
-    data_set($modelData, 'code', 'hello');
-    StorePaymentServiceProvider::make()->action(
-        organisation: $this->organisation,
-        modelData: $modelData
-    );
-})->expectException(ValidationException::class);
-
-test('create other payment service provider', function () {
-    $modelData = PaymentServiceProvider::factory()->definition();
-    data_set($modelData, 'code', 'hello2');
-    $paymentServiceProvider = StorePaymentServiceProvider::make()->action(
-        organisation: $this->organisation,
-        modelData: $modelData
-    );
-    $this->organisation->refresh();
-    expect($paymentServiceProvider)->toBeInstanceOf(PaymentServiceProvider::class)
-        ->and($this->group->accountingStats->number_payment_service_providers)->toBe(3)
-        ->and($this->organisation->accountingStats->number_payment_service_providers)->toBe(3);
-
-    return $paymentServiceProvider;
 });
 
-test('can not update payment service duplicated code', function ($paymentServiceProvider) {
-    UpdatePaymentServiceProvider::make()->action(
+test('payment service provider code can not be updated', function () {
+    $paymentServiceProvider=PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first();
+
+    $paymentServiceProvider = UpdatePaymentServiceProvider::make()->action(
         $paymentServiceProvider,
         ['code' => 'hello']
     );
-})->depends('create other payment service provider')->expectException(ValidationException::class);
+    expect($paymentServiceProvider->code)->toBe('cash');
+});
+
+test('update payment service provider name', function () {
+    $paymentServiceProvider=PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first();
+
+    $paymentServiceProvider = UpdatePaymentServiceProvider::make()->action(
+        $paymentServiceProvider,
+        [ 'name' => 'new name']
+    );
+    expect($paymentServiceProvider->name)->toBe('new name');
+});
+
+
+test('create other org payment service provider', function () {
+
+    $modelData = PaymentServiceProvider::factory()->definition();
+    data_set($modelData, 'type', PaymentServiceProviderTypeEnum::BANK->value);
+    data_set($modelData, 'code', 'test123');
+
+
+    $paymentServiceProvider    =PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first();
+    $orgPaymentServiceProvider = StoreOrgPaymentServiceProvider::make()->action(
+        paymentServiceProvider:$paymentServiceProvider,
+        organisation: $this->organisation,
+        modelData: $modelData
+    );
+    $this->organisation->refresh();
+    expect($orgPaymentServiceProvider)->toBeInstanceOf(OrgPaymentServiceProvider::class)
+        ->and($this->organisation->accountingStats->number_org_payment_service_providers)->toBe(3);
+
+    return $orgPaymentServiceProvider;
+});
+
 
 //todo restrict payments account types depending of the Service Account type
-test('create payment account', function ($paymentServiceProvider) {
+test('create payment account', function ($orgPaymentServiceProvider) {
 
     $modelData = PaymentAccount::factory()->definition();
     data_set($modelData, 'type', PaymentAccountTypeEnum::BANK->value);
 
     $paymentAccount = StorePaymentAccount::make()->action(
-        $paymentServiceProvider,
+        $orgPaymentServiceProvider,
         $modelData
     );
-    $paymentServiceProvider->refresh();
+    $orgPaymentServiceProvider->refresh();
     expect($paymentAccount)->toBeInstanceOf(PaymentAccount::class)
-        ->and($paymentServiceProvider->stats->number_payment_accounts)->toBe(1)
-        ->and($paymentServiceProvider->stats->number_payment_accounts_type_bank)->toBe(1);
+        ->and($orgPaymentServiceProvider->stats->number_payment_accounts)->toBe(1)
+        ->and($orgPaymentServiceProvider->stats->number_payment_accounts_type_bank)->toBe(1);
 
     return $paymentAccount;
-})->depends('create payment service provider');
+})->depends('add payment service provider to organisation');
 
 test('update payment account', function ($paymentAccount) {
     $paymentAccount = UpdatePaymentAccount::make()->action($paymentAccount, ['name' => 'Pika Ltd']);

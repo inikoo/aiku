@@ -16,16 +16,16 @@ return new class () extends Migration {
     {
         Schema::create('payment_service_providers', function (Blueprint $table) {
             $table->smallIncrements('id');
+            $table->unsignedSmallInteger('group_id')->index();
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('type')->index();
-            $table->string('code')->index()->collation('und_ns');
+            $table->string('code')->unique()->collation('und_ns');
             $table->string('name');
             $table->jsonb('data');
             $table->dateTimeTz('last_used_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->string('source_id')->index()->nullable();
-            $table->unique(['code']);
         });
     }
 

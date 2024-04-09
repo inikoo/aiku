@@ -13,21 +13,21 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Support\Carbon;
 
 /**
- * App\Models\Accounting\PaymentServiceProviderShop
+ * App\Models\Accounting\OrgPaymentServiceProviderShop
  *
  * @property int $id
  * @property int $shop_id
- * @property int $payment_service_provider_id
+ * @property int $org_payment_service_provider_id
  * @property int $currency_id
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @method static Builder|PaymentServiceProviderShop newModelQuery()
- * @method static Builder|PaymentServiceProviderShop newQuery()
- * @method static Builder|PaymentServiceProviderShop query()
+ * @method static Builder|OrgPaymentServiceProviderShop newModelQuery()
+ * @method static Builder|OrgPaymentServiceProviderShop newQuery()
+ * @method static Builder|OrgPaymentServiceProviderShop query()
  * @mixin Eloquent
  */
-class PaymentServiceProviderShop extends Pivot
+class OrgPaymentServiceProviderShop extends Pivot
 {
     public $incrementing = true;
 

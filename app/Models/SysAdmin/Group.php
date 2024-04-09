@@ -8,6 +8,7 @@
 namespace App\Models\SysAdmin;
 
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -69,6 +70,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Media\Media|null $logo
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Mailroom> $mailrooms
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $organisations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentAccount> $paymentAccounts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentServiceProvider> $paymentServiceProviders
@@ -242,6 +244,11 @@ class Group extends Model implements HasMedia
     public function paymentServiceProviders(): HasMany
     {
         return $this->hasMany(PaymentServiceProvider::class);
+    }
+
+    public function orgPaymentServiceProviders(): HasMany
+    {
+        return $this->hasMany(OrgPaymentServiceProvider::class);
     }
 
     public function paymentAccounts(): HasMany

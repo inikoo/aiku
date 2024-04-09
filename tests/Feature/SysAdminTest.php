@@ -112,7 +112,9 @@ test('create organisation', function (Group $group) {
     $organisation = StoreOrganisation::make()->action($group, $modelData);
     expect($organisation)->toBeInstanceOf(Organisation::class)
         ->and($organisation->roles()->count())->toBe(7)
-        ->and($group->roles()->count())->toBe(12);
+        ->and($group->roles()->count())->toBe(12)
+        ->and($organisation->accountingStats->number_org_payment_service_providers)->toBe(1)
+        ->and($organisation->accountingStats->number_org_payment_service_providers_type_account)->toBe(1);
 
     return $organisation;
 })->depends('create group');

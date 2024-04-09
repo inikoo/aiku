@@ -9,12 +9,12 @@ namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
-use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrganisationHydratePaymentServiceProviders
+class OrganisationHydrateOrgPaymentServiceProviders
 {
     use AsAction;
     use WithEnumStats;
@@ -35,16 +35,16 @@ class OrganisationHydratePaymentServiceProviders
     public function handle(Organisation $organisation): void
     {
         $stats = [
-            'number_payment_service_providers' => $organisation->paymentServiceProviders()->count(),
+            'number_org_payment_service_providers' => $organisation->orgPaymentServiceProviders()->count(),
         ];
 
         $stats = array_merge(
             $stats,
             $this->getEnumStats(
-                model: 'payment_service_providers',
+                model: 'org_payment_service_providers',
                 field: 'type',
                 enum: PaymentServiceProviderTypeEnum::class,
-                models: PaymentServiceProvider::class,
+                models: OrgPaymentServiceProvider::class,
                 where: function ($q) use ($organisation) {
                     $q->where('organisation_id', $organisation->id);
                 }

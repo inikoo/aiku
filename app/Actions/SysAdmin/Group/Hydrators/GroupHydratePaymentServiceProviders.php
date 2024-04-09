@@ -9,6 +9,7 @@ namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
+use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -35,7 +36,9 @@ class GroupHydratePaymentServiceProviders
     public function handle(Group $group): void
     {
         $stats = [
-            'number_payment_service_providers' => $group->paymentServiceProviders()->count(),
+            'number_payment_service_providers'     => $group->paymentServiceProviders()->count(),
+            'number_org_payment_service_providers' => $group->orgPaymentServiceProviders()->count(),
+
         ];
 
         $stats = array_merge(
@@ -45,6 +48,19 @@ class GroupHydratePaymentServiceProviders
                 field: 'type',
                 enum: PaymentServiceProviderTypeEnum::class,
                 models: PaymentServiceProvider::class,
+                where: function ($q) use ($group) {
+                    $q->where('group_id', $group->id);
+                }
+            )
+        );
+
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'org_payment_service_providers',
+                field: 'type',
+                enum: PaymentServiceProviderTypeEnum::class,
+                models: OrgPaymentServiceProvider::class,
                 where: function ($q) use ($group) {
                     $q->where('group_id', $group->id);
                 }

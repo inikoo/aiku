@@ -18,14 +18,14 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int $organisation_id
- * @property int $number_payment_service_providers
- * @property int $number_payment_service_providers_type_account
- * @property int $number_payment_service_providers_type_cash
- * @property int $number_payment_service_providers_type_bank
- * @property int $number_payment_service_providers_type_electronic_payment_servic
- * @property int $number_payment_service_providers_type_electronic_banking_e_paym
- * @property int $number_payment_service_providers_type_cash_on_delivery
- * @property int $number_payment_service_providers_type_buy_now_pay_later
+ * @property int $number_org_payment_service_providers
+ * @property int $number_org_payment_service_providers_type_account
+ * @property int $number_org_payment_service_providers_type_cash
+ * @property int $number_org_payment_service_providers_type_bank
+ * @property int $number_org_payment_service_providers_type_electronic_payment_se
+ * @property int $number_org_payment_service_providers_type_electronic_banking_e_
+ * @property int $number_org_payment_service_providers_type_cash_on_delivery
+ * @property int $number_org_payment_service_providers_type_buy_now_pay_later
  * @property int $number_payment_accounts
  * @property int $number_payment_accounts_type_paypal
  * @property int $number_payment_accounts_type_world_pay
