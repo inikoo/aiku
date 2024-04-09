@@ -67,11 +67,16 @@ class FetchAuroraProduct extends FetchAurora
             $units = 1;
         }
 
-        if ($this->auroraModelData->{'Product Valid From'} == '0000-00-00 00:00:00') {
-            $created_at = null;
-        } else {
-            $created_at = $this->auroraModelData->{'Product Valid From'};
+
+        $created_at=$this->parseDatetime($this->auroraModelData->{'Product Valid From'});
+        if(!$created_at) {
+            $created_at=$this->parseDatetime($this->auroraModelData->{'Product For Sale Since Date'});
         }
+        if(!$created_at) {
+            $created_at=$this->parseDatetime($this->auroraModelData->{'Product First Sold Date'});
+        }
+
+
 
         $unit_price        = $this->auroraModelData->{'Product Price'} / $units;
         $data['raw_price'] = $unit_price;

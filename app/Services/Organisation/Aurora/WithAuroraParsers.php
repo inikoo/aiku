@@ -79,7 +79,7 @@ trait WithAuroraParsers
 
     protected function parseDatetime($value): ?Carbon
     {
-        return ($value && $value != '2018-00-00 00:00:00') ? Carbon::parse($value) : null;
+        return ($value != '' && $value != '0000-00-00 00:00:00' && $value != '2018-00-00 00:00:00') ? Carbon::parse($value) : null;
     }
 
     protected function parseTaxNumber(?string $number, ?int $countryID, array $rawData = []): ?array
