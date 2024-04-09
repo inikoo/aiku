@@ -8,30 +8,22 @@
 namespace App\Actions\Accounting\PaymentServiceProvider;
 
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePaymentServiceProviders;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePaymentServiceProviders;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StorePaymentServiceProvider extends OrgAction
 {
-    public function handle(Organisation $organisation, array $modelData): PaymentServiceProvider
+    public function handle(array $modelData): PaymentServiceProvider
     {
-        data_set($modelData, 'group_id', $organisation->group_id);
         /** @var PaymentServiceProvider $paymentServiceProvider */
-        data_set($modelData, 'code', $organisation->code.'-'.Arr::get($modelData, 'code'));
-
-        $paymentServiceProvider = $organisation->paymentServiceProviders()->create($modelData);
+        $paymentServiceProvider = PaymentServiceProvider::create($modelData);
         $paymentServiceProvider->stats()->create();
-        OrganisationHydratePaymentServiceProviders::dispatch($organisation);
-        GroupHydratePaymentServiceProviders::dispatch($organisation->group);
 
         return $paymentServiceProvider;
     }

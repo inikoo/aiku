@@ -16,15 +16,19 @@ use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Rules\IUnique;
+use Illuminate\Console\Command;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StorePaymentAccount extends OrgAction
 {
+    public string $commandSignature = 'payment-account:create {provider} {type}';
+
     public function handle(PaymentServiceProvider $paymentServiceProvider, array $modelData): PaymentAccount
     {
-        data_set($modelData, 'group_id', $paymentServiceProvider->group_id);
-        data_set($modelData, 'organisation_id', $paymentServiceProvider->organisation_id);
+        data_set($modelData, 'group_id', 1);
+        data_set($modelData, 'organisation_id', 1);
+
         /** @var PaymentAccount $paymentAccount */
         $paymentAccount = $paymentServiceProvider->accounts()->create($modelData);
         $paymentAccount->stats()->create();
@@ -42,8 +46,8 @@ class StorePaymentAccount extends OrgAction
 
 
         PaymentServiceProviderHydratePaymentAccounts::dispatch($paymentServiceProvider);
-        OrganisationHydratePaymentAccounts::dispatch($paymentServiceProvider->organisation);
-        GroupHydratePaymentAccounts::dispatch($paymentServiceProvider->group);
+        // OrganisationHydratePaymentAccounts::dispatch($paymentServiceProvider->organisation);
+        // GroupHydratePaymentAccounts::dispatch($paymentServiceProvider->group);
 
         return $paymentAccount;
     }
@@ -84,5 +88,30 @@ class StorePaymentAccount extends OrgAction
         $this->initialisation($paymentServiceProvider->organisation, $modelData);
 
         return $this->handle($paymentServiceProvider, $this->validatedData);
+    }
+
+    public function asCommand(Command $command): int
+    {
+        $provider = PaymentServiceProvider::where('slug', $command->argument('provider'))->first();
+        $type     = $command->argument('type');
+
+        $publicKey = $command->ask('Your public key: ');
+        $secretKey = $command->ask('Your secret key: ');
+        $channelId = $command->ask('Your channel id: ');
+
+        $modelData = [
+            'code' => rand(001, 999),
+            'type' => $type,
+            'name' => 'Account Checkout',
+            'data' => [
+                'public_key' => $publicKey,
+                'secret_key' => $secretKey,
+                'channel_id' => $channelId
+            ]
+        ];
+
+        $this->handle($provider, $modelData);
+
+        return 0;
     }
 }

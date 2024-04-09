@@ -9,6 +9,8 @@ namespace App\Actions\Accounting\Payment;
 
 use App\Actions\Accounting\Payment\Hydrators\PaymentHydrateUniversalSearch;
 use App\Actions\Accounting\PaymentAccount\Hydrators\PaymentAccountHydratePayments;
+use App\Actions\Accounting\PaymentGateway\Checkout\Channels\Checkout;
+use App\Actions\Accounting\PaymentGateway\Xendit\Channels\Invoice\MakePaymentUsingInvoice;
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydratePayments;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Market\Shop\Hydrators\ShopHydratePayments;
@@ -17,15 +19,22 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePayments;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePayments;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
+use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderEnum;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\CRM\Customer;
+use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
+use Lorisleiva\Actions\Concerns\AsCommand;
 
 class StorePayment extends OrgAction
 {
+    use AsCommand;
+
+    public string $commandSignature = 'payment:create {customer} {paymentAccount}';
+
     public function handle(Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
     {
         data_set($modelData, 'date', gmdate('Y-m-d H:i:s'), overwrite: false);
@@ -45,8 +54,13 @@ class StorePayment extends OrgAction
         /** @var Payment $payment */
         $payment = $paymentAccount->payments()->create($modelData);
 
-        GroupHydratePayments::dispatch($payment->group)->delay($this->hydratorsDelay);
-        OrganisationHydratePayments::dispatch($paymentAccount->organisation)->delay($this->hydratorsDelay);
+        match ($paymentAccount->paymentServiceProvider->code) {
+            PaymentServiceProviderEnum::CHECKOUT->value => Checkout::run($payment, $modelData),
+            PaymentServiceProviderEnum::XENDIT->value   => MakePaymentUsingInvoice::run($payment)
+        };
+
+        // GroupHydratePayments::dispatch($payment->group)->delay($this->hydratorsDelay);
+        // OrganisationHydratePayments::dispatch($paymentAccount->organisation)->delay($this->hydratorsDelay);
         PaymentServiceProviderHydratePayments::dispatch($payment->paymentAccount->paymentServiceProvider)->delay($this->hydratorsDelay);
         PaymentAccountHydratePayments::dispatch($payment->paymentAccount)->delay($this->hydratorsDelay);
         ShopHydratePayments::dispatch($payment->shop)->delay($this->hydratorsDelay);
@@ -81,7 +95,7 @@ class StorePayment extends OrgAction
             'cancelled_at' => ['sometimes', 'nullable', 'date'],
             'status'       => ['sometimes', 'required', Rule::enum(PaymentStatusEnum::class)],
             'state'        => ['sometimes', 'required', Rule::enum(PaymentStateEnum::class)],
-            'source_id'    => ['sometimes', 'string'],
+            'source_id'    => ['sometimes', 'string']
         ];
     }
 
@@ -92,5 +106,28 @@ class StorePayment extends OrgAction
         $this->initialisationFromShop($customer->shop, $modelData);
 
         return $this->handle($customer, $paymentAccount, $this->validatedData);
+    }
+
+    public function asCommand(Command $command): int
+    {
+        $customer       = Customer::where('slug', $command->argument('customer'))->first();
+        $paymentAccount = PaymentAccount::where('slug', $command->argument('paymentAccount'))->first();
+
+        $modelData = [
+            'reference'   => rand(),
+            'currency_id' => 1,
+            'amount'      => 100,
+            'data'        => [
+                'card_name'         => 'Raul Inikoo',
+                'card_number'       => '4485040371536584',
+                'card_expiry_year'  => '2045',
+                'card_expiry_month' => '02',
+                'card_cvv'          => '000',
+            ]
+        ];
+
+        $this->handle($customer, $paymentAccount, $modelData);
+
+        return 0;
     }
 }

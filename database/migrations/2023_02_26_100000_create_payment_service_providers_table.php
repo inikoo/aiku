@@ -17,7 +17,6 @@ return new class () extends Migration {
         Schema::create('payment_service_providers', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('slug')->unique()->collation('und_ns');
-            $table=$this->groupOrgRelationship($table);
             $table->string('type')->index();
             $table->string('code')->index()->collation('und_ns');
             $table->string('name');
@@ -26,7 +25,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->index()->nullable();
-            $table->unique(['group_id','code']);
+            $table->unique(['code']);
         });
     }
 

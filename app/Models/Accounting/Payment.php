@@ -131,7 +131,7 @@ class Payment extends Model
                     $slug = $this->reference;
 
                     if ($slug == '') {
-                        $slug = Abbreviate::run($this->paymentAccount->slug).'-'.$this->created_at->format('Ymd');
+                        $slug = Abbreviate::run($this->paymentAccount->slug).'-'.now()->format('Ymd');
                     }
 
                 }

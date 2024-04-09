@@ -8,47 +8,29 @@
 namespace Database\Seeders;
 
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
+use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderEnum;
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\Assets\Country;
-use App\Models\SysAdmin\Group;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Storage;
 
 class PaymentServiceProviderSeeder extends Seeder
 {
     public function run(): void
     {
-        $paymentServiceProvidersData = collect(
-            json_decode(
-                Storage::disk('datasets')->get('payment-service-providers.json'),
-                true
-            )
-        );
-        $organisations = Group::first()->organisations;
+        $paymentServiceProvidersData = collect(PaymentServiceProviderEnum::values());
 
-        foreach ($organisations as $organisation) {
-            $paymentServiceProvidersData->each(function ($modelData) use ($organisation) {
-                $countries = collect(Arr::get($modelData, 'countries'));
+        $paymentServiceProvidersData->each(function ($modelData) {
+            $paymentServiceProvider=PaymentServiceProvider::where('code', $modelData)->first();
 
+            if(!$paymentServiceProvider) {
+                $paymentServiceProvider = StorePaymentServiceProvider::run([
+                    'code' => $modelData,
+                    'type' => PaymentServiceProviderEnum::types()[$modelData],
+                    'name' => PaymentServiceProviderEnum::labels()[$modelData]
+                ]);
+            }
 
-                $paymentServiceProvider=PaymentServiceProvider::where('code', Arr::get($modelData, 'code'))->first();
-
-                if(!$paymentServiceProvider) {
-                    $paymentServiceProvider=StorePaymentServiceProvider::run($organisation, Arr::except($modelData, ['countries']));
-                }
-
-                $countryIds=$countries->map(
-                    function ($countryCode) {
-                        $country=Country::where('code', $countryCode)->first();
-                        return $country->id;
-                    }
-                )->all();
-
-                // $paymentServiceProvider->countries()->sync($countryIds);
-
-                print "\033[32mSeeded\033[0m: $paymentServiceProvider->code has been seeded \n";
-            });
-        }
+            print "\033[32mSeeded: \033[0m $paymentServiceProvider->code\n";
+        });
     }
+
 }
