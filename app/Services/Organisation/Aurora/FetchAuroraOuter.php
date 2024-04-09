@@ -7,8 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Enums\Market\Product\ProductStateEnum;
-use App\Enums\Market\Product\ProductTypeEnum;
+use App\Enums\Market\Outer\OuterStateEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraOuter extends FetchAurora
@@ -25,25 +24,17 @@ class FetchAuroraOuter extends FetchAurora
             return;
         }
 
-        // get Product
 
-        $this->parsedData['product']   = $this->parseProduct($this->organisation->id.':'.$this->auroraModelData->{'variant_parent_id'});
+        $product   = $this->parseProduct($this->organisation->id.':'.$this->auroraModelData->{'variant_parent_id'});
 
+        $mainProductData=$this->fetchMainProductData($this->auroraModelData->{'variant_parent_id'});
 
-
-        $data     = [];
-        $settings = [];
-
-        $status = 1;
-        if ($this->auroraModelData->{'Product Status'} == 'Discontinued') {
-            $status = 0;
-        }
 
         $state = match ($this->auroraModelData->{'Product Status'}) {
-            'InProcess'     => ProductStateEnum::IN_PROCESS,
-            'Discontinuing' => ProductStateEnum::DISCONTINUING,
-            'Discontinued'  => ProductStateEnum::DISCONTINUED,
-            default         => ProductStateEnum::ACTIVE
+            'InProcess'     => OuterStateEnum::IN_PROCESS,
+            'Discontinuing' => OuterStateEnum::DISCONTINUING,
+            'Discontinued'  => OuterStateEnum::DISCONTINUED,
+            default         => OuterStateEnum::ACTIVE
         };
 
 
@@ -52,34 +43,36 @@ class FetchAuroraOuter extends FetchAurora
             $units = 1;
         }
 
-        if ($this->auroraModelData->{'Product Valid From'} == '0000-00-00 00:00:00') {
-            $created_at = null;
-        } else {
-            $created_at = $this->auroraModelData->{'Product Valid From'};
+
+        $main_outer_ratio=$units/$mainProductData->{'Product Units Per Case'};
+
+
+
+
+        $created_at=$this->parseDatetime($this->auroraModelData->{'Product Valid From'});
+        if(!$created_at) {
+            $created_at=$this->parseDatetime($this->auroraModelData->{'Product For Sale Since Date'});
+        }
+        if(!$created_at) {
+            $created_at=$this->parseDatetime($this->auroraModelData->{'Product First Sold Date'});
         }
 
         $unit_price        = $this->auroraModelData->{'Product Price'} / $units;
-        $data['raw_price'] = $unit_price;
 
-        $this->parsedData['historic_outer_source_id'] = $this->auroraModelData->{'Product Current Key'};
 
         $code = $this->cleanTradeUnitReference($this->auroraModelData->{'Product Code'});
 
+        $this->parsedData['product']=$product;
 
-        $this->parsedData['product'] = [
-            'type'                  => ProductTypeEnum::PHYSICAL_GOOD,
-
+        $this->parsedData['outer'] = [
             'code'                  => $code,
-            'name'                  => $this->auroraModelData->{'Product Name'},
+            'main_outer_ratio'      => $main_outer_ratio,
             'price'                 => round($unit_price, 2),
-            'units'                 => round($units, 3),
-            'status'                => $status,
+            'name'                  => $this->auroraModelData->{'Product Name'},
             'state'                 => $state,
-            'data'                  => $data,
-            'settings'              => $settings,
             'created_at'            => $created_at,
             'source_id'             => $this->organisation->id.':'.$this->auroraModelData->{'Product ID'},
-
+            'is_main'               => false
         ];
     }
 
@@ -90,4 +83,12 @@ class FetchAuroraOuter extends FetchAurora
             ->table('Product Dimension')
             ->where('Product ID', $id)->first();
     }
+
+    protected function fetchMainProductData($id): object|null
+    {
+        return DB::connection('aurora')
+            ->table('Product Dimension')
+            ->where('Product ID', $id)->first();
+    }
+
 }

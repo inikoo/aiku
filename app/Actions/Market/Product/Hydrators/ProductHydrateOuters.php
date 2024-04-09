@@ -32,6 +32,7 @@ class ProductHydrateOuters
     public function handle(Product $product): void
     {
 
+
         $stats         = [
             'number_outers' => $product->outers()->count(),
         ];
@@ -49,9 +50,6 @@ class ProductHydrateOuters
                 }
             )
         );
-
-
-
 
         $product->stats()->update($stats);
     }

@@ -14,6 +14,7 @@ use App\Actions\Market\ProductCategory\StoreProductCategory;
 use App\Actions\Market\ProductCategory\UpdateProductCategory;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Market\Shop\UpdateShop;
+use App\Enums\Market\Product\ProductUnitRelationshipType;
 use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\Goods\TradeUnit;
@@ -37,6 +38,13 @@ beforeEach(function () {
 
     if(!isset($this->tradeUnit)) {
         $this->tradeUnit = StoreTradeUnit::make()->action(
+            $this->organisation->group,
+            TradeUnit::factory()->definition()
+        );
+    }
+
+    if(!isset($this->tradeUnit2)) {
+        $this->tradeUnit2 = StoreTradeUnit::make()->action(
             $this->organisation->group,
             TradeUnit::factory()->definition()
         );
@@ -198,6 +206,39 @@ test('create product', function ($shop) {
     return $product;
 })->depends('create shop');
 
+test('create product with many trade units', function ($shop) {
+
+    $tradeUnits=[
+        $this->tradeUnit->id=> [
+            'units_per_main_outer'      => 1,
+        ],
+        $this->tradeUnit2->id=> [
+            'units_per_main_outer'      => 1,
+        ]
+    ];
+
+    $productData = array_merge(
+        Product::factory()->definition(),
+        [
+            'trade_units'=> $tradeUnits,
+            'price'      => 99,
+        ]
+    );
+
+
+    $product     = StorePhysicalGood::make()->action($shop, $productData);
+
+
+    expect($product)->toBeInstanceOf(Product::class)
+        ->and($product->unit_relationship_type)->toBe(ProductUnitRelationshipType::MULTIPLE)
+        ->and($product->tradeUnits()->count())->toBe(2)
+        ->and($product->stats->number_outers)->toBe(1)
+        ->and($product->stats->number_historic_outers)->toBe(1);
+
+    return $product;
+})->depends('create shop');
+
+
 test('update product', function ($product) {
     $productData = [
         'name' => 'Updated Product Name',
@@ -216,8 +257,8 @@ test('add outer to product', function ($product) {
     $outerData =
         [
             'code'            => $product->code.'-v1',
-            'price'           => 99,
             'main_outer_ratio'=> 2,
+            'price'           => 99,
             'name'            => $product->name.' variant 1',
             'is_main'         => false
         ];

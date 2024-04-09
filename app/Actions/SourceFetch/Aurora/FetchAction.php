@@ -127,6 +127,7 @@ class FetchAction
                 'fetch:invoices',
                 'fetch:orders',
                 'fetch:delivery-notes',
+                'fetch:outers',
                 'fetch:products',
                 'fetch:services'
             ]) and $command->option('shop')) {
@@ -150,7 +151,8 @@ class FetchAction
             'fetch:supplier-products',
             'fetch:payments',
             'fetch:pallets',
-            'fetch:families'
+            'fetch:families',
+            'fetch:outers',
         ])) {
             $this->onlyNew = (bool)$command->option('only_new');
         }

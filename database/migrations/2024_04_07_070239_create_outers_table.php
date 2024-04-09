@@ -38,6 +38,8 @@ return new class () extends Migration {
 
             $table->timestampsTz();
             $table->softDeletesTz();
+            $table->string('source_id')->nullable()->unique();
+
         });
     }
 
