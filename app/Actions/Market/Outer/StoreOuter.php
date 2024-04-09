@@ -9,6 +9,7 @@ namespace App\Actions\Market\Outer;
 
 use App\Actions\Market\HistoricOuter\StoreHistoricOuter;
 use App\Actions\Market\Outer\Hydrator\OuterHydrateUniversalSearch;
+use App\Actions\Market\Product\Hydrators\ProductHydrateHistoricOuters;
 use App\Actions\Market\Product\Hydrators\ProductHydrateOuters;
 use App\Actions\OrgAction;
 use App\Enums\Market\Outer\OuterStateEnum;
@@ -28,7 +29,7 @@ class StoreOuter extends OrgAction
         data_set($modelData, 'organisation_id', $product->organisation_id);
         data_set($modelData, 'group_id', $product->group_id);
         data_set($modelData, 'shop_id', $product->shop_id);
-        data_set($modelData, 'product_id', $product->product_id);
+        data_set($modelData, 'state', $product->state);
 
         /** @var Outer $outer */
         $outer = $product->outers()->create($modelData);
@@ -44,7 +45,8 @@ class StoreOuter extends OrgAction
             );
         }
 
-        ProductHydrateOuters::dispatch($outer->product);
+        ProductHydrateOuters::dispatch($product);
+        ProductHydrateHistoricOuters::dispatch($product);
         OuterHydrateUniversalSearch::dispatch($outer);
 
         return $outer;

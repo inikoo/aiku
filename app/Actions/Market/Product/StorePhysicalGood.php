@@ -9,12 +9,15 @@
 namespace App\Actions\Market\Product;
 
 use App\Actions\Market\Outer\StoreOuter;
+use App\Actions\Market\Product\Hydrators\ProductHydrateHistoricOuters;
+use App\Actions\Market\Product\Hydrators\ProductHydrateOuters;
 use App\Actions\Market\Product\Hydrators\ProductHydrateUniversalSearch;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\OrgAction;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\Product\ProductUnitRelationshipType;
+use App\Models\Goods\TradeUnit;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
@@ -61,14 +64,31 @@ class StorePhysicalGood extends OrgAction
         $product = $parent->products()->create($modelData);
         $product->stats()->create();
 
+
+
+        foreach ($tradeUnits as $tradeUnitId=>$tradeUnitData) {
+
+            $tradeUnit=TradeUnit::find($tradeUnitId);
+
+            $product->tradeUnits()->attach(
+                $tradeUnit,
+                [
+                    'units_per_main_outer' => $tradeUnitData['units_per_main_outer'],
+                    'notes'                => Arr::get($tradeUnitData, 'notes'),
+                ]
+            );
+
+
+        }
+
         $outer=StoreOuter::run(
             product: $product,
             modelData: [
-                'code'   => $product->code,
-                'price'  => $price,
-                'name'   => $product->name,
-                'state'  => $product->state,
-                'is_main'=> true
+                'code'            => $product->code,
+                'price'           => $price,
+                'name'            => $product->name,
+                'is_main'         => true,
+                'main_outer_ratio'=> 1
             ],
             skipHistoric: $skipHistoric
         );
@@ -78,7 +98,8 @@ class StorePhysicalGood extends OrgAction
             mainOuter: $outer
         );
 
-
+        ProductHydrateHistoricOuters::dispatch($product);
+        ProductHydrateOuters::dispatch($product);
 
         ShopHydrateProducts::dispatch($product->shop);
         ProductHydrateUniversalSearch::dispatch($product);

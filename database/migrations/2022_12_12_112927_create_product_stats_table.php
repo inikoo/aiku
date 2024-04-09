@@ -20,11 +20,8 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedInteger('product_id')->index();
             $table->foreign('product_id')->references('id')->on('products');
-
-
             $table->unsignedSmallInteger('number_outers')->default(0);
             $table->unsignedSmallInteger('number_outers_available')->default(0);
-
             foreach (OuterStateEnum::cases() as $case) {
                 $table->unsignedInteger('number_outers_state_'.$case->snake())->default(0);
             }

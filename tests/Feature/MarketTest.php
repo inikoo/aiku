@@ -6,6 +6,7 @@
  */
 
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
+use App\Actions\Market\Outer\StoreOuter;
 use App\Actions\Market\Product\DeleteProduct;
 use App\Actions\Market\Product\StorePhysicalGood;
 use App\Actions\Market\Product\UpdateProduct;
@@ -16,6 +17,7 @@ use App\Actions\Market\Shop\UpdateShop;
 use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\Goods\TradeUnit;
+use App\Models\Market\Outer;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
@@ -170,9 +172,8 @@ test('create family', function ($department) {
 test('create product', function ($shop) {
 
     $tradeUnits=[
-        [
-            'trade_unit_id' => $this->tradeUnit->id,
-            'quantity'      => 1,
+        $this->tradeUnit->id=> [
+            'units_per_main_outer'      => 1,
         ]
     ];
 
@@ -187,7 +188,12 @@ test('create product', function ($shop) {
 
 
     $product     = StorePhysicalGood::make()->action($shop, $productData);
-    $this->assertModelExists($product);
+
+
+    expect($product)->toBeInstanceOf(Product::class)
+        ->and($product->tradeUnits()->count())->toBe(1)
+        ->and($product->stats->number_outers)->toBe(1)
+        ->and($product->stats->number_historic_outers)->toBe(1);
 
     return $product;
 })->depends('create shop');
@@ -198,8 +204,38 @@ test('update product', function ($product) {
     ];
     $product = UpdateProduct::make()->action($product, $productData);
 
-    $this->assertModelExists($product);
+    expect($product->name)->toBe('Updated Product Name');
+    return $product;
 })->depends('create product');
+
+test('add outer to product', function ($product) {
+
+
+    expect($product->stats->number_outers)->toBe(1);
+
+    $outerData =
+        [
+            'code'            => $product->code.'-v1',
+            'price'           => 99,
+            'main_outer_ratio'=> 2,
+            'name'            => $product->name.' variant 1',
+            'is_main'         => false
+        ];
+
+
+    $outer = StoreOuter::run($product, $outerData);
+    $product->refresh();
+
+
+    expect($outer)->toBeInstanceOf(Outer::class)
+        ->and($outer->product->id)->toBe($product->id)
+        ->and($outer->product->outers()->count())->toBe(2)
+        ->and($product->stats->number_outers)->toBe(2)
+        ->and($product->stats->number_historic_outers)->toBe(2);
+
+
+    return $product;
+})->depends('update product');
 
 test('delete product', function ($product) {
     $product = DeleteProduct::run($product);

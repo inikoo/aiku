@@ -33,9 +33,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property string|null $name
  * @property OuterStateEnum $state
- * @property string|null $units units per outer
+ * @property string|null $main_outer_ratio number of outers in relation to main outer
  * @property string $price outer price
  * @property int|null $available
+ * @property int $number_historic_outers
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at

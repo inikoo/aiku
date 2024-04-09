@@ -29,9 +29,12 @@ return new class () extends Migration {
             $table->string('name', 255)->nullable();
             $table->string('state')->default(OuterStateEnum::IN_PROCESS)->index();
 
-            $table->unsignedDecimal('units', 12, 3)->nullable()->comment('units per outer');
+            $table->unsignedDecimal('main_outer_ratio', 12, 3)->nullable()->comment('number of outers in relation to main outer');
             $table->unsignedDecimal('price', 18)->comment('outer price');
             $table->unsignedInteger('available')->default(0)->nullable();
+
+            $table->unsignedSmallInteger('number_historic_outers')->default(0);
+
 
             $table->timestampsTz();
             $table->softDeletesTz();

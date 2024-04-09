@@ -150,7 +150,7 @@ class Product extends Model implements HasMedia
         return $this->belongsToMany(
             TradeUnit::class,
             'product_trade_unit',
-        )->withPivot(['quantity','notes'])->withTimestamps();
+        )->withPivot(['units_per_main_outer','notes'])->withTimestamps();
     }
 
     public function salesStats(): HasOne

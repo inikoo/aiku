@@ -7,6 +7,8 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Market\HistoricOuter\StoreHistoricOuter;
+use App\Actions\Market\HistoricOuter\UpdateHistoricOuter;
 use App\Models\Market\HistoricOuter;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Support\Facades\DB;

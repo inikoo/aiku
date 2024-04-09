@@ -1,20 +1,18 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 08 Apr 2024 09:52:43 Central Indonesia Time, Bali Office , Indonesia
+ * Created: Tue, 09 Apr 2024 12:35:47 Central Indonesia Time, Bali Office , Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Market\Product\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Market\Outer\OuterStateEnum;
-use App\Models\Market\Outer;
 use App\Models\Market\Product;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ProductHydrateOuters
+class ProductHydrateHistoricOuters
 {
     use AsAction;
     use WithEnumStats;
@@ -33,25 +31,8 @@ class ProductHydrateOuters
     {
 
         $stats         = [
-            'number_outers' => $product->outers()->count(),
+            'number_historic_outers' => $product->historicOuters()->count(),
         ];
-
-
-        $stats = array_merge(
-            $stats,
-            $this->getEnumStats(
-                model: 'outers',
-                field: 'state',
-                enum: OuterStateEnum::class,
-                models: Outer::class,
-                where: function ($q) use ($product) {
-                    $q->where('product_id', $product->id);
-                }
-            )
-        );
-
-
-
 
         $product->stats()->update($stats);
     }

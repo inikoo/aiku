@@ -16,7 +16,7 @@ return new class () extends Migration {
             $table->unsignedInteger('product_id')->nullable();
             $table->foreign('product_id')->references('id')->on('products');
             $table->unsignedInteger('trade_unit_id')->nullable();
-            $table->decimal('quantity', 12, 3);
+            $table->decimal('units_per_main_outer', 12, 3);
             $table->string('notes')->nullable();
 
             $table->timestampsTz();

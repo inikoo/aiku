@@ -37,6 +37,7 @@ use App\Services\Organisation\Aurora\FetchAuroraLocationStocks;
 use App\Services\Organisation\Aurora\FetchAuroraMailshot;
 use App\Services\Organisation\Aurora\FetchAuroraOrder;
 use App\Services\Organisation\Aurora\FetchAuroraOutbox;
+use App\Services\Organisation\Aurora\FetchAuroraOuter;
 use App\Services\Organisation\Aurora\FetchAuroraPayment;
 use App\Services\Organisation\Aurora\FetchAuroraPaymentAccount;
 use App\Services\Organisation\Aurora\FetchAuroraPaymentServiceProvider;
@@ -224,6 +225,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchProduct($id): ?array
     {
         return (new FetchAuroraProduct($this))->fetch($id);
+    }
+
+    public function fetchOuter($id): ?array
+    {
+        return (new FetchAuroraOuter($this))->fetch($id);
     }
 
     public function fetchService($id): ?array
