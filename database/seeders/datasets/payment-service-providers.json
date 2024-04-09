@@ -1,0 +1,57 @@
+[
+    {
+        "code": "accounts",
+        "name": "Internal accounts (aw)",
+        "type": "account"
+    },
+    {
+        "code": "cash",
+        "name": "Cash",
+        "type": "cash"
+
+    },
+    {
+        "code": "bank",
+        "name": "Bank",
+        "type": "bank"
+    },
+    {
+        "code": "btree",
+        "name": "Btree",
+        "type": "bank"
+    },
+    {
+        "code": "checkout",
+        "name": "Checkout",
+        "type": "electronic_payment_service"
+    },
+    {
+        "code": "hokodo",
+        "name": "Hokodo",
+        "type": "electronic_payment_service"
+    },
+    {
+        "code": "paypal",
+        "name": "Paypal",
+        "type": "electronic_payment_service"
+    },
+    {
+        "code": "sofort",
+        "name": "Sofort",
+        "type": "electronic_payment_service"
+    },
+    {
+        "code": "pastpay",
+        "name": "PastPay",
+        "type": "electronic_payment_service"
+    },
+    {
+        "code": "xendit",
+        "name": "Xendit",
+        "type": "electronic_payment_service",
+
+        "countries": [
+            "my","id"
+        ]
+    }
+]

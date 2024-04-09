@@ -54,6 +54,7 @@ onUnmounted(() => {
 })
 
 const isUserMac = navigator.platform.includes('Mac')  // To check the user's Operating System
+const notifications = layoutStore.user.notifications;
 
 </script>
 
@@ -87,7 +88,7 @@ const isUserMac = navigator.platform.includes('Mac')  // To check the user's Ope
 
                     <template #content="{ close: closed }">
                         <div class="w-96">
-                            <NotificationList />
+                            <NotificationList :messages="notifications" />
                         </div>
                     </template>
                 </Popover>

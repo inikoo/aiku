@@ -8,6 +8,7 @@
 namespace App\Http\Resources\UI;
 
 use App\Http\Resources\HasSelfCall;
+use App\Http\Resources\SysAdmin\NotificationsResource;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -25,7 +26,7 @@ class LoggedUserResource extends JsonResource
             'username'         => $user->username,
             'email'            => $user->email,
             'avatar_thumbnail' => !blank($user->avatar_id) ? $user->avatarImageSources(0, 48) : null,
-
+            'notifications'    => NotificationsResource::collection($user->notifications()->orderBy('created_at', 'desc')->limit(10)->get())
         ];
     }
 }
