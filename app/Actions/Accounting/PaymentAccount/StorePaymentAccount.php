@@ -16,7 +16,6 @@ use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentAccount;
-use App\Models\Accounting\PaymentServiceProvider;
 use App\Rules\IUnique;
 use Illuminate\Console\Command;
 use Illuminate\Validation\Rule;
@@ -24,8 +23,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StorePaymentAccount extends OrgAction
 {
-    public string $commandSignature = 'payment-account:create {provider} {type}';
-
     public function handle(OrgPaymentServiceProvider $orgPaymentServiceProvider, array $modelData): PaymentAccount
     {
         data_set($modelData, 'group_id', $orgPaymentServiceProvider->group_id);
@@ -93,9 +90,11 @@ class StorePaymentAccount extends OrgAction
         return $this->handle($orgPaymentServiceProvider, $this->validatedData);
     }
 
+    public string $commandSignature = 'payment-account:create {provider} {type}';
+
     public function asCommand(Command $command): int
     {
-        $provider = PaymentServiceProvider::where('slug', $command->argument('provider'))->first();
+        $provider = OrgPaymentServiceProvider::where('slug', $command->argument('provider'))->first();
         $type     = $command->argument('type');
 
         $publicKey = $command->ask('Your public key: ');
