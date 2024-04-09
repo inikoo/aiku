@@ -23,11 +23,7 @@ class FetchProducts extends FetchAction
     {
         if ($productData = $organisationSource->fetchProduct($organisationSourceId)) {
 
-
-
             $sourceData = explode(':', $productData['product']['source_id']);
-
-
             $tradeUnits =$organisationSource->fetchProductStocks($sourceData[1])['trade_units'];
 
             if(count($tradeUnits)==0) {
