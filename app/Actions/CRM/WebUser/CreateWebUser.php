@@ -102,7 +102,7 @@ class CreateWebUser extends OrgAction
                                     'is_root' => [
                                         'type'  => 'toggle',
                                         'label' => __('Admin'),
-                                        'value' => ''
+                                        'value' => false
                                     ],
 
                                 ]
