@@ -7,30 +7,23 @@
 
 namespace App\Http\Resources\Market;
 
+use App\Models\Market\Product;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/**
- * @property string $slug
- * @property string $code
- * @property mixed $created_at
- * @property mixed $updated_at
- * @property string $name
- * @property string $state
- * @property integer $image_id
- *
- */
 class ProductResource extends JsonResource
 {
     public function toArray($request): array
     {
+        /** @var Product $product */
+        $product=$this;
         return [
-            'slug'       => $this->slug,
-            'image_id'   => $this->image_id,
-            'code'       => $this->code,
-            'name'       => $this->name,
-            'state'      => $this->state,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'slug'       => $product->slug,
+            'image_id'   => $product->image_id,
+            'code'       => $product->code,
+            'name'       => $product->name,
+            'state'      => $product->state,
+            'created_at' => $product->created_at,
+            'updated_at' => $product->updated_at,
         ];
     }
 }

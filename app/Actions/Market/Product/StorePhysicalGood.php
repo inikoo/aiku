@@ -111,6 +111,8 @@ class StorePhysicalGood extends OrgAction
     {
         if(count($tradeUnits)==1) {
             return ProductUnitRelationshipType::SINGLE;
+        } elseif(count($tradeUnits)>1) {
+            return ProductUnitRelationshipType::MULTIPLE;
         }
         return null;
 

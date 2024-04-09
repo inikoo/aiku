@@ -11,7 +11,7 @@ use App\Actions\Market\Product\Hydrators\ProductHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Market\Product\ProductTypeEnum;
-use App\Http\Resources\Market\ProductsResource;
+use App\Http\Resources\Market\ProductResource;
 use App\Models\Market\Product;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
@@ -88,8 +88,8 @@ class UpdateProduct extends OrgAction
         return $this->handle($product, $this->validatedData, $skipHistoric);
     }
 
-    public function jsonResponse(Product $product): ProductsResource
+    public function jsonResponse(Product $product): ProductResource
     {
-        return new ProductsResource($product);
+        return new ProductResource($product);
     }
 }

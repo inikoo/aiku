@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Market\Product\StorePhysicalGood;
-use App\Actions\Market\Product\UpdateProduct;
-use App\Models\Market\Product;
+use App\Actions\Market\Outer\StoreOuter;
+use App\Actions\Market\Outer\UpdateOuter;
+use App\Models\Market\Outer;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
@@ -19,65 +19,43 @@ class FetchOuters extends FetchAction
 {
     public string $commandSignature = 'fetch:outers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--N|only_new : Fetch only new}  {--d|db_suffix=} {--r|reset}';
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Product
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Outer
     {
-        if ($productData = $organisationSource->fetchProduct($organisationSourceId)) {
+        if ($outerData = $organisationSource->fetchOuter($organisationSourceId)) {
 
 
-
-            $sourceData = explode(':', $productData['product']['source_id']);
-
-
-            $tradeUnits =$organisationSource->fetchProductStocks($sourceData[1])['trade_units'];
-
-            if(count($tradeUnits)==0) {
-                return null;
-            }
-
-            data_set(
-                $productData,
-                'product.trade_units',
-                $tradeUnits
-            );
-
-
-            if ($product = Product::withTrashed()->where('source_id', $productData['product']['source_id'])
+            if ($outer = Outer::withTrashed()->where('source_id', $outerData['outer']['source_id'])
                 ->first()) {
                 try {
-                    $product = UpdateProduct::make()->action(
-                        product: $product,
-                        modelData: $productData['product'],
+                    $outer = UpdateOuter::make()->action(
+                        outer: $outer,
+                        modelData: $outerData['outer'],
                         skipHistoric: true
                     );
                 } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $productData['product'], 'Product', 'update');
+                    $this->recordError($organisationSource, $e, $outerData['outer'], 'Outer', 'update');
                     return null;
                 }
             } else {
                 try {
-                    $product = StorePhysicalGood::make()->action(
-                        parent: $productData['parent'],
-                        modelData: $productData['product'],
-                        skipHistoric: true
+                    $outer = StoreOuter::make()->action(
+                        product: $outerData['product'],
+                        modelData: $outerData['outer'],
                     );
                 } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $productData['product'], 'Product', 'store');
+                    $this->recordError($organisationSource, $e, $outerData['outer'], 'Outer', 'store');
                     return null;
                 }
             }
 
 
-            $sourceData = explode(':', $product->source_id);
+            $sourceData = explode(':', $outer->source_id);
 
             DB::connection('aurora')->table('Product Dimension')
                 ->where('Product ID', $sourceData[1])
-                ->update(['aiku_id' => $product->id]);
+                ->update(['aiku_id' => $outer->id]);
 
-
-
-
-
-            return $product;
+            return $outer;
         }
 
 
@@ -89,7 +67,7 @@ class FetchOuters extends FetchAction
         $query = DB::connection('aurora')
             ->table('Product Dimension')
             ->where('Product Type', 'Product')
-            ->where('is_variant', 'No')
+            ->where('is_variant', 'Yes')
             ->select('Product ID as source_id')
             ->orderBy('Product ID');
 
@@ -108,7 +86,7 @@ class FetchOuters extends FetchAction
     public function count(): ?int
     {
         $query = DB::connection('aurora')->table('Product Dimension')
-            ->where('is_variant', 'No')
+            ->where('is_variant', 'Yes')
             ->where('Product Type', 'Product');
 
         if ($this->onlyNew) {

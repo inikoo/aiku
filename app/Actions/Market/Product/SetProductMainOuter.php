@@ -17,10 +17,11 @@ class SetProductMainOuter
 
     public function handle(Product $product, Outer $mainOuter): Product
     {
+
+
         $product->update(
             [
                 'main_outer_id'       => $mainOuter->id,
-                'main_outer_units'    => $mainOuter->units,
                 'main_outer_price'    => $mainOuter->price,
                 'main_outer_available'=> $mainOuter->available,
             ]
