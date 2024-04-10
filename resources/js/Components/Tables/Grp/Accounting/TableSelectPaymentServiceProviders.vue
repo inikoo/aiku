@@ -1,23 +1,21 @@
-
-
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Mon, 18 Mar 2024 11:36:06 Malaysia Time, Mexico City, Mexico
+  - Created: Wed, 10 Apr 2024 16:09:45 Central Indonesia Time, Sanur , Indonesia
   - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
 
-const props = defineProps<{
+defineProps<{
     data: object,
     tab?: string
 }>()
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import {PaymentServiceProvider} from "@/types/payment-service-provider"
+import {SelectPaymentServiceProvider} from "@/types/select-payment-service-provider"
 
 
-function paymentServiceProviderRoute(paymentServiceAccount: PaymentServiceProvider) {
+function paymentServiceProviderRoute(paymentServiceAccount: SelectPaymentServiceProvider) {
   console.log(route().current())
   switch (route().current()) {
     case 'grp.org.accounting.payment-service-providers.index':
@@ -31,14 +29,14 @@ function paymentServiceProviderRoute(paymentServiceAccount: PaymentServiceProvid
   }
 
 }
-function paymentAccountRoute(paymentServiceAccount: PaymentServiceProvider) {
+function paymentAccountRoute(paymentServiceAccount: SelectPaymentServiceProvider) {
     switch (route().current()) {
         case 'grp.org.accounting.payment-service-providers.index':
             return route(
                 'grp.org.accounting.payment-service-providers.show.payment-accounts.index',
                 [
                     route().params['organisation'],
-                    paymentServiceAccount.slug
+                    paymentServiceAccount.org_slug
                 ]
             );
 
@@ -46,7 +44,7 @@ function paymentAccountRoute(paymentServiceAccount: PaymentServiceProvider) {
 
 }
 
-function paymentsRoute(paymentServiceAccount: PaymentServiceProvider) {
+function paymentsRoute(paymentServiceAccount: SelectPaymentServiceProvider) {
     switch (route().current()) {
 
         case 'grp.org.accounting.payment-service-providers.show.payment-accounts.index':
@@ -82,19 +80,21 @@ function paymentsRoute(paymentServiceAccount: PaymentServiceProvider) {
 
 <template>
     <Table :resource="data" class="mt-5">
-        <template #cell(codex)="{ item: paymentServiceProvider }">
-          <Link :href="paymentServiceProviderRoute(paymentServiceProvider)" class="specialUnderline">
-                {{ paymentServiceProvider['slug'] }}
+
+        <template #cell(code)="{ item: paymentServiceProvider }">
+          <Link v-if="paymentServiceProvider['org_slug']"  :href="paymentServiceProviderRoute(paymentServiceProvider)" class="specialUnderline">
+                {{ paymentServiceProvider['org_code'] }}
             </Link>
+          <span v-else>{{ paymentServiceProvider['code'] }}</span>
         </template>
 
-        <template #cell(number_payment_accountsx)="{ item: paymentServiceProvider }">
-            <Link :href="paymentAccountRoute(paymentServiceProvider)" class="specialUnderlineSecondary">
+        <template #cell(number_payment_accounts)="{ item: paymentServiceProvider }">
+            <Link v-if="paymentServiceProvider['org_slug']" :href="paymentAccountRoute(paymentServiceProvider)" class="specialUnderlineSecondary">
                 {{ paymentServiceProvider['number_payment_accounts'] }}
             </Link>
         </template>
-        <template #cell(number_paymentsx)="{ item: paymentServiceProvider }">
-            <Link :href="paymentsRoute(paymentServiceProvider)" class="specialUnderlineSecondary">
+        <template #cell(number_payments)="{ item: paymentServiceProvider }">
+            <Link v-if="paymentServiceProvider['org_slug']" :href="paymentsRoute(paymentServiceProvider)" class="specialUnderlineSecondary">
                 {{ paymentServiceProvider['number_payments'] }}
             </Link>
         </template>

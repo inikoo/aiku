@@ -7,13 +7,12 @@
 
 namespace App\Actions\Accounting\PaymentServiceProvider\UI;
 
-use App\Actions\OrgAction;
-use App\Actions\UI\Accounting\ShowAccountingDashboard;
+use App\Actions\GrpAction;
+use App\Actions\SysAdmin\Group\UI\ShowOverviewHub;
 use App\Http\Resources\Accounting\PaymentServiceProvidersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\Market\Shop;
-use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\Group;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -23,9 +22,9 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexPaymentServiceProviders extends OrgAction
+class IndexPaymentServiceProviders extends GrpAction
 {
-    public function handle(Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Group $group, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -40,14 +39,7 @@ class IndexPaymentServiceProviders extends OrgAction
 
         $queryBuilder = QueryBuilder::for(PaymentServiceProvider::class);
 
-
-        if($parent instanceof Organisation) {
-            $queryBuilder->where('organisation_id', $parent->id);
-        } else {
-            $queryBuilder->leftJoin('payment_service_provider_shop', 'payment_service_providers.id', 'payment_service_provider_shop.payment_service_provider_id');
-            $queryBuilder->where('payment_service_provider_shop.shop_id', $parent->id);
-        }
-
+        $queryBuilder->where('group_id', $group->id);
 
 
         /*
@@ -65,7 +57,6 @@ class IndexPaymentServiceProviders extends OrgAction
             ->defaultSort('payment_service_providers.code')
             ->select(['code', 'slug', 'number_payment_accounts', 'number_payments','name'])
             ->leftJoin('payment_service_provider_stats', 'payment_service_providers.id', 'payment_service_provider_stats.payment_service_provider_id')
-
             ->allowedSorts(['code', 'number_payment_accounts', 'number_payments','name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -84,16 +75,14 @@ class IndexPaymentServiceProviders extends OrgAction
                 ->withGlobalSearch()
                 ->defaultSort('code')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_payment_accounts', label: __('accounts'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_payments', label: __('payments'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true);
+
         };
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
-        return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
+        return $request->user()->hasPermissionTo("group-reports");
     }
 
 
@@ -120,19 +109,10 @@ class IndexPaymentServiceProviders extends OrgAction
         )->table($this->tableStructure());
     }
 
-
-    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($organisation, $request);
-
-        return $this->handle($organisation);
-    }
-
-    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisationFromShop($shop, $request);
-
-        return $this->handle($shop);
+        $this->initialisation(app('group'), $request);
+        return $this->handle($this->group);
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array

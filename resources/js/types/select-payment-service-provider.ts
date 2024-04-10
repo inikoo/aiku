@@ -4,10 +4,11 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-export interface PaymentServiceAccount {
+export interface SelectPaymentServiceProvider {
     slug: string,
     code: string
-    created_at: string
-    updated_at: string
+    org_slug: string,
+    org_code: string,
+    name: string,
 
 }

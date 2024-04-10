@@ -16,7 +16,6 @@ defineProps(["data", "title", "pageHead"]);
 </script>
 
 <template>
-    <!--suppress HtmlRequiredTitleElement -->
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <TablePaymentServiceProviders :data="data" />

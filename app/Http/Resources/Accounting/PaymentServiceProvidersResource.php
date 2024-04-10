@@ -11,7 +11,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @property string $number_payments
- * @property integer $number_payment_accounts
+ * @property int $number_payment_accounts
  * @property string $slug
  * @property string $code
  * @property mixed $created_at
