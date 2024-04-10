@@ -8,7 +8,7 @@
 namespace App\Actions\Accounting\Payment\UI;
 
 use App\Actions\InertiaAction;
-use App\Enums\UI\PaymentTabsEnum;
+use App\Enums\UI\Accounting\PaymentTabsEnum;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\OMS\Order;

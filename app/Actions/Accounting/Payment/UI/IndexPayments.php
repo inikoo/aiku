@@ -8,7 +8,7 @@
 namespace App\Actions\Accounting\Payment\UI;
 
 use App\Actions\Accounting\PaymentAccount\UI\ShowPaymentAccount;
-use App\Actions\Accounting\PaymentServiceProvider\UI\ShowPaymentServiceProvider;
+use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\PaymentsResource;
@@ -16,7 +16,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
-use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use Closure;
@@ -32,9 +32,9 @@ use App\Services\QueryBuilder;
 
 class IndexPayments extends OrgAction
 {
-    private Organisation|PaymentAccount|Shop|PaymentServiceProvider|Invoice $parent;
+    private Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice $parent;
 
-    public function handle(Organisation|PaymentAccount|Shop|PaymentServiceProvider|Invoice $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|PaymentAccount|Shop|OrgPaymentServiceProvider|Invoice $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -50,7 +50,7 @@ class IndexPayments extends OrgAction
 
         if (class_basename($parent) == 'Organisation') {
             $queryBuilder->where('payments.organisation_id', $parent->id);
-        } elseif (class_basename($parent) == 'PaymentServiceProvider') {
+        } elseif (class_basename($parent) == 'OrgPaymentServiceProvider') {
             $queryBuilder->where('payments.payment_service_provider_id', $parent->id);
         } elseif (class_basename($parent) == 'PaymentAccount') {
             $queryBuilder->where('payments.payment_account_id', $parent->id);
@@ -103,7 +103,7 @@ class IndexPayments extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Invoice|Organisation|PaymentServiceProvider|PaymentAccount $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Invoice|Organisation|OrgPaymentServiceProvider|PaymentAccount $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
@@ -137,12 +137,12 @@ class IndexPayments extends OrgAction
         return $this->handle($organisation);
     }
 
-    public function inPaymentServiceProvider(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): LengthAwarePaginator
+    public function inOrgPaymentServiceProvider(Organisation $organisation, OrgPaymentServiceProvider $OrgPaymentServiceProvider, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$paymentServiceProvider;
+        $this->parent=$OrgPaymentServiceProvider;
         $this->initialisation($organisation, $request);
 
-        return $this->handle($paymentServiceProvider);
+        return $this->handle($OrgPaymentServiceProvider);
     }
 
     /** @noinspection PhpUnused */
@@ -155,7 +155,7 @@ class IndexPayments extends OrgAction
 
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inPaymentAccountInPaymentServiceProvider(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, PaymentAccount $paymentAccount, ActionRequest $request): LengthAwarePaginator
+    public function inPaymentAccountInOrgPaymentServiceProvider(Organisation $organisation, OrgPaymentServiceProvider $OrgPaymentServiceProvider, PaymentAccount $paymentAccount, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent=$paymentAccount;
         $this->initialisation($organisation, $request);
@@ -239,7 +239,7 @@ class IndexPayments extends OrgAction
             ),
             'grp.org.accounting.payment-service-providers.show.payments.index' =>
             array_merge(
-                (new ShowPaymentServiceProvider())->getBreadcrumbs($routeParameters['paymentServiceProvider']),
+                (new ShowOrgPaymentServiceProvider())->getBreadcrumbs($routeParameters['OrgPaymentServiceProvider']),
                 $headCrumb()
             ),
             'grp.org.accounting.payment-service-providers.show.payment-accounts.show.payments.index' =>

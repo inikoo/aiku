@@ -1,16 +1,16 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 19 Mar 2023 01:54:57 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Wed, 10 Apr 2024 20:09:25 Central Indonesia Time, Sanur , Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Enums\UI;
+namespace App\Enums\UI\Accounting;
 
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum PaymentServiceProviderTabsEnum: string
+enum OrgPaymentServiceProviderTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
@@ -26,31 +26,31 @@ enum PaymentServiceProviderTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            PaymentServiceProviderTabsEnum::STATS             => [
+            OrgPaymentServiceProviderTabsEnum::STATS             => [
                 'title' => __('stats'),
                 'icon'  => 'fal fa-chart-line',
             ],
-            PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS => [
+            OrgPaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS => [
                 'title' => __('payment accounts'),
                 'icon'  => 'fal fa-money-check-alt',
             ],
-            PaymentServiceProviderTabsEnum::PAYMENTS     => [
+            OrgPaymentServiceProviderTabsEnum::PAYMENTS     => [
                 'title' => __('payments'),
                 'icon'  => 'fal fa-coins',
             ],
-            PaymentServiceProviderTabsEnum::DATA     => [
+            OrgPaymentServiceProviderTabsEnum::DATA     => [
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            PaymentServiceProviderTabsEnum::HISTORY     => [
+            OrgPaymentServiceProviderTabsEnum::HISTORY     => [
                 'title'  => __('history'),
                 'icon'   => 'fal fa-clock',
                 'type'   => 'icon',
                 'align'  => 'right',
             ],
-            PaymentServiceProviderTabsEnum::SHOWCASE => [
+            OrgPaymentServiceProviderTabsEnum::SHOWCASE => [
                 'title' => __('payment service provider'),
                 'icon'  => 'fas fa-info-circle',
             ],

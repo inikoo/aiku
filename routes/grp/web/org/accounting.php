@@ -10,6 +10,7 @@ use App\Actions\Accounting\Invoice\ExportInvoices;
 use App\Actions\Accounting\Invoice\IndexInvoices;
 use App\Actions\Accounting\Invoice\ShowInvoice;
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\SelectOrgPaymentServiceProviders;
+use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
 use App\Actions\Accounting\Payment\ExportPayments;
 use App\Actions\Accounting\Payment\UI\CreatePayment;
 use App\Actions\Accounting\Payment\UI\EditPayment;
@@ -23,30 +24,29 @@ use App\Actions\Accounting\PaymentServiceProvider\ExportPaymentServiceProviders;
 use App\Actions\Accounting\PaymentServiceProvider\UI\CreatePaymentServiceProvider;
 use App\Actions\Accounting\PaymentServiceProvider\UI\EditPaymentServiceProvider;
 use App\Actions\Accounting\PaymentServiceProvider\UI\RemovePaymentServiceProvider;
-use App\Actions\Accounting\PaymentServiceProvider\UI\ShowPaymentServiceProvider;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [ShowAccountingDashboard::class, 'inOrganisation'])->name('dashboard');
 
-Route::get('/providers/{paymentServiceProvider}/accounts/{paymentAccount}/payments/create', [IndexPayments::class, 'inPaymentAccountInPaymentServiceProvider'])->name('payment-service-providers.show.payment-accounts.show.payments.create');
-Route::get('/providers/{paymentServiceProvider}/payments/create', [IndexPayments::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payments.create');
+Route::get('/providers/{orgPaymentServiceProvider}/accounts/{paymentAccount}/payments/create', [IndexPayments::class, 'inPaymentAccountInPaymentServiceProvider'])->name('org-payment-service-providers.show.payment-accounts.show.payments.create');
+Route::get('/providers/{orgPaymentServiceProvider}/payments/create', [IndexPayments::class, 'inPaymentServiceProvider'])->name('org-payment-service-providers.show.payments.create');
 
 
-Route::get('/providers', SelectOrgPaymentServiceProviders::class)->name('payment-service-providers.index');
-Route::get('/providers/create', CreatePaymentServiceProvider::class)->name('payment-service-providers.create');
-Route::get('/providers/export', ExportPaymentServiceProviders::class)->name('payment-service-providers.export');
-Route::get('/providers/{paymentServiceProvider}', ShowPaymentServiceProvider::class)->name('payment-service-providers.show');
-Route::get('/providers/{paymentServiceProvider}/edit', EditPaymentServiceProvider::class)->name('payment-service-providers.edit');
-Route::get('/providers/{paymentServiceProvider}/delete', RemovePaymentServiceProvider::class)->name('payment-service-providers.remove');
-Route::get('/providers/{paymentServiceProvider}/accounts', [IndexPaymentAccounts::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payment-accounts.index');
-Route::get('/providers/{paymentServiceProvider}/accounts/{paymentAccount}', [ShowPaymentAccount::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payment-accounts.show');
-Route::get('/providers/{paymentServiceProvider}/accounts/{paymentAccount}/payments', [IndexPayments::class, 'inPaymentAccountInPaymentServiceProvider'])->name('payment-service-providers.show.payment-accounts.show.payments.index');
-Route::get('/providers/{paymentServiceProvider}/accounts/{paymentAccount}/payments/{payment}', [ShowPayment::class, 'inPaymentAccountInPaymentServiceProvider'])->name('payment-service-providers.show.payment-accounts.show.payments.show');
-Route::get('/providers/{paymentServiceProvider}/accounts/{paymentAccount}/payments/{payment}/edit', [EditPayment::class, 'inPaymentAccountInPaymentServiceProvider'])->name('payment-service-providers.show.payment-accounts.show.payments.edit');
-Route::get('/providers/{paymentServiceProvider}/payments', [IndexPayments::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payments.index');
-Route::get('/providers/{paymentServiceProvider}/payments/{payment}/edit', [EditPayment::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payments.edit');
-Route::get('/providers/{paymentServiceProvider}/payments/{payment}', [ShowPayment::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payments.show');
+Route::get('/providers', SelectOrgPaymentServiceProviders::class)->name('org-payment-service-providers.index');
+Route::get('/providers/create', CreatePaymentServiceProvider::class)->name('org-payment-service-providers.create');
+Route::get('/providers/export', ExportPaymentServiceProviders::class)->name('org-payment-service-providers.export');
+Route::get('/providers/{orgPaymentServiceProvider}', ShowOrgPaymentServiceProvider::class)->name('org-payment-service-providers.show');
+Route::get('/providers/{orgPaymentServiceProvider}/edit', EditPaymentServiceProvider::class)->name('org-payment-service-providers.edit');
+Route::get('/providers/{orgPaymentServiceProvider}/delete', RemovePaymentServiceProvider::class)->name('org-payment-service-providers.remove');
+Route::get('/providers/{orgPaymentServiceProvider}/accounts', [IndexPaymentAccounts::class, 'inPaymentServiceProvider'])->name('org-payment-service-providers.show.payment-accounts.index');
+Route::get('/providers/{orgPaymentServiceProvider}/accounts/{paymentAccount}', [ShowPaymentAccount::class, 'inPaymentServiceProvider'])->name('org-payment-service-providers.show.payment-accounts.show');
+Route::get('/providers/{orgPaymentServiceProvider}/accounts/{paymentAccount}/payments', [IndexPayments::class, 'inPaymentAccountInPaymentServiceProvider'])->name('org-payment-service-providers.show.payment-accounts.show.payments.index');
+Route::get('/providers/{orgPaymentServiceProvider}/accounts/{paymentAccount}/payments/{payment}', [ShowPayment::class, 'inPaymentAccountInPaymentServiceProvider'])->name('org-payment-service-providers.show.payment-accounts.show.payments.show');
+Route::get('/providers/{orgPaymentServiceProvider}/accounts/{paymentAccount}/payments/{payment}/edit', [EditPayment::class, 'inPaymentAccountInPaymentServiceProvider'])->name('org-payment-service-providers.show.payment-accounts.show.payments.edit');
+Route::get('/providers/{orgPaymentServiceProvider}/payments', [IndexPayments::class, 'inPaymentServiceProvider'])->name('org-payment-service-providers.show.payments.index');
+Route::get('/providers/{orgPaymentServiceProvider}/payments/{payment}/edit', [EditPayment::class, 'inPaymentServiceProvider'])->name('org-payment-service-providers.show.payments.edit');
+Route::get('/providers/{orgPaymentServiceProvider}/payments/{payment}', [ShowPayment::class, 'inPaymentServiceProvider'])->name('org-payment-service-providers.show.payments.show');
 
 
 Route::get('/accounts/create', CreatePaymentAccount::class)->name('payment-accounts.create');

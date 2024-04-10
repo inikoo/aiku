@@ -153,7 +153,7 @@ class SelectOrgPaymentServiceProviders extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.accounting.payment-service-providers.index',
+                            'name'       => 'grp.org.accounting.org-payment-service-providers.index',
                             'parameters' => $routeParameters
                         ],
                         'label' => __('providers'),

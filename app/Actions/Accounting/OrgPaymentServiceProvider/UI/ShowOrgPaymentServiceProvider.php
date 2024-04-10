@@ -1,34 +1,34 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 26 Oct 2022 13:06:04 British Summer Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 10 Apr 2024 20:00:07 Central Indonesia Time, Sanur , Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Accounting\PaymentServiceProvider\UI;
+namespace App\Actions\Accounting\OrgPaymentServiceProvider\UI;
 
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Accounting\PaymentAccount\UI\IndexPaymentAccounts;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
-use App\Enums\UI\Accounting\PaymentServiceProviderTabsEnum;
+use App\Enums\UI\Accounting\OrgPaymentServiceProviderTabsEnum;
+use App\Http\Resources\Accounting\OrgPaymentServiceProviderResource;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
-use App\Http\Resources\Accounting\PaymentServiceProviderResource;
 use App\Http\Resources\Accounting\PaymentsResource;
 use App\Http\Resources\History\HistoryResource;
-use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowPaymentServiceProvider extends OrgAction
+class ShowOrgPaymentServiceProvider extends OrgAction
 {
-    public function handle(PaymentServiceProvider $paymentServiceProvider): PaymentServiceProvider
+    public function handle(OrgPaymentServiceProvider $orgPaymentServiceProvider): OrgPaymentServiceProvider
     {
-        return $paymentServiceProvider;
+        return $orgPaymentServiceProvider;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -39,17 +39,17 @@ class ShowPaymentServiceProvider extends OrgAction
         return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
     }
 
-    public function asController(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): PaymentServiceProvider
+    public function asController(Organisation $organisation, OrgPaymentServiceProvider $orgPaymentServiceProvider, ActionRequest $request): OrgPaymentServiceProvider
     {
-        $this->initialisation($organisation, $request)->withTab(PaymentServiceProviderTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(OrgPaymentServiceProviderTabsEnum::values());
 
-        return $this->handle($paymentServiceProvider);
+        return $this->handle($orgPaymentServiceProvider);
     }
 
-    public function htmlResponse(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): Response
+    public function htmlResponse(OrgPaymentServiceProvider $orgPaymentServiceProvider, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Accounting/PaymentServiceProvider',
+            'Org/Accounting/OrgPaymentServiceProvider',
             [
                 'title'       => __('payment service provider'),
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -57,8 +57,8 @@ class ShowPaymentServiceProvider extends OrgAction
                 ),
 
                 'navigation'                                    => [
-                    'previous' => $this->getPrevious($paymentServiceProvider, $request),
-                    'next'     => $this->getNext($paymentServiceProvider, $request),
+                    'previous' => $this->getPrevious($orgPaymentServiceProvider, $request),
+                    'next'     => $this->getNext($orgPaymentServiceProvider, $request),
                 ],
                 'pageHead'                                      => [
                     'icon'  =>
@@ -66,7 +66,7 @@ class ShowPaymentServiceProvider extends OrgAction
                             'icon'  => ['fal', 'fa-cash-register'],
                             'title' => __('payment service provider')
                         ],
-                    'title' => $paymentServiceProvider->slug,
+                    'title' => $orgPaymentServiceProvider->slug,
                     /* 'actions' => [
                          $this->canEdit ? [
                              'type'  => 'button',
@@ -80,20 +80,20 @@ class ShowPaymentServiceProvider extends OrgAction
                              'type'  => 'button',
                              'style' => 'delete',
                              'route' => [
-                                 'name'       => 'grp.org.accounting.payment-service-providers.remove',
+                                 'name'       => 'grp.org.accounting.org-payment-service-providers.remove',
                                  'parameters' => array_values($request->route()->originalParameters())
                              ]
                          ] : false
                      ], */
                     'meta'  => [
                         [
-                            'name'     => trans_choice('account | accounts', $paymentServiceProvider->stats->number_payment_accounts),
-                            'number'   => $paymentServiceProvider->stats->number_payment_accounts,
+                            'name'     => trans_choice('account | accounts', $orgPaymentServiceProvider->stats->number_payment_accounts),
+                            'number'   => $orgPaymentServiceProvider->stats->number_payment_accounts,
                             'href'     => [
-                                'name'       => 'grp.org.accounting.payment-service-providers.show.payment-accounts.index',
+                                'name'       => 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.index',
                                 'parameters' => [
                                     $this->organisation->slug,
-                                    $paymentServiceProvider->slug
+                                    $orgPaymentServiceProvider->slug
                                 ]
                             ],
                             'leftIcon' => [
@@ -102,13 +102,13 @@ class ShowPaymentServiceProvider extends OrgAction
                             ]
                         ],
                         [
-                            'name'     => trans_choice('payment | payments', $paymentServiceProvider->stats->number_payments),
-                            'number'   => $paymentServiceProvider->stats->number_payments,
+                            'name'     => trans_choice('payment | payments', $orgPaymentServiceProvider->stats->number_payments),
+                            'number'   => $orgPaymentServiceProvider->stats->number_payments,
                             'href'     => [
-                                'name'       => 'grp.org.accounting.payment-service-providers.show.payments.index',
+                                'name'       => 'grp.org.accounting.org-payment-service-providers.show.payments.index',
                                 'parameters' => [
                                     $this->organisation->slug,
-                                    $paymentServiceProvider->slug
+                                    $orgPaymentServiceProvider->slug
                                 ]
                             ],
                             'leftIcon' => [
@@ -120,87 +120,87 @@ class ShowPaymentServiceProvider extends OrgAction
                 ],
                 'tabs'                                          => [
                     'current'    => $this->tab,
-                    'navigation' => PaymentServiceProviderTabsEnum::navigation()
+                    'navigation' => OrgPaymentServiceProviderTabsEnum::navigation()
                 ],
-                PaymentServiceProviderTabsEnum::SHOWCASE->value => $this->tab == PaymentServiceProviderTabsEnum::SHOWCASE->value ?
-                    fn () => GetPaymentServiceProviderShowcase::run($paymentServiceProvider)
-                    : Inertia::lazy(fn () => GetPaymentServiceProviderShowcase::run($paymentServiceProvider)),
+                OrgPaymentServiceProviderTabsEnum::SHOWCASE->value => $this->tab == OrgPaymentServiceProviderTabsEnum::SHOWCASE->value ?
+                    fn () => GetOrgPaymentServiceProviderShowcase::run($orgPaymentServiceProvider)
+                    : Inertia::lazy(fn () => GetOrgPaymentServiceProviderShowcase::run($orgPaymentServiceProvider)),
 
-                PaymentServiceProviderTabsEnum::PAYMENTS->value         => $this->tab == PaymentServiceProviderTabsEnum::PAYMENTS->value
+                OrgPaymentServiceProviderTabsEnum::PAYMENTS->value         => $this->tab == OrgPaymentServiceProviderTabsEnum::PAYMENTS->value
                     ?
                     fn () => PaymentsResource::collection(
                         IndexPayments::run(
-                            parent: $paymentServiceProvider,
-                            prefix: PaymentServiceProviderTabsEnum::PAYMENTS->value
+                            parent: $orgPaymentServiceProvider,
+                            prefix: OrgPaymentServiceProviderTabsEnum::PAYMENTS->value
                         )
                     )
                     : Inertia::lazy(fn () => PaymentsResource::collection(
                         IndexPayments::run(
-                            parent: $paymentServiceProvider,
-                            prefix: PaymentServiceProviderTabsEnum::PAYMENTS->value
+                            parent: $orgPaymentServiceProvider,
+                            prefix: OrgPaymentServiceProviderTabsEnum::PAYMENTS->value
                         )
                     )),
-                PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value => $this->tab == PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value
+                OrgPaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value => $this->tab == OrgPaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value
                     ?
                     fn () => PaymentAccountsResource::collection(
                         IndexPaymentAccounts::run(
-                            parent: $paymentServiceProvider,
-                            prefix: PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value
+                            parent: $orgPaymentServiceProvider,
+                            prefix: OrgPaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value
                         )
                     )
                     : Inertia::lazy(fn () => PaymentAccountsResource::collection(
                         IndexPaymentAccounts::run(
-                            parent: $paymentServiceProvider,
-                            prefix: PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value
+                            parent: $orgPaymentServiceProvider,
+                            prefix: OrgPaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value
                         )
                     )),
 
-                PaymentServiceProviderTabsEnum::HISTORY->value => $this->tab == PaymentServiceProviderTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistory::run($paymentServiceProvider))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($paymentServiceProvider)))
+                OrgPaymentServiceProviderTabsEnum::HISTORY->value => $this->tab == OrgPaymentServiceProviderTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistory::run($orgPaymentServiceProvider))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($orgPaymentServiceProvider)))
             ]
         )
             ->table(
                 IndexPayments::make()->tableStructure(
-                    parent: $paymentServiceProvider,
+                    parent: $orgPaymentServiceProvider,
                     modelOperations: [
                         'createLink' => $this->canEdit ? [
                             'route' => [
-                                'name'       => 'grp.org.accounting.payment-service-providers.show.payments.create',
+                                'name'       => 'grp.org.accounting.org-payment-service-providers.show.payments.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                             'label' => __('payment')
                         ] : false,
                     ],
-                    prefix: PaymentServiceProviderTabsEnum::PAYMENTS->value
+                    prefix: OrgPaymentServiceProviderTabsEnum::PAYMENTS->value
                 )
             )
             ->table(
                 IndexPaymentAccounts::make()->tableStructure(
-                    parent: $paymentServiceProvider,
+                    parent: $orgPaymentServiceProvider,
                     //            modelOperations: [
                     //                'createLink' => $this->canEdit ? [
                     //                    'route' => [
-                    //                        'name'       => 'grp.org.accounting.payment-service-providers.show.payment-accounts.create',
+                    //                        'name'       => 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.create',
                     //                        'parameters' => array_values($request->route()->originalParameters())
                     //                    ],
                     //                    'label' => __('payment account')
                     //                ] : false,
                     //            ],
-                    prefix: PaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value
+                    prefix: OrgPaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value
                 )
             )
             ->table(IndexHistory::make()->tableStructure());
     }
 
-    public function jsonResponse(PaymentServiceProvider $paymentServiceProvider): PaymentServiceProviderResource
+    public function jsonResponse(OrgPaymentServiceProvider $orgPaymentServiceProvider): OrgPaymentServiceProviderResource
     {
-        return new PaymentServiceProviderResource($paymentServiceProvider);
+        return new OrgPaymentServiceProviderResource($orgPaymentServiceProvider);
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
-        $paymentServiceProvider = PaymentServiceProvider::where('slug', $routeParameters['paymentServiceProvider'])->first();
+        $orgPaymentServiceProvider = OrgPaymentServiceProvider::where('slug', $routeParameters['orgPaymentServiceProvider'])->first();
 
         return array_merge(
             ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', Arr::only($routeParameters, 'organisation')),
@@ -210,17 +210,17 @@ class ShowPaymentServiceProvider extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name'       => 'grp.org.accounting.payment-service-providers.index',
+                                'name'       => 'grp.org.accounting.org-payment-service-providers.index',
                                 'parameters' => Arr::only($routeParameters, 'organisation')
                             ],
                             'label' => __('providers')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.org.accounting.payment-service-providers.show',
+                                'name'       => 'grp.org.accounting.org-payment-service-providers.show',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => $paymentServiceProvider->slug,
+                            'label' => $orgPaymentServiceProvider->slug,
                         ],
                     ],
                     'suffix'         => $suffix,
@@ -229,33 +229,38 @@ class ShowPaymentServiceProvider extends OrgAction
         );
     }
 
-    public function getPrevious(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): ?array
+    public function getPrevious(OrgPaymentServiceProvider $orgPaymentServiceProvider, ActionRequest $request): ?array
     {
-        $previous = PaymentServiceProvider::where('code', '<', $paymentServiceProvider->code)->orderBy('code', 'desc')->first();
+        $previous = OrgPaymentServiceProvider::where('code', '<', $orgPaymentServiceProvider->code)
+            ->where('organisation_id', $orgPaymentServiceProvider->organisation_id)
+            ->orderBy('code', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
-    public function getNext(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): ?array
+    public function getNext(OrgPaymentServiceProvider $orgPaymentServiceProvider, ActionRequest $request): ?array
     {
-        $next = PaymentServiceProvider::where('code', '>', $paymentServiceProvider->code)->orderBy('code')->first();
+        $next = OrgPaymentServiceProvider::where('code', '>', $orgPaymentServiceProvider->code)
+            ->where('organisation_id', $orgPaymentServiceProvider->organisation_id)
+            ->orderBy('code')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
 
-    private function getNavigation(?PaymentServiceProvider $paymentServiceProvider, string $routeName): ?array
+    private function getNavigation(?OrgPaymentServiceProvider $orgPaymentServiceProvider, string $routeName): ?array
     {
-        if (!$paymentServiceProvider) {
+        if (!$orgPaymentServiceProvider) {
             return null;
         }
 
         return match ($routeName) {
-            'grp.overview.accounting.payment-service-providers.show' => [
-                'label' => $paymentServiceProvider->code,
+            'grp.org.accounting.org-payment-service-providers.show' => [
+                'label' => $orgPaymentServiceProvider->code,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'paymentServiceProvider' => $paymentServiceProvider->slug
+                        'organisation'              => $orgPaymentServiceProvider->organisation->slug,
+                        'orgPaymentServiceProvider' => $orgPaymentServiceProvider->slug
                     ]
 
                 ]

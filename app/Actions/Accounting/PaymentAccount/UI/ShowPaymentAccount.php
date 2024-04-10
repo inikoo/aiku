@@ -12,7 +12,7 @@ use App\Actions\Accounting\PaymentServiceProvider\UI\ShowPaymentServiceProvider;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
-use App\Enums\UI\PaymentAccountTabsEnum;
+use App\Enums\UI\Accounting\PaymentAccountTabsEnum;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
 use App\Http\Resources\Accounting\PaymentsResource;
 use App\Http\Resources\History\HistoryResource;

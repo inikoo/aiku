@@ -357,9 +357,9 @@ class GetOrganisationNavigation
                         [
                             'label' => __('Providers'),
                             'icon'  => ['fal', 'fa-cash-register'],
-                            'root'  => 'grp.org.accounting.payment-service-providers.',
+                            'root'  => 'grp.org.accounting.org-payment-service-providers.',
                             'route' => [
-                                'name'       => 'grp.org.accounting.payment-service-providers.index',
+                                'name'       => 'grp.org.accounting.org-payment-service-providers.index',
                                 'parameters' => [$organisation->slug],
 
                             ]
