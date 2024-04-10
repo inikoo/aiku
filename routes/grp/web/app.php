@@ -12,33 +12,36 @@ Route::middleware(["auth"])->group(function () {
     Route::get('/', function () {
         return redirect('/dashboard');
     });
+    Route::prefix("overview")
+        ->name("overview.")
+        ->group(__DIR__ . "/overview.php");
     Route::prefix("organisations")
         ->name("organisations.")
-        ->group(__DIR__."/organisations.php");
+        ->group(__DIR__ . "/organisations.php");
     Route::prefix("dashboard")
         ->name("dashboard.")
-        ->group(__DIR__."/dashboard.php");
+        ->group(__DIR__ . "/dashboard.php");
     Route::prefix("supply-chain")
         ->name("supply-chain.")
-        ->group(__DIR__."/supply-chain.php");
+        ->group(__DIR__ . "/supply-chain.php");
     Route::prefix("goods")
         ->name("goods.")
-        ->group(__DIR__."/goods.php");
+        ->group(__DIR__ . "/goods.php");
     Route::prefix("profile")
         ->name("profile.")
-        ->group(__DIR__."/profile.php");
+        ->group(__DIR__ . "/profile.php");
     Route::prefix("sysadmin")
         ->name("sysadmin.")
-        ->group(__DIR__."/sysadmin.php");
+        ->group(__DIR__ . "/sysadmin.php");
     Route::prefix("org/{organisation}")
         ->name("org.")
-        ->group(__DIR__."/org/org.php");
+        ->group(__DIR__ . "/org/org.php");
     Route::prefix("models")
         ->name("models.")
-        ->group(__DIR__."/models.php");
+        ->group(__DIR__ . "/models.php");
     Route::prefix("search")
         ->name("search.")
-        ->group(__DIR__."/search.php");
+        ->group(__DIR__ . "/search.php");
     /*
 
     Route::prefix("account")
@@ -105,4 +108,4 @@ Route::middleware(["auth"])->group(function () {
 
 */
 });
-require __DIR__."/auth.php";
+require __DIR__ . "/auth.php";

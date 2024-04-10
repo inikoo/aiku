@@ -102,6 +102,18 @@ class GetGroupNavigation
             ];
         }
 
+        if ($user->hasPermissionTo('group-overview')) {
+            $groupNavigation['overview'] = [
+                'label'   => __('Overview'),
+                'icon'    => ['fal', 'fa-mountains'],
+                'root'    => 'grp.overview.',
+                'route'   => [
+                    'name' => 'grp.overview.hub'
+                ],
+                'topMenu' => []
+            ];
+        }
+
         if ($user->hasPermissionTo('sysadmin.view')) {
             $groupNavigation['sysadmin'] = [
                 'label'   => __('sysadmin'),

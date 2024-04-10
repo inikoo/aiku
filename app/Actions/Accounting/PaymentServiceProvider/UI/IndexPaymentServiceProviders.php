@@ -112,7 +112,6 @@ class IndexPaymentServiceProviders extends OrgAction
                 'title'       => __('Payment Service Providers'),
                 'pageHead'    => [
                     'title' => __('Payment Service Providers'),
-
                 ],
                 'data'        => PaymentServiceProvidersResource::collection($paymentServiceProviders),
 
@@ -139,13 +138,13 @@ class IndexPaymentServiceProviders extends OrgAction
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
         return array_merge(
-            ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
+            ShowOverviewHub::make()->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.accounting.payment-service-providers.index',
+                            'name'       => 'grp.overview.accounting.payment-service-providers.index',
                             'parameters' => $routeParameters
                         ],
                         'label' => __('providers'),
