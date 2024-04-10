@@ -25,8 +25,9 @@ trait WithOrganisationSource
         }
 
         $organisationSource = match (Arr::get($organisation->source, 'type')) {
-            'Aurora' => new AuroraOrganisationService(),
-            default  => null
+            'Aurora'  => new AuroraOrganisationService(),
+            'Wowsbar' => new AuroraOrganisationService(),
+            default   => null
         };
 
         if (!$organisationSource) {

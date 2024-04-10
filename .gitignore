@@ -65,3 +65,4 @@ push.sh
 /config/ignition.php
 /database/seeders/datasets/currency-exchange/currency_exchanges.dump
 /restart_elasticsearch.sh
+/create_wowsbar_organisations.sh

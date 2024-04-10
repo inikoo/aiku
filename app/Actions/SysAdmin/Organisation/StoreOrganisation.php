@@ -156,7 +156,7 @@ class StoreOrganisation
 
     public function getCommandSignature(): string
     {
-        return 'org:create {group} {code} {email} {name} {country_code} {currency_code} {--l|language_code= : Language code} {--tz|timezone= : Timezone}
+        return 'org:create {group} {type} {code} {email} {name} {country_code} {currency_code} {--l|language_code= : Language code} {--tz|timezone= : Timezone}
         {--s|source= : source for migration from other system}';
     }
 
@@ -217,13 +217,12 @@ class StoreOrganisation
                 $source = json_decode($command->option('source'), true);
             } else {
                 $command->error('Source data is not a valid json');
-
                 return 1;
             }
         }
 
-
         $this->setRawAttributes([
+            'type'        => $command->argument('type'),
             'code'        => $command->argument('code'),
             'name'        => $command->argument('name'),
             'email'       => $command->argument('email'),

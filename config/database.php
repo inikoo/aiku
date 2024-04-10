@@ -91,6 +91,20 @@ return [
                                    PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
                                ]) : [],
         ],
+        'wowsbar' => [
+            'driver'         => 'pgsql',
+            'url'            => null,
+            'host'           => env('WOWSBAR_DB_HOST', '127.0.0.1'),
+            'port'           => env('WOWSBAR_DB_PORT', '5432'),
+            'database'       => env('WOWSBAR_DB_DATABASE'),
+            'username'       => env('WOWSBAR_DB_USERNAME'),
+            'password'       => env('WOWSBAR_DB_PASSWORD'),
+            'charset'        => 'utf8',
+            'prefix'         => '',
+            'prefix_indexes' => true,
+            'search_path'    => env('WOWSBAR_DB_SEARCH_PATH', 'public'),
+            'sslmode'        => 'prefer',
+        ],
 
     ],
 

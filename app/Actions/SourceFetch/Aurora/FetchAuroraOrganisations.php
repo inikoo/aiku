@@ -15,7 +15,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class FetchOrganisations
+class FetchAuroraOrganisations
 {
     use AsAction;
     use WithOrganisationSource;
@@ -44,7 +44,7 @@ class FetchOrganisations
     }
 
 
-    public string $commandSignature = 'fetch:organisations  {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:aurora-organisations  {--d|db_suffix=}';
 
     /**
      * @throws \Exception
@@ -52,6 +52,9 @@ class FetchOrganisations
     public function asCommand(Command $command): int
     {
         foreach (Organisation::all() as $organisation) {
+            if($organisation->source['type'] !== 'Aurora') {
+                continue;
+            }
             $organisationSource = $this->getOrganisationSource($organisation);
             $organisationSource->initialisation($organisation, $command->option('db_suffix') ?? '');
             $organisation = $this->handle($organisationSource, $organisation);
