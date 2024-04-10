@@ -71,8 +71,8 @@ class FetchServices extends FetchAction
             $query->whereNull('aiku_id');
         }
 
-        $sourceData = explode(':', $this->shop->source_id);
         if ($this->shop) {
+            $sourceData = explode(':', $this->shop->source_id);
             $query->where('Product Store Key', $sourceData[1]);
         }
 
@@ -88,8 +88,8 @@ class FetchServices extends FetchAction
             $query->whereNull('aiku_id');
         }
 
-        $sourceData = explode(':', $this->shop->source_id);
         if ($this->shop) {
+            $sourceData = explode(':', $this->shop->source_id);
             $query->where('Product Store Key', $sourceData[1]);
         }
 
