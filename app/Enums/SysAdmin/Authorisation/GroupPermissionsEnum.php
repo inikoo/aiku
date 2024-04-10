@@ -10,6 +10,7 @@ namespace App\Enums\SysAdmin\Authorisation;
 enum GroupPermissionsEnum: string
 {
     case GROUP_REPORTS               = 'group-reports';
+    case GROUP_OVERVIEW              = 'group-overview';
     case SYSADMIN                    = 'sysadmin';
     case SYSADMIN_EDIT               = 'sysadmin.edit';
     case SYSADMIN_VIEW               = 'sysadmin.view';
