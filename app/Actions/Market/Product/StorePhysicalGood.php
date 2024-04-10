@@ -21,40 +21,30 @@ use App\Models\Goods\TradeUnit;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
-use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StorePhysicalGood extends OrgAction
 {
+    use IsStoreProduct;
+
     private ProductStateEnum|null $state=null;
     private ProductCategory|Shop $parent;
 
-    public function handle(Shop|ProductCategory $parent, array $modelData, bool $skipHistoric = false): Product
+    public function handle(Shop|ProductCategory $parent, array $modelData): Product
     {
-        if (class_basename($parent) == 'Shop') {
-            $modelData['shop_id']     = $parent->id;
-            $modelData['parent_id']   = $parent->id;
-            $modelData['parent_type'] = $parent->type;
-            $modelData['owner_id']    = $parent->id;
-            $modelData['owner_type']  = $parent->type;
-        } else {
-            $modelData['shop_id']    = $parent->shop_id;
-            $modelData['owner_id']   = $parent->parent_id;
-            $modelData['owner_type'] = $parent->shop->type;
-        }
+
+        $modelData=$this->setDataFromParent($parent, $modelData);
+
+
 
         $tradeUnits = $modelData['trade_units'];
         data_forget($modelData, 'trade_units');
 
         data_set($modelData, 'unit_relationship_type', $this->getUnitRelationshipType($tradeUnits));
 
-
-        data_set($modelData, 'organisation_id', $parent->organisation_id);
-        data_set($modelData, 'group_id', $parent->group_id);
 
         $price=Arr::get($modelData, 'price');
         data_forget($modelData, 'price');
@@ -89,8 +79,7 @@ class StorePhysicalGood extends OrgAction
                 'name'            => $product->name,
                 'is_main'         => true,
                 'main_outer_ratio'=> 1
-            ],
-            skipHistoric: $skipHistoric
+            ]
         );
 
         SetProductMainOuter::run(
@@ -120,99 +109,24 @@ class StorePhysicalGood extends OrgAction
 
     public function rules(): array
     {
-        $rules= [
-            'code'        => [
-                'required',
-                'max:32',
-                'alpha_dash',
-                new IUnique(
-                    table: 'products',
-                    extraConditions: [
-                        ['column' => 'shop_id', 'value' => $this->shop->id],
-                        ['column' => 'deleted_at', 'value' => null],
-                    ]
-                ),
-            ],
-            'family_id'   => ['sometimes', 'required', 'exists:families,id'],
-            'image_id'    => ['sometimes', 'required', 'exists:media,id'],
-            'price'       => ['required', 'numeric','min:0'],
 
-            'rrp'         => ['sometimes', 'required', 'numeric','min:0'],
-            'name'        => ['required', 'max:250', 'string'],
-            'description' => ['sometimes', 'required', 'max:1500'],
-            'source_id'   => ['sometimes', 'required', 'string', 'max:255'],
-            'type'        => ['required', Rule::enum(ProductTypeEnum::class)],
-            'owner_id'    => 'required',
-            'owner_type'  => 'required',
-            'status'      => ['required', 'boolean'],
-            'state'       => ['required', Rule::enum(ProductStateEnum::class)],
-            'data'        => ['sometimes', 'array'],
-            'settings'    => ['sometimes', 'array'],
-            'created_at'  => ['sometimes', 'date'],
-            'trade_units' => ['required', 'array'],
-
-        ];
-
-        if($this->state==ProductStateEnum::DISCONTINUED) {
-            $rules['code']= [
-                'required',
-                'max:32',
-                'alpha_dash',
-            ];
-        }
-
-
-        return $rules;
+        return array_merge(
+            $this->getProductRules(),
+            [
+                'trade_units' => ['required', 'array'],
+            ]
+        );
 
     }
 
     public function prepareForValidation(ActionRequest $request): void
     {
         $this->set('type', ProductTypeEnum::PHYSICAL_GOOD);
-        if($this->parent instanceof ProductCategory) {
-            $this->fill(
-                [
-                    'owner_type' => 'Shop',
-                    'owner_id'   => $this->parent->shop_id
-                ]
-            );
-        } elseif($this->parent instanceof Shop) {
-            $this->fill(
-                [
-                    'owner_type' => 'Shop',
-                    'owner_id'   => $this->parent->id
-                ]
-            );
-        }
-
-        if(!$this->has('status')) {
-            $this->set('status', true);
-        }
-
-        if(!$this->has('state')) {
-            $this->set('state', ProductStateEnum::IN_PROCESS);
-        }
-
+        $this->prepareProductForValidation();
 
     }
 
-    public function action(Shop|ProductCategory $parent, array $modelData, int $hydratorsDelay = 0, bool $skipHistoric = false): Product
-    {
-        $this->hydratorsDelay = $hydratorsDelay;
-        $this->asAction       = true;
-        $this->state          =Arr::get($modelData, 'state');
-        $this->parent         =$parent;
 
-        if ($parent instanceof Shop) {
-            $shop = $parent;
-        } else {
-            $shop = $parent->shop;
-        }
-
-        $this->initialisationFromShop($shop, $modelData);
-
-        return $this->handle($parent, $this->validatedData, $skipHistoric);
-    }
 
     public function inShop(Shop $shop, ActionRequest $request): RedirectResponse
     {

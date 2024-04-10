@@ -56,7 +56,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $current_historic_outer_id
  * @property ProductStateEnum $state
  * @property bool $status
- * @property ProductUnitRelationshipType $unit_relationship_type
+ * @property ProductUnitRelationshipType|null $unit_relationship_type
  * @property int|null $main_outer_id
  * @property int|null $available_outers (main outer in physical goods)
  * @property string|null $price unit price (main outer in physical goods)

@@ -22,14 +22,13 @@ class PaymentServiceProviderSeeder extends Seeder
             $paymentServiceProvider=PaymentServiceProvider::where('code', $modelData)->first();
 
             if(!$paymentServiceProvider) {
-                $paymentServiceProvider = StorePaymentServiceProvider::run([
+                StorePaymentServiceProvider::run([
                     'code' => $modelData,
                     'type' => PaymentServiceProviderEnum::types()[$modelData],
                     'name' => PaymentServiceProviderEnum::labels()[$modelData]
                 ]);
             }
 
-            print "\033[32mSeeded: \033[0m $paymentServiceProvider->code\n";
         });
     }
 

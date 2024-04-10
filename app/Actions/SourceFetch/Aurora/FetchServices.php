@@ -7,7 +7,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Market\Product\StorePhysicalGood;
+use App\Actions\Market\Product\StoreNoPhysicalGood;
 use App\Actions\Market\Product\UpdateProduct;
 use App\Models\Market\Product;
 use Exception;
@@ -24,20 +24,19 @@ class FetchServices extends FetchAction
 
         if ($serviceData = $organisationSource->fetchService($organisationSourceId)) {
 
-            if ($product = Product::where('source_id', $serviceData['service']['source_id'])
+            if ($service = Product::where('source_id', $serviceData['service']['source_id'])
                 ->first()) {
-                $product = UpdateProduct::make()->action(
-                    product:      $product,
+                $service = UpdateProduct::make()->action(
+                    product:      $service,
                     modelData:    $serviceData['service'],
                     skipHistoric: true
                 );
             } else {
                 try {
 
-                    $product = StorePhysicalGood::make()->action(
+                    $service = StoreNoPhysicalGood::make()->action(
                         parent:         $serviceData['shop'],
                         modelData:    $serviceData['service'],
-                        skipHistoric: true
                     );
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $serviceData['service'], 'Product', 'store');
@@ -45,34 +44,15 @@ class FetchServices extends FetchAction
                 }
             }
 
-            $sourceData = explode(':', $product->source_id);
+            $sourceData = explode(':', $service->source_id);
 
             DB::connection('aurora')->table('Product Dimension')
                 ->where('Product ID', $sourceData[1])
-                ->update(['aiku_id' => $product->id]);
+                ->update(['aiku_id' => $service->id]);
 
 
-            $historicService = HistoricOuter::where('source_id', $serviceData['historic_service_source_id'])->first();
-            if (!$historicService) {
-                $historicService = FetchHistoricServices::run(
-                    $organisationSource,
-                    $serviceData['historic_service_source_id']
-                );
-            }
 
-            $product->update(
-                [
-                    'current_historic_outer_id' => $historicService->id
-                ]
-            );
-
-            $product->update(
-                [
-                    'current_historic_outer_id' => $historicService->id
-                ]
-            );
-
-            return $product;
+            return $service;
         }
 
 

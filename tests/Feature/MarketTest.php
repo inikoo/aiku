@@ -8,12 +8,14 @@
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Market\Outer\StoreOuter;
 use App\Actions\Market\Product\DeleteProduct;
+use App\Actions\Market\Product\StoreNoPhysicalGood;
 use App\Actions\Market\Product\StorePhysicalGood;
 use App\Actions\Market\Product\UpdateProduct;
 use App\Actions\Market\ProductCategory\StoreProductCategory;
 use App\Actions\Market\ProductCategory\UpdateProductCategory;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Market\Shop\UpdateShop;
+use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\Product\ProductUnitRelationshipType;
 use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
@@ -193,10 +195,7 @@ test('create product', function ($shop) {
         ]
     );
 
-
-
     $product     = StorePhysicalGood::make()->action($shop, $productData);
-
 
     expect($product)->toBeInstanceOf(Product::class)
         ->and($product->tradeUnits()->count())->toBe(1)
@@ -283,3 +282,25 @@ test('delete product', function ($product) {
 
     $this->assertModelExists($product);
 })->depends('create product');
+
+test('create service', function ($shop) {
+
+
+
+    $productData = array_merge(
+        Product::factory()->definition(),
+        [
+            'type'       => ProductTypeEnum::SERVICE,
+            'price'      => 100,
+        ]
+    );
+
+    $product     = StoreNoPhysicalGood::make()->action($shop, $productData);
+
+    expect($product)->toBeInstanceOf(Product::class)
+        ->and($product->tradeUnits()->count())->toBe(0)
+        ->and($product->stats->number_outers)->toBe(0)
+        ->and($product->stats->number_historic_outers)->toBe(0);
+
+    return $product;
+})->depends('create shop');

@@ -35,12 +35,11 @@ return new class () extends Migration {
             $table->boolean('status')->default(true)->index();
 
 
-            $table->string('unit_relationship_type')->index();
+            $table->string('unit_relationship_type')->nullable()->index();
 
             $table->unsignedInteger('main_outer_id')->nullable()->index();
-            $table->unsignedDecimal('main_outer_units', 12, 3)->nullable()->comment('units per outer');
-            $table->unsignedDecimal('main_outer_price', 18)->nullable()->comment('unit price');
-            $table->unsignedInteger('main_outer_available')->default(0)->nullable();
+            $table->unsignedInteger('available_outers')->default(0)->nullable()->comment('(main outer in physical goods)');
+            $table->unsignedDecimal('price', 18)->nullable()->comment('unit price (main outer in physical goods)');
 
 
             $table->unsignedInteger('image_id')->nullable();
