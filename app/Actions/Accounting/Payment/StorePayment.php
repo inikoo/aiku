@@ -56,7 +56,7 @@ class StorePayment extends OrgAction
         $payment = $paymentAccount->payments()->create($modelData);
 
         match ($paymentAccount->paymentServiceProvider->code) {
-            PaymentServiceProviderEnum::CHECKOUT_COM->value => Checkout::run($payment, $modelData),
+            PaymentServiceProviderEnum::CHECKOUT->value     => Checkout::run($payment, $modelData),
             PaymentServiceProviderEnum::XENDIT->value       => MakePaymentUsingInvoice::run($payment),
             default                                         => null
         };

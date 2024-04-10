@@ -8,6 +8,7 @@
 namespace App\Actions\SysAdmin\Group;
 
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
+use App\Actions\Accounting\PaymentServiceProvider\UpdatePaymentServiceProvider;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderEnum;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\SysAdmin\Group;
@@ -25,14 +26,21 @@ class SeedGroupPaymentServiceProviders
         $paymentServiceProvidersData->each(function ($modelData) use ($group) {
             $paymentServiceProvider=PaymentServiceProvider::where('code', $modelData)->first();
 
-            if(!$paymentServiceProvider) {
+            $data=[
+                'code' => $modelData,
+                'type' => PaymentServiceProviderEnum::types()[$modelData],
+                'name' => PaymentServiceProviderEnum::labels()[$modelData]
+            ];
+
+            if($paymentServiceProvider) {
+                UpdatePaymentServiceProvider::make()->action(
+                    $paymentServiceProvider,
+                    $data
+                );
+            } else {
                 StorePaymentServiceProvider::make()->action(
                     $group,
-                    [
-                    'code' => $modelData,
-                    'type' => PaymentServiceProviderEnum::types()[$modelData],
-                    'name' => PaymentServiceProviderEnum::labels()[$modelData]
-                ]
+                    $data
                 );
             }
 

@@ -9,8 +9,12 @@ namespace App\Actions\Accounting\PaymentServiceProvider;
 
 use App\Actions\GrpAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderEnum;
+use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Http\Resources\Accounting\PaymentServiceProviderResource;
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Rules\IUnique;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdatePaymentServiceProvider extends GrpAction
@@ -36,22 +40,35 @@ class UpdatePaymentServiceProvider extends GrpAction
     public function rules(): array
     {
         return [
+            'code'      => [
+                'required',
+                'max:16',
+                'alpha_dash',
+                Rule::enum(PaymentServiceProviderEnum::class),
+                new IUnique(
+                    table: 'payment_service_providers',
+                    extraConditions: [
+                        ['column' => 'group_id', 'value' => $this->group->id],
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->paymentServiceProvider->id
+                            ]
+                    ]
+                ),
+            ],
             'name'      => [
                 'sometimes',
                 'required',
                 'max:255',
                 'string',
             ],
+            'type'      => ['required', Rule::enum(PaymentServiceProviderTypeEnum::class)],
+
         ];
     }
 
-    public function asController(PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): PaymentServiceProvider
-    {
-        $this->paymentServiceProvider = $paymentServiceProvider;
-        $this->initialisation($paymentServiceProvider->group, $request);
 
-        return $this->handle($paymentServiceProvider, $this->validatedData);
-    }
 
     public function action(PaymentServiceProvider $paymentServiceProvider, $modelData): PaymentServiceProvider
     {

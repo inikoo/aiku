@@ -8,6 +8,7 @@
 namespace App\Actions\Accounting\PaymentServiceProvider;
 
 use App\Actions\GrpAction;
+use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderEnum;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\SysAdmin\Group;
@@ -34,7 +35,7 @@ class StorePaymentServiceProvider extends GrpAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("accounting.edit");
+        return $request->user()->hasPermissionTo("sysadmin.edit");
     }
 
     public function rules(): array
@@ -42,8 +43,9 @@ class StorePaymentServiceProvider extends GrpAction
         return [
             'code'      => [
                 'required',
-                'between:2,16',
+                'max:16',
                 'alpha_dash',
+                Rule::enum(PaymentServiceProviderEnum::class),
                 new IUnique(
                     table: 'payment_service_providers',
                     extraConditions: [
@@ -56,8 +58,7 @@ class StorePaymentServiceProvider extends GrpAction
                 'max:255',
                 'string',
             ],
-            'type'      => ['required', Rule::in(PaymentServiceProviderTypeEnum::values())],
-            'source_id' => ['sometimes', 'string'],
+            'type'      => ['required', Rule::enum(PaymentServiceProviderTypeEnum::class)],
         ];
     }
 

@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
-use App\Actions\Accounting\PaymentServiceProvider\UpdatePaymentServiceProvider;
-use App\Models\Accounting\PaymentServiceProvider;
+use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
+use App\Actions\Accounting\OrgPaymentServiceProvider\UpdateOrgPaymentServiceProvider;
+use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -19,30 +19,30 @@ class FetchPaymentServiceProviders extends FetchAction
     public string $commandSignature = 'fetch:payment-service-providers {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?PaymentServiceProvider
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?OrgPaymentServiceProvider
     {
         if ($paymentServiceProviderData = $organisationSource->fetchPaymentServiceProvider($organisationSourceId)) {
-            if ($paymentServiceProvider = PaymentServiceProvider::where('source_id', $paymentServiceProviderData['paymentServiceProvider']['source_id'])
+            if ($orgPaymentServiceProvider = OrgPaymentServiceProvider::where('source_id', $paymentServiceProviderData['orgPaymentServiceProvider']['source_id'])
                 ->first()) {
-                $paymentServiceProvider = UpdatePaymentServiceProvider::make()->action(
-                    paymentServiceProvider: $paymentServiceProvider,
-                    modelData:              $paymentServiceProviderData['paymentServiceProvider']
+                $orgPaymentServiceProvider = UpdateOrgPaymentServiceProvider::make()->action(
+                    orgPaymentServiceProvider: $orgPaymentServiceProvider,
+                    modelData:              $paymentServiceProviderData['orgPaymentServiceProvider']
                 );
             } else {
-                $paymentServiceProvider = StorePaymentServiceProvider::make()->action(
+                $orgPaymentServiceProvider = StoreOrgPaymentServiceProvider::make()->action(
+                    paymentServiceProvider: $paymentServiceProviderData['paymentServiceProvider'],
                     organisation: $organisationSource->getOrganisation(),
-                    modelData: $paymentServiceProviderData['paymentServiceProvider']
+                    modelData: $paymentServiceProviderData['orgPaymentServiceProvider'],
                 );
             }
 
-            $sourceId=explode(':', $paymentServiceProvider->source_id);
-
+            $sourceId=explode(':', $orgPaymentServiceProvider->source_id);
 
             DB::connection('aurora')->table('Payment Service Provider Dimension')
                 ->where('Payment Service Provider Key', $sourceId[1])
-                ->update(['aiku_id' => $paymentServiceProvider->id]);
+                ->update(['aiku_id' => $orgPaymentServiceProvider->id]);
 
-            return $paymentServiceProvider;
+            return $orgPaymentServiceProvider;
         }
 
         return null;
