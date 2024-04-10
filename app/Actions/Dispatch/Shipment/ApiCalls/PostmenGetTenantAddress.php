@@ -45,7 +45,7 @@ class PostmenGetTenantAddress
         $params = [
             'slug'        => $request->get('shipper'),
             'description' => $request->get('label'),
-            'address'     => $this->get_tenant_address($organisation),
+            'address'     => $this->getOrganisationAddress($organisation),
             'timezone'    => 'UTC',
             'credentials' => $credentials
         ];
@@ -87,7 +87,7 @@ class PostmenGetTenantAddress
         };
     }
 
-    private function get_tenant_address($organisation)
+    private function getOrganisationAddress($organisation)
     {
         $organisation_address = $organisation->data['address'];
         $organisation_country = (new Country())->where('code', $organisation_address['country_code'])->first();

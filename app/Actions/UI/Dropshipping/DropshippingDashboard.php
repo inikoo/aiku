@@ -7,6 +7,7 @@
 
 namespace App\Actions\UI\Dropshipping;
 
+use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\SysAdmin\Organisation;
@@ -15,13 +16,12 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class DropshippingDashboard
+class DropshippingDashboard extends OrgAction
 {
     use AsAction;
     use WithInertia;
 
 
-    private ?Organisation $organisation;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -29,13 +29,14 @@ class DropshippingDashboard
     }
 
 
-    public function asController(): void
+    public function asController(Organisation $organisation, ActionRequest $request): ActionRequest
     {
-        $this->tenant = app('currentTenant');
+        $this->initialisation($organisation, $request);
+        return $request;
     }
 
 
-    public function htmlResponse(): Response
+    public function htmlResponse(ActionRequest $request): Response
     {
 
 

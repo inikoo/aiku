@@ -88,7 +88,7 @@ class CreateShop extends OrgAction
                                     'label'       => __('country'),
                                     'placeholder' => __('Select a country'),
                                     'options'     => GetCountriesOptions::run(),
-                                    'value'       => app('currentTenant')->country_id,
+                                    'value'       => $this->organisation->country_id,
                                     'required'    => true,
                                     'mode'        => 'single'
                                 ],
@@ -97,7 +97,7 @@ class CreateShop extends OrgAction
                                     'label'       => __('language'),
                                     'placeholder' => __('Select a language'),
                                     'options'     => GetLanguagesOptions::make()->all(),
-                                    'value'       => app('currentTenant')->language_id,
+                                    'value'       => $this->organisation->language_id,
                                     'required'    => true,
                                     'mode'        => 'single'
                                 ],
@@ -106,7 +106,7 @@ class CreateShop extends OrgAction
                                     'label'       => __('currency'),
                                     'placeholder' => __('Select a currency'),
                                     'options'     => GetCurrenciesOptions::run(),
-                                    'value'       => app('currentTenant')->currency_id,
+                                    'value'       => $this->organisation->currency_id,
                                     'required'    => true,
                                     'mode'        => 'single'
                                 ],
@@ -115,7 +115,7 @@ class CreateShop extends OrgAction
                                     'label'       => __('timezone'),
                                     'placeholder' => __('Select a timezone'),
                                     'options'     => GetTimeZonesOptions::run(),
-                                    'value'       => app('currentTenant')->timezone_id,
+                                    'value'       => $this->organisation->timezone_id,
                                     'required'    => true,
                                     'mode'        => 'single'
                                 ],

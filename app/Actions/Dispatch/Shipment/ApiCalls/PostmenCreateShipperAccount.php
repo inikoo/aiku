@@ -77,7 +77,7 @@ class PostmenCreateShipperAccount
             'service_type'          => $request->get('service_type'),
             'shipper_account'       => ['id' => $shipper->id],
             'shipment'              => [
-                'ship_from' => $this->get_tenant_address($shipper->data['tenant']),
+                'ship_from' => $this->getOrganisationAddress($shipper->data['tenant']),
                 'ship_to'   => $shipTo,
                 'parcels'   => $parcels
             ],
@@ -89,7 +89,7 @@ class PostmenCreateShipperAccount
         );
     }
 
-    private function get_tenant_address(mixed $organisation): array
+    private function getOrganisationAddress(mixed $organisation): array
     {
         $organisation_address = $organisation->data['address'];
         $organisation_country = (new Country())->where('code', $organisation_address['country_code'])->first();

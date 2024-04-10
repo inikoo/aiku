@@ -152,7 +152,7 @@ class IndexProducts extends OrgAction
                     [
                         'title'       => __('no products'),
                         'description' => $canEdit ? __('Get started by creating a new product.') : null,
-                        'count'       => app('currentTenant')->stats->number_products,
+                        'count'       => $this->organisation->stats->number_products,
                         'action'      => $canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',

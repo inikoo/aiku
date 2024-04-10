@@ -7,32 +7,27 @@
 
 namespace App\Actions\UI\Production;
 
+use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
-use App\Actions\UI\WithInertia;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-class ProductionDashboard
+class ProductionDashboard extends OrgAction
 {
-    use AsAction;
-    use WithInertia;
-
-
-    private ?Organisation $organisation;
-
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasPermissionTo("production.view");
     }
 
 
-    public function asController(): void
+    public function asController(Organisation $organisation, ActionRequest $request): Organisation
     {
-        $this->tenant = app('currentTenant');
+        $this->initialisation($organisation, $request);
+        return $organisation;
     }
+
 
 
     public function htmlResponse(): Response
@@ -54,7 +49,7 @@ class ProductionDashboard
                             'icon'  => ['fal', 'fa-flask'],
                             'href'  => ['grp.production.products.index'],
                             'index' => [
-                                'number' => $this->tenant->productionStats->number_products
+                                'number' => $this->organisation->productionStats->number_products
                             ]
                         ]
                     ]

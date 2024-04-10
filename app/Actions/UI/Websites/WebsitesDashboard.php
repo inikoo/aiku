@@ -7,19 +7,15 @@
 
 namespace App\Actions\UI\Websites;
 
+use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
-use App\Actions\UI\WithInertia;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-class WebsitesDashboard
+class WebsitesDashboard extends OrgAction
 {
-    use AsAction;
-    use WithInertia;
-
     public function handle($scope)
     {
         return $scope;
@@ -31,9 +27,10 @@ class WebsitesDashboard
     }
 
 
-    public function asController(): Organisation
+    public function asController(Organisation $organisation, ActionRequest $request): Organisation
     {
-        return app('currentTenant');
+        $this->initialisation($organisation, $request);
+        return $organisation;
     }
 
 
