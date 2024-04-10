@@ -33,7 +33,7 @@ Route::get('/providers/{paymentServiceProvider}/accounts/{paymentAccount}/paymen
 Route::get('/providers/{paymentServiceProvider}/payments/create', [IndexPayments::class, 'inPaymentServiceProvider'])->name('payment-service-providers.show.payments.create');
 
 
-Route::get('/providers', [SelectOrgPaymentServiceProviders::class, 'inOrganisation'])->name('payment-service-providers.index');
+Route::get('/providers', SelectOrgPaymentServiceProviders::class)->name('payment-service-providers.index');
 Route::get('/providers/create', CreatePaymentServiceProvider::class)->name('payment-service-providers.create');
 Route::get('/providers/export', ExportPaymentServiceProviders::class)->name('payment-service-providers.export');
 Route::get('/providers/{paymentServiceProvider}', ShowPaymentServiceProvider::class)->name('payment-service-providers.show');

@@ -137,18 +137,12 @@ class SelectOrgPaymentServiceProviders extends OrgAction
     }
 
 
-    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($organisation, $request);
         return $this->handle($organisation);
     }
 
-    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisationFromShop($shop, $request);
-
-        return $this->handle($shop);
-    }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
