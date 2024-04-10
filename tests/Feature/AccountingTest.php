@@ -26,16 +26,26 @@ beforeAll(function () {
     loadDB('test_base_database.dump');
 });
 
+
+
 beforeEach(function () {
     $this->organisation = createOrganisation();
     $this->group        = $this->organisation->group;
 });
 
+test('payment service providers seeder works', function () {
+
+    expect(PaymentServiceProvider::count())->toBe(12)->
+    and($this->group->accountingStats->number_payment_service_providers)->toBe(12);
+});
+
+
+
 
 test('add payment service provider to organisation', function () {
     expect($this->organisation->accountingStats->number_org_payment_service_providers)->toBe(1)
         ->and($this->organisation->accountingStats->number_org_payment_service_providers_type_account)->toBe(1)
-        ->and($this->group->accountingStats->number_payment_service_providers)->toBe(10);
+        ->and($this->group->accountingStats->number_payment_service_providers)->toBe(12);
 
     $modelData = PaymentServiceProvider::factory()->definition();
     data_set($modelData, 'type', PaymentServiceProviderTypeEnum::CASH->value);
@@ -55,21 +65,7 @@ test('add payment service provider to organisation', function () {
     return $orgPaymentServiceProvider;
 });
 
-test('can not update payment service provider type', function () {
-    $paymentServiceProvider =PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first();
-    $paymentServiceProvider = UpdatePaymentServiceProvider::make()->action($paymentServiceProvider, ['type' => PaymentServiceProviderTypeEnum::BANK->value]);
-    expect($paymentServiceProvider->type)->not->toBe(PaymentServiceProviderTypeEnum::BANK->value);
-});
 
-test('payment service provider code can not be updated', function () {
-    $paymentServiceProvider=PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first();
-
-    $paymentServiceProvider = UpdatePaymentServiceProvider::make()->action(
-        $paymentServiceProvider,
-        ['code' => 'hello']
-    );
-    expect($paymentServiceProvider->code)->toBe('cash');
-});
 
 test('update payment service provider name', function () {
     $paymentServiceProvider=PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first();

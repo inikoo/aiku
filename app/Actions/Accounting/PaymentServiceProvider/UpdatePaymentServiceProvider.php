@@ -41,6 +41,7 @@ class UpdatePaymentServiceProvider extends GrpAction
     {
         return [
             'code'      => [
+                'sometimes',
                 'required',
                 'max:16',
                 'alpha_dash',
@@ -63,7 +64,7 @@ class UpdatePaymentServiceProvider extends GrpAction
                 'max:255',
                 'string',
             ],
-            'type'      => ['required', Rule::enum(PaymentServiceProviderTypeEnum::class)],
+            'type'      => [ 'sometimes','required', Rule::enum(PaymentServiceProviderTypeEnum::class)],
 
         ];
     }
