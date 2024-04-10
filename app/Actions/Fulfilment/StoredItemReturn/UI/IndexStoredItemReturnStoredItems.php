@@ -9,7 +9,6 @@ namespace App\Actions\Fulfilment\StoredItemReturn\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -31,7 +30,7 @@ class IndexStoredItemReturnStoredItems extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('slug', 'ILIKE', "%$value%");
+                $query->whereStartWith('slug', $value);
             });
         });
 
@@ -52,13 +51,15 @@ class IndexStoredItemReturnStoredItems extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
-                ->name(TabsAbbreviationEnum::STORED_ITEMS->value)
-                ->pageName(TabsAbbreviationEnum::STORED_ITEMS->value.'Page')
-
                 ->withGlobalSearch()
                 ->withEmptyState(
                     [

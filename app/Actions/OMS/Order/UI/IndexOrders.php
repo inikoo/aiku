@@ -10,7 +10,6 @@ namespace App\Actions\OMS\Order\UI;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 use App\Enums\UI\OMS\OrdersTabsEnum;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\OMS\OrdersResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\InertiaTable\InertiaTable;
@@ -31,7 +30,7 @@ class IndexOrders extends OrgAction
 {
     private Organisation|Shop $parent;
 
-    public function handle(Organisation|Shop|Customer $parent): LengthAwarePaginator
+    public function handle(Organisation|Shop|Customer $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -39,9 +38,10 @@ class IndexOrders extends OrgAction
                     ->orWhere('orders.date', '=', $value);
             });
         });
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::ORDERS->value);
 
-
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         return QueryBuilder::for(Order::class)
             ->defaultSort('orders.number')
@@ -65,10 +65,7 @@ class IndexOrders extends OrgAction
             })
             ->allowedSorts(['number', 'date'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::ORDERS->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 

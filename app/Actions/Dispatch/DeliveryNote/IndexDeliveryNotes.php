@@ -9,7 +9,6 @@ namespace App\Actions\Dispatch\DeliveryNote;
 
 use App\Actions\InertiaAction;
 use App\Actions\Market\Shop\UI\ShowShop;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Dispatch\DeliveryNote;
@@ -27,7 +26,7 @@ use Inertia\Response;
 
 class IndexDeliveryNotes extends InertiaAction
 {
-    public function handle($parent): LengthAwarePaginator
+    public function handle($parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -36,7 +35,10 @@ class IndexDeliveryNotes extends InertiaAction
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::DELIVERY_NOTES->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
         return QueryBuilder::for(DeliveryNote::class)
             ->defaultSort('delivery_notes.number')
             ->select(['delivery_notes.number', 'delivery_notes.date', 'delivery_notes.state', 'delivery_notes.created_at', 'delivery_notes.updated_at', 'delivery_notes.slug', 'shops.slug as shop_slug'])
@@ -58,23 +60,20 @@ class IndexDeliveryNotes extends InertiaAction
             })
             ->allowedSorts(['number', 'date'])
             ->allowedFilters([$globalSearch])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::DELIVERY_NOTES->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
-            $table
-                ->name(TabsAbbreviationEnum::DELIVERY_NOTES->value)
-                ->pageName(TabsAbbreviationEnum::DELIVERY_NOTES->value.'Page');
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
 
             $table->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true);
-
-
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
         };
     }

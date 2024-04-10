@@ -9,7 +9,6 @@ namespace App\Actions\Fulfilment\StoredItem\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -32,7 +31,7 @@ class IndexStoredItems extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('slug', 'ILIKE', "%$value%");
+                $query->whereStartWith('slug', $value);
             });
         });
 
@@ -53,13 +52,17 @@ class IndexStoredItems extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent, $modelOperations = []): Closure
+    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $modelOperations) {
-            $table
-                ->name(TabsAbbreviationEnum::STORED_ITEMS->value)
-                ->pageName(TabsAbbreviationEnum::STORED_ITEMS->value.'Page')
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
 
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+
+            $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
@@ -128,17 +131,10 @@ class IndexStoredItems extends OrgAction
         )->table($this->tableStructure($storedItems));
     }
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($request);
 
-        return $this->handle(app('currentTenant'));
-    }
-
-    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
-
         return $this->handle($fulfilmentCustomer, 'pallets');
     }
 

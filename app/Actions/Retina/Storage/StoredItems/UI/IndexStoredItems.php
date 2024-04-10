@@ -9,7 +9,6 @@ namespace App\Actions\Retina\Storage\StoredItems\UI;
 
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Storage\ShowStorageDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\StoredItem;
@@ -29,7 +28,7 @@ class IndexStoredItems extends RetinaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('slug', 'ILIKE', "%$value%");
+                $query->whereStartWith('slug', $value);
             });
         });
 
@@ -50,13 +49,16 @@ class IndexStoredItems extends RetinaAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent): Closure
+    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($parent) {
-            $table
-                ->name(TabsAbbreviationEnum::STORED_ITEMS->value)
-                ->pageName(TabsAbbreviationEnum::STORED_ITEMS->value.'Page')
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
 
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+            $table
                 ->withGlobalSearch()
                 ->withEmptyState(
                     [
@@ -77,13 +79,7 @@ class IndexStoredItems extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        // TODO: Need to check the permissions
         return true;
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view")
-            );
     }
 
 
@@ -93,7 +89,7 @@ class IndexStoredItems extends RetinaAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $storedItems): Response
+    public function htmlResponse(LengthAwarePaginator $storedItems, ActionRequest $request): Response
     {
         return Inertia::render(
             'Fulfilment/StoredItems',

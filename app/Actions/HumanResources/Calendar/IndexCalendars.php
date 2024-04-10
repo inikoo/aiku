@@ -9,7 +9,6 @@ namespace App\Actions\HumanResources\Calendar;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
-use App\Enums\UI\TabsAbbreviationEnum;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
@@ -26,17 +25,18 @@ use App\Services\QueryBuilder;
 
 class IndexCalendars extends OrgAction
 {
-    public function handle(): LengthAwarePaginator
+    public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('employees.contact_name', 'ILIKE', "%$value%")
-                    ->orWhere('employees.slug', 'ILIKE', "%$value%")
-                    ->orWhere('employees.state', 'ILIKE', "%$value%");
+                $query->whereAnyWordStartWith('employees.contact_name', $value);
+
             });
         });
 
-        InertiaTable::updateQueryBuilderParameters(TabsAbbreviationEnum::EMPLOYEES->value);
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
 
         return QueryBuilder::for(Employee::class)
             ->defaultSort('employees.slug')
@@ -44,19 +44,20 @@ class IndexCalendars extends OrgAction
             ->with('jobPositions')
             ->allowedSorts(['slug', 'state', 'contact_name','job_title'])
             ->allowedFilters([$globalSearch, 'slug', 'contact_name', 'state'])
-            ->paginate(
-                perPage: $this->perPage ?? config('ui.table.records_per_page'),
-                pageName: TabsAbbreviationEnum::EMPLOYEES->value.'Page'
-            )
+            ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(): Closure
+    public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
             $table
-                ->name(TabsAbbreviationEnum::EMPLOYEES->value)
-                ->pageName(TabsAbbreviationEnum::EMPLOYEES->value.'Page')
                 ->withGlobalSearch()
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
