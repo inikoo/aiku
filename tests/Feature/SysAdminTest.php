@@ -128,6 +128,7 @@ test('set organisation logo by command', function (Organisation $organisation) {
 test('create organisation by command', function () {
     $this->artisan('org:create', [
         'group'         => 'TEST2',
+        'type'          => 'shop',
         'code'          => 'TEST',
         'email'         => 'a@example.com',
         'name'          => 'Test Organisation in group 2',
