@@ -7,7 +7,7 @@
 
 namespace App\Actions\SysAdmin\Organisation\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\GrpAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
@@ -23,17 +23,11 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexOrganisations extends InertiaAction
+class IndexOrganisations extends GrpAction
 {
-    /**
-     * @var \App\Models\SysAdmin\Group
-     */
-    private Group $group;
-
-    protected function getElementGroups(): void
+    protected function getElementGroups(): array
     {
-        $this->elementGroups =
-            [
+        return   [
                 'status' => [
                     'label'    => __('Type'),
                     'elements' => ['active' => __('Active'), 'suspended' => __('Suspended')],
@@ -51,7 +45,7 @@ class IndexOrganisations extends InertiaAction
         $this->group  = $group;
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('name', $value);
+                $query->whereAnyWordStartWith('name', $value)->whereStartWith('code', $value);
             });
         });
 
@@ -60,9 +54,10 @@ class IndexOrganisations extends InertiaAction
         }
 
         $queryBuilder = QueryBuilder::for(Organisation::class);
-        $queryBuilder->where('type', OrganisationTypeEnum::SHOP);
+        $queryBuilder->where('group_id', $group->id);
+        $queryBuilder->where('type', '!=', OrganisationTypeEnum::AGENT);
 
-        foreach ($this->elementGroups as $key => $elementGroup) {
+        foreach ($this->getElementGroups() as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
@@ -72,9 +67,9 @@ class IndexOrganisations extends InertiaAction
         }
 
         return $queryBuilder
-            ->defaultSort('slug')
-            ->select(['name', 'slug', 'email'])
-            ->allowedSorts(['slug', 'name', 'email'])
+            ->defaultSort('code')
+            ->select(['name', 'slug', 'type','code'])
+            ->allowedSorts([ 'name','type','code'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -107,6 +102,7 @@ class IndexOrganisations extends InertiaAction
                         ] : null
                     ]
                 )
+                ->column(key: 'type', label: '', canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
@@ -115,13 +111,8 @@ class IndexOrganisations extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('sysadmin.guests.edit');
-
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('sysadmin.view')
-            );
+        $this->canEdit = $request->user()->hasPermissionTo('sysadmin.edit');
+        return  $request->user()->hasPermissionTo('sysadmin.view');
     }
 
 
@@ -134,7 +125,7 @@ class IndexOrganisations extends InertiaAction
     public function htmlResponse(LengthAwarePaginator $organisations): Response
     {
         return Inertia::render(
-            'Org/Organisations',
+            'Organisations/Organisations',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('organisations'),
@@ -160,9 +151,9 @@ class IndexOrganisations extends InertiaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->initialisation(app('group'), $request);
 
-        return $this->handle(app('group'));
+        return $this->handle($this->group);
     }
 
     public function getBreadcrumbs(): array

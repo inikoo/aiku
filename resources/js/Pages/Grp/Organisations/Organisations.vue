@@ -1,7 +1,7 @@
 <!--
-  - Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
-  - Created: Tue, 28 Feb 2023 10:07:36 Central European Standard Time, Malaga, Spain
-  - Copyright (c) 2023, Inikoo LTD
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Thu, 11 Apr 2024 15:14:08 Central Indonesia Time, Sanur , Indonesia
+  - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
@@ -10,7 +10,7 @@ import PageHeading from "@/Components/Headings/PageHeading.vue";
 import { capitalize } from "@/Composables/capitalize"
 import TableOrganisations from "@/Components/Tables/TableOrganisations.vue";
 
-const props = defineProps<{
+defineProps<{
     data: object
     title: string
     pageHead: object

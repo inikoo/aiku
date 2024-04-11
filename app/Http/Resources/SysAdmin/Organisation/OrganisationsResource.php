@@ -24,6 +24,9 @@ class OrganisationsResource extends JsonResource
 
             'slug'  => $organisation->slug,
             'name'  => $organisation->name,
+            'type'  => $organisation->type,
+            'code'  => $organisation->code,
+
 
         ];
     }
