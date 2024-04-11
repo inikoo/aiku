@@ -8,11 +8,28 @@
 namespace App\Stubs\Migrations;
 
 use App\Enums\Market\Product\ProductStateEnum;
+use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
+use App\Enums\Market\Shop\ShopStateEnum;
+use App\Enums\Market\Shop\ShopTypeEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasCatalogueStats
 {
+    public function shopsStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedSmallInteger('number_shops')->default(0);
+        foreach (ShopStateEnum::cases() as $shopState) {
+            $table->unsignedSmallInteger('number_shops_state_'.$shopState->snake())->default(0);
+        }
+        foreach (ShopTypeEnum::cases() as $shopType) {
+            $table->unsignedSmallInteger('number_shops_type_' . $shopType->snake())->default(0);
+        }
+        return $table;
+    }
+
+
+
     public function catalogueStats(Blueprint $table): Blueprint
     {
         $table->unsignedInteger('number_departments')->default(0);
@@ -45,6 +62,10 @@ trait HasCatalogueStats
 
         foreach (ProductStateEnum::cases() as $productState) {
             $table->unsignedInteger('number_products_state_'.$productState->snake())->default(0);
+        }
+
+        foreach (ProductTypeEnum::cases() as $case) {
+            $table->unsignedInteger('number_products_type_'.$case->snake())->default(0);
         }
 
         return $table;

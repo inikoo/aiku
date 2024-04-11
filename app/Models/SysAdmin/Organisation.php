@@ -32,6 +32,7 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
 use App\Models\Media\Media;
@@ -113,6 +114,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationProcurementStats|null $procurementStats
  * @property-read Collection<int, ProductCategory> $productCategories
  * @property-read \App\Models\SysAdmin\OrganisationProductionStats|null $productionStats
+ * @property-read Collection<int, Product> $products
  * @property-read Collection<int, Prospect> $prospects
  * @property-read Collection<int, PurchaseOrder> $purchaseOrders
  * @property-read Collection<int, \App\Models\SysAdmin\Role> $roles
@@ -424,6 +426,11 @@ class Organisation extends Model implements HasMedia
     public function families(): ?Collection
     {
         return $this->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
+    }
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
     }
 
 }

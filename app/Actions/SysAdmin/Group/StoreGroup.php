@@ -42,6 +42,7 @@ class StoreGroup
         $group->inventoryStats()->create();
         $group->crmStats()->create();
         $group->accountingStats()->create();
+        $group->marketStats()->create();
         $group->salesStats()->create(
             [
                 'currency_id' => $group->currency_id,

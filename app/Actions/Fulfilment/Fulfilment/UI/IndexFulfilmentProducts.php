@@ -9,7 +9,6 @@ namespace App\Actions\Fulfilment\Fulfilment\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
-use App\Actions\UI\WithInertia;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\UI\Fulfilment\FulfilmentProductsTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentResource;
@@ -25,15 +24,10 @@ use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexFulfilmentProducts extends OrgAction
 {
-    use AsAction;
-    use WithInertia;
-
-
     public function handle(Fulfilment $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -136,8 +130,35 @@ class IndexFulfilmentProducts extends OrgAction
     {
         $this->fillFromRequest($request);
 
-        $this->set('canEdit', $request->user()->hasPermissionTo('hr.edit'));
-        $this->set('canViewUsers', $request->user()->hasPermissionTo('users.view'));
+                    /*
+                    [
+                        'title'       => __('no products'),
+                        'description' => $canEdit ? __('Get started by creating a new product.') : null,
+                        'count'       => $this->organisation->stats->number_products,
+                        'action'      => $canEdit ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new product'),
+                            'label'   => __('product'),
+                            'route'   => [
+                                'name'       => 'shops.products.create',
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
+                        ] : null
+                    ]*/
+                );
+            if ($parent instanceof Organisation) {
+                $table->column(
+                    key: 'shop_code',
+                    label: __('shop'),
+                    canBeHidden: false,
+                    sortable: true,
+                    searchable: true
+                );
+            };
+            $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+        };
     }
 
     public function jsonResponse(Fulfilment $fulfilment): FulfilmentResource

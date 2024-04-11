@@ -1,40 +1,40 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 11 Mar 2023 16:06:25 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 11 Apr 2024 17:05:15 Central Indonesia Time, Sanur , Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Market\Shop\Hydrators;
+namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTypeEnum;
 use App\Models\Market\Product;
-use App\Models\Market\Shop;
+use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShopHydrateProducts
+class GroupHydrateProducts
 {
     use AsAction;
     use WithEnumStats;
-    private Shop $shop;
+    private Group $group;
 
-    public function __construct(Shop $shop)
+    public function __construct(Group $group)
     {
-        $this->shop = $shop;
+        $this->group = $group;
     }
 
     public function getJobMiddleware(): array
     {
-        return [(new WithoutOverlapping($this->shop->id))->dontRelease()];
+        return [(new WithoutOverlapping($this->group->id))->dontRelease()];
     }
-    public function handle(Shop $shop): void
+    public function handle(Group $group): void
     {
 
         $stats         = [
-            'number_products' => $shop->products->count(),
+            'number_products' => $group->products()->count(),
         ];
 
         $stats = array_merge(
@@ -44,8 +44,8 @@ class ShopHydrateProducts
                 field: 'state',
                 enum: ProductStateEnum::class,
                 models: Product::class,
-                where: function ($q) use ($shop) {
-                    $q->where('shop_id', $shop->id);
+                where: function ($q) use ($group) {
+                    $q->where('group_id', $group->id);
                 }
             )
         );
@@ -57,14 +57,14 @@ class ShopHydrateProducts
                 field: 'type',
                 enum: ProductTypeEnum::class,
                 models: Product::class,
-                where: function ($q) use ($shop) {
-                    $q->where('shop_id', $shop->id);
+                where: function ($q) use ($group) {
+                    $q->where('group_id', $group->id);
                 }
             )
         );
 
 
-        $shop->stats()->update($stats);
+        $group->marketStats()->update($stats);
     }
 
 }

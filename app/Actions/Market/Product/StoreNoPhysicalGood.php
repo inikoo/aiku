@@ -10,6 +10,8 @@ namespace App\Actions\Market\Product;
 use App\Actions\Market\Product\Hydrators\ProductHydrateUniversalSearch;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProducts;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProducts;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
@@ -37,6 +39,9 @@ class StoreNoPhysicalGood extends OrgAction
 
 
         ShopHydrateProducts::dispatch($product->shop);
+        OrganisationHydrateProducts::dispatch($product->organisation);
+        GroupHydrateProducts::dispatch($product->group);
+
         ProductHydrateUniversalSearch::dispatch($product);
 
         return $product;

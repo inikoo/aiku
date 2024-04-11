@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 11 Nov 2023 23:22:59 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 11 Apr 2024 16:55:56 Central Indonesia Time, Sanur , Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 use App\Stubs\Migrations\HasCatalogueStats;
@@ -15,11 +15,12 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::create('organisation_market_stats', function (Blueprint $table) {
+        Schema::create('group_market_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('organisation_id');
-            $table->foreign('organisation_id')->references('id')->on('organisations')
+            $table->unsignedSmallInteger('group_id');
+            $table->foreign('group_id')->references('id')->on('groups')
                 ->onUpdate('cascade')->onDelete('cascade');
+
             $table =$this->shopsStats($table);
             $table = $this->catalogueStats($table);
 
@@ -30,6 +31,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('organisation_market_stats');
+        Schema::dropIfExists('group_market_stats');
     }
 };

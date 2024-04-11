@@ -179,7 +179,7 @@ test('create family', function ($department) {
 })->depends('update department');
 
 
-test('create product', function ($shop) {
+test('create physical good product', function ($shop) {
 
     $tradeUnits=[
         $this->tradeUnit->id=> [
@@ -199,13 +199,22 @@ test('create product', function ($shop) {
 
     expect($product)->toBeInstanceOf(Product::class)
         ->and($product->tradeUnits()->count())->toBe(1)
+        ->and($shop->organisation->marketStats->number_products)->toBe(1)
+        ->and($shop->organisation->marketStats->number_products_type_physical_good)->toBe(1)
+        ->and($shop->organisation->marketStats->number_products_type_service)->toBe(0)
+
+        ->and($shop->group->marketStats->number_products)->toBe(1)
+        ->and($shop->group->marketStats->number_products_type_physical_good)->toBe(1)
+
+        ->and($shop->stats->number_products)->toBe(1)
+        ->and($shop->stats->number_products_type_physical_good)->toBe(1)
         ->and($product->stats->number_outers)->toBe(1)
         ->and($product->stats->number_historic_outers)->toBe(1);
 
     return $product;
 })->depends('create shop');
 
-test('create product with many trade units', function ($shop) {
+test('create physical good product with many trade units', function ($shop) {
 
     $tradeUnits=[
         $this->tradeUnit->id=> [
@@ -226,11 +235,13 @@ test('create product with many trade units', function ($shop) {
 
 
     $product     = StorePhysicalGood::make()->action($shop, $productData);
-
+    $shop->refresh();
 
     expect($product)->toBeInstanceOf(Product::class)
         ->and($product->unit_relationship_type)->toBe(ProductUnitRelationshipType::MULTIPLE)
         ->and($product->tradeUnits()->count())->toBe(2)
+        ->and($shop->stats->number_products)->toBe(2)
+
         ->and($product->stats->number_outers)->toBe(1)
         ->and($product->stats->number_historic_outers)->toBe(1);
 
@@ -246,7 +257,7 @@ test('update product', function ($product) {
 
     expect($product->name)->toBe('Updated Product Name');
     return $product;
-})->depends('create product');
+})->depends('create physical good product');
 
 test('add outer to product', function ($product) {
 
@@ -278,10 +289,15 @@ test('add outer to product', function ($product) {
 })->depends('update product');
 
 test('delete product', function ($product) {
-    $product = DeleteProduct::run($product);
 
-    $this->assertModelExists($product);
-})->depends('create product');
+    $shop=$product->shop;
+    DeleteProduct::run($product);
+    $shop->refresh();
+
+    expect($shop->stats->number_products)->toBe(1);
+
+
+})->depends('create physical good product');
 
 test('create service', function ($shop) {
 
@@ -296,10 +312,14 @@ test('create service', function ($shop) {
     );
 
     $product     = StoreNoPhysicalGood::make()->action($shop, $productData);
+    $shop->refresh();
 
     expect($product)->toBeInstanceOf(Product::class)
         ->and($product->tradeUnits()->count())->toBe(0)
         ->and($product->stats->number_outers)->toBe(0)
+        ->and($shop->stats->number_products)->toBe(2)
+        ->and($shop->stats->number_products_type_service)->toBe(1)
+
         ->and($product->stats->number_historic_outers)->toBe(0);
 
     return $product;

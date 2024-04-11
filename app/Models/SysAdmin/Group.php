@@ -18,6 +18,7 @@ use App\Models\Goods\TradeUnit;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\Mail\Mailroom;
+use App\Models\Market\Product;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
@@ -69,6 +70,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $josPositions
  * @property-read \App\Models\Media\Media|null $logo
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Mailroom> $mailrooms
+ * @property-read \App\Models\SysAdmin\GroupMarketStats|null $marketStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $organisations
@@ -260,4 +262,15 @@ class Group extends Model implements HasMedia
     {
         return $this->hasMany(Payment::class);
     }
+
+    public function marketStats(): HasOne
+    {
+        return $this->hasOne(GroupMarketStats::class);
+    }
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
+
 }

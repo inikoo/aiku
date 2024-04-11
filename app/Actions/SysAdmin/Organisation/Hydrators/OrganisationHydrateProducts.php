@@ -5,36 +5,36 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Market\Shop\Hydrators;
+namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTypeEnum;
 use App\Models\Market\Product;
-use App\Models\Market\Shop;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShopHydrateProducts
+class OrganisationHydrateProducts
 {
     use AsAction;
     use WithEnumStats;
-    private Shop $shop;
+    private Organisation $organisation;
 
-    public function __construct(Shop $shop)
+    public function __construct(Organisation $organisation)
     {
-        $this->shop = $shop;
+        $this->organisation = $organisation;
     }
 
     public function getJobMiddleware(): array
     {
-        return [(new WithoutOverlapping($this->shop->id))->dontRelease()];
+        return [(new WithoutOverlapping($this->organisation->id))->dontRelease()];
     }
-    public function handle(Shop $shop): void
+    public function handle(Organisation $organisation): void
     {
 
         $stats         = [
-            'number_products' => $shop->products->count(),
+            'number_products' => $organisation->products()->count(),
         ];
 
         $stats = array_merge(
@@ -44,8 +44,8 @@ class ShopHydrateProducts
                 field: 'state',
                 enum: ProductStateEnum::class,
                 models: Product::class,
-                where: function ($q) use ($shop) {
-                    $q->where('shop_id', $shop->id);
+                where: function ($q) use ($organisation) {
+                    $q->where('organisation_id', $organisation->id);
                 }
             )
         );
@@ -57,14 +57,14 @@ class ShopHydrateProducts
                 field: 'type',
                 enum: ProductTypeEnum::class,
                 models: Product::class,
-                where: function ($q) use ($shop) {
-                    $q->where('shop_id', $shop->id);
+                where: function ($q) use ($organisation) {
+                    $q->where('organisation_id', $organisation->id);
                 }
             )
         );
 
 
-        $shop->stats()->update($stats);
+        $organisation->marketStats()->update($stats);
     }
 
 }
