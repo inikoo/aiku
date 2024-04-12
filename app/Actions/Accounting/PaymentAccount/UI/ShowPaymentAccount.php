@@ -68,7 +68,7 @@ class ShowPaymentAccount extends OrgAction
     public function htmlResponse(PaymentAccount $paymentAccount, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Accounting/PaymentAccount',
+            'Org/Accounting/PaymentAccount',
             [
                 'title'       => $paymentAccount->name,
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -88,7 +88,7 @@ class ShowPaymentAccount extends OrgAction
                     'title'  => $paymentAccount->slug,
                     'create' => $this->canEdit
                     && (
-                        $request->route()->getName() == 'grp.org.accounting.payment-service-providers.show.payment-accounts.show' or
+                        $request->route()->getName() == 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show' or
                         $request->route()->getName() == 'grp.org.accounting.payment-accounts.show'
                     ) ? [
                         'route' => [
@@ -102,8 +102,8 @@ class ShowPaymentAccount extends OrgAction
                             'name'     => trans_choice('payment | payments', $paymentAccount->stats->number_payments),
                             'number'   => $paymentAccount->stats->number_payments,
                             'href'     => match ($request->route()->getName()) {
-                                'grp.org.accounting.payment-service-providers.show.payment-accounts.show' => [
-                                    'name'       => 'grp.org.accounting.payment-service-providers.show.payment-accounts.show.payments.index',
+                                'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show' => [
+                                    'name'       => 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show.payments.index',
                                     'parameters' => [$paymentAccount->paymentServiceProvider->slug, $paymentAccount->slug]
                                 ],
                                 default => [
@@ -232,18 +232,18 @@ class ShowPaymentAccount extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.accounting.payment-service-providers.show.payment-accounts.show' =>
+            'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show' =>
             array_merge(
                 ShowPaymentServiceProvider::make()->getBreadcrumbs($routeParameters['paymentServiceProvider']),
                 $headCrumb(
                     $paymentAccount,
                     [
                         'index' => [
-                            'name'       => 'grp.org.accounting.payment-service-providers.show.payment-accounts.index',
+                            'name'       => 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.index',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'grp.org.accounting.payment-service-providers.show.payment-accounts.show',
+                            'name'       => 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show',
                             'parameters' => $routeParameters
                         ]
                     ],
@@ -286,7 +286,7 @@ class ShowPaymentAccount extends OrgAction
 
                 ]
             ],
-            'grp.org.accounting.payment-service-providers.show.payment-accounts.show' => [
+            'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show' => [
                 'label' => $paymentAccount->name,
                 'route' => [
                     'name'       => $routeName,

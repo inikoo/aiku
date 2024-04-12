@@ -34,7 +34,7 @@ class CreatePaymentServiceProvider extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.org.accounting.payment-service-providers.index',
+                                'name'       => 'grp.org.accounting.org-payment-service-providers.index',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]

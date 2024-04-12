@@ -181,7 +181,7 @@ class IndexPayments extends OrgAction
         $routeParameters = $request->route()->originalParameters();
 
         return Inertia::render(
-            'Accounting/Payments',
+            'Org/Accounting/Payments',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $routeName,
@@ -237,14 +237,14 @@ class IndexPayments extends OrgAction
                 ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
                 $headCrumb()
             ),
-            'grp.org.accounting.payment-service-providers.show.payments.index' =>
+            'grp.org.accounting.org-payment-service-providers.show.payments.index' =>
             array_merge(
                 (new ShowOrgPaymentServiceProvider())->getBreadcrumbs($routeParameters['OrgPaymentServiceProvider']),
                 $headCrumb()
             ),
-            'grp.org.accounting.payment-service-providers.show.payment-accounts.show.payments.index' =>
+            'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show.payments.index' =>
             array_merge(
-                (new ShowPaymentAccount())->getBreadcrumbs('grp.org.accounting.payment-service-providers.show.payment-accounts.show', $routeParameters),
+                (new ShowPaymentAccount())->getBreadcrumbs('grp.org.accounting.org-payment-service-providers.show.payment-accounts.show', $routeParameters),
                 $headCrumb()
             ),
 

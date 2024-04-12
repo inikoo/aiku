@@ -145,7 +145,7 @@ class IndexInvoices extends OrgAction
         $routeParameters = $request->route()->originalParameters();
 
         return Inertia::render(
-            'Accounting/Invoices',
+            'Org/Accounting/Invoices',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $routeName,
