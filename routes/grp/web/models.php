@@ -6,6 +6,8 @@
  */
 
 
+use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
+use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\CRM\Prospect\ImportShopProspects;
@@ -102,6 +104,9 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('/product/', StorePhysicalGood::class)->name('product.store');
     Route::patch('/product/{product:id}', UpdateProduct::class)->name('product.update');
     Route::delete('/product/{product:id}', UpdateProduct::class)->name('product.delete');
+
+    Route::patch('/payment-account/{paymentAccount:id}', UpdatePaymentAccount::class)->name('payment-account.update');
+    Route::post('/payment-account', StorePaymentAccount::class)->name('payment-account.store');
 });
 
 Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->group(function () {
@@ -220,7 +225,6 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
     Route::post('', [StoreWebUser::class,'inCustomer'])->name('web-user.store');
 });
 
-
 /*
 
 
@@ -327,9 +331,6 @@ Route::patch('/provider/{paymentServiceProvider:id}', UpdatePaymentServiceProvid
 Route::delete('/provider/{paymentServiceProvider:id}', DeletePaymentServiceProvider::class)->name('payment-service-provider.delete');
 
 Route::patch('/payment/{payment:id}', UpdatePayment::class)->name('payment.update');
-
-Route::patch('/payment-account/{paymentAccount:id}', UpdatePaymentAccount::class)->name('payment-account.update');
-Route::post('/payment-account', StorePaymentAccount::class)->name('payment-account.store');
 
 Route::patch('/user/{user:id}', UpdateUser::class)->name('user.update');
 

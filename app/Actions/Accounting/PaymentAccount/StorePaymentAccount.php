@@ -16,20 +16,29 @@ use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentAccount;
+use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StorePaymentAccount extends OrgAction
 {
-    public function handle(OrgPaymentServiceProvider $orgPaymentServiceProvider, array $modelData): PaymentAccount
+    public OrgPaymentServiceProvider|PaymentServiceProvider $parent;
+
+    public function handle(OrgPaymentServiceProvider|PaymentServiceProvider $parent, array $modelData): PaymentAccount
     {
-        data_set($modelData, 'group_id', $orgPaymentServiceProvider->group_id);
-        data_set($modelData, 'organisation_id', $orgPaymentServiceProvider->organisation_id);
-        data_set($modelData, 'payment_service_provider_id', $orgPaymentServiceProvider->payment_service_provider_id);
+        data_set($modelData, 'group_id', $parent->group_id);
+        data_set($modelData, 'organisation_id', $parent->organisation_id);
+
+        if($parent instanceof OrgPaymentServiceProvider) {
+            data_set($modelData, 'payment_service_provider_id', $parent->payment_service_provider_id);
+        }
+
         /** @var PaymentAccount $paymentAccount */
-        $paymentAccount = $orgPaymentServiceProvider->accounts()->create($modelData);
+        $paymentAccount = $parent->accounts()->create($modelData);
         $paymentAccount->stats()->create();
 
         if($paymentAccount->type==PaymentAccountTypeEnum::ACCOUNT) {
@@ -42,10 +51,10 @@ class StorePaymentAccount extends OrgAction
             );
         }
 
-        PaymentServiceProviderHydratePaymentAccounts::dispatch($orgPaymentServiceProvider->paymentServiceProvider);
-        OrganisationHydratePaymentAccounts::dispatch($orgPaymentServiceProvider->organisation);
-        GroupHydratePaymentAccounts::dispatch($orgPaymentServiceProvider->group);
-        OrgPaymentServiceProviderHydratePaymentAccounts::dispatch($orgPaymentServiceProvider);
+        PaymentServiceProviderHydratePaymentAccounts::dispatch($parent->paymentServiceProvider);
+        OrganisationHydratePaymentAccounts::dispatch($parent->organisation);
+        GroupHydratePaymentAccounts::dispatch($parent->group);
+        OrgPaymentServiceProviderHydratePaymentAccounts::dispatch($parent);
 
 
 
@@ -58,7 +67,7 @@ class StorePaymentAccount extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("accounting.edit");
+        return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
     }
 
     public function rules(): array
@@ -80,6 +89,42 @@ class StorePaymentAccount extends OrgAction
             'is_accounts'=> ['sometimes', 'boolean'],
             'source_id'  => ['sometimes', 'string'],
         ];
+    }
+
+    public function asController(Organisation $organisation, ActionRequest $request): PaymentAccount
+    {
+        $this->asAction = true;
+
+        $this->fillFromRequest($request);
+        $this->initialisation($organisation, $request);
+
+        /** @var PaymentServiceProvider $paymentServiceProvider */
+        $paymentServiceProvider = $organisation
+            ->paymentServiceProviders()
+            ->where('code', $organisation->slug.'-'.Str::replace('-', '', $request->input('type')))
+            ->first();
+
+        return $this->handle($paymentServiceProvider, $this->validatedData);
+    }
+
+    public function asPaymentServiceProvider(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): PaymentAccount
+    {
+        $this->asAction = true;
+
+        $this->fillFromRequest($request);
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($paymentServiceProvider, $this->validatedData);
+    }
+
+    public function asOrgPaymentServiceProvider(Organisation $organisation, OrgPaymentServiceProvider $orgPaymentServiceProvider, ActionRequest $request): PaymentAccount
+    {
+        $this->asAction = true;
+
+        $this->fillFromRequest($request);
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($orgPaymentServiceProvider, $this->validatedData);
     }
 
     public function action(OrgPaymentServiceProvider $orgPaymentServiceProvider, array $modelData): PaymentAccount
