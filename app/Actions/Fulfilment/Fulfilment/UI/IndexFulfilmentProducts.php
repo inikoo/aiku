@@ -9,9 +9,11 @@ namespace App\Actions\Fulfilment\Fulfilment\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Enums\Market\Product\ProductStateEnum;
+use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\UI\Fulfilment\FulfilmentProductsTabsEnum;
-use App\Http\Resources\Market\ProductsResource;
+use App\Http\Resources\Market\FulfilmentProductsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Product;
@@ -28,6 +30,37 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexFulfilmentProducts extends OrgAction
 {
+    protected function getElementGroups(Fulfilment $parent): array
+    {
+
+        return [
+            'type' => [
+                'label'    => __('Type'),
+                'elements' => array_merge_recursive(
+                    ProductTypeEnum::labels($parent->shop),
+                    ProductTypeEnum::count($parent->shop)
+                ),
+
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('type', $elements);
+                }
+
+            ],
+            'state' => [
+                'label'    => __('State'),
+                'elements' => array_merge_recursive(
+                    ProductStateEnum::labels(),
+                    ProductStateEnum::count($parent->shop)
+                ),
+
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('state', $elements);
+                }
+
+            ],
+        ];
+    }
+
     public function handle(Fulfilment $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -45,8 +78,8 @@ class IndexFulfilmentProducts extends OrgAction
         $queryBuilder->where('products.shop_id', $parent->shop_id);
 
 
-        /*
-        foreach ($this->elementGroups as $key => $elementGroup) {
+
+        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
@@ -54,7 +87,7 @@ class IndexFulfilmentProducts extends OrgAction
                 prefix: $prefix
             );
         }
-        */
+
 
 
         $queryBuilder
@@ -63,6 +96,7 @@ class IndexFulfilmentProducts extends OrgAction
                 'products.code',
                 'products.name',
                 'products.state',
+                'products.type',
                 'products.created_at',
                 'products.updated_at',
                 'products.slug'
@@ -117,8 +151,8 @@ class IndexFulfilmentProducts extends OrgAction
 
 
                 FulfilmentProductsTabsEnum::PRODUCTS->value => $this->tab == FulfilmentProductsTabsEnum::PRODUCTS->value ?
-                    fn () => ProductsResource::collection($products)
-                    : Inertia::lazy(fn () => ProductsResource::collection($products)),
+                    fn () => FulfilmentProductsResource::collection($products)
+                    : Inertia::lazy(fn () => FulfilmentProductsResource::collection($products)),
 
 
             ]
@@ -140,6 +174,15 @@ class IndexFulfilmentProducts extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix . 'Page');
             }
+
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
+
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
@@ -153,16 +196,18 @@ class IndexFulfilmentProducts extends OrgAction
                     }
                 );
 
-            $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+            $table
+                ->column(key: 'type', label: '', canBeHidden: false)
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }
 
 
-    public function jsonResponse(Fulfilment $fulfilment): ProductsResource
+    public function jsonResponse(Fulfilment $fulfilment): FulfilmentProductsResource
     {
-        return new ProductsResource($fulfilment);
+        return new FulfilmentProductsResource($fulfilment);
     }
 
 

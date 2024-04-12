@@ -59,8 +59,7 @@ class IndexEmployees extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('employees.contact_name', $value)
-                    ->orWhere('employees.slug', 'ILIKE', "$value%");
+                $query->whereAnyWordStartWith('employees.contact_name', $value);
             });
         });
 

@@ -8,6 +8,7 @@
 namespace App\Enums\Market\Product;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\Market\Shop;
 
 enum ProductStateEnum: string
 {
@@ -70,6 +71,17 @@ enum ProductStateEnum: string
                     'name' => 'times',
                 ]
             ],
+        ];
+    }
+
+    public static function count(Shop $parent): array
+    {
+        $stats=$parent->stats;
+        return [
+            'in-process'                  => $stats->number_products_state_in_process,
+            'active'                      => $stats->number_products_state_active,
+            'discontinuing'               => $stats->number_products_state_discontinuing,
+            'discontinued'                => $stats->number_products_state_discontinued
         ];
     }
 

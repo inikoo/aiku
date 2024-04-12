@@ -8,6 +8,13 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Product} from "@/types/product";
+import Icon from "@/Components/Icon.vue";
+import {library} from "@fortawesome/fontawesome-svg-core";
+import { faConciergeBell,faGarage} from '@fal'
+
+library.add( faConciergeBell,faGarage )
+
+
 
 const props = defineProps<{
     data: object
@@ -52,6 +59,12 @@ function productRoute(product: Product) {
                 {{ product['shop_slug'] }}
             </Link>
         </template>
+
+
+
+      <template #cell(type)="{ item: product }">
+        <Icon :data="product['type_icon']" />   <Icon :data="product['state_icon']"  />
+      </template>
     </Table>
 </template>
 

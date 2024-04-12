@@ -32,11 +32,11 @@ class FulfilmentProductsResource extends JsonResource
             'code'               => $this->code,
             'name'               => $this->name,
             'state'              => $this->state,
-            'state_label'        => $product->state->labels()[$palletDelivery->state->value],
-            'state_icon'         => $product->state->stateIcon()[$palletDelivery->state->value],
+            'state_label'        => $product->state->labels()[$product->state->value],
+            'state_icon'         => $product->state->stateIcon()[$product->state->value],
             'type'               => $this->type,
-            'state_label'        => $product->type->labels()[$palletDelivery->state->value],
-            'state_icon'         => $product->type->stateIcon()[$palletDelivery->state->value],
+            'type_label'         => $product->type->labels()[$product->type->value],
+            'type_icon'          => $product->type->stateIcon()[$product->type->value],
 
 
 
