@@ -29,6 +29,7 @@ use App\Models\Helpers\Issue;
 use App\Models\Helpers\SerialReference;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Mail\Outbox;
+use App\Models\Mail\SenderEmail;
 use App\Models\Marketing\OfferCampaign;
 use App\Models\OMS\Order;
 use App\Models\Search\UniversalSearch;
@@ -95,6 +96,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Country $country
  * @property-read \App\Models\Market\ShopCRMStats|null $crmStats
  * @property-read Currency $currency
+ * @property-read SenderEmail $senderEmail
  * @property-read Collection<int, Customer> $customers
  * @property-read Fulfilment|null $fulfilment
  * @property-read Group $group
@@ -327,6 +329,11 @@ class Shop extends Model
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    public function senderEmail(): BelongsTo
+    {
+        return $this->belongsTo(SenderEmail::class);
     }
 
 

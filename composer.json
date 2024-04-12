@@ -18,10 +18,12 @@
         "ext-simplexml": "*",
         "ext-soap": "*",
         "ext-zlib": "*",
+        "alibabacloud/dm-20151123": "^1.0",
         "aws/aws-php-sns-message-validator": "^1.8",
         "aws/aws-sdk-php": "^3.255",
         "aws/aws-sdk-php-laravel": "^3.8",
         "carlos-meneses/laravel-mpdf": "^2.1",
+        "checkout/checkout-sdk-php": "3.1.0",
         "commerceguys/addressing": "^1.4",
         "commerceguys/intl": "^1.1",
         "doctrine/dbal": "^3.5",
@@ -68,8 +70,7 @@
         "tightenco/ziggy": "^1.0",
         "vemcogroup/laravel-translation": "^3.0",
         "vlucas/phpdotenv": "^5.4",
-        "xendit/xendit-php": "^5.0",
-        "checkout/checkout-sdk-php": "3.1.0"
+        "xendit/xendit-php": "^5.0"
     },
     "require-dev": {
         "amphibee/laravel-pint-pre-commit": "^1.5",

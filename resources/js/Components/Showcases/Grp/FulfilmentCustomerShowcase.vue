@@ -100,27 +100,9 @@ const onFetchWebhook = async () => {
     </div> -->
 
     <!-- Section: Stats box -->
-    <div class="px-4 py-5 md:px-6 lg:px-8 grid grid-cols-2 gap-x-8 gap-y-3">
+    <div class="px-4 py-5 md:px-6 lg:px-8 grid grid-cols-1 gap-x-8 gap-y-3">
         <!-- Section: Radio -->
         <TabSelector :optionRadio="optionRadio" :radioValue="radioValue" :updateRoute="data.updateRoute"/>
-
-        <!-- Section: Webhook -->
-        <div class="flex justify-center flex-col">
-            <div class="whitespace-nowrap text-gray-500">The webhook: </div>
-            <div v-if="webhookValue" class="bg-white border border-gray-300 flex items-center justify-between mx-auto rounded-md md:w-full md:max-w-2xl ">
-                <a :href="data.webhook.domain + webhookValue + '?type=human'" target="_blank" class="truncate pl-4 md:pl-5 inline-block py-2 text-xxs md:text-base text-gray-400 w-full" v-tooltip="'Click to visit link'">
-                    {{ data.webhook.domain + webhookValue + '?type=human' }}
-                </a>
-
-                <div @click="() => onFetchWebhook()" class="cursor-pointer h-full aspect-square flex justify-center items-center">
-                    <FontAwesomeIcon icon='fal fa-sync' class='text-gray-400 hover:text-gray-600' :class="isWebhookLoading ? 'animate-spin' : ''" aria-hidden='true' />
-                </div>
-
-                <Button :style="'tertiary'" icon='far fa-link' class="" size="l" @click="useCopyText(data.webhook.domain + webhookValue + '?type=human')" tooltip="Copy url to clipboard" />
-            </div>
-
-            <Button v-else label="Click to retrieve webhook" :loading="isWebhookLoading" @click="() => onFetchWebhook()" />
-        </div>
 
         <!-- Section: Profile box -->
         <div v-if="props.data.fulfilment_customer.radioTabs.dropshipping" class="">

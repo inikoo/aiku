@@ -31,6 +31,7 @@ enum CustomerFulfilmentTabsEnum: string
     case DISPATCHED_EMAILS = 'dispatched_emails';
 
     case WEB_USERS = 'web_users';
+    case WEBHOOK   = 'webhook';
 
 
     public function blueprint(): array
@@ -83,6 +84,12 @@ enum CustomerFulfilmentTabsEnum: string
                 'title' => __('users'),
                 'icon'  => 'fal fa-globe',
                 'type'  => 'icon',
+            ],
+            CustomerFulfilmentTabsEnum::WEBHOOK => [
+                'align' => 'right',
+                'type'  => 'icon',
+                'title' => __('webhook'),
+                'icon'  => 'fal fa-network-wired',
             ],
             CustomerFulfilmentTabsEnum::SHOWCASE => [
                 'title' => __('customer'),

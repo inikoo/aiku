@@ -139,6 +139,11 @@ class ShowFulfilmentCustomer extends OrgAction
                     : Inertia::lazy(fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)),
 
 
+                CustomerFulfilmentTabsEnum::WEBHOOK->value => $this->tab == CustomerFulfilmentTabsEnum::WEBHOOK->value ?
+                    fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)
+                    : Inertia::lazy(fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)),
+
+
                 CustomerFulfilmentTabsEnum::PALLETS->value => $this->tab == CustomerFulfilmentTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPallets::run($fulfilmentCustomer))
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($fulfilmentCustomer))),

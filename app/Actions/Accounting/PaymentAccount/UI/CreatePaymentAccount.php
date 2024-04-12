@@ -7,15 +7,17 @@
 
 namespace App\Actions\Accounting\PaymentAccount\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
+use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
-class CreatePaymentAccount extends InertiaAction
+class CreatePaymentAccount extends OrgAction
 {
     private Shop|Organisation|PaymentServiceProvider $parent;
     public function handle(): Response
@@ -34,7 +36,7 @@ class CreatePaymentAccount extends InertiaAction
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'grp.org.accounting.payment-accounts.index',
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'parameters' => array_values(request()->route()->originalParameters())
                             ],
                         ]
                     ]
@@ -54,11 +56,35 @@ class CreatePaymentAccount extends InertiaAction
                                     'label'    => __('name'),
                                     'required' => true
                                 ],
+                                'type' => [
+                                    'type'     => 'select',
+                                    'label'    => __('Payment Provider'),
+                                    'required' => true,
+                                    'options'  => Options::forEnum(PaymentAccountTypeEnum::class)
+                                ],
+                                'checkout_access_key' => [
+                                    'type'     => 'input',
+                                    'label'    => __('access key'),
+                                    'required' => true
+                                ],
+                                'checkout_secret_key' => [
+                                    'type'     => 'input',
+                                    'label'    => __('secret key'),
+                                    'required' => true
+                                ],
+                                'checkout_channel_id' => [
+                                    'type'     => 'input',
+                                    'label'    => __('channel id'),
+                                    'required' => true
+                                ]
                             ]
                         ]
                     ],
                     'route'      => [
-                        'name'       => 'grp.models.payment-account.store'
+                        'name'       => 'grp.models.org.payment-account.store',
+                        'parameters' => [
+                            'organisation' => $this->organisation->id
+                        ]
                     ]
                 ],
 
@@ -69,14 +95,22 @@ class CreatePaymentAccount extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('accounting.edit');
+        if ($this->parent instanceof Organisation) {
+            return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
+        } elseif ($this->parent instanceof Shop) {
+            //todo think about it
+            return false;
+        }
+
+        return false;
     }
 
 
-    public function asController(ActionRequest $request): Response
+    public function asController(Organisation $organisation, ActionRequest $request): Response
     {
-        $this->initialisation($request);
-        $this->parent = app('currentTenant');
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request);
+
         return $this->handle();
     }
 

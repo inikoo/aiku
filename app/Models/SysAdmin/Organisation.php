@@ -14,6 +14,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
+use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
@@ -325,6 +326,11 @@ class Organisation extends Model implements HasMedia
     public function orgPaymentServiceProviders(): HasMany
     {
         return $this->hasMany(OrgPaymentServiceProvider::class);
+    }
+
+    public function paymentServiceProviders(): HasMany
+    {
+        return $this->hasMany(PaymentServiceProvider::class);
     }
 
     public function paymentAccounts(): HasMany
