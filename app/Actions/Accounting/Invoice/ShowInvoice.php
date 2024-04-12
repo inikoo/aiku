@@ -82,7 +82,7 @@ class ShowInvoice extends OrgAction
 
 
         return Inertia::render(
-            'Accounting/Invoice',
+            'Org/Accounting/Invoice',
             [
                 'title'                                 => __('invoice'),
                 'breadcrumbs'                           => $this->getBreadcrumbs($invoice),

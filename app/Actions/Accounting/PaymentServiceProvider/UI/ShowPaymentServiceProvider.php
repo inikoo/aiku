@@ -80,7 +80,7 @@ class ShowPaymentServiceProvider extends OrgAction
                              'type'  => 'button',
                              'style' => 'delete',
                              'route' => [
-                                 'name'       => 'grp.org.accounting.payment-service-providers.remove',
+                                 'name'       => 'grp.org.accounting.org-payment-service-providers.remove',
                                  'parameters' => array_values($request->route()->originalParameters())
                              ]
                          ] : false
@@ -90,7 +90,7 @@ class ShowPaymentServiceProvider extends OrgAction
                             'name'     => trans_choice('account | accounts', $paymentServiceProvider->stats->number_payment_accounts),
                             'number'   => $paymentServiceProvider->stats->number_payment_accounts,
                             'href'     => [
-                                'name'       => 'grp.org.accounting.payment-service-providers.show.payment-accounts.index',
+                                'name'       => 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.index',
                                 'parameters' => [
                                     $this->organisation->slug,
                                     $paymentServiceProvider->slug
@@ -105,7 +105,7 @@ class ShowPaymentServiceProvider extends OrgAction
                             'name'     => trans_choice('payment | payments', $paymentServiceProvider->stats->number_payments),
                             'number'   => $paymentServiceProvider->stats->number_payments,
                             'href'     => [
-                                'name'       => 'grp.org.accounting.payment-service-providers.show.payments.index',
+                                'name'       => 'grp.org.accounting.org-payment-service-providers.show.payments.index',
                                 'parameters' => [
                                     $this->organisation->slug,
                                     $paymentServiceProvider->slug
@@ -166,7 +166,7 @@ class ShowPaymentServiceProvider extends OrgAction
                     modelOperations: [
                         'createLink' => $this->canEdit ? [
                             'route' => [
-                                'name'       => 'grp.org.accounting.payment-service-providers.show.payments.create',
+                                'name'       => 'grp.org.accounting.org-payment-service-providers.show.payments.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                             'label' => __('payment')
@@ -181,7 +181,7 @@ class ShowPaymentServiceProvider extends OrgAction
                     //            modelOperations: [
                     //                'createLink' => $this->canEdit ? [
                     //                    'route' => [
-                    //                        'name'       => 'grp.org.accounting.payment-service-providers.show.payment-accounts.create',
+                    //                        'name'       => 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.create',
                     //                        'parameters' => array_values($request->route()->originalParameters())
                     //                    ],
                     //                    'label' => __('payment account')
@@ -210,14 +210,14 @@ class ShowPaymentServiceProvider extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name'       => 'grp.org.accounting.payment-service-providers.index',
+                                'name'       => 'grp.org.accounting.org-payment-service-providers.index',
                                 'parameters' => Arr::only($routeParameters, 'organisation')
                             ],
                             'label' => __('providers')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.org.accounting.payment-service-providers.show',
+                                'name'       => 'grp.org.accounting.org-payment-service-providers.show',
                                 'parameters' => $routeParameters
                             ],
                             'label' => $paymentServiceProvider->slug,

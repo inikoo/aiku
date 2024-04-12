@@ -71,7 +71,7 @@ class ShowAccountingDashboard extends OrgAction
         $parameters = $request->route()->originalParameters();
 
         return Inertia::render(
-            'Accounting/AccountingDashboard',
+            'Org/Accounting/AccountingDashboard',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -146,7 +146,7 @@ class ShowAccountingDashboard extends OrgAction
                                         'icon'       => ['fal', 'fa-cash-register'],
                                         'labelStyle' => 'bordered',
                                         'href'       => [
-                                            'name'       => 'grp.org.accounting.payment-service-providers.index',
+                                            'name'       => 'grp.org.accounting.org-payment-service-providers.index',
                                             'parameters' => $parameters
                                         ],
 

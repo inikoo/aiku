@@ -38,7 +38,7 @@ class FetchAuroraPaymentAccount extends FetchAurora
             dd($this->auroraModelData->{'Payment Account Block'});
         }
 
-        $this->parsedData['paymentServiceProvider'] = $this->parsePaymentServiceProvider($this->organisation->id.':'.$this->auroraModelData->{'Payment Account Service Provider Key'});
+        $this->parsedData['paymentServiceProvider'] = $this->parseOrgPaymentServiceProvider($this->organisation->id.':'.$this->auroraModelData->{'Payment Account Service Provider Key'});
 
 
         $code = $this->auroraModelData->{'Payment Account Code'};
