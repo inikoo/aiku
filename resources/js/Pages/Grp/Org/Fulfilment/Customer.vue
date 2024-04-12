@@ -35,6 +35,7 @@ import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue
 
 import { faStickyNote, faPallet, faUser, faNarwhal, faTruckCouch, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading } from '@fal'
 import { notify } from '@kyvg/vue3-notification'
+import FulfilmentCustomerWebhook from "@/Components/Showcases/Grp/FulfilmentCustomerWebhook.vue";
 library.add( faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading )
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
@@ -55,6 +56,7 @@ const props = defineProps<{
     pallet_deliveries?: {}
     pallet_returns?: {}
     web_users?: {}
+    webhook?: {}
 }>()
 
 let currentTab = ref(props.tabs.current)
@@ -73,7 +75,8 @@ const component = computed(() => {
         details: ModelDetails,
         history: ModelChangelog,
         dispatched_emails: TableDispatchedEmails,
-        web_users: TableWebUsers
+        web_users: TableWebUsers,
+        webhook: FulfilmentCustomerWebhook
     }
 
     return components[currentTab.value]

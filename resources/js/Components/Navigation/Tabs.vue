@@ -9,10 +9,10 @@ import {ref} from "vue";
 import {capitalize} from "@/Composables/capitalize"
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
 import {faInfoCircle, faPallet} from '@fas'
- import {faRoad, faClock, faDatabase} from '@fal'
+import {faRoad, faClock, faDatabase, faNetworkWired} from '@fal'
  import {library} from '@fortawesome/fontawesome-svg-core'
 
- library.add(faInfoCircle, faRoad, faClock, faDatabase, faPallet)
+ library.add(faInfoCircle, faRoad, faClock, faDatabase, faPallet, faNetworkWired)
 
 
 const props = defineProps<{
