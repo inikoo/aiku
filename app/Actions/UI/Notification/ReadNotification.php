@@ -8,7 +8,7 @@
 namespace App\Actions\UI\Notification;
 
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\Notification;
+use App\Models\Notifications\Notification;
 
 class ReadNotification
 {

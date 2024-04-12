@@ -9,7 +9,7 @@ namespace App\Actions\Fulfilment\Proforma;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\FulfilmentProforma;
+use App\Models\Fulfilment\FulfilmentProforma;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateProforma extends OrgAction

@@ -8,7 +8,6 @@
 namespace App\Models\Procurement;
 
 use App\Enums\Procurement\AgentOrganisation\AgentOrganisationStatusEnum;
-use App\Models\OrgAgentStats;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;

@@ -1,6 +1,11 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 12 Apr 2024 14:13:19 Central Indonesia Time, Sanur , Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Models;
+namespace App\Models\Notifications;
 
 use Illuminate\Database\Eloquent\Model;
 

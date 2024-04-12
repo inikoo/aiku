@@ -1,21 +1,20 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 08 Apr 2024 10:51:08 Central Indonesia Time, Bali Office , Indonesia
+ * Created: Fri, 12 Apr 2024 14:12:39 Central Indonesia Time, Sanur , Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models;
+namespace App\Models\Market;
 
-use App\Models\Market\Outer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\OuterSalesStats
+ * App\Models\Market\ShopSalesStats
  *
  * @property int $id
- * @property int $outer_id
+ * @property int $product_id
  * @property int $number_orders
  * @property int $number_orders_state_creating
  * @property int $number_orders_state_submitted
@@ -137,18 +136,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Outer $outer
- * @method static \Illuminate\Database\Eloquent\Builder|OuterSalesStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OuterSalesStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OuterSalesStats query()
+ * @property-read Product $product
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductSalesStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductSalesStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductSalesStats query()
  * @mixin \Eloquent
  */
-class OuterSalesStats extends Model
+class ProductSalesStats extends Model
 {
     protected $guarded = [];
 
-    public function outer(): BelongsTo
+    public function product(): BelongsTo
     {
-        return $this->belongsTo(Outer::class);
+        return $this->belongsTo(Product::class);
     }
 }

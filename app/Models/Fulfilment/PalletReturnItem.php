@@ -1,10 +1,13 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 12 Apr 2024 14:12:20 Central Indonesia Time, Sanur , Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Models;
+namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\PalletReturn\PalletReturnItemStateEnum;
-use App\Models\Fulfilment\Pallet;
-use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 

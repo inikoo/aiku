@@ -1,21 +1,26 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 03 Apr 2024 22:56:30 Central Indonesia Time, Sanur , Indonesia
+ * Created: Fri, 12 Apr 2024 14:11:39 Central Indonesia Time, Sanur , Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models;
+namespace App\Models\Procurement;
 
-use App\Models\Procurement\OrgSupplier;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\OrgSupplierStats
+ * App\Models\OrgAgentStats
  *
  * @property int $id
- * @property int $org_supplier_id
+ * @property int $org_agent_id
+ * @property int $number_suppliers Active + Archived  suppliers
+ * @property int $number_active_suppliers Active suppliers, status=true
+ * @property int $number_archived_suppliers Archived suppliers status=false
+ * @property int $number_suppliers_in_agents Active + Archived suppliers
+ * @property int $number_active_suppliers_in_agents Active suppliers, status=true
+ * @property int $number_archived_suppliers_in_agents Archived suppliers status=false
  * @property int $number_supplier_products Number supplier products (all excluding discontinued)
  * @property int $number_supplier_deliveries Number supplier deliveries (all excluding discontinued)
  * @property int $supplier_products_count Number supplier products
@@ -54,20 +59,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_supplier_deliveries_status_settled_cancelled
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read OrgSupplier $orgSupplier
- * @method static \Illuminate\Database\Eloquent\Builder|OrgSupplierStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgSupplierStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgSupplierStats query()
+ * @property-read OrgAgent $orgAgent
+ * @method static \Illuminate\Database\Eloquent\Builder|OrgAgentStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrgAgentStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|OrgAgentStats query()
  * @mixin \Eloquent
  */
-class OrgSupplierStats extends Model
+class OrgAgentStats extends Model
 {
-    protected $table = 'org_supplier_stats';
+    protected $table = 'org_agent_stats';
 
     protected $guarded = [];
 
-    public function orgSupplier(): BelongsTo
+    public function orgAgent(): BelongsTo
     {
-        return $this->belongsTo(OrgSupplier::class);
+        return $this->belongsTo(OrgAgent::class);
     }
 }

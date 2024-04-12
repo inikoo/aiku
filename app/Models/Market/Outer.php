@@ -8,7 +8,6 @@
 namespace App\Models\Market;
 
 use App\Enums\Market\Outer\OuterStateEnum;
-use App\Models\OuterSalesStats;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;

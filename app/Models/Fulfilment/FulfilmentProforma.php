@@ -1,16 +1,14 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 12 Apr 2024 14:11:16 Central Indonesia Time, Sanur , Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Models;
+namespace App\Models\Fulfilment;
 
-use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
-use App\Actions\Market\Shop\Hydrators\ShopHydrateInvoices;
 use App\Enums\Fulfilment\Proforma\ProformaTypeEnum;
-use App\Models\Accounting\Invoice;
-use App\Models\Accounting\InvoiceStats;
 use App\Models\Assets\Currency;
-use App\Models\CRM\Customer;
-use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\Pallet;
 use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
 use App\Models\OMS\Order;
@@ -24,7 +22,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Spatie\Sluggable\HasSlug;

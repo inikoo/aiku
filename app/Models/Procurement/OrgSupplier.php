@@ -7,7 +7,6 @@
 
 namespace App\Models\Procurement;
 
-use App\Models\OrgSupplierStats;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;

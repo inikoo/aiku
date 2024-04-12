@@ -8,12 +8,11 @@
 namespace App\Models\Market;
 
 use App\Enums\Market\Product\ProductStateEnum;
-use App\Enums\Market\Product\ProductUnitRelationshipType;
 use App\Enums\Market\Product\ProductTypeEnum;
+use App\Enums\Market\Product\ProductUnitRelationshipType;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Media\Media;
-use App\Models\ProductSalesStats;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -33,7 +32,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
-
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
