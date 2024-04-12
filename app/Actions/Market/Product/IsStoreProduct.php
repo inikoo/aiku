@@ -36,7 +36,7 @@ trait IsStoreProduct
         return $this->handle($parent, $this->validatedData, $skipHistoric);
     }
 
-    private function prepareProductForValidation()
+    private function prepareProductForValidation(): void
     {
         if($this->parent instanceof ProductCategory) {
             $this->fill(
@@ -64,7 +64,7 @@ trait IsStoreProduct
 
     }
 
-    private function getProductRules()
+    private function getProductRules(): array
     {
         $rules= [
             'code'        => [

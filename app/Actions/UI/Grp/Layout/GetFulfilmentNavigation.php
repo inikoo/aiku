@@ -36,9 +36,9 @@ class GetFulfilmentNavigation
                         [
                             'label'   => __('rent'),
                             'icon'    => ['fal', 'fa-garage'],
-                            'root'    => 'grp.org.fulfilments.show.products.rent.',
+                            'root'    => 'grp.org.fulfilments.show.products.rentals.',
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.products.rent.index',
+                                'name'       => 'grp.org.fulfilments.show.products.rentals.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ],
                         ],
