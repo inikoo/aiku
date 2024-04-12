@@ -32,7 +32,7 @@ class FetchPaymentAccounts extends FetchAction
             } else {
 
                 $paymentAccount = StorePaymentAccount::make()->action(
-                    paymentServiceProvider: $paymentAccountData['paymentServiceProvider'],
+                    orgPaymentServiceProvider: $paymentAccountData['paymentServiceProvider'],
                     modelData: $paymentAccountData['paymentAccount']
                 );
             }

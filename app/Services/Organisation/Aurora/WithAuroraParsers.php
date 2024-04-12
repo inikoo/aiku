@@ -36,9 +36,9 @@ use App\Actions\SourceFetch\Aurora\FetchWarehouses;
 use App\Actions\SourceFetch\Aurora\FetchWebsites;
 use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
 use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
+use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
-use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
@@ -430,15 +430,15 @@ trait WithAuroraParsers
         return $shipper;
     }
 
-    public function parsePaymentServiceProvider($sourceId): PaymentServiceProvider
+    public function parseOrgPaymentServiceProvider($sourceId): OrgPaymentServiceProvider
     {
-        $paymentServiceProvider = PaymentServiceProvider::where('source_id', $sourceId)->first();
-        if (!$paymentServiceProvider) {
-            $sourceData             = explode(':', $sourceId);
-            $paymentServiceProvider = FetchPaymentServiceProviders::run($this->organisationSource, $sourceData[1]);
+        $orgPaymentServiceProvider = OrgPaymentServiceProvider::where('source_id', $sourceId)->first();
+        if (!$orgPaymentServiceProvider) {
+            $sourceData                = explode(':', $sourceId);
+            $orgPaymentServiceProvider = FetchPaymentServiceProviders::run($this->organisationSource, $sourceData[1]);
         }
 
-        return $paymentServiceProvider;
+        return $orgPaymentServiceProvider;
     }
 
     public function parsePaymentAccount($sourceId): ?PaymentAccount
