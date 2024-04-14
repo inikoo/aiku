@@ -13,28 +13,26 @@ use App\Models\Accounting\Invoice;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchAuroraDeletedInvoices extends FetchAuroraAction
 {
     public string $commandSignature = 'fetch:deleted-invoices {organisations?*} {--s|source_id=}';
 
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Invoice
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Invoice
     {
         if ($deletedInvoiceData = $organisationSource->fetchDeletedInvoice($organisationSourceId)) {
             if ($deletedInvoiceData['invoice']) {
                 if ($invoice = Invoice::withTrashed()->where('source_id', $deletedInvoiceData['invoice']['source_id'])
                     ->first()) {
-                    $invoice = UpdateInvoice::run(
+                    $invoice = UpdateInvoice::make()->action(
                         invoice:   $invoice,
                         modelData: $deletedInvoiceData['invoice'],
                     );
                 } else {
-                    $invoice = StoreInvoice::make()->asFetch(
+                    $invoice = StoreInvoice::make()->action(
                         parent:              $deletedInvoiceData['parent'],
                         modelData:          $deletedInvoiceData['invoice'],
-                        billingAddress: $deletedInvoiceData['billing_address']
                     );
                 }
 
