@@ -7,8 +7,8 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Actions\SourceFetch\Aurora\FetchWarehouses;
-use App\Actions\SourceFetch\Aurora\FetchWarehouseAreas;
+use App\Actions\SourceFetch\Aurora\FetchAuroraWarehouses;
+use App\Actions\SourceFetch\Aurora\FetchAuroraWarehouseAreas;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraLocation extends FetchAurora
@@ -18,10 +18,10 @@ class FetchAuroraLocation extends FetchAurora
         $parent = null;
 
         if (is_numeric($this->auroraModelData->{'Location Warehouse Area Key'})) {
-            $parent = FetchWarehouseAreas::run($this->organisationSource, $this->auroraModelData->{'Location Warehouse Area Key'});
+            $parent = FetchAuroraWarehouseAreas::run($this->organisationSource, $this->auroraModelData->{'Location Warehouse Area Key'});
         }
         if (!$parent) {
-            $parent = FetchWarehouses::run($this->organisationSource, $this->auroraModelData->{'Location Warehouse Key'});
+            $parent = FetchAuroraWarehouses::run($this->organisationSource, $this->auroraModelData->{'Location Warehouse Key'});
         }
 
         $code=$this->auroraModelData->{'Location Code'};

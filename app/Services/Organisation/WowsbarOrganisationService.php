@@ -11,13 +11,12 @@ use App\Models\Dispatch\DeliveryNote;
 use App\Models\Helpers\Fetch;
 use App\Models\SysAdmin\Organisation;
 use App\Services\Organisation\Aurora\FetchAuroraCustomer;
-use App\Services\Organisation\Aurora\FetchAuroraEmployee;
 use App\Services\Organisation\Aurora\FetchAuroraProspect;
 use App\Services\Organisation\Aurora\FetchAuroraShop;
-use App\Services\Organisation\Aurora\FetchAuroraOrganisation;
 use App\Services\Organisation\Aurora\FetchAuroraWebpage;
 use App\Services\Organisation\Aurora\FetchAuroraWebsite;
 use App\Services\Organisation\Aurora\FetchAuroraWebUser;
+use App\Services\Organisation\Wowsbar\FetchWowsbarEmployee;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -44,12 +43,12 @@ class WowsbarOrganisationService implements SourceOrganisationService
 
     public function fetchOrganisation(Organisation $organisation): ?array
     {
-        return (new FetchAuroraOrganisation($this))->fetch();
+        return null;
     }
 
     public function fetchEmployee($id): ?array
     {
-        return (new FetchAuroraEmployee($this))->fetch($id);
+        return (new FetchWowsbarEmployee($this))->fetch($id);
     }
 
     public function fetchShop($id): ?array

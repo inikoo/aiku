@@ -30,14 +30,14 @@ class FetchModels
 
     #[NoReturn] public function handle(SourceOrganisationService $organisationSource): void
     {
-        FetchShippers::dispatch($organisationSource);
-        FetchShops::dispatch($organisationSource);
-        FetchEmployees::dispatch($organisationSource);
+        FetchAuroraShippers::dispatch($organisationSource);
+        FetchAuroraShops::dispatch($organisationSource);
+        FetchAuroraEmployees::dispatch($organisationSource);
         Bus::chain([
-                       FetchWarehouses::makeJob($organisationSource),
-                       FetchWarehouseAreas::makeJob($organisationSource),
-                       FetchLocations::makeJob($organisationSource),
-                       FetchStocks::makeJob($organisationSource),
+                       FetchAuroraWarehouses::makeJob($organisationSource),
+                       FetchAuroraWarehouseAreas::makeJob($organisationSource),
+                       FetchAuroraLocations::makeJob($organisationSource),
+                       FetchAuroraStocks::makeJob($organisationSource),
                    ])->dispatch();
     }
 

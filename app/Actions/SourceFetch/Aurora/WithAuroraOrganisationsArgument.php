@@ -5,18 +5,18 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Traits;
+namespace App\Actions\SourceFetch\Aurora;
 
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Support\LazyCollection;
 
-trait WithOrganisationsArgument
+trait WithAuroraOrganisationsArgument
 {
     protected function getOrganisations(Command $command): LazyCollection
     {
-        return Organisation::query()->whereIn('type', [OrganisationTypeEnum::SHOP->value,OrganisationTypeEnum::DIGITAL_AGENCY->value])
+        return Organisation::query()->where('type', OrganisationTypeEnum::SHOP->value)
             ->when($command->argument('organisations'), function ($query) use ($command) {
                 $query->whereIn('slug', $command->argument('organisations'));
             })

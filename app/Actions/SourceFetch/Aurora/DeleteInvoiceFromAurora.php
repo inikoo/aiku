@@ -29,7 +29,7 @@ class DeleteInvoiceFromAurora
                 ]);
             }
         } else {
-            return FetchDeletedInvoices::run($organisationSource, $organisationSourceId);
+            return FetchAuroraDeletedInvoices::run($organisationSource, $organisationSourceId);
         }
 
         return null;

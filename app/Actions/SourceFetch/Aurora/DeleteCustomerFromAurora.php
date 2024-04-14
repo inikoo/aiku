@@ -25,7 +25,7 @@ class DeleteCustomerFromAurora
                 );
             }
         } else {
-            return FetchDeletedCustomers::run($organisationSource, $organisationSourceId);
+            return FetchAuroraDeletedCustomers::run($organisationSource, $organisationSourceId);
         }
 
         return null;

@@ -7,7 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Actions\SourceFetch\Aurora\FetchStockFamilies;
+use App\Actions\SourceFetch\Aurora\FetchAuroraStockFamilies;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\SupplyChain\Stock\StockStateEnum;
 use Illuminate\Support\Facades\DB;
@@ -100,7 +100,7 @@ class FetchAuroraStock extends FetchAurora
             ->where('Category Branch Type', 'Head')
             ->where('Subject Key', $sourceID)
             ->where('Subject', 'Part')->first()) {
-            $stockFamily   = FetchStockFamilies::run($this->organisationSource, $row->{'Category Key'});
+            $stockFamily   = FetchAuroraStockFamilies::run($this->organisationSource, $row->{'Category Key'});
             $stockFamilyId = $stockFamily->id;
         }
 

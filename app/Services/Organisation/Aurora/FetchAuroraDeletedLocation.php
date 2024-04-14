@@ -7,8 +7,8 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Actions\SourceFetch\Aurora\FetchWarehouseAreas;
-use App\Actions\SourceFetch\Aurora\FetchWarehouses;
+use App\Actions\SourceFetch\Aurora\FetchAuroraWarehouseAreas;
+use App\Actions\SourceFetch\Aurora\FetchAuroraWarehouses;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDeletedLocation extends FetchAurora
@@ -23,10 +23,10 @@ class FetchAuroraDeletedLocation extends FetchAurora
         }
 
         if (is_numeric($this->auroraModelData->{'Location Deleted Warehouse Area Key'})) {
-            $parent = FetchWarehouseAreas::run($this->organisationSource, $this->auroraModelData->{'Location Deleted Warehouse Area Key'});
+            $parent = FetchAuroraWarehouseAreas::run($this->organisationSource, $this->auroraModelData->{'Location Deleted Warehouse Area Key'});
         }
         if (!$parent) {
-            $parent = FetchWarehouses::run($this->organisationSource, $this->auroraModelData->{'Location Deleted Warehouse Key'});
+            $parent = FetchAuroraWarehouses::run($this->organisationSource, $this->auroraModelData->{'Location Deleted Warehouse Key'});
         }
 
         $this->parsedData['parent']   = $parent;

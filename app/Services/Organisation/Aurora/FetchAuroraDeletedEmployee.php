@@ -24,7 +24,7 @@ class FetchAuroraDeletedEmployee extends FetchAurora
                 'phone'                    => $auDeletedModel->data->{'Staff Telephone'},
                 'identity_document_number' => $auDeletedModel->data->{'Staff Official ID'},
                 'date_of_birth'            => $this->parseDate($auDeletedModel->data->{'Staff Birthday'}),
-                'worker_number'            => $auDeletedModel->data->{'Staff ID'},
+                'worker_number'            => $auDeletedModel->data->{'Staff ID'}.'-deleted',
                 'alias'                    => strtolower($auDeletedModel->data->{'Staff Alias'}.'-deleted'),
                 'employment_start_at'      => $this->parseDate($auDeletedModel->data->{'Staff Valid From'}),
                 'employment_end_at'        => $this->parseDate($auDeletedModel->data->{'Staff Valid To'}),
