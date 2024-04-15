@@ -16,6 +16,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $code
  * @property mixed $created_at
  * @property string $name
+ * @property int $org_id
  * @property int $id
  * @property mixed $org_slug
  * @property mixed $org_code
@@ -37,7 +38,7 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
             'storeRoute'                  => [
                 'name'       => 'grp.models.org.payment-service-provider.store',
                 'parameters' => [
-                    'organisation'           => $this->organisation->id,
+                    'organisation'           => $this->org_id,
                     'paymentServiceProvider' => $this->id
                 ]
             ]
