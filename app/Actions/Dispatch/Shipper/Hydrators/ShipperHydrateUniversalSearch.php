@@ -21,7 +21,7 @@ class ShipperHydrateUniversalSearch
             [],
             [
                 'section'           => 'dispatch',
-                'title'             => $shipper,
+                'title'             => $shipper->name,
             ]
         );
     }
