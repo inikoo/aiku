@@ -18,7 +18,7 @@ trait WithOrganisationSource
     /**
      * @throws \Exception
      */
-    public function getOrganisationSource(Organisation $organisation): AuroraOrganisationService
+    public function getOrganisationSource(Organisation $organisation): AuroraOrganisationService|WowsbarOrganisationService|null
     {
         $sourceType = Arr::get($organisation->source, 'type');
         if (!$sourceType) {

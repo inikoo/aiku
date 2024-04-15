@@ -101,7 +101,10 @@ class FetchAuroraAction extends FetchAction
 
     }
 
-
+    public function getDBPrefix(Command $command): string
+    {
+        return    $command->option('db_suffix') ?? '';
+    }
 
     public function authorize(ActionRequest $request): bool
     {

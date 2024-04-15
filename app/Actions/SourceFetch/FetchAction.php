@@ -168,6 +168,10 @@ class FetchAction
         UpdateFetch::run($organisationSource->fetch, ['number_stores' => $this->number_stores]);
     }
 
+    public function getDBPrefix(Command $command): string
+    {
+        return '';
+    }
 
     public function processOrganisation(Command $command, Organisation $organisation): int
     {
@@ -179,7 +183,8 @@ class FetchAction
 
             return 1;
         }
-        $this->organisationSource->initialisation($organisation, $command->option('db_suffix') ?? '');
+
+        $this->organisationSource->initialisation($organisation, $this->getDBPrefix($command));
 
         $this->organisationSource->fetch = StoreFetch::run(
             [
