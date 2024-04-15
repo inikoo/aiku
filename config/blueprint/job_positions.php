@@ -6,6 +6,8 @@
  *  Version 4.0
  */
 
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+
 return [
 
 
@@ -19,8 +21,9 @@ return [
                 'super-admin'
             ],
             'organisation_types' => [
-                'shop',
-                'agent'
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::DIGITAL_AGENCY,
+                OrganisationTypeEnum::AGENT
             ]
         ],
         'hr-m'     => [
@@ -32,8 +35,9 @@ return [
                 'human-resources-supervisor'
             ],
             'organisation_types' => [
-                'shop',
-                'agent'
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::DIGITAL_AGENCY,
+                OrganisationTypeEnum::AGENT
             ]
         ],
         'hr-c'     => [
@@ -45,8 +49,9 @@ return [
                 'human-resources'
             ],
             'organisation_types' => [
-                'shop',
-                'agent'
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::DIGITAL_AGENCY,
+                OrganisationTypeEnum::AGENT
             ]
         ],
         'acc-m'    => [
@@ -57,8 +62,9 @@ return [
                 'accounting-supervisor'
             ],
             'organisation_types' => [
-                'shop',
-                'agent'
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::DIGITAL_AGENCY,
+                OrganisationTypeEnum::AGENT
             ]
         ],
         'acc-c'    => [
@@ -69,8 +75,9 @@ return [
                 'accounting'
             ],
             'organisation_types' => [
-                'shop',
-                'agent'
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::DIGITAL_AGENCY,
+                OrganisationTypeEnum::AGENT
             ],
         ],
         'mrk-m'    => [
@@ -81,7 +88,8 @@ return [
                 'guest'
             ],
             'organisation_types' => [
-                'shop'
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
         'mrk-c'    => [
@@ -92,7 +100,8 @@ return [
                 'guest'
             ],
             'organisation_types' => [
-                'shop'
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
         'web-m'    => [
@@ -103,7 +112,8 @@ return [
                 'guest'
             ],
             'organisation_types' => [
-                'shop'
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
         'web-c'    => [
@@ -114,7 +124,8 @@ return [
                 'guest'
             ],
             'organisation_types' => [
-                'shop'
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
         'buy'      => [
@@ -124,8 +135,8 @@ return [
                 'guest'
             ],
             'organisation_types' => [
-                'shop',
-                'agent'
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::AGENT
             ],
         ],
         'wah-m'    => [
@@ -138,8 +149,8 @@ return [
             ],
 
             'organisation_types' => [
-                'shop',
-                'agent'
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::AGENT
             ],
         ],
         'wah-sk'   => [
@@ -151,8 +162,8 @@ return [
                 'guest'
             ],
             'organisation_types' => [
-                'shop',
-                'agent'
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::AGENT
             ],
         ],
         'wah-sc'   => [
@@ -164,8 +175,8 @@ return [
                 'distribution-clerk'
             ],
             'organisation_types' => [
-                'shop',
-                'agent'
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::AGENT
             ],
         ],
         'dist-m'   => [
@@ -177,8 +188,8 @@ return [
                 'distribution-dispatcher-admin'
             ],
             'organisation_types' => [
-                'shop',
-                'agent'
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::AGENT
             ],
         ],
         'dist-pik' => [
@@ -190,8 +201,8 @@ return [
                 'distribution-dispatcher-picker'
             ],
             'organisation_types' => [
-                'shop',
-                'agent'
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::AGENT
             ],
         ],
         'dist-pak' => [
@@ -203,8 +214,8 @@ return [
                 'distribution-dispatcher-packer'
             ],
             'organisation_types' => [
-                'shop',
-                'agent'
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::AGENT
             ],
         ],
         'prod-m'   => [
@@ -216,7 +227,7 @@ return [
                 'guest'
             ],
             'organisation_types' => [
-                'shop'
+                OrganisationTypeEnum::SHOP,
             ]
         ],
         'prod-w'   => [
@@ -228,7 +239,7 @@ return [
                 'guest'
             ],
             'organisation_types' => [
-                'shop'
+                OrganisationTypeEnum::SHOP,
             ]
         ],
         'cus-m'    => [
@@ -239,7 +250,8 @@ return [
                 'guest'
             ],
             'organisation_types' => [
-                'shop'
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
         'cus-c'    => [
@@ -250,7 +262,100 @@ return [
                 'guest'
             ],
             'organisation_types' => [
-                'shop'
+                OrganisationTypeEnum::SHOP,
+                OrganisationTypeEnum::DIGITAL_AGENCY,
+            ]
+        ],
+
+        'seo-m'    => [
+            'code'               => 'seo-m',
+            'grade'              => 'manager',
+            'name'               => 'Seo supervisor',
+            'roles'              => [
+                'seo-supervisor'
+            ],
+            'organisation_types' => [
+                OrganisationTypeEnum::DIGITAL_AGENCY,
+            ]
+        ],
+        'seo-c'    => [
+            'code'               => 'seo-c',
+            'grade'              => 'clerk',
+            'name'               => 'SEO',
+            'roles'              => [
+                'seo'
+            ],
+            'organisation_types' => [
+                OrganisationTypeEnum::DIGITAL_AGENCY,
+            ]
+        ],
+
+        'ppc-m'    => [
+            'code'               => 'ppc-m',
+            'grade'              => 'manager',
+            'name'               => 'PPC supervisor',
+            'roles'              => [
+                'ppc-supervisor'
+            ],
+            'organisation_types' => [
+                OrganisationTypeEnum::DIGITAL_AGENCY,
+            ]
+        ],
+        'ppc-c'    => [
+            'code'               => 'ppc-c',
+            'grade'              => 'clerk',
+            'name'               => 'PPC',
+            'roles'              => [
+                'ppc'
+            ],
+            'organisation_types' => [
+                OrganisationTypeEnum::DIGITAL_AGENCY,
+            ]
+        ],
+
+        'social-m'    => [
+            'code'               => 'social-m',
+            'grade'              => 'manager',
+            'name'               => 'Social media supervisor',
+            'roles'              => [
+                'social-supervisor'
+            ],
+            'organisation_types' => [
+                OrganisationTypeEnum::DIGITAL_AGENCY,
+            ]
+        ],
+        'social-c'    => [
+            'code'               => 'social-c',
+            'grade'              => 'clerk',
+            'name'               => 'Social media',
+            'roles'              => [
+                'social'
+            ],
+            'organisation_types' => [
+                OrganisationTypeEnum::DIGITAL_AGENCY,
+            ]
+        ],
+
+        'saas-m'    => [
+            'code'               => 'saas-m',
+            'grade'              => 'manager',
+            'name'               => 'SaaS supervisor',
+            'roles'              => [
+                'saas-supervisor'
+            ],
+            'organisation_types' => [
+                OrganisationTypeEnum::DIGITAL_AGENCY,
+            ]
+        ],
+        'saas-c'    => [
+            'code'               => 'saas-w',
+            'grade'              => 'clerk',
+            'name'               => 'SaaS',
+            'roles'              => [
+                'saas'
+            ],
+            'organisation_types' => [
+                OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
 

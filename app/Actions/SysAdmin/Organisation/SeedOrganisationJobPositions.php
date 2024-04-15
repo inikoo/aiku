@@ -26,7 +26,8 @@ class SeedOrganisationJobPositions extends Seeder
 
 
         foreach ($jobPositions as $jobPositionData) {
-            if (in_array($organisation->type->value, $jobPositionData['organisation_types'])) {
+
+            if (in_array($organisation->type, $jobPositionData['organisation_types'])) {
                 $jobPosition = $organisation->josPositions()->where('code', $jobPositionData['code'])->first();
                 if ($jobPosition) {
                     UpdateJobPosition::run(
@@ -62,14 +63,27 @@ class SeedOrganisationJobPositions extends Seeder
         }
     }
 
-    public string $commandSignature = 'org:seed-job-positions';
+    public string $commandSignature = 'org:seed-job-positions {organisation?}';
 
     public function asCommand(Command $command): int
     {
-        foreach (Organisation::all() as $organisation) {
-            $command->info("Seeding job positions for organisation: $organisation->name");
+
+        if($command->argument('organisation')) {
+            $organisation = Organisation::where('slug', $command->argument('organisation'))->first();
+            if(!$organisation) {
+                $command->error("Organisation not found");
+                return 1;
+            }
             $this->handle($organisation);
+            return 0;
+        } else {
+            foreach (Organisation::all() as $organisation) {
+                $command->info("Seeding job positions for organisation: $organisation->name");
+                $this->handle($organisation);
+            }
         }
+
+
 
         return 0;
     }
