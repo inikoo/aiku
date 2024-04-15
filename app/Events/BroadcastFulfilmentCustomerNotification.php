@@ -35,7 +35,29 @@ class BroadcastFulfilmentCustomerNotification implements ShouldQueue
             'title' => $parent->state->notifications($parent->reference)[$parent->state->value]['title'],
             'body'  => $parent->state->notifications($parent->reference)[$parent->state->value]['subtitle'],
             'type'  => class_basename($parent),
-            'id'    => $parent->id
+            'slug'  => $parent->slug,
+            'id'    => $parent->id,
+            'route' => match (class_basename($parent)) {
+                'PalletDelivery' => route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
+                    'organisation'       => $parent->organisation->slug,
+                    'fulfilment'         => $parent->fulfilment->slug,
+                    'fulfilmentCustomer' => $parent->fulfilmentCustomer->slug,
+                    $parent->slug
+                ]),
+                'PalletReturn' => route('grp.org.fulfilments.show.crm.customers.show.pallet-returns.show', [
+                    'organisation'       => $parent->organisation->slug,
+                    'fulfilment'         => $parent->fulfilment->slug,
+                    'fulfilmentCustomer' => $parent->fulfilmentCustomer->slug,
+                    $parent->slug
+                ]),
+                'StoreStoredItemReturn' => route('grp.org.fulfilments.show.crm.customers.show.stored-item-returns.show', [
+                    'organisation'       => $parent->organisation->slug,
+                    'fulfilment'         => $parent->fulfilment->slug,
+                    'fulfilmentCustomer' => $parent->fulfilmentCustomer->slug,
+                    $parent->slug
+                ]),
+                default => null
+            }
         ];
     }
 

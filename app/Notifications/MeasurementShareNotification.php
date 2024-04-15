@@ -78,10 +78,12 @@ class MeasurementShareNotification extends Notification implements ShouldQueue
         $measurement = $this->measurement;
 
         return [
-            'title' => Arr::get($measurement, 'title'),
-            'body'  => Arr::get($measurement, 'body'),
-            'type'  => Arr::get($measurement, 'type'),
-            'id'    => Arr::get($measurement, 'id')
+            'title'  => Arr::get($measurement, 'title'),
+            'body'   => Arr::get($measurement, 'body'),
+            'type'   => Arr::get($measurement, 'type'),
+            'slug'   => Arr::get($measurement, 'slug'),
+            'route'  => Arr::get($measurement, 'route'),
+            'id'     => Arr::get($measurement, 'id')
         ];
     }
 }
