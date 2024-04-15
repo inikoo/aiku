@@ -92,19 +92,22 @@ function paymentsRoute(paymentServiceAccount: SelectPaymentServiceProvider) {
 
 
 const onOpenModal = (data) => {
-    openModal.value = true
     selectedProvider.value = data
+    openModal.value = true
+}
+
+const onCloseModal = (data) => {
+    selectedProvider.value = null
+    openModal.value = false
 }
 
 </script>
 
 
 <template>
-    <pre>{{  data  }}</pre>
     <Table :resource="data" class="mt-5">
         <template #cell(adoption)="{ item: item }">
             <div class="flex justify-center">
-            <pre>{{ item }}</pre>
                 <font-awesome-icon :icon="['fas', 'plus']" @click="() => onOpenModal(item)" />
             </div>
         </template>
@@ -132,9 +135,9 @@ const onOpenModal = (data) => {
 
     </Table>
 
-    <Modal :isOpen="openModal" @onClose="openModal = false" width="w-96">
+    <Modal :isOpen="openModal" @onClose="onCloseModal" width="w-96">
         <div>
-            <AccountProvidersForm :provider="selectedProvider"/>
+            <AccountProvidersForm :provider="selectedProvider" :onCloseModal="onCloseModal"/>
         </div>
     </Modal>
 </template>
