@@ -41,7 +41,7 @@ beforeEach(function () {
 });
 
 test('check seeded job positions', function () {
-    expect($this->organisation->group->humanResourcesStats->number_job_positions)->toBe(20);
+    expect($this->organisation->group->humanResourcesStats->number_job_positions)->toBe(19);
 });
 
 test('create working place successful', function () {

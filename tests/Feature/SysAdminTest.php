@@ -19,6 +19,7 @@ use App\Actions\SysAdmin\User\UpdateUserStatus;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\SysAdmin\User\UserRemoveRoles;
 use App\Actions\SysAdmin\User\UserSyncRoles;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Assets\Currency;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -106,13 +107,16 @@ test('create a system admin', function () {
 });
 
 
-test('create organisation', function (Group $group) {
+test('create organisation type shop', function (Group $group) {
     $modelData = Organisation::factory()->definition();
     data_set($modelData, 'code', 'acme');
+    data_set($modelData, 'type', OrganisationTypeEnum::SHOP);
+
     $organisation = StoreOrganisation::make()->action($group, $modelData);
+
     expect($organisation)->toBeInstanceOf(Organisation::class)
-        ->and($organisation->roles()->count())->toBe(7)
-        ->and($group->roles()->count())->toBe(12)
+        ->and($organisation->roles()->count())->toBe(9)
+        ->and($group->roles()->count())->toBe(14)
         ->and($organisation->accountingStats->number_org_payment_service_providers)->toBe(1)
         ->and($organisation->accountingStats->number_org_payment_service_providers_type_account)->toBe(1);
 
@@ -123,7 +127,7 @@ test('set organisation logo by command', function (Organisation $organisation) {
     $this->artisan('org:logo', [
         'organisation' => $organisation->slug,
     ])->assertSuccessful();
-})->depends('create organisation');
+})->depends('create organisation type shop');
 
 test('create organisation by command', function () {
     $this->artisan('org:create', [
@@ -160,17 +164,18 @@ test('set organisation google key', function (Organisation $organisation) {
 
 
 test('roles are seeded', function () {
-    expect(Role::count())->toBe(19);
+    expect(Role::count())->toBe(23);
 });
 
 test('create guest', function (Group $group, Organisation $organisation) {
     app()->instance('group', $group);
     setPermissionsTeamId($group->id);
+
     $guestData = Guest::factory()->definition();
     data_set($guestData, 'username', 'hello');
     data_set($guestData, 'password', 'secret-password');
     data_set($guestData, 'phone', '+6281212121212');
-    data_set($guestData, 'roles', ['supply-chain', 'org-admin-'.$organisation->id]);
+    data_set($guestData, 'roles', ['supply-chain', 'org-shop-admin-'.$organisation->id]);
 
     $guest = StoreGuest::make()->action(
         $group,
@@ -192,7 +197,7 @@ test('create guest', function (Group $group, Organisation $organisation) {
 
 
     return $guest;
-})->depends('create group', 'create organisation');
+})->depends('create group', 'create organisation type shop');
 
 test('UserHydrateAuthorisedModels command', function (Guest $guest) {
     $this->artisan('user:hydrate-authorised-models', [
@@ -338,7 +343,7 @@ test('Hydrate organisation via command', function (Organisation $organisation) {
         'organisations' => [$organisation->slug],
     ])->assertSuccessful();
     $this->artisan('org:hydrate', [])->assertSuccessful();
-})->depends('create organisation');
+})->depends('create organisation type shop');
 
 test('can show app login', function () {
     Config::set(

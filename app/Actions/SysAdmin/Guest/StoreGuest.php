@@ -80,7 +80,7 @@ class StoreGuest
             if ($role->name === RolesEnum::SUPER_ADMIN->value) {
                 foreach (Organisation::all() as $organisation) {
                     UserAddRoles::run($user, [
-                        Role::where('name', RolesEnum::getRoleName(RolesEnum::ORG_ADMIN->value, $organisation))->first()
+                        Role::where('name', RolesEnum::getRoleName(RolesEnum::ORG_SHOP_ADMIN->value, $organisation))->first()
                     ]);
                 }
                 foreach (Shop::all() as $shop) {

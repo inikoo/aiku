@@ -38,8 +38,10 @@ class SeedGroupPermissions
 
 
         $currentRoles = Role::where('scope_type', 'Group')->pluck('name');
+
         $currentRoles->diff($groupRoles)
             ->each(function ($roleName) {
+
                 Role::where('name', $roleName)->first()->delete();
             });
 
@@ -58,8 +60,10 @@ class SeedGroupPermissions
         });
 
 
+
         foreach (RolesEnum::cases() as $case) {
             if ($case->scope() === 'Group') {
+
                 if (!$role = (new Role())->where('name', $case->value)->first()) {
                     $role = Role::create(
                         [

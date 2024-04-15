@@ -12,6 +12,7 @@ use App\Actions\SysAdmin\Group\StoreGroup;
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Enums\Market\Shop\ShopTypeEnum;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
@@ -56,6 +57,8 @@ function createOrganisation(): Organisation
     if (!$organisation) {
         $modelData = Organisation::factory()->definition();
         data_set($modelData, 'code', 'acme');
+        data_set($modelData, 'type', OrganisationTypeEnum::SHOP);
+
         $organisation = StoreOrganisation::make()->action($group, $modelData);
     }
 

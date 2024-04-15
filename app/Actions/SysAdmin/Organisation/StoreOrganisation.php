@@ -72,7 +72,14 @@ class StoreOrganisation
 
         foreach ($superAdmins as $superAdmin) {
             UserAddRoles::run($superAdmin, [
-                Role::where('name', RolesEnum::getRoleName('org-admin', $organisation))->where('scope_id', $organisation->id)->first()
+                Role::where('name', RolesEnum::getRoleName(
+                    match($organisation->type) {
+                        OrganisationTypeEnum::SHOP          => 'org-shop-admin',
+                        OrganisationTypeEnum::DIGITAL_AGENCY=> 'org-digital_agency-admin',
+                        OrganisationTypeEnum::AGENT         => 'org-agent-admin',
+                    },
+                    $organisation
+                ))->where('scope_id', $organisation->id)->first()
             ]);
         }
 
@@ -127,7 +134,7 @@ class StoreOrganisation
             'language_id' => ['required', 'exists:languages,id'],
             'timezone_id' => ['required', 'exists:timezones,id'],
             'source'      => ['sometimes', 'array'],
-            'type'        => ['sometimes', Rule::enum(OrganisationTypeEnum::class)],
+            'type'        => ['required', Rule::enum(OrganisationTypeEnum::class)],
             'address'     => ['sometimes', 'required', new ValidAddress()],
             'created_at'  => ['sometimes', 'date'],
         ];
