@@ -9,6 +9,7 @@ namespace App\Actions\Accounting\OrgPaymentServiceProvider\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
+use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Http\Resources\Accounting\SelectOrgPaymentServiceProvidersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -19,6 +20,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
@@ -129,8 +131,8 @@ class SelectOrgPaymentServiceProviders extends OrgAction
                     'title' => __('Payment Service Providers'),
 
                 ],
-                'data'        => SelectOrgPaymentServiceProvidersResource::collection($paymentServiceProviders),
-
+                'data'                => SelectOrgPaymentServiceProvidersResource::collection($paymentServiceProviders),
+                'paymentAccountTypes' => Options::forEnum(PaymentAccountTypeEnum::class)
 
             ]
         )->table($this->tableStructure());
