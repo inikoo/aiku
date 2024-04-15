@@ -41,7 +41,7 @@ enum OrganisationTypeEnum: string
             ],
             'digital-agency' => [
                 'tooltip' => __('Digital Agency'),
-                'icon'    => 'fal fa-laptop',
+                'icon'    => 'fal fa-ad',
             ],
         ];
     }

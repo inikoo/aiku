@@ -10,62 +10,58 @@ import Table from '@/Components/Table/Table.vue';
 import {Product} from "@/types/product";
 import Icon from "@/Components/Icon.vue";
 import {library} from "@fortawesome/fontawesome-svg-core";
-import { faConciergeBell,faGarage} from '@fal'
+import {faConciergeBell, faGarage} from '@fal'
 
-library.add( faConciergeBell,faGarage )
-
+library.add(faConciergeBell, faGarage)
 
 
 const props = defineProps<{
-    data: object
-    tab?:string,
+  data: object
+  tab?: string,
 }>()
 
 
 function productRoute(product: Product) {
   console.log(route().current())
-    switch (route().current()) {
+  switch (route().current()) {
 
-        case "grp.org.shops.show.catalogue.products.index":
-            return route(
-                'grp.org.shops.show.catalogue.products.show',
-                [route().params['organisation'],route().params['shop'], product.slug]);
-        case 'grp.org.shops.index':
-            return route(
-                'grp.org.shops.show.catalogue.products.show',
-                [route().params['organisation'],product.shop_slug, product.slug]);
-      case 'grp.org.fulfilments.show.products.index':
-          return route(
-              'grp.org.fulfilments.show.products.show',
-              [route().params['organisation'],route().params['fulfilment'], product.slug]);
-        default:
-            return null
-    }
+    case "grp.org.shops.show.catalogue.products.index":
+      return route(
+          'grp.org.shops.show.catalogue.products.show',
+          [route().params['organisation'], route().params['shop'], product.slug]);
+    case 'grp.org.shops.index':
+      return route(
+          'grp.org.shops.show.catalogue.products.show',
+          [route().params['organisation'], product.shop_slug, product.slug]);
+    case 'grp.org.fulfilments.show.products.index':
+      return route(
+          'grp.org.fulfilments.show.products.show',
+          [route().params['organisation'], route().params['fulfilment'], product.slug]);
+    default:
+      return null
+  }
 }
-
 
 
 </script>
 
 <template>
-    <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(code)="{ item: product }">
-            <Link :href="productRoute(product)" class="specialUnderline">
-                {{ product['code'] }}
-            </Link>
-        </template>
-        <template #cell(shop_code)="{ item: product }">
-            <Link v-if="product['shop_slug']" :href="productRoute(product)" class="specialUnderlineSecondary">
-                {{ product['shop_slug'] }}
-            </Link>
-        </template>
-
-
-
-      <template #cell(type)="{ item: product }">
-        <Icon :data="product['type_icon']" />   <Icon :data="product['state_icon']"  />
-      </template>
-    </Table>
+  <Table :resource="data" :name="tab" class="mt-5">
+    <template #cell(code)="{ item: product }">
+      <Link :href="productRoute(product)" class="specialUnderline">
+        {{ product['code'] }}
+      </Link>
+    </template>
+    <template #cell(shop_code)="{ item: product }">
+      <Link v-if="product['shop_slug']" :href="productRoute(product)" class="specialUnderlineSecondary">
+        {{ product['shop_slug'] }}
+      </Link>
+    </template>
+    <template #cell(type)="{ item: product }">
+      <Icon :data="product['type_icon']"/>
+      <Icon :data="product['state_icon']"/>
+    </template>
+  </Table>
 </template>
 
 

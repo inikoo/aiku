@@ -7,15 +7,19 @@
 <script setup lang="ts">
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import {Prospect} from "@/types/prospect";
-import {Employee} from "@/types/employee";
+import {Organisation} from "@/types/organisation";
+import Icon from "@/Components/Icon.vue";
+import {library} from "@fortawesome/fontawesome-svg-core";
+import {faStore, faAd} from '@fal'
+library.add(faStore, faAd)
+
 
 const props = defineProps<{
     data: object,
     tab?: string
 }>()
 
-function orgRoute(org) {
+function orgRoute(org: Organisation) {
     switch (route().current()) {
         case 'grp.organisations.index':
             return route(
@@ -34,5 +38,8 @@ function orgRoute(org) {
                 {{ org['slug'] }}
             </Link>
         </template>
+      <template #cell(type)="{ item: org }">
+        <Icon :data="org['type_icon']" />
+      </template>
     </Table>
 </template>

@@ -343,7 +343,6 @@ class Organisation extends Model implements HasMedia
         return $this->hasMany(Payment::class);
     }
 
-
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('logo')
@@ -395,8 +394,6 @@ class Organisation extends Model implements HasMedia
         return $this->hasMany(OrgSupplier::class);
     }
 
-
-
     public function agent(): HasOne
     {
         return $this->hasOne(Agent::class);
@@ -424,9 +421,7 @@ class Organisation extends Model implements HasMedia
 
     public function departments(): Collection
     {
-
         return $this->productCategories()->where('type', ProductCategoryTypeEnum::DEPARTMENT)->get();
-
     }
 
     public function families(): ?Collection
