@@ -10,11 +10,13 @@ namespace App\Http\Resources\Accounting;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
+ * @property int $id
  * @property string $number_payments
  * @property int $number_payment_accounts
  * @property string $slug
  * @property string $code
  * @property mixed $created_at
+ * @property \App\Models\SysAdmin\Organisation $organisation
  * @property string $name
  *
  */
@@ -29,6 +31,13 @@ class PaymentServiceProvidersResource extends JsonResource
             'code'                    => $this->code,
             'name'                    => $this->name,
             'created_at'              => $this->created_at,
+            'storeRoute'              => [
+                'name'       => 'grp.models.org.payment-service-provider.store',
+                'parameters' => [
+                    'organisation'           => $this->organisation->id,
+                    'paymentServiceProvider' => $this->id
+                ]
+            ]
         ];
     }
 }
