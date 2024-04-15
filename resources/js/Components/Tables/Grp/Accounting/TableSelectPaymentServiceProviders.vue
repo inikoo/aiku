@@ -18,7 +18,8 @@ library.add(faPlus)
 
 defineProps<{
     data: object,
-    tab?: string
+    tab?: string,
+    paymentAccountTypes : object
 }>()
 
 
@@ -135,9 +136,9 @@ const onCloseModal = (data) => {
 
     </Table>
 
-    <Modal :isOpen="openModal" @onClose="onCloseModal" width="w-96">
-        <div>
-            <AccountProvidersForm :provider="selectedProvider" :onCloseModal="onCloseModal"/>
+    <Modal :isOpen="openModal" @onClose="onCloseModal" width="w-96" class="overflow-visible"> 
+        <div >
+            <AccountProvidersForm :provider="selectedProvider" :onCloseModal="onCloseModal" :paymentAccountTypes="paymentAccountTypes"/>
         </div>
     </Modal>
 </template>

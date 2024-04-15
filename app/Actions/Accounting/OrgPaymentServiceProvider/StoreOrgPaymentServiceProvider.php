@@ -7,6 +7,7 @@
 
 namespace App\Actions\Accounting\OrgPaymentServiceProvider;
 
+use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePaymentServiceProviders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgPaymentServiceProviders;
@@ -14,6 +15,9 @@ use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreOrgPaymentServiceProvider extends OrgAction
@@ -34,6 +38,9 @@ class StoreOrgPaymentServiceProvider extends OrgAction
         /** @var OrgPaymentServiceProvider $orgPaymentServiceProvider */
         $orgPaymentServiceProvider = $paymentServiceProvider->orgPaymentServiceProviders()->create($modelData);
         $orgPaymentServiceProvider->stats()->create();
+
+        StorePaymentAccount::run($orgPaymentServiceProvider, Arr::only($modelData, ['type', 'name', 'code']));
+
         OrganisationHydrateOrgPaymentServiceProviders::dispatch($organisation);
         GroupHydratePaymentServiceProviders::dispatch($organisation->group);
 
@@ -71,7 +78,19 @@ class StoreOrgPaymentServiceProvider extends OrgAction
     {
         $this->asAction = true;
         $this->initialisation($organisation, $modelData);
+
         return $this->handle($paymentServiceProvider, $organisation, $this->validatedData);
+    }
+
+    public function htmlResponse(OrgPaymentServiceProvider $orgPaymentServiceProvider): RedirectResponse
+    {
+        return Redirect::route(
+            'grp.org.accounting.org-payment-service-providers.show.payment-accounts.index',
+            [
+                $orgPaymentServiceProvider->organisation->slug,
+                $orgPaymentServiceProvider->slug
+            ]
+        );
     }
 
     public function asController(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): OrgPaymentServiceProvider
