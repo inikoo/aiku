@@ -9,6 +9,7 @@ namespace App\Models\Dispatch;
 
 use App\Models\Helpers\Issue;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -61,6 +62,7 @@ class Shipper extends Model
 {
     use HasSlug;
     use SoftDeletes;
+    use HasUniversalSearch;
 
     use HasFactory;
 
