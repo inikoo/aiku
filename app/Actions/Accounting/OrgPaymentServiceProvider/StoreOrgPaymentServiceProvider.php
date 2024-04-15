@@ -7,7 +7,6 @@
 
 namespace App\Actions\Accounting\OrgPaymentServiceProvider;
 
-use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePaymentServiceProviders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgPaymentServiceProviders;
@@ -16,7 +15,6 @@ use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -36,13 +34,8 @@ class StoreOrgPaymentServiceProvider extends OrgAction
         );
 
         /** @var OrgPaymentServiceProvider $orgPaymentServiceProvider */
-        $orgPaymentServiceProvider = $paymentServiceProvider->orgPaymentServiceProviders()->create(Arr::except($modelData, ['name', 'account_type']));
+        $orgPaymentServiceProvider = $paymentServiceProvider->orgPaymentServiceProviders()->create($modelData);
         $orgPaymentServiceProvider->stats()->create();
-
-        StorePaymentAccount::run($orgPaymentServiceProvider, array_merge(Arr::only($modelData, ['name', 'code']), [
-            'type' => Arr::get($modelData, 'account_type')
-        ]));
-
         OrganisationHydrateOrgPaymentServiceProviders::dispatch($organisation);
         GroupHydratePaymentServiceProviders::dispatch($organisation->group);
 
@@ -72,8 +65,6 @@ class StoreOrgPaymentServiceProvider extends OrgAction
                     ]
                 ),
             ],
-            'name'         => ['sometimes', 'string'],
-            'account_type' => ['sometimes', 'string'],
             'source_id'    => ['sometimes', 'string'],
         ];
     }
@@ -82,7 +73,6 @@ class StoreOrgPaymentServiceProvider extends OrgAction
     {
         $this->asAction = true;
         $this->initialisation($organisation, $modelData);
-
         return $this->handle($paymentServiceProvider, $organisation, $this->validatedData);
     }
 
