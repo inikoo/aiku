@@ -218,8 +218,8 @@ return [
                 OrganisationTypeEnum::SHOP,
             ]
         ],
-        'prod-w'   => [
-            'code'               => 'prod-w',
+        'prod-c'   => [
+            'code'               => 'prod-c',
             'team'               => 'production',
             'department'         => 'production',
             'name'               => 'Production operative',
@@ -336,7 +336,7 @@ return [
             ]
         ],
         'saas-c'    => [
-            'code'               => 'saas-w',
+            'code'               => 'saas-c',
             'grade'              => 'clerk',
             'name'               => 'SaaS',
             'roles'              => [
