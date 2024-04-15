@@ -7,6 +7,7 @@
 
 namespace App\Actions\Dispatch\Shipper;
 
+use App\Actions\Dispatch\Shipper\Hydrators\ShipperHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Models\Dispatch\Shipper;
 use App\Models\SysAdmin\Organisation;
@@ -22,7 +23,7 @@ class StoreShipper extends OrgAction
         /** @var Shipper $shipper */
         $shipper= $organisation->shippers()->create($modelData);
 
-
+        ShipperHydrateUniversalSearch::dispatch($shipper);
 
         return $shipper;
     }
