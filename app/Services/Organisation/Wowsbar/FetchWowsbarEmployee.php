@@ -9,28 +9,22 @@ namespace App\Services\Organisation\Wowsbar;
 
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\HumanResources\JobPosition;
-use App\Services\Organisation\Aurora\FetchAurora;
-use App\Services\Organisation\Aurora\WithAuroraImages;
-use App\Services\Organisation\Aurora\WithAuroraParsers;
+
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class FetchWowsbarEmployee extends FetchAurora
+class FetchWowsbarEmployee extends FetchWowsbar
 {
-    use WithAuroraImages;
-    use WithAuroraParsers;
-
-
     public function fetch(int $id): ?array
     {
-        $this->auroraModelData = $this->fetchData($id);
+        $this->wowModelData = $this->fetchData($id);
 
-        if ($this->auroraModelData) {
+        if ($this->wowModelData) {
             $this->parseModel();
-            $this->parseUser();
-            $this->parsePhoto();
-            $this->parseJobPositions();
+            //   $this->parseUser();
+            //  $this->parsePhoto();
+            //  $this->parseJobPositions();
         }
 
 
@@ -39,74 +33,18 @@ class FetchWowsbarEmployee extends FetchAurora
 
     protected function parseModel(): void
     {
-        $data   = [];
-        $errors = [];
-        if ($this->parseDate($this->auroraModelData->{'Staff Valid From'}) == '') {
-            $errors = [
-                'missing' => ['created_at', 'employment_start_at']
-            ];
-        }
 
-
-        $working_hours = json_decode($this->auroraModelData->{'Staff Working Hours'}, true);
-        if ($working_hours) {
-            $working_hours['week_distribution'] = array_change_key_case(
-                json_decode($this->auroraModelData->{'Staff Working Hours Per Week Metadata'}, true)
-            );
-        }
-        $workingHours     = json_decode($this->auroraModelData->{'Staff Working Hours'}, true);
-        $weekDistribution = json_decode($this->auroraModelData->{'Staff Working Hours Per Week Metadata'}, true);
-
-        if ($workingHours and $weekDistribution) {
-            $workingHours['week_distribution'] = array_change_key_case($weekDistribution);
-        }
-
-
-        $salary = json_decode($this->auroraModelData->{'Staff Salary'}, true);
-        if ($salary) {
-            $salary = array_change_key_case($salary);
-        }
-
-        if ($this->auroraModelData->{'Staff Address'}) {
-            $data['address'] = $this->auroraModelData->{'Staff Address'};
-        }
-
-        $this->parsedData['working_hours'] = $working_hours ?? [];
-
-
-        $positions = [];
-
-
-        if ($this->auroraModelData->{'Staff ID'}) {
-            $workerNumber = preg_replace('/[()]/', '', $this->auroraModelData->{'Staff ID'});
-            $workerNumber = preg_replace('/\s+/', '-', $workerNumber);
-        } else {
-            $workerNumber = $this->auroraModelData->{'Staff Key'};
-        }
 
         $this->parsedData['employee'] = [
-            'alias'                    => $this->auroraModelData->{'Staff Alias'},
-            'contact_name'             => $this->auroraModelData->{'Staff Name'},
-            'email'                    => $this->auroraModelData->{'Staff Email'} ?: null,
-            'phone'                    => $this->auroraModelData->{'Staff Telephone'} ?: null,
-            'identity_document_number' => $this->auroraModelData->{'Staff Official ID'} ?: null,
-            'date_of_birth'            => $this->parseDate($this->auroraModelData->{'Staff Birthday'}),
-            'worker_number'            => $workerNumber,
-            'created_at'               => $this->auroraModelData->{'Staff Valid From'},
-            'emergency_contact'        => $this->auroraModelData->{'Staff Next of Kind'} ?: null,
-            'job_title'                => $this->auroraModelData->{'Staff Job Title'} ?: null,
-            'salary'                   => $salary,
-            'employment_start_at'      => $this->parseDate($this->auroraModelData->{'Staff Valid From'}),
-            'employment_end_at'        => $this->parseDate($this->auroraModelData->{'Staff Valid To'}),
-            'type'                     => Str::snake($this->auroraModelData->{'Staff Type'}, '-'),
-            'state'                    => match ($this->auroraModelData->{'Staff Currently Working'}) {
-                'No'    => 'left',
-                default => 'working'
-            },
-            'data'                     => $data,
-            'errors'                   => $errors,
-            'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Staff Key'},
-            'positions'                => $positions,
+            'alias'                    => $this->wowModelData->alias,
+            'contact_name'             => $this->wowModelData->contact_name,
+            'worker_number'            => $this->wowModelData->worker_number,
+            'employment_start_at'      => $this->wowModelData->employment_start_at,
+            'job_title'                => $this->wowModelData->job_title,
+            'type'                     => $this->wowModelData->type,
+            'state'                    => $this->wowModelData->state,
+            'created_at'               => $this->wowModelData->created_at,
+            'source_id'                => $this->organisation->id.':'.$this->wowModelData->id
 
         ];
     }
@@ -119,7 +57,7 @@ class FetchWowsbarEmployee extends FetchAurora
             ->selectRaw('*,(select GROUP_CONCAT(`Role Code`) from `Staff Role Bridge` SRB where (SRB.`Staff Key`=`Staff Dimension`.`Staff Key`) ) as staff_positions')
             ->whereIn('User Type', ['Staff', 'Contractor'])
             ->where('users.aiku_ignore', 'No')
-            ->where('User Parent Key', $this->auroraModelData->{'Staff Key'})->first();
+            ->where('User Parent Key', $this->wowModelData->{'Staff Key'})->first();
 
         if ($auroraUserData) {
             $legacyPassword = $auroraUserData->{'User Password'};
@@ -152,7 +90,7 @@ class FetchWowsbarEmployee extends FetchAurora
         $roles = RolesEnum::cases();
 
 
-        foreach (DB::connection('aurora')->table('User Group User Bridge')->where('User Key', $this->auroraModelData->{'User Key'})->select('User Group Key')->get() as $auRole) {
+        foreach (DB::connection('aurora')->table('User Group User Bridge')->where('User Key', $this->wowModelData->{'User Key'})->select('User Group Key')->get() as $auRole) {
             $role = match ($auRole->{'User Group Key'}) {
                 1, 15 => 'system-admin',
                 6  => 'human-resources-clerk',
@@ -207,7 +145,7 @@ class FetchWowsbarEmployee extends FetchAurora
     {
         $profile_images            = $this->getModelImagesCollection(
             'Staff',
-            $this->auroraModelData->{'Staff Key'}
+            $this->wowModelData->{'Staff Key'}
         )->map(function ($auroraImage) {
             return $this->fetchImage($auroraImage);
         });
@@ -219,13 +157,13 @@ class FetchWowsbarEmployee extends FetchAurora
         $jobPositions = JobPosition::all()->pluck('id', 'slug')->all();
 
         $jobPositionCodes = [];
-        foreach (explode(',', $this->auroraModelData->staff_positions) as $sourceStaffPosition) {
+        foreach (explode(',', $this->wowModelData->staff_positions) as $sourceStaffPosition) {
             $jobPositionCodes = array_merge(
                 $jobPositionCodes,
                 explode(
                     ',',
                     $this->parseJobPosition(
-                        isSupervisor: $this->auroraModelData->{'Staff Is Supervisor'} == 'Yes',
+                        isSupervisor: $this->wowModelData->{'Staff Is Supervisor'} == 'Yes',
                         sourceCode: $sourceStaffPosition
                     )
                 )

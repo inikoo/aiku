@@ -24,7 +24,7 @@ use Illuminate\Support\Str;
 
 class FetchWowsbarEmployees extends FetchWowsbarAction
 {
-    public string $commandSignature = 'fetch:wow-employees  {--s|source_id=} ';
+    public string $commandSignature = 'fetch:wow-employees {organisations?*} {--s|source_id=} ';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Employee
     {
@@ -45,9 +45,8 @@ class FetchWowsbarEmployees extends FetchWowsbarAction
                 );
             }
 
+            /*
             UpdateEmployeeWorkingHours::run($employee, $employeeData['working_hours']);
-
-
             $employee->jobPositions()->sync($employeeData['job-positions']);
 
             foreach ($employeeData['photo'] ?? [] as $profileImage) {
@@ -83,7 +82,7 @@ class FetchWowsbarEmployees extends FetchWowsbarAction
                     );
                 }
             }
-
+*/
 
             return $employee;
         }

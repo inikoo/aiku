@@ -57,7 +57,7 @@ class FetchAction
 
     protected function getFetchType(Command $command): FetchTypeEnum
     {
-       return FetchTypeEnum::BASE;
+        return FetchTypeEnum::BASE;
     }
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): Model|array|null
