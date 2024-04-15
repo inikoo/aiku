@@ -156,28 +156,20 @@ class FetchWowsbarEmployee extends FetchWowsbar
     {
         $jobPositions = JobPosition::all()->pluck('id', 'slug')->all();
 
-        $jobPositionCodes = [];
-        foreach (explode(',', $this->wowModelData->staff_positions) as $sourceStaffPosition) {
-            $jobPositionCodes = array_merge(
-                $jobPositionCodes,
-                explode(
-                    ',',
-                    $this->parseJobPosition(
-                        isSupervisor: $this->wowModelData->{'Staff Is Supervisor'} == 'Yes',
-                        sourceCode: $sourceStaffPosition
-                    )
-                )
-            );
-        }
-        $jobPositionIds = [];
+        $query= DB::connection('wowsbar')
+            ->table('job_positionables')
+            ->leftJoin('job_positions', 'job_positionables.job_position_id', '=', 'job_positions.id')
+            ->where('job_positionables.job_positionable_type', 'Employee')
+            ->where('job_positionables.job_positionable_id', $this->wowModelData->id)
+            ->get();
 
-        foreach ($jobPositionCodes as $jobPositionCode) {
-            if (array_key_exists($jobPositionCode, $jobPositions)) {
-                $jobPositionIds[$jobPositions[$jobPositionCode]] = $jobPositions[$jobPositionCode];
-            }
+
+        foreach($query as $jobPosition) {
+            $this->parsedData['employee']['positions'][] =$this->parseJobPosition($jobPosition->slug);
         }
 
-        $this->parsedData['job-positions'] = $jobPositionIds;
+
+
     }
 
 
@@ -189,22 +181,12 @@ class FetchWowsbarEmployee extends FetchWowsbar
             ->where('id', $id)->first();
     }
 
-    protected function parseJobPosition($isSupervisor, $sourceCode): string
+    protected function parseJobPosition($sourceCode): string
     {
         return match ($sourceCode) {
-            'WAHM'  => 'wah-m',
-            'WAHSK' => 'wah-sk',
-            'WAHSC' => 'wah-sc',
-            'PICK'  => 'dist-pik,dist-pak',
-            'OHADM' => 'dist-m',
-            'PRODM' => 'prod-m',
-            'PRODO' => 'prod-w',
-            'CUSM'  => 'cus-m',
-            'CUS'   => 'cus-c',
-            'MRK'   => $isSupervisor ? 'mrk-m' : 'mrk-c',
-            'WEB'   => $isSupervisor ? 'web-m' : 'web-c',
-            'HR'    => $isSupervisor ? 'hr-m' : 'hr-c',
-            default => strtolower($sourceCode)
+            'dev-m' => 'saas-m',
+            'dev-w' => 'saas-c',
+            default => $sourceCode
         };
     }
 }

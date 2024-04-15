@@ -14,8 +14,6 @@ use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreOrgPaymentServiceProvider extends OrgAction
@@ -76,21 +74,4 @@ class StoreOrgPaymentServiceProvider extends OrgAction
         return $this->handle($paymentServiceProvider, $organisation, $this->validatedData);
     }
 
-    public function htmlResponse(OrgPaymentServiceProvider $orgPaymentServiceProvider): RedirectResponse
-    {
-        return Redirect::route(
-            'grp.org.accounting.org-payment-service-providers.show.payment-accounts.index',
-            [
-                $orgPaymentServiceProvider->organisation->slug,
-                $orgPaymentServiceProvider->slug
-            ]
-        );
-    }
-
-    public function asController(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): OrgPaymentServiceProvider
-    {
-        $this->initialisation($organisation, $request);
-
-        return $this->handle($paymentServiceProvider, $organisation, $this->validatedData);
-    }
 }
