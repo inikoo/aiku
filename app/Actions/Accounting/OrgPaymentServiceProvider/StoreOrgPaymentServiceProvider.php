@@ -36,10 +36,12 @@ class StoreOrgPaymentServiceProvider extends OrgAction
         );
 
         /** @var OrgPaymentServiceProvider $orgPaymentServiceProvider */
-        $orgPaymentServiceProvider = $paymentServiceProvider->orgPaymentServiceProviders()->create($modelData);
+        $orgPaymentServiceProvider = $paymentServiceProvider->orgPaymentServiceProviders()->create(Arr::except($modelData, ['name', 'account_type']));
         $orgPaymentServiceProvider->stats()->create();
 
-        StorePaymentAccount::run($orgPaymentServiceProvider, Arr::only($modelData, ['type', 'name', 'code']));
+        StorePaymentAccount::run($orgPaymentServiceProvider, array_merge(Arr::only($modelData, ['name', 'code']), [
+            'type' => Arr::get($modelData, 'account_type')
+        ]));
 
         OrganisationHydrateOrgPaymentServiceProviders::dispatch($organisation);
         GroupHydratePaymentServiceProviders::dispatch($organisation->group);
@@ -70,7 +72,9 @@ class StoreOrgPaymentServiceProvider extends OrgAction
                     ]
                 ),
             ],
-            'source_id' => ['sometimes', 'string'],
+            'name'         => ['sometimes', 'string'],
+            'account_type' => ['sometimes', 'string'],
+            'source_id'    => ['sometimes', 'string'],
         ];
     }
 

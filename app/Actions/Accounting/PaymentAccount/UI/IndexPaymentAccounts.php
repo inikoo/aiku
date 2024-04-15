@@ -48,7 +48,7 @@ class IndexPaymentAccounts extends OrgAction
         if ($parent instanceof Organisation) {
             $queryBuilder->where('payment_accounts.organisation_id', $parent->id);
         } elseif ($parent instanceof OrgPaymentServiceProvider) {
-            $queryBuilder->where('payment_service_provider_id', $parent->id);
+            $queryBuilder->where('org_payment_service_provider_id', $parent->id);
         } elseif ($parent instanceof Shop) {
             $queryBuilder->leftJoin('payment_account_shop', 'payment_account_shop.payment_account_id', 'payment_accounts.id');
             $queryBuilder->where('payment_account_shop.shop_id', $parent->id);
