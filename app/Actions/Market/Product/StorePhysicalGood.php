@@ -46,6 +46,7 @@ class StorePhysicalGood extends OrgAction
         data_forget($modelData, 'trade_units');
 
         data_set($modelData, 'unit_relationship_type', $this->getUnitRelationshipType($tradeUnits));
+        data_set($modelData, 'outer_type', 'Outer');
 
 
         $price=Arr::get($modelData, 'price');

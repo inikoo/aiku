@@ -60,47 +60,14 @@ class Outer extends Model
     use SoftDeletes;
     use HasSlug;
     use HasUniversalSearch;
+    use IsOuterable;
 
     protected $casts = [
         'state'       => OuterStateEnum::class
 
     ];
 
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
-
     protected $guarded = [];
-
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom('code')
-            ->saveSlugsTo('slug')
-            ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(64);
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
-
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
-
-    public function shop(): BelongsTo
-    {
-        return $this->belongsTo(Shop::class);
-    }
-
-    public function product(): BelongsTo
-    {
-        return $this->belongsTo(Product::class);
-    }
 
     public function salesStats(): HasOne
     {
