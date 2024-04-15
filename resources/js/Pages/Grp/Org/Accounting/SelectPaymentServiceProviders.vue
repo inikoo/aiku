@@ -11,8 +11,7 @@ import PageHeading from "@/Components/Headings/PageHeading.vue";
 import { capitalize } from "@/Composables/capitalize";
 import TableSelectPaymentServiceProviders from "@/Components/Tables/Grp/Accounting/TableSelectPaymentServiceProviders.vue";
 
-defineProps(["data", "title", "pageHead"]);
-
+const props = defineProps(["data", "title", "pageHead"]);
 </script>
 
 <template>
