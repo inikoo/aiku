@@ -16,8 +16,10 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $code
  * @property mixed $created_at
  * @property string $name
+ * @property int $id
  * @property mixed $org_slug
  * @property mixed $org_code
+ * @property \App\Models\SysAdmin\Organisation $organisation
  *
  */
 class SelectOrgPaymentServiceProvidersResource extends JsonResource
@@ -32,6 +34,13 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
             'code'                        => $this->code,
             'org_code'                    => $this->org_code,
             'name'                        => $this->name,
+            'storeRoute'                  => [
+                'name'       => 'grp.models.org.payment-service-provider.store',
+                'parameters' => [
+                    'organisation'           => $this->organisation->id,
+                    'paymentServiceProvider' => $this->id
+                ]
+            ]
         ];
     }
 }
