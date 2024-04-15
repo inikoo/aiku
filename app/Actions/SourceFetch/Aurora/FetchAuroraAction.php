@@ -7,8 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Helpers\Fetch\StoreFetch;
-use App\Actions\Helpers\Fetch\UpdateFetch;
 use App\Actions\Media\Media\UpdateIsAnimatedMedia;
 use App\Actions\SourceFetch\FetchAction;
 use App\Actions\SysAdmin\User\UpdateUser;
@@ -18,7 +16,6 @@ use App\Models\Media\Media;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Organisation;
-use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -29,9 +26,8 @@ class FetchAuroraAction extends FetchAction
     use WithAuroraOrganisationsArgument;
 
 
-    public function processOrganisation(Command $command, Organisation $organisation): int
+    protected function preProcessCommand(Command $command): void
     {
-
 
         if ($command->getName() == 'fetch:webpages') {
             $this->fetchAll = (bool)$command->option('all');
@@ -81,27 +77,10 @@ class FetchAuroraAction extends FetchAction
             $this->with = $command->option('with');
         }
 
-        try {
-            $this->organisationSource = $this->getOrganisationSource($organisation);
-        } catch (Exception $exception) {
-            $command->error($exception->getMessage());
+    }
 
-            return 1;
-        }
-        $this->organisationSource->initialisation($organisation, $command->option('db_suffix') ?? '');
-
-        $this->organisationSource->fetch = StoreFetch::run(
-            [
-                'type' => $this->getFetchType($command),
-                'data' => [
-                    'command'   => $command->getName(),
-                    'arguments' => $command->arguments(),
-                    'options'   => $command->options(),
-                ]
-            ]
-        );
-
-
+    protected function doReset(Command $command): void
+    {
         if (in_array($command->getName(), [
                 'fetch:stocks',
                 'fetch:products',
@@ -120,33 +99,11 @@ class FetchAuroraAction extends FetchAction
             $this->reset();
         }
 
-        $command->info('');
+    }
 
-        if ($command->option('source_id')) {
-            $this->handle($this->organisationSource, $command->option('source_id'));
-            UpdateFetch::run($this->organisationSource->fetch, ['number_items' => 1]);
-        } else {
-            $numberItems = $this->count() ?? 0;
-            UpdateFetch::run($this->organisationSource->fetch, ['number_items' => $numberItems]);
-            if (!$command->option('quiet') and !$command->getOutput()->isDebug()) {
-                $info = '✊ '.$command->getName().' '.$organisation->slug;
-                if ($this->shop) {
-                    $info .= ' shop:'.$this->shop->slug;
-                }
-                $command->line($info);
-                $this->progressBar = $command->getOutput()->createProgressBar($this->count() ?? 0);
-                $this->progressBar->setFormat('debug');
-                $this->progressBar->start();
-            } else {
-                $command->line('Steps '.number_format($this->count()));
-            }
-
-            $this->fetchAll($this->organisationSource, $command);
-            $this->progressBar?->finish();
-        }
-        UpdateFetch::run($this->organisationSource->fetch, ['finished_at' => now()]);
-
-        return 0;
+    public function getDBPrefix(Command $command): string
+    {
+        return    $command->option('db_suffix') ?? '';
     }
 
     public function authorize(ActionRequest $request): bool
@@ -243,7 +200,7 @@ class FetchAuroraAction extends FetchAction
         }
     }
 
-    private function getFetchType(Command $command): ?FetchTypeEnum
+    protected function getFetchType(Command $command): FetchTypeEnum
     {
         return match ($command->getName()) {
             'fetch:prospects' => FetchTypeEnum::PROSPECTS,
