@@ -7,14 +7,17 @@
 
 namespace App\Actions\SourceFetch;
 
+use App\Actions\Helpers\Fetch\StoreFetch;
 use App\Actions\Helpers\Fetch\UpdateFetch;
 use App\Actions\Traits\WithOrganisationSource;
+use App\Enums\Helpers\Fetch\FetchTypeEnum;
 use App\Enums\Helpers\FetchRecord\FetchRecordTypeEnum;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Services\Organisation\AuroraOrganisationService;
 use App\Services\Organisation\SourceOrganisationService;
 use App\Services\Organisation\WowsbarOrganisationService;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
@@ -52,6 +55,10 @@ class FetchAction
         $this->with        = [];
     }
 
+    protected function getFetchType(Command $command): FetchTypeEnum
+    {
+       return FetchTypeEnum::BASE;
+    }
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): Model|array|null
     {
@@ -95,6 +102,17 @@ class FetchAction
             ->cursor();
     }
 
+
+    protected function preProcessCommand(Command $command)
+    {
+
+    }
+
+    protected function doReset(Command $command)
+    {
+
+    }
+
     public function asCommand(Command $command): int
     {
         $this->hydrateDelay = 120;
@@ -103,6 +121,9 @@ class FetchAction
         $exitCode      = 0;
 
         foreach ($organisations as $organisation) {
+
+            $this->preProcessCommand($command);
+
             $result = $this->processOrganisation($command, $organisation);
 
             if ($result !== 0) {
@@ -145,6 +166,61 @@ class FetchAction
     {
         $this->number_stores++;
         UpdateFetch::run($organisationSource->fetch, ['number_stores' => $this->number_stores]);
+    }
+
+
+    public function processOrganisation(Command $command, Organisation $organisation): int
+    {
+
+        try {
+            $this->organisationSource = $this->getOrganisationSource($organisation);
+        } catch (Exception $exception) {
+            $command->error($exception->getMessage());
+
+            return 1;
+        }
+        $this->organisationSource->initialisation($organisation, $command->option('db_suffix') ?? '');
+
+        $this->organisationSource->fetch = StoreFetch::run(
+            [
+                'type' => $this->getFetchType($command),
+                'data' => [
+                    'command'   => $command->getName(),
+                    'arguments' => $command->arguments(),
+                    'options'   => $command->options(),
+                ]
+            ]
+        );
+
+
+
+        $command->info('');
+
+        if ($command->option('source_id')) {
+            $this->handle($this->organisationSource, $command->option('source_id'));
+            UpdateFetch::run($this->organisationSource->fetch, ['number_items' => 1]);
+        } else {
+            $numberItems = $this->count() ?? 0;
+            UpdateFetch::run($this->organisationSource->fetch, ['number_items' => $numberItems]);
+            if (!$command->option('quiet') and !$command->getOutput()->isDebug()) {
+                $info = '✊ '.$command->getName().' '.$organisation->slug;
+                if ($this->shop) {
+                    $info .= ' shop:'.$this->shop->slug;
+                }
+                $command->line($info);
+                $this->progressBar = $command->getOutput()->createProgressBar($this->count() ?? 0);
+                $this->progressBar->setFormat('debug');
+                $this->progressBar->start();
+            } else {
+                $command->line('Steps '.number_format($this->count()));
+            }
+
+            $this->fetchAll($this->organisationSource, $command);
+            $this->progressBar?->finish();
+        }
+        UpdateFetch::run($this->organisationSource->fetch, ['finished_at' => now()]);
+
+        return 0;
     }
 
 }
