@@ -5,28 +5,42 @@
   -->
 
 <script setup lang="ts">
+import { Link, useForm } from '@inertiajs/vue3';
+import Table from '@/Components/Table/Table.vue';
+import { SelectPaymentServiceProvider } from "@/types/select-payment-service-provider"
+import { faPlus } from "@fas"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import Modal from "@/Components/Utils/Modal.vue"
+import { ref } from 'vue'
+import AccountProvidersForm from '@/Components/PaymentProviders/accountProvidersForm.vue'
+library.add(faPlus)
 
 defineProps<{
     data: object,
     tab?: string
 }>()
-import {Link} from '@inertiajs/vue3';
-import Table from '@/Components/Table/Table.vue';
-import {SelectPaymentServiceProvider} from "@/types/select-payment-service-provider"
 
+
+const openModal = ref(false)
+const selectedProvider = ref(null)
+const form = useForm({
+    code: null,
+    name: null
+})
 
 function paymentServiceProviderRoute(paymentServiceAccount: SelectPaymentServiceProvider) {
-  console.log(route().current())
-  switch (route().current()) {
-    case 'grp.org.accounting.org-payment-service-providers.index':
-      return route(
-        'grp.org.accounting.org-payment-service-providers.show',
-        [route().params['organisation'], paymentServiceAccount.org_slug]);
+    console.log(route().current())
+    switch (route().current()) {
+        case 'grp.org.accounting.org-payment-service-providers.index':
+            return route(
+                'grp.org.accounting.org-payment-service-providers.show',
+                [route().params['organisation'], paymentServiceAccount.org_slug]);
 
-    default:
-      return null;
+        default:
+            return null;
 
-  }
+    }
 
 }
 function paymentAccountRoute(paymentServiceAccount: SelectPaymentServiceProvider) {
@@ -75,30 +89,55 @@ function paymentsRoute(paymentServiceAccount: SelectPaymentServiceProvider) {
     }
 
 }
+
+
+const onOpenModal = (data) => {
+    selectedProvider.value = data
+    openModal.value = true
+}
+
+const onCloseModal = (data) => {
+    selectedProvider.value = null
+    openModal.value = false
+}
+
 </script>
 
 
 <template>
     <Table :resource="data" class="mt-5">
-
-        <template #cell(code)="{ item: paymentServiceProvider }">
-          <Link v-if="paymentServiceProvider['org_slug']"  :href="paymentServiceProviderRoute(paymentServiceProvider)" class="specialUnderline">
-                {{ paymentServiceProvider['org_code'] }}
-            </Link>
-          <span v-else>{{ paymentServiceProvider['code'] }}</span>
+        <template #cell(adoption)="{ item: item }">
+            <div class="flex justify-center">
+                <font-awesome-icon :icon="['fas', 'plus']" @click="() => onOpenModal(item)" />
+            </div>
         </template>
 
+        <template #cell(code)="{ item: paymentServiceProvider }">
+            <Link v-if="paymentServiceProvider['org_slug']" :href="paymentServiceProviderRoute(paymentServiceProvider)"
+                class="specialUnderline">
+            {{ paymentServiceProvider['org_code'] }}
+            </Link>
+            <span v-else>{{ paymentServiceProvider['code'] }}</span>
+        </template>
         <template #cell(number_payment_accounts)="{ item: paymentServiceProvider }">
-            <Link v-if="paymentServiceProvider['org_slug']" :href="paymentAccountRoute(paymentServiceProvider)" class="specialUnderlineSecondary">
-                {{ paymentServiceProvider['number_payment_accounts'] }}
+            <Link v-if="paymentServiceProvider['org_slug']" :href="paymentAccountRoute(paymentServiceProvider)"
+                class="specialUnderlineSecondary">
+            {{ paymentServiceProvider['number_payment_accounts'] }}
             </Link>
         </template>
         <template #cell(number_payments)="{ item: paymentServiceProvider }">
-            <Link v-if="paymentServiceProvider['org_slug']" :href="paymentsRoute(paymentServiceProvider)" class="specialUnderlineSecondary">
-                {{ paymentServiceProvider['number_payments'] }}
+            <Link v-if="paymentServiceProvider['org_slug']" :href="paymentsRoute(paymentServiceProvider)"
+                class="specialUnderlineSecondary">
+            {{ paymentServiceProvider['number_payments'] }}
             </Link>
         </template>
 
 
     </Table>
+
+    <Modal :isOpen="openModal" @onClose="onCloseModal" width="w-96">
+        <div>
+            <AccountProvidersForm :provider="selectedProvider" :onCloseModal="onCloseModal"/>
+        </div>
+    </Modal>
 </template>
