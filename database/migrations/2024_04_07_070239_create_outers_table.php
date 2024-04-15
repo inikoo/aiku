@@ -33,7 +33,7 @@ return new class () extends Migration {
             $table->unsignedDecimal('price', 18)->comment('outer price');
             $table->unsignedInteger('available')->default(0)->nullable();
 
-            $table->unsignedSmallInteger('number_historic_outers')->default(0);
+            $table->unsignedSmallInteger('number_historic_outerables')->default(0);
 
 
             $table->timestampsTz();

@@ -24,7 +24,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_outers_state_active
  * @property int $number_outers_state_discontinuing
  * @property int $number_outers_state_discontinued
- * @property int $number_historic_outers
+ * @property int $number_historic_outerables
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\Market\Product $product

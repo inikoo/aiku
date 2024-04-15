@@ -111,6 +111,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, OrgStock> $orgStocks
  * @property-read Collection<int, OrgSupplier> $orgSuppliers
  * @property-read Collection<int, PaymentAccount> $paymentAccounts
+ * @property-read Collection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read Collection<int, Payment> $payments
  * @property-read \App\Models\SysAdmin\OrganisationProcurementStats|null $procurementStats
  * @property-read Collection<int, ProductCategory> $productCategories

@@ -17,7 +17,6 @@ use OwenIt\Auditing\Contracts\Auditable;
  * App\Models\Helpers\Fetch
  *
  * @property int $id
- * @property string $slug
  * @property FetchTypeEnum $type
  * @property int $number_items
  * @property int $number_no_changes

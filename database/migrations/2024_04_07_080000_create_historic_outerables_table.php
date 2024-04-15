@@ -15,7 +15,7 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::create('historic_outers', function (Blueprint $table) {
+        Schema::create('historic_outerables', function (Blueprint $table) {
             $table->increments('id');
             $table = $this->groupOrgRelationship($table);
 
@@ -43,6 +43,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('historic_outers');
+        Schema::dropIfExists('historic_outerables');
     }
 };

@@ -33,7 +33,7 @@ return new class () extends Migration {
 
 
             $table->string('outer_type')->index();
-            $table->unsignedInteger('current_historic_outer_id')->index()->nullable();
+            $table->unsignedInteger('current_historic_outerable_id')->index()->nullable();
 
 
             $table->string('state')->default(ProductStateEnum::IN_PROCESS)->index();

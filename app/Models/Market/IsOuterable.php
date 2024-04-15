@@ -12,9 +12,8 @@ use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Sluggable\SlugOptions;
 
-trait IsOuterable {
-
-
+trait IsOuterable
+{
     public function getRouteKeyName(): string
     {
         return 'slug';

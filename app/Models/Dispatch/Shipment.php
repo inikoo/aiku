@@ -45,7 +45,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $source_id
  * @property-read Customer|null $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\DeliveryNote> $deliveryNotes
- * @property-read \Illuminate\Database\Eloquent\Collection<int, ShipmentEvent> $events
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Dispatch\ShipmentEvent> $events
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read \App\Models\Dispatch\Shipper|null $shipper

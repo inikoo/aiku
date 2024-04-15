@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property int $org_supplier_product_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read OrgSupplierProduct $orgSupplierProduct
+ * @property-read \App\Models\Procurement\OrgSupplierProduct $orgSupplierProduct
  * @property-read OrgSupplierProductStats|null $stats
  * @method static \Illuminate\Database\Eloquent\Builder|OrgSupplierProductStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgSupplierProductStats newQuery()

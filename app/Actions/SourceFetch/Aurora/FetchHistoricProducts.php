@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Market\HistoricOuter\StoreHistoricOuter;
-use App\Actions\Market\HistoricOuter\UpdateHistoricOuter;
-use App\Models\Market\HistoricOuter;
+use App\Actions\Market\HistoricOuterable\StoreHistoricOuterable;
+use App\Actions\Market\HistoricOuterable\UpdateHistoricOuterable;
+use App\Models\Market\HistoricOuterable;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -19,19 +19,19 @@ class FetchHistoricProducts
     use AsAction;
 
 
-    public function handle(SourceOrganisationService $organisationSource, int $source_id): ?HistoricOuter
+    public function handle(SourceOrganisationService $organisationSource, int $source_id): ?HistoricOuterable
     {
         if ($historicProductData = $organisationSource->fetchHistoricProduct($source_id)) {
-            if ($historicProduct = HistoricOuter::withTrashed()->where('source_id', $historicProductData['historic_outer']['source_id'])
+            if ($historicProduct = HistoricOuterable::withTrashed()->where('source_id', $historicProductData['historic_outerable']['source_id'])
                 ->first()) {
-                $historicProduct = UpdateHistoricOuter::run(
+                $historicProduct = UpdateHistoricOuterable::run(
                     historicProduct: $historicProduct,
-                    modelData:       $historicProductData['historic_outer'],
+                    modelData:       $historicProductData['historic_outerable'],
                 );
             } else {
-                $historicProduct = StoreHistoricOuter::run(
+                $historicProduct = StoreHistoricOuterable::run(
                     product:   $historicProductData['product'],
-                    modelData: $historicProductData['historic_outer']
+                    modelData: $historicProductData['historic_outerable']
                 );
             }
             $sourceData = explode(':', $historicProduct->source_id);

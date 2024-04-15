@@ -31,7 +31,7 @@ class ProductHydrateHistoricOuters
     {
 
         $stats         = [
-            'number_historic_outers' => $product->historicOuters()->count(),
+            'number_historic_outerables' => $product->historicOuters()->count(),
         ];
 
         $product->stats()->update($stats);

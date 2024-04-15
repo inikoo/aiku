@@ -12,10 +12,10 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('historic_outer_stats', function (Blueprint $table) {
+        Schema::create('historic_outerable_stats', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('historic_outer_id')->index();
-            $table->foreign('historic_outer_id')->references('id')->on('historic_outers');
+            $table->unsignedInteger('historic_outerable_id')->index();
+            $table->foreign('historic_outerable_id')->references('id')->on('historic_outerables');
             $table->timestampsTz();
         });
     }
@@ -23,6 +23,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('historic_outer_stats');
+        Schema::dropIfExists('historic_outerable_stats');
     }
 };

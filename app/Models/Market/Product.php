@@ -51,7 +51,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $owner_id
  * @property string $parent_type
  * @property int $parent_id
- * @property int|null $current_historic_outer_id
+ * @property string $outer_type
+ * @property int|null $current_historic_outerable_id
  * @property ProductStateEnum $state
  * @property bool $status
  * @property ProductUnitRelationshipType|null $unit_relationship_type
@@ -68,12 +69,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read Collection<int, Barcode> $barcode
  * @property-read Group $group
- * @property-read Collection<int, \App\Models\Market\HistoricOuter> $historicOuters
+ * @property-read Collection<int, \App\Models\Market\HistoricOuterable> $historicOuters
  * @property-read MediaCollection<int, Media> $images
  * @property-read MediaCollection<int, Media> $media
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Market\Outer> $outers
- * @property-read ProductSalesStats|null $salesStats
+ * @property-read \App\Models\Market\ProductSalesStats|null $salesStats
  * @property-read \App\Models\Market\Shop|null $shop
  * @property-read \App\Models\Market\ProductStats|null $stats
  * @property-read Collection<int, TradeUnit> $tradeUnits
@@ -157,7 +158,7 @@ class Product extends Model implements HasMedia
 
     public function historicOuters(): HasMany
     {
-        return $this->hasMany(HistoricOuter::class);
+        return $this->hasMany(HistoricOuterable::class);
     }
 
     public function stats(): HasOne

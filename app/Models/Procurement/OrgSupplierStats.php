@@ -53,7 +53,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_supplier_deliveries_status_settled_cancelled
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read OrgSupplier $orgSupplier
+ * @property-read \App\Models\Procurement\OrgSupplier $orgSupplier
  * @method static \Illuminate\Database\Eloquent\Builder|OrgSupplierStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgSupplierStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgSupplierStats query()

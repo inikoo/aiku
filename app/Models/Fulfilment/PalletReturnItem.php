@@ -21,8 +21,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property PalletReturnItemStateEnum $state
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Pallet $pallet
- * @property-read PalletReturn $palletReturn
+ * @property-read \App\Models\Fulfilment\Pallet $pallet
+ * @property-read \App\Models\Fulfilment\PalletReturn $palletReturn
  * @method static \Illuminate\Database\Eloquent\Builder|PalletReturnItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PalletReturnItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PalletReturnItem query()

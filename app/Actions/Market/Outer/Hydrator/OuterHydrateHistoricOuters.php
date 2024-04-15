@@ -31,7 +31,7 @@ class OuterHydrateHistoricOuters
     {
 
         $stats         = [
-            'number_historic_outers' => $outer->historicRecords()->count(),
+            'number_historic_outerables' => $outer->historicRecords()->count(),
         ];
 
         $outer->update($stats);

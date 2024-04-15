@@ -96,7 +96,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Country $country
  * @property-read \App\Models\Market\ShopCRMStats|null $crmStats
  * @property-read Currency $currency
- * @property-read SenderEmail $senderEmail
  * @property-read Collection<int, Customer> $customers
  * @property-read Fulfilment|null $fulfilment
  * @property-read Group $group
@@ -115,6 +114,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Prospect> $prospects
  * @property-read Collection<int, Role> $roles
  * @property-read \App\Models\Market\ShopSalesStats|null $salesStats
+ * @property-read SenderEmail|null $senderEmail
  * @property-read Collection<int, SerialReference> $serialReferences
  * @property-read Collection<int, \App\Models\Market\ShippingZoneSchema> $shippingZoneSchemas
  * @property-read \App\Models\Market\ShopStats|null $stats
