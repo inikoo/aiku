@@ -37,7 +37,7 @@ const props = defineProps<{
     locations?: {
         data: []
     }
-    history: {}
+    history?: {}
 }>()
 
 

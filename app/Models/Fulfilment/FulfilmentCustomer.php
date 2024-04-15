@@ -8,7 +8,6 @@
 namespace App\Models\Fulfilment;
 
 use App\Models\CRM\Customer;
-use App\Models\FulfilmentProforma;
 use App\Models\Helpers\SerialReference;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;

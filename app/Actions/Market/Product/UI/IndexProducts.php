@@ -19,7 +19,6 @@ use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -186,15 +185,7 @@ class IndexProducts extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $products, ActionRequest $request): Response
     {
-        $scope     = $this->parent;
-        $container = null;
-        if (class_basename($scope) == 'Shop') {
-            $container = [
-                'icon'    => ['fal', 'fa-store-alt'],
-                'tooltip' => __('Shop'),
-                'label'   => Str::possessive($scope->name)
-            ];
-        }
+
 
 
         return Inertia::render(
@@ -207,7 +198,6 @@ class IndexProducts extends OrgAction
                 'title'    => __('Products'),
                 'pageHead' => [
                     'title'     => __('products'),
-                    'container' => $container,
                     'iconRight' => [
                         'icon'  => ['fal', 'fa-cube'],
                         'title' => __('product')

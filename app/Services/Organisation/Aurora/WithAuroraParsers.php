@@ -8,32 +8,32 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Actions\SourceFetch\Aurora\FetchCustomers;
-use App\Actions\SourceFetch\Aurora\FetchDeletedCustomers;
-use App\Actions\SourceFetch\Aurora\FetchDeletedEmployees;
-use App\Actions\SourceFetch\Aurora\FetchDeletedStocks;
-use App\Actions\SourceFetch\Aurora\FetchDepartments;
-use App\Actions\SourceFetch\Aurora\FetchDispatchedEmails;
-use App\Actions\SourceFetch\Aurora\FetchEmployees;
-use App\Actions\SourceFetch\Aurora\FetchFamilies;
+use App\Actions\SourceFetch\Aurora\FetchAuroraCustomers;
+use App\Actions\SourceFetch\Aurora\FetchAuroraDeletedCustomers;
+use App\Actions\SourceFetch\Aurora\FetchAuroraDeletedEmployees;
+use App\Actions\SourceFetch\Aurora\FetchAuroraDeletedStocks;
+use App\Actions\SourceFetch\Aurora\FetchAuroraDepartments;
+use App\Actions\SourceFetch\Aurora\FetchAuroraDispatchedEmails;
+use App\Actions\SourceFetch\Aurora\FetchAuroraEmployees;
+use App\Actions\SourceFetch\Aurora\FetchAuroraFamilies;
 use App\Actions\SourceFetch\Aurora\FetchHistoricProducts;
 use App\Actions\SourceFetch\Aurora\FetchHistoricServices;
-use App\Actions\SourceFetch\Aurora\FetchLocations;
-use App\Actions\SourceFetch\Aurora\FetchMailshots;
-use App\Actions\SourceFetch\Aurora\FetchOrders;
-use App\Actions\SourceFetch\Aurora\FetchOutboxes;
-use App\Actions\SourceFetch\Aurora\FetchPaymentAccounts;
-use App\Actions\SourceFetch\Aurora\FetchPayments;
-use App\Actions\SourceFetch\Aurora\FetchPaymentServiceProviders;
-use App\Actions\SourceFetch\Aurora\FetchProducts;
-use App\Actions\SourceFetch\Aurora\FetchProspects;
-use App\Actions\SourceFetch\Aurora\FetchServices;
-use App\Actions\SourceFetch\Aurora\FetchShippers;
-use App\Actions\SourceFetch\Aurora\FetchShops;
-use App\Actions\SourceFetch\Aurora\FetchStocks;
-use App\Actions\SourceFetch\Aurora\FetchTradeUnits;
-use App\Actions\SourceFetch\Aurora\FetchWarehouses;
-use App\Actions\SourceFetch\Aurora\FetchWebsites;
+use App\Actions\SourceFetch\Aurora\FetchAuroraLocations;
+use App\Actions\SourceFetch\Aurora\FetchAuroraMailshots;
+use App\Actions\SourceFetch\Aurora\FetchAuroraOrders;
+use App\Actions\SourceFetch\Aurora\FetchAuroraOutboxes;
+use App\Actions\SourceFetch\Aurora\FetchAuroraPaymentAccounts;
+use App\Actions\SourceFetch\Aurora\FetchAuroraPayments;
+use App\Actions\SourceFetch\Aurora\FetchAuroraPaymentServiceProviders;
+use App\Actions\SourceFetch\Aurora\FetchAuroraProducts;
+use App\Actions\SourceFetch\Aurora\FetchAuroraProspects;
+use App\Actions\SourceFetch\Aurora\FetchAuroraServices;
+use App\Actions\SourceFetch\Aurora\FetchAuroraShippers;
+use App\Actions\SourceFetch\Aurora\FetchAuroraShops;
+use App\Actions\SourceFetch\Aurora\FetchAuroraStocks;
+use App\Actions\SourceFetch\Aurora\FetchAuroraTradeUnits;
+use App\Actions\SourceFetch\Aurora\FetchAuroraWarehouses;
+use App\Actions\SourceFetch\Aurora\FetchAuroraWebsites;
 use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
 use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Accounting\OrgPaymentServiceProvider;
@@ -232,7 +232,7 @@ trait WithAuroraParsers
         $shop = Shop::where('source_id', $sourceId)->first();
         if (!$shop) {
             $sourceData = explode(':', $sourceId);
-            $shop       = FetchShops::run($this->organisationSource, $sourceData[1]);
+            $shop       = FetchAuroraShops::run($this->organisationSource, $sourceData[1]);
         }
 
         return $shop;
@@ -243,7 +243,7 @@ trait WithAuroraParsers
         $website = Website::where('source_id', $sourceId)->first();
         if (!$website) {
             $sourceData = explode(':', $sourceId);
-            $website    = FetchWebsites::run($this->organisationSource, $sourceData[1]);
+            $website    = FetchAuroraWebsites::run($this->organisationSource, $sourceData[1]);
         }
 
         return $website;
@@ -289,7 +289,7 @@ trait WithAuroraParsers
         $product = Product::where('source_id', $sourceId)->first();
         if (!$product) {
             $sourceData = explode(':', $sourceId);
-            $product    = FetchProducts::run($this->organisationSource, $sourceData[1]);
+            $product    = FetchAuroraProducts::run($this->organisationSource, $sourceData[1]);
         }
 
         return $product;
@@ -300,7 +300,7 @@ trait WithAuroraParsers
         $department = ProductCategory::where('type', ProductCategoryTypeEnum::DEPARTMENT)->where('source_department_id', $sourceId)->first();
         if (!$department) {
             $sourceData = explode(':', $sourceId);
-            $department = FetchDepartments::run($this->organisationSource, $sourceData[1]);
+            $department = FetchAuroraDepartments::run($this->organisationSource, $sourceData[1]);
         }
 
         return $department;
@@ -311,7 +311,7 @@ trait WithAuroraParsers
         $family = ProductCategory::where('type', ProductCategoryTypeEnum::FAMILY)->where('source_family_id', $sourceId)->first();
         if (!$family) {
             $sourceData = explode(':', $sourceId);
-            $family     = FetchFamilies::run($this->organisationSource, $sourceData[1]);
+            $family     = FetchAuroraFamilies::run($this->organisationSource, $sourceData[1]);
         }
 
         return $family;
@@ -322,7 +322,7 @@ trait WithAuroraParsers
         $service = Product::withTrashed()->where('source_id', $sourceId)->first();
         if (!$service) {
             $sourceData = explode(':', $sourceId);
-            $service    = FetchServices::run($this->organisationSource, $sourceData[1]);
+            $service    = FetchAuroraServices::run($this->organisationSource, $sourceData[1]);
         }
 
         return $service;
@@ -336,9 +336,9 @@ trait WithAuroraParsers
         $customer = Customer::withTrashed()->where('source_id', $sourceId)->first();
         if (!$customer) {
             $sourceData = explode(':', $sourceId);
-            $customer   = FetchCustomers::run($this->organisationSource, $sourceData[1]);
+            $customer   = FetchAuroraCustomers::run($this->organisationSource, $sourceData[1]);
             if (!$customer) {
-                $customer = FetchDeletedCustomers::run($this->organisationSource, $sourceData[1]);
+                $customer = FetchAuroraDeletedCustomers::run($this->organisationSource, $sourceData[1]);
             }
         }
 
@@ -361,12 +361,12 @@ trait WithAuroraParsers
         $sourceData = explode(':', $sourceId);
         if (!$orgStock) {
 
-            $res     = FetchStocks::run($this->organisationSource, $sourceData[1]);
+            $res     = FetchAuroraStocks::run($this->organisationSource, $sourceData[1]);
             $orgStock=$res['orgStock'];
         }
         /*
         if (!$orgStock) {
-            $res = FetchDeletedStocks::run($this->organisationSource,$sourceData[1]);
+            $res = FetchAuroraDeletedStocks::run($this->organisationSource,$sourceData[1]);
             $orgStock=$res['org_stock'];
 
         }
@@ -379,11 +379,11 @@ trait WithAuroraParsers
         $stock      = Stock::withTrashed()->where('source_id', $sourceId)->first();
         $sourceData = explode(':', $sourceId);
         if (!$stock) {
-            $res  = FetchStocks::run($this->organisationSource, $sourceData[1]);
+            $res  = FetchAuroraStocks::run($this->organisationSource, $sourceData[1]);
             $stock=$res['stock'];
         }
         if (!$stock) {
-            $res  = FetchDeletedStocks::run($this->organisationSource, $sourceData[1]);
+            $res  = FetchAuroraDeletedStocks::run($this->organisationSource, $sourceData[1]);
             $stock=$res['stock'];
         }
 
@@ -395,7 +395,7 @@ trait WithAuroraParsers
         $location = Location::where('source_id', $sourceId)->first();
         if (!$location) {
             $sourceData = explode(':', $sourceId);
-            $location   = FetchLocations::run($this->organisationSource, $sourceData[1]);
+            $location   = FetchAuroraLocations::run($this->organisationSource, $sourceData[1]);
         }
 
         return $location;
@@ -409,7 +409,7 @@ trait WithAuroraParsers
 
         $order = Order::where('source_id', $sourceId)->first();
         if (!$order) {
-            $order = FetchOrders::run($this->organisationSource, $sourceId);
+            $order = FetchAuroraOrders::run($this->organisationSource, $sourceId);
         }
 
         return $order;
@@ -424,7 +424,7 @@ trait WithAuroraParsers
     {
         $shipper = Shipper::where('source_id', $sourceId)->first();
         if (!$shipper) {
-            $shipper = FetchShippers::run($this->organisationSource, $sourceId);
+            $shipper = FetchAuroraShippers::run($this->organisationSource, $sourceId);
         }
 
         return $shipper;
@@ -435,7 +435,7 @@ trait WithAuroraParsers
         $orgPaymentServiceProvider = OrgPaymentServiceProvider::where('source_id', $sourceId)->first();
         if (!$orgPaymentServiceProvider) {
             $sourceData                = explode(':', $sourceId);
-            $orgPaymentServiceProvider = FetchPaymentServiceProviders::run($this->organisationSource, $sourceData[1]);
+            $orgPaymentServiceProvider = FetchAuroraPaymentServiceProviders::run($this->organisationSource, $sourceData[1]);
         }
 
         return $orgPaymentServiceProvider;
@@ -446,7 +446,7 @@ trait WithAuroraParsers
         $paymentAccount = PaymentAccount::where('source_id', $sourceId)->first();
         if (!$paymentAccount) {
             $sourceData     = explode(':', $sourceId);
-            $paymentAccount = FetchPaymentAccounts::run($this->organisationSource, $sourceData[1]);
+            $paymentAccount = FetchAuroraPaymentAccounts::run($this->organisationSource, $sourceData[1]);
         }
 
         return $paymentAccount;
@@ -456,10 +456,10 @@ trait WithAuroraParsers
     {
         $employee = Employee::withTrashed()->where('source_id', $sourceId)->first();
         if (!$employee) {
-            $employee = FetchEmployees::run($this->organisationSource, $sourceId);
+            $employee = FetchAuroraEmployees::run($this->organisationSource, $sourceId);
         }
         if (!$employee) {
-            $employee = FetchDeletedEmployees::run($this->organisationSource, $sourceId);
+            $employee = FetchAuroraDeletedEmployees::run($this->organisationSource, $sourceId);
         }
 
         return $employee;
@@ -470,7 +470,7 @@ trait WithAuroraParsers
     {
         $outbox = Outbox::where('source_id', $sourceId)->first();
         if (!$outbox) {
-            $outbox = FetchOutboxes::run($this->organisationSource, $sourceId);
+            $outbox = FetchAuroraOutboxes::run($this->organisationSource, $sourceId);
         }
 
         return $outbox;
@@ -484,7 +484,7 @@ trait WithAuroraParsers
 
         $mailshot = Mailshot::where('source_id', $sourceId)->first();
         if (!$mailshot) {
-            $mailshot = FetchMailshots::run($this->organisationSource, $sourceId);
+            $mailshot = FetchAuroraMailshots::run($this->organisationSource, $sourceId);
         }
 
         return $mailshot;
@@ -498,7 +498,7 @@ trait WithAuroraParsers
 
         $prospect = Prospect::where('source_id', $sourceId)->first();
         if (!$prospect) {
-            $prospect = FetchProspects::run($this->organisationSource, $sourceId);
+            $prospect = FetchAuroraProspects::run($this->organisationSource, $sourceId);
         }
 
         return $prospect;
@@ -508,7 +508,7 @@ trait WithAuroraParsers
     {
         $dispatchedEmail = DispatchedEmail::where('source_id', $sourceId)->first();
         if (!$dispatchedEmail) {
-            $dispatchedEmail = FetchDispatchedEmails::run($this->organisationSource, $sourceId);
+            $dispatchedEmail = FetchAuroraDispatchedEmails::run($this->organisationSource, $sourceId);
         }
 
         return $dispatchedEmail;
@@ -523,7 +523,7 @@ trait WithAuroraParsers
         $warehouse = Warehouse::withTrashed()->where('source_id', $sourceId)->first();
         if (!$warehouse) {
             $sourceData = explode(':', $sourceId);
-            $warehouse  = FetchWarehouses::run($this->organisationSource, $sourceData[1]);
+            $warehouse  = FetchAuroraWarehouses::run($this->organisationSource, $sourceData[1]);
         }
 
         return $warehouse;
@@ -533,7 +533,7 @@ trait WithAuroraParsers
     {
         $payment = Payment::withTrashed()->where('source_id', $sourceId)->first();
         if (!$payment) {
-            $payment = FetchPayments::run($this->organisationSource, $sourceId);
+            $payment = FetchAuroraPayments::run($this->organisationSource, $sourceId);
         }
 
         return $payment;
@@ -543,7 +543,7 @@ trait WithAuroraParsers
     {
         $tradeUnit = TradeUnit::withTrashed()->where('source_slug', $sourceSlug)->first();
         if (!$tradeUnit) {
-            $tradeUnit = FetchTradeUnits::run($this->organisationSource, $sourceId);
+            $tradeUnit = FetchAuroraTradeUnits::run($this->organisationSource, $sourceId);
         }
 
         return $tradeUnit;

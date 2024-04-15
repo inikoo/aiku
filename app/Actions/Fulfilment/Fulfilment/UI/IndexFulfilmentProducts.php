@@ -9,16 +9,18 @@ namespace App\Actions\Fulfilment\Fulfilment\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Enums\Market\Product\ProductStateEnum;
+use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\UI\Fulfilment\FulfilmentProductsTabsEnum;
-use App\Http\Resources\Fulfilment\FulfilmentResource;
-use App\Http\Resources\Market\ProductsResource;
+use App\Http\Resources\Market\FulfilmentProductsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Product;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
+use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -28,6 +30,37 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexFulfilmentProducts extends OrgAction
 {
+    protected function getElementGroups(Fulfilment $parent): array
+    {
+
+        return [
+            'type' => [
+                'label'    => __('Type'),
+                'elements' => array_merge_recursive(
+                    ProductTypeEnum::labels($parent->shop),
+                    ProductTypeEnum::count($parent->shop)
+                ),
+
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('type', $elements);
+                }
+
+            ],
+            'state' => [
+                'label'    => __('State'),
+                'elements' => array_merge_recursive(
+                    ProductStateEnum::labels(),
+                    ProductStateEnum::count($parent->shop)
+                ),
+
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('state', $elements);
+                }
+
+            ],
+        ];
+    }
+
     public function handle(Fulfilment $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -45,8 +78,8 @@ class IndexFulfilmentProducts extends OrgAction
         $queryBuilder->where('products.shop_id', $parent->shop_id);
 
 
-        /*
-        foreach ($this->elementGroups as $key => $elementGroup) {
+
+        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
@@ -54,7 +87,7 @@ class IndexFulfilmentProducts extends OrgAction
                 prefix: $prefix
             );
         }
-        */
+
 
 
         $queryBuilder
@@ -63,15 +96,15 @@ class IndexFulfilmentProducts extends OrgAction
                 'products.code',
                 'products.name',
                 'products.state',
+                'products.type',
                 'products.created_at',
                 'products.updated_at',
-                'products.slug',
-                'shops.slug as shop_slug'
+                'products.slug'
             ])
             ->leftJoin('product_stats', 'products.id', 'product_stats.product_id');
 
 
-        return $queryBuilder->allowedSorts(['code', 'name', 'shop_slug', 'department_slug', 'family_slug'])
+        return $queryBuilder->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -90,14 +123,14 @@ class IndexFulfilmentProducts extends OrgAction
     {
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(FulfilmentProductsTabsEnum::values());
 
-        return $this->handle($fulfilment);
+        return $this->handle($fulfilment, FulfilmentProductsTabsEnum::PRODUCTS->value);
     }
 
 
     public function htmlResponse(LengthAwarePaginator $products, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Fulfilment/Fulfilment',
+            'Org/Fulfilment/Products',
             [
                 'title'       => __('fulfilment'),
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -118,58 +151,68 @@ class IndexFulfilmentProducts extends OrgAction
 
 
                 FulfilmentProductsTabsEnum::PRODUCTS->value => $this->tab == FulfilmentProductsTabsEnum::PRODUCTS->value ?
-                    fn () => ProductsResource::collection($products)
-                    : Inertia::lazy(fn () => ProductsResource::collection($products)),
+                    fn () => FulfilmentProductsResource::collection($products)
+                    : Inertia::lazy(fn () => FulfilmentProductsResource::collection($products)),
 
 
             ]
-        );
+        )->table($this->tableStructure(
+            parent:$this->fulfilment,
+            prefix: FulfilmentProductsTabsEnum::PRODUCTS->value
+        ));
     }
 
-    public function prepareForValidation(ActionRequest $request): void
-    {
-        $this->fillFromRequest($request);
+    public function tableStructure(
+        Fulfilment $parent,
+        ?array $modelOperations = null,
+        $prefix = null,
+        $canEdit = false
+    ): Closure {
+        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix . 'Page');
+            }
 
-        /*
-        [
-            'title'       => __('no products'),
-            'description' => $canEdit ? __('Get started by creating a new product.') : null,
-            'count'       => $this->organisation->stats->number_products,
-            'action'      => $canEdit ? [
-                'type'    => 'button',
-                'style'   => 'create',
-                'tooltip' => __('new product'),
-                'label'   => __('product'),
-                'route'   => [
-                    'name'       => 'shops.products.create',
-                    'parameters' => array_values($request->route()->originalParameters())
-                ]
-            ] : null
-        ]*/
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
 
-        //            if ($parent instanceof Organisation) {
-        //                $table->column(
-        //                    key: 'shop_code',
-        //                    label: __('shop'),
-        //                    canBeHidden: false,
-        //                    sortable: true,
-        //                    searchable: true
-        //                );
-        //            };
-        //            $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-        //                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
-        //        };
+            $table
+                ->withGlobalSearch()
+                ->withModelOperations($modelOperations)
+                ->withEmptyState(
+                    match (class_basename($parent)) {
+                        'Fulfilment' => [
+                            'title' => __("No products found"),
+                            'count' => $parent->shop->stats->number_products,
+                        ],
+                        default => null
+                    }
+                );
+
+            $table
+                ->column(key: 'type', label: '', canBeHidden: false)
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('code');
+        };
     }
 
-    public function jsonResponse(Fulfilment $fulfilment): FulfilmentResource
+
+    public function jsonResponse(Fulfilment $fulfilment): FulfilmentProductsResource
     {
-        return new FulfilmentResource($fulfilment);
+        return new FulfilmentProductsResource($fulfilment);
     }
 
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
-
 
         $fulfilment = Fulfilment::where('slug', Arr::get($routeParameters, 'fulfilment'))->first();
 

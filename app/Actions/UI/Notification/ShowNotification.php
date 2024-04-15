@@ -9,7 +9,7 @@ namespace App\Actions\UI\Notification;
 
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\SysAdmin\NotificationResource;
-use App\Models\Notification;
+use App\Models\Notifications\Notification;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class ShowNotification

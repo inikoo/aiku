@@ -6,8 +6,11 @@
  */
 
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentProducts;
+use App\Actions\Market\Product\UI\ShowProduct;
 
 Route::get('products', IndexFulfilmentProducts::class)->name('index');
-Route::get('products/rent', IndexFulfilmentProducts::class)->name('rent.index');
-Route::get('products/services', IndexFulfilmentProducts::class)->name('services.index');
-Route::get('products/goods', IndexFulfilmentProducts::class)->name('goods.index');
+Route::get('products/{product}', ShowProduct::class)->name('show');
+
+Route::get('rentals', IndexFulfilmentProducts::class)->name('rentals.index');
+Route::get('services', IndexFulfilmentProducts::class)->name('services.index');
+Route::get('goods', IndexFulfilmentProducts::class)->name('goods.index');

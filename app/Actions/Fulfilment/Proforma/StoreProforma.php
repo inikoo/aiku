@@ -11,7 +11,7 @@ use App\Actions\OrgAction;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\FulfilmentProforma;
+use App\Models\Fulfilment\FulfilmentProforma;
 use App\Models\SysAdmin\Organisation;
 use Exception;
 use Illuminate\Console\Command;

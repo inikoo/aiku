@@ -7,7 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Actions\SourceFetch\Aurora\FetchCustomerClients;
+use App\Actions\SourceFetch\Aurora\FetchAuroraCustomerClients;
 use App\Enums\OMS\Order\OrderStateEnum;
 use App\Enums\OMS\Order\OrderStatusEnum;
 use App\Models\Helpers\Address;
@@ -35,7 +35,7 @@ class FetchAuroraOrder extends FetchAurora
         }
 
         if ($this->auroraModelData->{'Order Customer Client Key'} != "") {
-            $parent = FetchCustomerClients::run(
+            $parent = FetchAuroraCustomerClients::run(
                 $this->organisationSource,
                 $this->auroraModelData->{'Order Customer Client Key'},
             );

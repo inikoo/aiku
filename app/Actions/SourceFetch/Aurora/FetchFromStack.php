@@ -41,38 +41,38 @@ class FetchFromStack
         foreach ($query->get() as $jobData) {
             switch ($jobData->model) {
                 case 'Customer':
-                    $res = FetchCustomers::run($organisationSource, $jobData->model_id);
+                    $res = FetchAuroraCustomers::run($organisationSource, $jobData->model_id);
                     if (!$res) {
-                        $res = FetchDeletedCustomers::run($organisationSource, $jobData->model_id);
+                        $res = FetchAuroraDeletedCustomers::run($organisationSource, $jobData->model_id);
                     }
                     break;
                 case 'delete_customer':
                     $res = DeleteCustomerFromAurora::run($organisationSource, $jobData->model_id);
                     break;
                 case 'CustomerClient':
-                    $res = FetchCustomerClients::run($organisationSource, $jobData->model_id);
+                    $res = FetchAuroraCustomerClients::run($organisationSource, $jobData->model_id);
                     break;
                 case 'Stock':
-                    $res = FetchStocks::run($organisationSource, $jobData->model_id);
+                    $res = FetchAuroraStocks::run($organisationSource, $jobData->model_id);
                     break;
                 case 'Order':
-                    $res = FetchOrders::run($organisationSource, $jobData->model_id);
+                    $res = FetchAuroraOrders::run($organisationSource, $jobData->model_id);
                     break;
                 case 'DeliveryNote':
-                    $res = FetchDeliveryNotes::run($organisationSource, $jobData->model_id);
+                    $res = FetchAuroraDeliveryNotes::run($organisationSource, $jobData->model_id);
                     break;
                 case 'Invoice':
-                    $res = FetchInvoices::run($organisationSource, $jobData->model_id);
+                    $res = FetchAuroraInvoices::run($organisationSource, $jobData->model_id);
 
                     break;
                 case 'Product':
-                    $res = FetchProducts::run($organisationSource, $jobData->model_id);
+                    $res = FetchAuroraProducts::run($organisationSource, $jobData->model_id);
                     break;
                 case 'Supplier':
-                    $res = FetchSuppliers::run($organisationSource, $jobData->model_id);
+                    $res = FetchAuroraSuppliers::run($organisationSource, $jobData->model_id);
                     break;
                 case 'Agent':
-                    $res = FetchAgents::run($organisationSource, $jobData->model_id);
+                    $res = FetchAuroraAgents::run($organisationSource, $jobData->model_id);
                     break;
                 case 'delete_invoice':
                     $res = DeleteInvoiceFromAurora::run($organisationSource, $jobData->model_id);

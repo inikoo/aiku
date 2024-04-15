@@ -9,6 +9,8 @@
 namespace App\Actions\Market\Product;
 
 use App\Actions\Market\Outer\StoreOuter;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProducts;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProducts;
 use App\Actions\Market\Product\Hydrators\ProductHydrateHistoricOuters;
 use App\Actions\Market\Product\Hydrators\ProductHydrateOuters;
 use App\Actions\Market\Product\Hydrators\ProductHydrateUniversalSearch;
@@ -91,6 +93,9 @@ class StorePhysicalGood extends OrgAction
         ProductHydrateOuters::dispatch($product);
 
         ShopHydrateProducts::dispatch($product->shop);
+        OrganisationHydrateProducts::dispatch($product->organisation);
+        GroupHydrateProducts::dispatch($product->group);
+
         ProductHydrateUniversalSearch::dispatch($product);
 
         return $product;

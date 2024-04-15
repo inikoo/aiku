@@ -7,7 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Traits\WithOrganisationsArgument;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +16,7 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 class FetchResetBase
 {
     use AsAction;
-    use WithOrganisationsArgument;
+    use WithAuroraOrganisationsArgument;
     use WithAttributes;
     use HasFetchReset;
 

@@ -52,6 +52,10 @@ use Illuminate\Support\Carbon;
  * @property int $number_products_state_active
  * @property int $number_products_state_discontinuing
  * @property int $number_products_state_discontinued
+ * @property int $number_products_type_physical_good
+ * @property int $number_products_type_service
+ * @property int $number_products_type_subscription
+ * @property int $number_products_type_rental
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation

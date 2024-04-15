@@ -7,6 +7,7 @@
 
 namespace App\Actions\Traits;
 
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Support\LazyCollection;
@@ -15,7 +16,7 @@ trait WithOrganisationsArgument
 {
     protected function getOrganisations(Command $command): LazyCollection
     {
-        return Organisation::query()->where('type', 'shop')
+        return Organisation::query()->whereIn('type', [OrganisationTypeEnum::SHOP->value,OrganisationTypeEnum::DIGITAL_AGENCY->value])
             ->when($command->argument('organisations'), function ($query) use ($command) {
                 $query->whereIn('slug', $command->argument('organisations'));
             })
