@@ -79,7 +79,7 @@ class StoreShop extends OrgAction
             SeedShopPermissions::run($shop);
 
             $orgAdmins = $organisation->group->users()->with('roles')->get()->filter(
-                fn ($user) => $user->roles->where('name', "org-admin-$organisation->id")->toArray()
+                fn ($user) => $user->roles->where('name', "org-shop-admin-$organisation->id")->toArray()
             );
 
             foreach ($orgAdmins as $orgAdmin) {

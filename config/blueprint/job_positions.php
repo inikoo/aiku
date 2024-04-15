@@ -6,6 +6,7 @@
  *  Version 4.0
  */
 
+use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 
 return [
@@ -18,7 +19,7 @@ return [
             'name'               => 'Administrator',
             'department'         => 'admin',
             'roles'              => [
-                'super-admin'
+               RolesEnum::SUPER_ADMIN
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -32,7 +33,7 @@ return [
             'department'         => 'admin',
             'name'               => 'Human resources supervisor',
             'roles'              => [
-                'human-resources-supervisor'
+              RolesEnum::HUMAN_RESOURCES_SUPERVISOR
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -46,7 +47,7 @@ return [
             'department'         => 'admin',
             'grade'              => 'clerk',
             'roles'              => [
-                'human-resources'
+               RolesEnum::HUMAN_RESOURCES_CLERK
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -59,7 +60,7 @@ return [
             'department'         => 'admin',
             'name'               => 'Accounting manager',
             'roles'              => [
-                'accounting-supervisor'
+               RolesEnum::ACCOUNTING_SUPERVISOR
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -72,7 +73,7 @@ return [
             'department'         => 'admin',
             'name'               => 'Accounts',
             'roles'              => [
-                'accounting'
+              RolesEnum::ACCOUNTING_CLERK
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -85,7 +86,7 @@ return [
             'grade'              => 'manager',
             'name'               => 'Marketing supervisor',
             'roles'              => [
-                'guest'
+
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -97,7 +98,7 @@ return [
             'grade'              => 'clerk',
             'name'               => 'Marketing clerk',
             'roles'              => [
-                'guest'
+
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -109,7 +110,7 @@ return [
             'grade'              => 'manager',
             'name'               => 'Webmaster supervisor',
             'roles'              => [
-                'guest'
+
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -121,7 +122,7 @@ return [
             'grade'              => 'clerk',
             'name'               => 'Webmaster clerk',
             'roles'              => [
-                'guest'
+
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -132,7 +133,7 @@ return [
             'code'               => 'buy',
             'name'               => 'Buyer',
             'roles'              => [
-                'guest'
+                RolesEnum::PROCUREMENT_CLERK
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -145,7 +146,7 @@ return [
             'department' => 'procurement',
             'name'       => 'Warehouse supervisor',
             'roles'      => [
-                'distribution-admin'
+              RolesEnum::WAREHOUSE_ADMIN
             ],
 
             'organisation_types' => [
@@ -153,26 +154,14 @@ return [
                 OrganisationTypeEnum::AGENT
             ],
         ],
-        'wah-sk'   => [
-            'code'               => 'wah-sk',
-            'team'               => 'warehouse',
-            'department'         => 'warehouse',
-            'name'               => 'Warehouse stock keeper',
-            'roles'              => [
-                'guest'
-            ],
-            'organisation_types' => [
-                OrganisationTypeEnum::SHOP,
-                OrganisationTypeEnum::AGENT
-            ],
-        ],
+
         'wah-sc'   => [
             'code'               => 'wah-sc',
             'name'               => 'Stock Controller',
             'team'               => 'warehouse',
             'department'         => 'warehouse',
             'roles'              => [
-                'distribution-clerk'
+              RolesEnum::STOCK_CONTROLLER
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -185,7 +174,7 @@ return [
             'team'               => 'warehouse',
             'department'         => 'warehouse',
             'roles'              => [
-                'distribution-dispatcher-admin'
+                RolesEnum::DISPATCH_SUPERVISOR
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -198,7 +187,7 @@ return [
             'department'         => 'warehouse',
             'name'               => 'Picker',
             'roles'              => [
-                'distribution-dispatcher-picker'
+                RolesEnum::DISPATCH_CLERK
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -211,7 +200,7 @@ return [
             'department'         => 'warehouse',
             'name'               => 'Packer',
             'roles'              => [
-                'distribution-dispatcher-packer'
+                RolesEnum::DISPATCH_CLERK
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -224,7 +213,6 @@ return [
             'department'         => 'production',
             'name'               => 'Production supervisor',
             'roles'              => [
-                'guest'
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -247,7 +235,7 @@ return [
             'grade'              => 'manager',
             'name'               => 'Customer service supervisor',
             'roles'              => [
-                'guest'
+               RolesEnum::CUSTOMER_SERVICE_SUPERVISOR
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -259,7 +247,7 @@ return [
             'grade'              => 'clerk',
             'name'               => 'Customer service',
             'roles'              => [
-                'guest'
+                RolesEnum::CUSTOMER_SERVICE_CLERK
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,

@@ -38,7 +38,7 @@ class StoreFulfilment extends OrgAction
         SeedFulfilmentPermissions::run($fulfilment);
 
         $orgAdmins = $fulfilment->group->users()->with('roles')->get()->filter(
-            fn ($user) => $user->roles->where('name', "org-admin-{$fulfilment->organisation->id}")->toArray()
+            fn ($user) => $user->roles->where('name', "org-shop-admin-{$fulfilment->organisation->id}")->toArray()
         );
 
         foreach ($orgAdmins as $orgAdmin) {
