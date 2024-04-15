@@ -11,17 +11,20 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { ref } from 'vue'
 import Input from '@/Components/Forms/Fields/Input.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
+import Select from '@/Components/Forms/Fields/Select.vue';
 library.add(faPlus)
 
 const props = defineProps<{
     provider: object,
-    onCloseModal : Function
+    onCloseModal : Function,
+    paymentAccountTypes : object
 }>()
 
 
 const form = useForm({
     code: '',
-    name: ''
+    name: '',
+    account_type : ''
 })
 
 const onSubmit = () => {
@@ -31,7 +34,7 @@ const onSubmit = () => {
         }
     )
 }
-
+console.log(props.paymentAccountTypes)
 
 </script>
 
@@ -45,7 +48,10 @@ const onSubmit = () => {
     <div class="p-2">
         <div class="text-sm py-2">Name</div>
         <Input :form="form" fieldName="name" :fieldData="{ placeholder: 'Enter name' }" />
-
+    </div>
+    <div class="p-2">
+        <div class="text-sm py-2">Type</div>
+        <Select :form="form" fieldName="account_type" :options="paymentAccountTypes" :fieldData="{ placeholder: 'Enter type' }" />
     </div>
     <div class="p-2">
         <Button full @click="onSubmit" label="Submit" type="save"

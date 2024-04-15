@@ -12,8 +12,6 @@ use App\Models\Traits\HasHistory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use OwenIt\Auditing\Contracts\Auditable;
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Helpers\Fetch
@@ -39,7 +37,6 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Fetch extends Model implements Auditable
 {
-    use HasSlug;
     use HasHistory;
 
     protected $casts = [
@@ -53,25 +50,12 @@ class Fetch extends Model implements Auditable
 
     protected $guarded = [];
 
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
 
     protected array $auditInclude = [
         'finished_at',
     ];
 
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom(function () {
-                return  now()->format('Y-m-d').' '.$this->type->value;
-            })
-            ->saveSlugsTo('slug')
-            ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(24);
-    }
+
 
     public function records(): HasMany
     {

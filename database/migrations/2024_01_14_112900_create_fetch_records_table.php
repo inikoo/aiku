@@ -14,7 +14,7 @@ return new class () extends Migration {
     {
         Schema::create('fetch_records', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedSmallInteger('fetch_id');
+            $table->unsignedInteger('fetch_id');
             $table->foreign('fetch_id')->references('id')->on('fetches')->onUpdate('cascade')->onDelete('cascade');
             $table->string('type')->index();
             $table->string('error_on')->nullable()->index();

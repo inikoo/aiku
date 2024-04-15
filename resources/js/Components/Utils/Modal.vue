@@ -37,7 +37,7 @@ const closeModal = () => {
                         enter-to="opacity-100 scale-100" leave="duration-200 ease-in" leave-from="opacity-100 scale-100"
                         leave-to="opacity-0 scale-95">
                         <DialogPanel
-                            :class="`${props.width} transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all`">
+                            :class="`${props.width} transform overflow-visible rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all`">
                             <!-- Button: Close -->
                             <div v-if="closeButton" @click="emits('onClose')" class="group px-2 absolute right-5 top-4 cursor-pointer">
                                 <FontAwesomeIcon icon='fal fa-times' class='text-gray-400 group-hover:text-gray-600'
