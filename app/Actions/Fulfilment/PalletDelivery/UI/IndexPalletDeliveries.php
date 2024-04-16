@@ -45,7 +45,7 @@ class IndexPalletDeliveries extends OrgAction
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilment, 'pallet_deliveries');
+        return $this->handle($fulfilment);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -54,7 +54,7 @@ class IndexPalletDeliveries extends OrgAction
         $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilmentCustomer, 'pallet_deliveries');
+        return $this->handle($fulfilmentCustomer);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -63,7 +63,7 @@ class IndexPalletDeliveries extends OrgAction
         $this->parent = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request);
 
-        return $this->handle($warehouse, 'pallet_deliveries');
+        return $this->handle($warehouse);
     }
 
     protected function getElementGroups(Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent): array
@@ -273,7 +273,7 @@ class IndexPalletDeliveries extends OrgAction
                 'data'        => PalletDeliveriesResource::collection($customers),
 
             ]
-        )->table($this->tableStructure($this->parent, prefix: 'pallet_deliveries'));
+        )->table($this->tableStructure($this->parent));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
