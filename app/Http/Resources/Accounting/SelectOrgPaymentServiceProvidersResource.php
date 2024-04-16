@@ -48,12 +48,34 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
                     'required' => true
                 ]
             ],
+            'bank' => [
+                'bank_name' => [
+                    'type'     => 'input',
+                    'label'    => __('bank name'),
+                    'required' => true
+                ],
+                'bank_account_name' => [
+                    'type'     => 'input',
+                    'label'    => __('bank account name'),
+                    'required' => true
+                ],
+                'bank_account_id' => [
+                    'type'     => 'input',
+                    'label'    => __('bank account id'),
+                    'required' => true
+                ],
+                'bank_swift_code' => [
+                    'type'     => 'input',
+                    'label'    => __('bank swift code'),
+                    'required' => true
+                ]
+            ],
             default => []
         };
 
         $formData = [
             'blueprint' => [
-                [
+                $provider == 'cash' ? [
                     'title'  => __('payment account'),
                     'fields' => [
                         'code' => [
@@ -68,7 +90,7 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
                         ],
                         ...$additionalFields
                     ]
-                ]
+                ] : []
             ],
             'route'      => [
                 'name'       => 'grp.models.org.payment-account.store',
