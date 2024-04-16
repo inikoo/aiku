@@ -32,7 +32,7 @@ return new class () extends Migration {
             $table->unsignedInteger('parent_id');
 
 
-            $table->string('outer_type')->index();
+            $table->string('outerable_type')->index();
             $table->unsignedInteger('current_historic_outerable_id')->index()->nullable();
 
 
@@ -42,7 +42,7 @@ return new class () extends Migration {
 
             $table->string('unit_relationship_type')->nullable()->index();
 
-            $table->unsignedInteger('main_outer_id')->nullable()->index();
+            $table->unsignedInteger('main_outerable_id')->nullable()->index();
             $table->unsignedInteger('available_outers')->default(0)->nullable()->comment('(main outer in physical goods)');
             $table->unsignedDecimal('price', 18)->nullable()->comment('unit price (main outer in physical goods)');
 

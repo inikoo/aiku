@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Market\Outer
@@ -60,12 +61,28 @@ class Outer extends Model
     use HasUniversalSearch;
     use IsOuterable;
 
+    protected $guarded = [];
+
     protected $casts = [
         'state'       => OuterStateEnum::class
 
     ];
 
-    protected $guarded = [];
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('code')
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate()
+            ->slugsShouldBeNoLongerThan(64);
+    }
+
 
     public function salesStats(): HasOne
     {

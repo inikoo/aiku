@@ -23,6 +23,7 @@ use App\Models\Goods\TradeUnit;
 use App\Models\Market\Outer;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
+use App\Models\Market\Service;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
@@ -197,15 +198,16 @@ test('create physical good product', function ($shop) {
 
     $product     = StorePhysicalGood::make()->action($shop, $productData);
 
-    expect($product)->toBeInstanceOf(Product::class)
+    $mainOuterable=$product->mainOuterable;
+
+    expect($mainOuterable)->toBeInstanceOf(Outer::class)
+        ->and($product)->toBeInstanceOf(Product::class)
         ->and($product->tradeUnits()->count())->toBe(1)
         ->and($shop->organisation->marketStats->number_products)->toBe(1)
         ->and($shop->organisation->marketStats->number_products_type_physical_good)->toBe(1)
         ->and($shop->organisation->marketStats->number_products_type_service)->toBe(0)
-
         ->and($shop->group->marketStats->number_products)->toBe(1)
         ->and($shop->group->marketStats->number_products_type_physical_good)->toBe(1)
-
         ->and($shop->stats->number_products)->toBe(1)
         ->and($shop->stats->number_products_type_physical_good)->toBe(1)
         ->and($product->stats->number_outers)->toBe(1)
@@ -247,7 +249,6 @@ test('create physical good product with many trade units', function ($shop) {
 
     return $product;
 })->depends('create shop');
-
 
 test('update product', function ($product) {
     $productData = [
@@ -301,9 +302,7 @@ test('delete product', function ($product) {
 
 test('create service', function ($shop) {
 
-
-
-    $productData = array_merge(
+    $serviceData = array_merge(
         Product::factory()->definition(),
         [
             'type'       => ProductTypeEnum::SERVICE,
@@ -311,16 +310,19 @@ test('create service', function ($shop) {
         ]
     );
 
-    $product     = StoreNoPhysicalGood::make()->action($shop, $productData);
+    $product     = StoreNoPhysicalGood::make()->action($shop, $serviceData);
     $shop->refresh();
 
-    expect($product)->toBeInstanceOf(Product::class)
+    $mainOuterable=$product->mainOuterable;
+
+    expect($mainOuterable)->toBeInstanceOf(Service::class)
+        ->and($product->service)->toBeInstanceOf(Service::class)
+        ->and($product)->toBeInstanceOf(Product::class)
+        ->and($product->stats->number_historic_outerables)->toBe(1)
         ->and($product->tradeUnits()->count())->toBe(0)
         ->and($product->stats->number_outers)->toBe(0)
         ->and($shop->stats->number_products)->toBe(2)
-        ->and($shop->stats->number_products_type_service)->toBe(1)
-
-        ->and($product->stats->number_historic_outerables)->toBe(0);
+        ->and($shop->stats->number_products_type_service)->toBe(1);
 
     return $product;
 })->depends('create shop');

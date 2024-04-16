@@ -27,12 +27,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property bool $status
  * @property int $product_id
- * @property int $outer_id
+ * @property string $outerable_type
+ * @property int $outerable_id
  * @property string $price unit price
  * @property string|null $code
  * @property string|null $name
- * @property string|null $units units per outer
+ * @property string|null $units units in outer
  * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read \App\Models\Market\Product $product

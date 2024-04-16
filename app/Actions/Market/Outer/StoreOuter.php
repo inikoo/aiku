@@ -9,7 +9,7 @@ namespace App\Actions\Market\Outer;
 
 use App\Actions\Market\HistoricOuterable\StoreHistoricOuterable;
 use App\Actions\Market\Outer\Hydrator\OuterHydrateUniversalSearch;
-use App\Actions\Market\Product\Hydrators\ProductHydrateHistoricOuters;
+use App\Actions\Market\Product\Hydrators\ProductHydrateHistoricOuterables;
 use App\Actions\Market\Product\Hydrators\ProductHydrateOuters;
 use App\Actions\OrgAction;
 use App\Enums\Market\Outer\OuterStateEnum;
@@ -46,7 +46,7 @@ class StoreOuter extends OrgAction
         }
 
         ProductHydrateOuters::dispatch($product);
-        ProductHydrateHistoricOuters::dispatch($product);
+        ProductHydrateHistoricOuterables::dispatch($product);
         OuterHydrateUniversalSearch::dispatch($outer);
 
         return $outer;

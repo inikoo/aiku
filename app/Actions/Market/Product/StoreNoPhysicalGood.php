@@ -8,6 +8,7 @@
 namespace App\Actions\Market\Product;
 
 use App\Actions\Market\Product\Hydrators\ProductHydrateUniversalSearch;
+use App\Actions\Market\Service\StoreService;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProducts;
@@ -15,6 +16,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProducts;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\Product\ProductUnitRelationshipType;
+use App\Enums\Market\Service\ServiceStateEnum;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
@@ -39,15 +41,34 @@ class StoreNoPhysicalGood extends OrgAction
 
         if(Arr::get($modelData, 'type')==ProductTypeEnum::RENTAL) {
             data_set($modelData, 'unit_relationship_type', ProductUnitRelationshipType::TIME_INTERVAL->value);
-            data_set($modelData, 'outer_type', 'Rental');
+            data_set($modelData, 'outerable_type', 'Rental');
         } elseif(Arr::get($modelData, 'type')==ProductTypeEnum::SERVICE) {
-            data_set($modelData, 'outer_type', 'Service');
-
+            data_set($modelData, 'outerable_type', 'Service');
         }
 
         /** @var Product $product */
         $product = $parent->products()->create($modelData);
         $product->stats()->create();
+
+        if(Arr::get($modelData, 'type')==ProductTypeEnum::RENTAL) {
+
+        } elseif(Arr::get($modelData, 'type')==ProductTypeEnum::SERVICE) {
+
+            data_set(
+                $modelData,
+                'state',
+                match(Arr::get($modelData, 'state')) {
+                    ProductStateEnum::IN_PROCESS => ServiceStateEnum::IN_PROCESS,
+                    ProductStateEnum::ACTIVE     => ServiceStateEnum::ACTIVE,
+                    ProductStateEnum::DISCONTINUING , ProductStateEnum::DISCONTINUED=> ServiceStateEnum::DISCONTINUED,
+                }
+            );
+
+
+            $service=StoreService::make()->action($product, $modelData);
+
+        }
+
 
         ShopHydrateProducts::dispatch($product->shop);
         OrganisationHydrateProducts::dispatch($product->organisation);

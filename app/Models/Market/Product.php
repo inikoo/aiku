@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -75,6 +76,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Market\Outer> $outers
  * @property-read \App\Models\Market\ProductSalesStats|null $salesStats
+ * @property-read \App\Models\Market\Service|null $service
  * @property-read \App\Models\Market\Shop|null $shop
  * @property-read \App\Models\Market\ProductStats|null $stats
  * @property-read Collection<int, TradeUnit> $tradeUnits
@@ -117,7 +119,6 @@ class Product extends Model implements HasMedia
         return 'slug';
     }
 
-    protected $guarded = [];
 
     public function getSlugOptions(): SlugOptions
     {
@@ -127,6 +128,8 @@ class Product extends Model implements HasMedia
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);
     }
+
+    protected $guarded = [];
 
     public function group(): BelongsTo
     {
@@ -181,6 +184,17 @@ class Product extends Model implements HasMedia
     public function outers(): HasMany
     {
         return $this->hasMany(Outer::class);
+    }
+
+    public function service(): HasOne
+    {
+        return $this->hasOne(Service::class, 'id', 'main_outerable_id');
+    }
+
+
+    public function mainOuterable(): MorphTo
+    {
+        return $this->morphTo(type:'outerable_type', id:'main_outerable_id');
     }
 
 }
