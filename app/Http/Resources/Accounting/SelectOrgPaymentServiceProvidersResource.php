@@ -75,7 +75,7 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
 
         $formData = [
             'blueprint' => [
-                $provider == 'cash' ? [
+                $provider != 'cash' ? [
                     'title'  => __('payment account'),
                     'fields' => [
                         'code' => [
