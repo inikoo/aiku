@@ -32,7 +32,7 @@ class StoreHistoricOuterable
         if($outerable instanceof Outer) {
             data_set($historicOuterableData, 'price', $outerable->price);
         } else {
-            data_set($historicOuterableData, 'price', $outerable->product->price);
+            data_set($historicOuterableData, 'price', $outerable->product->main_outerable_price);
         }
 
 

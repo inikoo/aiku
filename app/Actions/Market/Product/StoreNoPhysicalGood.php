@@ -40,6 +40,10 @@ class StoreNoPhysicalGood extends OrgAction
         $modelData=$this->setDataFromParent($parent, $modelData);
 
 
+        $price=Arr::get($modelData, 'price');
+        data_forget($modelData, 'price');
+        data_set($modelData, 'main_outerable_price', $price);
+
 
         if(Arr::get($modelData, 'type')==ProductTypeEnum::RENTAL) {
             data_set($modelData, 'unit_relationship_type', ProductUnitRelationshipType::TIME_INTERVAL->value);
@@ -51,6 +55,9 @@ class StoreNoPhysicalGood extends OrgAction
         /** @var Product $product */
         $product = $parent->products()->create($modelData);
         $product->stats()->create();
+
+        data_set($modelData, 'price', $price);
+
 
         if(Arr::get($modelData, 'type')==ProductTypeEnum::RENTAL) {
             data_set(

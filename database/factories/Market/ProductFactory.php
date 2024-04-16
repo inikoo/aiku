@@ -15,7 +15,6 @@ class ProductFactory extends Factory
     {
         return [
             'code'        => fake()->lexify(),
-            'units'       => fake()->numberBetween(20, 200),
             'price'       => fake()->numberBetween(100, 2000),
             'rrp'         => fake()->numberBetween(20, 100),
             'name'        => fake()->name,

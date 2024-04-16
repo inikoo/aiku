@@ -58,8 +58,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $status
  * @property ProductUnitRelationshipType|null $unit_relationship_type
  * @property int|null $main_outerable_id
- * @property int|null $available_outers (main outer in physical goods)
- * @property string|null $price unit price (main outer in physical goods)
+ * @property string|null $main_outerable_price main outer price
+ * @property int|null $main_outerable_available_quantity
  * @property int|null $image_id
  * @property string|null $rrp RRP per outer
  * @property array $settings
