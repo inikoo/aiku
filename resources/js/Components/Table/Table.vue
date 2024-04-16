@@ -785,7 +785,7 @@ watch(selectRow, () => {
                                             ]"
                                     >
                                         <!-- Column: Check box -->
-                                        <td v-if="isCheckBox" key="checkbox" class="h-full" >
+                                        <td v-if="isCheckBox" key="checkbox" class="h-full flex justify-center" >
                                             <div v-if="selectRow[item.id]" class="absolute inset-0 bg-lime-500/10 -z-10"/>
                                             <FontAwesomeIcon v-if="selectRow[item.id] === true" @click="selectRow[item.id] = !selectRow[item.id]" icon='fal fa-check-square' class='p-2 cursor-pointer' fixed-width aria-hidden='true' />
                                             <FontAwesomeIcon v-else @click="selectRow[item.id] = !selectRow[item.id]" icon='fal fa-square' class='p-2 cursor-pointer' fixed-width aria-hidden='true' />
