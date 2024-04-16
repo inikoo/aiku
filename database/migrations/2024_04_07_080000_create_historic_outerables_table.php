@@ -38,7 +38,7 @@ return new class () extends Migration {
             $table->softDeletesTz();
 
             $table->string('source_id')->nullable()->unique();
-            $table->unique(['outerable_type', 'outerable_id']);
+            $table->index(['outerable_type', 'outerable_id']);
         });
     }
 

@@ -20,6 +20,7 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('product_id')->nullable();
             $table->foreign('product_id')->references('id')->on('products');
+            $table->unsignedSmallInteger('number_historic_outerables')->default(0);
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletes();

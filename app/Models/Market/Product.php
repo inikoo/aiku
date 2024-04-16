@@ -44,9 +44,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $organisation_id
  * @property int|null $shop_id
  * @property string $slug
- * @property string $code
- * @property string|null $name
- * @property string|null $description
  * @property ProductTypeEnum $type
  * @property string $owner_type
  * @property int $owner_id
@@ -57,6 +54,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property ProductStateEnum $state
  * @property bool $status
  * @property ProductUnitRelationshipType|null $unit_relationship_type
+ * @property string $code
+ * @property string|null $name
+ * @property string|null $description
  * @property int|null $main_outerable_id
  * @property string|null $main_outerable_price main outer price
  * @property int|null $main_outerable_available_quantity

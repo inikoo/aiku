@@ -7,12 +7,15 @@
 
 namespace App\Actions\Market\Outer;
 
-use App\Actions\Market\Outer\Hydrator\OuterHydrateUniversalSearch;
+use App\Actions\Market\HistoricOuterable\StoreHistoricOuterable;
+use App\Actions\Market\Outer\Hydrators\OuterHydrateUniversalSearch;
+use App\Actions\Market\Product\SetProductMainOuter;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Market\OuterResource;
 use App\Models\Market\Outer;
 use App\Rules\IUnique;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOuter extends OrgAction
@@ -21,14 +24,30 @@ class UpdateOuter extends OrgAction
 
     private Outer $outer;
 
-    public function handle(Outer $outer, array $modelData, bool $skipHistoric = false): Outer
+    public function handle(Outer $outer, array $modelData): Outer
     {
-        $outer = $this->update($outer, $modelData, ['data', 'settings']);
-        if (!$skipHistoric and $outer->wasChanged(
-            ['price', 'code', 'name', 'units']
-        )) {
-            //todo create HistoricOuterable and update current_historic_outerable_id if
+
+        $outer  = $this->update($outer, $modelData);
+        $changed=$outer->getChanges();
+
+
+        if(Arr::hasAny($changed, ['name', 'code', 'price'])) {
+
+            $historicOuterable=StoreHistoricOuterable::run($outer);
+
+            if($outer->is_main) {
+                SetProductMainOuter::run($outer->product, $outer);
+                $outer->product->update(
+                    [
+                        'current_historic_outerable_id' => $historicOuterable->id,
+                    ]
+                );
+            }
+
+
         }
+
+
         OuterHydrateUniversalSearch::dispatch($outer);
 
         return $outer;
@@ -52,7 +71,7 @@ class UpdateOuter extends OrgAction
                 'max:32',
                 'alpha_dash',
                 new IUnique(
-                    table: 'Outers',
+                    table: 'outers',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
                         ['column' => 'deleted_at', 'value' => null],
@@ -61,6 +80,8 @@ class UpdateOuter extends OrgAction
                 ),
             ],
             'name'        => ['sometimes', 'required', 'max:250', 'string'],
+            'price'       => ['sometimes', 'required', 'numeric', 'min:0'],
+
         ];
     }
 
@@ -72,7 +93,7 @@ class UpdateOuter extends OrgAction
         return $this->handle($outer, $this->validatedData);
     }
 
-    public function action(Outer $outer, array $modelData, int $hydratorsDelay = 0, $skipHistoric = false): Outer
+    public function action(Outer $outer, array $modelData, int $hydratorsDelay = 0): Outer
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
@@ -80,7 +101,7 @@ class UpdateOuter extends OrgAction
 
         $this->initialisationFromShop($outer->shop, $modelData);
 
-        return $this->handle($outer, $this->validatedData, $skipHistoric);
+        return $this->handle($outer, $this->validatedData);
     }
 
     public function jsonResponse(Outer $outer): OuterResource

@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Market\Outer\Hydrator;
+namespace App\Actions\Market\Outer\Hydrators;
 
 use App\Models\Market\Outer;
 use Lorisleiva\Actions\Concerns\AsAction;

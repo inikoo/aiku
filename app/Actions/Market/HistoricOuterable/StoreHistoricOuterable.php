@@ -7,7 +7,10 @@
 
 namespace App\Actions\Market\HistoricOuterable;
 
-use App\Actions\Market\Outer\Hydrator\OuterHydrateHistoricOuters;
+use App\Actions\Market\Outer\Hydrators\OuterHydrateHistoricOuters;
+use App\Actions\Market\Product\Hydrators\ProductHydrateHistoricOuterables;
+use App\Actions\Market\Rental\Hydrators\RentalHydrateHistoricOuters;
+use App\Actions\Market\Service\Hydrators\ServiceHydrateHistoricOuters;
 use App\Models\Market\HistoricOuterable;
 use App\Models\Market\Outer;
 use App\Models\Market\Rental;
@@ -31,6 +34,7 @@ class StoreHistoricOuterable
             data_set($historicOuterableData, 'name', $outerable->price);
             data_set($historicOuterableData, 'price', $outerable->price);
         } else {
+
             data_set($historicOuterableData, 'code', $outerable->product->code);
             data_set($historicOuterableData, 'name', $outerable->product->name);
             data_set($historicOuterableData, 'price', $outerable->product->main_outerable_price);
@@ -64,7 +68,12 @@ class StoreHistoricOuterable
 
         if($outerable instanceof Outer) {
             OuterHydrateHistoricOuters::dispatch($outerable);
+        } if($outerable instanceof Service) {
+            ServiceHydrateHistoricOuters::dispatch($outerable);
+        } if($outerable instanceof Rental) {
+            RentalHydrateHistoricOuters::dispatch($outerable);
         }
+        ProductHydrateHistoricOuterables::dispatch($outerable->product);
 
         return $historicOuterable;
     }

@@ -8,7 +8,7 @@
 namespace App\Actions\Market\Outer;
 
 use App\Actions\Market\HistoricOuterable\StoreHistoricOuterable;
-use App\Actions\Market\Outer\Hydrator\OuterHydrateUniversalSearch;
+use App\Actions\Market\Outer\Hydrators\OuterHydrateUniversalSearch;
 use App\Actions\Market\Product\Hydrators\ProductHydrateHistoricOuterables;
 use App\Actions\Market\Product\Hydrators\ProductHydrateOuters;
 use App\Actions\OrgAction;
