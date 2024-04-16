@@ -1,23 +1,23 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 16 Apr 2024 12:42:18 Malaysia Time, Kuala Lumpur , Malaysia
+ * Created: Tue, 16 Apr 2024 17:23:23 Malaysia Time, Kuala Lumpur , Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Market\Service;
+namespace App\Actions\Market\Rental;
 
 use App\Actions\Market\HistoricOuterable\StoreHistoricOuterable;
 use App\Actions\Market\Product\Hydrators\ProductHydrateHistoricOuterables;
 use App\Actions\OrgAction;
-use App\Enums\Market\Service\ServiceStateEnum;
+use App\Enums\Market\Rental\RentalStateEnum;
 use App\Models\Market\Product;
-use App\Models\Market\Service;
+use App\Models\Market\Rental;
 use Illuminate\Validation\Rule;
 
-class StoreService extends OrgAction
+class StoreRental extends OrgAction
 {
-    public function handle(Product $product, array $modelData): Service
+    public function handle(Product $product, array $modelData): Rental
     {
 
 
@@ -27,19 +27,19 @@ class StoreService extends OrgAction
         data_set($modelData, 'product_id', $product->id);
 
 
-        $service=Service::create($modelData);
+        $rental=Rental::create($modelData);
 
         $product->update(
             [
-                'main_outerable_id'=> $service->id
+                'main_outerable_id'=> $rental->id
             ]
         );
 
 
-        $service->salesStats()->create();
+        $rental->salesStats()->create();
 
 
-        $historicOuterable = StoreHistoricOuterable::run($service);
+        $historicOuterable = StoreHistoricOuterable::run($rental);
         $product->update(
             [
                 'current_historic_outerable_id' => $historicOuterable->id,
@@ -48,29 +48,26 @@ class StoreService extends OrgAction
 
         ProductHydrateHistoricOuterables::dispatch($product);
 
-        return $service;
+        return $rental;
     }
 
     public function rules(): array
     {
         return [
 
-         //   'source_id'   => ['sometimes', 'required', 'string', 'max:255'],
-            'state'       => ['required', Rule::enum(ServiceStateEnum::class)],
+            'state'       => ['required', Rule::enum(RentalStateEnum::class)],
             'data'        => ['sometimes', 'array'],
             'created_at'  => ['sometimes', 'date'],
         ];
 
     }
 
-    public function action(Product $product, array $modelData, int $hydratorsDelay = 0): Service
+    public function action(Product $product, array $modelData, int $hydratorsDelay = 0): Rental
     {
         $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;
 
-
         $this->initialisationFromShop($product->shop, $modelData);
-
         return $this->handle($product, $this->validatedData);
     }
 

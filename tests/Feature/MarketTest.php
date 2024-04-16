@@ -23,6 +23,7 @@ use App\Models\Goods\TradeUnit;
 use App\Models\Market\Outer;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
+use App\Models\Market\Rental;
 use App\Models\Market\Service;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Permission;
@@ -323,6 +324,33 @@ test('create service', function ($shop) {
         ->and($product->stats->number_outers)->toBe(0)
         ->and($shop->stats->number_products)->toBe(2)
         ->and($shop->stats->number_products_type_service)->toBe(1);
+
+    return $product;
+})->depends('create shop');
+
+test('create rent', function ($shop) {
+
+    $serviceData = array_merge(
+        Product::factory()->definition(),
+        [
+            'type'       => ProductTypeEnum::RENTAL,
+            'price'      => 100,
+        ]
+    );
+
+    $product     = StoreNoPhysicalGood::make()->action($shop, $serviceData);
+    $shop->refresh();
+
+    $mainOuterable=$product->mainOuterable;
+
+    expect($mainOuterable)->toBeInstanceOf(Rental::class)
+        ->and($product->rental)->toBeInstanceOf(Rental::class)
+        ->and($product)->toBeInstanceOf(Product::class)
+        ->and($product->stats->number_historic_outerables)->toBe(1)
+        ->and($product->tradeUnits()->count())->toBe(0)
+        ->and($product->stats->number_outers)->toBe(0)
+        ->and($shop->stats->number_products)->toBe(3)
+        ->and($shop->stats->number_products_type_rental)->toBe(1);
 
     return $product;
 })->depends('create shop');

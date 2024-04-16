@@ -8,6 +8,7 @@
 namespace App\Actions\Market\Product;
 
 use App\Actions\Market\Product\Hydrators\ProductHydrateUniversalSearch;
+use App\Actions\Market\Rental\StoreRental;
 use App\Actions\Market\Service\StoreService;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\OrgAction;
@@ -16,6 +17,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProducts;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\Product\ProductUnitRelationshipType;
+use App\Enums\Market\Rental\RentalStateEnum;
 use App\Enums\Market\Service\ServiceStateEnum;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
@@ -51,7 +53,18 @@ class StoreNoPhysicalGood extends OrgAction
         $product->stats()->create();
 
         if(Arr::get($modelData, 'type')==ProductTypeEnum::RENTAL) {
+            data_set(
+                $modelData,
+                'state',
+                match(Arr::get($modelData, 'state')) {
+                    ProductStateEnum::IN_PROCESS => RentalStateEnum::IN_PROCESS,
+                    ProductStateEnum::ACTIVE     => RentalStateEnum::ACTIVE,
+                    ProductStateEnum::DISCONTINUING , ProductStateEnum::DISCONTINUED=> RentalStateEnum::DISCONTINUED,
+                }
+            );
 
+
+            StoreRental::make()->action($product, $modelData);
         } elseif(Arr::get($modelData, 'type')==ProductTypeEnum::SERVICE) {
 
             data_set(
@@ -65,7 +78,7 @@ class StoreNoPhysicalGood extends OrgAction
             );
 
 
-            $service=StoreService::make()->action($product, $modelData);
+            StoreService::make()->action($product, $modelData);
 
         }
 

@@ -13,8 +13,9 @@ enum ProductUnitRelationshipType: string
 {
     use EnumHelperTrait;
 
-    case SINGLE                 = 'single';
-    case MULTIPLE               = 'multiple';
-    case MULTIPLE_REPACKED      = 'multiple_repacked';
-    case MIX                    = 'mix';
+    case SINGLE                           = 'single';
+    case MULTIPLE                         = 'multiple';
+    case MULTIPLE_REPACKED                = 'multiple_repacked';
+    case MIX                              = 'mix';
+    case TIME_INTERVAL                    = 'time_interval';
 }

@@ -77,6 +77,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read MediaCollection<int, Media> $media
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Market\Outer> $outers
+ * @property-read \App\Models\Market\Rental|null $rental
  * @property-read \App\Models\Market\ProductSalesStats|null $salesStats
  * @property-read \App\Models\Market\Service|null $service
  * @property-read \App\Models\Market\Shop|null $shop
@@ -193,6 +194,11 @@ class Product extends Model implements HasMedia
         return $this->hasOne(Service::class, 'id', 'main_outerable_id');
     }
 
+    public function rental(): HasOne
+    {
+        return $this->hasOne(Rental::class, 'id', 'main_outerable_id');
+
+    }
 
     public function mainOuterable(): MorphTo
     {

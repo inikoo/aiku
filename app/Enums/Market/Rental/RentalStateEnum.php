@@ -13,6 +13,7 @@ enum RentalStateEnum: string
 {
     use EnumHelperTrait;
 
-    case ACTIVE        = 'active';
-    case DISCONTINUED  = 'discontinued';
+    case IN_PROCESS        = 'in-process';
+    case ACTIVE            = 'active';
+    case DISCONTINUED      = 'discontinued';
 }
