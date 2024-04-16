@@ -68,7 +68,7 @@ class SelectOrgPaymentServiceProviders extends OrgAction
 
         return $queryBuilder
             ->defaultSort('payment_service_providers.code')
-            ->select(['org_payment_service_providers.slug','payment_service_providers.code', 'org_payment_service_providers.code as org_code', 'org_payment_service_providers.slug as org_slug', 'org_payment_service_provider_stats.number_payment_accounts', 'org_payment_service_provider_stats.number_payments','name', 'payment_service_providers.id'])
+            ->select(['org_payment_service_providers.slug','payment_service_providers.code', 'payment_service_providers.state', 'org_payment_service_providers.code as org_code', 'org_payment_service_providers.slug as org_slug', 'org_payment_service_provider_stats.number_payment_accounts', 'org_payment_service_provider_stats.number_payments','name', 'payment_service_providers.id'])
             ->leftJoin(
                 'org_payment_service_providers',
                 function ($leftJoin) use ($parent) {
