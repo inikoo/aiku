@@ -200,8 +200,10 @@ test('create physical good product', function ($shop) {
     $product     = StorePhysicalGood::make()->action($shop, $productData);
 
     $mainOuterable=$product->mainOuterable;
+    $mainOuterable->refresh();
 
     expect($mainOuterable)->toBeInstanceOf(Outer::class)
+        ->and($mainOuterable->number_historic_outerables)->toBe(1)
         ->and($product)->toBeInstanceOf(Product::class)
         ->and($product->tradeUnits()->count())->toBe(1)
         ->and($shop->organisation->marketStats->number_products)->toBe(1)

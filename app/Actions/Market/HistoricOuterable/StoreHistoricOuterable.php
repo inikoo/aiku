@@ -7,6 +7,7 @@
 
 namespace App\Actions\Market\HistoricOuterable;
 
+use App\Actions\Market\Outer\Hydrator\OuterHydrateHistoricOuters;
 use App\Models\Market\HistoricOuterable;
 use App\Models\Market\Outer;
 use App\Models\Market\Rental;
@@ -57,6 +58,10 @@ class StoreHistoricOuterable
         /** @var HistoricOuterable $historicOuterable */
         $historicOuterable = $outerable->historicRecords()->create($historicOuterableData);
         $historicOuterable->stats()->create();
+
+        if($outerable instanceof Outer) {
+            OuterHydrateHistoricOuters::dispatch($outerable);
+        }
 
         return $historicOuterable;
     }
