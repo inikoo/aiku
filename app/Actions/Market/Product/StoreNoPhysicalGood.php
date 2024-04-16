@@ -40,9 +40,6 @@ class StoreNoPhysicalGood extends OrgAction
         $modelData=$this->setDataFromParent($parent, $modelData);
 
 
-        $price=Arr::get($modelData, 'price');
-        data_forget($modelData, 'price');
-        data_set($modelData, 'main_outerable_price', $price);
 
 
         if(Arr::get($modelData, 'type')==ProductTypeEnum::RENTAL) {
@@ -56,6 +53,9 @@ class StoreNoPhysicalGood extends OrgAction
         $product = $parent->products()->create($modelData);
         $product->stats()->create();
 
+
+        $price=Arr::get($modelData, 'price');
+        data_forget($modelData, 'price');
         data_set($modelData, 'price', $price);
 
 
@@ -83,7 +83,6 @@ class StoreNoPhysicalGood extends OrgAction
                     ProductStateEnum::DISCONTINUING , ProductStateEnum::DISCONTINUED=> ServiceStateEnum::DISCONTINUED,
                 }
             );
-
 
             StoreService::make()->action($product, $modelData);
 

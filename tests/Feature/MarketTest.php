@@ -193,7 +193,7 @@ test('create physical good product', function ($shop) {
         Product::factory()->definition(),
         [
             'trade_units'=> $tradeUnits,
-            'price'      => 100,
+            'main_outerable_price'      => 100,
         ]
     );
 
@@ -309,7 +309,7 @@ test('create service', function ($shop) {
         Product::factory()->definition(),
         [
             'type'       => ProductTypeEnum::SERVICE,
-            'price'      => 100,
+            'main_outerable_price'      => 100,
         ]
     );
 

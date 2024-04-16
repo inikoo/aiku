@@ -24,7 +24,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->string('slug')->unique()->collation('und_ns');
-            $table = $this->assertCodeDescription($table);
+
             $table->string('type')->index();
             $table->string('owner_type');
             $table->unsignedInteger('owner_id');
@@ -34,10 +34,19 @@ return new class () extends Migration {
             $table->unsignedInteger('current_historic_outerable_id')->index()->nullable();
             $table->string('state')->default(ProductStateEnum::IN_PROCESS)->index();
             $table->boolean('status')->default(true)->index();
+
+
             $table->string('unit_relationship_type')->nullable()->index();
+
+
+
+            $table->string('code')->index()->collation('und_ns');
+            $table->string('name', 255)->nullable();
+            $table->text('description')->nullable()->fulltext();
             $table->unsignedInteger('main_outerable_id')->nullable()->index();
             $table->unsignedDecimal('main_outerable_price', 18)->nullable()->comment('main outer price');
             $table->unsignedInteger('main_outerable_available_quantity')->default(0)->nullable();
+
             $table->unsignedInteger('image_id')->nullable();
             $table->unsignedDecimal('rrp', 12, 3)->nullable()->comment('RRP per outer');
             $table->jsonb('settings');

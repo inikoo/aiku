@@ -23,15 +23,16 @@ class StoreHistoricOuterable
     {
 
         $historicOuterableData = [
-            'code'       => Arr::get($modelData, 'code', $outerable->code),
-            'name'       => Arr::get($modelData, 'name', $outerable->name),
-            'price'      => Arr::get($modelData, 'price', $outerable->price),
             'source_id'  => Arr::get($modelData, 'source_id'),
         ];
 
         if($outerable instanceof Outer) {
+            data_set($historicOuterableData, 'code', $outerable->price);
+            data_set($historicOuterableData, 'name', $outerable->price);
             data_set($historicOuterableData, 'price', $outerable->price);
         } else {
+            data_set($historicOuterableData, 'code', $outerable->product->code);
+            data_set($historicOuterableData, 'name', $outerable->product->name);
             data_set($historicOuterableData, 'price', $outerable->product->main_outerable_price);
         }
 
@@ -54,6 +55,8 @@ class StoreHistoricOuterable
         data_set($historicOuterableData, 'organisation_id', $outerable->organisation_id);
         data_set($historicOuterableData, 'group_id', $outerable->group_id);
         data_set($historicOuterableData, 'product_id', $outerable->product_id);
+
+
 
         /** @var HistoricOuterable $historicOuterable */
         $historicOuterable = $outerable->historicRecords()->create($historicOuterableData);

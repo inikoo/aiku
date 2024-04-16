@@ -30,6 +30,7 @@ class StoreOuter extends OrgAction
         data_set($modelData, 'group_id', $product->group_id);
         data_set($modelData, 'shop_id', $product->shop_id);
         data_set($modelData, 'state', $product->state);
+        data_set($modelData, 'price', $product->main_outerable_price);
 
         /** @var Outer $outer */
         $outer = $product->outers()->create($modelData);

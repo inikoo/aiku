@@ -18,7 +18,7 @@ use Illuminate\Validation\Rule;
 
 trait IsStoreProduct
 {
-    public function action(Shop|ProductCategory $parent, array $modelData, int $hydratorsDelay = 0, bool $skipHistoric = false): Product
+    public function action(Shop|ProductCategory $parent, array $modelData, int $hydratorsDelay = 0): Product
     {
         $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;
@@ -33,7 +33,7 @@ trait IsStoreProduct
 
         $this->initialisationFromShop($shop, $modelData);
 
-        return $this->handle($parent, $this->validatedData, $skipHistoric);
+        return $this->handle($parent, $this->validatedData);
     }
 
     private function prepareProductForValidation(): void
@@ -79,21 +79,21 @@ trait IsStoreProduct
                     ]
                 ),
             ],
-            'family_id'   => ['sometimes', 'required', 'exists:families,id'],
-            'image_id'    => ['sometimes', 'required', 'exists:media,id'],
-            'price'       => ['required', 'numeric','min:0'],
-            'rrp'         => ['sometimes', 'required', 'numeric','min:0'],
-            'name'        => ['required', 'max:250', 'string'],
-            'description' => ['sometimes', 'required', 'max:1500'],
-            'source_id'   => ['sometimes', 'required', 'string', 'max:255'],
-            'type'        => ['required', Rule::enum(ProductTypeEnum::class)],
-            'owner_id'    => 'required',
-            'owner_type'  => 'required',
-            'status'      => ['required', 'boolean'],
-            'state'       => ['required', Rule::enum(ProductStateEnum::class)],
-            'data'        => ['sometimes', 'array'],
-            'settings'    => ['sometimes', 'array'],
-            'created_at'  => ['sometimes', 'date'],
+            'family_id'                  => ['sometimes', 'required', 'exists:families,id'],
+            'image_id'                   => ['sometimes', 'required', 'exists:media,id'],
+            'main_outerable_price'       => ['required', 'numeric','min:0'],
+            'rrp'                        => ['sometimes', 'required', 'numeric','min:0'],
+            'name'                       => ['required', 'max:250', 'string'],
+            'description'                => ['sometimes', 'required', 'max:1500'],
+            'source_id'                  => ['sometimes', 'required', 'string', 'max:255'],
+            'type'                       => ['required', Rule::enum(ProductTypeEnum::class)],
+            'owner_id'                   => 'required',
+            'owner_type'                 => 'required',
+            'status'                     => ['required', 'boolean'],
+            'state'                      => ['required', Rule::enum(ProductStateEnum::class)],
+            'data'                       => ['sometimes', 'array'],
+            'settings'                   => ['sometimes', 'array'],
+            'created_at'                 => ['sometimes', 'date'],
 
         ];
 
