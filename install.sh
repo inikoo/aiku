@@ -43,8 +43,8 @@ echo "🏢 create group"
 php artisan group:create aw AW GB GBP --subdomain=aw
 pg_dump -Fc -f "devops/devel/snapshots/group.dump" ${DB}
 
-php artisan org:create aw awa indo@inikoo.com 'Advantage' ID IDR
-php artisan org:create aw inikoo raul@inikoo.com 'Inikoo' GB GBP
+php artisan org:create aw shop awa indo@inikoo.com 'Advantage' ID IDR
+php artisan org:create aw shop inikoo raul@inikoo.com 'Inikoo' GB GBP
 pg_dump -Fc -f "devops/devel/snapshots/organisations.dump" ${DB}
 php artisan warehouse:create awa AC 'AWA Warehouse C'
 php artisan warehouse-areas:create ac area1 'Area One'
