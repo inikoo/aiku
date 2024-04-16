@@ -26,17 +26,19 @@ return new class () extends Migration {
             $table->unsignedInteger('product_id')->index();
             $table->foreign('product_id')->references('id')->on('products');
 
-            $table->unsignedInteger('outer_id')->index();
-            $table->foreign('outer_id')->references('id')->on('outers');
+            $table->string('outerable_type')->index();
+            $table->unsignedInteger('outerable_id')->index();
 
             $table->unsignedDecimal('price', 18)->comment('unit price');
             $table->string('code')->nullable();
             $table->string('name', 255)->nullable();
-            $table->unsignedDecimal('units', 12, 3)->nullable()->comment('units per outer');
+            $table->unsignedDecimal('units', 12, 3)->nullable()->comment('units in outer');
 
-            $table->dateTimeTz('created_at')->nullable();
-            $table->dateTimeTz('deleted_at')->nullable();
+            $table->timestampsTz();
+            $table->softDeletesTz();
+
             $table->string('source_id')->nullable()->unique();
+            $table->unique(['outerable_type', 'outerable_id']);
         });
     }
 

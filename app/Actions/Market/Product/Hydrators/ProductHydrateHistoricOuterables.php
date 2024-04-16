@@ -12,7 +12,7 @@ use App\Models\Market\Product;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ProductHydrateHistoricOuters
+class ProductHydrateHistoricOuterables
 {
     use AsAction;
     use WithEnumStats;

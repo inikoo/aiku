@@ -9,6 +9,8 @@ namespace App\Actions\Market\HistoricOuterable;
 
 use App\Models\Market\HistoricOuterable;
 use App\Models\Market\Outer;
+use App\Models\Market\Rental;
+use App\Models\Market\Service;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -16,37 +18,46 @@ class StoreHistoricOuterable
 {
     use AsAction;
 
-    public function handle(Outer $outer, array $modelData = []): HistoricOuterable
+    public function handle(Outer|Rental|Service $outerable, array $modelData = []): HistoricOuterable
     {
-        $historicProductData = [
-            'code'       => Arr::get($modelData, 'code', $outer->code),
-            'name'       => Arr::get($modelData, 'name', $outer->name),
-            'price'      => Arr::get($modelData, 'price', $outer->price),
-            'units'      => Arr::get($modelData, 'units', $outer->units),
+
+        $historicOuterableData = [
+            'code'       => Arr::get($modelData, 'code', $outerable->code),
+            'name'       => Arr::get($modelData, 'name', $outerable->name),
+            'price'      => Arr::get($modelData, 'price', $outerable->price),
             'source_id'  => Arr::get($modelData, 'source_id'),
         ];
-        if (Arr::get($modelData, 'created_at')) {
-            $historicProductData['created_at'] = Arr::get($modelData, 'created_at');
+
+        if($outerable instanceof Outer) {
+            data_set($historicOuterableData, 'price', $outerable->price);
         } else {
-            $historicProductData['created_at'] = $outer->created_at;
+            data_set($historicOuterableData, 'price', $outerable->product->price);
+        }
+
+
+        if (Arr::get($modelData, 'created_at')) {
+            $historicOuterableData['created_at'] = Arr::get($modelData, 'created_at');
+        } else {
+            $historicOuterableData['created_at'] = $outerable->created_at;
         }
         if (Arr::get($modelData, 'deleted_at')) {
-            $historicProductData['deleted_at'] = Arr::get($modelData, 'deleted_at');
+            $historicOuterableData['deleted_at'] = Arr::get($modelData, 'deleted_at');
         }
         if (Arr::exists($modelData, 'status')) {
-            $historicProductData['status'] = Arr::exists($modelData, 'status');
+            $historicOuterableData['status'] = Arr::exists($modelData, 'status');
         } else {
-            $historicProductData['status'] = true;
+            $historicOuterableData['status'] = true;
         }
 
-        data_set($historicProductData, 'organisation_id', $outer->organisation_id);
-        data_set($historicProductData, 'group_id', $outer->group_id);
-        data_set($historicProductData, 'product_id', $outer->product_id);
 
-        /** @var HistoricOuterable $historicProduct */
-        $historicProduct = $outer->historicRecords()->create($historicProductData);
-        $historicProduct->stats()->create();
+        data_set($historicOuterableData, 'organisation_id', $outerable->organisation_id);
+        data_set($historicOuterableData, 'group_id', $outerable->group_id);
+        data_set($historicOuterableData, 'product_id', $outerable->product_id);
 
-        return $historicProduct;
+        /** @var HistoricOuterable $historicOuterable */
+        $historicOuterable = $outerable->historicRecords()->create($historicOuterableData);
+        $historicOuterable->stats()->create();
+
+        return $historicOuterable;
     }
 }

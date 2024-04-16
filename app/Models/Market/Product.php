@@ -52,18 +52,19 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $owner_id
  * @property string $parent_type
  * @property int $parent_id
- * @property string $outer_type
+ * @property string $outerable_type
  * @property int|null $current_historic_outerable_id
  * @property ProductStateEnum $state
  * @property bool $status
  * @property ProductUnitRelationshipType|null $unit_relationship_type
- * @property int|null $main_outer_id
+ * @property int|null $main_outerable_id
  * @property int|null $available_outers (main outer in physical goods)
  * @property string|null $price unit price (main outer in physical goods)
  * @property int|null $image_id
  * @property string|null $rrp RRP per outer
  * @property array $settings
  * @property array $data
+ * @property bool $is_legacy
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -72,6 +73,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Collection<int, \App\Models\Market\HistoricOuterable> $historicOuters
  * @property-read MediaCollection<int, Media> $images
+ * @property-read Model|\Eloquent $mainOuterable
  * @property-read MediaCollection<int, Media> $media
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Market\Outer> $outers

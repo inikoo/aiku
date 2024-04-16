@@ -59,7 +59,6 @@ class HistoricOuterable extends Model
 
     public $timestamps = ['created_at'];
 
-    public const UPDATED_AT = null;
 
     protected $guarded = [];
 

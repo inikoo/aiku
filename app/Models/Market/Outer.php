@@ -12,8 +12,8 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -89,9 +89,9 @@ class Outer extends Model
         return $this->hasOne(OuterSalesStats::class);
     }
 
-    public function historicRecords(): HasMany
+    public function historicRecords(): MorphMany
     {
-        return $this->hasMany(HistoricOuterable::class);
+        return $this->morphMany(HistoricOuterable::class, 'outerable');
     }
 
 
