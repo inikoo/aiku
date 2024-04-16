@@ -12,12 +12,10 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Market\Outer
@@ -35,16 +33,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $main_outer_ratio number of outers in relation to main outer
  * @property string $price outer price
  * @property int|null $available
- * @property int $number_historic_outers
+ * @property int $number_historic_outerables
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Group $group
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Market\HistoricOuter> $historicRecords
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Market\HistoricOuterable> $historicRecords
  * @property-read Organisation $organisation
  * @property-read \App\Models\Market\Product|null $product
- * @property-read OuterSalesStats|null $salesStats
+ * @property-read \App\Models\Market\OuterSalesStats|null $salesStats
  * @property-read \App\Models\Market\Shop|null $shop
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|Outer newModelQuery()
@@ -60,47 +58,14 @@ class Outer extends Model
     use SoftDeletes;
     use HasSlug;
     use HasUniversalSearch;
+    use IsOuterable;
 
     protected $casts = [
         'state'       => OuterStateEnum::class
 
     ];
 
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
-
     protected $guarded = [];
-
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom('code')
-            ->saveSlugsTo('slug')
-            ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(64);
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
-
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
-
-    public function shop(): BelongsTo
-    {
-        return $this->belongsTo(Shop::class);
-    }
-
-    public function product(): BelongsTo
-    {
-        return $this->belongsTo(Product::class);
-    }
 
     public function salesStats(): HasOne
     {
@@ -109,7 +74,7 @@ class Outer extends Model
 
     public function historicRecords(): HasMany
     {
-        return $this->hasMany(HistoricOuter::class);
+        return $this->hasMany(HistoricOuterable::class);
     }
 
 

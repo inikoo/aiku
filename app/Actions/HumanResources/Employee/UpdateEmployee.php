@@ -18,6 +18,7 @@ use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -115,7 +116,10 @@ class UpdateEmployee extends OrgAction
             'job_title'           => ['sometimes', 'nullable', 'string', 'max:256'],
             'state'               => ['sometimes','required', new Enum(EmployeeStateEnum::class)],
             'positions'           => ['sometimes', 'array'],
-            'positions.*'         => ['sometimes', 'exists:job_positions,slug'],
+            'positions.*'         => ['sometimes',
+                Rule::exists('job_positions', 'code')
+                    ->where('organisation_id', $this->organisation->id),
+            ],
             'email'               => ['sometimes', 'nullable', 'email'],
             'source_id'           => ['sometimes', 'string', 'max:64'],
         ];

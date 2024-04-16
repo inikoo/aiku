@@ -54,7 +54,7 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
-use App\Models\Market\HistoricOuter;
+use App\Models\Market\HistoricOuterable;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
@@ -250,9 +250,9 @@ trait WithAuroraParsers
     }
 
 
-    public function parseHistoricProduct($sourceId): HistoricOuter
+    public function parseHistoricProduct($sourceId): HistoricOuterable
     {
-        $historicProduct = HistoricOuter::where('source_id', $sourceId)->first();
+        $historicProduct = HistoricOuterable::where('source_id', $sourceId)->first();
         if (!$historicProduct) {
             $historicProduct = FetchHistoricProducts::run($this->organisationSource, $sourceId);
         }
@@ -261,7 +261,7 @@ trait WithAuroraParsers
     }
 
 
-    public function parseHistoricItem($sourceId): HistoricOuter
+    public function parseHistoricItem($sourceId): HistoricOuterable
     {
         $auroraData = DB::connection('aurora')
             ->table('Product History Dimension as PH')
@@ -269,7 +269,7 @@ trait WithAuroraParsers
             ->select('Product Type')
             ->where('PH.Product Key', $sourceId)->first();
 
-        $historicItem = HistoricOuter::where('source_id', $sourceId)->first();
+        $historicItem = HistoricOuterable::where('source_id', $sourceId)->first();
 
         if ($auroraData->{'Product Type'} == 'Product') {
             if (!$historicItem) {

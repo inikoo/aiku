@@ -24,7 +24,7 @@ const props = defineProps<{
 const form = useForm({
     code: '',
     name: '',
-    type : ''
+    account_type : ''
 })
 
 const onSubmit = () => {
@@ -51,7 +51,7 @@ console.log(props.paymentAccountTypes)
     </div>
     <div class="p-2">
         <div class="text-sm py-2">Type</div>
-        <Select :form="form" fieldName="type" :options="paymentAccountTypes" :fieldData="{ placeholder: 'Enter type' }" />
+        <Select :form="form" fieldName="account_type" :options="paymentAccountTypes" :fieldData="{ placeholder: 'Enter type' }" />
     </div>
     <div class="p-2">
         <Button full @click="onSubmit" label="Submit" type="save"

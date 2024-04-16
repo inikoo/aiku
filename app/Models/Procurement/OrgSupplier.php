@@ -30,7 +30,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string|null $source_id
  * @property-read Group $group
  * @property-read Organisation $organisation
- * @property-read OrgSupplierStats|null $stats
+ * @property-read \App\Models\Procurement\OrgSupplierStats|null $stats
  * @property-read Supplier $supplier
  * @method static Builder|OrgSupplier newModelQuery()
  * @method static Builder|OrgSupplier newQuery()

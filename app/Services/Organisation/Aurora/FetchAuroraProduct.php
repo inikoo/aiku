@@ -81,7 +81,7 @@ class FetchAuroraProduct extends FetchAurora
         $unit_price        = $this->auroraModelData->{'Product Price'} / $units;
         $data['raw_price'] = $unit_price;
 
-        $this->parsedData['historic_outer_source_id'] = $this->auroraModelData->{'Product Current Key'};
+        $this->parsedData['historic_outerable_source_id'] = $this->auroraModelData->{'Product Current Key'};
 
         $code = $this->cleanTradeUnitReference($this->auroraModelData->{'Product Code'});
 

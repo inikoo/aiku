@@ -7,7 +7,7 @@
 
 namespace App\Actions\Market\Outer;
 
-use App\Actions\Market\HistoricOuter\StoreHistoricOuter;
+use App\Actions\Market\HistoricOuterable\StoreHistoricOuterable;
 use App\Actions\Market\Outer\Hydrator\OuterHydrateUniversalSearch;
 use App\Actions\Market\Product\Hydrators\ProductHydrateHistoricOuters;
 use App\Actions\Market\Product\Hydrators\ProductHydrateOuters;
@@ -37,10 +37,10 @@ class StoreOuter extends OrgAction
 
 
         if (!$skipHistoric) {
-            $historicProduct = StoreHistoricOuter::run($outer);
+            $historicProduct = StoreHistoricOuterable::run($outer);
             $product->update(
                 [
-                    'current_historic_outer_id' => $historicProduct->id
+                    'current_historic_outerable_id' => $historicProduct->id
                 ]
             );
         }

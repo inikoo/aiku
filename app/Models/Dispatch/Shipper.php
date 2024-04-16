@@ -49,6 +49,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Issue> $issues
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Dispatch\Shipment> $shipments
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Dispatch\ShipperFactory factory($count = null, $state = [])
  * @method static Builder|Shipper newModelQuery()
  * @method static Builder|Shipper newQuery()

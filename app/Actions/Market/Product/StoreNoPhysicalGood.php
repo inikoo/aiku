@@ -13,10 +13,13 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProducts;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProducts;
 use App\Enums\Market\Product\ProductStateEnum;
+use App\Enums\Market\Product\ProductTypeEnum;
+use App\Enums\Market\Product\ProductUnitRelationshipType;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -30,35 +33,38 @@ class StoreNoPhysicalGood extends OrgAction
     public function handle(Shop|ProductCategory $parent, array $modelData): Product
     {
 
-
         $modelData=$this->setDataFromParent($parent, $modelData);
+
+
+
+        if(Arr::get($modelData, 'type')==ProductTypeEnum::RENTAL) {
+            data_set($modelData, 'unit_relationship_type', ProductUnitRelationshipType::TIME_INTERVAL->value);
+            data_set($modelData, 'outer_type', 'Rental');
+        } elseif(Arr::get($modelData, 'type')==ProductTypeEnum::SERVICE) {
+            data_set($modelData, 'outer_type', 'Service');
+
+        }
 
         /** @var Product $product */
         $product = $parent->products()->create($modelData);
         $product->stats()->create();
 
-
         ShopHydrateProducts::dispatch($product->shop);
         OrganisationHydrateProducts::dispatch($product->organisation);
         GroupHydrateProducts::dispatch($product->group);
-
         ProductHydrateUniversalSearch::dispatch($product);
 
         return $product;
     }
 
-
-
     public function rules(): array
     {
-
         return $this->getProductRules();
     }
 
     public function prepareForValidation(ActionRequest $request): void
     {
         $this->prepareProductForValidation();
-
     }
 
 

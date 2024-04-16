@@ -13,8 +13,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('fetches', function (Blueprint $table) {
-            $table->smallIncrements('id');
-            $table->string('slug')->unique()->collation('und_ns');
+            $table->increments('id');
             $table->string('type')->index();
             $table->unsignedInteger('number_items')->default(0);
             $table->unsignedInteger('number_no_changes')->default(0);

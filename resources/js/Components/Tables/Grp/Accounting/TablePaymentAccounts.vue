@@ -22,7 +22,7 @@ function paymentAccountRoute(paymentAccount: PaymentAccount) {
         case 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.index':
             return route(
                 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show',
-                [route().params['organisation'],route().params['paymentServiceProvider'], paymentAccount.slug]);
+                [route().params['organisation'],route().params['orgPaymentServiceProvider'], paymentAccount.slug]);
         case 'grp.org.accounting.payment-accounts.index':
             return route(
                 'grp.org.accounting.payment-accounts.show',
@@ -51,7 +51,7 @@ function paymentsRoute(paymentAccount: PaymentAccount) {
         case 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.index':
             return route(
                 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show.payments.index',
-                [route().params['organisation'],route().params['paymentServiceProvider'], paymentAccount.payment_service_provider_slug]);
+                [route().params['organisation'],route().params['orgPaymentServiceProvider'], paymentAccount.payment_service_provider_slug]);
         case 'grp.org.accounting.payment-accounts.index':
             return route(
                 'grp.org.accounting.payment-accounts.show.payments.index',

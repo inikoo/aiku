@@ -5,18 +5,18 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Market\HistoricOuter;
+namespace App\Actions\Market\HistoricOuterable;
 
-use App\Models\Market\HistoricOuter;
+use App\Models\Market\HistoricOuterable;
 use App\Models\Market\Outer;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class StoreHistoricOuter
+class StoreHistoricOuterable
 {
     use AsAction;
 
-    public function handle(Outer $outer, array $modelData = []): HistoricOuter
+    public function handle(Outer $outer, array $modelData = []): HistoricOuterable
     {
         $historicProductData = [
             'code'       => Arr::get($modelData, 'code', $outer->code),
@@ -43,7 +43,7 @@ class StoreHistoricOuter
         data_set($historicProductData, 'group_id', $outer->group_id);
         data_set($historicProductData, 'product_id', $outer->product_id);
 
-        /** @var HistoricOuter $historicProduct */
+        /** @var HistoricOuterable $historicProduct */
         $historicProduct = $outer->historicRecords()->create($historicProductData);
         $historicProduct->stats()->create();
 

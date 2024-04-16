@@ -26,7 +26,7 @@ return new class () extends Migration {
                 $table->unsignedInteger('number_outers_state_'.$case->snake())->default(0);
             }
 
-            $table->unsignedSmallInteger('number_historic_outers')->default(0);
+            $table->unsignedSmallInteger('number_historic_outerables')->default(0);
 
             $table->timestampsTz();
         });

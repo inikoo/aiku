@@ -36,7 +36,7 @@ class FulfilmentProductsResource extends JsonResource
             'state_icon'         => $product->state->stateIcon()[$product->state->value],
             'type'               => $this->type,
             'type_label'         => $product->type->labels()[$product->type->value],
-            'type_icon'          => $product->type->stateIcon()[$product->type->value],
+            'type_icon'          => $product->type->typeIcon()[$product->type->value],
 
 
 

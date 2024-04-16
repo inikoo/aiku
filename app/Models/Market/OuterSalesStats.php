@@ -136,7 +136,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Outer $outer
+ * @property-read \App\Models\Market\Outer $outer
  * @method static \Illuminate\Database\Eloquent\Builder|OuterSalesStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OuterSalesStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OuterSalesStats query()

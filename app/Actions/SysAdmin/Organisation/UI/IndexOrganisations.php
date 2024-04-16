@@ -45,7 +45,7 @@ class IndexOrganisations extends GrpAction
         $this->group  = $group;
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('name', $value)->whereStartWith('code', $value);
+                $query->whereAnyWordStartWith('name', $value)->orWhereStartWith('code', $value);
             });
         });
 
@@ -56,6 +56,8 @@ class IndexOrganisations extends GrpAction
         $queryBuilder = QueryBuilder::for(Organisation::class);
         $queryBuilder->where('group_id', $group->id);
         $queryBuilder->where('type', '!=', OrganisationTypeEnum::AGENT);
+        $queryBuilder->leftJoin('organisation_human_resources_stats', 'organisations.id', '=', 'organisation_human_resources_stats.organisation_id');
+        $queryBuilder->leftJoin('organisation_market_stats', 'organisations.id', '=', 'organisation_market_stats.organisation_id');
 
         foreach ($this->getElementGroups() as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -68,8 +70,8 @@ class IndexOrganisations extends GrpAction
 
         return $queryBuilder
             ->defaultSort('code')
-            ->select(['name', 'slug', 'type','code'])
-            ->allowedSorts([ 'name','type','code'])
+            ->select(['name', 'slug', 'type','code','number_employees_state_working','number_shops_state_open'])
+            ->allowedSorts([ 'name','type','code','number_employees_state_working','number_shops_state_open'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -105,6 +107,8 @@ class IndexOrganisations extends GrpAction
                 ->column(key: 'type', label: '', canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_employees_state_working', label: __('employees'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_shops_state_open', label: __('shops'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }

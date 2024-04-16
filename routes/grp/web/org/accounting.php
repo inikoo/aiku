@@ -39,7 +39,7 @@ Route::get('/providers/export', ExportPaymentServiceProviders::class)->name('org
 Route::get('/providers/{orgPaymentServiceProvider}', ShowOrgPaymentServiceProvider::class)->name('org-payment-service-providers.show');
 Route::get('/providers/{orgPaymentServiceProvider}/edit', EditPaymentServiceProvider::class)->name('org-payment-service-providers.edit');
 Route::get('/providers/{orgPaymentServiceProvider}/delete', RemovePaymentServiceProvider::class)->name('org-payment-service-providers.remove');
-Route::get('/providers/{orgPaymentServiceProvider}/accounts', [IndexPaymentAccounts::class, 'inPaymentServiceProvider'])->name('org-payment-service-providers.show.payment-accounts.index');
+Route::get('/providers/{orgPaymentServiceProvider}/accounts', [IndexPaymentAccounts::class, 'inOrgPaymentServiceProvider'])->name('org-payment-service-providers.show.payment-accounts.index');
 Route::get('/providers/{orgPaymentServiceProvider}/accounts/{paymentAccount}', [ShowPaymentAccount::class, 'inPaymentServiceProvider'])->name('org-payment-service-providers.show.payment-accounts.show');
 Route::get('/providers/{orgPaymentServiceProvider}/accounts/{paymentAccount}/payments', [IndexPayments::class, 'inPaymentAccountInPaymentServiceProvider'])->name('org-payment-service-providers.show.payment-accounts.show.payments.index');
 Route::get('/providers/{orgPaymentServiceProvider}/accounts/{paymentAccount}/payments/{payment}', [ShowPayment::class, 'inPaymentAccountInPaymentServiceProvider'])->name('org-payment-service-providers.show.payment-accounts.show.payments.show');

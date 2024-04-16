@@ -111,6 +111,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, OrgStock> $orgStocks
  * @property-read Collection<int, OrgSupplier> $orgSuppliers
  * @property-read Collection<int, PaymentAccount> $paymentAccounts
+ * @property-read Collection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read Collection<int, Payment> $payments
  * @property-read \App\Models\SysAdmin\OrganisationProcurementStats|null $procurementStats
  * @property-read Collection<int, ProductCategory> $productCategories
@@ -343,7 +344,6 @@ class Organisation extends Model implements HasMedia
         return $this->hasMany(Payment::class);
     }
 
-
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('logo')
@@ -395,8 +395,6 @@ class Organisation extends Model implements HasMedia
         return $this->hasMany(OrgSupplier::class);
     }
 
-
-
     public function agent(): HasOne
     {
         return $this->hasOne(Agent::class);
@@ -424,9 +422,7 @@ class Organisation extends Model implements HasMedia
 
     public function departments(): Collection
     {
-
         return $this->productCategories()->where('type', ProductCategoryTypeEnum::DEPARTMENT)->get();
-
     }
 
     public function families(): ?Collection

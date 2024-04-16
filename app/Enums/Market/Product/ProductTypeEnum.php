@@ -55,7 +55,7 @@ enum ProductTypeEnum: string
     }
     */
 
-    public static function stateIcon(): array
+    public static function typeIcon(): array
     {
         return [
             'physical_good' => [

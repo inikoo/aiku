@@ -56,10 +56,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Address> $addresses
  * @property-read Currency $currency
  * @property-read Shop $fulfilment
- * @property-read FulfilmentCustomer $fulfilmentCustomer
+ * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Order|null $order
  * @property-read Collection<int, Order> $orders
- * @property-read Collection<int, Pallet> $pallets
+ * @property-read Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * @property-write mixed $exchange
  * @property-read UniversalSearch|null $universalSearch
  * @method static Builder|FulfilmentProforma newModelQuery()

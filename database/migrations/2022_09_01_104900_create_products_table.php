@@ -30,7 +30,12 @@ return new class () extends Migration {
             $table->unsignedInteger('owner_id');
             $table->string('parent_type');
             $table->unsignedInteger('parent_id');
-            $table->unsignedInteger('current_historic_outer_id')->index()->nullable();
+
+
+            $table->string('outer_type')->index();
+            $table->unsignedInteger('current_historic_outerable_id')->index()->nullable();
+
+
             $table->string('state')->default(ProductStateEnum::IN_PROCESS)->index();
             $table->boolean('status')->default(true)->index();
 

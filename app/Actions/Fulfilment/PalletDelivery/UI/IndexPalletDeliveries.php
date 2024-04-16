@@ -19,6 +19,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Closure;
@@ -44,7 +45,7 @@ class IndexPalletDeliveries extends OrgAction
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilment);
+        return $this->handle($fulfilment, 'pallet_deliveries');
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -53,7 +54,7 @@ class IndexPalletDeliveries extends OrgAction
         $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilmentCustomer);
+        return $this->handle($fulfilmentCustomer, 'pallet_deliveries');
     }
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -62,7 +63,26 @@ class IndexPalletDeliveries extends OrgAction
         $this->parent = $warehouse;
         $this->initialisationFromWarehouse($warehouse, $request);
 
-        return $this->handle($warehouse);
+        return $this->handle($warehouse, 'pallet_deliveries');
+    }
+
+    protected function getElementGroups(Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent): array
+    {
+        return [
+            'state' => [
+                'label'    => __('State'),
+                'elements' => array_merge_recursive(
+                    PalletDeliveryStateEnum::labels(forElements: true),
+                    PalletDeliveryStateEnum::count($parent, forElements: true)
+                ),
+
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('pallet_deliveries.state', $elements);
+                }
+            ],
+
+
+        ];
     }
 
     public function handle(Fulfilment|Warehouse|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
@@ -98,6 +118,15 @@ class IndexPalletDeliveries extends OrgAction
             'pallet_deliveries.state',
             'pallet_deliveries.slug'
         );
+
+        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine'],
+                prefix: $prefix
+            );
+        }
 
         if($parent instanceof Fulfilment || $parent instanceof Warehouse) {
             $queryBuilder->leftJoin('fulfilment_customers', 'pallet_deliveries.fulfilment_customer_id', '=', 'fulfilment_customers.id')
@@ -162,6 +191,14 @@ class IndexPalletDeliveries extends OrgAction
 
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
 
             if ($parent instanceof Fulfilment) {
                 $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: true, searchable: true);
@@ -236,7 +273,7 @@ class IndexPalletDeliveries extends OrgAction
                 'data'        => PalletDeliveriesResource::collection($customers),
 
             ]
-        )->table($this->tableStructure($this->parent));
+        )->table($this->tableStructure($this->parent, prefix: 'pallet_deliveries'));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

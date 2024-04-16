@@ -19,7 +19,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Market\HistoricOuter
+ * App\Models\Market\HistoricOuterable
  *
  * @property int $id
  * @property int $group_id
@@ -36,16 +36,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read \App\Models\Market\Product $product
- * @property-read \App\Models\Market\HistoricOuterStats|null $stats
- * @method static Builder|HistoricOuter newModelQuery()
- * @method static Builder|HistoricOuter newQuery()
- * @method static Builder|HistoricOuter onlyTrashed()
- * @method static Builder|HistoricOuter query()
- * @method static Builder|HistoricOuter withTrashed()
- * @method static Builder|HistoricOuter withoutTrashed()
+ * @property-read \App\Models\Market\HistoricOuterableStats|null $stats
+ * @method static Builder|HistoricOuterable newModelQuery()
+ * @method static Builder|HistoricOuterable newQuery()
+ * @method static Builder|HistoricOuterable onlyTrashed()
+ * @method static Builder|HistoricOuterable query()
+ * @method static Builder|HistoricOuterable withTrashed()
+ * @method static Builder|HistoricOuterable withoutTrashed()
  * @mixin Eloquent
  */
-class HistoricOuter extends Model
+class HistoricOuterable extends Model
 {
     use SoftDeletes;
     use HasSlug;
@@ -77,6 +77,6 @@ class HistoricOuter extends Model
 
     public function stats(): HasOne
     {
-        return $this->hasOne(HistoricOuterStats::class);
+        return $this->hasOne(HistoricOuterableStats::class);
     }
 }

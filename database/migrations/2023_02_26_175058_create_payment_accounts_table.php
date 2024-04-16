@@ -21,8 +21,6 @@ return new class () extends Migration {
             $table = $this->groupOrgRelationship($table);
             $table->unsignedInteger('payment_service_provider_id')->index();
             $table->foreign('payment_service_provider_id')->references('id')->on('payment_service_providers');
-            $table->unsignedInteger('org_payment_service_provider_id')->index();
-            $table->foreign('org_payment_service_provider_id')->references('id')->on('org_payment_service_providers');
             $table->string('type')->index();
             $table->string('code')->index()->collation('und_ns');
             $table->string('name')->index()->collation('und_ns');

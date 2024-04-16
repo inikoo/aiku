@@ -31,7 +31,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\OrgSupplier> $orgSuppliers
  * @property-read Organisation $organisation
- * @property-read OrgAgentStats|null $stats
+ * @property-read \App\Models\Procurement\OrgAgentStats|null $stats
  * @method static \Illuminate\Database\Eloquent\Builder|OrgAgent newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgAgent newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgAgent query()

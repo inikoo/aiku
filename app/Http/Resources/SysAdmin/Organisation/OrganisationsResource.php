@@ -11,6 +11,11 @@ use App\Http\Resources\HasSelfCall;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property int $number_employees_state_working
+ * @property int $number_shops_state_open
+ * @property mixed $number_customers
+ */
 class OrganisationsResource extends JsonResource
 {
     use HasSelfCall;
@@ -22,12 +27,15 @@ class OrganisationsResource extends JsonResource
 
         return [
 
-            'slug'  => $organisation->slug,
-            'name'  => $organisation->name,
-            'type'  => $organisation->type,
-            'code'  => $organisation->code,
-
-
+            'slug'                             => $organisation->slug,
+            'name'                             => $organisation->name,
+            'type'                             => $organisation->type,
+            'code'                             => $organisation->code,
+            'type_label'                       => $organisation->type->labels()[$organisation->type->value],
+            'type_icon'                        => $organisation->type->typeIcon()[$organisation->type->value],
+            'number_employees_state_working'   => $this->number_employees_state_working,
+            'number_shops_state_open'          => $this->number_shops_state_open,
+            'number_customers'                 => $this->number_customers,
         ];
     }
 }

@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Shipment $shipment
+ * @property-read \App\Models\Dispatch\Shipment $shipment
  * @method static \Illuminate\Database\Eloquent\Builder|ShipmentEvent newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ShipmentEvent newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ShipmentEvent query()

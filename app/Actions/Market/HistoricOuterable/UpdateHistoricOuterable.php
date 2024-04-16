@@ -5,16 +5,16 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Market\HistoricOuter;
+namespace App\Actions\Market\HistoricOuterable;
 
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\Market\HistoricOuter;
+use App\Models\Market\HistoricOuterable;
 
-class UpdateHistoricOuter
+class UpdateHistoricOuterable
 {
     use WithActionUpdate;
 
-    public function handle(HistoricOuter $historicProduct, array $modelData): HistoricOuter
+    public function handle(HistoricOuterable $historicProduct, array $modelData): HistoricOuterable
     {
         return $this->update($historicProduct, $modelData);
     }

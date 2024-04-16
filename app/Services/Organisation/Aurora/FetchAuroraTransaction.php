@@ -26,7 +26,7 @@ class FetchAuroraTransaction extends FetchAurora
             $historicItem = $this->parseHistoricItem($this->auroraModelData->{'Product Key'});
 
             $state = null;
-            if (class_basename($historicItem) == 'HistoricOuter') {
+            if (class_basename($historicItem) == 'HistoricOuterable') {
                 $state = match ($this->auroraModelData->{'Current Dispatching State'}) {
                     'In Process'            => TransactionStateEnum::CREATING,
                     'Submitted by Customer' => TransactionStateEnum::SUBMITTED,

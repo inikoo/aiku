@@ -13,7 +13,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            // $table->foreign('current_historic_outer_id')->references('id')->on('historic_outers');
+            // $table->foreign('current_historic_outerable_id')->references('id')->on('historic_outerables');
             // $table->foreign('main_outer_id')->references('id')->on('outers');
 
         });
@@ -23,7 +23,7 @@ return new class () extends Migration {
     public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->dropForeign('current_historic_outer_id');
+            $table->dropForeign('current_historic_outerable_id');
             $table->dropForeign('current_main_outer_id');
 
         });

@@ -209,7 +209,7 @@ test('create physical good product', function ($shop) {
         ->and($shop->stats->number_products)->toBe(1)
         ->and($shop->stats->number_products_type_physical_good)->toBe(1)
         ->and($product->stats->number_outers)->toBe(1)
-        ->and($product->stats->number_historic_outers)->toBe(1);
+        ->and($product->stats->number_historic_outerables)->toBe(1);
 
     return $product;
 })->depends('create shop');
@@ -243,7 +243,7 @@ test('create physical good product with many trade units', function ($shop) {
         ->and($shop->stats->number_products)->toBe(2)
 
         ->and($product->stats->number_outers)->toBe(1)
-        ->and($product->stats->number_historic_outers)->toBe(1);
+        ->and($product->stats->number_historic_outerables)->toBe(1);
 
     return $product;
 })->depends('create shop');
@@ -282,7 +282,7 @@ test('add outer to product', function ($product) {
         ->and($outer->product->id)->toBe($product->id)
         ->and($outer->product->outers()->count())->toBe(2)
         ->and($product->stats->number_outers)->toBe(2)
-        ->and($product->stats->number_historic_outers)->toBe(2);
+        ->and($product->stats->number_historic_outerables)->toBe(2);
 
 
     return $product;
@@ -320,7 +320,7 @@ test('create service', function ($shop) {
         ->and($shop->stats->number_products)->toBe(2)
         ->and($shop->stats->number_products_type_service)->toBe(1)
 
-        ->and($product->stats->number_historic_outers)->toBe(0);
+        ->and($product->stats->number_historic_outerables)->toBe(0);
 
     return $product;
 })->depends('create shop');
