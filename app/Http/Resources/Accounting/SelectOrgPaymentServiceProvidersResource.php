@@ -28,7 +28,7 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
 {
     public function toArray($request): array
     {
-        $provider = explode('-', $this->slug);
+        $provider = explode('-', $this->code);
 
         $additionalFields = match ($provider[1]) {
             'checkout' => [
