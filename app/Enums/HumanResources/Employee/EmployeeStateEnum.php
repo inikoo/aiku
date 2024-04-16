@@ -37,5 +37,27 @@ enum EmployeeStateEnum: string
         ];
     }
 
+    public static function stateIcon(): array
+    {
+        return [
+            'hired'   => [
 
+                'tooltip' => __('hired'),
+                'icon'    => 'fal fa-hand-holding-seedling',
+
+
+            ],
+            'working' => [
+                'tooltip' => __('working'),
+                'icon'    => 'fal fa-handshake',
+
+            ],
+            'left'    => [
+                'tooltip' => __('ex-worker'),
+                'icon'    => 'fal fa-handshake-alt-slash'
+
+            ],
+
+        ];
+    }
 }

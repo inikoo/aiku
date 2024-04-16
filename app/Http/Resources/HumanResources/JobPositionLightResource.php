@@ -19,11 +19,9 @@ class JobPositionLightResource extends JsonResource
         /** @var \App\Models\HumanResources\JobPosition $jobPosition */
         $jobPosition = $this;
 
-
         return [
-            'id'       => $jobPosition->id,
             'slug'     => $jobPosition->slug,
-            'code'     => $jobPosition->name,
+            'name'     => $jobPosition->name,
         ];
     }
 }

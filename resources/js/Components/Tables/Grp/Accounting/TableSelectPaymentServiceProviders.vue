@@ -8,18 +8,18 @@
 import { Link, useForm } from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import { SelectPaymentServiceProvider } from "@/types/select-payment-service-provider"
-import { faPlus } from "@fas"
+import { faPlus, faCheckDouble } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Modal from "@/Components/Utils/Modal.vue"
 import { ref } from 'vue'
 import AccountProvidersForm from '@/Components/PaymentProviders/accountProvidersForm.vue'
-library.add(faPlus)
+library.add(faPlus, faCheckDouble)
 
 defineProps<{
     data: object,
     tab?: string,
-    paymentAccountTypes : object
+    paymentAccountTypes: object
 }>()
 
 
@@ -108,8 +108,17 @@ const onCloseModal = (data) => {
 <template>
     <Table :resource="data" class="mt-5">
         <template #cell(adoption)="{ item: item }">
+        <pre>{{ item }}</pre>
             <div class="flex justify-center">
-                <font-awesome-icon :icon="['fas', 'plus']" @click="() => onOpenModal(item)" />
+                <template v-if="item.state == 'active'">
+                    <div  v-tooltip="'account'" v-if="item.number_payment_accounts && item.number_payment_accounts > 0">
+                        <font-awesome-icon :icon="['fal', 'check-double']" />
+                    </div>
+                    <div v-else  v-tooltip="'Create Account'">
+                        <font-awesome-icon :icon="['fas', 'plus']" @click="() => onOpenModal(item)" />
+                    </div>
+                </template>
+                <template v-else-if="item.state === 'legacy'"></template>
             </div>
         </template>
 
@@ -136,9 +145,10 @@ const onCloseModal = (data) => {
 
     </Table>
 
-    <Modal :isOpen="openModal" @onClose="onCloseModal" width="w-96" class="overflow-visible"> 
-        <div >
-            <AccountProvidersForm :provider="selectedProvider" :onCloseModal="onCloseModal" :paymentAccountTypes="paymentAccountTypes"/>
+    <Modal :isOpen="openModal" @onClose="onCloseModal" width="w-96" class="overflow-visible">
+        <div>
+            <AccountProvidersForm :provider="selectedProvider" :onCloseModal="onCloseModal"
+                :paymentAccountTypes="paymentAccountTypes" />
         </div>
     </Modal>
 </template>

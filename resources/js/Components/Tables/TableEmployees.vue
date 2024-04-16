@@ -9,6 +9,8 @@ import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Employee} from "@/types/employee";
 import JobPositionBadges from "@/Components/Elements/Badges/JobPositionBadges.vue";
+import Icon from "@/Components/Icon.vue"
+import Tag from '@/Components/Tag.vue'
 
 const props = defineProps<{
     data: object,
@@ -30,13 +32,24 @@ function employeeRoute(employee: Employee) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5"   >
+        <template  #cell(state)="{ item: employee }">
+            <Icon :data="employee['state_icon']"/>
+        </template>
+
         <template #cell(slug)="{ item: employee }">
             <Link :href="employeeRoute(employee)" class="specialUnderline">
                 {{ employee['slug'] }}
             </Link>
         </template>
-        <template #cell(job_positions)="{ item: employee }">
-            <job-position-badges :job_positions="employee['job_positions']"/>
+
+        <template #cell(positions)="{ item: employee }">
+            <div class="flex gap-x-1.5">
+                <Link v-for="(position, key) in employee.positions" :key="key"
+                      href="#"
+                      :title="position.name" class="inline-flex">
+                    <Tag :label="position.name" stringToColor />
+                </Link>
+            </div>
         </template>
 
 

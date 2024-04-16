@@ -16,6 +16,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $code
  * @property mixed $created_at
  * @property string $name
+ * @property string $state
  * @property int $org_id
  * @property int $id
  * @property mixed $org_slug
@@ -27,6 +28,78 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
 {
     public function toArray($request): array
     {
+        $provider = explode('-', $this->code);
+
+        $additionalFields = match ($provider[1]) {
+            'checkout' => [
+                'checkout_access_key' => [
+                    'type'     => 'input',
+                    'label'    => __('access key'),
+                    'required' => true
+                ],
+                'checkout_secret_key' => [
+                    'type'     => 'input',
+                    'label'    => __('secret key'),
+                    'required' => true
+                ],
+                'checkout_channel_id' => [
+                    'type'     => 'input',
+                    'label'    => __('channel id'),
+                    'required' => true
+                ]
+            ],
+            'bank' => [
+                'bank_name' => [
+                    'type'     => 'input',
+                    'label'    => __('bank name'),
+                    'required' => true
+                ],
+                'bank_account_name' => [
+                    'type'     => 'input',
+                    'label'    => __('bank account name'),
+                    'required' => true
+                ],
+                'bank_account_id' => [
+                    'type'     => 'input',
+                    'label'    => __('bank account id'),
+                    'required' => true
+                ],
+                'bank_swift_code' => [
+                    'type'     => 'input',
+                    'label'    => __('bank swift code'),
+                    'required' => true
+                ]
+            ],
+            default => []
+        };
+
+        $formData = [
+            'blueprint' => [
+                $provider != 'cash' ? [
+                    'title'  => __('payment account'),
+                    'fields' => [
+                        'code' => [
+                            'type'     => 'input',
+                            'label'    => __('code'),
+                            'required' => true
+                        ],
+                        'name' => [
+                            'type'     => 'input',
+                            'label'    => __('name'),
+                            'required' => true
+                        ],
+                        ...$additionalFields
+                    ]
+                ] : []
+            ],
+            'route'      => [
+                'name'       => 'grp.models.org.payment-account.store',
+                'parameters' => [
+                    'organisation' => $this->org_id
+                ]
+            ]
+        ];
+
         return [
             'number_payments'             => $this->number_payments,
             'number_payment_accounts'     => $this->number_payment_accounts,
@@ -35,13 +108,8 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
             'code'                        => $this->code,
             'org_code'                    => $this->org_code,
             'name'                        => $this->name,
-            'storeRoute'                  => [
-                'name'       => 'grp.models.org.payment-service-provider.store',
-                'parameters' => [
-                    'organisation'           => $this->org_id,
-                    'paymentServiceProvider' => $this->id
-                ]
-            ]
+            'state'                       => $this->state,
+            'formData'                    => $formData
         ];
     }
 }

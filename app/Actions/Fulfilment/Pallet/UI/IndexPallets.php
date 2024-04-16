@@ -297,7 +297,7 @@ class IndexPallets extends OrgAction
                                     'fulfilment'   => $request->route('fulfilment')
                                 ]
                             ]
-                        ]
+                        ],
                     ],
                 ],
                 'data'        => PalletsResource::collection($pallets),

@@ -18,7 +18,9 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -87,12 +89,30 @@ class IndexEmployees extends OrgAction
             );
         }
 
+        $queryBuilder->select(['slug', 'job_title', 'contact_name', 'state']);
+
+        if (class_basename($parent) == 'Organisation') {
+            $jobPositions = DB::table('job_positionables')
+                ->select(
+                    'job_positionable_id',
+                    DB::raw('jsonb_agg(json_build_object(\'name\',job_positions.name,\'slug\',job_positions.slug)) as job_positions')
+                )
+                ->leftJoin('job_positions', 'job_positionables.job_position_id', 'job_positions.id')
+                ->where('job_positionable_type', 'Employee')
+                ->groupBy('job_positionable_id');
+            $queryBuilder->leftJoinSub($jobPositions, 'job_positions', function (JoinClause $join) {
+                $join->on('employees.id', '=', 'job_positions.job_positionable_id');
+            });
+            $queryBuilder->addSelect('job_positions');
+        } else {
+            $queryBuilder->leftJoin('job_positionables', 'job_positionables.job_positionable_id', 'employees.id')
+                ->where('job_positionables.job_positionable_type', 'Employee')
+                ->where('job_position_id', $parent->id);
+        }
 
         return $queryBuilder
             ->defaultSort('employees.slug')
-            ->select(['slug', 'id', 'job_title', 'contact_name', 'state'])
-            ->with('jobPositions')
-            ->allowedSorts(['slug', 'state', 'contact_name', 'job_title'])
+            ->allowedSorts(['slug', 'state', 'contact_name', 'job_title', 'worker_number'])
             ->allowedFilters([$globalSearch, 'slug', 'contact_name', 'state'])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -141,11 +161,15 @@ class IndexEmployees extends OrgAction
                     ]
                 );
             }
-            $table->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+            $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
+                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'job_title', label: __('position'), canBeHidden: false)
-                ->column(key: 'state', label: __('state'), canBeHidden: false)
-                ->defaultSort('slug');
+                ->column(key: 'job_title', label: __('job title'), canBeHidden: false);
+
+            if (class_basename($parent) == 'Organisation') {
+                $table->column(key: 'positions', label: __('positions'), canBeHidden: false);
+            }
+            $table->defaultSort('slug');
         };
     }
 
