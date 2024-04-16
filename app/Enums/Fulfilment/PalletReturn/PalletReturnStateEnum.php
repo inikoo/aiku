@@ -27,7 +27,7 @@ enum PalletReturnStateEnum: string
     case DISPATCHED      = 'dispatched';
     case CANCEL          = 'cancel';
 
-    public static function labels(): array
+    public static function labels($forElements = false): array
     {
         return [
             'in-process'           => __('In Process'),
@@ -117,7 +117,7 @@ enum PalletReturnStateEnum: string
         ];
     }
 
-    public static function count(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent): array
+    public static function count(Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent, $forElements = false): array
     {
         if ($parent instanceof FulfilmentCustomer) {
             $stats = $parent;

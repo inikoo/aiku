@@ -27,7 +27,7 @@ enum PalletDeliveryStateEnum: string
     case BOOKING_IN   = 'booking-in';
     case BOOKED_IN    = 'booked-in';
 
-    public static function labels(): array
+    public static function labels($forElements = false): array
     {
         return [
             'in-process'   => __('In Process'),
@@ -118,7 +118,8 @@ enum PalletDeliveryStateEnum: string
     }
 
     public static function count(
-        Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent
+        Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery $parent,
+        $forElements = false
     ): array {
         if ($parent instanceof FulfilmentCustomer) {
             $stats = $parent;

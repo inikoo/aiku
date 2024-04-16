@@ -165,9 +165,9 @@ class ShowFulfilmentCustomer extends OrgAction
                     ),
 
                 CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value => $this->tab == CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value ?
-                    fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer))
+                    fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value))
                     : Inertia::lazy(
-                        fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer))
+                        fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value))
                     ),
 
                 CustomerFulfilmentTabsEnum::PALLET_RETURNS->value => $this->tab == CustomerFulfilmentTabsEnum::PALLET_RETURNS->value ?
