@@ -53,6 +53,7 @@ return new class () extends Migration {
 
             $table->jsonb('settings');
             $table->jsonb('data');
+            $table->boolean('is_legacy')->default(false)->index();
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
