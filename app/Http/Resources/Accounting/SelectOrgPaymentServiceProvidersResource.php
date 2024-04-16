@@ -28,6 +28,56 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
 {
     public function toArray($request): array
     {
+        $provider = explode('-', $this->slug);
+
+        $additionalFields = match ($provider[1]) {
+            'checkout' => [
+                'checkout_access_key' => [
+                    'type'     => 'input',
+                    'label'    => __('access key'),
+                    'required' => true
+                ],
+                'checkout_secret_key' => [
+                    'type'     => 'input',
+                    'label'    => __('secret key'),
+                    'required' => true
+                ],
+                'checkout_channel_id' => [
+                    'type'     => 'input',
+                    'label'    => __('channel id'),
+                    'required' => true
+                ]
+            ],
+            default => []
+        };
+
+        $formData = [
+            'blueprint' => [
+                [
+                    'title'  => __('payment account'),
+                    'fields' => [
+                        'code' => [
+                            'type'     => 'input',
+                            'label'    => __('code'),
+                            'required' => true
+                        ],
+                        'name' => [
+                            'type'     => 'input',
+                            'label'    => __('name'),
+                            'required' => true
+                        ],
+                        ...$additionalFields
+                    ]
+                ]
+            ],
+            'route'      => [
+                'name'       => 'grp.models.org.payment-account.store',
+                'parameters' => [
+                    'organisation' => $this->org_id
+                ]
+            ]
+        ];
+
         return [
             'number_payments'             => $this->number_payments,
             'number_payment_accounts'     => $this->number_payment_accounts,
@@ -37,13 +87,7 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
             'org_code'                    => $this->org_code,
             'name'                        => $this->name,
             'state'                       => $this->state,
-            'storeRoute'                  => [
-                'name'       => 'grp.models.org.payment-service-provider.store',
-                'parameters' => [
-                    'organisation'           => $this->org_id,
-                    'paymentServiceProvider' => $this->id
-                ]
-            ]
+            'formData'                    => $formData
         ];
     }
 }
