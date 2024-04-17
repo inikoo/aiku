@@ -71,6 +71,18 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
                     'required' => false
                 ]
             ],
+            'paypal' => [
+                'paypal_client_id' => [
+                    'type'     => 'input',
+                    'label'    => __('client id'),
+                    'required' => true
+                ],
+                'paypal_client_secret' => [
+                    'type'     => 'input',
+                    'label'    => __('client secret'),
+                    'required' => true
+                ],
+            ],
             default => []
         };
 

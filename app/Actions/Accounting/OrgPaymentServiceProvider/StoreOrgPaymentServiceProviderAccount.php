@@ -7,7 +7,11 @@
 
 namespace App\Actions\Accounting\OrgPaymentServiceProvider;
 
-use App\Actions\Accounting\PaymentAccount\Types\StoreCashPaymentAccount;
+use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
+use App\Actions\Accounting\PaymentAccount\Types\UpdateBankPaymentAccount;
+use App\Actions\Accounting\PaymentAccount\Types\UpdateCashPaymentAccount;
+use App\Actions\Accounting\PaymentAccount\Types\UpdateCheckoutPaymentAccount;
+use App\Actions\Accounting\PaymentAccount\Types\UpdatePaypalPaymentAccount;
 use App\Actions\OrgAction;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -21,14 +25,18 @@ class StoreOrgPaymentServiceProviderAccount extends OrgAction
     public function handle(PaymentServiceProvider $paymentServiceProvider, Organisation $organisation, array $modelData): PaymentAccount
     {
         $provider                  = Arr::get(explode('-', $paymentServiceProvider->code), 1);
-        $orgPaymentServiceProvider = StoreOrgPaymentServiceProvider::run($paymentServiceProvider, $organisation, $modelData);
+        $orgPaymentServiceProvider = StoreOrgPaymentServiceProvider::run($paymentServiceProvider, $organisation, Arr::only($modelData, ['code']));
 
-        $paymentAccount = match ($provider) {
-            'cash'  => StoreCashPaymentAccount::run($orgPaymentServiceProvider, $modelData),
-            default => null
+        data_set($modelData, 'type', $provider);
+
+        $paymentAccount = StorePaymentAccount::run($orgPaymentServiceProvider, Arr::only($modelData, ['code', 'name', 'type']));
+
+        return match ($provider) {
+            'cash'      => UpdateCashPaymentAccount::make()->action($paymentAccount, $modelData),
+            'checkout'  => UpdateCheckoutPaymentAccount::make()->action($paymentAccount, $modelData),
+            'paypal'    => UpdatePaypalPaymentAccount::make()->action($paymentAccount, $modelData),
+            'bank'      => UpdateBankPaymentAccount::make()->action($paymentAccount, $modelData),
         };
-
-        return $paymentAccount;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -54,7 +62,17 @@ class StoreOrgPaymentServiceProviderAccount extends OrgAction
                     ]
                 ),
             ],
-            'source_id'    => ['sometimes', 'string'],
+            'source_id'                  => ['sometimes', 'string'],
+            'name'                       => ['required', 'string'],
+            'bank_name'                  => ['sometimes', 'string'],
+            'bank_account_name'          => ['sometimes', 'string'],
+            'bank_account_id'            => ['sometimes', 'string'],
+            'bank_swift_code'            => ['sometimes', 'string'],
+            'checkout_access_key'        => ['sometimes', 'string'],
+            'checkout_secret_key'        => ['sometimes', 'string'],
+            'checkout_channel_id'        => ['sometimes', 'string'],
+            'paypal_client_id'           => ['sometimes', 'string'],
+            'paypal_client_secret'       => ['sometimes', 'string']
         ];
     }
 
