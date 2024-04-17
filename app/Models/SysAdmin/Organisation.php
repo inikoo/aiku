@@ -35,6 +35,7 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
+use App\Models\Market\Rental;
 use App\Models\Market\Shop;
 use App\Models\Media\Media;
 use App\Models\Procurement\OrgAgent;
@@ -435,4 +436,8 @@ class Organisation extends Model implements HasMedia
         return $this->hasMany(Product::class);
     }
 
+    public function rentals(): HasMany
+    {
+        return $this->hasMany(Rental::class);
+    }
 }

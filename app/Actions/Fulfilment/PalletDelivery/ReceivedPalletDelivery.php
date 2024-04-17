@@ -15,7 +15,9 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Market\Rental;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -30,9 +32,16 @@ class ReceivedPalletDelivery extends OrgAction
         $modelData['state']       = PalletDeliveryStateEnum::RECEIVED;
 
         foreach ($palletDelivery->pallets as $pallet) {
+            /** @var Rental $rental */
+            $rental = $this->organisation->rentals()
+                ->where('asset', class_basename(Pallet::class))
+                ->where('asset_type', $pallet->type->value)
+                ->first();
+
             UpdatePallet::run($pallet, [
-                'state'  => PalletStateEnum::RECEIVED,
-                'status' => PalletStatusEnum::RECEIVING
+                'state'     => PalletStateEnum::RECEIVED,
+                'status'    => PalletStatusEnum::RECEIVING,
+                'rental_id' => $rental?->id
             ]);
 
             $pallet->generateSlug();

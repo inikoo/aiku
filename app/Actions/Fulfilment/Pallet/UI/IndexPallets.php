@@ -246,8 +246,8 @@ class IndexPallets extends OrgAction
 
             if (($parent instanceof Organisation or $parent instanceof Fulfilment or $parent instanceof Warehouse or $parent instanceof PalletDelivery or $parent instanceof PalletReturn) and in_array($parent->state, [PalletDeliveryStateEnum::RECEIVED,PalletDeliveryStateEnum::BOOKED_IN, PalletDeliveryStateEnum::BOOKING_IN]) and request(
             )->user() instanceof User) {
-                $table->column(key: 'rental', label: __('Rental'), canBeHidden: false, searchable: true);
                 $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
+                $table->column(key: 'rental', label: __('Rental'), canBeHidden: false, searchable: true);
             }
 
 
