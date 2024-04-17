@@ -214,6 +214,7 @@ class IndexPallets extends OrgAction
 
             if (!($parent instanceof PalletDelivery and $parent->state == PalletDeliveryStateEnum::IN_PROCESS)) {
                 $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
+                $table->column(key: 'type', label: ['fal', 'fa-yin-yang'], type: 'icon');
                 $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             }
 
@@ -245,6 +246,7 @@ class IndexPallets extends OrgAction
 
             if (($parent instanceof Organisation or $parent instanceof Fulfilment or $parent instanceof Warehouse or $parent instanceof PalletDelivery or $parent instanceof PalletReturn) and in_array($parent->state, [PalletDeliveryStateEnum::RECEIVED,PalletDeliveryStateEnum::BOOKED_IN, PalletDeliveryStateEnum::BOOKING_IN]) and request(
             )->user() instanceof User) {
+                $table->column(key: 'rental', label: __('Rental'), canBeHidden: false, searchable: true);
                 $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
             }
 

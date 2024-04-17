@@ -202,7 +202,7 @@ class ShowPalletDelivery extends OrgAction
                         'style'   => 'primary',
                         'icon'    => 'fal fa-check',
                         'tooltip' => __('Confirm booking'),
-                        'label'   => __('Save booking'),
+                        'label'   => __('Finish booking'),
                         'key'     => 'action',
                         'route'   => [
                             'method'     => 'post',

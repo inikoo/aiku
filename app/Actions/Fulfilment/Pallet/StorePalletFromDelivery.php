@@ -10,13 +10,16 @@ namespace App\Actions\Fulfilment\Pallet;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsCommand;
 
@@ -36,6 +39,7 @@ class StorePalletFromDelivery extends OrgAction
         data_set($modelData, 'fulfilment_customer_id', $palletDelivery->fulfilment_customer_id);
         data_set($modelData, 'warehouse_id', $palletDelivery->warehouse_id);
         data_set($modelData, 'pallet_delivery_id', $palletDelivery->id);
+        data_set($modelData, 'type', Arr::get($modelData, 'type'));
 
         $pallet = StorePallet::make()->action($palletDelivery->fulfilmentCustomer, $modelData);
 
@@ -69,6 +73,7 @@ class StorePalletFromDelivery extends OrgAction
     public function rules(): array
     {
         return [
+            'type'               => ['nullable', Rule::in(PalletTypeEnum::values())],
             'customer_reference' => ['nullable'],
             'notes'              => ['nullable', 'string','max:1024']
         ];
