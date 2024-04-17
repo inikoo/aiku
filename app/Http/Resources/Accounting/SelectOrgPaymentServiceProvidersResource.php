@@ -98,7 +98,8 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
             'route'      => [
                 'name'       => "grp.models.org.payment-service-provider-account.store",
                 'parameters' => [
-                    'organisation' => $this->organisation_id
+                    'organisation'           => $this->organisation_id,
+                    'paymentServiceProvider' => $this->id
                 ]
             ]
         ];
