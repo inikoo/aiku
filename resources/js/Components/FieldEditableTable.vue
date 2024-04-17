@@ -16,22 +16,25 @@ import { faSignOutAlt } from "@fal"
 import { get, isNull } from 'lodash'
 import { faSpinnerThird } from '@fad'
 import { cloneDeep } from "lodash"
+import PureMultiselect from "./Pure/PureMultiselect.vue"
 
-library.add( faTrashAlt, faSignOutAlt, faTimesCircle, faSpinnerThird, faCheckCircle )
+library.add(faTrashAlt, faSignOutAlt, faTimesCircle, faSpinnerThird, faCheckCircle)
 
 const props = withDefaults(defineProps<{
-    data: {
-        [key: string]: string
-    }
+    data: { [key: string]: string }
     fieldName: string
     placeholder?: string
-    type?:string
-    min?:number
-    max?:number
+    type?: string
+    min?: number
+    max?: number
+    fieldType?: String
+    options:Array
 }>(), {
-    type : 'text',
-    min:0,
-    max:0
+    type: 'text',
+    min: 0,
+    max: 0,
+    options:[],
+    fieldType: 'input'
 })
 
 const emits = defineEmits<{
@@ -58,7 +61,7 @@ const onSaveInput = (value: string) => {
     }
 }
 
-const onInput=(event)=>{
+const onInput = (event) => {
     pallet.value.form.errors[props.fieldName] = ''
     emits('input', event)
 }
@@ -66,34 +69,40 @@ const onInput=(event)=>{
 </script>
 
 <template>
-    <PureInput 
-        v-model="pallet.form[fieldName]"
-        @blur="(value) => onSaveInput(value)"
-        @onEnter="(value) => onSaveInput(value)"
-        @input="onInput"
-        :suffix="true"
-        :placeholder="placeholder"
-        :type="type"
-        :minValue="min"
-        :maxValue="max"
-    >
-        <template #suffix>
-            <div class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer">
-                <span v-if="get(pallet, ['form', 'processing'], false)">
-                    <FontAwesomeIcon :icon="['fad', 'spinner-third']" class='animate-spin' fixed-width aria-hidden="true" />
-                </span>
-                <span
-                    v-if="!get(pallet, ['form', 'hasErrors'], false) && !get(pallet, ['form', 'processing'], false) && get(pallet, ['form', 'wasSuccessful'], false)">
-                    <FontAwesomeIcon :icon="['fas', 'check-circle']" fixed-width class="text-green-500"
-                        aria-hidden="true" />
-                </span>
-                <span
-                    v-if="get(pallet, ['form', 'hasErrors'], false) && !get(pallet, ['form', 'processing'], false) && !get(pallet, ['form', 'wasSuccessful'], false)">
-                    <FontAwesomeIcon :icon="['fas', 'times-circle']" fixed-width class="text-red-500" aria-hidden="true" />
-                </span>
-            </div>
-        </template>
-    </PureInput>
+    <div v-if="fieldType == 'input'">
+        <PureInput v-model="pallet.form[fieldName]" @blur="(value) => onSaveInput(value)"
+            @onEnter="(value) => onSaveInput(value)" @input="onInput" :suffix="true" :placeholder="placeholder"
+            :type="type" :minValue="min" :maxValue="max">
+            <template #suffix>
+                <div class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer">
+                    <span v-if="get(pallet, ['form', 'processing'], false)">
+                        <FontAwesomeIcon :icon="['fad', 'spinner-third']" class='animate-spin' fixed-width
+                            aria-hidden="true" />
+                    </span>
+                    <span
+                        v-if="!get(pallet, ['form', 'hasErrors'], false) && !get(pallet, ['form', 'processing'], false) && get(pallet, ['form', 'wasSuccessful'], false)">
+                        <FontAwesomeIcon :icon="['fas', 'check-circle']" fixed-width class="text-green-500"
+                            aria-hidden="true" />
+                    </span>
+                    <span
+                        v-if="get(pallet, ['form', 'hasErrors'], false) && !get(pallet, ['form', 'processing'], false) && !get(pallet, ['form', 'wasSuccessful'], false)">
+                        <FontAwesomeIcon :icon="['fas', 'times-circle']" fixed-width class="text-red-500"
+                            aria-hidden="true" />
+                    </span>
+                </div>
+            </template>
+        </PureInput>
+    </div>
+    <div v-else-if="fieldType == 'select'">
+        <PureMultiselect
+          :modelValue="pallet.form[fieldName]"
+          :placeholder="placeholder"
+          :options="options"
+          @OnChange="(value) => onSaveInput(value)"
+        >
+        </PureMultiselect>
+    </div>
+
 
     <div v-if="get(pallet, ['form', 'errors', `${fieldName}`])" class="mt-1 mb-1 w-fit italic text-sm text-red-500">
         {{ get(pallet, ['form', 'errors', `${fieldName}`]) }}
