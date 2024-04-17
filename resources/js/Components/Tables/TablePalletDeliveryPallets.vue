@@ -15,7 +15,7 @@ import { Link } from "@inertiajs/vue3"
 import Icon from "@/Components/Icon.vue"
 import { faTimesSquare } from "@fas"
 import { faTrashAlt, faPaperPlane, faInventory } from "@far"
-import { faTruckLoading, faStickyNote } from "@fal"
+import { faTruckLoading, faStickyNote, faPallet, faBox, faBoxes } from "@fal"
 import FieldEditableTable from "@/Components/FieldEditableTable.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ref, watch, defineEmits } from "vue"
@@ -27,7 +27,7 @@ import { Table as TSTable } from "@/types/Table"
 
 import '@/Composables/Icon/PalletStateEnum'
 
-library.add( faTrashAlt, faPaperPlane, faInventory, faTruckLoading, faStickyNote, faTimesSquare )
+library.add( faTrashAlt, faPaperPlane, faInventory, faTruckLoading, faStickyNote, faTimesSquare, faPallet, faBox, faBoxes )
 
 const props = defineProps<{
 	data: TSTable
@@ -85,6 +85,13 @@ const onSaved = async (pallet: { form : {}}, fieldName: string) => {
 	}
 }
 
+
+const typePallet = [
+    { label : 'Pallet', value : 'pallet'}, 
+    { label : 'Box', value : 'box'}, 
+    { label : 'Oversize', value : 'oversize'}
+]
+
 </script>
 
 <template>
@@ -128,7 +135,6 @@ const onSaved = async (pallet: { form : {}}, fieldName: string) => {
         <!-- Column: Stored Items -->
 		<template #cell(location)="{ item: pallet }">
             <div class="flex gap-x-1 gap-y-2 items-center">
-                {{ pallet.location }}
                 <LocationFieldDelivery
                     :key="pallet.state"
                     :pallet="pallet"
@@ -140,7 +146,13 @@ const onSaved = async (pallet: { form : {}}, fieldName: string) => {
 
 
 		<template #cell(type)="{ item: pallet }">
-            gggg
+            <div>
+				<FieldEditableTable :data="pallet"  @onSave="onSaved" :options="typePallet" :fieldType="'select'" fieldName="type" placeholder="Enter customer type" />
+			</div>
+		</template>
+
+		<template #cell(type_icon)="{ item: pallet }">
+				<FontAwesomeIcon :icon="pallet.type_icon.icon" :class="pallet.type_icon.class"/>
 		</template>
 
         <!-- Column: Actions -->
