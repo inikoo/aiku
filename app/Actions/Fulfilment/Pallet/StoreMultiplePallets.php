@@ -31,7 +31,7 @@ class StoreMultiplePallets extends OrgAction
         data_set($modelData, 'warehouse_id', $palletDelivery->warehouse_id);
 
         for ($i = 1; $i <= Arr::get($modelData, 'number_pallets'); $i++) {
-            StorePalletFromDelivery::run($palletDelivery, Arr::except($modelData, ['number_pallets', 'type']));
+            StorePalletFromDelivery::run($palletDelivery, Arr::except($modelData, ['number_pallets']));
         }
 
         HydratePalletDeliveries::dispatch($palletDelivery);
@@ -64,7 +64,7 @@ class StoreMultiplePallets extends OrgAction
         return [
             'warehouse_id'       => ['required', 'integer', 'exists:warehouses,id'],
             'number_pallets'     => ['required', 'integer', 'min:1', 'max:1000'],
-            'type'               => ['nullable', Rule::in(PalletTypeEnum::values())]
+            'type'               => ['required', Rule::in(PalletTypeEnum::values())]
         ];
     }
 
