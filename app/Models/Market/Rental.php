@@ -25,6 +25,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $organisation_id
  * @property int|null $shop_id
  * @property int|null $product_id
+ * @property string|null $asset Used for auto assign this rent to this asset
+ * @property string|null $asset_type Used for auto assign this rent to this asset type
  * @property array $data
  * @property int $number_historic_outerables
  * @property \Illuminate\Support\Carbon|null $created_at
