@@ -8,6 +8,7 @@
 namespace App\Http\Resources\Accounting;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Arr;
 
 /**
  * @property string $number_payments
@@ -28,9 +29,9 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
 {
     public function toArray($request): array
     {
-        $provider = explode('-', $this->code);
+        $provider = Arr::get(explode('-', $this->code), 1);
 
-        $additionalFields = match ($provider[1]) {
+        $additionalFields = match ($provider) {
             'checkout' => [
                 'checkout_access_key' => [
                     'type'     => 'input',
@@ -67,7 +68,7 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
                 'bank_swift_code' => [
                     'type'     => 'input',
                     'label'    => __('bank swift code'),
-                    'required' => true
+                    'required' => false
                 ]
             ],
             default => []
