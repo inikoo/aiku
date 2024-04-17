@@ -87,8 +87,6 @@ class ShowFulfilmentCustomer extends OrgAction
 
         }
 
-
-
         return Inertia::render(
             'Org/Fulfilment/Customer',
             [
@@ -145,8 +143,8 @@ class ShowFulfilmentCustomer extends OrgAction
 
 
                 CustomerFulfilmentTabsEnum::PALLETS->value => $this->tab == CustomerFulfilmentTabsEnum::PALLETS->value ?
-                    fn () => PalletsResource::collection(IndexPallets::run($fulfilmentCustomer))
-                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($fulfilmentCustomer))),
+                    fn () => PalletsResource::collection(IndexPallets::run($fulfilmentCustomer, 'pallets'))
+                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($fulfilmentCustomer, 'pallets'))),
 
                 CustomerFulfilmentTabsEnum::STORED_ITEMS->value => $this->tab == CustomerFulfilmentTabsEnum::STORED_ITEMS->value ?
                     fn () => StoredItemResource::collection(
@@ -250,11 +248,10 @@ class ShowFulfilmentCustomer extends OrgAction
                     parent: $fulfilmentCustomer,
                     prefix: CustomerFulfilmentTabsEnum::PALLETS->value,
                     modelOperations: [
-                        'createLink' => [
+                        'bulk' => [
                             [
-                                'type'  => 'bulk',
-                                'style' => 'create',
-                                'label' => __('New Return'),
+                                'type'  => 'button',
+                                'label' => __('return'),
                                 'route' => [
                                     'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
                                     'parameters' => [

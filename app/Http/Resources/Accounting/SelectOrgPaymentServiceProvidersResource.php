@@ -8,6 +8,7 @@
 namespace App\Http\Resources\Accounting;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Arr;
 
 /**
  * @property string $number_payments
@@ -17,7 +18,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $created_at
  * @property string $name
  * @property string $state
- * @property int $org_id
+ * @property int $organisation_id
  * @property int $id
  * @property mixed $org_slug
  * @property mixed $org_code
@@ -28,9 +29,9 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
 {
     public function toArray($request): array
     {
-        $provider = explode('-', $this->code);
+        $provider = Arr::get(explode('-', $this->code), 1);
 
-        $additionalFields = match ($provider[1]) {
+        $additionalFields = match ($provider) {
             'checkout' => [
                 'checkout_access_key' => [
                     'type'     => 'input',
@@ -67,35 +68,50 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
                 'bank_swift_code' => [
                     'type'     => 'input',
                     'label'    => __('bank swift code'),
-                    'required' => true
+                    'required' => false
                 ]
+            ],
+            'paypal' => [
+                'paypal_client_id' => [
+                    'type'     => 'input',
+                    'label'    => __('client id'),
+                    'required' => true
+                ],
+                'paypal_client_secret' => [
+                    'type'     => 'input',
+                    'label'    => __('client secret'),
+                    'required' => true
+                ],
             ],
             default => []
         };
 
         $formData = [
             'blueprint' => [
-                $provider != 'cash' ? [
+                [
                     'title'  => __('payment account'),
                     'fields' => [
                         'code' => [
                             'type'     => 'input',
                             'label'    => __('code'),
-                            'required' => true
+                            'required' => true,
+                         /*    'column'   => '1/2' */
                         ],
                         'name' => [
                             'type'     => 'input',
                             'label'    => __('name'),
-                            'required' => true
+                            'required' => true,
+                       /*      'column'   => '1/2' */
                         ],
                         ...$additionalFields
                     ]
-                ] : []
+                ]
             ],
             'route'      => [
-                'name'       => 'grp.models.org.payment-account.store',
+                'name'       => "grp.models.org.payment-service-provider-account.store",
                 'parameters' => [
-                    'organisation' => $this->org_id
+                    'organisation'           => $this->organisation_id,
+                    'paymentServiceProvider' => $this->id
                 ]
             ]
         ];
@@ -104,6 +120,7 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
             'number_payments'             => $this->number_payments,
             'number_payment_accounts'     => $this->number_payment_accounts,
             'slug'                        => $this->slug,
+            'org_id'                      => $this->organisation_id,
             'org_slug'                    => $this->org_slug,
             'code'                        => $this->code,
             'org_code'                    => $this->org_code,

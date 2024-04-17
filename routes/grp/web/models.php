@@ -7,6 +7,7 @@
 
 
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
+use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProviderAccount;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\CRM\Customer\StoreCustomer;
@@ -109,6 +110,8 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::patch('/payment-account/{paymentAccount:id}', UpdatePaymentAccount::class)->name('payment-account.update')->withoutScopedBindings();
     Route::post('/payment-account', StorePaymentAccount::class)->name('payment-account.store');
     Route::post('/payment-service-provider/{paymentServiceProvider:id}', StoreOrgPaymentServiceProvider::class)->name('payment-service-provider.store')->withoutScopedBindings();
+
+    Route::post('/payment-service-provider/{paymentServiceProvider:id}/account', StoreOrgPaymentServiceProviderAccount::class)->name('payment-service-provider-account.store')->withoutScopedBindings();
 });
 
 Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->group(function () {

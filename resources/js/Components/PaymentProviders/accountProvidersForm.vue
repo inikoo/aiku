@@ -22,27 +22,24 @@ const props = defineProps<{
 }>()
 
 
-const form = useForm({})
 
-const onSubmit = () => {
-  /*   form.post(
+/* const onSubmit = () => {
+    form.post(
         route(props.provider.storeRoute.name, props.provider.storeRoute.parameters), {
         onSuccess: () => { props.onCloseModal() },
     }
-    ) */
-}
-
-
+    )
+} */
 </script>
 
 
 <template>
     <div class="p-2">
-        <Schemaform :bluprint="provider?.formData?.blueprint" :form="form"/>
-    </div>
-
-    <div class="p-2">
-        <Button full @click="onSubmit" label="Submit" type="save"
-            class="bg-indigo-700 hover:bg-slate-600 border border-slate-500 text-teal-50 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2" />
+        <Schemaform 
+            :bluprint="provider?.formData?.blueprint" 
+            :route="provider?.formData?.route"
+            @onSuccess="()=>props.onCloseModal()"
+            @onCancel="()=>props.onCloseModal()"
+        />
     </div>
 </template>
