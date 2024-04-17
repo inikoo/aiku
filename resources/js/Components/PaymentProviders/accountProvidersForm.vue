@@ -33,16 +33,18 @@ const onSubmit = () => {
 }
 
 
+console.log('props',props)
+
 </script>
 
 
 <template>
     <div class="p-2">
-        <Schemaform :bluprint="provider?.formData?.blueprint" :form="form"/>
+        <Schemaform :bluprint="provider?.formData?.blueprint" :form="form" :route="provider.route"/>
     </div>
 
-    <div class="p-2">
+  <!--   <div class="p-2">
         <Button full @click="onSubmit" label="Submit" type="save"
             class="bg-indigo-700 hover:bg-slate-600 border border-slate-500 text-teal-50 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2" />
-    </div>
+    </div> -->
 </template>

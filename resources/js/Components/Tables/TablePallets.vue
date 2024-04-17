@@ -166,6 +166,7 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Reference -->
         <template #cell(reference)="{ item: pallet }">
+        <pre>{{ item }}</pre>
             <component :is="pallet.slug ? Link : 'div'" :href="pallet.slug ? palletRoute(pallet) : undefined" :class="pallet.slug ? 'specialUnderline' : ''">
                 {{ pallet.reference }}
             </component>
