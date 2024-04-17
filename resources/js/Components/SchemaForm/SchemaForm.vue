@@ -27,7 +27,21 @@ const props = defineProps(
             default: [],
             required: true,
         },
+        route: {
+            type: Object,
+        }
     });
+
+
+const emits = defineEmits<{
+    (e: 'onSuccess', value: string): void
+    (e: 'onCancel', value: string): void
+    (e: 'onError', value: string): void
+    (e: 'onBefore', value: string): void
+    (e: 'onStart', value: string): void
+    (e: 'onProgress', value: string): void
+    (e: 'onFinish', value: string): void
+}>()
 
 onMounted(() => {
     if (Object.keys(props.form.data()).length === 0) {
@@ -39,6 +53,26 @@ onMounted(() => {
         }
     }
 });
+
+const onSubmit = () => {
+    if (props.route) {
+        props.form.post(
+            route(props.route.name, props.route.parameters), {
+            onBefore: (visit) => { emits('onBefore', visit) },
+            onStart: (visit) => { emits('onStart', visit) },
+            onProgress: (progress) => { emits('onProgress', progress) },
+            onSuccess: (page) => { emits('onSuccess', page) },
+            onError: (errors) => { emits('onError', errors) },
+            onFinish: visit => { emits('onFinish', visit) },
+        }
+        )
+    }
+}
+
+const onCancel = (e) => {
+    emits('onCancel',e)
+    props.form.reset()
+}
 
 
 </script>
@@ -56,14 +90,9 @@ onMounted(() => {
                     <SchemaFileds :field="fieldName" :fieldData="fieldData" :form="form" />
                 </div>
             </div>
-
-
-
-
-
             <div class="flex justify-end">
-                <Button label="cancel" type="tertiary" class="mr-1" />
-                <Button label="Save" type="save"
+                <Button @click="onCancel" label="cancel" type="tertiary" class="mr-1" />
+                <Button @click="onSubmit" label="Save" type="save"
                     class="bg-indigo-700 hover:bg-slate-600 border border-slate-500 text-teal-50 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2" />
 
             </div>
