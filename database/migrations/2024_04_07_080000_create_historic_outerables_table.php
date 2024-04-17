@@ -23,10 +23,10 @@ return new class () extends Migration {
             $table->foreign('product_id')->references('id')->on('products');
             $table->string('outerable_type')->index();
             $table->unsignedInteger('outerable_id')->index();
-            $table->unsignedDecimal('price', 18)->comment('unit price');
+            $table->decimal('price', 18)->comment('unit price');
             $table->string('code')->nullable();
             $table->string('name', 255)->nullable();
-            $table->unsignedDecimal('units', 12, 3)->nullable()->comment('units in outer');
+            $table->decimal('units', 12, 3)->nullable()->comment('units in outer');
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();

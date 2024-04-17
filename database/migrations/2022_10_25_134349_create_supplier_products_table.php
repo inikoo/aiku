@@ -34,7 +34,7 @@ return new class () extends Migration {
             $table->boolean('status')->nullable()->index();
             $table->string('stock_quantity_status')->default(SupplierProductQuantityStatusEnum::NO_APPLICABLE->value)->nullable()->index();
             $table = $this->assertCodeDescription($table);
-            $table->unsignedDecimal('cost', 18, 4)->comment('unit cost');
+            $table->decimal('cost', 18, 4)->comment('unit cost');
             $table->unsignedInteger('units_per_pack')->nullable()->comment('units per pack');
             $table->unsignedInteger('units_per_carton')->nullable()->comment('units per carton');
             $table->jsonb('settings');
