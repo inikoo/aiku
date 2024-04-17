@@ -652,9 +652,11 @@ watch(selectRow, () => {
 
                             <!-- Button: Model Operations -->
                             <div v-if="queryBuilderProps.modelOperations?.createLink" class="flex">
+                            <!-- <pre>{{queryBuilderProps.modelOperations}}</pre> -->
                                 <slot v-for="(linkButton, btnIndex) in queryBuilderProps.modelOperations?.createLink"
                                     :name="`button${linkButton.label}`" :linkButton="linkButton"
                                 >
+                              
                                     <Link v-if="linkButton?.route?.name"
                                         as="div"
                                         :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
@@ -663,7 +665,7 @@ watch(selectRow, () => {
                                         :class="[queryBuilderProps.modelOperations?.createLink.length > 1 ? 'first:rounded-l last:rounded-r' : '']"
                                     >
                                         <Button
-                                            :style="linkButton.style"
+                                            :style="Object.values(selectRow).some(value => value) ? linkButton.style : 'disabled'"
                                             :icon="linkButton.icon"
                                             :label="linkButton.label"
                                             size="l"
@@ -673,6 +675,31 @@ watch(selectRow, () => {
                                     </Link>
                                 </slot>
                             </div>
+                            <div v-if="queryBuilderProps.modelOperations?.bulk" class="flex">
+                            <!-- <pre>{{queryBuilderProps.modelOperations}}</pre> -->
+                                <slot v-for="(linkButton, btnIndex) in queryBuilderProps.modelOperations?.bulk"
+                                    :name="`button${linkButton.label}`" :linkButton="linkButton"
+                                >
+                                    <Link v-if="linkButton?.route?.name"
+                                        as="div"
+                                        :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
+                                        :method="linkButton.route?.method || 'get'"
+                                        v-tooltip="linkButton.tooltip"
+                                        :data="selectRow"
+                                        :class="[queryBuilderProps.modelOperations?.bulk.length > 1 ? 'first:rounded-l last:rounded-r' : '']"
+                                    >
+                                        <Button
+                                            :style="'disabled'"
+                                            :icon="linkButton.icon"
+                                            :label="linkButton.label"
+                                            size="l"
+                                            class="h-full border-none rounded-none"
+                                            :class="{'rounded-l-md': btnIndex === 0, 'rounded-r-md ': btnIndex === queryBuilderProps.modelOperations?.bulk.length - 1}"
+                                        />
+                                    </Link>
+                                </slot>
+                            </div>
+
                             <slot v-if="queryBuilderProps.modelOperations?.uploadFile" name="uploadFile" id="uploadFile"
                                   :item="queryBuilderProps.modelOperations?.uploadFile"/>
 

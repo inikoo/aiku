@@ -31,7 +31,6 @@ const form = useForm({
 })
 
 function paymentServiceProviderRoute(paymentServiceAccount: SelectPaymentServiceProvider) {
-    console.log(route().current())
     switch (route().current()) {
         case 'grp.org.accounting.org-payment-service-providers.index':
             return route(
@@ -108,6 +107,7 @@ const onCloseModal = (data) => {
 <template>
     <Table :resource="data" class="mt-5">
         <template #cell(adoption)="{ item: item }">
+      <!--   <pre>{{ item }}</pre> -->
             <div class="flex justify-center">
                 <template v-if="item.state == 'active'">
                     <div  v-tooltip="'account'" v-if="item.number_payment_accounts && item.number_payment_accounts > 0">
@@ -144,7 +144,7 @@ const onCloseModal = (data) => {
 
     </Table>
 
-    <Modal :isOpen="openModal" @onClose="onCloseModal" width="w-1/3" class="overflow-visible">
+    <Modal :isOpen="openModal" @onClose="onCloseModal" width="w-2/5" class="overflow-visible">
         <div>
             <AccountProvidersForm :provider="selectedProvider" :onCloseModal="onCloseModal"
                 :paymentAccountTypes="paymentAccountTypes" />
