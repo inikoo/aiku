@@ -15,16 +15,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
-
 /**
  * App\Models\Market\HistoricOuterable
  *
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
- * @property string $slug
  * @property bool $status
  * @property int $product_id
  * @property string $outerable_type
@@ -50,26 +46,12 @@ use Spatie\Sluggable\SlugOptions;
 class HistoricOuterable extends Model
 {
     use SoftDeletes;
-    use HasSlug;
-
 
     protected $casts = [
         'status' => 'boolean',
     ];
 
-    public $timestamps = ['created_at'];
-
-
     protected $guarded = [];
-
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom('code')
-            ->doNotGenerateSlugsOnUpdate()
-            ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(64);
-    }
 
     public function product(): BelongsTo
     {

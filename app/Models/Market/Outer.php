@@ -77,7 +77,9 @@ class Outer extends Model
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('code')
+            ->generateSlugsFrom(function () {
+                return $this->shop->slug . '-' . $this->code;
+            })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);

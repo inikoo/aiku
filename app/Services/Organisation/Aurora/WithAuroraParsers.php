@@ -250,6 +250,8 @@ trait WithAuroraParsers
     }
 
 
+    // Never used
+    /*
     public function parseHistoricProduct($sourceId): HistoricOuterable
     {
         $historicProduct = HistoricOuterable::where('source_id', $sourceId)->first();
@@ -259,6 +261,7 @@ trait WithAuroraParsers
 
         return $historicProduct;
     }
+    */
 
 
     public function parseHistoricItem($sourceId): HistoricOuterable

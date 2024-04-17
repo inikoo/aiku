@@ -87,13 +87,13 @@ class FetchAuroraProduct extends FetchAurora
 
 
         $this->parsedData['product'] = [
-            'type'                  => ProductTypeEnum::PHYSICAL_GOOD,
-            'owner_type'            => $owner_type,
-            'owner_id'              => $owner_id,
-            'code'                  => $code,
-            'name'                  => $this->auroraModelData->{'Product Name'},
-            'price'                 => round($unit_price, 2),
-            'units'                 => round($units, 3),
+            'type'                                 => ProductTypeEnum::PHYSICAL_GOOD,
+            'owner_type'                           => $owner_type,
+            'owner_id'                             => $owner_id,
+            'code'                                 => $code,
+            'name'                                 => $this->auroraModelData->{'Product Name'},
+            'main_outerable_price'                 => round($unit_price, 2),
+         //   'units'                 => round($units, 3),
             'status'                => $status,
             'state'                 => $state,
             'data'                  => $data,

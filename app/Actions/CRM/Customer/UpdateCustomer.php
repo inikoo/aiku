@@ -130,7 +130,7 @@ class UpdateCustomer extends OrgAction
                     table: 'customers',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
-                        ['column' => 'deleted_at', 'value' => null],
+                        ['column' => 'deleted_at', 'operator'=>'notNull'],
                         ['column' => 'id', 'value' => $this->customer->id, 'operator' => '!=']
                     ]
                 ),
@@ -156,7 +156,7 @@ class UpdateCustomer extends OrgAction
                         table: 'customers',
                         extraConditions: [
                             ['column' => 'shop_id', 'value' => $this->shop->id],
-                            ['column' => 'deleted_at', 'value' => null],
+                            ['column' => 'deleted_at', 'operator'=>'notNull'],
                             ['column' => 'id', 'value' => $this->customer->id, 'operator' => '!=']
                         ]
                     ),

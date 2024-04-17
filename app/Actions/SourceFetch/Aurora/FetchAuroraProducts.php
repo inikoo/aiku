@@ -43,7 +43,6 @@ class FetchAuroraProducts extends FetchAuroraAction
                     $product = UpdateProduct::make()->action(
                         product: $product,
                         modelData: $productData['product'],
-                        skipHistoric: true
                     );
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $productData['product'], 'Product', 'update');
@@ -54,7 +53,6 @@ class FetchAuroraProducts extends FetchAuroraAction
                     $product = StorePhysicalGood::make()->action(
                         parent: $productData['parent'],
                         modelData: $productData['product'],
-                        skipHistoric: true
                     );
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $productData['product'], 'Product', 'store');
@@ -85,6 +83,7 @@ class FetchAuroraProducts extends FetchAuroraAction
         $query = DB::connection('aurora')
             ->table('Product Dimension')
             ->where('Product Type', 'Product')
+            ->whereNull('Product Customer Key')
             ->where('is_variant', 'No')
             ->select('Product ID as source_id')
             ->orderBy('Product ID');
@@ -104,6 +103,7 @@ class FetchAuroraProducts extends FetchAuroraAction
     public function count(): ?int
     {
         $query = DB::connection('aurora')->table('Product Dimension')
+            ->whereNull('Product Customer Key')
             ->where('is_variant', 'No')
             ->where('Product Type', 'Product');
 
