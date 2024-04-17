@@ -51,6 +51,7 @@ class FetchAuroraShop extends FetchAurora
 
         $type=strtolower($this->auroraModelData->{'Store Type'});
 
+
         $this->parsedData['shop'] = [
             'code'         => $this->auroraModelData->code,
             'name'         => $this->auroraModelData->{'Store Name'},

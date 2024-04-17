@@ -75,7 +75,8 @@ trait IsStoreProduct
                     table: 'products',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
-                        ['column' => 'deleted_at', 'value' => null],
+                        ['column' => 'state', 'operator'=>'!=','value' => ProductStateEnum::DISCONTINUED->value],
+                        ['column' => 'deleted_at', 'operator'=>'notNull'],
                     ]
                 ),
             ],

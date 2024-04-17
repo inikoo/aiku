@@ -85,7 +85,7 @@ class StoreWebUser extends OrgAction
                     table: 'web_users',
                     extraConditions: [
                         ['column' => 'website_id', 'value' => $this->shop->website->id],
-                        ['column' => 'deleted_at', 'value' => null],
+                        ['column' => 'deleted_at', 'operator'=>'notNull'],
                     ]
                 ),
             ],
@@ -117,7 +117,7 @@ class StoreWebUser extends OrgAction
                 table: 'web_users',
                 extraConditions: [
                     ['column' => 'website_id', 'value' => $this->shop->website->id],
-                    ['column' => 'deleted_at', 'value' => null],
+                    ['column' => 'deleted_at', 'operator'=>'notNull'],
                 ]
             ),
 

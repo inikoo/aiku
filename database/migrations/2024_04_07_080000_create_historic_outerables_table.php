@@ -18,30 +18,21 @@ return new class () extends Migration {
         Schema::create('historic_outerables', function (Blueprint $table) {
             $table->increments('id');
             $table = $this->groupOrgRelationship($table);
-
-
-            $table->string('slug')->unique()->collation('und_ns');
             $table->boolean('status')->index();
-
             $table->unsignedInteger('product_id')->index();
             $table->foreign('product_id')->references('id')->on('products');
-
             $table->string('outerable_type')->index();
             $table->unsignedInteger('outerable_id')->index();
-
             $table->unsignedDecimal('price', 18)->comment('unit price');
             $table->string('code')->nullable();
             $table->string('name', 255)->nullable();
             $table->unsignedDecimal('units', 12, 3)->nullable()->comment('units in outer');
-
             $table->timestampsTz();
             $table->softDeletesTz();
-
             $table->string('source_id')->nullable()->unique();
             $table->index(['outerable_type', 'outerable_id']);
         });
     }
-
 
     public function down(): void
     {
