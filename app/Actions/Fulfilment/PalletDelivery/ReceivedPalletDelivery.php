@@ -34,6 +34,9 @@ class ReceivedPalletDelivery extends OrgAction
                 'state'  => PalletStateEnum::RECEIVED,
                 'status' => PalletStatusEnum::RECEIVING
             ]);
+
+            $pallet->generateSlug();
+            $pallet->save();
         }
 
         $palletDelivery = $this->update($palletDelivery, $modelData);

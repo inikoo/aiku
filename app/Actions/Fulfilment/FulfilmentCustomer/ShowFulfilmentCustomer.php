@@ -87,8 +87,6 @@ class ShowFulfilmentCustomer extends OrgAction
 
         }
 
-
-
         return Inertia::render(
             'Org/Fulfilment/Customer',
             [

@@ -9,17 +9,13 @@ namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
-use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
-use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsCommand;
@@ -39,22 +35,9 @@ class StorePalletFromDelivery extends OrgAction
         data_set($modelData, 'fulfilment_id', $palletDelivery->fulfilment_id);
         data_set($modelData, 'fulfilment_customer_id', $palletDelivery->fulfilment_customer_id);
         data_set($modelData, 'warehouse_id', $palletDelivery->warehouse_id);
+        data_set($modelData, 'pallet_delivery_id', $palletDelivery->id);
 
-        if (Arr::exists($modelData, 'state') and Arr::get($modelData, 'state') != PalletStateEnum::IN_PROCESS) {
-            if (!Arr::get($modelData, 'reference')) {
-                data_set(
-                    $modelData,
-                    'reference',
-                    GetSerialReference::run(
-                        container: $palletDelivery->fulfilmentCustomer,
-                        modelType: SerialReferenceModelEnum::PALLET
-                    )
-                );
-            }
-        }
-
-        /** @var Pallet $pallet */
-        $pallet = $palletDelivery->pallets()->create($modelData);
+        $pallet = StorePallet::make()->action($palletDelivery->fulfilmentCustomer, $modelData);
 
         HydratePalletDeliveries::dispatch($palletDelivery);
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
