@@ -59,6 +59,14 @@ class StoreFulfilmentCustomerFromCustomer extends OrgAction
             ]
         );
 
+        $customerFulfilment->serialReferences()->create(
+            [
+                'model'           => SerialReferenceModelEnum::RENTAL_AGREEMENT,
+                'organisation_id' => $customerFulfilment->organisation->id,
+                'format'          => Abbreviate::run($customerFulfilment->slug).'-ra%03d'
+            ]
+        );
+
         FulfilmentCustomerHydrateUniversalSearch::dispatch($customerFulfilment);
 
         return $customerFulfilment;

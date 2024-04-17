@@ -9,6 +9,7 @@ namespace App\Models\Fulfilment;
 
 use App\Models\CRM\Customer;
 use App\Models\Helpers\SerialReference;
+use App\Models\Market\RentalAgreement;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
@@ -98,6 +99,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletReturn> $palletReturns
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\FulfilmentProforma> $proformas
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, RentalAgreement> $rentalAgreements
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemReturn> $storedItemReturns
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
@@ -195,4 +197,10 @@ class FulfilmentCustomer extends Model
     {
         return $this->morphMany(SerialReference::class, 'container');
     }
+
+    public function rentalAgreements(): HasMany
+    {
+        return $this->hasMany(RentalAgreement::class);
+    }
+
 }

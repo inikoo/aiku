@@ -7,6 +7,7 @@
 
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Fulfilment\Pallet\StorePallet;
+use App\Actions\Market\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
@@ -20,6 +21,7 @@ use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Market\RentalAgreement;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
@@ -114,6 +116,19 @@ test('create fulfilment customer', function (Fulfilment $fulfilment) {
 
     return $customer->fulfilmentCustomer;
 })->depends('create fulfilment shop');
+
+test('create rental agreement', function (FulfilmentCustomer $fulfilmentCustomer) {
+
+
+    $rentalAgreement = StoreRentalAgreement::make()->action(
+        $fulfilmentCustomer,
+        []
+    );
+
+    expect($rentalAgreement)->toBeInstanceOf(RentalAgreement::class);
+
+    return $rentalAgreement;
+})->depends('create fulfilment customer');
 
 
 test('create pallet no delivery', function (FulfilmentCustomer $fulfilmentCustomer) {
