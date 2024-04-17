@@ -22,7 +22,6 @@ const props = defineProps<{
 }>()
 
 
-const form = useForm({})
 
 /* const onSubmit = () => {
     form.post(
@@ -38,7 +37,6 @@ const form = useForm({})
     <div class="p-2">
         <Schemaform 
             :bluprint="provider?.formData?.blueprint" 
-            :form="form" 
             :route="provider?.formData?.route"
             @onSuccess="()=>props.onCloseModal()"
             @onCancel="()=>props.onCloseModal()"
