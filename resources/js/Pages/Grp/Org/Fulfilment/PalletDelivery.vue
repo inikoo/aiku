@@ -269,12 +269,11 @@ const typePallet = [
                             <span class="text-xs px-1 my-2">{{ trans('Type') }}: </span>
                             
                             <div v-for="( typeData, typeIdx ) in typePallet" :key="typeIdx" class="relative py-1">
-                            {{ formAddPallet.customer_reference == typeData.value  }}
                                 <div>
                                     <input type="checkbox" 
                                         :id="typeData.value" 
                                         :value="typeData.value" 
-                                        :checked="formAddPallet.customer_reference == typeData.value"
+                                        :checked="formAddPallet.type == typeData.value"
                                         @input="changePalletType(formAddPallet,'type',typeData.value)"
                                         class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
                                     >
