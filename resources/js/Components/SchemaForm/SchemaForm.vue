@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
-import { onMounted, defineProps, defineEmits } from 'vue';
+import { onMounted, defineProps, defineEmits, ref} from 'vue';
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faPlus } from "@fas";
 import SchemaFileds from '@/Components/SchemaForm/SchemaFileds.vue';
@@ -46,6 +46,7 @@ const setFormValues = () => {
 }
 
 const form = useForm(setFormValues())
+const loading = ref(false)
 
 
 const onSubmit = () => {
@@ -53,11 +54,11 @@ const onSubmit = () => {
         form.post(
             route(props.route.name, props.route.parameters), {
             onBefore: (visit) => { emits('onBefore', visit) },
-            onStart: (visit) => { emits('onStart', visit) },
+            onStart: (visit) => { emits(loading.value = true ,'onStart', visit) },
             onProgress: (progress) => { emits('onProgress', progress) },
             onSuccess: (page) => { emits('onSuccess', page) },
             onError: (errors) => { emits('onError', errors) },
-            onFinish: visit => { emits('onFinish', visit) },
+            onFinish: visit => { emits( loading.value = false ,'onFinish', visit) },
         }
         )
     }
@@ -98,7 +99,7 @@ const onCancel = (e) => {
             </div>
             <div class="flex justify-end">
                 <Button @click="onCancel" label="cancel" type="tertiary" class="mr-1" />
-                <Button @click="onSubmit" label="Save" type="save"
+                <Button @click="onSubmit" label="Save" type="save" :loading="loading"
                     class="bg-indigo-700 hover:bg-slate-600 border border-slate-500 text-teal-50 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2" />
             </div>
         </div>

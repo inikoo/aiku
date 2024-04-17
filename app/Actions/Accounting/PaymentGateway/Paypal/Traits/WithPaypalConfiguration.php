@@ -2,46 +2,42 @@
 
 namespace App\Actions\Accounting\PaymentGateway\Paypal\Traits;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 
 trait WithPaypalConfiguration
 {
     public function url(): string
     {
-        if(env('PAYPAL_PRODUCTION')) {
-            return env('PAYPAL_PRODUCTION_URL');
+        if(app()->isProduction()) {
+            return 'https://api-m.paypal.com';
         }
 
-        return env('PAYPAL_SANDBOX_URL');
+        return 'https://api-m.sandbox.paypal.com';
     }
 
-    public function headers(): array
+    public function headers($clientId, $clientSecret): array
     {
         return [
             'Content-Type'  => 'application/json',
-            'Authorization' => 'Bearer ' . $this->getAccessToken()
+            'Authorization' => 'Bearer ' . $this->getAccessToken($clientId, $clientSecret)
         ];
     }
 
-    public function getCredentials(): array
+    public function getCredentials($clientId, $clientSecret): array
     {
-        if(env('PAYPAL_PRODUCTION')) {
-            return [
-                'username' => env('PAYPAL_CLIENT_ID'),
-                'password' => env('PAYPAL_CLIENT_SECRET')
-            ];
-        }
-
         return [
-            'username' => env('PAYPAL_SANDBOX_CLIENT_ID'),
-            'password' => env('PAYPAL_SANDBOX_CLIENT_SECRET')
+            'username' => env($clientId),
+            'password' => env($clientSecret)
         ];
     }
 
-    public function getAccessToken(): string
+    public function getAccessToken($clientId, $clientSecret): string
     {
+        $credentials = $this->getCredentials($clientId, $clientSecret);
+
         $response = Http::asForm()
-            ->withBasicAuth($this->getCredentials()['username'], $this->getCredentials()['password'])
+            ->withBasicAuth(Arr::get($credentials, 'username'), Arr::get($credentials, 'password'))
             ->post($this->url() . '/v1/oauth2/token', [
             'grant_type' => 'client_credentials'
         ]);

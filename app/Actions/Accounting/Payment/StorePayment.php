@@ -9,8 +9,9 @@ namespace App\Actions\Accounting\Payment;
 
 use App\Actions\Accounting\Payment\Hydrators\PaymentHydrateUniversalSearch;
 use App\Actions\Accounting\PaymentAccount\Hydrators\PaymentAccountHydratePayments;
-use App\Actions\Accounting\PaymentGateway\Checkout\Channels\Checkout;
-use App\Actions\Accounting\PaymentGateway\Xendit\Channels\Invoice\MakePaymentUsingInvoice;
+use App\Actions\Accounting\PaymentGateway\Checkout\Channels\MakePaymentUsingCheckout;
+use App\Actions\Accounting\PaymentGateway\Paypal\Orders\MakePaymentUsingPaypal;
+use App\Actions\Accounting\PaymentGateway\Xendit\Channels\Invoice\MakePaymentUsingXendit;
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydratePayments;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Market\Shop\Hydrators\ShopHydratePayments;
@@ -19,7 +20,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePayments;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePayments;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
-use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderEnum;
+use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\CRM\Customer;
@@ -55,9 +56,10 @@ class StorePayment extends OrgAction
         /** @var Payment $payment */
         $payment = $paymentAccount->payments()->create($modelData);
 
-        match ($paymentAccount->paymentServiceProvider->code) {
-            PaymentServiceProviderEnum::CHECKOUT->value     => Checkout::run($payment, $modelData),
-            PaymentServiceProviderEnum::XENDIT->value       => MakePaymentUsingInvoice::run($payment),
+        match ($paymentAccount->type->value) {
+            PaymentAccountTypeEnum::CHECKOUT->value         => MakePaymentUsingCheckout::run($payment, $modelData),
+            PaymentAccountTypeEnum::XENDIT->value           => MakePaymentUsingXendit::run($payment),
+            PaymentAccountTypeEnum::PAYPAL->value           => MakePaymentUsingPaypal::run($payment, $modelData),
             default                                         => null
         };
 

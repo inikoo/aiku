@@ -18,7 +18,9 @@ use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
+use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
+use Symfony\Component\HttpFoundation\Response;
 
 class StoreOrgPaymentServiceProviderAccount extends OrgAction
 {
@@ -31,12 +33,16 @@ class StoreOrgPaymentServiceProviderAccount extends OrgAction
 
         $paymentAccount = StorePaymentAccount::run($orgPaymentServiceProvider, Arr::only($modelData, ['code', 'name', 'type']));
 
-        return match ($provider) {
+        match ($provider) {
             'cash'      => UpdateCashPaymentAccount::make()->action($paymentAccount, $modelData),
             'checkout'  => UpdateCheckoutPaymentAccount::make()->action($paymentAccount, $modelData),
             'paypal'    => UpdatePaypalPaymentAccount::make()->action($paymentAccount, $modelData),
             'bank'      => UpdateBankPaymentAccount::make()->action($paymentAccount, $modelData),
         };
+
+        $paymentAccount->refresh();
+
+        return $paymentAccount;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -90,5 +96,13 @@ class StoreOrgPaymentServiceProviderAccount extends OrgAction
         $this->initialisation($organisation, $modelData);
 
         return $this->handle($paymentServiceProvider, $organisation, $this->validatedData);
+    }
+
+    public function htmlResponse(PaymentAccount $paymentAccount): Response
+    {
+        return Inertia::location(route('grp.org.accounting.payment-accounts.show', [
+            'organisation'   => $paymentAccount->organisation->slug,
+            'paymentAccount' => $paymentAccount->slug
+        ]));
     }
 }

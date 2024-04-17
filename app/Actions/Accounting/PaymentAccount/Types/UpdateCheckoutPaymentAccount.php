@@ -27,7 +27,7 @@ class UpdateCheckoutPaymentAccount extends OrgAction
             data_set(
                 $modelData,
                 match ($key) {
-                    'checkout_access_key'                    => 'data.checkout_access_key',
+                    'checkout_public_key'                    => 'data.checkout_public_key',
                     'checkout_secret_key'                    => 'data.checkout_secret_key',
                     'checkout_channel_id'                    => 'data.checkout_channel_id',
                     default                                  => $key
@@ -52,7 +52,7 @@ class UpdateCheckoutPaymentAccount extends OrgAction
     public function rules(): array
     {
         return [
-            'checkout_access_key'       => ['required', 'string'],
+            'checkout_public_key'       => ['required', 'string'],
             'checkout_secret_key'       => ['required', 'string'],
             'checkout_channel_id'       => ['required', 'string']
         ];

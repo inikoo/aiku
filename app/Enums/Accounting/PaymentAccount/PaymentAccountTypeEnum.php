@@ -32,6 +32,8 @@ enum PaymentAccountTypeEnum: string
     case PASTPAY          = 'PASTPAY';
     case CASH_ON_DELIVERY = 'cash-on-delivery';
 
+    case XENDIT = 'xendit';
+
 
     public static function labels(): array
     {
@@ -47,6 +49,7 @@ enum PaymentAccountTypeEnum: string
             'checkout'         => __('Checkout'),
             'hokodo'           => __('Hokodo'),
             'PASTPAY'          => __('Pastpay'),
+            'xendit'           => __('Xendit'),
         ];
     }
 

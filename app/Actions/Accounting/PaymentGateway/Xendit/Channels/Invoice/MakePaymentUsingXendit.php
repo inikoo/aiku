@@ -16,7 +16,7 @@ use Xendit\Invoice\CreateInvoiceRequest;
 use Xendit\Invoice\Invoice;
 use Xendit\Invoice\InvoiceApi;
 
-class MakePaymentUsingInvoice
+class MakePaymentUsingXendit
 {
     use AsAction;
     use WithAttributes;
