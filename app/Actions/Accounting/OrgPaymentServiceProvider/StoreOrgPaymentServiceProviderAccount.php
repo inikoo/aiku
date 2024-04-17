@@ -58,11 +58,19 @@ class StoreOrgPaymentServiceProviderAccount extends OrgAction
         ];
     }
 
-    public function action(PaymentServiceProvider $paymentServiceProvider, Organisation $organisation, array $modelData): PaymentAccount
+    public function asController(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): PaymentAccount
     {
         $this->asAction = true;
-        $this->initialisation($organisation, $modelData);
+        $this->initialisation($organisation, $request);
+
         return $this->handle($paymentServiceProvider, $organisation, $this->validatedData);
     }
 
+    public function action(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, array $modelData): PaymentAccount
+    {
+        $this->asAction = true;
+        $this->initialisation($organisation, $modelData);
+
+        return $this->handle($paymentServiceProvider, $organisation, $this->validatedData);
+    }
 }
