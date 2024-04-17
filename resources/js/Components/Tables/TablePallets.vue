@@ -159,6 +159,8 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
     }
 }
 
+console.log(props)
+
 </script>
 
 <template>
