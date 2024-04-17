@@ -11,8 +11,10 @@ use App\Actions\Helpers\Snapshot\StoreWebsiteSnapshot;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWeb;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateUniversalSearch;
+use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\Web\Website\WebsiteEngineEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
+use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Shop;
 use App\Models\Web\Website;
@@ -34,8 +36,16 @@ class StoreWebsite extends OrgAction
     {
         data_set($modelData, 'group_id', $shop->group_id);
         data_set($modelData, 'organisation_id', $shop->organisation_id);
-
-        data_set($modelData, 'type', $shop->type);
+        data_set(
+            $modelData,
+            'type',
+            match ($shop->type) {
+                ShopTypeEnum::FULFILMENT   => WebsiteTypeEnum::FULFILMENT,
+                ShopTypeEnum::DROPSHIPPING => WebsiteTypeEnum::DROPSHIPPING,
+                ShopTypeEnum::B2B          => WebsiteTypeEnum::B2B,
+                ShopTypeEnum::B2C          => WebsiteTypeEnum::B2C,
+            }
+        );
         /** @var Website $website */
         $website = $shop->website()->create($modelData);
         $website->webStats()->create();

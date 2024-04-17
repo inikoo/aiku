@@ -13,6 +13,7 @@ use App\Actions\Market\Product\Hydrators\ProductHydrateHistoricOuterables;
 use App\Actions\Market\Product\Hydrators\ProductHydrateOuters;
 use App\Actions\OrgAction;
 use App\Enums\Market\Outer\OuterStateEnum;
+use App\Enums\Market\Product\ProductStateEnum;
 use App\Models\Market\Outer;
 use App\Models\Market\Product;
 use App\Rules\IUnique;
@@ -20,16 +21,18 @@ use Illuminate\Validation\Rule;
 
 class StoreOuter extends OrgAction
 {
-    private bool |null $state=null;
-
     public function handle(Product $product, array $modelData, bool $skipHistoric = false): Outer
     {
-
 
         data_set($modelData, 'organisation_id', $product->organisation_id);
         data_set($modelData, 'group_id', $product->group_id);
         data_set($modelData, 'shop_id', $product->shop_id);
-        data_set($modelData, 'state', $product->state);
+        data_set($modelData, 'state', match ($product->state) {
+            ProductStateEnum::IN_PROCESS     => OuterStateEnum::IN_PROCESS,
+            ProductStateEnum::ACTIVE         => OuterStateEnum::ACTIVE,
+            ProductStateEnum::DISCONTINUING  => OuterStateEnum::DISCONTINUING,
+            ProductStateEnum::DISCONTINUED   => OuterStateEnum::DISCONTINUED,
+        });
         data_set($modelData, 'price', $product->main_outerable_price);
 
         /** @var Outer $outer */
