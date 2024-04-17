@@ -73,7 +73,7 @@ class Register
 
         $language = $webUser->language;
         if ($language) {
-            app()->setLocale($language);
+            app()->setLocale($language->code);
         }
 
 

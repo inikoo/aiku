@@ -78,7 +78,7 @@ class Login
 
         $language = $user->language;
         if ($language) {
-            app()->setLocale($language);
+            app()->setLocale($language->code);
         }
 
         //return back();
