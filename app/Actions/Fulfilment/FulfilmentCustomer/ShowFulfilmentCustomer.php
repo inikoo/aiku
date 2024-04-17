@@ -248,11 +248,10 @@ class ShowFulfilmentCustomer extends OrgAction
                     parent: $fulfilmentCustomer,
                     prefix: CustomerFulfilmentTabsEnum::PALLETS->value,
                     modelOperations: [
-                        'createLink' => [
+                        'bulk' => [
                             [
-                                'type'  => 'bulk',
-                                'style' => 'create',
-                                'label' => __('New Return'),
+                                'type'  => 'button',
+                                'label' => __('return'),
                                 'route' => [
                                     'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
                                     'parameters' => [
