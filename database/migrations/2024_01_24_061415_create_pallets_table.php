@@ -35,6 +35,7 @@ return new class () extends Migration {
                 $table->foreign('warehouse_id')->references('id')->on('warehouses');
                 $table->unsignedInteger('warehouse_area_id')->nullable()->index();
                 $table->foreign('warehouse_area_id')->references('id')->on('warehouse_areas');
+                $table->unsignedSmallInteger('rental_id')->nullable()->index();
                 $table->unsignedInteger('location_id')->index()->nullable();
                 $table->foreign('location_id')->references('id')->on('locations');
                 $table->unsignedInteger('pallet_delivery_id')->index()->nullable();

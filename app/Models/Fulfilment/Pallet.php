@@ -37,6 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $fulfilment_customer_id
  * @property int $warehouse_id
  * @property int|null $warehouse_area_id
+ * @property int|null $rental_id
  * @property int|null $location_id
  * @property int|null $pallet_delivery_id
  * @property int|null $pallet_return_id
@@ -55,7 +56,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property int|null $proforma_id
- * @property int|null $rental_id
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Location|null $location
