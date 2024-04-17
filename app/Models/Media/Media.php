@@ -12,8 +12,9 @@ use App\Models\Traits\IsMedia;
 use Illuminate\Database\Query\Builder;
 use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
 
+
 /**
- * App\Models\Media\Media
+ * 
  *
  * @property int $id
  * @property int $group_id

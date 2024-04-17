@@ -12,8 +12,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $provider_id
  * @property string $sent_at
  * @property string|null $received_at
- * @property mixed $events
- * @property mixed $data
+ * @property string $events
+ * @property string $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|ShippingEvent newModelQuery()
