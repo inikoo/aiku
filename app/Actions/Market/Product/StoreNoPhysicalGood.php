@@ -39,9 +39,6 @@ class StoreNoPhysicalGood extends OrgAction
 
         $modelData=$this->setDataFromParent($parent, $modelData);
 
-
-
-
         if(Arr::get($modelData, 'type')==ProductTypeEnum::RENTAL) {
             data_set($modelData, 'unit_relationship_type', ProductUnitRelationshipType::TIME_INTERVAL->value);
             data_set($modelData, 'outerable_type', 'Rental');

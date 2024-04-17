@@ -54,8 +54,7 @@ class StoreService extends OrgAction
     public function rules(): array
     {
         return [
-
-         //   'source_id'   => ['sometimes', 'required', 'string', 'max:255'],
+            'status'      => ['required', 'boolean'],
             'state'       => ['required', Rule::enum(ServiceStateEnum::class)],
             'data'        => ['sometimes', 'array'],
             'created_at'  => ['sometimes', 'date'],

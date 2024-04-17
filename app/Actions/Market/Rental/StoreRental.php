@@ -54,7 +54,7 @@ class StoreRental extends OrgAction
     public function rules(): array
     {
         return [
-
+            'status'      => ['required', 'boolean'],
             'state'       => ['required', Rule::enum(RentalStateEnum::class)],
             'data'        => ['sometimes', 'array'],
             'created_at'  => ['sometimes', 'date'],

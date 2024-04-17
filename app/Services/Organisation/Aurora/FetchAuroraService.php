@@ -24,10 +24,6 @@ class FetchAuroraService extends FetchAurora
         $data     = [];
         $settings = [];
 
-        $status = 1;
-        if ($this->auroraModelData->{'Product Status'} == 'Discontinued') {
-            $status = 0;
-        }
 
 
         if ($this->auroraModelData->{'Product Valid From'} == '0000-00-00 00:00:00') {
@@ -46,8 +42,7 @@ class FetchAuroraService extends FetchAurora
 
         $state = match ($this->auroraModelData->{'Product Status'}) {
             'InProcess'     => ProductStateEnum::IN_PROCESS,
-            'Discontinuing' => ProductStateEnum::DISCONTINUING,
-            'Discontinued'  => ProductStateEnum::DISCONTINUED,
+            'Discontinued','Discontinuing'  => ProductStateEnum::DISCONTINUED,
             default         => ProductStateEnum::ACTIVE
         };
 
@@ -59,20 +54,24 @@ class FetchAuroraService extends FetchAurora
             $type= ProductTypeEnum::RENTAL;
         }
 
+        $status=false;
+        if($state==ProductStateEnum::ACTIVE) {
+            $status=true;
+        }
 
         $this->parsedData['service'] = [
-            'type'       => $type,
-            'owner_type' => $owner_type,
-            'owner_id'   => $owner_id,
-            'state'      => $state,
-            'code'       => $code,
-            'name'       => $this->auroraModelData->{'Product Name'},
-            'price'      => round($unit_price, 2),
-            'status'     => $status,
-            'data'       => $data,
-            'settings'   => $settings,
-            'created_at' => $created_at,
-            'source_id'  => $this->organisation->id.':'.$this->auroraModelData->{'Product ID'},
+            'type'                      => $type,
+            'owner_type'                => $owner_type,
+            'owner_id'                  => $owner_id,
+            'state'                     => $state,
+            'code'                      => $code,
+            'name'                      => $this->auroraModelData->{'Product Name'},
+            'main_outerable_price'      => round($unit_price, 2),
+            'status'                    => $status,
+            'data'                      => $data,
+            'settings'                  => $settings,
+            'created_at'                => $created_at,
+            'source_id'                 => $this->organisation->id.':'.$this->auroraModelData->{'Product ID'},
 
         ];
     }

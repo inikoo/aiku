@@ -29,7 +29,6 @@ class FetchAuroraServices extends FetchAuroraAction
                 $service = UpdateProduct::make()->action(
                     product:      $service,
                     modelData:    $serviceData['service'],
-                    skipHistoric: true
                 );
             } else {
                 try {

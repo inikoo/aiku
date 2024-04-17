@@ -52,6 +52,7 @@ class FetchAuroraAction extends FetchAction
         if (in_array($command->getName(), [
             'fetch:stocks',
             'fetch:products',
+            'fetch:services',
             'fetch:orders',
             'fetch:invoices',
             'fetch:customers',

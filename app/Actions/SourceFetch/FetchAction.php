@@ -149,6 +149,7 @@ class FetchAction
         ]);
         print_r($modelData);
         print_r($e->getMessage());
+        exit;
     }
 
     public function recordChange($organisationSource, $wasChanged): void

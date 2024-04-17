@@ -10,13 +10,17 @@ namespace App\Actions\Market\Product;
 use App\Actions\Market\HistoricOuterable\StoreHistoricOuterable;
 use App\Actions\Market\Outer\UpdateOuter;
 use App\Actions\Market\Product\Hydrators\ProductHydrateUniversalSearch;
+use App\Actions\Market\Rental\UpdateRental;
+use App\Actions\Market\Service\UpdateService;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTypeEnum;
 use App\Http\Resources\Market\ProductResource;
 use App\Models\Market\Product;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateProduct extends OrgAction
@@ -33,13 +37,29 @@ class UpdateProduct extends OrgAction
             $mainOuterData= Arr::only($modelData, ['name','code','price']);
             UpdateOuter::run($product->mainOuterable, $mainOuterData);
             $modelData=Arr::except($modelData, ['name','code','price']);
-        } elseif (Arr::has($modelData, 'price')) {
+        } else {
 
-            $price = Arr::get($modelData, 'price');
-            data_forget($modelData, 'price');
-            data_set($modelData, 'main_outerable_price', $price);
+            switch ($product->type) {
+                case ProductTypeEnum::SERVICE:
+                    UpdateService::run($product->mainOuterable, Arr::only($modelData, ['state','status']));
+                    break;
+                case ProductTypeEnum::RENTAL:
+                    UpdateRental::run($product->mainOuterable, Arr::only($modelData, ['state','status']));
+                    break;
+            }
+
+
+            if (Arr::has($modelData, 'price')) {
+
+                $price = Arr::get($modelData, 'price');
+                data_forget($modelData, 'price');
+                data_set($modelData, 'main_outerable_price', $price);
+            }
 
         }
+
+
+
 
 
         $product = $this->update($product, $modelData, ['data', 'settings']);
@@ -96,6 +116,8 @@ class UpdateProduct extends OrgAction
             'rrp'         => ['sometimes', 'required', 'numeric'],
             'data'        => ['sometimes', 'array'],
             'settings'    => ['sometimes', 'array'],
+            'status'      => ['sometimes', 'required', 'boolean'],
+            'state'       => ['sometimes', 'required', Rule::enum(ProductStateEnum::class)],
         ];
     }
 
