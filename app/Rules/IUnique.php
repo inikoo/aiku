@@ -41,16 +41,26 @@ class IUnique implements ValidationRule
         if (!blank($this->extraConditions)) {
             foreach ($this->extraConditions as $columnCollection) {
 
+                if (!isset($columnCollection['column'])) {
+                    continue;
+                }
+
                 if(empty($columnCollection['operator'])) {
                     $columnCollection['operator']='=';
                 }
 
-                if (!isset($columnCollection['column'])  || !isset($columnCollection['value'])) {
+                if ($columnCollection['operator'] === 'null') {
+                    $count = $count->whereNull($columnCollection['column']);
                     continue;
                 }
 
-                if ($columnCollection['operator'] === 'null') {
-                    $count = $count->whereNull($columnCollection['column']);
+
+                if ($columnCollection['operator'] === 'notNull') {
+                    $count = $count->whereNotNull($columnCollection['column']);
+                    continue;
+                }
+
+                if (!isset($columnCollection['value'])) {
                     continue;
                 }
 
@@ -59,16 +69,9 @@ class IUnique implements ValidationRule
                     continue;
                 }
 
-                if ($columnCollection['operator'] === 'notNull') {
-                    $count = $count->whereNotNull($columnCollection['column']);
-                    continue;
-                }
-
                 $count->where($columnCollection['column'], $columnCollection['operator'], $columnCollection['value']);
             }
         }
-
-
 
         if ($count->count() != 0) {
             $fail('validation.iunique')->translate();

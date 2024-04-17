@@ -74,7 +74,7 @@ class UpdateOuter extends OrgAction
                     table: 'outers',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
-                        ['column' => 'deleted_at', 'value' => null],
+                        ['column' => 'deleted_at', 'operator'=>'notNull'],
                         ['column' => 'id', 'value' => $this->outer->id, 'operator' => '!=']
                     ]
                 ),
