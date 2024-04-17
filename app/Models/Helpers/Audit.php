@@ -18,7 +18,7 @@ namespace App\Models\Helpers;
  * @property int|null $customer_id
  * @property string|null $user_type
  * @property int|null $user_id
- * @property mixed $tags
+ * @property string $tags
  * @property string $auditable_type
  * @property int $auditable_id
  * @property string $event

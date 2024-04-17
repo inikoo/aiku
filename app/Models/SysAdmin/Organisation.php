@@ -120,6 +120,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Product> $products
  * @property-read Collection<int, Prospect> $prospects
  * @property-read Collection<int, PurchaseOrder> $purchaseOrders
+ * @property-read Collection<int, Rental> $rentals
  * @property-read Collection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \App\Models\SysAdmin\OrganisationSalesStats|null $salesStats
  * @property-read Collection<int, Shipper> $shippers

@@ -44,11 +44,11 @@ return new class () extends Migration {
             $table->string('name', 255)->nullable();
             $table->text('description')->nullable()->fulltext();
             $table->unsignedInteger('main_outerable_id')->nullable()->index();
-            $table->unsignedDecimal('main_outerable_price', 18)->nullable()->comment('main outer price');
+            $table->decimal('main_outerable_price', 18)->nullable()->comment('main outer price');
             $table->unsignedInteger('main_outerable_available_quantity')->default(0)->nullable();
 
             $table->unsignedInteger('image_id')->nullable();
-            $table->unsignedDecimal('rrp', 12, 3)->nullable()->comment('RRP per outer');
+            $table->decimal('rrp', 12, 3)->nullable()->comment('RRP per outer');
             $table->jsonb('settings');
             $table->jsonb('data');
             $table->boolean('is_legacy')->default(false)->index();

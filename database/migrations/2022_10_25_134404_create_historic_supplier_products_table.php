@@ -23,12 +23,12 @@ return new class () extends Migration {
             $table->unsignedInteger('supplier_product_id')->nullable()->index();
             $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
 
-            $table->unsignedDecimal('cost', 18, 4)->comment('unit cost');
+            $table->decimal('cost', 18, 4)->comment('unit cost');
             $table->string('code')->nullable();
             $table->string('name', 255)->nullable();
             $table->unsignedInteger('units_per_pack')->nullable();
             $table->unsignedInteger('units_per_carton')->nullable();
-            $table->unsignedDecimal('cbm', 18, 4)->nullable();
+            $table->decimal('cbm', 18, 4)->nullable();
 
             $table->unsignedSmallInteger('currency_id')->nullable();
             $table->foreign('currency_id')->references('id')->on('currencies');

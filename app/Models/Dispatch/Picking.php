@@ -27,7 +27,7 @@ use Illuminate\Support\Carbon;
  * @property string $required
  * @property string|null $picked
  * @property string|null $weight
- * @property mixed $data
+ * @property string $data
  * @property string|null $assigned_at
  * @property string|null $picking_at
  * @property string|null $picked_at
