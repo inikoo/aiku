@@ -18,7 +18,7 @@ use Illuminate\Support\Arr;
  * @property mixed $created_at
  * @property string $name
  * @property string $state
- * @property int $org_id
+ * @property int $organisation_id
  * @property int $id
  * @property mixed $org_slug
  * @property mixed $org_code
@@ -76,7 +76,7 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
 
         $formData = [
             'blueprint' => [
-                $provider != 'cash' ? [
+                [
                     'title'  => __('payment account'),
                     'fields' => [
                         'code' => [
@@ -93,12 +93,12 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
                         ],
                         ...$additionalFields
                     ]
-                ] : []
+                ]
             ],
             'route'      => [
-                'name'       => 'grp.models.org.payment-account.store',
+                'name'       => "grp.models.org.payment-service-provider-account.store",
                 'parameters' => [
-                    'organisation' => $this->org_id
+                    'organisation' => $this->organisation_id
                 ]
             ]
         ];
@@ -107,6 +107,7 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
             'number_payments'             => $this->number_payments,
             'number_payment_accounts'     => $this->number_payment_accounts,
             'slug'                        => $this->slug,
+            'org_id'                      => $this->organisation_id,
             'org_slug'                    => $this->org_slug,
             'code'                        => $this->code,
             'org_code'                    => $this->org_code,
