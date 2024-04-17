@@ -18,7 +18,7 @@ class MakePaymentUsingPaypal
 
     public function handle(Payment $payment, array $modelData)
     {
-        $paypalResponse = StoreOrderToPaypal::run($modelData);
+        $paypalResponse = StoreOrderToPaypal::run($payment, $modelData);
 
         data_set($modelData, 'data', $paypalResponse);
 
