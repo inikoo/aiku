@@ -3,6 +3,8 @@
 namespace App\Actions\Accounting\PaymentGateway\Paypal\Orders;
 
 use App\Actions\Accounting\PaymentGateway\Paypal\Traits\WithPaypalConfiguration;
+use App\Models\Accounting\Payment;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -14,7 +16,7 @@ class StoreOrderToPaypal
     public string $commandSignature   = 'paypal:checkout';
     public string $commandDescription = 'Checkout using paypal';
 
-    public function handle(array $orderData)
+    public function handle(Payment $payment, array $orderData)
     {
         $itemTotalAmount = 0;
         $discount        = 0;
@@ -35,7 +37,10 @@ class StoreOrderToPaypal
             $itemTotalAmount += $item['amount'] * $item['quantity'];
         }
 
-        $response = Http::withHeaders($this->headers())->post($this->url() . '/v2/checkout/orders', [
+        $response = Http::withHeaders($this->headers(
+            Arr::get($payment->paymentAccount->data, 'paypal_client_id'),
+            Arr::get($payment->paymentAccount->data, 'paypal_client_secret')
+        ))->post($this->url() . '/v2/checkout/orders', [
             "intent"         => "CAPTURE",
             'purchase_units' => [
                 [
