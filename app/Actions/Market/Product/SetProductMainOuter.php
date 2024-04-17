@@ -21,9 +21,11 @@ class SetProductMainOuter
 
         $product->update(
             [
-                'main_outer_id'       => $mainOuter->id,
-                'price'               => $mainOuter->price,
-                'available_outers'    => $mainOuter->available,
+                'code'                                        => $mainOuter->code,
+                'name'                                        => $mainOuter->name,
+                'main_outerable_id'                           => $mainOuter->id,
+                'main_outerable_price'                        => $mainOuter->price,
+                'main_outerable_available_quantity'           => $mainOuter->available_quantity,
             ]
         );
 

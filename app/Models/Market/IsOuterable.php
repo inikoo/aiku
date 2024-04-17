@@ -10,26 +10,9 @@ namespace App\Models\Market;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Spatie\Sluggable\SlugOptions;
 
 trait IsOuterable
 {
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
-
-
-
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom('code')
-            ->saveSlugsTo('slug')
-            ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(64);
-    }
-
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);

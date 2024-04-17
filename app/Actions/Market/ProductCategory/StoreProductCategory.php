@@ -70,7 +70,7 @@ class StoreProductCategory extends OrgAction
                 'max:32',
                 new AlphaDashDot(),
                 new IUnique(
-                    table: 'products',
+                    table: 'product_categories',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
                         ['column' => 'deleted_at', 'value' => null],

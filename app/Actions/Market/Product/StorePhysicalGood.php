@@ -11,7 +11,7 @@ namespace App\Actions\Market\Product;
 use App\Actions\Market\Outer\StoreOuter;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProducts;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProducts;
-use App\Actions\Market\Product\Hydrators\ProductHydrateHistoricOuters;
+use App\Actions\Market\Product\Hydrators\ProductHydrateHistoricOuterables;
 use App\Actions\Market\Product\Hydrators\ProductHydrateOuters;
 use App\Actions\Market\Product\Hydrators\ProductHydrateUniversalSearch;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateProducts;
@@ -46,7 +46,7 @@ class StorePhysicalGood extends OrgAction
         data_forget($modelData, 'trade_units');
 
         data_set($modelData, 'unit_relationship_type', $this->getUnitRelationshipType($tradeUnits));
-        data_set($modelData, 'outer_type', 'Outer');
+        data_set($modelData, 'outerable_type', 'Outer');
 
 
         $price=Arr::get($modelData, 'price');
@@ -90,7 +90,7 @@ class StorePhysicalGood extends OrgAction
             mainOuter: $outer
         );
 
-        ProductHydrateHistoricOuters::dispatch($product);
+        ProductHydrateHistoricOuterables::dispatch($product);
         ProductHydrateOuters::dispatch($product);
 
         ShopHydrateProducts::dispatch($product->shop);

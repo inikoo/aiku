@@ -7,6 +7,7 @@
 
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Market\Outer\StoreOuter;
+use App\Actions\Market\Outer\UpdateOuter;
 use App\Actions\Market\Product\DeleteProduct;
 use App\Actions\Market\Product\StoreNoPhysicalGood;
 use App\Actions\Market\Product\StorePhysicalGood;
@@ -23,6 +24,8 @@ use App\Models\Goods\TradeUnit;
 use App\Models\Market\Outer;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
+use App\Models\Market\Rental;
+use App\Models\Market\Service;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
@@ -190,22 +193,25 @@ test('create physical good product', function ($shop) {
     $productData = array_merge(
         Product::factory()->definition(),
         [
-            'trade_units'=> $tradeUnits,
-            'price'      => 100,
+            'trade_units'               => $tradeUnits,
+            'main_outerable_price'      => 100,
         ]
     );
 
     $product     = StorePhysicalGood::make()->action($shop, $productData);
+    /** @var Outer $mainOuterable */
+    $mainOuterable=$product->mainOuterable;
+    $mainOuterable->refresh();
 
-    expect($product)->toBeInstanceOf(Product::class)
+    expect($mainOuterable)->toBeInstanceOf(Outer::class)
+        ->and($mainOuterable->number_historic_outerables)->toBe(1)
+        ->and($product)->toBeInstanceOf(Product::class)
         ->and($product->tradeUnits()->count())->toBe(1)
         ->and($shop->organisation->marketStats->number_products)->toBe(1)
         ->and($shop->organisation->marketStats->number_products_type_physical_good)->toBe(1)
         ->and($shop->organisation->marketStats->number_products_type_service)->toBe(0)
-
         ->and($shop->group->marketStats->number_products)->toBe(1)
         ->and($shop->group->marketStats->number_products_type_physical_good)->toBe(1)
-
         ->and($shop->stats->number_products)->toBe(1)
         ->and($shop->stats->number_products_type_physical_good)->toBe(1)
         ->and($product->stats->number_outers)->toBe(1)
@@ -248,14 +254,26 @@ test('create physical good product with many trade units', function ($shop) {
     return $product;
 })->depends('create shop');
 
-
 test('update product', function ($product) {
+
+
+    expect($product->name)->not->toBe('Updated Product Name');
     $productData = [
-        'name' => 'Updated Product Name',
+        'name'        => 'Updated Product Name',
+        'description' => 'Updated Product Description',
+        'rrp'         => 99.99
     ];
     $product = UpdateProduct::make()->action($product, $productData);
+    $product->refresh();
+    /** @var Outer $outer */
+    $outer=$product->mainOuterable;
 
-    expect($product->name)->toBe('Updated Product Name');
+    expect($product->name)->toBe('Updated Product Name')
+      ->and($product->stats->number_historic_outerables)->toBe(2)
+        ->and($outer->number_historic_outerables)->toBe(2)
+    ->and($outer->name)->toBe('Updated Product Name')
+        ->and($product->name)->toBe('Updated Product Name');
+
     return $product;
 })->depends('create physical good product');
 
@@ -263,6 +281,7 @@ test('add outer to product', function ($product) {
 
 
     expect($product->stats->number_outers)->toBe(1);
+
 
     $outerData =
         [
@@ -279,14 +298,39 @@ test('add outer to product', function ($product) {
 
 
     expect($outer)->toBeInstanceOf(Outer::class)
+        ->and($outer->is_main)->toBeFalse()
         ->and($outer->product->id)->toBe($product->id)
         ->and($outer->product->outers()->count())->toBe(2)
         ->and($product->stats->number_outers)->toBe(2)
-        ->and($product->stats->number_historic_outerables)->toBe(2);
+        ->and($product->stats->number_historic_outerables)->toBe(3);
 
+
+    return $outer;
+})->depends('update product');
+
+test('update secondary outer', function ($outer) {
+
+    $product=$outer->product;
+    expect($outer->id)->not->toBe($product->main_outerable_id)
+    ->and($product->stats->number_historic_outerables)->toBe(3);
+    $outerData = [
+        'name' => 'Updated Outer Sec Name',
+        'code' => 'sec_code',
+        'price'=> 99.99
+    ];
+
+    $outer = UpdateOuter::run($outer, $outerData);
+    $outer->refresh();
+    $product->refresh();
+
+    expect($outer->name)->toBe('Updated Outer Sec Name')
+        ->and($outer->code)->toBe('sec_code')
+        ->and($outer->number_historic_outerables)->toBe(2)
+        ->and($product->stats->number_historic_outerables)->toBe(4);
 
     return $product;
-})->depends('update product');
+})->depends('add outer to product');
+
 
 test('delete product', function ($product) {
 
@@ -301,26 +345,76 @@ test('delete product', function ($product) {
 
 test('create service', function ($shop) {
 
-
-
-    $productData = array_merge(
+    $serviceData = array_merge(
         Product::factory()->definition(),
         [
-            'type'       => ProductTypeEnum::SERVICE,
+            'type'                      => ProductTypeEnum::SERVICE,
+            'main_outerable_price'      => 100,
+        ]
+    );
+
+    $product     = StoreNoPhysicalGood::make()->action($shop, $serviceData);
+    $shop->refresh();
+
+    $mainOuterable=$product->mainOuterable;
+
+    expect($mainOuterable)->toBeInstanceOf(Service::class)
+        ->and($product->service)->toBeInstanceOf(Service::class)
+        ->and($product->main_outerable_price)->toBe(100)
+        ->and($product)->toBeInstanceOf(Product::class)
+        ->and($product->stats->number_historic_outerables)->toBe(1)
+        ->and($product->tradeUnits()->count())->toBe(0)
+        ->and($product->stats->number_outers)->toBe(0)
+        ->and($shop->stats->number_products)->toBe(2)
+        ->and($shop->stats->number_products_type_service)->toBe(1);
+
+    return $product;
+})->depends('create shop');
+
+test('update service', function ($product) {
+
+    expect($product->name)->not->toBe('Updated Service Name')
+        ->and($product->main_outerable_price)->toBe(100);
+    $productData = [
+        'name'        => 'Updated Service Name',
+        'description' => 'Updated Service Description',
+        'rrp'         => 99.99
+    ];
+    $product = UpdateProduct::make()->action($product, $productData);
+    $product->refresh();
+    /** @var Service $service */
+    $service=$product->mainOuterable;
+
+    expect($product->name)->toBe('Updated Service Name')
+        ->and($product->stats->number_historic_outerables)->toBe(2)
+        ->and($service->number_historic_outerables)->toBe(2)
+        ->and($product->name)->toBe('Updated Service Name');
+    return $product;
+})->depends('create service');
+
+test('create rent', function ($shop) {
+
+    $serviceData = array_merge(
+        Product::factory()->definition(),
+        [
+            'type'       => ProductTypeEnum::RENTAL,
             'price'      => 100,
         ]
     );
 
-    $product     = StoreNoPhysicalGood::make()->action($shop, $productData);
+    $product     = StoreNoPhysicalGood::make()->action($shop, $serviceData);
     $shop->refresh();
 
-    expect($product)->toBeInstanceOf(Product::class)
+    $mainOuterable=$product->mainOuterable;
+
+    expect($mainOuterable)->toBeInstanceOf(Rental::class)
+        ->and($product->rental)->toBeInstanceOf(Rental::class)
+        ->and($product)->toBeInstanceOf(Product::class)
+        ->and($product->stats->number_historic_outerables)->toBe(1)
         ->and($product->tradeUnits()->count())->toBe(0)
         ->and($product->stats->number_outers)->toBe(0)
-        ->and($shop->stats->number_products)->toBe(2)
-        ->and($shop->stats->number_products_type_service)->toBe(1)
-
-        ->and($product->stats->number_historic_outerables)->toBe(0);
+        ->and($shop->stats->number_products)->toBe(3)
+        ->and($shop->stats->number_products_type_rental)->toBe(1);
 
     return $product;
 })->depends('create shop');

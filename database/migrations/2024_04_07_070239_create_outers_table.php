@@ -28,18 +28,13 @@ return new class () extends Migration {
             $table->string('code')->index();
             $table->string('name', 255)->nullable();
             $table->string('state')->default(OuterStateEnum::IN_PROCESS)->index();
-
             $table->unsignedDecimal('main_outer_ratio', 12, 3)->nullable()->comment('number of outers in relation to main outer');
             $table->unsignedDecimal('price', 18)->comment('outer price');
-            $table->unsignedInteger('available')->default(0)->nullable();
-
+            $table->unsignedInteger('available_quantity')->default(0)->nullable()->comment('outer available quantity for sale');
             $table->unsignedSmallInteger('number_historic_outerables')->default(0);
-
-
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
-
         });
     }
 

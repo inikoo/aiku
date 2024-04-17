@@ -5,36 +5,36 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Market\Product\Hydrators;
+namespace App\Actions\Market\Outer\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Models\Market\Product;
+use App\Models\Market\Outer;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ProductHydrateHistoricOuters
+class OuterHydrateHistoricOuters
 {
     use AsAction;
     use WithEnumStats;
-    private Product $product;
+    private Outer $outer;
 
-    public function __construct(Product $product)
+    public function __construct(Outer $outer)
     {
-        $this->product = $product;
+        $this->outer = $outer;
     }
 
     public function getJobMiddleware(): array
     {
-        return [(new WithoutOverlapping($this->product->id))->dontRelease()];
+        return [(new WithoutOverlapping($this->outer->id))->dontRelease()];
     }
-    public function handle(Product $product): void
+    public function handle(Outer $outer): void
     {
 
         $stats         = [
-            'number_historic_outerables' => $product->historicOuters()->count(),
+            'number_historic_outerables' => $outer->historicRecords()->count(),
         ];
 
-        $product->stats()->update($stats);
+        $outer->update($stats);
     }
 
 }

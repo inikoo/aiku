@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -43,26 +44,27 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $organisation_id
  * @property int|null $shop_id
  * @property string $slug
- * @property string $code
- * @property string|null $name
- * @property string|null $description
  * @property ProductTypeEnum $type
  * @property string $owner_type
  * @property int $owner_id
  * @property string $parent_type
  * @property int $parent_id
- * @property string $outer_type
+ * @property string $outerable_type
  * @property int|null $current_historic_outerable_id
  * @property ProductStateEnum $state
  * @property bool $status
  * @property ProductUnitRelationshipType|null $unit_relationship_type
- * @property int|null $main_outer_id
- * @property int|null $available_outers (main outer in physical goods)
- * @property string|null $price unit price (main outer in physical goods)
+ * @property string $code
+ * @property string|null $name
+ * @property string|null $description
+ * @property int|null $main_outerable_id
+ * @property string|null $main_outerable_price main outer price
+ * @property int|null $main_outerable_available_quantity
  * @property int|null $image_id
  * @property string|null $rrp RRP per outer
  * @property array $settings
  * @property array $data
+ * @property bool $is_legacy
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -71,10 +73,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Collection<int, \App\Models\Market\HistoricOuterable> $historicOuters
  * @property-read MediaCollection<int, Media> $images
+ * @property-read Model|\Eloquent $mainOuterable
  * @property-read MediaCollection<int, Media> $media
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Market\Outer> $outers
+ * @property-read \App\Models\Market\Rental|null $rental
  * @property-read \App\Models\Market\ProductSalesStats|null $salesStats
+ * @property-read \App\Models\Market\Service|null $service
  * @property-read \App\Models\Market\Shop|null $shop
  * @property-read \App\Models\Market\ProductStats|null $stats
  * @property-read Collection<int, TradeUnit> $tradeUnits
@@ -117,7 +122,6 @@ class Product extends Model implements HasMedia
         return 'slug';
     }
 
-    protected $guarded = [];
 
     public function getSlugOptions(): SlugOptions
     {
@@ -127,6 +131,8 @@ class Product extends Model implements HasMedia
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);
     }
+
+    protected $guarded = [];
 
     public function group(): BelongsTo
     {
@@ -181,6 +187,22 @@ class Product extends Model implements HasMedia
     public function outers(): HasMany
     {
         return $this->hasMany(Outer::class);
+    }
+
+    public function service(): HasOne
+    {
+        return $this->hasOne(Service::class, 'id', 'main_outerable_id');
+    }
+
+    public function rental(): HasOne
+    {
+        return $this->hasOne(Rental::class, 'id', 'main_outerable_id');
+
+    }
+
+    public function mainOuterable(): MorphTo
+    {
+        return $this->morphTo(type:'outerable_type', id:'main_outerable_id');
     }
 
 }

@@ -13,6 +13,7 @@
         "build.retina": "vite build --config vite.retina.config.js && vite build --config vite.retina.config.js --ssr"
     },
     "devDependencies": {
+        "@codecov/vite-plugin": "^0.0.1-beta.6",
         "@prettier/plugin-php": "^0.19.2",
         "@tailwindcss/forms": "^0.5.2",
         "@types/lodash-es": "^4.17.7",

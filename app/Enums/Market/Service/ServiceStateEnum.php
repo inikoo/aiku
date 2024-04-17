@@ -1,15 +1,15 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 08 Apr 2024 09:52:43 Central Indonesia Time, Bali Office , Indonesia
+ * Created: Tue, 16 Apr 2024 12:45:19 Malaysia Time, Kuala Lumpur , Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Market\Rental;
+namespace App\Enums\Market\Service;
 
 use App\Enums\EnumHelperTrait;
 
-enum RentalStateEnum: string
+enum ServiceStateEnum: string
 {
     use EnumHelperTrait;
 

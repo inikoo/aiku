@@ -38,6 +38,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
+ * @property string $state
  * @property-read Collection<int, \App\Models\Accounting\PaymentAccount> $accounts
  * @property-read Group $group
  * @property-read Collection<int, \App\Models\Accounting\OrgPaymentServiceProvider> $orgPaymentServiceProviders

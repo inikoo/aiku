@@ -12,10 +12,11 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Market\Outer
@@ -32,7 +33,7 @@ use Spatie\Sluggable\HasSlug;
  * @property OuterStateEnum $state
  * @property string|null $main_outer_ratio number of outers in relation to main outer
  * @property string $price outer price
- * @property int|null $available
+ * @property int|null $available_quantity outer available quantity for sale
  * @property int $number_historic_outerables
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -60,21 +61,37 @@ class Outer extends Model
     use HasUniversalSearch;
     use IsOuterable;
 
+    protected $guarded = [];
+
     protected $casts = [
         'state'       => OuterStateEnum::class
 
     ];
 
-    protected $guarded = [];
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('code')
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate()
+            ->slugsShouldBeNoLongerThan(64);
+    }
+
 
     public function salesStats(): HasOne
     {
         return $this->hasOne(OuterSalesStats::class);
     }
 
-    public function historicRecords(): HasMany
+    public function historicRecords(): MorphMany
     {
-        return $this->hasMany(HistoricOuterable::class);
+        return $this->morphMany(HistoricOuterable::class, 'outerable');
     }
 
 
