@@ -10,12 +10,14 @@ namespace App\Actions\Fulfilment\Pallet;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreMultiplePallets extends OrgAction
@@ -29,7 +31,7 @@ class StoreMultiplePallets extends OrgAction
         data_set($modelData, 'warehouse_id', $palletDelivery->warehouse_id);
 
         for ($i = 1; $i <= Arr::get($modelData, 'number_pallets'); $i++) {
-            StorePalletFromDelivery::run($palletDelivery, Arr::except($modelData, 'number_pallets'));
+            StorePalletFromDelivery::run($palletDelivery, Arr::except($modelData, ['number_pallets', 'type']));
         }
 
         HydratePalletDeliveries::dispatch($palletDelivery);
@@ -60,8 +62,9 @@ class StoreMultiplePallets extends OrgAction
     public function rules(): array
     {
         return [
-            'warehouse_id'   => ['required', 'integer', 'exists:warehouses,id'],
-            'number_pallets' => ['required', 'integer', 'min:1', 'max:1000'],
+            'warehouse_id'       => ['required', 'integer', 'exists:warehouses,id'],
+            'number_pallets'     => ['required', 'integer', 'min:1', 'max:1000'],
+            'type'               => ['nullable', Rule::in(PalletTypeEnum::values())]
         ];
     }
 
