@@ -33,9 +33,9 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
 
         $additionalFields = match ($provider) {
             'checkout' => [
-                'checkout_access_key' => [
+                'checkout_public_key' => [
                     'type'     => 'input',
-                    'label'    => __('access key'),
+                    'label'    => __('public key'),
                     'required' => true
                 ],
                 'checkout_secret_key' => [

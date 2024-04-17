@@ -19,7 +19,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\AsCommand;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class Checkout
+class MakePaymentUsingCheckout
 {
     use AsAction;
     use WithAttributes;
@@ -36,8 +36,8 @@ class Checkout
     public function handle(Payment $payment): array
     {
         $checkoutApi = CheckoutSdk::builder()->staticKeys()
-            ->publicKey(Arr::get($payment->paymentAccount->data, 'public_key'))
-            ->secretKey(Arr::get($payment->paymentAccount->data, 'secret_key'))
+            ->publicKey(Arr::get($payment->paymentAccount->data, 'checkout_public_key'))
+            ->secretKey(Arr::get($payment->paymentAccount->data, 'checkout_secret_key'))
             ->environment(app()->isProduction() ? Environment::production() : Environment::sandbox())
             ->build();
 
@@ -62,7 +62,7 @@ class Checkout
         $paymentRequest->success_url           = "https://testing.checkout.com/sucess";
         $paymentRequest->failure_url           = "https://testing.checkout.com/failure";
         $paymentRequest->customer              = $customerRequest;
-        $paymentRequest->processing_channel_id = Arr::get($payment->paymentAccount->data, 'channel_id');
+        $paymentRequest->processing_channel_id = Arr::get($payment->paymentAccount->data, 'checkout_channel_id');
 
         return $paymentsClient->requestPayment($paymentRequest);
     }
