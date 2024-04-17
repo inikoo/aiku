@@ -25,6 +25,7 @@ import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
 import JsBarcode from 'jsbarcode'
+import Checkbox from '@/Components/Forms/Fields/Checkbox.vue'
 
 import { PalletDelivery, BoxStats, PDRNotes } from '@/types/Pallet'
 import { Table } from '@/types/Table'
@@ -66,7 +67,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const loading = ref(false)
 const timeline = ref({ ...props.data.data })
 const dataModal = ref({ isModalOpen: false })
-const formAddPallet = useForm({ notes: '', customer_reference: '' })
+const formAddPallet = useForm({ notes: '', customer_reference: '', type : 'pallet' })
 const formMultiplePallet = useForm({ number_pallets: 1 })
 
 // Method: Add single pallete
@@ -179,6 +180,19 @@ onMounted(() => {
     });
 })
 
+
+const changePalletType=(form,fieldName,value)=>{
+    form[fieldName] = value
+}
+
+
+
+const typePallet = [
+    { label : 'Pallet', value : 'pallet'}, 
+    { label : 'Box', value : 'box'}, 
+    { label : 'Oversize', value : 'oversize'}
+]
+
 </script>
 
 <template>
@@ -251,6 +265,25 @@ onMounted(() => {
 
                     <template #content="{ close: closed }">
                         <div class="w-[250px]">
+
+                            <span class="text-xs px-1 my-2">{{ trans('Type') }}: </span>
+                            
+                            <div v-for="( typeData, typeIdx ) in typePallet" :key="typeIdx" class="relative py-1">
+                            {{ formAddPallet.customer_reference == typeData.value  }}
+                                <div>
+                                    <input type="checkbox" 
+                                        :id="typeData.value" 
+                                        :value="typeData.value" 
+                                        :checked="formAddPallet.customer_reference == typeData.value"
+                                        @input="changePalletType(formAddPallet,'type',typeData.value)"
+                                        class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+                                    >
+                                    <label :for="typeData.value" class="ml-2">{{ typeData.label }}</label>
+                                </div>
+                            </div>
+
+
+
                             <span class="text-xs px-1 my-2">{{ trans('Reference') }}: </span>
                             <div>
                                 <PureInput v-model="formAddPallet.customer_reference"
