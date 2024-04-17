@@ -138,6 +138,11 @@ const onSaved = async (pallet: { form : {}}, fieldName: string) => {
             </div>
 		</template>
 
+
+		<template #cell(type)="{ item: pallet }">
+            gggg
+		</template>
+
         <!-- Column: Actions -->
 		<template #cell(actions)="{ item: pallet }">
             <!-- State: in process -->

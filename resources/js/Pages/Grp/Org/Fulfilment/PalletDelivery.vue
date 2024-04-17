@@ -68,7 +68,7 @@ const loading = ref(false)
 const timeline = ref({ ...props.data.data })
 const dataModal = ref({ isModalOpen: false })
 const formAddPallet = useForm({ notes: '', customer_reference: '', type : 'pallet' })
-const formMultiplePallet = useForm({ number_pallets: 1 })
+const formMultiplePallet = useForm({ number_pallets: 1, type : 'pallet' })
 
 // Method: Add single pallete
 const handleFormSubmitAddPallet = (data: {}, closedPopover: Function) => {
@@ -219,7 +219,20 @@ const typePallet = [
                 </template>
 
                 <template #content="{ close: closed }">
-                    <div class="w-[250px]">
+                    <div class="w-[350px]">
+                        <span class="text-xs px-1 my-2">{{ trans('Type') }}: </span>        
+                            <div v-for="( typeData, typeIdx ) in typePallet" :key="typeIdx" class="relative py-1">
+                                <div>
+                                    <input type="checkbox" 
+                                        :id="typeData.value" 
+                                        :value="typeData.value" 
+                                        :checked="formMultiplePallet.type == typeData.value"
+                                        @input="changePalletType(formMultiplePallet,'type',typeData.value)"
+                                        class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+                                    >
+                                    <label :for="typeData.value" class="ml-2">{{ typeData.label }}</label>
+                                </div>
+                            </div>
                         <span class="text-xs px-1 my-2">Number of pallets: </span>
                         <div>
                             <PureInput
@@ -266,8 +279,7 @@ const typePallet = [
                     <template #content="{ close: closed }">
                         <div class="w-[250px]">
 
-                            <span class="text-xs px-1 my-2">{{ trans('Type') }}: </span>
-                            
+                            <span class="text-xs px-1 my-2">{{ trans('Type') }}: </span>        
                             <div v-for="( typeData, typeIdx ) in typePallet" :key="typeIdx" class="relative py-1">
                                 <div>
                                     <input type="checkbox" 
