@@ -665,7 +665,7 @@ watch(selectRow, () => {
                                         :class="[queryBuilderProps.modelOperations?.createLink.length > 1 ? 'first:rounded-l last:rounded-r' : '']"
                                     >
                                         <Button
-                                            :style="Object.values(selectRow).some(value => value) ? linkButton.style : 'disabled'"
+                                            :style="linkButton.style"
                                             :icon="linkButton.icon"
                                             :label="linkButton.label"
                                             size="l"
@@ -676,7 +676,7 @@ watch(selectRow, () => {
                                 </slot>
                             </div>
                             <div v-if="queryBuilderProps.modelOperations?.bulk" class="flex">
-                            <!-- <pre>{{queryBuilderProps.modelOperations}}</pre> -->
+                          
                                 <slot v-for="(linkButton, btnIndex) in queryBuilderProps.modelOperations?.bulk"
                                     :name="`button${linkButton.label}`" :linkButton="linkButton"
                                 >
@@ -689,7 +689,7 @@ watch(selectRow, () => {
                                         :class="[queryBuilderProps.modelOperations?.bulk.length > 1 ? 'first:rounded-l last:rounded-r' : '']"
                                     >
                                         <Button
-                                            :style="'disabled'"
+                                            :style="Object.values(selectRow).some(value => value) ? linkButton.style : 'disabled'"
                                             :icon="linkButton.icon"
                                             :label="linkButton.label"
                                             size="l"
