@@ -33,14 +33,14 @@ class IndexPallets extends RetinaAction
 {
     private Organisation|FulfilmentCustomer|Location|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent;
 
-    protected function getElementGroups(): array
+    protected function getElementGroups($parent): array
     {
         return [
             'state' => [
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
                     PalletStatusEnum::labels(forElements: true),
-                    PalletStatusEnum::count($this->customer->fulfilmentCustomer, forElements: true)
+                    PalletStatusEnum::count($parent, forElements: true)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -82,7 +82,7 @@ class IndexPallets extends RetinaAction
                 break;
         }
 
-        foreach ($this->getElementGroups() as $key => $elementGroup) {
+        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $query->whereElementGroup(
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
@@ -108,7 +108,7 @@ class IndexPallets extends RetinaAction
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->getElementGroups() as $key => $elementGroup) {
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $table->elementGroup(
                     key: $key,
                     label: $elementGroup['label'],
@@ -119,7 +119,7 @@ class IndexPallets extends RetinaAction
             $emptyStateData = [
                 'icons' => ['fal fa-pallet'],
                 'title' => '',
-                'count' => 0
+                'count' => $parent->pallets()->count()
             ];
 
             if ($parent instanceof FulfilmentCustomer) {
