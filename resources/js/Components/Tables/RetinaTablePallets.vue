@@ -11,6 +11,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 
 import { faTimes } from '@fal'
 import TagPallete from '@/Components/TagPallete.vue'
+import Icon from '@/Components/Icon.vue'
 
 library.add( faTimes )
 
@@ -77,5 +78,8 @@ const props = defineProps<{
             <!-- <Icon v-if="pallet['state_icon']" :data="pallet['state_icon']" class="px-1" /> -->
             <TagPallete :stateIcon="pallet.state_icon" />
         </template>
+        <template #cell(type_icon)="{ item: pallet }">
+			<Icon :data="pallet.type_icon" class="px-1" />
+		</template>
     </Table>
 </template>

@@ -56,8 +56,8 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const loading = ref(false)
 const timeline = ref({ ...props.data.data })
 const dataModal = ref({ isModalOpen: false })
-const formAddPallet = useForm({ notes: '', customer_reference: '' })
-const formMultiplePallet = useForm({ number_pallets: 1 })
+const formAddPallet = useForm({ notes: '', customer_reference: '', type : 'pallet' })
+const formMultiplePallet = useForm({ number_pallets: 1, type : 'pallet' })
 
 
 // Method: Add single pallet
@@ -70,7 +70,7 @@ const onAddPallet = (data: {}, closedPopover: Function) => {
         preserveScroll: true,
         onSuccess: () => {
             closedPopover()
-            formAddPallet.reset('notes', 'customer_reference')
+            formAddPallet.reset('notes', 'customer_reference','type')
             loading.value = false
         },
         onError: (errors) => {
@@ -90,7 +90,7 @@ const onAddMultiplePallet = (data: {}, closedPopover: Function) => {
         preserveScroll: true,
         onSuccess: () => {
             closedPopover()
-            formMultiplePallet.reset('number_pallets')
+            formMultiplePallet.reset('number_pallets','type')
             loading.value = false
         },
         onError: (errors) => {
@@ -140,9 +140,19 @@ const onUploadOpen = (action) => {
     dataModal.value.uploadRoutes = action.route
 }
 
+const changePalletType=(form,fieldName,value)=>{
+    form[fieldName] = value
+}
+
 watch(() => props.data, (newValue) => {
     timeline.value = newValue.data
 }, { deep: true })
+
+const typePallet = [
+    { label : 'Pallet', value : 'pallet'}, 
+    { label : 'Box', value : 'box'}, 
+    { label : 'Oversize', value : 'oversize'}
+]
 
 </script>
 
@@ -166,19 +176,25 @@ watch(() => props.data, (newValue) => {
                 </template>
 
                 <template #content="{ close: closed }">
-                    <div class="w-[250px]">
+                    <div class="w-[350px]">
+                        <span class="text-xs  my-2">{{ trans('Type') }}: </span>
+                        <div class="flex items-center">
+                            <div v-for="(typeData, typeIdx) in typePallet" :key="typeIdx" class="relative py-3 mr-4">
+                                <div>
+                                    <input type="checkbox" :id="typeData.value" :value="typeData.value"
+                                        :checked="formMultiplePallet.type == typeData.value"
+                                        @input="changePalletType(formMultiplePallet,'type',typeData.value)"
+                                        class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4">
+                                    <label :for="typeData.value" class="ml-2">{{ typeData.label }}</label>
+                                </div>
+                            </div>
+                        </div>
                         <span class="text-xs px-1 my-2">Number of pallets : </span>
                         <div>
-                            <PureInput
-                                v-model="formMultiplePallet.number_pallets"
-                                placeholder="1-100"
-                                type="number"
-                                :minValue="1"
-                                :maxValue="100"
-                                autofocus
+                            <PureInput v-model="formMultiplePallet.number_pallets" placeholder="1-100" type="number"
+                                :minValue="1" :maxValue="100" autofocus
                                 @update:modelValue="() => formMultiplePallet.errors.number_pallets = ''"
-                                @keydown.enter="() => formMultiplePallet.number_pallets ? onAddMultiplePallet(action.button, closed) : ''"
-                            />
+                                @keydown.enter="() => formMultiplePallet.number_pallets ? onAddMultiplePallet(action.button, closed) : ''" />
                             <p v-if="get(formMultiplePallet, ['errors', 'customer_reference'])"
                                 class="mt-2 text-sm text-red-600">
                                 {{ formMultiplePallet.errors.number_pallets }}
@@ -204,7 +220,20 @@ watch(() => props.data, (newValue) => {
                     </template>
 
                     <template #content="{ close: closed }">
-                        <div class="w-[250px]">
+                        <div class="w-[350px]">
+                            <span class="text-xs px-1 my-2">{{ trans('Type') }}: </span>
+                            <div class="flex items-center">
+                                <div v-for="(typeData, typeIdx) in typePallet" :key="typeIdx"
+                                    class="relative py-3 mr-4">
+                                    <div>
+                                        <input type="checkbox" :id="typeData.value" :value="typeData.value"
+                                            :checked="formAddPallet.type == typeData.value"
+                                            @input="changePalletType(formAddPallet, 'type', typeData.value)"
+                                            class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4">
+                                        <label :for="typeData.value" class="ml-2">{{ typeData.label }}</label>
+                                    </div>
+                                </div>
+                            </div>
                             <span class="text-xs px-1 my-2">{{ trans('Reference') }}: </span>
                             <div>
                                 <PureInput v-model="formAddPallet.customer_reference" placeholder="Reference"
@@ -249,22 +278,27 @@ watch(() => props.data, (newValue) => {
     <!-- Box: Stats -->
     <div class="h-min grid grid-cols-4 border-b border-gray-200 divide-x divide-gray-300">
         <!-- Box: Status -->
-        <BoxStatsPalletDelivery :color="{bgColor: layout.app.theme[0], textColor: layout.app.theme[1]}" class=" pb-2 py-5 px-3" :tooltip="trans('Status')" :label="capitalize(data?.data.state)" icon="fal fa-truck-couch">
+        <BoxStatsPalletDelivery :color="{bgColor: layout.app.theme[0], textColor: layout.app.theme[1]}"
+            class=" pb-2 py-5 px-3" :tooltip="trans('Status')" :label="capitalize(data?.data.state)"
+            icon="fal fa-truck-couch">
             <div class="flex items-center w-full flex-none gap-x-2">
                 <dt class="flex-none">
                     <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
-                    <FontAwesomeIcon :icon='box_stats.delivery_status.icon' :class='box_stats.delivery_status.class' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon :icon='box_stats.delivery_status.icon' :class='box_stats.delivery_status.class'
+                        fixed-width aria-hidden='true' />
                 </dt>
                 <dd class="text-xs text-gray-500">{{ box_stats.delivery_status.tooltip }}</dd>
             </div>
         </BoxStatsPalletDelivery>
 
         <!-- Box: Pallet -->
-        <BoxStatsPalletDelivery :color="{bgColor: layout.app.theme[0], textColor: layout.app.theme[1]}" class=" pb-2 py-5 px-3" :tooltip="trans('Pallets')" :percentage="0">
+        <BoxStatsPalletDelivery :color="{bgColor: layout.app.theme[0], textColor: layout.app.theme[1]}"
+            class=" pb-2 py-5 px-3" :tooltip="trans('Pallets')" :percentage="0">
             <div class="flex items-end gap-x-3">
                 <dt class="flex-none">
                     <span class="sr-only">Total pallet</span>
-                    <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
                 </dt>
                 <dd class="text-gray-600 leading-none text-3xl font-medium">{{ data?.data.number_pallets }}</dd>
             </div>
@@ -272,16 +306,9 @@ watch(() => props.data, (newValue) => {
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component
-        :is="component"
-        :data="props[currentTab]"
-        :state="timeline.state"
-        :key="timeline.state"
-        :tab="currentTab"
-        :tableKey="tableKey"
-        :storedItemsRoute="storedItemsRoute"
-        @renderTableKey="() => (console.log('emit render', changeTableKey()))"
-    />
+    <component :is="component" :data="props[currentTab]" :state="timeline.state" :key="timeline.state" :tab="currentTab"
+        :tableKey="tableKey" :storedItemsRoute="storedItemsRoute"
+        @renderTableKey="() => (console.log('emit render', changeTableKey()))" />
 
     <UploadExcel :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
         upload: get(dataModal, 'uploadRoutes', {}),

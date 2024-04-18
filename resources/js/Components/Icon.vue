@@ -18,10 +18,11 @@ import {
     faCheck,
     faSpellCheck,
     faCheckDouble, faTruck, faHandshakeAltSlash,
-    faPallet, faBox, faBoxes
+    faPallet, faBox, faBoxes,
+    faSortSizeUp
 } from '@fal'
 import { library } from "@fortawesome/fontawesome-svg-core"
-library.add(faSeedling, faBroadcastTower, faImage, faSparkles, faRocket, faDoNotEnter, faClipboardCheck, faCheck, faSpellCheck, faCheckDouble, faTruck, faHandshakeAltSlash,  faPallet, faBox, faBoxes)
+library.add(faSeedling, faBroadcastTower, faImage, faSparkles, faRocket, faDoNotEnter, faClipboardCheck, faCheck, faSpellCheck, faCheckDouble, faTruck, faHandshakeAltSlash,  faPallet, faBox, faBoxes, faSortSizeUp)
 
 const props = defineProps<{
     data: {
