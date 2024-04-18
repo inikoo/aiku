@@ -198,7 +198,7 @@ class ShowPalletDelivery extends OrgAction
                     ],
                 ],
                 PalletDeliveryStateEnum::BOOKING_IN => [
-                    $palletStateReceivedCount == 0 and $palletNotInRentalCount == 0 ? [
+                    ($palletStateReceivedCount == 0 and $palletNotInRentalCount == 0) ? [
                         'type'    => 'button',
                         'style'   => 'primary',
                         'icon'    => 'fal fa-check',
