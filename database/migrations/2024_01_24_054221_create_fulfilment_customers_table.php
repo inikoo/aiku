@@ -30,7 +30,7 @@ return new class () extends Migration {
                 $table->boolean('pallets_storage')->default(true);
                 $table->boolean('items_storage')->default(false);
                 $table->boolean('dropshipping')->default(false);
-
+                $table->unsignedInteger('current_recurring_bill_id')->nullable()->index();
                 $table = $this->fulfilmentStats($table);
                 $table->jsonb('data');
                 $table->timestampsTz();

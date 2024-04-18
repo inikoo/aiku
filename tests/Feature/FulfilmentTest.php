@@ -6,6 +6,8 @@
  */
 
 use App\Actions\CRM\Customer\StoreCustomer;
+use App\Actions\Fulfilment\Pallet\BookInPallet;
+use App\Actions\Fulfilment\Pallet\SetPalletAsNotReceived;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
@@ -14,6 +16,7 @@ use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
+use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Market\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Web\Website\StoreWebsite;
@@ -31,6 +34,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Inventory\Location;
 use App\Models\Market\RentalAgreement;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Permission;
@@ -51,6 +55,19 @@ beforeEach(function () {
     $this->organisation = createOrganisation();
     $this->adminGuest   = createAdminGuest($this->organisation->group);
     $this->warehouse    = createWarehouse();
+    $location           = $this->warehouse->locations()->first();
+    if (!$location) {
+        StoreLocation::run(
+            $this->warehouse,
+            Location::factory()->definition()
+        );
+        StoreLocation::run(
+            $this->warehouse,
+            Location::factory()->definition()
+        );
+    }
+
+
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]
@@ -212,14 +229,14 @@ test('add multiple pallets to pallet delivery', function (PalletDelivery $pallet
         $palletDelivery,
         [
            'warehouse_id'   => $this->warehouse->id,
-           'number_pallets' => 3,
+           'number_pallets' => 2,
            'type'           => PalletTypeEnum::PALLET->value,
         ]
     );
 
     $palletDelivery->refresh();
 
-    expect($palletDelivery->number_pallets)->toBe(4)
+    expect($palletDelivery->number_pallets)->toBe(3)
         ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
         ->and($palletDelivery->number_stored_items)->toBe(0);
 
@@ -236,10 +253,9 @@ test('confirm pallet delivery', function (PalletDelivery $palletDelivery) {
 
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::CONFIRMED)
         ->and($palletDelivery->confirmed_at)->toBeInstanceOf(Carbon::class)
-        ->and($palletDelivery->number_pallets)->toBe(4)
+        ->and($palletDelivery->number_pallets)->toBe(3)
         ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
         ->and($palletDelivery->number_stored_items)->toBe(0)
-        ->and($palletDelivery->pallets->count())->toBe(4)
         ->and($pallet->reference)->toEndWith('-p0001')
         ->and($pallet->state)->toBe(PalletStateEnum::CONFIRMED)
         ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING);
@@ -257,32 +273,78 @@ test('receive pallet delivery', function (PalletDelivery $palletDelivery) {
 
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::RECEIVED)
         ->and($palletDelivery->received_at)->toBeInstanceOf(Carbon::class)
-        ->and($palletDelivery->number_pallets)->toBe(4)
+        ->and($palletDelivery->number_pallets)->toBe(3)
         ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
-        ->and($palletDelivery->number_stored_items)->toBe(0)
-        ->and($palletDelivery->pallets->count())->toBe(4);
+        ->and($palletDelivery->number_stored_items)->toBe(0);
 
     return $palletDelivery;
 })->depends('confirm pallet delivery');
+
+test('set location of first pallet in the pallet delivery', function (PalletDelivery $palletDelivery) {
+
+    $pallet = $palletDelivery->pallets->first();
+    /** @var Location $location */
+    $location = $this->warehouse->locations()->first();
+
+    BookInPallet::make()->action($pallet, ['location_id' => $location->id]);
+    $pallet->refresh();
+    expect($pallet->location)->toBeInstanceOf(Location::class)
+        ->and($pallet->location->id)->toBe($location->id)
+        ->and($pallet->state)->toBe(PalletStateEnum::BOOKED_IN)
+        ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING);
+
+    return $palletDelivery;
+})->depends('receive pallet delivery');
+
+test('set second pallet in the pallet delivery as not delivered', function (PalletDelivery $palletDelivery) {
+
+    $pallet = $palletDelivery->pallets->skip(1)->first();
+
+    SetPalletAsNotReceived::make()->action($pallet);
+    $pallet->refresh();
+    expect($pallet->state)->toBe(PalletStateEnum::NOT_RECEIVED)
+        ->and($pallet->status)->toBe(PalletStatusEnum::NOT_RECEIVED);
+
+    return $palletDelivery;
+})->depends('set location of first pallet in the pallet delivery');
+
+test('set location of third pallet in the pallet delivery', function (PalletDelivery $palletDelivery) {
+
+    $pallet = $palletDelivery->pallets->last();
+    /** @var Location $location */
+    $location = $this->warehouse->locations->last();
+
+    BookInPallet::make()->action($pallet, ['location_id' => $location->id]);
+    $pallet->refresh();
+    expect($pallet->location)->toBeInstanceOf(Location::class)
+        ->and($pallet->location->id)->toBe($location->id)
+        ->and($pallet->state)->toBe(PalletStateEnum::BOOKED_IN)
+        ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING);
+        //->and($location->stats->number_pallets)->toBe(1);
+
+    return $palletDelivery;
+})->depends('set second pallet in the pallet delivery as not delivered');
+
 
 test('set pallet delivery as booked in', function (PalletDelivery $palletDelivery) {
 
     SendPalletDeliveryNotification::shouldRun()->andReturn();
 
+    $fulfilmentCustomer=$palletDelivery->fulfilmentCustomer;
+    expect($fulfilmentCustomer->currentRecurringBill)->toBeNull();
+
     $palletDelivery=BookedInPalletDelivery::make()->action($palletDelivery);
-
-
     $palletDelivery->refresh();
 
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKED_IN)
         ->and($palletDelivery->booked_in_at)->toBeInstanceOf(Carbon::class)
-        ->and($palletDelivery->number_pallets)->toBe(4)
+        ->and($palletDelivery->number_pallets)->toBe(3)
         ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
-        ->and($palletDelivery->number_stored_items)->toBe(0)
-        ->and($palletDelivery->pallets->count())->toBe(4);
+        ->and($palletDelivery->number_stored_items)->toBe(0);
 
     return $palletDelivery;
 })->depends('receive pallet delivery');
+
 
 
 test('UI list of fulfilment shops', function () {

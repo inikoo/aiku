@@ -25,9 +25,9 @@ use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
-use App\Actions\Fulfilment\Pallet\UpdatePalletBookedIn;
+use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
-use App\Actions\Fulfilment\Pallet\UpdatePalletNotReceived;
+use App\Actions\Fulfilment\Pallet\SetPalletAsNotReceived;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\BookedInPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\DeletePalletFromDelivery;
@@ -142,8 +142,8 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::patch('pallet-return-item', UpdatePalletReturnItem::class)->name('pallet-return-item.update');
 
     Route::post('stored-items', SyncStoredItemToPallet::class)->name('stored-items.update');
-    Route::patch('booked-in', UpdatePalletBookedIn::class)->name('booked-in');
-    Route::patch('not-received', UpdatePalletNotReceived::class)->name('not-received');
+    Route::patch('booked-in', BookInPallet::class)->name('booked-in');
+    Route::patch('not-received', SetPalletAsNotReceived::class)->name('not-received');
     Route::patch('undo-not-received', UndoPalletStateToReceived::class)->name('undo-not-received');
     Route::patch('undo-booked-in', UndoPalletStateToReceived::class)->name('undo-booked-in');
 

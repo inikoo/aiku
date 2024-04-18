@@ -9,6 +9,7 @@ namespace App\Models\Fulfilment;
 
 use App\Models\CRM\Customer;
 use App\Models\Helpers\SerialReference;
+use App\Models\Market\RecurringBill;
 use App\Models\Market\RentalAgreement;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -33,6 +34,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $pallets_storage
  * @property bool $items_storage
  * @property bool $dropshipping
+ * @property int|null $current_recurring_bill_id
  * @property int $number_pallets
  * @property int $number_pallets_type_pallet
  * @property int $number_pallets_type_box
@@ -91,6 +93,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $webhook_access_key
+ * @property-read RecurringBill|null $currentRecurringBill
  * @property-read Customer $customer
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read Group $group
@@ -201,6 +204,11 @@ class FulfilmentCustomer extends Model
     public function rentalAgreements(): HasMany
     {
         return $this->hasMany(RentalAgreement::class);
+    }
+
+    public function currentRecurringBill(): BelongsTo
+    {
+        return $this->belongsTo(RecurringBill::class, 'current_recurring_bill_id');
     }
 
 }

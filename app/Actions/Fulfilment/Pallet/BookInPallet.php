@@ -11,30 +11,35 @@ use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryStateFromItems;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
-use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Fulfilment\Pallet;
-use App\Models\Inventory\Warehouse;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdatePalletNotReceived extends OrgAction
+class BookInPallet extends OrgAction
 {
     use WithActionUpdate;
 
 
     private Pallet $pallet;
 
-    public function handle(Pallet $pallet): Pallet
+    public function handle(Pallet $pallet, array $modelData): Pallet
     {
-        $modelData['state']       = PalletStateEnum::NOT_RECEIVED;
-        $modelData['status']      = PalletStatusEnum::NOT_RECEIVED;
-        $modelData['location_id'] = null;
-
-        $pallet = UpdatePallet::run($pallet, $modelData, ['data']);
-
+        $modelData['state'] = PalletStateEnum::BOOKED_IN;
+        $pallet = $this->update($pallet, $modelData, ['data']);
         UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
-
         return $pallet;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'location_id' => [
+                'required',
+                Rule::exists('locations', 'id')
+                    ->where('warehouse_id', $this->warehouse->id),
+            ],
+        ];
     }
 
     public function authorize(ActionRequest $request): bool
@@ -46,27 +51,18 @@ class UpdatePalletNotReceived extends OrgAction
     }
 
 
+
     public function asController(Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->initialisationFromWarehouse($pallet->warehouse, $request);
-
-        return $this->handle($pallet);
+        return $this->handle($pallet, $this->validateAttributes());
     }
 
-    public function undo(Pallet $pallet, ActionRequest $request): Pallet
-    {
-        $this->initialisationFromWarehouse($pallet->warehouse, $request);
-
-        return $this->handle($pallet);
-    }
-
-    public function action(Warehouse $warehouse, Pallet $pallet, int $hydratorsDelay = 0): Pallet
+    public function action(Pallet $pallet, array $modelData): Pallet
     {
         $this->asAction       = true;
-        $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisationFromWarehouse($warehouse, []);
-
-        return $this->handle($pallet);
+        $this->initialisationFromWarehouse($pallet->warehouse, $modelData);
+        return $this->handle($pallet, $this->validatedData);
     }
 
     public function jsonResponse(Pallet $pallet): PalletResource
