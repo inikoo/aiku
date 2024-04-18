@@ -165,7 +165,7 @@ const typePallet = [
 					:urlRoute="route(rentalRoute?.name, rentalRoute?.parameters)"  
 					fieldName="rental" 
 					placeholder="Enter rental"
-					:label="'id'"
+					:label="'name'"
           			:valueProp="'id'"
 				/>
 			</div>
