@@ -10,6 +10,7 @@ namespace App\Actions\Retina\Storage\Pallet\UI;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Storage\ShowStorageDashboard;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
+use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -131,9 +132,15 @@ class IndexPallets extends RetinaAction
                 ->withModelOperations($modelOperations);
 
 
+            $table->column(key: 'type_icon', label: ['fal', 'fa-yin-yang'], type: 'icon');
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
-            $table->column(key: 'reference', label: __('reference number'), canBeHidden: false, sortable: true, searchable: true);
+
+            if($parent->state != PalletDeliveryStateEnum::IN_PROCESS) {
+                $table->column(key: 'reference', label: __('reference number'), canBeHidden: false, sortable: true, searchable: true);
+            }
+
             $table->column(key: 'customer_reference', label: __('pallet name'), canBeHidden: false, sortable: false, searchable: true);
+            $table->column(key: 'rental', label: __('rental'), canBeHidden: false, sortable: false, searchable: true);
             $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true)
                 ->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true)
                 ->defaultSort('reference');
