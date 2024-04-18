@@ -152,7 +152,7 @@ const typePallet = [
 		</template>
 
 		<template #cell(type_icon)="{ item: pallet }">
-				<FontAwesomeIcon :icon="pallet.type_icon.icon" :class="pallet.type_icon.class"/>
+			<Icon :data="pallet.type_icon" class="px-1" />
 		</template>
 
         <!-- Column: Actions -->

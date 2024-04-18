@@ -29,12 +29,14 @@ const props = withDefaults(defineProps<{
     max?: number
     fieldType?: String
     options:Array
+    required?:boolean
 }>(), {
     type: 'text',
     min: 0,
     max: 0,
     options:[],
-    fieldType: 'input'
+    fieldType: 'input',
+    required:true,
 })
 
 const emits = defineEmits<{
@@ -52,7 +54,6 @@ const pallet = ref(
     )
 )
 
-// console.log(pallet, props.fieldName)
 
 // On blur and press enter in Input
 const onSaveInput = (value: string) => {
@@ -64,6 +65,11 @@ const onSaveInput = (value: string) => {
 const onInput = (event) => {
     pallet.value.form.errors[props.fieldName] = ''
     emits('input', event)
+}
+
+const onChange = (value : Any) => {
+   pallet.value.form[props.fieldName] = value
+   onSaveInput(value)
 }
 
 </script>
@@ -98,7 +104,8 @@ const onInput = (event) => {
           :modelValue="pallet.form[fieldName]"
           :placeholder="placeholder"
           :options="options"
-          @OnChange="(value) => onSaveInput(value)"
+          @OnChange="onChange"
+           :required="required"
         >
         </PureMultiselect>
     </div>
