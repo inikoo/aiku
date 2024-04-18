@@ -361,6 +361,9 @@ test('set location of third pallet in the pallet delivery', function (PalletDeli
     $pallet->refresh();
     $location->refresh();
     expect($pallet->location)->toBeInstanceOf(Location::class)
+        ->and($palletReceivedCount)->toBe(3)
+        ->and($palletStateNotReceivedCount)->toBe(1)
+        ->and($palletNotInRentalCount)->toBe(0)
         ->and($pallet->location->id)->toBe($location->id)
         ->and($pallet->state)->toBe(PalletStateEnum::BOOKED_IN)
         ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING)

@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
-use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
+use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Models\CRM\WebUser;
@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class StoreMultiplePallets extends OrgAction
+class StoreMultiplePalletsFromDelivery extends OrgAction
 {
     private FulfilmentCustomer $fulfilmentCustomer;
 
@@ -34,7 +34,7 @@ class StoreMultiplePallets extends OrgAction
             StorePalletFromDelivery::run($palletDelivery, Arr::except($modelData, ['number_pallets']));
         }
 
-        HydratePalletDeliveries::dispatch($palletDelivery);
+        PalletDeliveryHydratePallets::dispatch($palletDelivery);
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
     }
 

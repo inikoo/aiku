@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\PalletDelivery;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
+use App\Actions\Fulfilment\Pallet\SetPalletRental;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -32,23 +33,35 @@ class ReceivedPalletDelivery extends OrgAction
         $modelData['state']       = PalletDeliveryStateEnum::RECEIVED;
 
         foreach ($palletDelivery->pallets as $pallet) {
-            /** @var Rental $rental */
-            $rental = $this->organisation->rentals()
-                ->where('asset', class_basename(Pallet::class))
-                ->where('asset_type', $pallet->type->value)
-                ->first();
+
+
 
             UpdatePallet::run($pallet, [
                 'state'     => PalletStateEnum::RECEIVED,
                 'status'    => PalletStatusEnum::RECEIVING,
-                'rental_id' => $rental?->id
             ]);
 
             $pallet->generateSlug();
             $pallet->save();
+
+            /** @var Rental $rental */
+            $rental = $this->organisation->rentals()
+                ->where('auto_assign_asset', class_basename(Pallet::class))
+                ->where('auto_assign_asset_type', $pallet->type->value)
+                ->first();
+
+            if($rental) {
+                SetPalletRental::run($pallet, [
+                    'rental_id' => $rental->id
+                ]);
+            }
+
         }
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
+
+
+
 
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
         SendPalletDeliveryNotification::run($palletDelivery);

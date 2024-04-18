@@ -11,7 +11,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrat
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItems;
-use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
+use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\HydratePalletReturns;
 use App\Actions\HydrateModel;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -30,7 +30,7 @@ class HydrateFulfilmentCustomer extends HydrateModel
         FulfilmentCustomerHydrateStoredItems::run($fulfilmentCustomer);
 
         foreach ($fulfilmentCustomer->palletDeliveries as $palletDelivery) {
-            HydratePalletDeliveries::run($palletDelivery);
+            PalletDeliveryHydratePallets::run($palletDelivery);
         }
 
         foreach ($fulfilmentCustomer->palletReturns as $palletReturn) {

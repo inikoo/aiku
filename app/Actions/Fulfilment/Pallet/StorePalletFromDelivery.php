@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
-use App\Actions\Fulfilment\PalletDelivery\Hydrators\HydratePalletDeliveries;
+use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Models\CRM\WebUser;
@@ -43,7 +43,7 @@ class StorePalletFromDelivery extends OrgAction
 
         $pallet = StorePallet::make()->action($palletDelivery->fulfilmentCustomer, $modelData);
 
-        HydratePalletDeliveries::dispatch($palletDelivery);
+        PalletDeliveryHydratePallets::dispatch($palletDelivery);
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
 
         return $pallet;
