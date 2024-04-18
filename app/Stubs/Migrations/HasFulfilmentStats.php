@@ -19,9 +19,8 @@ use Illuminate\Database\Schema\Blueprint;
 
 trait HasFulfilmentStats
 {
-    public function fulfilmentStats(Blueprint $table): Blueprint
+    public function fulfilmentAssetsStats(Blueprint $table): Blueprint
     {
-
         $table->unsignedInteger('number_pallets')->default(0);
 
         foreach (PalletTypeEnum::cases() as $type) {
@@ -46,6 +45,13 @@ trait HasFulfilmentStats
         foreach (StoredItemStatusEnum::cases() as $status) {
             $table->unsignedInteger("number_stored_items_status_{$status->snake()}")->default(0);
         }
+        return $table;
+    }
+
+    public function fulfilmentStats(Blueprint $table): Blueprint
+    {
+
+        $table=$this->fulfilmentAssetsStats($table);
 
         $table->unsignedInteger('number_pallet_deliveries')->default(0);
 

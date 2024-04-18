@@ -313,14 +313,16 @@ test('set location of third pallet in the pallet delivery', function (PalletDeli
     $pallet = $palletDelivery->pallets->last();
     /** @var Location $location */
     $location = $this->warehouse->locations->last();
+    expect($location->stats->number_pallets)->toBe(0);
 
     BookInPallet::make()->action($pallet, ['location_id' => $location->id]);
     $pallet->refresh();
+    $location->refresh();
     expect($pallet->location)->toBeInstanceOf(Location::class)
         ->and($pallet->location->id)->toBe($location->id)
         ->and($pallet->state)->toBe(PalletStateEnum::BOOKED_IN)
-        ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING);
-        //->and($location->stats->number_pallets)->toBe(1);
+        ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING)
+        ->and($location->stats->number_pallets)->toBe(1);
 
     return $palletDelivery;
 })->depends('set second pallet in the pallet delivery as not delivered');

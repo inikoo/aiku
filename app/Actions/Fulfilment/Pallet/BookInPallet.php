@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryStateFromItems;
+use App\Actions\Inventory\Location\Hydrators\LocationHydratePallets;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -26,8 +27,11 @@ class BookInPallet extends OrgAction
     public function handle(Pallet $pallet, array $modelData): Pallet
     {
         $modelData['state'] = PalletStateEnum::BOOKED_IN;
-        $pallet = $this->update($pallet, $modelData, ['data']);
+        $pallet             = $this->update($pallet, $modelData, ['data']);
         UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
+
+        LocationHydratePallets::dispatch($pallet->location);
+
         return $pallet;
     }
 
