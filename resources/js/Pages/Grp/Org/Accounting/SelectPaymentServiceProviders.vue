@@ -11,12 +11,12 @@ import PageHeading from "@/Components/Headings/PageHeading.vue";
 import { capitalize } from "@/Composables/capitalize";
 import TableSelectPaymentServiceProviders from "@/Components/Tables/Grp/Accounting/TableSelectPaymentServiceProviders.vue";
 
-const props = defineProps(["data", "title", "pageHead",'paymentAccountTypes']);
+const props = defineProps(["data", "title", "pageHead",'paymentAccountTypes', 'organisation_id']);
 </script>
 
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
-    <TableSelectPaymentServiceProviders :data="data" :paymentAccountTypes="paymentAccountTypes" />
+    <TableSelectPaymentServiceProviders :data="data" :paymentAccountTypes="paymentAccountTypes" :organisation_id="props.organisation_id" />
 </template>
 

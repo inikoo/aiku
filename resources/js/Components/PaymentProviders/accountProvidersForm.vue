@@ -19,6 +19,7 @@ const props = defineProps<{
     provider: object,
     onCloseModal: Function,
     paymentAccountTypes: object
+    organisation_id: string
 }>()
 
 
@@ -35,9 +36,9 @@ const props = defineProps<{
 
 <template>
     <div class="p-2">
-        <Schemaform 
-            :bluprint="provider?.formData?.blueprint" 
-            :route="provider?.formData?.route"
+        <Schemaform
+            :bluprint="provider?.formData?.blueprint"
+            :route="route(props.route.name, [props.organisation_id, ...props.route.parameters])"
             @onSuccess="()=>props.onCloseModal()"
             @onCancel="()=>props.onCloseModal()"
         />

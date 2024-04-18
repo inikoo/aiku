@@ -16,12 +16,12 @@ import { ref } from 'vue'
 import AccountProvidersForm from '@/Components/PaymentProviders/accountProvidersForm.vue'
 library.add(faPlus, faCheckDouble)
 
-defineProps<{
+const props = defineProps<{
     data: object,
     tab?: string,
     paymentAccountTypes: object
+    organisation_id: string
 }>()
-
 
 const openModal = ref(false)
 const selectedProvider = ref(null)
@@ -146,7 +146,7 @@ const onCloseModal = (data) => {
 
     <Modal :isOpen="openModal" @onClose="onCloseModal" width="w-2/5" class="overflow-visible">
         <div>
-            <AccountProvidersForm :provider="selectedProvider" :onCloseModal="onCloseModal"
+            <AccountProvidersForm :organisation_id="props.organisation_id" :provider="selectedProvider" :onCloseModal="onCloseModal"
                 :paymentAccountTypes="paymentAccountTypes" />
         </div>
     </Modal>

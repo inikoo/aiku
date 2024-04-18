@@ -21,7 +21,7 @@ const props = defineProps({
         required: true,
     },
     route: {
-        type: Object,
+        type: String,
     }
 });
 
@@ -52,7 +52,7 @@ const loading = ref(false)
 const onSubmit = () => {
     if (props.route) {
         form.post(
-            route(props.route.name, props.route.parameters), {
+            props.route, {
             onBefore: (visit) => { emits('onBefore', visit) },
             onStart: (visit) => { emits(loading.value = true ,'onStart', visit) },
             onProgress: (progress) => { emits('onProgress', progress) },
