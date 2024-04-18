@@ -9,7 +9,9 @@ use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
+use App\Actions\Fulfilment\PalletDelivery\BookedInPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Market\RentalAgreement\StoreRentalAgreement;
@@ -230,16 +232,57 @@ test('confirm pallet delivery', function (PalletDelivery $palletDelivery) {
 
     $palletDelivery=ConfirmPalletDelivery::make()->action($palletDelivery);
 
+    $pallet= $palletDelivery->pallets->first();
+
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::CONFIRMED)
         ->and($palletDelivery->confirmed_at)->toBeInstanceOf(Carbon::class)
+        ->and($palletDelivery->number_pallets)->toBe(4)
+        ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
+        ->and($palletDelivery->number_stored_items)->toBe(0)
+        ->and($palletDelivery->pallets->count())->toBe(4)
+        ->and($pallet->reference)->toEndWith('-p0001')
+        ->and($pallet->state)->toBe(PalletStateEnum::CONFIRMED)
+        ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING);
+
+    return $palletDelivery;
+})->depends('add multiple pallets to pallet delivery');
+
+test('receive pallet delivery', function (PalletDelivery $palletDelivery) {
+
+    SendPalletDeliveryNotification::shouldRun()->andReturn();
+
+    $palletDelivery=ReceivedPalletDelivery::make()->action($palletDelivery);
+
+    $palletDelivery->refresh();
+
+    expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::RECEIVED)
+        ->and($palletDelivery->received_at)->toBeInstanceOf(Carbon::class)
         ->and($palletDelivery->number_pallets)->toBe(4)
         ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
         ->and($palletDelivery->number_stored_items)->toBe(0)
         ->and($palletDelivery->pallets->count())->toBe(4);
 
     return $palletDelivery;
-})->depends('add multiple pallets to pallet delivery');
+})->depends('confirm pallet delivery');
 
+test('set pallet delivery as booked in', function (PalletDelivery $palletDelivery) {
+
+    SendPalletDeliveryNotification::shouldRun()->andReturn();
+
+    $palletDelivery=BookedInPalletDelivery::make()->action($palletDelivery);
+
+
+    $palletDelivery->refresh();
+
+    expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKED_IN)
+        ->and($palletDelivery->booked_in_at)->toBeInstanceOf(Carbon::class)
+        ->and($palletDelivery->number_pallets)->toBe(4)
+        ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
+        ->and($palletDelivery->number_stored_items)->toBe(0)
+        ->and($palletDelivery->pallets->count())->toBe(4);
+
+    return $palletDelivery;
+})->depends('receive pallet delivery');
 
 
 test('UI list of fulfilment shops', function () {
