@@ -42,8 +42,8 @@ class SubmitPalletDelivery extends OrgAction
                     container: $palletDelivery->fulfilmentCustomer,
                     modelType: SerialReferenceModelEnum::PALLET
                 ),
-                'state'      => PalletStateEnum::SUBMITTED,
-                'status'     => PalletStatusEnum::RECEIVING
+                'state'  => PalletStateEnum::SUBMITTED,
+                'status' => PalletStatusEnum::RECEIVING
             ]);
             $pallet->generateSlug();
 
@@ -62,7 +62,6 @@ class SubmitPalletDelivery extends OrgAction
         WarehouseHydratePallets::dispatch($palletDelivery->warehouse);
 
         return $palletDelivery;
-
     }
 
     public function authorize(ActionRequest $request): bool
@@ -83,7 +82,9 @@ class SubmitPalletDelivery extends OrgAction
     public function asController(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
-
         return $this->handle($palletDelivery);
     }
+
+
+
 }

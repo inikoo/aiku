@@ -20,7 +20,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\DeletePallet;
 use App\Actions\Fulfilment\Pallet\ImportPallet;
-use App\Actions\Fulfilment\Pallet\StoreMultiplePallets;
+use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
@@ -126,7 +126,7 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
 
     Route::post('pallet-upload', [ImportPallet::class,'fromGrp'])->name('pallet.import');
     Route::post('pallet', StorePalletFromDelivery::class)->name('pallet.store');
-    Route::post('multiple-pallet', StoreMultiplePallets::class)->name('multiple-pallets.store');
+    Route::post('multiple-pallet', StoreMultiplePalletsFromDelivery::class)->name('multiple-pallets.store');
     Route::get('pdf', PdfPalletDelivery::class)->name('pdf');
 
 

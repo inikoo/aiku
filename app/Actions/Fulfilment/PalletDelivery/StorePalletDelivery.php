@@ -71,7 +71,7 @@ class StorePalletDelivery extends OrgAction
         /** @var PalletDelivery $palletDelivery */
         $palletDelivery = $fulfilmentCustomer->palletDeliveries()->create($modelData);
         $palletDelivery->stats()->create();
-
+        $palletDelivery->refresh();
         PalletDeliveryHydrateUniversalSearch::dispatch($palletDelivery);
         FulfilmentCustomerHydratePalletDeliveries::dispatch($fulfilmentCustomer);
         FulfilmentHydratePalletDeliveries::dispatch($fulfilmentCustomer->fulfilment);
@@ -136,8 +136,7 @@ class StorePalletDelivery extends OrgAction
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function action(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, $modelData): PalletDelivery
+    public function action(FulfilmentCustomer $fulfilmentCustomer, $modelData): PalletDelivery
     {
         $this->action = true;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);

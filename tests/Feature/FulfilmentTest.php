@@ -6,7 +6,12 @@
  */
 
 use App\Actions\CRM\Customer\StoreCustomer;
+use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePallet;
+use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
+use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\SendPalletDeliveryNotification;
+use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Market\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Web\Website\StoreWebsite;
@@ -14,6 +19,8 @@ use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
+use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
@@ -21,11 +28,13 @@ use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Market\RentalAgreement;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use App\Models\Web\Website;
+use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -130,30 +139,107 @@ test('create rental agreement', function (FulfilmentCustomer $fulfilmentCustomer
     return $rentalAgreement;
 })->depends('create fulfilment customer');
 
+test('update rental agreement', function (RentalAgreement $rentalAgreement) {
+    $rentalAgreement->update([
+        'billing_cycle' => 30,
+        'pallets_limit' => 10,
+        'state'         => RentalAgreementStateEnum::ACTIVE
+    ]);
 
-test('create pallet no delivery', function (FulfilmentCustomer $fulfilmentCustomer) {
-    $pallet = StorePallet::make()->action(
+    expect($rentalAgreement->billing_cycle)->toBe(30)
+        ->and($rentalAgreement->pallets_limit)->toBe(10);
+
+    return $rentalAgreement;
+})->depends('create rental agreement');
+
+test('create pallet delivery', function ($fulfilmentCustomer) {
+
+    SendPalletDeliveryNotification::shouldRun()
+        ->andReturn();
+
+    $palletDelivery = StorePalletDelivery::make()->action(
         $fulfilmentCustomer,
-        array_merge([
+        [
             'warehouse_id' => $this->warehouse->id,
-        ], Pallet::factory()->definition())
+        ]
+    );
+    $fulfilmentCustomer->refresh();
+    expect($palletDelivery)->toBeInstanceOf(PalletDelivery::class)
+        ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::IN_PROCESS)
+        ->and($palletDelivery->number_pallets)->toBe(0)
+        ->and($fulfilmentCustomer->number_pallet_deliveries)->toBe(1)
+    ->and($fulfilmentCustomer->number_pallets)->toBe(0);
+
+    return $palletDelivery;
+
+})->depends('create fulfilment customer');
+
+test('add pallet to pallet delivery', function (PalletDelivery $palletDelivery) {
+
+    $pallet = StorePalletFromDelivery::make()->action(
+        $palletDelivery,
+        [
+            'customer_reference' => 'C00001',
+            'type'               => PalletTypeEnum::OVERSIZE->value,
+            'notes'              => 'note A',
+      ]
     );
 
-
+    $palletDelivery->refresh();
     expect($pallet)->toBeInstanceOf(Pallet::class)
         ->and($pallet->state)->toBe(PalletStateEnum::IN_PROCESS)
         ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING)
-        ->and($pallet->type)->toBe(PalletTypeEnum::PALLET)
-        ->and($pallet->notes)->toBe('')
+        ->and($pallet->type)->toBe(PalletTypeEnum::OVERSIZE)
+        ->and($pallet->notes)->toBe('note A')
         ->and($pallet->source_id)->toBeNull()
         ->and($pallet->customer_reference)->toBeString()
         ->and($pallet->received_at)->toBeNull()
         ->and($pallet->fulfilmentCustomer)->toBeInstanceOf(FulfilmentCustomer::class)
         ->and($pallet->fulfilmentCustomer->number_pallets)->toBe(1)
-        ->and($pallet->fulfilmentCustomer->number_stored_items)->toBe(0);
+        ->and($pallet->fulfilmentCustomer->number_stored_items)->toBe(0)
+        ->and($palletDelivery->number_pallets)->toBe(1)
+        ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
+        ->and($palletDelivery->number_stored_items)->toBe(0);
 
     return $pallet;
-})->depends('create fulfilment customer');
+})->depends('create pallet delivery');
+
+test('add multiple pallets to pallet delivery', function (PalletDelivery $palletDelivery) {
+
+    StoreMultiplePalletsFromDelivery::make()->action(
+        $palletDelivery,
+        [
+           'warehouse_id'   => $this->warehouse->id,
+           'number_pallets' => 3,
+           'type'           => PalletTypeEnum::PALLET->value,
+        ]
+    );
+
+    $palletDelivery->refresh();
+
+    expect($palletDelivery->number_pallets)->toBe(4)
+        ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
+        ->and($palletDelivery->number_stored_items)->toBe(0);
+
+    return $palletDelivery;
+})->depends('create pallet delivery');
+
+test('confirm pallet delivery', function (PalletDelivery $palletDelivery) {
+
+    SendPalletDeliveryNotification::shouldRun()->andReturn();
+
+    $palletDelivery=ConfirmPalletDelivery::make()->action($palletDelivery);
+
+    expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::CONFIRMED)
+        ->and($palletDelivery->confirmed_at)->toBeInstanceOf(Carbon::class)
+        ->and($palletDelivery->number_pallets)->toBe(4)
+        ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
+        ->and($palletDelivery->number_stored_items)->toBe(0)
+        ->and($palletDelivery->pallets->count())->toBe(4);
+
+    return $palletDelivery;
+})->depends('add multiple pallets to pallet delivery');
+
 
 
 test('UI list of fulfilment shops', function () {
@@ -249,3 +335,35 @@ test('UI show fulfilment pallet list', function (Fulfilment $fulfilment) {
             ->has('breadcrumbs', 3);
     });
 })->depends('create fulfilment shop')->todo();
+
+
+test('create pallet no delivery', function (Fulfilment $fulfilment) {
+
+    $customer = StoreCustomer::make()->action(
+        $fulfilment->shop,
+        Customer::factory()->definition(),
+    );
+
+
+    $pallet = StorePallet::make()->action(
+        $customer->fulfilmentCustomer,
+        array_merge([
+            'warehouse_id' => $this->warehouse->id,
+        ], Pallet::factory()->definition())
+    );
+
+
+    expect($pallet)->toBeInstanceOf(Pallet::class)
+        ->and($pallet->state)->toBe(PalletStateEnum::IN_PROCESS)
+        ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING)
+        ->and($pallet->type)->toBe(PalletTypeEnum::PALLET)
+        ->and($pallet->notes)->toBe('')
+        ->and($pallet->source_id)->toBeNull()
+        ->and($pallet->customer_reference)->toBeString()
+        ->and($pallet->received_at)->toBeNull()
+        ->and($pallet->fulfilmentCustomer)->toBeInstanceOf(FulfilmentCustomer::class)
+        ->and($pallet->fulfilmentCustomer->number_pallets)->toBe(1)
+        ->and($pallet->fulfilmentCustomer->number_stored_items)->toBe(0);
+
+    return $pallet;
+})->depends('create fulfilment shop');

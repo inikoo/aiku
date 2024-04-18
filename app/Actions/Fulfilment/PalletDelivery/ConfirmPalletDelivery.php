@@ -52,6 +52,9 @@ class ConfirmPalletDelivery extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if($this->asAction) {
+            return true;
+        }
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
 
@@ -63,7 +66,13 @@ class ConfirmPalletDelivery extends OrgAction
     public function asController(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
+        return $this->handle($palletDelivery);
+    }
 
+    public function action(PalletDelivery $palletDelivery): PalletDelivery
+    {
+        $this->asAction = true;
+        $this->initialisation($palletDelivery->organisation, []);
         return $this->handle($palletDelivery);
     }
 }

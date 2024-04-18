@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 18 Apr 2024 19:36:27 Malaysia Time, Kuala Lumpur , Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 namespace App\Listeners;
 
@@ -8,17 +13,12 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class MeasurementSharedListener implements ShouldQueue
 {
-    /**
-     * Create the event listener.
-     */
     public function __construct()
     {
         //
     }
 
-    /**
-     * Handle the event.
-     */
+
     public function handle(BroadcastFulfilmentCustomerNotification $event): void
     {
         foreach ($event->group->users as $user) {
