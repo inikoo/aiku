@@ -29,6 +29,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $reference
  * @property int $fulfilment_customer_id
  * @property int $fulfilment_id
+ * @property RentalAgreementStateEnum $state
  * @property int $billing_cycle Days
  * @property int|null $pallets_limit Agreed max number pallets space allocated
  * @property array $data
@@ -39,6 +40,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read FulfilmentCustomer $fulfilmentCustomer
  * @property-read Group $group
  * @property-read Organisation $organisation
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Market\RecurringBill> $recurringBills
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement newQuery()

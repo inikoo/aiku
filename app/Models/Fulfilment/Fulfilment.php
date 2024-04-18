@@ -36,6 +36,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read Group $group
  * @property-read Organisation $organisation
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
  * @property-read Shop $shop
  * @property-read \App\Models\Fulfilment\FulfilmentStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
