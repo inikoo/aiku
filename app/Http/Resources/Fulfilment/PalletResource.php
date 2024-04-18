@@ -31,19 +31,19 @@ class PalletResource extends JsonResource
         $pallet=$this;
 
         return [
-            'id'                 => $this->id,
-            'reference'          => $pallet->reference,
-            'customer_reference' => $pallet->customer_reference,
-            'slug'               => $pallet->slug,
-            'customer_name'      => $this->fulfilmentCustomer->customer->contact_name,
-            'location'           => LocationResource::make($this->location),
-            'state'              => $this->state,
-            'status'             => $this->status,
-            'notes'              => $this->notes,
-            'rental'             => $this->rental_id,
-            'status_label'       => $pallet->status->labels()[$pallet->status->value],
-            'status_icon'        => $pallet->status->statusIcon()[$pallet->status->value],
-            'items'              => StoredItemResource::collection($this->storedItems ?? [])
+            'id'                    => $this->id,
+            'reference'             => $pallet->reference,
+            'customer_reference'    => $pallet->customer_reference,
+            'slug'                  => $pallet->slug,
+            'customer_name'         => $this->fulfilmentCustomer->customer->contact_name,
+            'location'              => LocationResource::make($this->location),
+            'state'                 => $this->state,
+            'status'                => $this->status,
+            'notes'                 => $this->notes,
+            'rental_id'             => $this->rental_id,
+            'status_label'          => $pallet->status->labels()[$pallet->status->value],
+            'status_icon'           => $pallet->status->statusIcon()[$pallet->status->value],
+            'items'                 => StoredItemResource::collection($this->storedItems ?? [])
         ];
     }
 }
