@@ -13,6 +13,7 @@ import Input from '@/Components/Forms/Fields/Input.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import Select from '@/Components/Forms/Fields/Select.vue';
 import Schemaform from '@/Components/SchemaForm/SchemaForm.vue';
+
 library.add(faPlus)
 
 const props = defineProps<{
@@ -38,7 +39,7 @@ const props = defineProps<{
     <div class="p-2">
         <Schemaform
             :bluprint="provider?.formData?.blueprint"
-            :route="route(props.route.name, [props.organisation_id, ...props.route.parameters])"
+            :route="route(provider?.formData?.route.name, {organisation : props.organisation_id, ...provider?.formData?.route.parameters})"
             @onSuccess="()=>props.onCloseModal()"
             @onCancel="()=>props.onCloseModal()"
         />

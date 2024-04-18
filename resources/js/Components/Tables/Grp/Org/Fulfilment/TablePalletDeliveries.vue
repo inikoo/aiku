@@ -112,7 +112,7 @@ const handleClick = (action: Action) => {
 
         <template #button-new-pallet-delivery="{ linkButton }">
             <Button :style="linkButton.style" :icon="linkButton.icon" :label="linkButton.label" size="l"
-                :loading="loading" @click="() => handleClick(linkButton)" class="h-full border-none rounded-none" />
+                :loading="loading" @click="() => handleClick(linkButton)" />
         </template>
 
         <!-- Column: Reference -->

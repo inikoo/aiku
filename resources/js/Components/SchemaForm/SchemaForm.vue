@@ -51,10 +51,9 @@ const loading = ref(false)
 
 const onSubmit = () => {
     if (props.route) {
-        form.post(
-            props.route, {
+        form.post(props.route, {
             onBefore: (visit) => { emits('onBefore', visit) },
-            onStart: (visit) => { emits(loading.value = true ,'onStart', visit) },
+            onStart: (visit) => { loading.value = true, emits('onStart', visit) },
             onProgress: (progress) => { emits('onProgress', progress) },
             onSuccess: (page) => { emits('onSuccess', page) },
             onError: (errors) => { emits('onError', errors) },
