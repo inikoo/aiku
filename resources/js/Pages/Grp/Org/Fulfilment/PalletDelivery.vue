@@ -54,6 +54,7 @@ const props = defineProps<{
         history: routeType
     }
     locationRoute : routeType
+    rentalRoute : routeType
     storedItemsRoute : {
         index: routeType
         store: routeType
@@ -80,7 +81,7 @@ const handleFormSubmitAddPallet = (data: {}, closedPopover: Function) => {
         preserveScroll: true,
         onSuccess: () => {
             closedPopover()
-            formAddPallet.reset('notes', 'customer_reference')
+            formAddPallet.reset('notes', 'customer_reference','type')
             loading.value = false
         },
         onError: (errors) => {
@@ -100,7 +101,7 @@ const handleFormSubmitAddMultiplePallet = (data: {}, closedPopover: Function) =>
         preserveScroll: true,
         onSuccess: () => {
             closedPopover()
-            formMultiplePallet.reset('number_pallets')
+            formMultiplePallet.reset('number_pallets','type')
             loading.value = false
         },
         onError: (errors) => {
@@ -220,8 +221,9 @@ const typePallet = [
 
                 <template #content="{ close: closed }">
                     <div class="w-[350px]">
-                        <span class="text-xs px-1 my-2">{{ trans('Type') }}: </span>        
-                            <div v-for="( typeData, typeIdx ) in typePallet" :key="typeIdx" class="relative py-1">
+                        <span class="text-xs  my-2">{{ trans('Type') }}: </span>        
+                        <div class="flex items-center">
+                            <div v-for="(typeData, typeIdx) in typePallet" :key="typeIdx" class="relative py-3 mr-4">
                                 <div>
                                     <input type="checkbox" 
                                         :id="typeData.value" 
@@ -233,7 +235,8 @@ const typePallet = [
                                     <label :for="typeData.value" class="ml-2">{{ typeData.label }}</label>
                                 </div>
                             </div>
-                        <span class="text-xs px-1 my-2">Number of pallets: </span>
+                        </div>
+                        <span class="text-xs  my-2">Number of pallets: </span>
                         <div>
                             <PureInput
                                 v-model="formMultiplePallet.number_pallets"
@@ -277,10 +280,12 @@ const typePallet = [
                     </template>
 
                     <template #content="{ close: closed }">
-                        <div class="w-[250px]">
+                        <div  class="w-[350px]">
 
-                            <span class="text-xs px-1 my-2">{{ trans('Type') }}: </span>        
-                            <div v-for="( typeData, typeIdx ) in typePallet" :key="typeIdx" class="relative py-1">
+                            <span class="text-xs px-1 my-2">{{ trans('Type') }}: </span>    
+
+                             <div class="flex items-center">
+                            <div v-for="(typeData, typeIdx) in typePallet" :key="typeIdx" class="relative py-3 mr-4">
                                 <div>
                                     <input type="checkbox" 
                                         :id="typeData.value" 
@@ -292,9 +297,7 @@ const typePallet = [
                                     <label :for="typeData.value" class="ml-2">{{ typeData.label }}</label>
                                 </div>
                             </div>
-
-
-
+                        </div>
                             <span class="text-xs px-1 my-2">{{ trans('Reference') }}: </span>
                             <div>
                                 <PureInput v-model="formAddPallet.customer_reference"
@@ -450,6 +453,7 @@ const typePallet = [
         @renderTableKey="changeTableKey"
         :locationRoute="locationRoute"
         :storedItemsRoute="storedItemsRoute"
+        :rentalRoute="rentalRoute"
     />
 
     <UploadExcel
