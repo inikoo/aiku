@@ -15,8 +15,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $slug
  * @property string $name
  * @property mixed $type
- * @property mixed $asset
- * @property mixed $asset_type
+ * @property mixed $auto_assign_asset
+ * @property mixed $auto_assign_asset_type
  */
 class RentalsResource extends JsonResource
 {
@@ -24,10 +24,10 @@ class RentalsResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id'            => $this->id,
-            'name'          => $this->name,
-            'asset_type'    => $this->asset_type,
-            'asset'         => $this->asset
+            'id'                        => $this->id,
+            'name'                      => $this->name,
+            'auto_assign_asset_type'    => $this->auto_assign_asset_type,
+            'auto_assign_asset'         => $this->auto_assign_asset
         ];
     }
 }

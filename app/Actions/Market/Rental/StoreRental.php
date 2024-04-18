@@ -20,12 +20,11 @@ class StoreRental extends OrgAction
     public function handle(Product $product, array $modelData): Rental
     {
 
-
         data_set($modelData, 'organisation_id', $product->organisation_id);
         data_set($modelData, 'group_id', $product->group_id);
         data_set($modelData, 'shop_id', $product->shop_id);
+        data_set($modelData, 'fulfilment_id', $product->shop->fulfilment->id);
         data_set($modelData, 'product_id', $product->id);
-
 
         $rental=Rental::create($modelData);
 

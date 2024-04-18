@@ -23,11 +23,13 @@ return new class () extends Migration {
             $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
+            $table->unsignedSmallInteger('fulfilment_id')->nullable();
+            $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
             $table->unsignedInteger('product_id')->nullable();
             $table->foreign('product_id')->references('id')->on('products');
 
-            $table->string('asset')->nullable()->comment('Used for auto assign this rent to this asset');
-            $table->string('asset_type')->nullable()->comment('Used for auto assign this rent to this asset type');
+            $table->string('auto_assign_asset')->nullable()->comment('Used for auto assign this rent to this asset');
+            $table->string('auto_assign_asset_type')->nullable()->comment('Used for auto assign this rent to this asset type');
 
             $table->jsonb('data');
             $table->unsignedSmallInteger('number_historic_outerables')->default(0);

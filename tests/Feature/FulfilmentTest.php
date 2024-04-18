@@ -8,6 +8,7 @@
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\SetPalletAsNotReceived;
+use App\Actions\Fulfilment\Pallet\SetPalletRental;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
@@ -151,11 +152,23 @@ test('create second rental product to fulfilment shop', function (Fulfilment $fu
     );
 
     expect($product)->toBeInstanceOf(Product::class)
-        ->and($product->mainOuterable)->toBeInstanceOf(Rental::class);
+        ->and($product->mainOuterable)->toBeInstanceOf(Rental::class)
+    ->and($product->rental)->toBeInstanceOf(Rental::class);
 
     return $product;
 })->depends('create fulfilment shop');
 
+test('assign auto assign asset to rental', function (Product $product) {
+    $product->rental->update([
+        'auto_assign_asset'       => 'Pallet',
+        'auto_assign_asset_type'  => PalletTypeEnum::PALLET->value,
+    ]);
+
+    expect($product->rental->auto_assign_asset)->toBe('Pallet')
+        ->and($product->rental->auto_assign_asset_type)->toBe(PalletTypeEnum::PALLET->value);
+
+    return $product;
+})->depends('create rental product to fulfilment shop');
 
 test('create fulfilment website', function (Fulfilment $fulfilment) {
     $website = StoreWebsite::make()->action(
@@ -259,8 +272,8 @@ test('add pallet to pallet delivery', function (PalletDelivery $palletDelivery) 
         ->and($pallet->fulfilmentCustomer->number_pallets)->toBe(1)
         ->and($pallet->fulfilmentCustomer->number_stored_items)->toBe(0)
         ->and($palletDelivery->number_pallets)->toBe(1)
-        ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
-        ->and($palletDelivery->number_stored_items)->toBe(0);
+        ->and($palletDelivery->stats->number_pallets_type_oversize)->toBe(1);
+
 
     return $pallet;
 })->depends('create pallet delivery');
@@ -279,6 +292,9 @@ test('add multiple pallets to pallet delivery', function (PalletDelivery $pallet
     $palletDelivery->refresh();
 
     expect($palletDelivery->number_pallets)->toBe(3)
+        ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(2)
+        ->and($palletDelivery->stats->number_pallets_type_oversize)->toBe(1)
+
         ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
         ->and($palletDelivery->number_stored_items)->toBe(0);
 
@@ -313,11 +329,14 @@ test('receive pallet delivery', function (PalletDelivery $palletDelivery) {
 
     $palletDelivery->refresh();
 
+    $palletNotInRentalCount      = $palletDelivery->pallets()->whereNull('rental_id')->count();
+
+
+
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::RECEIVED)
         ->and($palletDelivery->received_at)->toBeInstanceOf(Carbon::class)
         ->and($palletDelivery->number_pallets)->toBe(3)
-        ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
-        ->and($palletDelivery->number_stored_items)->toBe(0);
+    ->and($palletNotInRentalCount)->toBe(1);
 
     return $palletDelivery;
 })->depends('confirm pallet delivery');
@@ -337,6 +356,23 @@ test('set location of first pallet in the pallet delivery', function (PalletDeli
 
     return $palletDelivery;
 })->depends('receive pallet delivery');
+
+test('set rental to first pallet in the pallet delivery', function (PalletDelivery $palletDelivery) {
+
+    $pallet = $palletDelivery->pallets->first();
+    $rental = $palletDelivery->fulfilment->rentals->last();
+    expect($rental)->toBeInstanceOf(Rental::class);
+
+    SetPalletRental::make()->action($pallet, ['rental_id' => $rental->id]);
+    $pallet->refresh();
+    $palletNotInRentalCount      = $palletDelivery->pallets()->whereNull('rental_id')->count();
+
+    expect($pallet->rental)->toBeInstanceOf(Rental::class)
+        ->and($palletNotInRentalCount)->toBe(0);
+    ;
+
+    return $palletDelivery;
+})->depends('set location of first pallet in the pallet delivery');
 
 test('set second pallet in the pallet delivery as not delivered', function (PalletDelivery $palletDelivery) {
 
@@ -360,6 +396,16 @@ test('set location of third pallet in the pallet delivery', function (PalletDeli
     BookInPallet::make()->action($pallet, ['location_id' => $location->id]);
     $pallet->refresh();
     $location->refresh();
+
+    $palletStateBookedInCount    = $palletDelivery->pallets()->where('state', PalletStateEnum::BOOKED_IN)->count();
+    $palletStateNotReceivedCount = $palletDelivery->pallets()->where('state', PalletStateEnum::NOT_RECEIVED)->count();
+    $palletStateReceivedCount    = $palletDelivery->pallets()->where('state', PalletStateEnum::RECEIVED)->count();
+    $palletReceivedCount         = $palletStateReceivedCount + $palletStateNotReceivedCount + $palletStateBookedInCount;
+    $palletNotInRentalCount      = $palletDelivery->pallets()
+        ->where('state', '!=', PalletStateEnum::NOT_RECEIVED)->whereNull('rental_id')->count();
+
+    $palletDelivery->refresh();
+
     expect($pallet->location)->toBeInstanceOf(Location::class)
         ->and($palletReceivedCount)->toBe(3)
         ->and($palletStateNotReceivedCount)->toBe(1)
@@ -385,7 +431,9 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
     $palletDelivery=BookedInPalletDelivery::make()->action($palletDelivery);
     $palletDelivery->refresh();
 
+
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKED_IN)
+
         ->and($palletDelivery->booked_in_at)->toBeInstanceOf(Carbon::class)
         ->and($palletDelivery->number_pallets)->toBe(3)
         ->and($palletDelivery->number_pallet_stored_items)->toBe(0)

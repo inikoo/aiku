@@ -88,7 +88,6 @@ class StorePalletDelivery extends OrgAction
         }
 
         if ($request->user() instanceof WebUser) {
-            // TODO: Raul please do the permission for the web user
             return true;
         }
 
@@ -142,7 +141,7 @@ class StorePalletDelivery extends OrgAction
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
         $this->setRawAttributes($modelData);
 
-        return $this->handle($fulfilmentCustomer, $this->validateAttributes());
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
     public function jsonResponse(PalletDelivery $palletDelivery): array

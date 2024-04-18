@@ -93,8 +93,8 @@ class IndexFulfilmentRentals extends OrgAction
             ->select([
                 'rentals.id',
                 'rentals.state',
-                'rentals.asset',
-                'rentals.asset_type',
+                'rentals.auto_assign_asset',
+                'rentals.auto_assign_asset_type',
                 'rentals.created_at',
                 'rentals.updated_at',
                 'products.name'
