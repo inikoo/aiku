@@ -80,6 +80,13 @@ const onSaveField = async (pallet: any, fieldName: string) => {
 		}, 3000)
 	}
 }
+
+const typePallet = [
+    { label : 'Pallet', value : 'pallet'},
+    { label : 'Box', value : 'box'},
+    { label : 'Oversize', value : 'oversize'}
+]
+
 </script>
 
 <template>
@@ -160,6 +167,16 @@ const onSaveField = async (pallet: any, fieldName: string) => {
 					/>
 				</div>
 			</div>-->
+		</template>
+
+		<template #cell(type)="{ item: pallet }">
+            <div>
+				<FieldEditableTable :data="pallet"  @onSave="onSaveField" :options="typePallet" :fieldType="'select'" fieldName="type" placeholder="Enter customer type" />
+			</div>
+		</template>
+
+		<template #cell(type_icon)="{ item: pallet }">
+			<Icon :data="pallet.type_icon" class="px-1" />
 		</template>
 	</Table>
 </template>
