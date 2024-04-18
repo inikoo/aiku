@@ -22,15 +22,11 @@ class UpdatePalletDeliveryStateFromItems
 
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
-        $palletCount                 = $palletDelivery->pallets()->count();
         $palletStateBookedInCount    = $palletDelivery->pallets()->where('state', PalletStateEnum::BOOKED_IN)->count();
-        $palletStateNotReceivedCount = $palletDelivery->pallets()->where('state', PalletStateEnum::NOT_RECEIVED)->count(
-        );
-        $palletStateReceivedCount = $palletDelivery->pallets()->where('state', PalletStateEnum::RECEIVED)->count();
-
-        $palletReceivedCount = $palletStateReceivedCount + $palletStateNotReceivedCount + $palletStateBookedInCount;
-
-        $palletNotInRentalCount = $palletDelivery->pallets()->whereNull('rental_id')->count();
+        $palletStateNotReceivedCount = $palletDelivery->pallets()->where('state', PalletStateEnum::NOT_RECEIVED)->count();
+        $palletStateReceivedCount    = $palletDelivery->pallets()->where('state', PalletStateEnum::RECEIVED)->count();
+        $palletReceivedCount         = $palletStateReceivedCount + $palletStateNotReceivedCount + $palletStateBookedInCount;
+        $palletNotInRentalCount      = $palletDelivery->pallets()->whereNull('rental_id')->count();
 
         //print "pallets $palletCount received $palletReceivedCount $palletStateBookedInCount $palletStateNotReceivedCount $palletStateReceivedCount\n";
 

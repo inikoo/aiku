@@ -17,6 +17,7 @@ use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Inventory\Location\StoreLocation;
+use App\Actions\Market\Product\StoreNoPhysicalGood;
 use App\Actions\Market\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Web\Website\StoreWebsite;
@@ -25,6 +26,7 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
@@ -35,6 +37,8 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Inventory\Location;
+use App\Models\Market\Product;
+use App\Models\Market\Rental;
 use App\Models\Market\RentalAgreement;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Permission;
@@ -117,6 +121,42 @@ test('create fulfilment shop', function () {
     return $shop->fulfilment;
 });
 
+test('create rental product to fulfilment shop', function (Fulfilment $fulfilment) {
+    $product = StoreNoPhysicalGood::make()->action(
+        $fulfilment->shop,
+        [
+            'type'                 => ProductTypeEnum::RENTAL,
+            'main_outerable_price' => 100,
+            'code'                 => 'R00001',
+            'name'                 => 'Rental Product A',
+
+        ]
+    );
+
+    expect($product)->toBeInstanceOf(Product::class)
+    ->and($product->mainOuterable)->toBeInstanceOf(Rental::class);
+
+    return $product;
+})->depends('create fulfilment shop');
+
+test('create second rental product to fulfilment shop', function (Fulfilment $fulfilment) {
+    $product = StoreNoPhysicalGood::make()->action(
+        $fulfilment->shop,
+        [
+            'type'                 => ProductTypeEnum::RENTAL,
+            'main_outerable_price' => 200,
+            'code'                 => 'R00002',
+            'name'                 => 'Rental Product B',
+        ]
+    );
+
+    expect($product)->toBeInstanceOf(Product::class)
+        ->and($product->mainOuterable)->toBeInstanceOf(Rental::class);
+
+    return $product;
+})->depends('create fulfilment shop');
+
+
 test('create fulfilment website', function (Fulfilment $fulfilment) {
     $website = StoreWebsite::make()->action(
         $fulfilment->shop,
@@ -128,6 +168,8 @@ test('create fulfilment website', function (Fulfilment $fulfilment) {
 
     return $website;
 })->depends('create fulfilment shop');
+
+
 
 test('create fulfilment customer', function (Fulfilment $fulfilment) {
     $customer = StoreCustomer::make()->action(
@@ -322,7 +364,9 @@ test('set location of third pallet in the pallet delivery', function (PalletDeli
         ->and($pallet->location->id)->toBe($location->id)
         ->and($pallet->state)->toBe(PalletStateEnum::BOOKED_IN)
         ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING)
-        ->and($location->stats->number_pallets)->toBe(1);
+        ->and($location->stats->number_pallets)->toBe(1)
+        ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKING_IN);
+
 
     return $palletDelivery;
 })->depends('set second pallet in the pallet delivery as not delivered');
