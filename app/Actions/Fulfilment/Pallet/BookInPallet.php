@@ -59,7 +59,7 @@ class BookInPallet extends OrgAction
     public function asController(Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->initialisationFromWarehouse($pallet->warehouse, $request);
-        return $this->handle($pallet, $this->validateAttributes());
+        return $this->handle($pallet, $this->validatedData);
     }
 
     public function action(Pallet $pallet, array $modelData): Pallet

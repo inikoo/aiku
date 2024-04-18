@@ -87,7 +87,7 @@ class StoreProforma extends OrgAction
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
         $this->setRawAttributes($modelData);
 
-        return $this->handle($fulfilmentCustomer, $this->validateAttributes());
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
     public string $commandSignature = 'proforma:create {fulfilment-customer}';

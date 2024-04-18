@@ -37,6 +37,7 @@ use App\Models\Inventory\Location;
  * @property StoredItemStatusEnum $status
  * @property StoredItemStateEnum $state
  * @property StoredItemTypeEnum $type
+ * @property int $fulfilment_id
  * @property int $fulfilment_customer_id
  * @property string $notes
  * @property bool $return_requested
@@ -50,6 +51,7 @@ use App\Models\Inventory\Location;
  * @property Carbon|null $updated_at
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Location|null $location
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
@@ -94,6 +96,11 @@ class StoredItem extends Model implements Auditable
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function fulfilment(): BelongsTo
+    {
+        return $this->belongsTo(Fulfilment::class);
     }
 
     public function fulfilmentCustomer(): BelongsTo

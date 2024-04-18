@@ -87,7 +87,7 @@ class UpdatePalletDelivery extends OrgAction
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $modelData);
         $this->setRawAttributes($modelData);
 
-        return $this->handle($palletDelivery, $this->validateAttributes());
+        return $this->handle($palletDelivery, $this->validatedData);
     }
 
     public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response

@@ -32,9 +32,7 @@ class StoreStoredItemReturn extends OrgAction
     use WithAttributes;
 
     public Customer $customer;
-    /**
-     * @var true
-     */
+
     private bool $action = false;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): StoredItemReturn
@@ -121,7 +119,7 @@ class StoreStoredItemReturn extends OrgAction
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
         $this->setRawAttributes($modelData);
 
-        return $this->handle($fulfilmentCustomer, $this->validateAttributes());
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
     public function jsonResponse(StoredItemReturn $palletReturn): array

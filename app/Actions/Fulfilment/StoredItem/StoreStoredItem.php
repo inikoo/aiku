@@ -33,6 +33,7 @@ class StoreStoredItem
     {
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
+        data_set($modelData, 'fulfilment_id', $parent->fulfilment_id);
 
         $modelData['type'] = StoredItemTypeEnum::PALLET;
 

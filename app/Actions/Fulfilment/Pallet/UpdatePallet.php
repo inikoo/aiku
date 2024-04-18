@@ -67,7 +67,6 @@ class UpdatePallet extends OrgAction
         }
 
         if ($request->user() instanceof WebUser) {
-            // TODO: Raul please do the permission for the web user
             return true;
         }
 
@@ -123,7 +122,7 @@ class UpdatePallet extends OrgAction
         $this->pallet       = $pallet;
 
         $this->initialisation($request->get('website')->organisation, $request);
-        return $this->handle($pallet, $this->validateAttributes());
+        return $this->handle($pallet, $this->validatedData);
     }
 
     public function asController(Pallet $pallet, ActionRequest $request): Pallet
@@ -131,7 +130,7 @@ class UpdatePallet extends OrgAction
         $this->pallet = $pallet;
         $this->initialisationFromFulfilment($pallet->fulfilment, $request);
 
-        return $this->handle($pallet, $this->validateAttributes());
+        return $this->handle($pallet, $this->validatedData);
     }
 
     public function fromApi(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, Pallet $pallet, ActionRequest $request): Pallet
@@ -139,7 +138,7 @@ class UpdatePallet extends OrgAction
         $this->pallet = $pallet;
         $this->initialisationFromFulfilment($pallet->fulfilment, $request);
 
-        return $this->handle($pallet, $this->validateAttributes());
+        return $this->handle($pallet, $this->validatedData);
     }
 
     public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0): Pallet

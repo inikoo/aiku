@@ -36,9 +36,10 @@ class UpdateRental extends OrgAction
     public function rules(): array
     {
         return [
-          'status'=> ['sometimes','required','boolean'],
-          'state' => ['sometimes','required',Rule::enum(RentalStateEnum::class)],
-
+            'status'                 => ['sometimes','required','boolean'],
+            'state'                  => ['sometimes','required',Rule::enum(RentalStateEnum::class)],
+            'auto_assign_asset'      => ['nullable','string','in:Pallet,StoredItem'],
+            'auto_assign_asset_type' => ['nullable','string','in:pallet,box,oversize'],
         ];
     }
 

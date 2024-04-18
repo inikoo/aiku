@@ -135,7 +135,7 @@ class StorePalletReturn extends OrgAction
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
         $this->setRawAttributes($modelData);
 
-        return $this->handle($fulfilmentCustomer, $this->validateAttributes());
+        return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
     public function jsonResponse(PalletReturn $palletReturn): array

@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\StoredItem;
 
 use App\Actions\Fulfilment\StoredItem\Hydrators\StoredItemHydrateUniversalSearch;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
@@ -15,7 +16,7 @@ use App\Models\Fulfilment\StoredItem;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateStoredItem
+class UpdateStoredItem extends OrgAction
 {
     use WithActionUpdate;
 
@@ -30,13 +31,13 @@ class UpdateStoredItem
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
     }
 
     public function rules(): array
     {
         return [
-            'reference'   => ['sometimes', 'required', 'unique:stored_items', 'between:2,9', 'alpha'],
+            'reference'   => ['sometimes', 'required', 'unique:stored_items', 'max:24', 'alpha'],
             'type'        => ['sometimes', 'required', Rule::in(StoredItemTypeEnum::values())],
             'location_id' => ['required', 'exists:locations,id']
         ];
@@ -44,12 +45,8 @@ class UpdateStoredItem
 
     public function asController(StoredItem $storedItem, ActionRequest $request): StoredItem
     {
-        $mergedArray = array_merge($request->all(), [
-            'location_id' => $request->input('location')['id']
-        ]);
-        $this->setRawAttributes($mergedArray);
-
-        return $this->handle($storedItem, $this->validateAttributes());
+        $this->initialisationFromFulfilment($storedItem->fulfilment, $request);
+        return $this->handle($storedItem, $this->validatedData);
     }
 
     public function jsonResponse(StoredItem $storedItem): StoredItemResource
