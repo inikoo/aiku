@@ -25,11 +25,8 @@ class RentalsResource extends JsonResource
     {
         return [
             'id'            => $this->id,
-            'slug'          => $this->slug,
-            'code'          => $this->code,
-            'name'          => $this->name,
             'asset_type'    => $this->asset_type,
-            'asset'         => $this->asset,
+            'asset'         => $this->asset
         ];
     }
 }
