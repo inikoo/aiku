@@ -15,7 +15,7 @@ import { Link } from "@inertiajs/vue3"
 import Icon from "@/Components/Icon.vue"
 import { faTimesSquare } from "@fas"
 import { faTrashAlt, faPaperPlane, faInventory } from "@far"
-import { faTruckLoading, faStickyNote, faPallet, faBox, faBoxes } from "@fal"
+import { faTruckLoading, faStickyNote, faPallet, faBox, faSortSizeUp } from "@fal"
 import FieldEditableTable from "@/Components/FieldEditableTable.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ref, watch, defineEmits } from "vue"
@@ -27,7 +27,7 @@ import { Table as TSTable } from "@/types/Table"
 
 import '@/Composables/Icon/PalletStateEnum'
 
-library.add( faTrashAlt, faPaperPlane, faInventory, faTruckLoading, faStickyNote, faTimesSquare, faPallet, faBox, faBoxes )
+library.add( faTrashAlt, faPaperPlane, faInventory, faTruckLoading, faStickyNote, faTimesSquare, faPallet, faBox, faSortSizeUp)
 
 const props = defineProps<{
 	data: TSTable
@@ -87,8 +87,8 @@ const onSaved = async (pallet: { form : {}}, fieldName: string) => {
 
 
 const typePallet = [
-    { label : 'Pallet', value : 'pallet'}, 
-    { label : 'Box', value : 'box'}, 
+    { label : 'Pallet', value : 'pallet'},
+    { label : 'Box', value : 'box'},
     { label : 'Oversize', value : 'oversize'}
 ]
 
@@ -152,7 +152,7 @@ const typePallet = [
 		</template>
 
 		<template #cell(type_icon)="{ item: pallet }">
-				<FontAwesomeIcon :icon="pallet.type_icon.icon" :class="pallet.type_icon.class"/>
+            <Icon :data="pallet['type_icon']" class="px-1" />
 		</template>
 
         <!-- Column: Actions -->
@@ -208,7 +208,7 @@ const typePallet = [
                     :data="pallet"
                     @onSuccess="() => emits('renderTableKey')"
                     /> -->
-                
+
 			</div>
 		</template>
 	</Table>

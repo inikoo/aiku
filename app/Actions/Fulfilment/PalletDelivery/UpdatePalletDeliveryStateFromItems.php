@@ -30,6 +30,7 @@ class UpdatePalletDeliveryStateFromItems
 
         $palletReceivedCount = $palletStateReceivedCount + $palletStateNotReceivedCount + $palletStateBookedInCount;
 
+        $palletNotInRentalCount = $palletDelivery->pallets()->whereNull('rental_id')->count();
 
         //print "pallets $palletCount received $palletReceivedCount $palletStateBookedInCount $palletStateNotReceivedCount $palletStateReceivedCount\n";
 
@@ -40,11 +41,11 @@ class UpdatePalletDeliveryStateFromItems
             PalletDeliveryStateEnum::NOT_RECEIVED->value,
 
         ])) {
-            if ($palletReceivedCount == 0) {
+            if ($palletReceivedCount == 0 and $palletNotInRentalCount == 0) {
                 return $palletDelivery;
             }
 
-            if ($palletReceivedCount == $palletStateNotReceivedCount) {
+            if ($palletReceivedCount == $palletStateNotReceivedCount and $palletNotInRentalCount > 0) {
                 return NotReceivedPalletDelivery::run($palletDelivery);
             }
 

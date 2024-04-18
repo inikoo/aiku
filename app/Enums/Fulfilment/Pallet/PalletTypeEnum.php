@@ -43,7 +43,7 @@ enum PalletTypeEnum: string
             ],
             'oversize' => [
                 'tooltip' => __('oversize'),
-                'icon'    => 'fal fa-boxes',
+                'icon'    => 'fal fa-sort-size-up',
                 'class'   => 'text-indigo-400',
                 'color'   => 'indigo',
                 'app'     => [

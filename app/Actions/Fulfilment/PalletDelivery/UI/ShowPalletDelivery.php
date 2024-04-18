@@ -98,6 +98,7 @@ class ShowPalletDelivery extends OrgAction
             ];
         }
         $palletStateReceivedCount = $palletDelivery->pallets()->where('state', PalletStateEnum::RECEIVED)->count();
+        $palletNotInRentalCount   = $palletDelivery->pallets()->whereNull('rental_id')->count();
 
         $actions = [];
         if ($this->canEdit) {
@@ -197,7 +198,7 @@ class ShowPalletDelivery extends OrgAction
                     ],
                 ],
                 PalletDeliveryStateEnum::BOOKING_IN => [
-                    $palletStateReceivedCount == 0 ? [
+                    $palletStateReceivedCount == 0 and $palletNotInRentalCount == 0 ? [
                         'type'    => 'button',
                         'style'   => 'primary',
                         'icon'    => 'fal fa-check',
@@ -227,7 +228,6 @@ class ShowPalletDelivery extends OrgAction
                     'target' => '_blank',
                     'icon'   => 'fal fa-file-pdf',
                     'key'    => 'action',
-                    'label'  => 'PDF',
                     'route'  => [
                         'name'       => 'grp.models.pallet-delivery.pdf',
                         'parameters' => [
