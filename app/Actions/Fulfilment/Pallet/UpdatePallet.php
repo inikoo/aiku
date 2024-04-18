@@ -109,7 +109,7 @@ class UpdatePallet extends OrgAction
                 'sometimes',
                 Rule::enum(PalletTypeEnum::class)
             ],
-            'rental_id'          => ['nullable', 'string', 'exists:rentals,id'],
+            'rental_id'          => ['nullable', 'exists:rentals,id'],
             'notes'              => ['nullable', 'string','max:1024'],
             'received_at'        => ['nullable', 'nullable', 'date'],
         ];
