@@ -34,14 +34,13 @@ class UpdatePalletDeliveryStateFromItems
 
         //print "pallets $palletCount received $palletReceivedCount $palletStateBookedInCount $palletStateNotReceivedCount $palletStateReceivedCount\n";
 
-
         if (in_array($palletDelivery->state->value, [
             PalletDeliveryStateEnum::RECEIVED->value,
             PalletDeliveryStateEnum::CONFIRMED->value,
             PalletDeliveryStateEnum::NOT_RECEIVED->value,
 
         ])) {
-            if ($palletReceivedCount == 0 and $palletNotInRentalCount == 0) {
+            if ($palletReceivedCount == 0) {
                 return $palletDelivery;
             }
 
