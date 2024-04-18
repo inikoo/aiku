@@ -19,8 +19,8 @@ use App\Models\Market\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Foundation\Testing\TestCase;
 use Symfony\Component\Process\Process;
-use Tests\TestCase;
 
 uses(TestCase::class)->in('Feature');
 
