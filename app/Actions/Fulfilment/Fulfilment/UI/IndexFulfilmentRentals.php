@@ -74,7 +74,7 @@ class IndexFulfilmentRentals extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Rental::class);
         $queryBuilder->where('rentals.shop_id', $parent->shop_id);
-
+        $queryBuilder->join('products', 'rentals.product_id', '=', 'products.id');
 
 
         /*        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
@@ -96,7 +96,8 @@ class IndexFulfilmentRentals extends OrgAction
                 'rentals.asset',
                 'rentals.asset_type',
                 'rentals.created_at',
-                'rentals.updated_at'
+                'rentals.updated_at',
+                'products.name'
             ]);
 
 
@@ -121,7 +122,6 @@ class IndexFulfilmentRentals extends OrgAction
 
         return $this->handle($fulfilment, 'rentals');
     }
-
 
     public function htmlResponse(LengthAwarePaginator $rentals, ActionRequest $request): Response
     {
