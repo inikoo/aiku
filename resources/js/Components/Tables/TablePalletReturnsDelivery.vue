@@ -98,5 +98,10 @@ function customerRoute(pallet: object) {
                 </Link>
             </div>
         </template>
+
+      <!--   <template #cell(type_icon)="{ item: pallet }">
+			<Icon :data="pallet.type_icon" class="px-1" />
+		</template> -->
+
     </Table>
 </template>

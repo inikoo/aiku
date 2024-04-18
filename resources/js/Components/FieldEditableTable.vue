@@ -17,6 +17,7 @@ import { get, isNull } from 'lodash'
 import { faSpinnerThird } from '@fad'
 import { cloneDeep } from "lodash"
 import PureMultiselect from "./Pure/PureMultiselect.vue"
+import SelectQuery from "@/Components/SelectQuery.vue"
 
 library.add(faTrashAlt, faSignOutAlt, faTimesCircle, faSpinnerThird, faCheckCircle)
 
@@ -30,6 +31,9 @@ const props = withDefaults(defineProps<{
     fieldType?: String
     options:Array
     required?:boolean
+    urlRoute?:string
+    label?:string,
+    valueProp?:string
 }>(), {
     type: 'text',
     min: 0,
@@ -37,6 +41,8 @@ const props = withDefaults(defineProps<{
     options:[],
     fieldType: 'input',
     required:true,
+    label:'label',
+    valueProp:'id'
 })
 
 const emits = defineEmits<{
@@ -108,6 +114,22 @@ const onChange = (value : Any) => {
            :required="required"
         >
         </PureMultiselect>
+    </div>
+
+
+    <div v-else-if="fieldType == 'selectQuery'" class="w-60 sm:w-24 md:w-24 lg:w-60 xl:w-60">
+        <SelectQuery
+          :fieldName="fieldName"
+          :placeholder="placeholder"
+          :required="required"
+          :urlRoute="urlRoute"
+          :value="pallet.form"
+          :label="label"
+          :valueProp="valueProp"
+          :on-change="onChange"
+          :closeOnSelect="true"
+        >
+        </SelectQuery>
     </div>
 
 

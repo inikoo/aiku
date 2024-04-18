@@ -35,6 +35,7 @@ const props = defineProps<{
 	state?: string
 	tableKey: number
 	locationRoute: routeType
+	rentalRoute: routeType
 	storedItemsRoute: {
 		index : routeType
 		store : routeType
@@ -153,6 +154,21 @@ const typePallet = [
 
 		<template #cell(type_icon)="{ item: pallet }">
 			<Icon :data="pallet.type_icon" class="px-1" />
+		</template>
+
+		<template #cell(rental)="{ item: pallet }">
+		    <div>
+				<FieldEditableTable 
+					:data="pallet"  
+					@onSave="onSaved" 
+					fieldType="selectQuery" 
+					:urlRoute="route(rentalRoute?.name, rentalRoute?.parameters)"  
+					fieldName="rental" 
+					placeholder="Enter rental"
+					:label="'id'"
+          			:valueProp="'id'"
+				/>
+			</div>
 		</template>
 
         <!-- Column: Actions -->

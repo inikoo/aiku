@@ -276,6 +276,12 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
             </div>
         </template>
 
+
+        <template #cell(type_icon)="{ item: pallet }">
+			<Icon :data="pallet.type_icon" class="px-1" />
+		</template>
+
+
     </Table>
 </template>
 
