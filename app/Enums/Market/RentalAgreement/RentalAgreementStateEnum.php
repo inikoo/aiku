@@ -13,6 +13,7 @@ enum RentalAgreementStateEnum: string
 {
     use EnumHelperTrait;
 
-    case ACTIVE            = 'active';
-    case EXPIRE            = 'expire';
+    case DRAFT              = 'draft';
+    case ACTIVE             = 'active';
+    case EXPIRED            = 'expired';
 }

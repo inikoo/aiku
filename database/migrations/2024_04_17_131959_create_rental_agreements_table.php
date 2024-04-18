@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -24,7 +25,7 @@ return new class () extends Migration {
             $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
             $table->unsignedInteger('fulfilment_id');
             $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
-
+            $table->string('state')->index()->default(RentalAgreementStateEnum::DRAFT);
             $table->unsignedSmallInteger('billing_cycle')->default(7)->comment('Days');
             $table->unsignedSmallInteger('pallets_limit')->nullable()->comment('Agreed max number pallets space allocated');
 
