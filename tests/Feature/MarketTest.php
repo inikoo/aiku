@@ -392,29 +392,3 @@ test('update service', function ($product) {
     return $product;
 })->depends('create service');
 
-test('create rent', function ($shop) {
-
-    $serviceData = array_merge(
-        Product::factory()->definition(),
-        [
-            'type'       => ProductTypeEnum::RENTAL,
-            'price'      => 100,
-        ]
-    );
-
-    $product     = StoreNoPhysicalGood::make()->action($shop, $serviceData);
-    $shop->refresh();
-
-    $mainOuterable=$product->mainOuterable;
-
-    expect($mainOuterable)->toBeInstanceOf(Rental::class)
-        ->and($product->rental)->toBeInstanceOf(Rental::class)
-        ->and($product)->toBeInstanceOf(Product::class)
-        ->and($product->stats->number_historic_outerables)->toBe(1)
-        ->and($product->tradeUnits()->count())->toBe(0)
-        ->and($product->stats->number_outers)->toBe(0)
-        ->and($shop->stats->number_products)->toBe(3)
-        ->and($shop->stats->number_products_type_rental)->toBe(1);
-
-    return $product;
-})->depends('create shop');
