@@ -8,6 +8,7 @@
 namespace App\Actions\Accounting\PaymentAccount\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\UI\Accounting\Traits\HasPaymentServiceProviderFields;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\SysAdmin\Organisation;
@@ -17,6 +18,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditPaymentAccount extends OrgAction
 {
+    use HasPaymentServiceProviderFields;
+
     public function handle(PaymentAccount $paymentAccount): PaymentAccount
     {
         return $paymentAccount;
@@ -63,8 +66,6 @@ class EditPaymentAccount extends OrgAction
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ],
-
-
                 ],
 
                 'formData' => [
@@ -82,15 +83,17 @@ class EditPaymentAccount extends OrgAction
                                     'label' => __('label'),
                                     'value' => $paymentAccount->name
                                 ],
+                                ...$this->blueprint($paymentAccount->orgPaymentServiceProvider->paymentServiceProvider->slug, $paymentAccount->data)
                             ]
                         ]
-
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'      => 'grp.models.payment-account.update',
-                            'parameters'=> $paymentAccount->id
-
+                            'name'      => 'grp.models.org.payment-account.update',
+                            'parameters'=> [
+                                'organisation'   => $paymentAccount->organisation_id,
+                                'paymentAccount' => $paymentAccount->id
+                            ]
                         ],
                     ]
                 ]

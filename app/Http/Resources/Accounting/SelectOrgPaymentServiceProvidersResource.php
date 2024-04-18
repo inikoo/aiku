@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\Accounting;
 
+use App\Actions\UI\Accounting\Traits\HasPaymentServiceProviderFields;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 
@@ -27,64 +28,13 @@ use Illuminate\Support\Arr;
  */
 class SelectOrgPaymentServiceProvidersResource extends JsonResource
 {
+    use HasPaymentServiceProviderFields;
+
     public function toArray($request): array
     {
         $provider = Arr::get(explode('-', $this->code), 1);
 
-        $additionalFields = match ($provider) {
-            'checkout' => [
-                'checkout_public_key' => [
-                    'type'     => 'input',
-                    'label'    => __('public key'),
-                    'required' => true
-                ],
-                'checkout_secret_key' => [
-                    'type'     => 'input',
-                    'label'    => __('secret key'),
-                    'required' => true
-                ],
-                'checkout_channel_id' => [
-                    'type'     => 'input',
-                    'label'    => __('channel id'),
-                    'required' => true
-                ]
-            ],
-            'bank' => [
-                'bank_name' => [
-                    'type'     => 'input',
-                    'label'    => __('bank name'),
-                    'required' => true
-                ],
-                'bank_account_name' => [
-                    'type'     => 'input',
-                    'label'    => __('bank account name'),
-                    'required' => true
-                ],
-                'bank_account_id' => [
-                    'type'     => 'input',
-                    'label'    => __('bank account id'),
-                    'required' => true
-                ],
-                'bank_swift_code' => [
-                    'type'     => 'input',
-                    'label'    => __('bank swift code'),
-                    'required' => false
-                ]
-            ],
-            'paypal' => [
-                'paypal_client_id' => [
-                    'type'     => 'input',
-                    'label'    => __('client id'),
-                    'required' => true
-                ],
-                'paypal_client_secret' => [
-                    'type'     => 'input',
-                    'label'    => __('client secret'),
-                    'required' => true
-                ],
-            ],
-            default => []
-        };
+        $additionalFields = $this->blueprint($provider);
 
         $formData = [
             'blueprint' => [

@@ -7,11 +7,14 @@
 
 namespace App\Actions\Accounting\PaymentAccount;
 
+use App\Actions\Accounting\PaymentAccount\Types\UpdateCheckoutPaymentAccount;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
 use App\Models\Accounting\PaymentAccount;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdatePaymentAccount extends OrgAction
@@ -22,7 +25,9 @@ class UpdatePaymentAccount extends OrgAction
 
     public function handle(PaymentAccount $paymentAccount, array $modelData): PaymentAccount
     {
-        return $this->update($paymentAccount, $modelData, ['data']);
+        UpdateCheckoutPaymentAccount::run($paymentAccount, $modelData);
+
+        return $this->update($paymentAccount, Arr::only($modelData, ['code', 'name']), ['data']);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -31,7 +36,7 @@ class UpdatePaymentAccount extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("accounting.edit");
+        return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
     }
 
     public function rules(): array
@@ -63,19 +68,17 @@ class UpdatePaymentAccount extends OrgAction
         $this->asAction       = true;
         $this->paymentAccount = $paymentAccount;
 
-
         $this->initialisation($paymentAccount->organisation, $modelData);
 
         return $this->handle($paymentAccount, $this->validatedData);
     }
 
-    public function asController(PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
+    public function asController(Organisation $organisation, PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
     {
         $this->paymentAccount = $paymentAccount;
-
         $this->initialisation($paymentAccount->organisation, $request);
 
-        return $this->handle($paymentAccount, $this->validatedData);
+        return $this->handle($paymentAccount, $request->all());
     }
 
 
