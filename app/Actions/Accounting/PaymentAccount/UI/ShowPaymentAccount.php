@@ -7,8 +7,8 @@
 
 namespace App\Actions\Accounting\PaymentAccount\UI;
 
+use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
-use App\Actions\Accounting\PaymentServiceProvider\UI\ShowPaymentServiceProvider;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
@@ -16,8 +16,8 @@ use App\Enums\UI\Accounting\PaymentAccountTabsEnum;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
 use App\Http\Resources\Accounting\PaymentsResource;
 use App\Http\Resources\History\HistoryResource;
+use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentAccount;
-use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -50,7 +50,7 @@ class ShowPaymentAccount extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inPaymentServiceProvider(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
+    public function inPaymentServiceProvider(Organisation $organisation, OrgPaymentServiceProvider $orgPaymentServiceProvider, PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
     {
         $this->initialisation($organisation, $request)->withTab(PaymentAccountTabsEnum::values());
 
@@ -104,7 +104,7 @@ class ShowPaymentAccount extends OrgAction
                             'href'     => match ($request->route()->getName()) {
                                 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show' => [
                                     'name'       => 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show.payments.index',
-                                    'parameters' => [$paymentAccount->paymentServiceProvider->slug, $paymentAccount->slug]
+                                    'parameters' => [$paymentAccount->organisation->slug, $paymentAccount->orgPaymentServiceProvider->slug, $paymentAccount->slug]
                                 ],
                                 default => [
                                     'name'       => 'grp.org.accounting.payment-accounts.show.payments.index',
@@ -121,7 +121,18 @@ class ShowPaymentAccount extends OrgAction
                         ],
 
                     ],
-
+                    'actions' => [
+                        [
+                            'type'    => 'button',
+                            'style'   => 'edit',
+                            'tooltip' => __('edit payment account'),
+                            'label'   => __('Edit Payment Account'),
+                            'route'   => [
+                                'name'       => 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.edit',
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
+                        ]
+                    ]
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
@@ -234,7 +245,7 @@ class ShowPaymentAccount extends OrgAction
             ),
             'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show' =>
             array_merge(
-                ShowPaymentServiceProvider::make()->getBreadcrumbs($routeParameters['paymentServiceProvider']),
+                ShowOrgPaymentServiceProvider::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $paymentAccount,
                     [
@@ -291,9 +302,9 @@ class ShowPaymentAccount extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation'           => $paymentAccount->organisation->slug,
-                        'paymentServiceProvider' => $paymentAccount->paymentServiceProvider->slug,
-                        'paymentAccount'         => $paymentAccount->slug
+                        'organisation'              => $paymentAccount->organisation->slug,
+                        'orgPaymentServiceProvider' => $paymentAccount->orgPaymentServiceProvider->slug,
+                        'paymentAccount'            => $paymentAccount->slug
                     ]
 
                 ]

@@ -7,13 +7,15 @@
 
 namespace App\Actions\Accounting\PaymentAccount\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
+use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentAccount;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditPaymentAccount extends InertiaAction
+class EditPaymentAccount extends OrgAction
 {
     public function handle(PaymentAccount $paymentAccount): PaymentAccount
     {
@@ -22,18 +24,26 @@ class EditPaymentAccount extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('accounting.edit');
-        return $request->user()->hasPermissionTo("accounting.view");
+        $this->canEdit = $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
+
+        return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
     }
 
-    public function asController(PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
+    public function asController(Organisation $organisation, PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($paymentAccount);
     }
 
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inPaymentServiceProvider(Organisation $organisation, OrgPaymentServiceProvider $orgPaymentServiceProvider, PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
+    {
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($paymentAccount);
+    }
 
     public function htmlResponse(PaymentAccount $paymentAccount, ActionRequest $request): Response
     {

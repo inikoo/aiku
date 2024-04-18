@@ -26,7 +26,7 @@ class StoreOrgPaymentServiceProviderAccount extends OrgAction
 {
     public function handle(PaymentServiceProvider $paymentServiceProvider, Organisation $organisation, array $modelData): PaymentAccount
     {
-        $provider                  = Arr::get(explode('-', $paymentServiceProvider->code), 1);
+        $provider                  = $paymentServiceProvider->code;
         $orgPaymentServiceProvider = StoreOrgPaymentServiceProvider::run($paymentServiceProvider, $organisation, Arr::only($modelData, ['code']));
 
         data_set($modelData, 'type', $provider);
