@@ -14,7 +14,7 @@ class PalletTemplateExport implements FromArray
     public function array(): array
     {
         return [
-            ['customer_reference', 'notes']
+            ['customer_reference', 'notes', 'type']
         ];
     }
 }

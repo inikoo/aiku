@@ -7,6 +7,7 @@
 
 namespace App\Models\Market;
 
+use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Group;
@@ -55,7 +56,8 @@ class RentalAgreement extends Model
 
     protected $guarded = [];
     protected $casts   = [
-        'data' => 'array',
+        'data'  => 'array',
+        'state' => RentalAgreementStateEnum::class
     ];
 
     protected $attributes = [

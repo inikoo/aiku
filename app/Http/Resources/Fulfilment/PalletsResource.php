@@ -18,7 +18,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $notes
  * @property mixed $state
  * @property mixed $type
- * @property mixed $rental
+ * @property mixed $storedItems
+ * @property mixed $rental_id
  * @property mixed $status
  * @property mixed $location_slug
  * @property mixed $location_code

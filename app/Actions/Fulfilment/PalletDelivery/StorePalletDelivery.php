@@ -13,6 +13,7 @@ use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateUnivers
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
+use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -38,6 +39,10 @@ class StorePalletDelivery extends OrgAction
      * @var true
      */
     private bool $action = false;
+    /**
+     * @var \App\Models\Fulfilment\FulfilmentCustomer
+     */
+    private FulfilmentCustomer $fulfilmentCustomer;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletDelivery
     {
@@ -81,12 +86,20 @@ class StorePalletDelivery extends OrgAction
             return true;
         }
 
+        if($this->fulfilmentCustomer->rentalAgreements()->exists()
+            && $this->fulfilmentCustomer
+                ->rentalAgreements()
+                ->where('state', RentalAgreementStateEnum::ACTIVE)->exists()) {
+
+            return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+        }
+
         if ($request->user() instanceof WebUser) {
             // TODO: Raul please do the permission for the web user
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+        return false;
     }
 
 
@@ -122,6 +135,7 @@ class StorePalletDelivery extends OrgAction
 
     public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): PalletDelivery
     {
+        $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }

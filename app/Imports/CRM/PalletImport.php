@@ -8,10 +8,12 @@
 namespace App\Imports\CRM;
 
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
+use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Imports\WithImport;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Helpers\Upload;
 use Exception;
+use Illuminate\Support\Arr;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -40,6 +42,10 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
 
         $modelData = $row->only($fields)->all();
 
+        if(!Arr::get($modelData, 'type')) {
+            data_set($modelData, 'type', PalletTypeEnum::PALLET->value);
+        }
+
         data_set($modelData, 'data.bulk_import', [
             'id'   => $this->upload->id,
             'type' => 'Upload',
@@ -63,7 +69,8 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
     {
         return [
             'customer_reference' => ['nullable', 'unique:pallets,customer_reference'],
-            'notes'              => ['nullable']
+            'notes'              => ['nullable'],
+            'type'               => ['nullable']
         ];
     }
 }
