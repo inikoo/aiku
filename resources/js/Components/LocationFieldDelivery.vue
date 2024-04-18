@@ -55,7 +55,8 @@ const onSaveError = (errorValue: any) => {
                 <!-- <Button :type="pallet.state == 'booked-in' ? 'primary' : 'tertiary'" :icon="['fal', 'inventory']"
                     tooltip="Set location for pallet" :key="pallet.index" :size="'xs'" /> -->
                 <div v-if="pallet.location" class="text-gray-400">
-                    <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='' fixed-width aria-hidden='true' />
+                    {{ pallet.location }}
+                    <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='ml-1' fixed-width aria-hidden='true' />
                 </div>
 
                 <Button v-else-if="pallet.state !== 'not-received'"

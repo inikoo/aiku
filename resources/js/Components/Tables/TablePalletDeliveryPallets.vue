@@ -97,6 +97,7 @@ const typePallet = [
 
 <template>
 	<Table :resource="data" :name="tab" class="mt-5" :key="tableKey">
+		 	<!-- Column: state-->
 		<template #cell(state)="{ item: palletDelivery }">
 			<Icon :data="palletDelivery['state_icon']" class="px-1" />
 		</template>
@@ -145,17 +146,19 @@ const typePallet = [
             </div>
 		</template>
 
-
+		<!-- Column: type pallet -->
 		<template #cell(type)="{ item: pallet }">
             <div>
 				<FieldEditableTable :data="pallet"  @onSave="onSaved" :options="typePallet" :fieldType="'select'" fieldName="type" placeholder="Enter customer type" />
 			</div>
 		</template>
 
+	    <!-- Column: type pallet icon -->
 		<template #cell(type_icon)="{ item: pallet }">
 			<Icon :data="pallet.type_icon" class="px-1" />
 		</template>
 
+ 		<!-- Column: rental -->
 		<template #cell(rental)="{ item: pallet }">
 		    <div>
 				<FieldEditableTable

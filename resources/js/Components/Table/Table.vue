@@ -23,6 +23,7 @@ import findKey from 'lodash-es/findKey';
 import forEach from 'lodash-es/forEach';
 import isEqual from 'lodash-es/isEqual';
 import map from 'lodash-es/map';
+import { kebabCase  } from 'lodash'
 // import { library } from "@fortawesome/fontawesome-svg-core";
 import {useLocaleStore} from '@/Stores/locale';
 import CountUp from 'vue-countup-v3';
@@ -652,11 +653,9 @@ watch(selectRow, () => {
 
                             <!-- Button: Model Operations -->
                             <div v-if="queryBuilderProps.modelOperations?.createLink" class="flex">
-                            <!-- <pre>{{queryBuilderProps.modelOperations}}</pre> -->
                                 <slot v-for="(linkButton, btnIndex) in queryBuilderProps.modelOperations?.createLink"
-                                    :name="`button${linkButton.label}`" :linkButton="linkButton"
+                                    :name="`button-${kebabCase(linkButton.label)}`" :linkButton="{...linkButton, btnIndex: btnIndex }"
                                 >
-                              
                                     <Link v-if="linkButton?.route?.name"
                                         as="div"
                                         :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
