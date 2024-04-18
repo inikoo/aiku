@@ -11,9 +11,9 @@ use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletDeliverie
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateUniversalSearch;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
+use App\Actions\Market\HasRentalAgreement;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
-use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -33,6 +33,7 @@ class StorePalletDelivery extends OrgAction
 {
     use AsAction;
     use WithAttributes;
+    use HasRentalAgreement;
 
     public Customer $customer;
     /**
@@ -86,22 +87,17 @@ class StorePalletDelivery extends OrgAction
             return true;
         }
 
-        if($this->fulfilmentCustomer->rentalAgreements()->exists()
-            && $this->fulfilmentCustomer
-                ->rentalAgreements()
-                ->where('state', RentalAgreementStateEnum::ACTIVE)->exists()) {
-
-            return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
-        }
-
         if ($request->user() instanceof WebUser) {
             // TODO: Raul please do the permission for the web user
             return true;
         }
 
+        if($this->hasRentalAgreement($this->fulfilmentCustomer)) {
+            return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+        }
+
         return false;
     }
-
 
     public function prepareForValidation(ActionRequest $request): void
     {

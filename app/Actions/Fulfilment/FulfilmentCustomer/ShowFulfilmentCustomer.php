@@ -16,6 +16,7 @@ use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItemReturn\UI\IndexStoredItemReturns;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
+use App\Actions\Market\HasRentalAgreement;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithWebUserMeta;
 use App\Enums\UI\Fulfilment\CustomerFulfilmentTabsEnum;
@@ -41,6 +42,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowFulfilmentCustomer extends OrgAction
 {
     use WithWebUserMeta;
+    use HasRentalAgreement;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer): FulfilmentCustomer
     {
@@ -114,6 +116,16 @@ class ShowFulfilmentCustomer extends OrgAction
                         ]
                     ] : false,
                     'actions' => [
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('Create Rental Agreement'),
+                            'label'   => __('Create Rental Agreement'),
+                            'route'   => [
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.edit',
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
+                        ],
                         [
                             'type'    => 'button',
                             'style'   => 'edit',
@@ -202,11 +214,12 @@ class ShowFulfilmentCustomer extends OrgAction
                     modelOperations: [
                         'createLink' => [
                             [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('Create new delivery order'),
-                                'label'   => __('New pallet delivery'),
-                                'options' => [
+                                'type'     => 'button',
+                                'style'    => 'create',
+                                'tooltip'  => __('Create new delivery order'),
+                                'label'    => __('New pallet delivery'),
+                                'disabled' => !$this->hasRentalAgreement($fulfilmentCustomer),
+                                'options'  => [
                                     'warehouses' => WarehouseResource::collection(
                                         $fulfilmentCustomer->fulfilment->warehouses
                                     )
@@ -215,7 +228,7 @@ class ShowFulfilmentCustomer extends OrgAction
                                     'method'     => 'post',
                                     'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
                                     'parameters' => [$fulfilmentCustomer->id]
-                                ]
+                                ],
                             ]
                         ]
                     ],
