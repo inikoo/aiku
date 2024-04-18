@@ -8,11 +8,8 @@
 namespace App\Actions\Accounting\OrgPaymentServiceProvider;
 
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
-use App\Actions\Accounting\PaymentAccount\Types\UpdateBankPaymentAccount;
-use App\Actions\Accounting\PaymentAccount\Types\UpdateCashPaymentAccount;
-use App\Actions\Accounting\PaymentAccount\Types\UpdateCheckoutPaymentAccount;
-use App\Actions\Accounting\PaymentAccount\Types\UpdatePaypalPaymentAccount;
 use App\Actions\OrgAction;
+use App\Actions\UI\Accounting\Traits\HasPaymentAccountUpdateActions;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\SysAdmin\Organisation;
@@ -24,6 +21,8 @@ use Symfony\Component\HttpFoundation\Response;
 
 class StoreOrgPaymentServiceProviderAccount extends OrgAction
 {
+    use HasPaymentAccountUpdateActions;
+
     public function handle(PaymentServiceProvider $paymentServiceProvider, Organisation $organisation, array $modelData): PaymentAccount
     {
         $provider                  = $paymentServiceProvider->code;
@@ -33,12 +32,7 @@ class StoreOrgPaymentServiceProviderAccount extends OrgAction
 
         $paymentAccount = StorePaymentAccount::run($orgPaymentServiceProvider, Arr::only($modelData, ['code', 'name', 'type']));
 
-        match ($provider) {
-            'cash'      => UpdateCashPaymentAccount::make()->action($paymentAccount, $modelData),
-            'checkout'  => UpdateCheckoutPaymentAccount::make()->action($paymentAccount, $modelData),
-            'paypal'    => UpdatePaypalPaymentAccount::make()->action($paymentAccount, $modelData),
-            'bank'      => UpdateBankPaymentAccount::make()->action($paymentAccount, $modelData),
-        };
+        $this->paymentAccountUpdateActions($provider, $paymentAccount, $modelData);
 
         $paymentAccount->refresh();
 

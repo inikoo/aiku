@@ -43,8 +43,8 @@ class UpdatePaypalPaymentAccount extends OrgAction
     public function rules(): array
     {
         return [
-            'paypal_client_id'           => ['required', 'string'],
-            'paypal_client_secret'       => ['required', 'string']
+            'paypal_client_id'           => ['sometimes', 'string'],
+            'paypal_client_secret'       => ['sometimes', 'string']
         ];
     }
 

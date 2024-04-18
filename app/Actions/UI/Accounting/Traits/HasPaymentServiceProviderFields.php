@@ -38,34 +38,40 @@ trait HasPaymentServiceProviderFields
                 'bank_name' => [
                     'type'     => 'input',
                     'label'    => __('bank name'),
-                    'required' => true
+                    'required' => true,
+                    'value'    => Arr::get($data, 'bank_name')
                 ],
                 'bank_account_name' => [
                     'type'     => 'input',
                     'label'    => __('bank account name'),
-                    'required' => true
+                    'required' => true,
+                    'value'    => Arr::get($data, 'bank_account_name')
                 ],
                 'bank_account_id' => [
                     'type'     => 'input',
                     'label'    => __('bank account id'),
-                    'required' => true
+                    'required' => true,
+                    'value'    => Arr::get($data, 'bank_account_id')
                 ],
                 'bank_swift_code' => [
                     'type'     => 'input',
                     'label'    => __('bank swift code'),
-                    'required' => false
+                    'required' => false,
+                    'value'    => Arr::get($data, 'bank_swift_code')
                 ]
             ],
             'paypal' => [
                 'paypal_client_id' => [
                     'type'     => 'input',
                     'label'    => __('client id'),
-                    'required' => true
+                    'required' => true,
+                    'value'    => Arr::get($data, 'paypal_client_id')
                 ],
                 'paypal_client_secret' => [
                     'type'     => 'input',
                     'label'    => __('client secret'),
-                    'required' => true
+                    'required' => true,
+                    'value'    => Arr::get($data, 'paypal_client_secret')
                 ],
             ],
             default => []

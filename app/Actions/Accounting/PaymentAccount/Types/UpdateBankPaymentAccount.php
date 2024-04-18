@@ -53,10 +53,10 @@ class UpdateBankPaymentAccount extends OrgAction
     public function rules(): array
     {
         return [
-            'bank_name'                 => ['required', 'string'],
-            'bank_account_name'         => ['required', 'string'],
-            'bank_account_id'           => ['required', 'string'],
-            'bank_swift_code'           => ['nullable', 'string']
+            'bank_name'                 => ['sometimes', 'string'],
+            'bank_account_name'         => ['sometimes', 'string'],
+            'bank_account_id'           => ['sometimes', 'string'],
+            'bank_swift_code'           => ['sometimes', 'string']
         ];
     }
 

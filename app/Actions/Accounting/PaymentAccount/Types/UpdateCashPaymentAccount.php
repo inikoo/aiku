@@ -37,7 +37,7 @@ class UpdateCashPaymentAccount extends OrgAction
     public function rules(): array
     {
         return [
-            'name'       => ['required', 'max:250', 'string']
+            'name'       => ['sometimes', 'max:250', 'string']
         ];
     }
 

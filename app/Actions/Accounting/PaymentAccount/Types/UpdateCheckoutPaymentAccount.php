@@ -52,9 +52,9 @@ class UpdateCheckoutPaymentAccount extends OrgAction
     public function rules(): array
     {
         return [
-            'checkout_public_key'       => ['required', 'string'],
-            'checkout_secret_key'       => ['required', 'string'],
-            'checkout_channel_id'       => ['required', 'string']
+            'checkout_public_key'       => ['sometimes', 'string'],
+            'checkout_secret_key'       => ['sometimes', 'string'],
+            'checkout_channel_id'       => ['sometimes', 'string']
         ];
     }
 

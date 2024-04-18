@@ -7,9 +7,9 @@
 
 namespace App\Actions\Accounting\PaymentAccount;
 
-use App\Actions\Accounting\PaymentAccount\Types\UpdateCheckoutPaymentAccount;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\UI\Accounting\Traits\HasPaymentAccountUpdateActions;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\SysAdmin\Organisation;
@@ -20,12 +20,13 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdatePaymentAccount extends OrgAction
 {
     use WithActionUpdate;
+    use HasPaymentAccountUpdateActions;
 
     private PaymentAccount $paymentAccount;
 
     public function handle(PaymentAccount $paymentAccount, array $modelData): PaymentAccount
     {
-        UpdateCheckoutPaymentAccount::run($paymentAccount, $modelData);
+        $this->paymentAccountUpdateActions($paymentAccount->paymentServiceProvider->slug, $paymentAccount, $modelData);
 
         return $this->update($paymentAccount, Arr::only($modelData, ['code', 'name']), ['data']);
     }
