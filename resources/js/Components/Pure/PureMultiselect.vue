@@ -18,6 +18,11 @@ const emits = defineEmits<{
     (e: 'update:modelValue', value: {}): void
     (e: 'OnChange', value: {}): void
 }>()
+
+const onInput = (keyOption : any) => {
+    emits('update:modelValue', keyOption)
+    emits('OnChange', keyOption)
+}
     
 </script>
 
@@ -26,7 +31,7 @@ const emits = defineEmits<{
     <div class="relative w-full text-gray-600">
         <Multiselect
             :value="modelValue"
-            @input="(keyOption: any) => {emits('update:modelValue', keyOption),emits('OnChange', keyOption)}"
+            @input="onInput"
             :classes="{placeholder: 'text-sm text-left w-full pl-4 font-light text-gray-400'}"
             :options="props.options"
             :placeholder="placeholder ?? 'Select your option'"
