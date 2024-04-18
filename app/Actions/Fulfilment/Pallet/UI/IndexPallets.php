@@ -139,6 +139,7 @@ class IndexPallets extends OrgAction
                 'pallets.notes',
                 'pallets.state',
                 'pallets.status',
+                'pallets.rental_id',
                 'pallets.type',
                 'pallets.received_at',
                 'pallets.location_id',

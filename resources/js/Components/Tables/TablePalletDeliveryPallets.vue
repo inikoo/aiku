@@ -158,12 +158,12 @@ const typePallet = [
 
 		<template #cell(rental)="{ item: pallet }">
 		    <div>
-				<FieldEditableTable 
-					:data="pallet"  
-					@onSave="onSaved" 
-					fieldType="selectQuery" 
-					:urlRoute="route(rentalRoute?.name, rentalRoute?.parameters)"  
-					fieldName="rental" 
+				<FieldEditableTable
+					:data="pallet"
+					@onSave="onSaved"
+					fieldType="selectQuery"
+					:urlRoute="route(rentalRoute?.name, rentalRoute?.parameters)"
+					fieldName="rental"
 					placeholder="Enter rental"
 					:label="'id'"
           			:valueProp="'id'"
