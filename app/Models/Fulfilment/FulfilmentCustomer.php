@@ -17,13 +17,14 @@ use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Fulfilment\FulfilmentCustomer
+ * 
  *
  * @property int $id
  * @property int $group_id
@@ -102,7 +103,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletReturn> $palletReturns
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\FulfilmentProforma> $proformas
- * @property-read \Illuminate\Database\Eloquent\Collection<int, RentalAgreement> $rentalAgreements
+ * @property-read RentalAgreement|null $rentalAgreement
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemReturn> $storedItemReturns
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
@@ -201,9 +202,9 @@ class FulfilmentCustomer extends Model
         return $this->morphMany(SerialReference::class, 'container');
     }
 
-    public function rentalAgreements(): HasMany
+    public function rentalAgreement(): HasOne
     {
-        return $this->hasMany(RentalAgreement::class);
+        return $this->hasOne(RentalAgreement::class);
     }
 
     public function currentRecurringBill(): BelongsTo

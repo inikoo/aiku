@@ -23,5 +23,6 @@ enum SerialReferenceModelEnum: string
     case PALLET               = 'pallet';
     case PAYMENT              = 'payment';
     case RENTAL_AGREEMENT     = 'rental_agreement';
+    case RECURRING_BILL       = 'recurring_bill';
 
 }

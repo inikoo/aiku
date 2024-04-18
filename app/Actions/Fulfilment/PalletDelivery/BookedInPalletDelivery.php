@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\PalletDelivery;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
+use App\Actions\Market\RecurringBill\StoreRecurringBill;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -37,10 +38,19 @@ class BookedInPalletDelivery extends OrgAction
             }
         }
 
-
         $palletDelivery = $this->update($palletDelivery, $modelData);
-        HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
 
+        if(!$palletDelivery->fulfilmentCustomer->currentRecurringBill) {
+            $recurringBill=StoreRecurringBill::make()->action($palletDelivery->fulfilmentCustomer->rentalAgreement, [
+                'start_date' => now(),
+                'end_date'   => now()->addMonth(),
+                'status'     => 'active'
+            ]);
+
+
+        }
+
+        HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
         SendPalletDeliveryNotification::run($palletDelivery);
 
         return $palletDelivery;

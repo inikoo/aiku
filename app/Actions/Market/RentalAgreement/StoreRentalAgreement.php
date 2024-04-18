@@ -26,13 +26,13 @@ class StoreRentalAgreement extends OrgAction
             $modelData,
             'reference',
             GetSerialReference::run(
-                container: $fulfilmentCustomer,
+                container: $fulfilmentCustomer->fulfilment,
                 modelType: SerialReferenceModelEnum::RENTAL_AGREEMENT
             )
         );
 
         /** @var RentalAgreement $rentalAgreement */
-        $rentalAgreement=$fulfilmentCustomer->rentalAgreements()->create($modelData);
+        $rentalAgreement=$fulfilmentCustomer->rentalAgreement()->create($modelData);
 
         return $rentalAgreement;
     }

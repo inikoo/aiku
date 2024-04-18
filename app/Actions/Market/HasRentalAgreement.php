@@ -14,9 +14,8 @@ trait HasRentalAgreement
 {
     public function hasRentalAgreement(FulfilmentCustomer $fulfilmentCustomer): bool
     {
-        return $fulfilmentCustomer->rentalAgreements()->exists()
-            && $fulfilmentCustomer
-                ->rentalAgreements()
-                ->where('state', RentalAgreementStateEnum::ACTIVE)->exists();
+        return $fulfilmentCustomer->rentalAgreement
+            && $fulfilmentCustomer->rentalAgreement->state === RentalAgreementStateEnum::ACTIVE;
+
     }
 }

@@ -11,6 +11,8 @@ use App\Actions\Market\Shop\StoreShop;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\Traits\Rules\WithShopRules;
+use App\Actions\Utils\Abbreviate;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
@@ -55,6 +57,14 @@ class StoreFulfilment extends OrgAction
             $warehouse = Warehouse::find($warehouseID);
             AttachWarehouseToFulfilment::run($fulfilment, $warehouse);
         }
+
+        $fulfilment->serialReferences()->create(
+            [
+                'model'           => SerialReferenceModelEnum::RENTAL_AGREEMENT,
+                'organisation_id' => $fulfilment->organisation->id,
+                'format'          => Abbreviate::run($fulfilment->slug).'-ra%03d'
+            ]
+        );
 
 
 

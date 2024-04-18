@@ -208,7 +208,8 @@ test('create rental agreement', function (FulfilmentCustomer $fulfilmentCustomer
         []
     );
 
-    expect($rentalAgreement)->toBeInstanceOf(RentalAgreement::class);
+    expect($rentalAgreement)->toBeInstanceOf(RentalAgreement::class)
+        ->and($fulfilmentCustomer->rentalAgreement)->toBeInstanceOf(RentalAgreement::class);
 
     return $rentalAgreement;
 })->depends('create fulfilment customer');
@@ -416,7 +417,6 @@ test('set location of third pallet in the pallet delivery', function (PalletDeli
         ->and($location->stats->number_pallets)->toBe(1)
         ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKING_IN);
 
-
     return $palletDelivery;
 })->depends('set second pallet in the pallet delivery as not delivered');
 
@@ -440,7 +440,7 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
         ->and($palletDelivery->number_stored_items)->toBe(0);
 
     return $palletDelivery;
-})->depends('receive pallet delivery');
+})->depends('set location of third pallet in the pallet delivery');
 
 
 

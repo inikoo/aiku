@@ -8,6 +8,7 @@
 namespace App\Actions\Helpers\SerialReference;
 
 use App\Models\Accounting\PaymentAccount;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Helpers\SerialReference;
 use App\Models\Market\Shop;
@@ -21,7 +22,7 @@ class GetSerialReference
     /**
      * @throws \Throwable
      */
-    public function handle(Shop|FulfilmentCustomer|PaymentAccount $container, $modelType): string
+    public function handle(Shop|FulfilmentCustomer|PaymentAccount|Fulfilment $container, $modelType): string
     {
         /** @var SerialReference $serialReference */
         $serialReference = $container->serialReferences()->where('model', $modelType)->firstOrFail();
