@@ -15,7 +15,7 @@ import { Link } from "@inertiajs/vue3"
 import Icon from "@/Components/Icon.vue"
 import { faTimesSquare } from "@fas"
 import { faTrashAlt, faPaperPlane, faInventory } from "@far"
-import { faTruckLoading, faStickyNote, faPallet, faBox, faBoxes } from "@fal"
+import {faTruckLoading, faStickyNote, faPallet, faBox, faBoxes, faSortSizeUp} from "@fal"
 import FieldEditableTable from "@/Components/FieldEditableTable.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { ref, watch, defineEmits } from "vue"
@@ -27,7 +27,7 @@ import { Table as TSTable } from "@/types/Table"
 
 import '@/Composables/Icon/PalletStateEnum'
 
-library.add( faTrashAlt, faPaperPlane, faInventory, faTruckLoading, faStickyNote, faTimesSquare, faPallet, faBox, faBoxes )
+library.add( faTrashAlt, faPaperPlane, faInventory, faTruckLoading, faStickyNote, faTimesSquare, faPallet, faBox, faSortSizeUp)
 
 const props = defineProps<{
 	data: TSTable
