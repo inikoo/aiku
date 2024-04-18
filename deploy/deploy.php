@@ -23,7 +23,7 @@ task('deploy:set-release', function () {
 });
 
 set('shared_dirs', ['storage','private']);
-set('shared_files', ['.env','aurora_migration_base.sh','reset_db.sh','seed_currency_exchanges_staging.sh','database/seeders/datasets/currency-exchange/currency_exchanges.dump']);
+set('shared_files', ['.env','.env.testing','aurora_migration_base.sh','reset_db.sh','seed_currency_exchanges_staging.sh','database/seeders/datasets/currency-exchange/currency_exchanges.dump']);
 desc('Deploys your project');
 task('deploy', [
     'deploy:prepare',
