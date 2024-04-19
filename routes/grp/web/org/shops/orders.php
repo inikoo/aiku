@@ -6,16 +6,7 @@
  */
 
 
-use App\Actions\Accounting\Invoice\IndexInvoices;
-use App\Actions\Accounting\Invoice\ShowInvoice;
-use App\Actions\Accounting\Payment\UI\EditPayment;
-use App\Actions\Accounting\Payment\UI\ShowPayment;
-use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
-use App\Actions\Dispatch\DeliveryNote\ShowDeliveryNote;
-use App\Actions\OMS\Order\UI\CreateOrder;
 use App\Actions\OMS\Order\UI\IndexOrders;
-use App\Actions\OMS\Order\UI\ShowOrder;
-use App\Actions\OMS\UI\OMSDashboard;
 
 Route::get('/orders/', IndexOrders::class)->name('orders.index');
 

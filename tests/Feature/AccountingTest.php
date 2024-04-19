@@ -39,9 +39,6 @@ test('payment service providers seeder works', function () {
     and($this->group->accountingStats->number_payment_service_providers)->toBe(12);
 });
 
-
-
-
 test('add payment service provider to organisation', function () {
     expect($this->organisation->accountingStats->number_org_payment_service_providers)->toBe(1)
         ->and($this->organisation->accountingStats->number_org_payment_service_providers_type_account)->toBe(1)
@@ -118,7 +115,10 @@ test('create payment account', function ($orgPaymentServiceProvider) {
 })->depends('add payment service provider to organisation');
 
 test('update payment account', function ($paymentAccount) {
-    $paymentAccount = UpdatePaymentAccount::make()->action($paymentAccount, ['name' => 'Pika Ltd']);
+    $paymentAccount = UpdatePaymentAccount::make()->action(
+        $paymentAccount,
+        ['name' => 'Pika Ltd']
+    );
     expect($paymentAccount->name)->toBe('Pika Ltd');
 })->depends('create payment account');
 

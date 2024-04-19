@@ -31,6 +31,11 @@ class SubmitPalletDelivery extends OrgAction
 {
     use WithActionUpdate;
 
+    /**
+     * @var array|\ArrayAccess|mixed
+     */
+    private PalletDelivery $palletDelivery;
+
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
         $modelData['submitted_at'] = now();
@@ -50,9 +55,19 @@ class SubmitPalletDelivery extends OrgAction
             PalletHydrateUniversalSearch::run($pallet);
         }
 
+        $numberPallets       = $palletDelivery->pallets()->count();
+        $numberStoredPallets = $palletDelivery->fulfilmentCustomer->pallets()->where('state', PalletDeliveryStateEnum::BOOKED_IN->value)->count();
+
+        $palletLimits = $palletDelivery->fulfilmentCustomer->rentalAgreement->pallets_limit;
+        $totalPallets = $numberPallets + $numberStoredPallets;
+
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
+
+        if($totalPallets < $palletLimits) {
+            $palletDelivery = ConfirmPalletDelivery::run($palletDelivery);
+        }
 
         SendPalletDeliveryNotification::run($palletDelivery);
 
@@ -66,11 +81,15 @@ class SubmitPalletDelivery extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if($this->palletDelivery->state != PalletDeliveryStateEnum::IN_PROCESS) {
+            return false;
+        }
+
         if ($request->user() instanceof WebUser) {
             return true;
         }
-        // this action can only be called from retina
-        return false;
+
+        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
 
     public function jsonResponse(PalletDelivery $palletDelivery): JsonResource
@@ -80,6 +99,7 @@ class SubmitPalletDelivery extends OrgAction
 
     public function asController(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
+        $this->palletDelivery = $palletDelivery;
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
         return $this->handle($palletDelivery);
     }

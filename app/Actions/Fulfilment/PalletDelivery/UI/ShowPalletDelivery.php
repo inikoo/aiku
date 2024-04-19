@@ -100,6 +100,12 @@ class ShowPalletDelivery extends OrgAction
         $palletStateReceivedCount = $palletDelivery->pallets()->where('state', PalletStateEnum::RECEIVED)->count();
         $palletNotInRentalCount   = $palletDelivery->pallets()->whereNull('rental_id')->count();
 
+        $numberPallets       = $palletDelivery->pallets()->count();
+        $numberStoredPallets = $palletDelivery->pallets()->where('state', PalletDeliveryStateEnum::BOOKED_IN->value)->count();
+
+        $palletLimits = $palletDelivery->fulfilmentCustomer->rentalAgreement->pallets_limit;
+        $totalPallets = $numberPallets + $numberStoredPallets;
+
         $actions = [];
         if ($this->canEdit) {
             $actions = match ($palletDelivery->state) {
@@ -152,12 +158,12 @@ class ShowPalletDelivery extends OrgAction
                         [
                             'type'    => 'button',
                             'style'   => 'save',
-                            'tooltip' => __('confirm'),
-                            'label'   => __('confirm'),
+                            'tooltip' => __('submit'),
+                            'label'   => __('submit'),
                             'key'     => 'action',
                             'route'   => [
                                 'method'     => 'post',
-                                'name'       => 'grp.models.pallet-delivery.confirm',
+                                'name'       => 'grp.models.pallet-delivery.submit',
                                 'parameters' => [
                                     'palletDelivery' => $palletDelivery->id
                                 ]
@@ -343,6 +349,11 @@ class ShowPalletDelivery extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => PalletDeliveryTabsEnum::navigation()
                 ],
+
+                'pallet_limits' => $palletLimits - ($totalPallets + $numberStoredPallets) <= 2 ? [
+                    'status'  => 'exceeded',
+                    'message' => __('Pallet limit exceeded')
+                ] : false,
 
                 'data'             => PalletDeliveryResource::make($palletDelivery),
                 'box_stats'        => [

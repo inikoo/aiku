@@ -5,10 +5,10 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Accounting\Invoice\ExportInvoice;
+use App\Actions\Accounting\Invoice\PdfInvoice;
 use App\Actions\Accounting\Invoice\ExportInvoices;
-use App\Actions\Accounting\Invoice\IndexInvoices;
-use App\Actions\Accounting\Invoice\ShowInvoice;
+use App\Actions\Accounting\Invoice\UI\IndexInvoices;
+use App\Actions\Accounting\Invoice\UI\ShowInvoice;
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\SelectOrgPaymentServiceProviders;
 use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServiceProvider;
 use App\Actions\Accounting\Payment\ExportPayments;
@@ -64,7 +64,7 @@ Route::get('/payments/export', ExportPayments::class)->name('payments.export');
 Route::get('/payments', [IndexPayments::class, 'inOrganisation'])->name('payments.index');
 Route::get('/payments/{payment}', [ShowPayment::class, 'inOrganisation'])->name('payments.show');
 Route::get('/payments/{payment}/edit', [EditPayment::class, 'inOrganisation'])->name('payments.edit');
-Route::get('/invoices/{invoice}/export', ExportInvoice::class)->name('invoices.download');
+Route::get('/invoices/{invoice}/export', PdfInvoice::class)->name('invoices.download');
 Route::get('/invoices/export', ExportInvoices::class)->name('invoices.export');
 Route::get('/invoices', [IndexInvoices::class, 'inOrganisation'])->name('invoices.index');
 Route::get('/invoices/{invoice}', [ShowInvoice::class, 'inOrganisation'])->name('invoices.show');
@@ -81,7 +81,7 @@ Route::get('/shops/{shop}/payments/export', ExportPayments::class)->name('shops.
 Route::get('/shops/{shop}/payments', [IndexPayments::class, 'inShop'])->name('shops.show.payments.index');
 Route::get('/shops/{shop}/payments/{payment}', [ShowPayment::class, 'inShop'])->name('shops.show.payments.show');
 Route::get('/shops/{shop}/payments/{payment}/edit', [EditPayment::class, 'inShop'])->name('shops.show.payments.edit');
-Route::get('/shops/{shop}/invoices/{invoice}/export', ExportInvoice::class)->name('shops.show.invoices.download');
+Route::get('/shops/{shop}/invoices/{invoice}/export', PdfInvoice::class)->name('shops.show.invoices.download');
 Route::get('/shops/{shop}/invoices/export', ExportInvoices::class)->name('shops.show.invoices.export');
 Route::get('/shops/{shop}/invoices', [IndexInvoices::class, 'inShop'])->name('shops.show.invoices.index');
 Route::get('/shops/{shop}/invoices/{invoice}', [ShowInvoice::class, 'inShop'])->name('shops.show.invoices.show');

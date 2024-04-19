@@ -76,12 +76,14 @@ class StorePaymentAccount extends OrgAction
             'type'      => ['required', Rule::in(PaymentAccountTypeEnum::values())],
             'code'      => [
                 'required',
-                'between:2,16',
+                'max:16',
                 'alpha_dash',
                 new IUnique(
                     table: 'payment_accounts',
                     extraConditions: [
-                        ['column' => 'group_id', 'value' => $this->organisation->group_id],
+                        [
+                            'column' => 'organisation_id', 'value' => $this->organisation->id
+                        ],
                     ]
                 ),
             ],
@@ -142,22 +144,7 @@ class StorePaymentAccount extends OrgAction
         $provider = OrgPaymentServiceProvider::where('slug', $command->argument('provider'))->first();
         $type     = $command->argument('type');
 
-        $publicKey = $command->ask('Your public key: ');
-        $secretKey = $command->ask('Your secret key: ');
-        $channelId = $command->ask('Your channel id: ');
-
-        $modelData = [
-            'code' => rand(001, 999),
-            'type' => $type,
-            'name' => 'Account Checkout',
-            'data' => [
-                'public_key' => $publicKey,
-                'secret_key' => $secretKey,
-                'channel_id' => $channelId
-            ]
-        ];
-
-        $this->handle($provider, $modelData);
+        // $this->handle($provider, $modelData);
 
         return 0;
     }

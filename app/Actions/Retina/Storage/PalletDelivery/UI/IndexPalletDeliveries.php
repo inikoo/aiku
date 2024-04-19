@@ -31,8 +31,8 @@ class IndexPalletDeliveries extends RetinaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
         $this->parent = $this->customer->fulfilmentCustomer;
+        $this->initialisation($request);
 
         return $this->handle($this->customer->fulfilmentCustomer);
     }

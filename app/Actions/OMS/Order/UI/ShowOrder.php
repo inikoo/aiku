@@ -7,7 +7,7 @@
 
 namespace App\Actions\OMS\Order\UI;
 
-use App\Actions\Accounting\Invoice\IndexInvoices;
+use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\InertiaAction;

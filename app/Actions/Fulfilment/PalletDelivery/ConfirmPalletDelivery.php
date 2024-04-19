@@ -21,20 +21,12 @@ use Lorisleiva\Actions\ActionRequest;
 class ConfirmPalletDelivery extends OrgAction
 {
     use WithActionUpdate;
-
+    private PalletDelivery $palletDelivery;
 
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
-        if ($palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS) {
-            SubmitPalletDelivery::run($palletDelivery);
-        }
-
         $modelData['confirmed_at'] = now();
         $modelData['state']        = PalletDeliveryStateEnum::CONFIRMED;
-
-        if(!$palletDelivery->{PalletDeliveryStateEnum::SUBMITTED->value.'_at'}) {
-            $modelData[PalletDeliveryStateEnum::SUBMITTED->value.'_at'] = now();
-        }
 
         foreach ($palletDelivery->pallets as $pallet) {
             UpdatePallet::run($pallet, [
@@ -55,6 +47,12 @@ class ConfirmPalletDelivery extends OrgAction
         if($this->asAction) {
             return true;
         }
+
+        if(! in_array($this->palletDelivery->state, [PalletDeliveryStateEnum::SUBMITTED,
+            PalletDeliveryStateEnum::IN_PROCESS])) {
+            return false;
+        }
+
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
 
@@ -65,6 +63,7 @@ class ConfirmPalletDelivery extends OrgAction
 
     public function asController(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
+        $this->palletDelivery = $palletDelivery;
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
         return $this->handle($palletDelivery);
     }

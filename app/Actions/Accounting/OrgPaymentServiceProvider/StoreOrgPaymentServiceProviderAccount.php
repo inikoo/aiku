@@ -32,7 +32,7 @@ class StoreOrgPaymentServiceProviderAccount extends OrgAction
 
         $paymentAccount = StorePaymentAccount::run($orgPaymentServiceProvider, Arr::only($modelData, ['code', 'name', 'type']));
 
-        $this->paymentAccountUpdateActions($provider, $paymentAccount, $modelData);
+        $paymentAccount=$this->paymentAccountUpdateActions($provider, $paymentAccount, $modelData);
 
         $paymentAccount->refresh();
 
