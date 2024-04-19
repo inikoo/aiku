@@ -49,7 +49,20 @@ class CreateRentalAgreement extends OrgAction
                                     'pallets_limit' => [
                                         'type'     => 'input',
                                         'label'    => __('pallets limit'),
-                                        'required' => true
+                                        'required' => false
+                                    ],
+                                    'rental' => [
+                                        'type'     => 'rental',
+                                        'label'    => __('Rental'),
+                                        'required' => true,
+                                        'full'     => true,
+                                        'indexRentalRoute' => [
+                                            'name'       => 'grp.org.fulfilments.show.products.rentals.index',
+                                            'parameters' => [
+                                                'organisation' => $this->organisation->slug,
+                                                'fulfilment'   => $fulfilmentCustomer->fulfilment->slug
+                                            ]
+                                        ]
                                     ],
                                 ]
                             ]
@@ -63,13 +76,7 @@ class CreateRentalAgreement extends OrgAction
                         ]
                     ]
                 ],
-                'indexRentalRoute' => [
-                    'name'       => 'grp.org.fulfilments.show.products.rentals.index',
-                    'parameters' => [
-                        'organisation' => $this->organisation->slug,
-                        'fulfilment'   => $fulfilmentCustomer->fulfilment->slug
-                    ]
-                ]
+               
             ]
         );
     }

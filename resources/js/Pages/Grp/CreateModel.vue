@@ -28,6 +28,7 @@ import JobPosition from '@/Components/Forms/Fields/JobPosition.vue'
 import EmployeePosition from '@/Components/Forms/Fields/EmployeePosition.vue'
 import Interest from '@/Components/Forms/Fields/Interest.vue'
 import Toggle from '@/Components/Forms/Fields/Toggle.vue'
+import Rental from '@/Components/Rental/Rental.vue'
 
 import { ref, onMounted } from 'vue'
 import Textarea from "@/Components/Forms/Fields/Textarea.vue"
@@ -75,6 +76,7 @@ const getComponent = (componentName: string) => {
         'senderEmail': SenderEmail,
         'employeePosition': EmployeePosition,
         'interest': Interest,
+        'rental' : Rental
     }
     return components[componentName] ?? null
 }
