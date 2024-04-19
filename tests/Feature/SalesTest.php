@@ -9,8 +9,6 @@
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
 use App\Actions\CRM\Customer\StoreCustomer;
-use App\Actions\CRM\Prospect\StoreProspect;
-use App\Actions\CRM\Prospect\UpdateProspect;
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
 use App\Actions\Market\ShippingZone\StoreShippingZone;
@@ -33,7 +31,6 @@ use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\OMS\Order\OrderStateEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\CRM\Customer;
-use App\Models\CRM\Prospect;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
 use App\Models\Market\ShippingZone;
@@ -48,14 +45,11 @@ beforeAll(function () {
 });
 
 beforeEach(function () {
-    $this->organisation = createOrganisation();
-});
-
-test('create shop', function () {
-    $shop = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
-    expect($shop)->toBeInstanceOf(Shop::class);
-
-    return $shop;
+    list(
+        $this->organisation,
+        $this->user,
+        $this->shop
+    ) = createShop();
 });
 
 
@@ -299,8 +293,43 @@ test('create invoice from order', function ($customer) {
     $invoiceData = Invoice::factory()->definition();
     data_set($invoiceData, 'billing_address', Address::first());
     data_set($invoiceData, 'number', '00002');
-    $invoice = StoreInvoice::make()->action($customer, $invoiceData);
-    expect($invoice->number)->toBe('00002');
+    $invoice = StoreInvoice::make()->action($order, $invoiceData);
+    $customer=$invoice->customer;
+    $this->shop->refresh();
+    expect($invoice)->toBeInstanceOf(Invoice::class)
+        ->and($customer)->toBeInstanceOf(Customer::class)
+        ->and($invoice->number)->toBe('00002')
+        ->and($customer->stats->number_invoices)->toBe(2)
+        ->and($this->shop->stats->number_invoices)->toBe(2);
+    ;
+
 
     return $invoice;
 })->depends('create order');
+
+test('can fetch 1 invoice from aurora', function () {
+
+    $this->organisation->update(
+        [
+            'source' => [
+                'type'    => 'Aurora',
+                'db_name' => config('database.connections.aurora.database'),
+            ]
+        ]
+    );
+
+    $command = join(
+        ' ',
+        [
+            'fetch:invoices',
+            $this->organisation->slug,
+            '-s 2'
+        ]
+    );
+
+    $this->artisan($command)->assertExitCode(0);
+    $this->shop->refresh();
+    expect($this->shop->stats->number_invoices)->toBe(3);
+
+
+})->depends('create invoice from order');

@@ -31,17 +31,12 @@ class StoreRentalAgreement extends OrgAction
             )
         );
 
-        foreach (Arr::get($modelData, 'rental') as $rental) {
-            $price = Arr::get($rental, 'price');
-            $disc  = Arr::get($rental, 'disc');
+        $rentalAgreementCauses= Arr::get($modelData, 'rental', []);
+        data_forget($modelData, 'rental');
 
-            $agreedPrice = $price - ($price * ($disc / 100));
-
-            $fulfilmentCustomer->rentalAgreementClauses()->create([
-                'rental_id'    => Arr::get($rental, 'rental_id'),
-                'agreed_price' => $agreedPrice
-            ]);
-        }
+        // foreach (Arr::get($modelData, 'rental') as $rental) {
+        //     $fulfilmentCustomer->rentalAgreementClauses()->create($rental);
+        // }
 
         /** @var RentalAgreement $rentalAgreement */
         $rentalAgreement=$fulfilmentCustomer->rentalAgreement()->create($modelData);
@@ -52,14 +47,14 @@ class StoreRentalAgreement extends OrgAction
     public function rules(): array
     {
         return [
-            'billing_cycle'      => ['required','nullable','integer','min:1','max:100'],
-            'pallets_limit'      => ['required','nullable','integer','min:1','max:10000'],
-            'rental'             => ['required', 'array'],
-            'rental.*.rental_id' => ['required', 'exists:rentals,id'],
-            'rental.*.price'     => ['required', 'string'],
-            'rental.*.disc'      => ['required', 'string'],
+            'billing_cycle'             => ['required','integer','min:1','max:100'],
+            'pallets_limit'             => ['nullable','integer','min:1','max:10000'],
+            'rental'                    => ['required', 'array'],
+            'rental.*.rental_id'        => ['required', 'exists:rentals,id'],
+            'rental.*.agreed_price'     => ['required', 'numeric', 'gt:0'],
         ];
     }
+
 
     public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreement
     {
