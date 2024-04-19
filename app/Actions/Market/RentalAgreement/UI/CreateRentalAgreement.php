@@ -8,7 +8,8 @@
 namespace App\Actions\Market\RentalAgreement\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
 use Exception;
@@ -16,7 +17,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateRentalAgreement extends InertiaAction
+class CreateRentalAgreement extends OrgAction
 {
     /**
      * @throws Exception
@@ -42,10 +43,11 @@ class CreateRentalAgreement extends InertiaAction
                                     'billing_cycle' => [
                                         'type'     => 'input',
                                         'label'    => __('billing cycle'),
-                                        'required' => true
+                                        'required' => true,
+                                        'value'    => 7
                                     ],
                                     'pallets_limit' => [
-                                        'type'     => 'number',
+                                        'type'     => 'input',
                                         'label'    => __('pallets limit'),
                                         'required' => true
                                     ],
@@ -67,15 +69,15 @@ class CreateRentalAgreement extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('shops.rental-agreements.edit');
+        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
 
     /**
      * @throws Exception
      */
-    public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Response
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Response
     {
-        $this->initialisation($request);
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer, $request);
     }

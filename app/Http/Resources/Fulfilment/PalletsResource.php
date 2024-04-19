@@ -71,7 +71,7 @@ class PalletsResource extends JsonResource
                 ]
             },
             'updatePalletRentalRoute' => [
-                'name'       => 'retina.models.pallet.rental.update',
+                'name'       => 'grp.models.pallet.rental.update',
                 'parameters' => $this->id
             ],
             'deleteRoute' => match (request()->routeIs('retina.*')) {

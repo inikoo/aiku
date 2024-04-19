@@ -122,7 +122,7 @@ class ShowFulfilmentCustomer extends OrgAction
                             'tooltip' => __('Create Rental Agreement'),
                             'label'   => __('Create Rental Agreement'),
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.edit',
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.edit',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],

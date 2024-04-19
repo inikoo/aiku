@@ -31,6 +31,7 @@ use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
 use App\Actions\Fulfilment\StoredItemReturn\UI\ShowStoredItemReturn;
 use App\Actions\Helpers\Uploads\HistoryUploads;
 use App\Actions\Inventory\Location\UI\IndexLocations;
+use App\Actions\Market\RentalAgreement\UI\CreateRentalAgreement;
 use App\Actions\OMS\Order\UI\ShowOrder;
 
 //Route::get('', ShowFulfilmentCRMDashboard::class)->name('dashboard');
@@ -44,6 +45,8 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::get('', ShowFulfilmentCustomer::class);
     Route::get('/edit', EditFulfilmentCustomer::class)->name('.edit');
     Route::get('orders/{order}', [ShowOrder::class, 'inCustomerInShop'])->name('.orders.show');
+
+    Route::get('/rental-agreement', CreateRentalAgreement::class)->name('.rental-agreement.edit');
 
     Route::prefix('web-users')->as('.web-users.')->group(function () {
         Route::get('', [IndexWebUsers::class, 'inFulfilmentCustomer'])->name('index');
