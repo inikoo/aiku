@@ -142,22 +142,7 @@ class StorePaymentAccount extends OrgAction
         $provider = OrgPaymentServiceProvider::where('slug', $command->argument('provider'))->first();
         $type     = $command->argument('type');
 
-        $publicKey = $command->ask('Your public key: ');
-        $secretKey = $command->ask('Your secret key: ');
-        $channelId = $command->ask('Your channel id: ');
-
-        $modelData = [
-            'code' => rand(001, 999),
-            'type' => $type,
-            'name' => 'Account Checkout',
-            'data' => [
-                'public_key' => $publicKey,
-                'secret_key' => $secretKey,
-                'channel_id' => $channelId
-            ]
-        ];
-
-        $this->handle($provider, $modelData);
+        // $this->handle($provider, $modelData);
 
         return 0;
     }
