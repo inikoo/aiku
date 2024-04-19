@@ -76,12 +76,14 @@ class StorePaymentAccount extends OrgAction
             'type'      => ['required', Rule::in(PaymentAccountTypeEnum::values())],
             'code'      => [
                 'required',
-                'between:2,16',
+                'max:16',
                 'alpha_dash',
                 new IUnique(
                     table: 'payment_accounts',
                     extraConditions: [
-                        ['column' => 'group_id', 'value' => $this->organisation->group_id],
+                        [
+                            'column' => 'organisation_id', 'value' => $this->organisation->id
+                        ],
                     ]
                 ),
             ],

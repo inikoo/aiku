@@ -22,6 +22,7 @@ trait HasPaymentAccountUpdateActions
             'checkout'  => UpdateCheckoutPaymentAccount::make()->action($paymentAccount, $modelData),
             'paypal'    => UpdatePaypalPaymentAccount::make()->action($paymentAccount, $modelData),
             'bank'      => UpdateBankPaymentAccount::make()->action($paymentAccount, $modelData),
+            default     => $paymentAccount
         };
     }
 }

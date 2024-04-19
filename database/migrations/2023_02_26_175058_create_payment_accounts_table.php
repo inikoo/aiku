@@ -30,7 +30,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->index()->nullable();
-            $table->unique(['group_id', 'code']);
+            $table->unique(['organisation_id', 'code']);
         });
     }
 
