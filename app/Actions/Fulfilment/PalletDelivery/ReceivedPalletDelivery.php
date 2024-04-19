@@ -79,10 +79,6 @@ class ReceivedPalletDelivery extends OrgAction
             return true;
         }
 
-        if(PalletDeliveryStateEnum::CONFIRMED->value) {
-            return false;
-        }
-
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
 

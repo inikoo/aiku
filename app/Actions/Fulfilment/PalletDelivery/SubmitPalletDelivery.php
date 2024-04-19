@@ -56,18 +56,18 @@ class SubmitPalletDelivery extends OrgAction
         }
 
         $numberPallets       = $palletDelivery->pallets()->count();
-        $numberStoredPallets = $palletDelivery->pallets()->where('state', PalletDeliveryStateEnum::BOOKED_IN->value)->count();
+        $numberStoredPallets = $palletDelivery->fulfilmentCustomer->pallets()->where('state', PalletDeliveryStateEnum::BOOKED_IN->value)->count();
 
         $palletLimits = $palletDelivery->fulfilmentCustomer->rentalAgreement->pallets_limit;
         $totalPallets = $numberPallets + $numberStoredPallets;
 
-        if($totalPallets < $palletLimits) {
-            ConfirmPalletDelivery::run($palletDelivery);
-        }
-
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
+
+        if($totalPallets < $palletLimits) {
+            $palletDelivery = ConfirmPalletDelivery::run($palletDelivery);
+        }
 
         SendPalletDeliveryNotification::run($palletDelivery);
 

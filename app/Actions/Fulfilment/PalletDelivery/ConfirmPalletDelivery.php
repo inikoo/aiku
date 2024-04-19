@@ -21,7 +21,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ConfirmPalletDelivery extends OrgAction
 {
     use WithActionUpdate;
-
+    private PalletDelivery $palletDelivery;
 
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
@@ -48,8 +48,8 @@ class ConfirmPalletDelivery extends OrgAction
             return true;
         }
 
-        if(! in_array($request->only('state'), [PalletDeliveryStateEnum::SUBMITTED->value,
-            PalletDeliveryStateEnum::IN_PROCESS->value])) {
+        if(! in_array($this->palletDelivery->state, [PalletDeliveryStateEnum::SUBMITTED,
+            PalletDeliveryStateEnum::IN_PROCESS])) {
             return false;
         }
 
@@ -63,6 +63,7 @@ class ConfirmPalletDelivery extends OrgAction
 
     public function asController(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
+        $this->palletDelivery = $palletDelivery;
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
         return $this->handle($palletDelivery);
     }
