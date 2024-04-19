@@ -31,6 +31,7 @@ const props = withDefaults(defineProps<{
     onCreate?: any
     onChange?: Function
     canClear?: boolean
+    isSelected?: Function
 }>(), {
     placeholder: 'select',
     required: false,
@@ -158,7 +159,7 @@ onUnmounted(() => {
         :searchable="props.searchable" :caret="props.caret" :canClear="props.canClear" :options="optionData"
         :mode="props.mode" :on-create="props.onCreate" :create-option="props.createOption"
         :noResultsText="loading ? 'loading...' : 'No Result'" @open="getOptions()" @search-change="SearchChange"
-        @change="props.onChange" :closeOnDeselect="closeOnDeselect">
+        @change="props.onChange" :closeOnDeselect="closeOnDeselect" :isSelected="isSelected">
         <template
             #tag="{ option, handleTagRemove, disabled }: { option: tag, handleTagRemove: Function, disabled: boolean }">
             <div class="px-0.5 py-[3px]">

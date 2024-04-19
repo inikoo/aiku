@@ -14,7 +14,8 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { set, get } from "lodash"
 import { ref, watch, defineEmits, onMounted } from "vue"
 import SelectQuery from "@/Components/SelectQuery.vue"
-import Button from "../Elements/Buttons/Button.vue"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+
 
 
 library.add(faExclamationCircle, faCheckCircle, faSpinnerThird, faCopy, faTrash, faEdit)
@@ -53,14 +54,36 @@ const deleteRowRow = (index: number) => {
     props.form[props.fieldName].splice(index, 1)
 }
 
+const sePriceByRental = (value: number, options: Array, index: number) => {
+    const data = options.find((item: { id: number }) => item.id == value)
+    props.form[props.fieldName][index].price = data.price
+}
+
+
+
 </script>
 <template>
+<div class="flex justify-between py-4">
+    <div>
+        <Button label="Put all rental" type="create"></Button>
+    </div>
+    <div>
+        <Button label="Delete All" type="delete" class="mr-2" />
+        <Button label="Set all discount (%)" type="edit"/>
+    </div>
+</div>
+
     <div class="-mx-4 -my-2  sm:-mx-6 lg:-mx-8">
         <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
             <div class="overflow-visible shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
                 <table class="min-w-full divide-y divide-gray-300">
                     <thead class="bg-gray-50">
                         <tr>
+                            <th scope="col"
+                                class="px-3 py-4  pr-3 text-left text-sm font-semibold text-gray-900  flex justify-center">
+                                <input type="checkbox"
+                                    class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600" />
+                            </th>
                             <th scope="col"
                                 class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
                                 Rental</th>
@@ -69,21 +92,24 @@ const deleteRowRow = (index: number) => {
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                 Discount (%)</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                Amount</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                 <font-awesome-icon :icon="['fas', 'edit']" />
                             </th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-white">
                         <tr v-for="(itemData, index) in form[props.fieldName]" :key="itemData.email">
+                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 flex justify-center">
+                                <input type="checkbox" :id="index" :value="index"
+                                    class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600" />
+                            </td>
                             <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 w-80">
                                 <div class="relative w-full">
                                     <SelectQuery
                                         :urlRoute="route(fieldData.indexRentalRoute.name, fieldData.indexRentalRoute.parameters)"
                                         :value="itemData" :placeholder="'Select or add rental'" :required="true"
                                         :label="'name'" :valueProp="'id'" :closeOnSelect="true" :clearOnSearch="false"
-                                        :fieldName="'rental'" />
+                                        :fieldName="'rental'"
+                                        :on-change="(value, ref) => sePriceByRental(value, ref.options, index)" />
                                 </div>
 
                             </td>
@@ -102,9 +128,6 @@ const deleteRowRow = (index: number) => {
                                     </template>
                                 </PureInput>
                             </td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                {{ itemData.price  - (itemData.price * (itemData.disc / 100 )) }}
-                            </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm">
                                 <font-awesome-icon :icon="['fas', 'trash']" class="text-red-500"
                                     @click="() => deleteRowRow(index)" />
@@ -122,4 +145,5 @@ const deleteRowRow = (index: number) => {
             </div>
         </div>
     </div>
+    <div @click="() => console.log(form[fieldName])">see data Send</div>
 </template>
