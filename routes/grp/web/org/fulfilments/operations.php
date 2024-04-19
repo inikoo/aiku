@@ -5,8 +5,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Accounting\Invoice\IndexInvoices;
-use App\Actions\Accounting\Invoice\ShowInvoice;
+use App\Actions\Accounting\Invoice\UI\IndexInvoices;
+use App\Actions\Accounting\Invoice\UI\ShowInvoice;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\Pallet\UI\CreatePallet;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;

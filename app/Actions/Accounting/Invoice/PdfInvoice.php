@@ -14,7 +14,7 @@ use Lorisleiva\Actions\Concerns\WithAttributes;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
 use Symfony\Component\HttpFoundation\Response;
 
-class ExportInvoice
+class PdfInvoice
 {
     use AsAction;
     use WithAttributes;
