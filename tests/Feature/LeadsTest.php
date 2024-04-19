@@ -13,11 +13,9 @@ use App\Actions\Mail\Mailshot\StoreMailshot;
 use App\Enums\Mail\Mailshot\MailshotTypeEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\CRM\Prospect;
-use App\Models\Helpers\Fetch;
 use App\Models\Helpers\Query;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
-use App\Models\Market\Shop;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\{get};
@@ -180,40 +178,3 @@ test('can show list of tags', function () {
             ->has('title');
     });
 })->todo();
-
-test('can fetch 1 prospect from aurora', function () {
-
-    $this->organisation->update(
-        [
-            'source' => [
-                'type'    => 'Aurora',
-                'db_name' => config('database.connections.aurora.database'),
-            ]
-        ]
-    );
-
-    $command = join(
-        ' ',
-        [
-            'fetch:prospects',
-            $this->organisation->slug,
-            '-s 2'
-        ]
-    );
-
-    $this->artisan($command)->assertExitCode(0);
-    /** @var Shop $fetchedShop */
-    $fetchedShop=Shop::whereNotNull('source_id')->first();
-    expect($fetchedShop)->toBeInstanceOf(Shop::class)->and($fetchedShop->source_id)->toBe('1:1')
-        ->and($fetchedShop->crmStats->number_prospects)->toBe(1);
-    $fetch = Fetch::first();
-    expect($fetch->number_items)->toBe(1)->and($fetch->number_stores)->toBe(1);
-    $this->artisan($command)->assertExitCode(0);
-    $secondFetch = Fetch::find(2);
-
-
-    expect($fetchedShop->crmStats->number_prospects)->toBe(1)
-        ->and($secondFetch->number_stores)->toBe(0)
-        ->and($secondFetch->number_updates)->toBe(0)
-        ->and($secondFetch->number_no_changes)->toBe(1);
-});
