@@ -52,10 +52,10 @@ class CreateRentalAgreement extends OrgAction
                                         'required' => false
                                     ],
                                     'rental' => [
-                                        'type'     => 'rental',
-                                        'label'    => __('Rental'),
-                                        'required' => true,
-                                        'full'     => true,
+                                        'type'             => 'rental',
+                                        'label'            => __('Rental'),
+                                        'required'         => true,
+                                        'full'             => true,
                                         'indexRentalRoute' => [
                                             'name'       => 'grp.org.fulfilments.show.products.rentals.index',
                                             'parameters' => [
@@ -76,7 +76,7 @@ class CreateRentalAgreement extends OrgAction
                         ]
                     ]
                 ],
-               
+
             ]
         );
     }

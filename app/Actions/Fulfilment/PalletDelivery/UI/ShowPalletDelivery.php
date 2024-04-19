@@ -100,7 +100,7 @@ class ShowPalletDelivery extends OrgAction
         $palletStateReceivedCount = $palletDelivery->pallets()->where('state', PalletStateEnum::RECEIVED)->count();
         $palletNotInRentalCount   = $palletDelivery->pallets()->whereNull('rental_id')->count();
 
-        $numberPallets       = $palletDelivery->pallets()->count();
+        $numberPallets       = $palletDelivery->fulfilmentCustomer->pallets()->count();
         $numberStoredPallets = $palletDelivery->pallets()->where('state', PalletDeliveryStateEnum::BOOKED_IN->value)->count();
 
         $palletLimits = $palletDelivery->fulfilmentCustomer->rentalAgreement->pallets_limit;
