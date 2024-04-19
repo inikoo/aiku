@@ -11,7 +11,7 @@ import { capitalize } from "@/Composables/capitalize"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus } from "@fas"
 import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross } from "@fal"
-import { Link } from "@inertiajs/vue3"
+import { Link, router } from "@inertiajs/vue3"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Table from "@/Components/Table/Table.vue"
 import Modal from "@/Components/Utils/Modal.vue"
@@ -28,7 +28,6 @@ const props = defineProps<{
     pageHead: {}
 }>()
 
-console.log('props',props)
 
 const openModal = ref(false)
 const loading = ref(false)
