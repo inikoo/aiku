@@ -62,6 +62,8 @@ const loading = ref(false)
 const _multiselectRef = ref(null)
 const lastPage = ref(2)
 
+console.log(props)
+
 // Method: retrieve locations list
 const getOptions = async () => {
     loading.value = true
