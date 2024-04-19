@@ -7,6 +7,7 @@
 
 namespace App\Actions\Retina\Storage\PalletDelivery\UI;
 
+use App\Actions\Market\HasRentalAgreement;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Storage\ShowStorageDashboard;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
@@ -24,6 +25,8 @@ use App\Services\QueryBuilder;
 
 class IndexPalletDeliveries extends RetinaAction
 {
+    use HasRentalAgreement;
+
     private FulfilmentCustomer $parent;
 
     public function asController(ActionRequest $request): LengthAwarePaginator
@@ -102,10 +105,11 @@ class IndexPalletDeliveries extends RetinaAction
                     ],
                     'actions' => [
                         [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'label'   => __('New Delivery'),
-                            'route'   => [
+                            'type'     => 'button',
+                            'style'    => 'create',
+                            'label'    => __('New Delivery'),
+                            'disabled' => !$this->hasRentalAgreement($this->parent),
+                            'route'    => [
                                 'method'     => 'post',
                                 'name'       => 'retina.models.pallet-delivery.store',
                                 'parameters' => []
