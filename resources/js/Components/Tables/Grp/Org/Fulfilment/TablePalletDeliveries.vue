@@ -13,7 +13,6 @@ import { faPlus } from "@fas"
 import { faCheckDouble, faShare, faCross } from "@fal"
 import Modal from "@/Components/Utils/Modal.vue"
 import { ref } from 'vue'
-import Action from "@/Components/Forms/Fields/Action.vue"
 
 import { PalletDelivery } from "@/types/pallet-delivery"
 import Icon from "@/Components/Icon.vue"
