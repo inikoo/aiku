@@ -70,6 +70,10 @@ class PalletsResource extends JsonResource
                     'parameters' => $this->id
                 ]
             },
+            'updatePalletRentalRoute' => [
+                'name'       => 'retina.models.pallet.rental.update',
+                'parameters' => $this->id
+            ],
             'deleteRoute' => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet.delete',

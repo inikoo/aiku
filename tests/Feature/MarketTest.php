@@ -24,7 +24,6 @@ use App\Models\Goods\TradeUnit;
 use App\Models\Market\Outer;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
-use App\Models\Market\Rental;
 use App\Models\Market\Service;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Permission;
@@ -391,4 +390,3 @@ test('update service', function ($product) {
         ->and($product->name)->toBe('Updated Service Name');
     return $product;
 })->depends('create service');
-
