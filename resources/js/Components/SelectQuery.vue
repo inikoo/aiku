@@ -72,7 +72,7 @@ const getOptions = async () => {
             params: {
                 [`filter[global]`]: q.value,
                 page: page.value,
-                perPage: 10,
+                  
             }
         })
         onGetOptionsSuccess(response)

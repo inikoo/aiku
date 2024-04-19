@@ -27,6 +27,7 @@ const props = withDefaults(defineProps<{
     pattern?: string 
     clear?:boolean
     suffix?:Boolean
+    step?:String
 }>(), {
     caret: true,
     type: 'text'
@@ -92,6 +93,7 @@ defineExpose({
                 :min="minValue"
                 :max="maxValue"
                 :required="required"
+                :step="step"
                 :pattern="pattern ?? type == 'number' ? '[0-9]*' : undefined"
                 :autocomplete="autocomplete"
                 class="remove-arrows-input bg-transparent py-2.5 block w-full
