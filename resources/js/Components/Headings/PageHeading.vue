@@ -100,6 +100,7 @@ const originUrl = location.origin
                     <template v-if="action">
                         <!-- Button -->
                         <slot v-if="action.type == 'button'" :name="`button-${kebabCase(action.label)}`" :action="{ action }">
+                        {{  `button-${kebabCase(action.label)}` }}
                             <Action v-if="action" :action="action" :dataToSubmit="dataToSubmit" />
                         </slot>
 
