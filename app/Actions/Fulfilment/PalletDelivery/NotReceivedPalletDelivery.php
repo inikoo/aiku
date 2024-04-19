@@ -34,6 +34,10 @@ class NotReceivedPalletDelivery extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if($request->only('state') != PalletDeliveryStateEnum::RECEIVED->value) {
+            return false;
+        }
+
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
 }

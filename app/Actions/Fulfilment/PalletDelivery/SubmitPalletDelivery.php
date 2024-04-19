@@ -66,10 +66,14 @@ class SubmitPalletDelivery extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if($request->only('state') != PalletDeliveryStateEnum::RECEIVED->value) {
+            return false;
+        }
+
         if ($request->user() instanceof WebUser) {
             return true;
         }
-        // this action can only be called from retina
+
         return false;
     }
 

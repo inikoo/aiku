@@ -55,6 +55,12 @@ class ConfirmPalletDelivery extends OrgAction
         if($this->asAction) {
             return true;
         }
+
+        if(! in_array($request->only('state'), [PalletDeliveryStateEnum::SUBMITTED->value,
+            PalletDeliveryStateEnum::IN_PROCESS->value])) {
+            return false;
+        }
+
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
 
