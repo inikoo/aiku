@@ -97,7 +97,10 @@ class IndexFulfilmentRentals extends OrgAction
                 'rentals.auto_assign_asset_type',
                 'rentals.created_at',
                 'rentals.updated_at',
-                'products.name'
+                'products.name',
+                'products.code',
+                'products.main_outerable_price',
+                'products.description'
             ]);
 
 

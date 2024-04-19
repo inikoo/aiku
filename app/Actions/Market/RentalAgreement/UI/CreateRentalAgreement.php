@@ -62,6 +62,13 @@ class CreateRentalAgreement extends OrgAction
                             'fulfilmentCustomer' => $fulfilmentCustomer->id,
                         ]
                     ]
+                ],
+                'indexRentalRoute' => [
+                    'name'       => 'grp.org.fulfilments.show.products.rentals.index',
+                    'parameters' => [
+                        'organisation' => $this->organisation->slug,
+                        'fulfilment'   => $fulfilmentCustomer->fulfilment->slug
+                    ]
                 ]
             ]
         );

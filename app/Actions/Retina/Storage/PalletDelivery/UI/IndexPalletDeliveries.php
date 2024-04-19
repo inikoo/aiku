@@ -62,6 +62,11 @@ class IndexPalletDeliveries extends RetinaAction
             ->withQueryString();
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        return $this->hasRentalAgreement($this->parent);
+    }
+
     public function tableStructure(FulfilmentCustomer $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {

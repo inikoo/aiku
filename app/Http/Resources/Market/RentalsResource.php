@@ -14,6 +14,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property int $id
  * @property string $slug
  * @property string $name
+ * @property string $main_outerable_price
+ * @property string $description
  * @property mixed $type
  * @property mixed $auto_assign_asset
  * @property mixed $auto_assign_asset_type
@@ -25,7 +27,10 @@ class RentalsResource extends JsonResource
     {
         return [
             'id'                        => $this->id,
+            'product_code'              => $this->code,
             'name'                      => $this->name,
+            'price'                     => $this->main_outerable_price,
+            'description'               => $this->description,
             'auto_assign_asset_type'    => $this->auto_assign_asset_type,
             'auto_assign_asset'         => $this->auto_assign_asset
         ];
