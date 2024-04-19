@@ -26,7 +26,7 @@ class UpdatePaymentAccount extends OrgAction
 
     public function handle(PaymentAccount $paymentAccount, array $modelData): PaymentAccount
     {
-        $this->paymentAccountUpdateActions($paymentAccount->paymentServiceProvider->slug, $paymentAccount, $modelData);
+        $paymentAccount=$this->paymentAccountUpdateActions($paymentAccount->paymentServiceProvider->slug, $paymentAccount, $modelData);
 
         return $this->update($paymentAccount, Arr::only($modelData, ['code', 'name']), ['data']);
     }
@@ -46,12 +46,12 @@ class UpdatePaymentAccount extends OrgAction
             'code' => [
                 'sometimes',
                 'required',
-                'between:2,16',
+                'max:16',
                 'alpha_dash',
                 new IUnique(
                     table: 'payment_accounts',
                     extraConditions: [
-                        ['column' => 'group_id', 'value' => $this->organisation->group_id],
+                        ['column' => 'organisation_id', 'value' => $this->organisation->id],
                         [
                             'column'   => 'id',
                             'operator' => '!=',
