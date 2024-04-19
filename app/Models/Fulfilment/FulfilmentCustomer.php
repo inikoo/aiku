@@ -11,6 +11,7 @@ use App\Models\CRM\Customer;
 use App\Models\Helpers\SerialReference;
 use App\Models\Market\RecurringBill;
 use App\Models\Market\RentalAgreement;
+use App\Models\RentalAgreementClause;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
@@ -205,6 +206,11 @@ class FulfilmentCustomer extends Model
     public function rentalAgreement(): HasOne
     {
         return $this->hasOne(RentalAgreement::class);
+    }
+
+    public function rentalAgreementClauses(): HasMany
+    {
+        return $this->hasMany(RentalAgreementClause::class);
     }
 
     public function currentRecurringBill(): BelongsTo
