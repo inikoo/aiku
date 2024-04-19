@@ -25,7 +25,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ReceivedPalletDelivery extends OrgAction
 {
     use WithActionUpdate;
-
+    private PalletDelivery $palletDelivery;
 
     public function handle(PalletDelivery $palletDelivery, array $modelData = []): PalletDelivery
     {
@@ -71,11 +71,15 @@ class ReceivedPalletDelivery extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if($this->palletDelivery->state != PalletDeliveryStateEnum::CONFIRMED) {
+            return false;
+        }
+
         if($this->asAction) {
             return true;
         }
 
-        if($request->only('state') != PalletDeliveryStateEnum::CONFIRMED->value) {
+        if(PalletDeliveryStateEnum::CONFIRMED->value) {
             return false;
         }
 
@@ -89,6 +93,7 @@ class ReceivedPalletDelivery extends OrgAction
 
     public function asController(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
+        $this->palletDelivery = $palletDelivery;
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
 
         return $this->handle($palletDelivery, $this->validatedData);

@@ -21,7 +21,7 @@ use Lorisleiva\Actions\ActionRequest;
 class BookedInPalletDelivery extends OrgAction
 {
     use WithActionUpdate;
-
+    private PalletDelivery $palletDelivery;
 
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
@@ -58,12 +58,12 @@ class BookedInPalletDelivery extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
-            return true;
+        if($this->palletDelivery->state != PalletDeliveryStateEnum::RECEIVED) {
+            return false;
         }
 
-        if($request->only('state') != PalletDeliveryStateEnum::RECEIVED->value) {
-            return false;
+        if($this->asAction) {
+            return true;
         }
 
         return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
@@ -71,7 +71,8 @@ class BookedInPalletDelivery extends OrgAction
 
     public function action(PalletDelivery $palletDelivery): PalletDelivery
     {
-        $this->asAction = true;
+        $this->asAction       = true;
+        $this->palletDelivery = $palletDelivery;
         $this->initialisation($palletDelivery->organisation, []);
         return $this->handle($palletDelivery);
     }

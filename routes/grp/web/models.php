@@ -35,6 +35,7 @@ use App\Actions\Fulfilment\PalletDelivery\DeletePalletFromDelivery;
 use App\Actions\Fulfilment\PalletDelivery\PdfPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
@@ -116,6 +117,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 
 Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->group(function () {
     Route::patch('/', UpdatePalletDelivery::class)->name('update');
+    Route::post('submit', SubmitPalletDelivery::class)->name('submit');
     Route::post('confirm', ConfirmPalletDelivery::class)->name('confirm');
     Route::post('received', ReceivedPalletDelivery::class)->name('received');
     Route::post('booked-in', BookedInPalletDelivery::class)->name('booked-in');

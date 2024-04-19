@@ -115,7 +115,8 @@ test('create payment account', function ($orgPaymentServiceProvider) {
 })->depends('add payment service provider to organisation');
 
 test('update payment account', function ($paymentAccount) {
-    $paymentAccount = UpdatePaymentAccount::make()->action($paymentAccount,
+    $paymentAccount = UpdatePaymentAccount::make()->action(
+        $paymentAccount,
         ['name' => 'Pika Ltd']
     );
     expect($paymentAccount->name)->toBe('Pika Ltd');

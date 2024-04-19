@@ -31,6 +31,11 @@ class SubmitPalletDelivery extends OrgAction
 {
     use WithActionUpdate;
 
+    /**
+     * @var array|\ArrayAccess|mixed
+     */
+    private PalletDelivery $palletDelivery;
+
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
         $modelData['submitted_at'] = now();
@@ -50,6 +55,16 @@ class SubmitPalletDelivery extends OrgAction
             PalletHydrateUniversalSearch::run($pallet);
         }
 
+        $numberPallets       = $palletDelivery->pallets()->count();
+        $numberStoredPallets = $palletDelivery->pallets()->where('state', PalletDeliveryStateEnum::BOOKED_IN->value)->count();
+
+        $palletLimits = $palletDelivery->fulfilmentCustomer->rentalAgreement->pallets_limit;
+        $totalPallets = $numberPallets + $numberStoredPallets;
+
+        if($totalPallets < $palletLimits) {
+            ConfirmPalletDelivery::run($palletDelivery);
+        }
+
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
@@ -66,7 +81,7 @@ class SubmitPalletDelivery extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($request->only('state') != PalletDeliveryStateEnum::RECEIVED->value) {
+        if($this->palletDelivery->state != PalletDeliveryStateEnum::IN_PROCESS) {
             return false;
         }
 
@@ -74,7 +89,7 @@ class SubmitPalletDelivery extends OrgAction
             return true;
         }
 
-        return false;
+        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
 
     public function jsonResponse(PalletDelivery $palletDelivery): JsonResource
@@ -84,6 +99,7 @@ class SubmitPalletDelivery extends OrgAction
 
     public function asController(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
+        $this->palletDelivery = $palletDelivery;
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
         return $this->handle($palletDelivery);
     }
