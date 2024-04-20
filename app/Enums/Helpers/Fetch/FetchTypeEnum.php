@@ -17,7 +17,8 @@ enum FetchTypeEnum: string
     case CUSTOMERS    = 'customers';
     case LOCATIONS    = 'locations';
     case EMPLOYEES    = 'employees';
-
-    case BASE    = 'base';
+    case INVOICES     = 'invoices';
+    case STOCKS       = 'stocks';
+    case BASE         = 'base';
 
 }

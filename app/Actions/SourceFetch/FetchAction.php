@@ -137,6 +137,7 @@ class FetchAction
 
     public function recordError($organisationSource, $e, $modelData, $modelType = null, $errorOn = null): void
     {
+
         $this->number_errors++;
         UpdateFetch::run($organisationSource->fetch, ['number_errors' => $this->number_errors]);
         $organisationSource->fetch->records()->create([
