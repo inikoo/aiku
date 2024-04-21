@@ -9,7 +9,7 @@ namespace App\Actions\SupplyChain\Agent;
 
 use App\Actions\GrpAction;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateUniversalSearch;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplyChain;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAgents;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SupplyChain\Agent;
@@ -65,7 +65,7 @@ class StoreAgent extends GrpAction
         $agent->stats()->create();
 
 
-        GroupHydrateSupplyChain::run($group);
+        GroupHydrateAgents::run($group);
         AgentHydrateUniversalSearch::dispatch($agent);
 
 
