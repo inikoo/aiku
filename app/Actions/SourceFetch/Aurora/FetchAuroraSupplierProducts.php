@@ -23,8 +23,10 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?SupplierProduct
     {
-        if ($supplierProductData = $organisationSource->fetchSupplierProduct($organisationSourceId)) {
+        $supplierProductData = $organisationSource->fetchSupplierProduct($organisationSourceId);
+        if ($supplierProductData) {
             // print_r($supplierProductData['supplierProduct']);
+
 
             $found           = false;
             $supplierProduct = null;
@@ -69,6 +71,7 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                     $found = true;
                 }
             }
+
 
 
             if (!$found) {
