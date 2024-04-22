@@ -8,6 +8,7 @@ import { isNull } from 'lodash'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import Tag from '@/Components/Tag.vue'
 
+
 library.add(faTimes)
 
 const props = withDefaults(defineProps<{
@@ -63,7 +64,6 @@ const loading = ref(false)
 const _multiselectRef = ref(null)
 const lastPage = ref(2)
 
-console.log(props)
 
 // Method: retrieve locations list
 const getOptions = async () => {
