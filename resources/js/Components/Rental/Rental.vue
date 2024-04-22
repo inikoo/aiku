@@ -43,27 +43,39 @@ const bulkData = ref([])
 const bulkDiscInput = ref(0)
 
 const defaultValue = [
-    { id: uuidv4(), rental: null, price: 0, disc: 0, agreed_price: 0, original_price : 0 },
+    { id: uuidv4(), rental: null, price: 0, discount: 0, agreed_price: 0, original_price : 0 },
 ]
 
 const addRow = () => {
-    props.form[props.fieldName].push({ id: uuidv4(), rental: null, price: 0, disc: 0, agreed_price: 0, original_price : 0  })
+    props.form[props.fieldName].push({ id: uuidv4(), rental: null, price: 0, discount: 0, agreed_price: 0, original_price : 0  })
 }
 
 const deleteRow = (index: number) => {
     props.form[props.fieldName].splice(index, 1)
 }
 
+const calculateDiscountedPrice = (price, discount) => {
+    // Calculate the discounted price
+    let discountedPrice = price - (price * (discount / 100));
+
+    // Round the result to two decimal places
+    discountedPrice = discountedPrice.toFixed(2);
+
+    return discountedPrice;
+};
+
 const sePriceByRental = (value: number, options: Array, index: number) => {
     const data = options.find((item: { id: number }) => item.id == value)
-    props.form[props.fieldName][index].price = data.price
-    props.form[props.fieldName][index].original_price = data.price
-    props.form[props.fieldName][index].agreed_price = props.form[props.fieldName][index].price - (props.form[props.fieldName][index].price * (props.form[props.fieldName][index].disc / 100))
+    if (data) {
+        props.form[props.fieldName][index].price = data.price
+        props.form[props.fieldName][index].original_price = data.price 
+        props.form[props.fieldName][index].agreed_price = calculateDiscountedPrice(props.form[props.fieldName][index].price,props.form[props.fieldName][index].discount)
+    }
 }
 
 
 const sePriceByChange = (value: number, record : Object, index: number) => {
-    props.form[props.fieldName][index].agreed_price = props.form[props.fieldName][index].price - (props.form[props.fieldName][index].price * (props.form[props.fieldName][index].disc / 100))
+    props.form[props.fieldName][index].agreed_price =  calculateDiscountedPrice(props.form[props.fieldName][index].price,props.form[props.fieldName][index].discount)
 }
 
 
@@ -88,7 +100,7 @@ const onPutAllRentals = () => {
     const pullData = []
     for (const rental of rentals.value) {
         const find = props.form[props.fieldName].find((item) => item.rental == rental.id)
-        if (!find) pullData.push({ id: uuidv4(), rental: rental.id, price: rental.price, disc: 0, agreed_price: rental.price, original_price : rental.price })
+        if (!find) pullData.push({ id: uuidv4(), rental: rental.id, price: rental.price, discount: 0, agreed_price: rental.price, original_price : rental.price })
     }
     props.form[props.fieldName].push(...pullData)
 }
@@ -133,8 +145,8 @@ const onBulkDiscAction = (close) => {
     const data = [...props.form[props.fieldName]];
     for (const [index, item] of data.entries()) {
         if (bulkData.value.includes(item.id)) {
-            item.disc = bulkDiscInput.value
-            item.agreed_price = item.price - (item.price * (item.disc / 100))
+            item.discount = bulkDiscInput.value
+            item.agreed_price =  calculateDiscountedPrice(item.price,item.discount)
         }
     }
     props.form[props.fieldName] = data
@@ -142,7 +154,7 @@ const onBulkDiscAction = (close) => {
     close()
 }
  
-const setOptionSelectQueryFilter = (options, index) => {
+const setOptionSelectQueryFilter = (options, index) => { 
     // Initialize an empty array to store filtered options 
     let pullData = [];
 
@@ -164,7 +176,7 @@ const setOptionSelectQueryFilter = (options, index) => {
         }
     }
     // Return the filtered options
-    return pullData;
+    return pullData
 };
 
 
@@ -193,11 +205,11 @@ onMounted(() => {
                 <template #content="{ close: closed }">
                     <div class="w-[350px]">
                         <div class="text-xs my-2 font-medium">{{ trans('Discount(%)') }}: </div>
-                        <PureInput v-model="bulkDiscInput" autofocus placeholder="1-100" type="number" :maxValue="100"
+                        <PureInput v-model="bulkDiscInput" autofocus placeholder="1-100" type="number" :maxValue="99"
                             :suffix="true" :minValue="0"  @onEnter="() => onBulkDiscAction(closed)">
                             <template #suffix>
                                 <div
-                                    class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer opacity-20 hover:opacity-75 active:opacity-100 text-black">
+                                    class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer hover:opacity-75 active:opacity-100 text-black">
                                     %
                                 </div>
                             </template>
@@ -229,13 +241,13 @@ onMounted(() => {
                             </th>
                             <th scope="col"
                                 class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
-                                Rental</th>
+                                {{trans('Rental')}}</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                Price</th>
+                                {{trans('Price')}}</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                Discount (%)</th>
+                                {{trans('Discount (%)')}}</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                Agreed Price ($)</th>
+                                {{trans('Agreed Price ($)')}}</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                 <font-awesome-icon :icon="['fas', 'edit']" />
                             </th>
@@ -251,6 +263,7 @@ onMounted(() => {
                                 <div class="relative xl:w-[500px] w-full">
                                     <SelectQuery
                                         :filterOptions="(e)=>setOptionSelectQueryFilter(e,index)"
+                                        :key="itemData.id"
                                         :urlRoute="route(fieldData.indexRentalRoute.name, fieldData.indexRentalRoute.parameters)"
                                         :value="itemData" :placeholder="'Select or add rental'" :required="true"
                                         :label="'name'" :valueProp="'id'" :closeOnSelect="true" :clearOnSearch="false"
@@ -265,11 +278,11 @@ onMounted(() => {
                                     @input="(value) => sePriceByChange(value,itemData,index)" />
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                <PureInput v-model="itemData.disc" :placeholder="'Input Discount'" type="number" :maxValue="100"
+                                <PureInput v-model="itemData.discount" :placeholder="'Input Discount'" type="number" :maxValue="99"
                                     :suffix="true" :minValue="0" @input="(value) => sePriceByChange(value,itemData,index)">
                                     <template #suffix>
                                         <div
-                                            class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer opacity-20 hover:opacity-75 active:opacity-100 text-black">
+                                            class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer hover:opacity-75 active:opacity-100 text-black">
                                             %
                                         </div>
                                     </template>
