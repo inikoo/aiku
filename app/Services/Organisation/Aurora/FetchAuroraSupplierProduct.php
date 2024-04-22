@@ -40,7 +40,7 @@ class FetchAuroraSupplierProduct extends FetchAurora
         }
 
 
-        $supplier = $this->parseSupplier($supplierSourceSlug);
+        $supplier = $this->parseSupplier($supplierSourceSlug, $this->organisation->id.":".$this->auroraModelData->{'Supplier Part Supplier Key'});
 
 
         if (!$supplier) {
@@ -50,7 +50,7 @@ class FetchAuroraSupplierProduct extends FetchAurora
 
         $auroraPartData= DB::connection('aurora')
             ->table('Part Dimension')
-            ->where('Part SKU', $this->auroraModelData->{'Part SKU'})
+            ->where('Part SKU', $this->auroraModelData->{'Supplier Part Part SKU'})
             ->first();
 
         $tradeUnitReference = $this->cleanTradeUnitReference($auroraPartData->{'Part Reference'});

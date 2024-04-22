@@ -204,11 +204,14 @@ class FetchAuroraAction extends FetchAction
     protected function getFetchType(Command $command): FetchTypeEnum
     {
         return match ($command->getName()) {
-            'fetch:prospects'  => FetchTypeEnum::PROSPECTS,
-            'fetch:invoices'   => FetchTypeEnum::INVOICES,
-            'fetch:locations'  => FetchTypeEnum::LOCATIONS,
-            'fetch:stocks'     => FetchTypeEnum::STOCKS,
-            default            => FetchTypeEnum::BASE,
+            'fetch:prospects'           => FetchTypeEnum::PROSPECTS,
+            'fetch:invoices'            => FetchTypeEnum::INVOICES,
+            'fetch:locations'           => FetchTypeEnum::LOCATIONS,
+            'fetch:stocks'              => FetchTypeEnum::STOCKS,
+            'fetch:customers'           => FetchTypeEnum::CUSTOMERS,
+            'fetch:employees'           => FetchTypeEnum::EMPLOYEES,
+            'fetch:supplier-products'   => FetchTypeEnum::SUPPLIER_PRODUCTS,
+            default                     => FetchTypeEnum::BASE,
         };
     }
 

@@ -8,6 +8,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
+use App\Actions\SourceFetch\Aurora\FetchAuroraAgents;
 use App\Actions\SourceFetch\Aurora\FetchAuroraCustomers;
 use App\Actions\SourceFetch\Aurora\FetchAuroraDeletedCustomers;
 use App\Actions\SourceFetch\Aurora\FetchAuroraDeletedEmployees;
@@ -16,6 +17,7 @@ use App\Actions\SourceFetch\Aurora\FetchAuroraDepartments;
 use App\Actions\SourceFetch\Aurora\FetchAuroraDispatchedEmails;
 use App\Actions\SourceFetch\Aurora\FetchAuroraEmployees;
 use App\Actions\SourceFetch\Aurora\FetchAuroraFamilies;
+use App\Actions\SourceFetch\Aurora\FetchAuroraSuppliers;
 use App\Actions\SourceFetch\Aurora\FetchHistoricProducts;
 use App\Actions\SourceFetch\Aurora\FetchHistoricServices;
 use App\Actions\SourceFetch\Aurora\FetchAuroraLocations;
@@ -348,14 +350,24 @@ trait WithAuroraParsers
         return $customer;
     }
 
-    public function parseSupplier($sourceSlug): ?Supplier
+    public function parseSupplier($sourceSlug, $sourceID): ?Supplier
     {
-        return Supplier::withTrashed()->where('source_slug', $sourceSlug)->first();
+        $supplier= Supplier::withTrashed()->where('source_slug', $sourceSlug)->first();
+        if (!$supplier) {
+            $sourceData = explode(':', $sourceID);
+            $supplier   = FetchAuroraSuppliers::run($this->organisationSource, $sourceData[1]);
+        }
+        return $supplier;
     }
 
-    public function parseAgent($sourceSlug): ?Agent
+    public function parseAgent($sourceSlug, $sourceID): ?Agent
     {
-        return Agent::withTrashed()->where('source_slug', $sourceSlug)->first();
+        $agent= Agent::withTrashed()->where('source_slug', $sourceSlug)->first();
+        if (!$agent) {
+            $sourceData = explode(':', $sourceID);
+            $agent      = FetchAuroraAgents::run($this->organisationSource, $sourceData[1]);
+        }
+        return $agent;
     }
 
     public function parseOrgStock($sourceId): ?OrgStock

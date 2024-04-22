@@ -161,7 +161,7 @@ const getActionIcon = (icon: any) => {
             styleClass,
             sizeClass
         ]"
-        :disabled="loading || style == 'disabled'"
+        :disabled="loading || style == 'disabled' || type == 'disabled'"
         v-tooltip="tooltip ?? undefined"
     >
         <slot>

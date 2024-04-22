@@ -18,14 +18,16 @@ class FetchAuroraSupplier extends FetchAurora
     {
         $agentData = Db::connection('aurora')->table('Agent Supplier Bridge')
             ->leftJoin('Agent Dimension', 'Agent Supplier Agent Key', '=', 'Agent Key')
-            ->select('Agent Code')
+            ->select('Agent Code', 'Agent Key')
             ->where('Agent Supplier Supplier Key', $this->auroraModelData->{'Supplier Key'})->first();
 
 
         $agent = null;
-
         if ($agentData) {
-            $agent = $this->parseAgent(Str::kebab(strtolower($agentData->{'Agent Code'})));
+            $agent = $this->parseAgent(
+                Str::kebab(strtolower($agentData->{'Agent Code'})),
+                $this->organisation->id.':'.$agentData->{'Agent Key'}
+            );
             if (!$agent) {
                 print "agent not found ".$agentData->{'Agent Supplier Agent Key'}." \n";
 

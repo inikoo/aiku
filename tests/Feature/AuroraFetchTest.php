@@ -31,6 +31,27 @@ beforeEach(function () {
     );
 });
 
+test('can fetch supplier product', function () {
+
+    $command = join(
+        ' ',
+        [
+            'fetch:supplier-products',
+            '-s 356'
+        ]
+    );
+
+    $this->artisan($command)->assertExitCode(0);
+    $fetch = Fetch::where('type', FetchTypeEnum::SUPPLIER_PRODUCTS)->first();
+
+    expect($fetch->number_items)->toBe(1)
+        ->and($fetch->number_stores)->toBe(1)
+        ->and($this->organisation->group->supplyChainStats->number_suppliers)->toBe(1)
+        ->and($this->organisation->group->supplyChainStats->number_agents)->toBe(1)
+        ->and($this->organisation->group->supplyChainStats->number_agents)->toBe(1);
+});
+
+
 test('can fetch 1 location from aurora', function () {
 
     $command = join(

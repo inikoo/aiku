@@ -20,6 +20,11 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             return;
         }
 
+        //todo deal with inter group supplier products
+
+
+
+
         $parent = match ($this->auroraModelData->{'Purchase Order Parent'}) {
             'Agent' => $this->parseAgent($this->auroraModelData->{'Purchase Order Parent Key'}),
             default => $this->parseSupplier($this->auroraModelData->{'Purchase Order Parent Key'})
