@@ -43,26 +43,27 @@ const bulkData = ref([])
 const bulkDiscInput = ref(0)
 
 const defaultValue = [
-    { id: uuidv4(), rental: null, price_before_disc: 0, disc: 0, price: 0 },
+    { id: uuidv4(), rental: null, price: 0, disc: 0, agreed_price: 0, original_price : 0 },
 ]
 
 const addRow = () => {
-    props.form[props.fieldName].push({ id: uuidv4(), rental: null, price_before_disc: 0, disc: 0, price: 0 })
+    props.form[props.fieldName].push({ id: uuidv4(), rental: null, price: 0, disc: 0, agreed_price: 0, original_price : 0  })
 }
 
-const deleteRowRow = (index: number) => {
+const deleteRow = (index: number) => {
     props.form[props.fieldName].splice(index, 1)
 }
 
 const sePriceByRental = (value: number, options: Array, index: number) => {
     const data = options.find((item: { id: number }) => item.id == value)
-    props.form[props.fieldName][index].price_before_disc = data.price
-    props.form[props.fieldName][index].price = props.form[props.fieldName][index].price_before_disc - (props.form[props.fieldName][index].price_before_disc * (props.form[props.fieldName][index].disc / 100))
+    props.form[props.fieldName][index].price = data.price
+    props.form[props.fieldName][index].original_price = data.price
+    props.form[props.fieldName][index].agreed_price = props.form[props.fieldName][index].price - (props.form[props.fieldName][index].price * (props.form[props.fieldName][index].disc / 100))
 }
 
 
 const sePriceByChange = (value: number, record : Object, index: number) => {
-    props.form[props.fieldName][index].price = props.form[props.fieldName][index].price_before_disc - (props.form[props.fieldName][index].price_before_disc * (props.form[props.fieldName][index].disc / 100))
+    props.form[props.fieldName][index].agreed_price = props.form[props.fieldName][index].price - (props.form[props.fieldName][index].price * (props.form[props.fieldName][index].disc / 100))
 }
 
 
@@ -87,7 +88,7 @@ const onPutAllRentals = () => {
     const pullData = []
     for (const rental of rentals.value) {
         const find = props.form[props.fieldName].find((item) => item.rental == rental.id)
-        if (!find) pullData.push({ id: uuidv4(), rental: rental.id, price_before_disc: rental.price, disc: 0, price: 0 })
+        if (!find) pullData.push({ id: uuidv4(), rental: rental.id, price: rental.price, disc: 0, agreed_price: 0, original_price : rental.price })
     }
     props.form[props.fieldName].push(...pullData)
 }
@@ -120,11 +121,11 @@ const bulkDeleteAction = () => {
 
     // Remove items from deleteData in reverse order to avoid changing indices
     for (let i = itemsToDelete.length - 1; i >= 0; i--) {
-        console.log(itemsToDelete[i])
         deleteData.splice(itemsToDelete[i], 1);
     }
 
     props.form[props.fieldName] = deleteData
+    bulkData.value = []
 };
 
 
@@ -137,7 +138,36 @@ const onBulkDiscAction = (close) => {
     }
     props.form[props.fieldName] = data
     close()
+    bulkData.value = []
 }
+ 
+const setOptionSelectQueryFilter = (options, index) => {
+    // Initialize an empty array to store filtered options 
+    let pullData = [];
+
+    // Find the first item in options whose id matches the rental property
+    const first = options.find(item => item.id === props.form[props.fieldName][index].rental);
+
+    // If such an item exists, add it to pullData
+    if (first) {
+        pullData.push({ ...first });
+    }
+
+    // Iterate through each option
+    for (const rental of options) {
+        // Check if the rental id exists in props.form[fieldName]
+        const find = props.form[props.fieldName].find(item => item.rental === rental.id);
+        // If not found, add the option to pullData
+        if (!find) {
+            pullData.push(rental);
+        }
+    }
+    // Return the filtered options
+    return pullData;
+};
+
+
+
 
 
 onMounted(() => {
@@ -204,7 +234,7 @@ onMounted(() => {
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                 Discount (%)</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                final price</th>
+                                Ammount ($)</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                 <font-awesome-icon :icon="['fas', 'edit']" />
                             </th>
@@ -217,8 +247,9 @@ onMounted(() => {
                                     class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600" />
                             </td>
                             <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 w-80">
-                                <div class="relative w-full">
+                                <div class="relative xl:w-[500px] w-full">
                                     <SelectQuery
+                                        :filterOptions="(e)=>setOptionSelectQueryFilter(e,index)"
                                         :urlRoute="route(fieldData.indexRentalRoute.name, fieldData.indexRentalRoute.parameters)"
                                         :value="itemData" :placeholder="'Select or add rental'" :required="true"
                                         :label="'name'" :valueProp="'id'" :closeOnSelect="true" :clearOnSearch="false"
@@ -228,13 +259,13 @@ onMounted(() => {
 
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                <PureInput v-model="itemData.price_before_disc" :placeholder="'Input Price'"
+                                <PureInput v-model="itemData.price" :placeholder="'Input Price'"
                                     type="number" :minValue="0" step="0.01"
                                     @input="(value) => sePriceByChange(value,itemData,index)" />
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                <PureInput v-model="itemData.disc" :placeholder="'Input Price'" type="number"
-                                    :suffix="true" :minValue="0" step="0.01" @input="(value) => sePriceByChange(value,itemData,index)">
+                                <PureInput v-model="itemData.disc" :placeholder="'Input Discount'" type="number" :maxValue="100"
+                                    :suffix="true" :minValue="0" @input="(value) => sePriceByChange(value,itemData,index)">
                                     <template #suffix>
                                         <div
                                             class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer opacity-20 hover:opacity-75 active:opacity-100 text-black">
@@ -244,11 +275,11 @@ onMounted(() => {
                                 </PureInput>
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm">
-                                {{ itemData.price }}
+                                {{ itemData.agreed_price }}
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm">
                                 <font-awesome-icon :icon="['fas', 'trash']" class="text-red-500"
-                                    @click="() => deleteRowRow(index)" />
+                                    @click="() => deleteRow(index)" />
                             </td>
                         </tr>
                     </tbody>
@@ -259,9 +290,9 @@ onMounted(() => {
                             </td>
                         </tr>
                     </tfoot>
-                </table>
+                </table>   
             </div>
         </div>
     </div>
-  <!--   <div @click="() => console.log(form[fieldName], bulkData)">see data Send</div> -->
+    <div @click="() => console.log(form[fieldName])">see data Send</div>
 </template>

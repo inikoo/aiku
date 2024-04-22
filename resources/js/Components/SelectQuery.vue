@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Multiselect from "@vueform/multiselect"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { ref, onMounted, defineProps, onUnmounted } from 'vue'
+import { ref, onMounted, defineProps, onUnmounted, difi } from 'vue'
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
 import { isNull } from 'lodash'
@@ -33,6 +33,7 @@ const props = withDefaults(defineProps<{
     onChange?: Function
     canClear?: boolean
     isSelected?: Function
+    filterOptions? : Function
 }>(), {
     placeholder: 'select',
     required: false,
@@ -90,15 +91,13 @@ const getOptions = async () => {
 }
 
 
-const onGetOptionsSuccess = (response: any) => {
-    lastPage.value = response?.data?.meta?.last_page ?? lastPage.value
-    const data = [...optionData.value]
-    const newData = response?.data?.data ?? []
-
-    if (q.value && q.value !== '') optionData.value = [...newData]
-    else if (page.value > 1) optionData.value = [...optionData.value, ...newData]
-    else optionData.value = [...newData]
+const onGetOptionsSuccess = (response) => {
+    const newData = response?.data?.data ?? [];
+    const updatedOptions = q.value && q.value !== '' ? [...newData] : page.value > 1 ? [...optionData.value, ...newData] : [...newData];
+    optionData.value = props.filterOptions ? props.filterOptions(updatedOptions) : updatedOptions;
+    lastPage.value = response?.data?.meta?.last_page ?? lastPage.value;
 }
+
 
 
 const SearchChange = (value: any) => {
@@ -148,6 +147,11 @@ onUnmounted(() => {
     }
 })
 
+
+defineExpose({
+    _multiselectRef,
+    optionData
+})
 
 
 </script>

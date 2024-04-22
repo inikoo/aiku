@@ -35,6 +35,7 @@ class CreateRentalAgreement extends OrgAction
                     'title' => __('new rental agreement')
                 ],
                 'formData' => [
+                    'fullLayout' => true,
                     'blueprint' =>
                         [
                             [

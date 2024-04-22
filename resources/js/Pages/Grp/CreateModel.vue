@@ -42,6 +42,7 @@ const props = defineProps<{
     title: string
     pageHead: PageHeadingTypes
     formData: {
+        fullLayout?: Boolean
         blueprint: {
             title?: string
             subtitle?: string
@@ -55,7 +56,6 @@ const props = defineProps<{
     }
 }>()
 
-// console.log(props)
 
 const getComponent = (componentName: string) => {
     const components: any = {
@@ -133,7 +133,7 @@ onMounted(() => {
         <div class="divide-y divide-gray-200 lg:grid grid-flow-col lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
 
             <!-- Left Tab: Left navigation -->
-            <aside v-if="true" class="bg-gray-50 py-0 lg:col-span-3 lg:h-full">
+            <aside v-if="!formData.fullLayout" class="bg-gray-50 py-0 lg:col-span-3 lg:h-full">
                 <div class="sticky top-16">
                     <!-- <template v-for="(item, key) in formData['blueprint']">
                         <div v-if="item.title || item.icon" @click="jumpToElement(`field${key}`)" :class="[
@@ -155,7 +155,7 @@ onMounted(() => {
             </aside>
 
             <!-- Main form -->
-            <form class="px-4 sm:px-6 md:px-10 col-span-9 gap-y-8 pb-8 divide-y divide-gray-200"
+            <form :class="['px-4 sm:px-6 md:px-10 gap-y-8 pb-8 divide-y divide-gray-200', formData.fullLayout ? 'col-span-12' : 'col-span-9']"
                 @submit.prevent="handleFormSubmit">
                 <template v-for="(sectionData, sectionIdx ) in formData['blueprint']" :key="sectionIdx">
                     <!-- If Section: all fields is not hidden -->
