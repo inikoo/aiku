@@ -205,7 +205,20 @@ test('create rental agreement', function (FulfilmentCustomer $fulfilmentCustomer
 
     $rentalAgreement = StoreRentalAgreement::make()->action(
         $fulfilmentCustomer,
-        []
+        [
+            'billing_cycle' => 7,
+            'pallets_limit' => null,
+            'rental'        => [
+                [
+                    'rental_id'        => $fulfilmentCustomer->fulfilment->rentals->first()->id,
+                    'agreed_price'     => 100,
+                ],
+                [
+                    'rental_id'        => $fulfilmentCustomer->fulfilment->rentals->last()->id,
+                    'agreed_price'     => 200,
+                ],
+            ]
+        ]
     );
 
     expect($rentalAgreement)->toBeInstanceOf(RentalAgreement::class)
@@ -426,7 +439,8 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
     SendPalletDeliveryNotification::shouldRun()->andReturn();
 
     $fulfilmentCustomer=$palletDelivery->fulfilmentCustomer;
-    expect($fulfilmentCustomer->currentRecurringBill)->toBeNull();
+    expect($fulfilmentCustomer->currentRecurringBill)->toBeNull()
+    ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKING_IN);
 
     $palletDelivery=BookedInPalletDelivery::make()->action($palletDelivery);
     $palletDelivery->refresh();

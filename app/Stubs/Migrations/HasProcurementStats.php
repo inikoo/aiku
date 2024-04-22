@@ -46,9 +46,8 @@ trait HasProcurementStats
 
     public function supplierProductsStats(Blueprint $table): Blueprint
     {
-        $table->unsignedInteger('number_supplier_products')->default(0)->comment('Number supplier products (all excluding discontinued)');
-        $table->unsignedInteger('number_supplier_deliveries')->default(0)->comment('Number supplier deliveries (all excluding discontinued)');
-        $table->unsignedInteger('supplier_products_count')->default(0)->comment('Number supplier products');
+        $table->unsignedInteger('number_supplier_products')->default(0);
+        $table->unsignedInteger('number_supplier_products_state_active_and_discontinuing')->default(0);
 
 
         foreach (SupplierProductStateEnum::cases() as $productState) {
@@ -66,7 +65,8 @@ trait HasProcurementStats
 
     public function purchaseOrdersStats(Blueprint $table): Blueprint
     {
-        $table->unsignedInteger('number_purchase_orders')->default(0)->comment('Number purchase orders (except cancelled and failed) ');
+        $table->unsignedInteger('number_purchase_orders')->default(0);
+        $table->unsignedInteger('number_purchase_orders_except_cancelled')->default(0)->comment('Number purchase orders (except cancelled and failed) ');
         $table->unsignedInteger('number_open_purchase_orders')->default(0)->comment('Number purchase orders (except creating, settled)');
 
 
@@ -85,7 +85,8 @@ trait HasProcurementStats
 
     public function supplierDeliveriesStats(Blueprint $table): Blueprint
     {
-        $table->unsignedInteger('number_deliveries')->default(0)->comment('Number supplier deliveries (except cancelled)');
+        $table->unsignedInteger('number_supplier_deliveries')->default(0)->comment('Number supplier deliveries');
+        $table->unsignedInteger('number_supplier_deliveries_except_cancelled')->default(0)->comment('Number supplier deliveries');
 
         foreach (SupplierDeliveryStateEnum::cases() as $supplierDeliveryState) {
             $table->unsignedInteger('number_supplier_deliveries_state_'.$supplierDeliveryState->snake())->default(0);

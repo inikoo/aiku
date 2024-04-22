@@ -105,6 +105,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\FulfilmentProforma> $proformas
  * @property-read RentalAgreement|null $rentalAgreement
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, RentalAgreementClause> $rentalAgreementClauses
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemReturn> $storedItemReturns
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems

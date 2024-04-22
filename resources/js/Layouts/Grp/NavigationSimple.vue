@@ -62,7 +62,7 @@ onUnmounted(() => {
         ]"
 
         :aria-current="navKey === layout.currentModule ? 'page' : undefined"
-        v-tooltip="layout.leftSidebar.show ? false : capitalize(nav.label)"
+        v-tooltip="{ content: capitalize(nav.tooltip), delay: { show: layout.leftSidebar.show ? 500 : 100, hide: 100 } }"
     >
         <FontAwesomeIcon v-if="nav.icon" aria-hidden="true" class="flex-shrink-0 h-4 w-4" fixed-width :icon="nav.icon" />
         <Transition name="slide-to-left">

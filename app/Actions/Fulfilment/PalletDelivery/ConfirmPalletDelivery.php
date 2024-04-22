@@ -25,8 +25,16 @@ class ConfirmPalletDelivery extends OrgAction
 
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
+        if ($palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS) {
+            SubmitPalletDelivery::run($palletDelivery);
+        }
+
         $modelData['confirmed_at'] = now();
         $modelData['state']        = PalletDeliveryStateEnum::CONFIRMED;
+
+        if(!$palletDelivery->{PalletDeliveryStateEnum::SUBMITTED->value.'_at'}) {
+            $modelData[PalletDeliveryStateEnum::SUBMITTED->value.'_at'] = now();
+        }
 
         foreach ($palletDelivery->pallets as $pallet) {
             UpdatePallet::run($pallet, [
