@@ -619,16 +619,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.304.5",
+            "version": "3.304.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "c9a02677b00e28133915afd451a1c8c3726474b7"
+                "reference": "0079eaa0a0eaef2d73d0a4a11389cdfce1d33189"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c9a02677b00e28133915afd451a1c8c3726474b7",
-                "reference": "c9a02677b00e28133915afd451a1c8c3726474b7",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/0079eaa0a0eaef2d73d0a4a11389cdfce1d33189",
+                "reference": "0079eaa0a0eaef2d73d0a4a11389cdfce1d33189",
                 "shasum": ""
             },
             "require": {
@@ -708,9 +708,9 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.304.5"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.304.8"
             },
-            "time": "2024-04-16T19:20:23+00:00"
+            "time": "2024-04-19T18:13:09+00:00"
         },
         {
             "name": "aws/aws-sdk-php-laravel",
@@ -1672,16 +1672,16 @@
         },
         {
             "name": "doctrine/collections",
-            "version": "2.2.1",
+            "version": "2.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/collections.git",
-                "reference": "420480fc085bc65f3c956af13abe8e7546f94813"
+                "reference": "d8af7f248c74f195f7347424600fd9e17b57af59"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/collections/zipball/420480fc085bc65f3c956af13abe8e7546f94813",
-                "reference": "420480fc085bc65f3c956af13abe8e7546f94813",
+                "url": "https://api.github.com/repos/doctrine/collections/zipball/d8af7f248c74f195f7347424600fd9e17b57af59",
+                "reference": "d8af7f248c74f195f7347424600fd9e17b57af59",
                 "shasum": ""
             },
             "require": {
@@ -1738,7 +1738,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/collections/issues",
-                "source": "https://github.com/doctrine/collections/tree/2.2.1"
+                "source": "https://github.com/doctrine/collections/tree/2.2.2"
             },
             "funding": [
                 {
@@ -1754,7 +1754,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-03-05T22:28:45+00:00"
+            "time": "2024-04-18T06:56:21+00:00"
         },
         {
             "name": "doctrine/dbal",
@@ -2778,32 +2778,42 @@
             "time": "2022-08-05T20:32:58+00:00"
         },
         {
-            "name": "giggsey/libphonenumber-for-php",
-            "version": "8.13.34",
+            "name": "giggsey/libphonenumber-for-php-lite",
+            "version": "8.13.35",
             "source": {
                 "type": "git",
-                "url": "https://github.com/giggsey/libphonenumber-for-php.git",
-                "reference": "319810672f3f90d810e3cbc0071d0b7b329c2ec8"
+                "url": "https://github.com/giggsey/libphonenumber-for-php-lite.git",
+                "reference": "2908ab704834762f2074a25e41d524bdec76829b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/319810672f3f90d810e3cbc0071d0b7b329c2ec8",
-                "reference": "319810672f3f90d810e3cbc0071d0b7b329c2ec8",
+                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php-lite/zipball/2908ab704834762f2074a25e41d524bdec76829b",
+                "reference": "2908ab704834762f2074a25e41d524bdec76829b",
                 "shasum": ""
             },
             "require": {
-                "giggsey/locale": "^1.7|^2.0",
-                "php": ">=5.3.2",
+                "php": "^8.0",
                 "symfony/polyfill-mbstring": "^1.17"
             },
+            "conflict": {
+                "giggsey/libphonenumber-for-php": "*"
+            },
             "require-dev": {
-                "pear/pear-core-minimal": "^1.9",
-                "pear/pear_exception": "^1.0",
+                "ext-dom": "*",
+                "friendsofphp/php-cs-fixer": "^3.12",
+                "infection/infection": "^0.26.16",
+                "pear/pear-core-minimal": "^1.10.11",
+                "pear/pear_exception": "^1.0.2",
                 "pear/versioncontrol_git": "^0.5",
-                "phing/phing": "^2.7",
-                "php-coveralls/php-coveralls": "^1.0|^2.0",
-                "symfony/console": "^2.8|^3.0|^v4.4|^v5.2",
-                "symfony/phpunit-bridge": "^4.2 || ^5"
+                "phing/phing": "^2.17.4",
+                "phpstan/extension-installer": "^1.2",
+                "phpstan/phpstan": "^1.8",
+                "phpstan/phpstan-phpunit": "^1.2",
+                "phpunit/phpunit": "^9.5.26",
+                "symfony/console": "^6.0"
+            },
+            "suggest": {
+                "giggsey/libphonenumber-for-php": "Use libphonenumber-for-php for geocoding, carriers, timezones and matching"
             },
             "type": "library",
             "extra": {
@@ -2833,8 +2843,8 @@
                     "homepage": "https://giggsey.com/"
                 }
             ],
-            "description": "PHP Port of Google's libphonenumber",
-            "homepage": "https://github.com/giggsey/libphonenumber-for-php",
+            "description": "A lite version of giggsey/libphonenumber-for-php, which is a PHP Port of Google's libphonenumber",
+            "homepage": "https://github.com/giggsey/libphonenumber-for-php-lite",
             "keywords": [
                 "geocoding",
                 "geolocation",
@@ -2844,64 +2854,10 @@
                 "validation"
             ],
             "support": {
-                "issues": "https://github.com/giggsey/libphonenumber-for-php/issues",
-                "source": "https://github.com/giggsey/libphonenumber-for-php"
+                "issues": "https://github.com/giggsey/libphonenumber-for-php-lite/issues",
+                "source": "https://github.com/giggsey/libphonenumber-for-php-lite"
             },
-            "time": "2024-04-05T09:45:18+00:00"
-        },
-        {
-            "name": "giggsey/locale",
-            "version": "2.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/giggsey/Locale.git",
-                "reference": "e6d4540109a01dd2bc7334cdc842d6a6a67cf239"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/giggsey/Locale/zipball/e6d4540109a01dd2bc7334cdc842d6a6a67cf239",
-                "reference": "e6d4540109a01dd2bc7334cdc842d6a6a67cf239",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=7.2"
-            },
-            "require-dev": {
-                "ext-json": "*",
-                "pear/pear-core-minimal": "^1.9",
-                "pear/pear_exception": "^1.0",
-                "pear/versioncontrol_git": "^0.5",
-                "phing/phing": "^2.7",
-                "php-coveralls/php-coveralls": "^2.0",
-                "phpunit/phpunit": "^8.5|^9.5",
-                "symfony/console": "^5.0|^6.0",
-                "symfony/filesystem": "^5.0|^6.0",
-                "symfony/finder": "^5.0|^6.0",
-                "symfony/process": "^5.0|^6.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Giggsey\\Locale\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Joshua Gigg",
-                    "email": "giggsey@gmail.com",
-                    "homepage": "https://giggsey.com/"
-                }
-            ],
-            "description": "Locale functions required by libphonenumber-for-php",
-            "support": {
-                "issues": "https://github.com/giggsey/Locale/issues",
-                "source": "https://github.com/giggsey/Locale/tree/2.5"
-            },
-            "time": "2023-11-01T17:19:48+00:00"
+            "time": "2024-04-19T12:41:17+00:00"
         },
         {
             "name": "google/apiclient",
@@ -2974,16 +2930,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.344.0",
+            "version": "v0.345.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-api-php-client-services.git",
-                "reference": "d5813b1a64a8a73daf7ab307dc640e2efb046131"
+                "reference": "a975dae4c06d304b020eda3f53e7c3402b32132d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/d5813b1a64a8a73daf7ab307dc640e2efb046131",
-                "reference": "d5813b1a64a8a73daf7ab307dc640e2efb046131",
+                "url": "https://api.github.com/repos/googleapis/google-api-php-client-services/zipball/a975dae4c06d304b020eda3f53e7c3402b32132d",
+                "reference": "a975dae4c06d304b020eda3f53e7c3402b32132d",
                 "shasum": ""
             },
             "require": {
@@ -3012,9 +2968,9 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/google-api-php-client-services/issues",
-                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.344.0"
+                "source": "https://github.com/googleapis/google-api-php-client-services/tree/v0.345.0"
             },
-            "time": "2024-04-12T01:04:09+00:00"
+            "time": "2024-04-21T01:02:15+00:00"
         },
         {
             "name": "google/auth",
@@ -3076,16 +3032,16 @@
         },
         {
             "name": "google/cloud-core",
-            "version": "v1.57.0",
+            "version": "v1.58.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-cloud-php-core.git",
-                "reference": "a6bbc85a5ff2edc1c29344e3aaaa0a099d569748"
+                "reference": "2ea91dab93f9281c97e28691c0d9d806c5b61359"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-cloud-php-core/zipball/a6bbc85a5ff2edc1c29344e3aaaa0a099d569748",
-                "reference": "a6bbc85a5ff2edc1c29344e3aaaa0a099d569748",
+                "url": "https://api.github.com/repos/googleapis/google-cloud-php-core/zipball/2ea91dab93f9281c97e28691c0d9d806c5b61359",
+                "reference": "2ea91dab93f9281c97e28691c0d9d806c5b61359",
                 "shasum": ""
             },
             "require": {
@@ -3136,22 +3092,22 @@
             ],
             "description": "Google Cloud PHP shared dependency, providing functionality useful to all components.",
             "support": {
-                "source": "https://github.com/googleapis/google-cloud-php-core/tree/v1.57.0"
+                "source": "https://github.com/googleapis/google-cloud-php-core/tree/v1.58.0"
             },
-            "time": "2024-04-12T23:38:19+00:00"
+            "time": "2024-04-19T22:39:11+00:00"
         },
         {
             "name": "google/cloud-storage",
-            "version": "v1.41.2",
+            "version": "v1.41.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/google-cloud-php-storage.git",
-                "reference": "3b6d7c13970f0c80f2450d2ec1241d7deaad3dda"
+                "reference": "58b7e56e2ad9c7ef55648c461e74372580b34794"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/google-cloud-php-storage/zipball/3b6d7c13970f0c80f2450d2ec1241d7deaad3dda",
-                "reference": "3b6d7c13970f0c80f2450d2ec1241d7deaad3dda",
+                "url": "https://api.github.com/repos/googleapis/google-cloud-php-storage/zipball/58b7e56e2ad9c7ef55648c461e74372580b34794",
+                "reference": "58b7e56e2ad9c7ef55648c461e74372580b34794",
                 "shasum": ""
             },
             "require": {
@@ -3193,9 +3149,9 @@
             ],
             "description": "Cloud Storage Client for PHP",
             "support": {
-                "source": "https://github.com/googleapis/google-cloud-php-storage/tree/v1.41.2"
+                "source": "https://github.com/googleapis/google-cloud-php-storage/tree/v1.41.3"
             },
-            "time": "2024-04-12T23:38:19+00:00"
+            "time": "2024-04-19T22:39:11+00:00"
         },
         {
             "name": "google/common-protos",
@@ -3352,16 +3308,16 @@
         },
         {
             "name": "google/longrunning",
-            "version": "0.4.0",
+            "version": "0.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/php-longrunning.git",
-                "reference": "6841b03479d5a397a64036a99c33d8ee06bc8b42"
+                "reference": "67b80d36df06eaf5000fea010c77307e72fa0985"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/php-longrunning/zipball/6841b03479d5a397a64036a99c33d8ee06bc8b42",
-                "reference": "6841b03479d5a397a64036a99c33d8ee06bc8b42",
+                "url": "https://api.github.com/repos/googleapis/php-longrunning/zipball/67b80d36df06eaf5000fea010c77307e72fa0985",
+                "reference": "67b80d36df06eaf5000fea010c77307e72fa0985",
                 "shasum": ""
             },
             "require-dev": {
@@ -3390,9 +3346,9 @@
             ],
             "description": "Google LongRunning Client for PHP",
             "support": {
-                "source": "https://github.com/googleapis/php-longrunning/tree/v0.4.0"
+                "source": "https://github.com/googleapis/php-longrunning/tree/v0.4.1"
             },
-            "time": "2024-04-12T23:38:19+00:00"
+            "time": "2024-04-19T22:39:11+00:00"
         },
         {
             "name": "google/protobuf",
@@ -4342,24 +4298,23 @@
         },
         {
             "name": "jetbrains/phpstorm-stubs",
-            "version": "v2023.3",
+            "version": "v2024.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/JetBrains/phpstorm-stubs.git",
-                "reference": "99d8bcab934ae5362f33660b1cd4b8c4d617c40b"
+                "reference": "78d64a0d0c338fdb07eb53c72f91a86a3b2819c6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/JetBrains/phpstorm-stubs/zipball/99d8bcab934ae5362f33660b1cd4b8c4d617c40b",
-                "reference": "99d8bcab934ae5362f33660b1cd4b8c4d617c40b",
+                "url": "https://api.github.com/repos/JetBrains/phpstorm-stubs/zipball/78d64a0d0c338fdb07eb53c72f91a86a3b2819c6",
+                "reference": "78d64a0d0c338fdb07eb53c72f91a86a3b2819c6",
                 "shasum": ""
             },
             "require-dev": {
-                "friendsofphp/php-cs-fixer": "@stable",
-                "nikic/php-parser": "@stable",
-                "php": "^8.0",
-                "phpdocumentor/reflection-docblock": "@stable",
-                "phpunit/phpunit": "^9.6"
+                "friendsofphp/php-cs-fixer": "v3.46.0",
+                "nikic/php-parser": "v5.0.0",
+                "phpdocumentor/reflection-docblock": "5.3.0",
+                "phpunit/phpunit": "10.5.5"
             },
             "type": "library",
             "autoload": {
@@ -4384,9 +4339,9 @@
                 "type"
             ],
             "support": {
-                "source": "https://github.com/JetBrains/phpstorm-stubs/tree/v2023.3"
+                "source": "https://github.com/JetBrains/phpstorm-stubs/tree/v2024.1"
             },
-            "time": "2023-11-01T18:52:29+00:00"
+            "time": "2024-03-07T11:03:05+00:00"
         },
         {
             "name": "jubaer/zoom-laravel",
@@ -7831,16 +7786,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "3.2.4",
+            "version": "3.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "82c28278c1c8f7b82dcdab25692237f052ffc8d8"
+                "reference": "7219739c4e01d4680c980545821733b6ed8ee880"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/82c28278c1c8f7b82dcdab25692237f052ffc8d8",
-                "reference": "82c28278c1c8f7b82dcdab25692237f052ffc8d8",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/7219739c4e01d4680c980545821733b6ed8ee880",
+                "reference": "7219739c4e01d4680c980545821733b6ed8ee880",
                 "shasum": ""
             },
             "require": {
@@ -7933,7 +7888,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-04-05T09:58:10+00:00"
+            "time": "2024-04-18T16:35:06+00:00"
         },
         {
             "name": "nette/schema",
@@ -8514,16 +8469,16 @@
         },
         {
             "name": "paragonie/sodium_compat",
-            "version": "v1.20.1",
+            "version": "v1.21.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paragonie/sodium_compat.git",
-                "reference": "1840b98d228bdad83869b191d7e51f9bb6624d8d"
+                "reference": "102bcf2312dc21c16c7c93fd44a6d2a2e1343e26"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/sodium_compat/zipball/1840b98d228bdad83869b191d7e51f9bb6624d8d",
-                "reference": "1840b98d228bdad83869b191d7e51f9bb6624d8d",
+                "url": "https://api.github.com/repos/paragonie/sodium_compat/zipball/102bcf2312dc21c16c7c93fd44a6d2a2e1343e26",
+                "reference": "102bcf2312dc21c16c7c93fd44a6d2a2e1343e26",
                 "shasum": ""
             },
             "require": {
@@ -8594,9 +8549,9 @@
             ],
             "support": {
                 "issues": "https://github.com/paragonie/sodium_compat/issues",
-                "source": "https://github.com/paragonie/sodium_compat/tree/v1.20.1"
+                "source": "https://github.com/paragonie/sodium_compat/tree/v1.21.0"
             },
-            "time": "2024-04-05T21:00:10+00:00"
+            "time": "2024-04-19T09:18:28+00:00"
         },
         {
             "name": "phlak/semver",
@@ -9336,20 +9291,20 @@
         },
         {
             "name": "propaganistas/laravel-phone",
-            "version": "5.2.0",
+            "version": "5.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Propaganistas/Laravel-Phone.git",
-                "reference": "2dc9935da1bac59531729a20b3f1ac8a36f0e03b"
+                "reference": "b7461f013974d5fc530dc89fd5291890141d5c9f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Propaganistas/Laravel-Phone/zipball/2dc9935da1bac59531729a20b3f1ac8a36f0e03b",
-                "reference": "2dc9935da1bac59531729a20b3f1ac8a36f0e03b",
+                "url": "https://api.github.com/repos/Propaganistas/Laravel-Phone/zipball/b7461f013974d5fc530dc89fd5291890141d5c9f",
+                "reference": "b7461f013974d5fc530dc89fd5291890141d5c9f",
                 "shasum": ""
             },
             "require": {
-                "giggsey/libphonenumber-for-php": "^7.0|^8.0",
+                "giggsey/libphonenumber-for-php-lite": "^8.13.35",
                 "illuminate/contracts": "^10.0|^11.0",
                 "illuminate/support": "^10.0|^11.0",
                 "illuminate/validation": "^10.0|^11.0",
@@ -9396,7 +9351,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Propaganistas/Laravel-Phone/issues",
-                "source": "https://github.com/Propaganistas/Laravel-Phone/tree/5.2.0"
+                "source": "https://github.com/Propaganistas/Laravel-Phone/tree/5.3.0"
             },
             "funding": [
                 {
@@ -9404,7 +9359,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-03-12T07:19:37+00:00"
+            "time": "2024-04-20T18:10:56+00:00"
         },
         {
             "name": "psr/cache",
@@ -10296,21 +10251,21 @@
         },
         {
             "name": "roave/better-reflection",
-            "version": "6.33.0",
+            "version": "6.35.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/BetterReflection.git",
-                "reference": "6c2b05232a4642afa741f85481a4d13f4af253be"
+                "reference": "ae3b4fbbb5d4859066b472345c3a1d89f18d4fd6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/BetterReflection/zipball/6c2b05232a4642afa741f85481a4d13f4af253be",
-                "reference": "6c2b05232a4642afa741f85481a4d13f4af253be",
+                "url": "https://api.github.com/repos/Roave/BetterReflection/zipball/ae3b4fbbb5d4859066b472345c3a1d89f18d4fd6",
+                "reference": "ae3b4fbbb5d4859066b472345c3a1d89f18d4fd6",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "jetbrains/phpstorm-stubs": "2023.3",
+                "jetbrains/phpstorm-stubs": "2024.1",
                 "nikic/php-parser": "^5.0.2",
                 "php": "~8.2.0 || ~8.3.2"
             },
@@ -10319,7 +10274,7 @@
             },
             "require-dev": {
                 "phpbench/phpbench": "^1.2.15",
-                "phpunit/phpunit": "^11.0.9"
+                "phpunit/phpunit": "^11.1.2"
             },
             "suggest": {
                 "composer/composer": "Required to use the ComposerSourceLocator"
@@ -10359,9 +10314,9 @@
             "description": "Better Reflection - an improved code reflection API",
             "support": {
                 "issues": "https://github.com/Roave/BetterReflection/issues",
-                "source": "https://github.com/Roave/BetterReflection/tree/6.33.0"
+                "source": "https://github.com/Roave/BetterReflection/tree/6.35.0"
             },
-            "time": "2024-04-04T02:09:00+00:00"
+            "time": "2024-04-21T18:25:22+00:00"
         },
         {
             "name": "sentry/sentry",
@@ -10752,16 +10707,16 @@
         },
         {
             "name": "spatie/image",
-            "version": "3.4.2",
+            "version": "3.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/image.git",
-                "reference": "ebee025f0262380fe17abf2bfa970d794431c387"
+                "reference": "05166a6fae90b4c2ab57ff2d25d7f97a5e29f47b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/image/zipball/ebee025f0262380fe17abf2bfa970d794431c387",
-                "reference": "ebee025f0262380fe17abf2bfa970d794431c387",
+                "url": "https://api.github.com/repos/spatie/image/zipball/05166a6fae90b4c2ab57ff2d25d7f97a5e29f47b",
+                "reference": "05166a6fae90b4c2ab57ff2d25d7f97a5e29f47b",
                 "shasum": ""
             },
             "require": {
@@ -10808,7 +10763,7 @@
                 "spatie"
             ],
             "support": {
-                "source": "https://github.com/spatie/image/tree/3.4.2"
+                "source": "https://github.com/spatie/image/tree/3.5.0"
             },
             "funding": [
                 {
@@ -10820,7 +10775,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-04-15T13:05:34+00:00"
+            "time": "2024-04-17T13:16:06+00:00"
         },
         {
             "name": "spatie/image-optimizer",
@@ -11283,16 +11238,16 @@
         },
         {
             "name": "spatie/laravel-permission",
-            "version": "6.4.0",
+            "version": "6.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-permission.git",
-                "reference": "05cce017fe3ac78f60a3fce78c07fe6e8e6e6e52"
+                "reference": "17607924aa0aa89bc0153c2ce45ed7c55083367b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/05cce017fe3ac78f60a3fce78c07fe6e8e6e6e52",
-                "reference": "05cce017fe3ac78f60a3fce78c07fe6e8e6e6e52",
+                "url": "https://api.github.com/repos/spatie/laravel-permission/zipball/17607924aa0aa89bc0153c2ce45ed7c55083367b",
+                "reference": "17607924aa0aa89bc0153c2ce45ed7c55083367b",
                 "shasum": ""
             },
             "require": {
@@ -11353,7 +11308,7 @@
             ],
             "support": {
                 "issues": "https://github.com/spatie/laravel-permission/issues",
-                "source": "https://github.com/spatie/laravel-permission/tree/6.4.0"
+                "source": "https://github.com/spatie/laravel-permission/tree/6.7.0"
             },
             "funding": [
                 {
@@ -11361,7 +11316,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-02-28T08:11:20+00:00"
+            "time": "2024-04-19T12:35:28+00:00"
         },
         {
             "name": "spatie/laravel-query-builder",
@@ -15599,16 +15554,16 @@
         },
         {
             "name": "deployer/deployer",
-            "version": "v7.3.3",
+            "version": "v7.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/deployphp/deployer.git",
-                "reference": "3535bdb2f6360662bd95f6e26fce31dbc269af64"
+                "reference": "b438dc22545ab2ecc67d79c80c7a79c156de3599"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/deployphp/deployer/zipball/3535bdb2f6360662bd95f6e26fce31dbc269af64",
-                "reference": "3535bdb2f6360662bd95f6e26fce31dbc269af64",
+                "url": "https://api.github.com/repos/deployphp/deployer/zipball/b438dc22545ab2ecc67d79c80c7a79c156de3599",
+                "reference": "b438dc22545ab2ecc67d79c80c7a79c156de3599",
                 "shasum": ""
             },
             "bin": [
@@ -15638,7 +15593,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-11-07T10:27:12+00:00"
+            "time": "2024-04-17T20:55:49+00:00"
         },
         {
             "name": "fakerphp/faker",
