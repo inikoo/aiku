@@ -55,7 +55,7 @@ const props = defineProps<{
     }
 }>()
 
-console.log(props)
+// console.log(props)
 
 const getComponent = (componentName: string) => {
     const components: any = {
