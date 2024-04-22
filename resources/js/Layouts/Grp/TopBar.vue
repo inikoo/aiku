@@ -52,7 +52,7 @@ const label = {
     fulfilmentSelect: trans("Select fulfilments")
 }
 
-// console.log('agents', layoutStore.currentParams?.organisation)
+// console.log('agexxxnts', layoutStore.currentParams?.organisation)
 // console.log('agents', layoutStore.agents.data)
 // console.log('agents', layoutStore.agents.data.find((item) => item.slug == layoutStore.currentParams?.organisation))
 
@@ -68,25 +68,25 @@ const label = {
                         <span class="sr-only">Open sidebar</span>
                         <div class="block w-5 absolute left-1/2 top-1/2   transform  -translate-x-1/2 -translate-y-1/2">
                             <span aria-hidden="true" class="block absolute rounded-full h-0.5 w-5 bg-gray-900 transform transition duration-200 ease-in-out"
-                                  :class="{'rotate-45': sidebarOpen,' -translate-y-1.5': !sidebarOpen }"></span>
+                                :class="{'rotate-45': sidebarOpen,' -translate-y-1.5': !sidebarOpen }"></span>
                             <span aria-hidden="true" class="block absolute rounded-full h-0.5 w-5 bg-gray-900 transform transition duration-100 ease-in-out" :class="{'opacity-0': sidebarOpen } "></span>
                             <span aria-hidden="true" class="block absolute rounded-full h-0.5 w-5 bg-gray-900 transform transition duration-200 ease-in-out"
-                                  :class="{'-rotate-45': sidebarOpen, ' translate-y-1.5': !sidebarOpen}"></span>
+                                :class="{'-rotate-45': sidebarOpen, ' translate-y-1.5': !sidebarOpen}"></span>
                         </div>
                     </button>
 
                     <!-- App Title: Image and Title -->
                     <div class="flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
-                         :class="[layoutStore.leftSidebar.show ? 'md:w-48 md:pr-4' : 'md:w-12']"
-                         :style="{
+                        :class="[layoutStore.leftSidebar.show ? 'md:w-48 md:pr-4' : 'md:w-12']"
+                        :style="{
                             'background-color': layoutStore.app.theme[0],
                             'color': layoutStore.app.theme[1],
                             'border-bottom': `1px solid ${layoutStore.app.theme[2]}3F`
                         }"
                     >
-                        <Link :href="layoutStore.app?.url ?? '#'"
-                              class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
-                              :class="[layoutStore.leftSidebar.show ? 'py-1 pl-4' : 'pl-2.5 w-full']"
+                        <Link :href="layoutStore.currentParams?.organisation ? route('grp.org.dashboard.show', layoutStore.currentParams?.organisation) : route('grp.dashboard.show')"
+                            class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
+                            :class="[layoutStore.leftSidebar.show ? 'py-1 pl-4' : 'pl-2.5 w-full']"
                         >
                             <Image :src="layoutStore.organisations.data.find((item) => item.slug == (layoutStore.currentParams?.organisation || false))?.logo || layoutStore.group?.logo" class="aspect-square h-5" />
                             <Transition name="slide-to-left">
