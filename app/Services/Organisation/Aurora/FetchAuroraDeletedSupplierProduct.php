@@ -9,6 +9,7 @@ namespace App\Services\Organisation\Aurora;
 
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class FetchAuroraDeletedSupplierProduct extends FetchAurora
 {
@@ -17,7 +18,15 @@ class FetchAuroraDeletedSupplierProduct extends FetchAurora
         $deleted_at        = $this->parseDate($this->auroraModelData->{'Supplier Part Deleted Date'});
         $auroraDeletedData = json_decode(gzuncompress($this->auroraModelData->{'Supplier Part Deleted Metadata'}));
 
-        $this->parsedData['supplier'] = $this->parseSupplier($auroraDeletedData->{'Supplier Part Supplier Key'});
+
+        $supplierSourceSlug = Str::kebab(strtolower($auroraDeletedData->{'Supplier Code'}));
+        $supplierSourceSlug .= '-deleted';
+
+
+        $this->parsedData['supplier'] = $this->parseSupplier(
+            $supplierSourceSlug,
+            $this->organisation->id.':'.$auroraDeletedData->{'Supplier Part Supplier Key'}
+        );
         if (!$this->parsedData['supplier']) {
             return;
         }

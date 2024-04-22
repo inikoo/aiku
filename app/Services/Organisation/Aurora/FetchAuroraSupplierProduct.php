@@ -40,7 +40,7 @@ class FetchAuroraSupplierProduct extends FetchAurora
         }
 
 
-        $supplier = $this->parseSupplier($supplierSourceSlug);
+        $supplier = $this->parseSupplier($supplierSourceSlug, $this->organisation->id.":".$this->auroraModelData->{'Supplier Part Supplier Key'});
 
 
         if (!$supplier) {

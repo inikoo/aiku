@@ -49,7 +49,7 @@ test('can fetch supplier product', function () {
         ->and($this->organisation->group->supplyChainStats->number_suppliers)->toBe(1)
         ->and($this->organisation->group->supplyChainStats->number_agents)->toBe(1)
         ->and($this->organisation->group->supplyChainStats->number_agents)->toBe(1);
-})->todo();
+});
 
 
 test('can fetch 1 location from aurora', function () {
