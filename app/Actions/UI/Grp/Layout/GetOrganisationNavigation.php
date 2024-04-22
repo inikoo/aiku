@@ -92,7 +92,7 @@ class GetOrganisationNavigation
                     "parameters" => [$organisation->slug],
                 ],
                 "topMenu" => [
-                    'subsections' => [
+                    'subSections' => [
                         [
                             'icon'  => ['fal', 'fa-tasks-alt'],
                             'route' => [
@@ -100,14 +100,14 @@ class GetOrganisationNavigation
                                 "parameters" => [$organisation->slug],
                             ]
                         ],
-                        [
-                            'label' => __('delivery notes'),
-                            'icon'  => ['fal', 'fa-truck'],
-                            'route' => [
-                                "name"       => "grp.org.dispatch.delivery-notes",
-                                "parameters" => [$organisation->slug],
-                            ]
-                        ],
+                        // [
+                        //     'label' => __('delivery notes'),
+                        //     'icon'  => ['fal', 'fa-truck'],
+                        //     'route' => [
+                        //         "name"       => "grp.org.dispatch.delivery-notes",
+                        //         "parameters" => [$organisation->slug],
+                        //     ]
+                        // ],
                     ]
                 ],
             ];
