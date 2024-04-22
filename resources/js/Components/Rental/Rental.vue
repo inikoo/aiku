@@ -88,7 +88,7 @@ const onPutAllRentals = () => {
     const pullData = []
     for (const rental of rentals.value) {
         const find = props.form[props.fieldName].find((item) => item.rental == rental.id)
-        if (!find) pullData.push({ id: uuidv4(), rental: rental.id, price: rental.price, disc: 0, agreed_price: 0, original_price : rental.price })
+        if (!find) pullData.push({ id: uuidv4(), rental: rental.id, price: rental.price, disc: 0, agreed_price: rental.price, original_price : rental.price })
     }
     props.form[props.fieldName].push(...pullData)
 }
@@ -134,11 +134,12 @@ const onBulkDiscAction = (close) => {
     for (const [index, item] of data.entries()) {
         if (bulkData.value.includes(item.id)) {
             item.disc = bulkDiscInput.value
+            item.agreed_price = item.price - (item.price * (item.disc / 100))
         }
     }
     props.form[props.fieldName] = data
-    close()
     bulkData.value = []
+    close()
 }
  
 const setOptionSelectQueryFilter = (options, index) => {
@@ -193,7 +194,7 @@ onMounted(() => {
                     <div class="w-[350px]">
                         <div class="text-xs my-2 font-medium">{{ trans('Discount(%)') }}: </div>
                         <PureInput v-model="bulkDiscInput" autofocus placeholder="1-100" type="number" :maxValue="100"
-                            :suffix="true" :minValue="0" step="0.01" @keydown.enter="() => onBulkDiscAction(closed)">
+                            :suffix="true" :minValue="0"  @onEnter="() => onBulkDiscAction(closed)">
                             <template #suffix>
                                 <div
                                     class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer opacity-20 hover:opacity-75 active:opacity-100 text-black">
@@ -275,7 +276,7 @@ onMounted(() => {
                                 </PureInput>
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm">
-                                {{ itemData.agreed_price }}
+                               <span class="text-sm font-semibold">$ {{ itemData.agreed_price }}</span> 
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm">
                                 <font-awesome-icon :icon="['fas', 'trash']" class="text-red-500"
@@ -294,5 +295,5 @@ onMounted(() => {
             </div>
         </div>
     </div>
-    <div @click="() => console.log(form[fieldName])">see data Send</div>
+<!--     <div @click="() => console.log(form[fieldName])">see data Send</div> -->
 </template>
