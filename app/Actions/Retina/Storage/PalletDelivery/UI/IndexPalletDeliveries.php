@@ -31,8 +31,8 @@ class IndexPalletDeliveries extends RetinaAction
 
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent = $this->customer->fulfilmentCustomer;
         $this->initialisation($request);
+        $this->parent = $this->customer->fulfilmentCustomer;
 
         return $this->handle($this->customer->fulfilmentCustomer);
     }
@@ -64,7 +64,7 @@ class IndexPalletDeliveries extends RetinaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $this->hasRentalAgreement($this->parent);
+        return $this->hasRentalAgreement($this->customer->fulfilmentCustomer);
     }
 
     public function tableStructure(FulfilmentCustomer $parent, ?array $modelOperations = null, $prefix = null): Closure
