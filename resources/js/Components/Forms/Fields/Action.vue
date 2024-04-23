@@ -29,7 +29,6 @@ const handleClick = (action: Action) => {
         })
 };
 
-
 </script>
 
 <template>
@@ -48,7 +47,7 @@ const handleClick = (action: Action) => {
         </slot>
     </div>
 
-    <!-- Button -->    
+    <!-- Button -->
     <template v-else-if="action.route">
         <!-- Button: to download PDF (open in new tab) -->
         <a v-if="action.target" :href="route(action.route?.name, action.route?.parameters)" :target="action.target">

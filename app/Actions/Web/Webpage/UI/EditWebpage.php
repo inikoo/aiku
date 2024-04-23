@@ -7,7 +7,9 @@
 
 namespace App\Actions\Web\Webpage\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Exception;
@@ -15,7 +17,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditWebpage extends InertiaAction
+class EditWebpage extends OrgAction
 {
     public function handle(Webpage $webpage): Webpage
     {
@@ -24,22 +26,22 @@ class EditWebpage extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('websites.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
 
-        return $request->user()->hasPermissionTo("websites.edit");
+        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
     }
 
-    public function asController(Webpage $webpage, ActionRequest $request): Webpage
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, Webpage $webpage, ActionRequest $request): Webpage
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($webpage);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWebsite(Website $website, Webpage $webpage, ActionRequest $request): Webpage
+    public function inWebsite(Organisation $organisation, Fulfilment $fulfilment, Website $website, Webpage $webpage, ActionRequest $request): Webpage
     {
-        $this->initialisation($request);
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($webpage);
     }
@@ -53,7 +55,7 @@ class EditWebpage extends InertiaAction
             'EditModel',
             [
                 'title'       => __("Webpage's settings"),
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
 
                 'pageHead' => [
                     'title' => __('webpage settings'),
@@ -186,9 +188,10 @@ class EditWebpage extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return ShowWebpage::make()->getBreadcrumbs(
+            $routeName,
             $routeParameters,
             suffix: '('.__('settings').')'
         );

@@ -220,7 +220,8 @@ class ShowWebpage extends OrgAction
 
         return
             match ($routeName) {
-                'grp.org.fulfilments.show.web.websites.show.webpages.show' => array_merge(
+                'grp.org.fulfilments.show.web.websites.show.webpages.show',
+                'grp.org.fulfilments.show.web.websites.show.webpages.edit' => array_merge(
                     ShowWebsite::make()->getBreadcrumbs(
                         'grp.org.fulfilments.show.web.websites.show',
                         Arr::only($routeParameters, ['organisation', 'fulfilment', 'website'])

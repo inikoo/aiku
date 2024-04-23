@@ -11,21 +11,22 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Market\RentalAgreement;
 use App\Models\SysAdmin\Organisation;
 use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateRentalAgreement extends OrgAction
+class EditRentalAgreement extends OrgAction
 {
     /**
      * @throws Exception
      */
-    public function handle(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Response
+    public function handle(RentalAgreement $rentalAgreement, ActionRequest $request): Response
     {
         return Inertia::render(
-            'CreateModel',
+            'EditModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
@@ -45,12 +46,13 @@ class CreateRentalAgreement extends OrgAction
                                         'type'     => 'input',
                                         'label'    => __('billing cycle'),
                                         'required' => true,
-                                        'value'    => 7
+                                        'value'    => $rentalAgreement->billing_cycle
                                     ],
                                     'pallets_limit' => [
                                         'type'     => 'input',
                                         'label'    => __('pallets limit'),
-                                        'required' => false
+                                        'required' => false,
+                                        'value'    => $rentalAgreement->pallets_limit
                                     ],
                                     'rental' => [
                                         'type'             => 'rental',
@@ -61,21 +63,21 @@ class CreateRentalAgreement extends OrgAction
                                             'name'       => 'grp.org.fulfilments.show.products.rentals.index',
                                             'parameters' => [
                                                 'organisation' => $this->organisation->slug,
-                                                'fulfilment'   => $fulfilmentCustomer->fulfilment->slug
+                                                'fulfilment'   => $rentalAgreement->fulfilment->slug
                                             ]
-                                        ]
+                                        ],
+                                        'value' => ''
                                     ],
                                 ]
                             ]
                         ],
                     'route' => [
-                        'name'       => 'grp.models.fulfilment-customer.rental-agreements.store',
+                        'name'       => 'grp.models.fulfilment-customer.rental-agreements.update',
                         'parameters' => [
-                            'fulfilmentCustomer' => $fulfilmentCustomer->id,
+                            'rentalAgreement' => $rentalAgreement->id,
                         ]
                     ]
                 ],
-
             ]
         );
     }
@@ -88,11 +90,11 @@ class CreateRentalAgreement extends OrgAction
     /**
      * @throws Exception
      */
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Response
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, RentalAgreement $rentalAgreement, ActionRequest $request): Response
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilmentCustomer, $request);
+        return $this->handle($rentalAgreement, $request);
     }
 
     public function getBreadcrumbs(array $routeParameters): array

@@ -7,7 +7,9 @@
 
 namespace App\Actions\Web\Website\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
 use Exception;
 use Illuminate\Support\Str;
@@ -15,7 +17,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditWebsite extends InertiaAction
+class EditWebsite extends OrgAction
 {
     public function handle(Website $website): Website
     {
@@ -24,14 +26,15 @@ class EditWebsite extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('websites.edit');
-        return $request->user()->hasPermissionTo("websites.edit");
+        $this->canEdit = $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+
+        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
 
     }
 
-    public function asController(Website $website, ActionRequest $request): Website
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Website
     {
-        $this->initialisation($request);
+        $this->initialisationFromFulfilment($fulfilment, $request);
         return $this->handle($website);
     }
 
@@ -46,7 +49,7 @@ class EditWebsite extends InertiaAction
                     'title'       => __("Website's settings"),
                     'breadcrumbs' => $this->getBreadcrumbs(
                         $request->route()->getName(),
-                        $request->route()->originalParameters()()
+                        $request->route()->originalParameters()
                     ),
                     'navigation'   => [
                         'previous' => $this->getPrevious($website, $request),
