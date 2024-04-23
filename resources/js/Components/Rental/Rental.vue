@@ -12,7 +12,7 @@ import { faCopy } from '@fal'
 import { faSpinnerThird } from '@fad'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { set, get } from "lodash"
-import { ref, watch, defineEmits, onMounted, onBeforeMount } from "vue"
+import { ref, watch, onMounted, onBeforeMount } from "vue"
 import SelectQuery from "@/Components/SelectQuery.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { notify } from "@kyvg/vue3-notification"

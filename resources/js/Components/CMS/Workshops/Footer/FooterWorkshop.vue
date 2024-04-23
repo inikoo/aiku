@@ -15,7 +15,7 @@ import {
 } from "./Descriptor"
 import Tools from "./Tools.vue"
 import { useForm } from "@inertiajs/vue3"
-import { ref, watch, defineEmits } from "vue"
+import { ref, watch } from "vue"
 
 //InitialData
 const ToolsBluprint = footerDataTools

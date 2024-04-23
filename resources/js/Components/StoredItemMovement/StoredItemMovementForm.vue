@@ -8,7 +8,6 @@
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus } from "@fas"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import { defineEmits } from "vue"
 import { trans } from "laravel-vue-i18n"
 import SelectQuery from "@/Components/SelectQuery.vue"
 import { notify } from "@kyvg/vue3-notification"

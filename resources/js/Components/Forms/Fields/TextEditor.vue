@@ -2,7 +2,7 @@
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 
 import { Editor, EditorContent } from '@tiptap/vue-3'
-import { Editor as EditorType } from '@tiptap/core/dist/packages/core/src/Editor.d.ts'
+import { Editor as EditorType } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 import TextAlign from '@tiptap/extension-text-align'
 import TextStyle from '@tiptap/extension-text-style'

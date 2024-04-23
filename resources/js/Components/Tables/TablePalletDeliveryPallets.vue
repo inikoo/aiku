@@ -18,7 +18,7 @@ import { faTrashAlt, faPaperPlane, faInventory } from "@far"
 import { faTruckLoading, faStickyNote, faPallet, faBox, faBoxes, faSortSizeUp } from "@fal"
 import FieldEditableTable from "@/Components/FieldEditableTable.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import { ref, watch, defineEmits } from "vue"
+import { ref, watch } from "vue"
 import ButtonEditTable from "@/Components/ButtonEditTable.vue"
 import LocationFieldDelivery from "@/Components/LocationFieldDelivery.vue"
 import StoredItemProperty from '@/Components/StoredItemsProperty.vue'

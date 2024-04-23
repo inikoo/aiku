@@ -19,7 +19,6 @@ import { trans } from "laravel-vue-i18n"
 import { Link } from "@inertiajs/vue3"
 import { get } from 'lodash'
 
-import { defineProps } from "vue"
 
 const props = defineProps({
   navigation: {

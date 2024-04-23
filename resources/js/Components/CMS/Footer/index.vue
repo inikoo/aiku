@@ -4,7 +4,7 @@
 import FooterTheme1 from './FooterTheme1.vue'
 import FooterTheme2 from './FooterTheme2.vue'
 import FooterTheme3 from './FooterTheme3.vue'
-import { ref, watch, defineEmits } from "vue"
+import { ref, watch } from "vue"
 
 const props = defineProps<{
  tools : Object,

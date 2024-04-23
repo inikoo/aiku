@@ -9,7 +9,6 @@ import { capitalize } from '@/Composables/capitalize'
 import { trans } from 'laravel-vue-i18n'
 library.add(faUser, faCalendarAlt, faEnvelope, faPhone, faGlobe)
 
-import { defineProps } from 'vue';
 
 const props = withDefaults(defineProps<{
     data: {

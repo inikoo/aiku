@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import Multiselect from "@vueform/multiselect"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { ref, onMounted, defineProps, onUnmounted, difi } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
-import { isNull } from 'lodash'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import Tag from '@/Components/Tag.vue'
 
