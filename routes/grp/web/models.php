@@ -187,7 +187,8 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     });
 
     Route::prefix('rental-agreements')->name('rental-agreements.')->group(function () {
-        Route::post('', StoreRentalAgreement::class)->name('store');
+        Route::post('/', StoreRentalAgreement::class)->name('store');
+        Route::post('{rentalAgreement}', StoreRentalAgreement::class)->name('update');
     });
 });
 
