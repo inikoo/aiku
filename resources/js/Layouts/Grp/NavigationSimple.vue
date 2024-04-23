@@ -5,7 +5,7 @@
   -->
 
 <script setup lang='ts'>
-import { useLayoutStore } from '@/Stores/layout'
+// import { useLayoutStore } from '@/Stores/layout'
 import { Navigation } from '@/types/Navigation'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faRoute } from '@fal'
@@ -13,9 +13,10 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { Link } from '@inertiajs/vue3'
 import { capitalize } from "@/Composables/capitalize"
 import { isNavigationActive } from '@/Composables/useUrl'
-import { onMounted, ref, onUnmounted } from 'vue'
+import { onMounted, ref, onUnmounted, inject } from 'vue'
 import TopBarSubsections from '@/Layouts/Grp/TopBarSubsections.vue'
-import {faHandHoldingBox} from '@fal';
+import { faHandHoldingBox } from '@fal'
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 library.add(faRoute, faHandHoldingBox)
 
 const props = defineProps<{
@@ -23,36 +24,20 @@ const props = defineProps<{
     nav: Navigation
 }>()
 
-// From 'shops_index' to 'shops'
-// const separateUnderscore = (str: string | number) => {
-//     const realString = str.toString()
-
-//     return realString.split('_')
-// }
-
-const layout = useLayoutStore()
+const layout = inject('layout', layoutStructure)
 const isTopMenuActive = ref(false)
 
 onMounted(() => {
     isTopMenuActive.value = true
-    // console.log('NavigationSimple.vue', props.navKey, props.nav)
 })
 
 onUnmounted(() => {
     isTopMenuActive.value = false
 })
 
-// Check if this route has nav.root
-// const isRouteActive = () => {
-//     return (layout.currentRoute).includes(props.nav.root || 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')  // 'aaaa' so it will return false
-// }
-
-
 </script>
 
 <template>
-    <!-- {{ layout.currentRoute }} -->
-    <!-- <div class="text-xxs">{{ layout.currentRoute }} <br> {{ nav.route.name }}</div> -->
     <Link :href="nav.route?.name ? route(nav.route.name, nav.route.parameters) : '#'"
         class="group flex items-center px-2 text-sm gap-x-2" :class="[
             isNavigationActive(layout.currentRoute, props.nav.root)
