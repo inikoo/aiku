@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupLabel, RadioGroupOption } from "@headlessui/vue"
 import { faHandPointer, faHandRock, faPlus } from "@fas"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
-import { ref, watch, defineEmits } from "vue"
+import { ref, watch } from "vue"
 
 library.add(faHandPointer, faHandRock, faPlus)
 

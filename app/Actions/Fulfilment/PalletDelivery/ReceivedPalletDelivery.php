@@ -97,7 +97,9 @@ class ReceivedPalletDelivery extends OrgAction
 
     public function action(PalletDelivery $palletDelivery): PalletDelivery
     {
-        $this->asAction = true;
+        $this->asAction       = true;
+        $this->palletDelivery = $palletDelivery;
+
         $this->initialisation($palletDelivery->organisation, []);
         return $this->handle($palletDelivery);
     }

@@ -17,7 +17,7 @@ import {
 import { library } from "@fortawesome/fontawesome-svg-core"
 import draggable from "vuedraggable"
 import BubleTextEditor from "@/Components/Forms/Fields/BubleTextEditor/BubleTextEditor.vue"
-import { ref, watch, defineEmits } from "vue"
+import { ref, watch } from "vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { menuItem } from '@/Components/CMS/Workshops/Footer/Descriptor.ts'
 

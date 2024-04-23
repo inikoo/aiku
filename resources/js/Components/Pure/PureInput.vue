@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { ref, defineExpose, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useCopyText } from '@/Composables/useCopyText'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCopy } from '@fal'

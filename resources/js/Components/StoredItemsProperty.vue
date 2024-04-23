@@ -8,7 +8,7 @@
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus } from "@fas"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import { ref, defineEmits } from "vue"
+import { ref } from "vue"
 import { useForm, router } from "@inertiajs/vue3"
 import Modal from "@/Components/Utils/Modal.vue"
 import { notify } from "@kyvg/vue3-notification"

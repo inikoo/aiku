@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
-import { onMounted, defineProps, defineEmits, ref} from 'vue';
+import { onMounted, ref} from 'vue';
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faPlus } from "@fas";
 import SchemaFileds from '@/Components/SchemaForm/SchemaFileds.vue';

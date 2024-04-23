@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { ref, defineEmits, watch, onBeforeMount } from 'vue'
+import { ref, watch, onBeforeMount } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
 import 'swiper/css/navigation'

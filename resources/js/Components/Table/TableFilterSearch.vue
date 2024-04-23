@@ -55,8 +55,8 @@ const isUserMac = navigator.platform.includes('Mac')  // To check the user's Ope
             <FontAwesomeIcon icon="fal fa-filter" class="h-4 w-4" aria-hidden="true"
                 :class="[value ? 'text-gray-500' : 'text-gray-400']" 
             />
-            <span v-if="isUserMac" class="ring-1 ring-gray-400 bg-gray-100 px-2 leading-none text-xl rounded">⌥</span>
-            <span v-else class="ring-1 ring-gray-400 bg-gray-100 px-2 py-0.5 text-xs rounded">Alt</span>
+            <span v-if="isUserMac" class="ring-1 ring-gray-400 bg-gray-100 px-2 leading-none py-0.5 text-base rounded">⌥</span>
+            <span v-else class="ring-1 ring-gray-400 bg-gray-100 px-2 py-1 text-xs rounded leading-none">Alt</span>
             <span class="ring-1 ring-gray-400 bg-gray-100 px-2 py-0.5 text-xs rounded">/</span>
         </div>
 

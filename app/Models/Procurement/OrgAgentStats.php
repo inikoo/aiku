@@ -21,9 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_suppliers_in_agents Active + Archived suppliers
  * @property int $number_active_suppliers_in_agents Active suppliers, status=true
  * @property int $number_archived_suppliers_in_agents Archived suppliers status=false
- * @property int $number_supplier_products Number supplier products (all excluding discontinued)
- * @property int $number_supplier_deliveries Number supplier deliveries (all excluding discontinued)
- * @property int $supplier_products_count Number supplier products
+ * @property int $number_supplier_products
  * @property int $number_supplier_products_state_creating
  * @property int $number_supplier_products_state_active
  * @property int $number_supplier_products_state_discontinuing
@@ -34,7 +32,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_supplier_products_stock_quantity_status_critical
  * @property int $number_supplier_products_stock_quantity_status_out_of_stock
  * @property int $number_supplier_products_stock_quantity_status_no_applicable
- * @property int $number_purchase_orders Number purchase orders (except cancelled and failed)
+ * @property int $number_purchase_orders
+ * @property int $number_purchase_orders_except_cancelled Number purchase orders (except cancelled and failed)
  * @property int $number_open_purchase_orders Number purchase orders (except creating, settled)
  * @property int $number_purchase_orders_state_creating
  * @property int $number_purchase_orders_state_submitted
@@ -48,7 +47,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_purchase_orders_status_settled_placed
  * @property int $number_purchase_orders_status_settled_no_received
  * @property int $number_purchase_orders_status_settled_cancelled
- * @property int $number_deliveries Number supplier deliveries (except cancelled)
+ * @property int $number_supplier_deliveries Number supplier deliveries
+ * @property int $number_supplier_deliveries_except_cancelled Number supplier deliveries
  * @property int $number_supplier_deliveries_state_creating
  * @property int $number_supplier_deliveries_state_dispatched
  * @property int $number_supplier_deliveries_state_received

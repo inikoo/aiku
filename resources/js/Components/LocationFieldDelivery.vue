@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import { ref, defineEmits } from "vue"
+import { ref } from "vue"
 import ButtonEditTable from "@/Components/ButtonEditTable.vue"
 import Popover from '@/Components/Popover.vue'
 import SelectQuery from '@/Components/SelectQuery.vue'

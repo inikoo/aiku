@@ -23,8 +23,10 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?SupplierProduct
     {
-        if ($supplierProductData = $organisationSource->fetchSupplierProduct($organisationSourceId)) {
-            // print_r($supplierProductData['supplierProduct']);
+        $supplierProductData = $organisationSource->fetchSupplierProduct($organisationSourceId);
+
+        if ($supplierProductData) {
+
 
             $found           = false;
             $supplierProduct = null;
@@ -45,6 +47,8 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                         skipHistoric: true,
                         hydratorsDelay: $this->hydrateDelay
                     );
+                    $this->recordChange($organisationSource, $supplierProduct->wasChanged());
+
                 }
 
 
@@ -71,9 +75,9 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
             }
 
 
+
             if (!$found) {
                 $supplierProductData['supplierProduct']['source_organisation_id'] = $organisationSource->getOrganisation()->id;
-
                 try {
 
                     $supplierProduct = StoreSupplierProduct::make()->action(
@@ -82,8 +86,10 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                         skipHistoric: true,
                         hydratorsDelay: $this->hydrateDelay
                     );
-                } catch (Exception $e) {
+                    $this->recordNew($organisationSource);
 
+
+                } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $supplierProductData['supplierProduct'], 'SupplierProduct');
                     return null;
                 }

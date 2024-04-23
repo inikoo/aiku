@@ -55,6 +55,11 @@ class ShowProfile
                                 "label" => __("email"),
                                 "value" => $user->email,
                             ],
+                            "password" => [
+                                "type"  => "password",
+                                "label" => __("password"),
+                                "value" => "",
+                            ],
                             "about"  => [
                                 "type"      => "textEditor",
                                 "label"     => __("about"),
@@ -66,34 +71,28 @@ class ShowProfile
                                 "label" => __("photo"),
                                 "value" => $user->avatarImageSources(320, 320)
                             ],
-                            "app_theme" => [
-                                "type"  => "app_theme",
-                                "label" => __("theme color"),
-                                "value" => Arr::get($user->settings, 'app_theme'),
-                            ],
                         ],
                     ],
+                    // [
+                    //     "label"  => __("password"),
+                    //     "icon"   => "fa-light fa-key",
+                    //     "fields" => [
+                    //     ],
+                    // ],
                     [
-                        "label"  => __("password"),
-                        "icon"   => "fa-light fa-key",
-                        "fields" => [
-                            "password" => [
-                                "type"  => "password",
-                                "label" => __("password"),
-                                "value" => "",
-                            ],
-                        ],
-                    ],
-                    [
-                        "label"  => __("language"),
-                        "icon"   => "fal fa-language",
+                        "label"  => __("Settings"),
+                        "icon"   => "fal fa-cog",
                         "fields" => [
                             "language_id" => [
                                 "type"    => "select",
                                 "label"   => __("language"),
                                 "value"   => $user->language_id,
                                 'options' => GetLanguagesOptions::make()->translated(),
-
+                            ],
+                            "app_theme" => [
+                                "type"  => "app_theme",
+                                "label" => __("theme color"),
+                                "value" => Arr::get($user->settings, 'app_theme'),
                             ],
                         ],
                     ],

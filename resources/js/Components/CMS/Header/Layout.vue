@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import VueResizable from "vue-resizable"
-import { ref, onMounted, defineExpose } from "vue"
+import { ref, onMounted } from "vue"
 import { get } from "lodash"
 import Input from "../Fields/Input.vue"
 const props = defineProps<{

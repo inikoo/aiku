@@ -17,23 +17,30 @@ class FetchAuroraSupplierProduct extends FetchAurora
 
     protected function parseModel(): void
     {
+
         if ($this->auroraModelData->aiku_ignore == 'Yes') {
             return;
         }
 
 
-        $supplierDeletedAt = $this->parseDate($this->auroraModelData->{'Supplier Valid To'});
-        if ($this->auroraModelData->{'Supplier Type'} != 'Archived') {
+        $auroraSupplierData= DB::connection('aurora')
+            ->table('Supplier Dimension')
+            ->where('Supplier Key', $this->auroraModelData->{'Supplier Part Supplier Key'})
+            ->first();
+
+
+        $supplierDeletedAt = $this->parseDate($auroraSupplierData->{'Supplier Valid To'});
+        if ($auroraSupplierData->{'Supplier Type'} != 'Archived') {
             $supplierDeletedAt = null;
         }
 
-        $supplierSourceSlug = Str::kebab(strtolower($this->auroraModelData->{'Supplier Code'}));
+        $supplierSourceSlug = Str::kebab(strtolower($auroraSupplierData->{'Supplier Code'}));
         if ($supplierDeletedAt) {
             $supplierSourceSlug .= '-deleted';
         }
 
 
-        $supplier = $this->parseSupplier($supplierSourceSlug);
+        $supplier = $this->parseSupplier($supplierSourceSlug, $this->organisation->id.":".$this->auroraModelData->{'Supplier Part Supplier Key'});
 
 
         if (!$supplier) {
@@ -41,12 +48,17 @@ class FetchAuroraSupplierProduct extends FetchAurora
         }
 
 
-        $tradeUnitReference = $this->cleanTradeUnitReference($this->auroraModelData->{'Part Reference'});
+        $auroraPartData= DB::connection('aurora')
+            ->table('Part Dimension')
+            ->where('Part SKU', $this->auroraModelData->{'Supplier Part Part SKU'})
+            ->first();
+
+        $tradeUnitReference = $this->cleanTradeUnitReference($auroraPartData->{'Part Reference'});
         $tradeUnitSlug      = Str::lower($tradeUnitReference);
 
         $this->parsedData['trade_unit'] = $this->parseTradeUnit(
             $tradeUnitSlug,
-            $this->auroraModelData->{'Part SKU'}
+            $auroraPartData->{'Part SKU'}
         );
 
 
@@ -77,13 +89,13 @@ class FetchAuroraSupplierProduct extends FetchAurora
         $data['raw_price'] = $this->auroraModelData->{'Supplier Part Unit Cost'} ?? 0;
 
 
-        $stock_quantity_status = match ($this->auroraModelData->{'Part Stock Status'}) {
+        $stock_quantity_status = match ($auroraPartData->{'Part Stock Status'}) {
             'Out_Of_Stock', 'Error' => 'out-of-stock',
-            default => strtolower($this->auroraModelData->{'Part Stock Status'})
+            default => strtolower($auroraPartData->{'Part Stock Status'})
         };
 
-        $partReference      = $this->cleanTradeUnitReference($this->auroraModelData->{'Part Reference'});
-        $sourceSlugInterOrg = $supplier->source_slug.':'.$this->auroraModelData->{'Supplier Part Packages Per Carton'}.':'.$this->auroraModelData->{'Part Units Per Package'}.':'.Str::kebab(strtolower($partReference));
+        $partReference      = $this->cleanTradeUnitReference($auroraPartData->{'Part Reference'});
+        $sourceSlugInterOrg = $supplier->source_slug.':'.$this->auroraModelData->{'Supplier Part Packages Per Carton'}.':'.$auroraPartData->{'Part Units Per Package'}.':'.Str::kebab(strtolower($partReference));
 
 
         $sourceSlug = $supplier->source_slug.':'.Str::kebab(strtolower($partReference));
@@ -105,8 +117,8 @@ class FetchAuroraSupplierProduct extends FetchAurora
                 'name' => $name,
 
                 'cost'             => round($this->auroraModelData->{'Supplier Part Unit Cost'} ?? 0, 2),
-                'units_per_pack'   => $this->auroraModelData->{'Part Units Per Package'},
-                'units_per_carton' => $this->auroraModelData->{'Supplier Part Packages Per Carton'} * $this->auroraModelData->{'Part Units Per Package'},
+                'units_per_pack'   => $auroraPartData->{'Part Units Per Package'},
+                'units_per_carton' => $this->auroraModelData->{'Supplier Part Packages Per Carton'} * $auroraPartData->{'Part Units Per Package'},
 
 
                 'status'                => $status,
@@ -127,8 +139,8 @@ class FetchAuroraSupplierProduct extends FetchAurora
     {
         return DB::connection('aurora')
             ->table('Supplier Part Dimension as ssp')
-            ->leftjoin('Supplier Dimension', 'Supplier Part Supplier Key', 'Supplier Key')
-            ->leftjoin('Part Dimension', 'Supplier Part Part SKU', 'Part SKU')
+        //    ->leftjoin('Supplier Dimension', 'Supplier Part Supplier Key', 'Supplier Key')
+        //    ->leftjoin('Part Dimension', 'Supplier Part Part SKU', 'Part SKU')
             ->where('ssp.aiku_ignore', 'No')
             ->where('Supplier Part Key', $id)->first();
     }

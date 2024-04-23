@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import Multiselect from "@vueform/multiselect"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { ref, onMounted, defineProps, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
-import { isNull } from 'lodash'
 import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import Tag from '@/Components/Tag.vue'
+
 
 library.add(faTimes)
 
@@ -31,6 +31,8 @@ const props = withDefaults(defineProps<{
     onCreate?: any
     onChange?: Function
     canClear?: boolean
+    isSelected?: Function
+    filterOptions? : Function
 }>(), {
     placeholder: 'select',
     required: false,
@@ -62,7 +64,6 @@ const loading = ref(false)
 const _multiselectRef = ref(null)
 const lastPage = ref(2)
 
-console.log(props)
 
 // Method: retrieve locations list
 const getOptions = async () => {
@@ -89,15 +90,13 @@ const getOptions = async () => {
 }
 
 
-const onGetOptionsSuccess = (response: any) => {
-    lastPage.value = response?.data?.meta?.last_page ?? lastPage.value
-    const data = [...optionData.value]
-    const newData = response?.data?.data ?? []
-
-    if (q.value && q.value !== '') optionData.value = [...newData]
-    else if (page.value > 1) optionData.value = [...optionData.value, ...newData]
-    else optionData.value = [...newData]
+const onGetOptionsSuccess = (response) => {
+    const newData = response?.data?.data ?? [];
+    const updatedOptions = q.value && q.value !== '' ? [...newData] : page.value > 1 ? [...optionData.value, ...newData] : [...newData];
+    optionData.value = props.filterOptions ? props.filterOptions(updatedOptions) : updatedOptions;
+    lastPage.value = response?.data?.meta?.last_page ?? lastPage.value;
 }
+
 
 
 const SearchChange = (value: any) => {
@@ -148,6 +147,11 @@ onUnmounted(() => {
 })
 
 
+defineExpose({
+    _multiselectRef,
+    optionData
+})
+
 
 </script>
 
@@ -158,7 +162,7 @@ onUnmounted(() => {
         :searchable="props.searchable" :caret="props.caret" :canClear="props.canClear" :options="optionData"
         :mode="props.mode" :on-create="props.onCreate" :create-option="props.createOption"
         :noResultsText="loading ? 'loading...' : 'No Result'" @open="getOptions()" @search-change="SearchChange"
-        @change="props.onChange" :closeOnDeselect="closeOnDeselect">
+        @change="props.onChange" :closeOnDeselect="closeOnDeselect" :isSelected="isSelected">
         <template
             #tag="{ option, handleTagRemove, disabled }: { option: tag, handleTagRemove: Function, disabled: boolean }">
             <div class="px-0.5 py-[3px]">

@@ -13,7 +13,7 @@ import { faSpinnerThird } from '@fad'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { set, get } from "lodash"
 library.add(faExclamationCircle, faCheckCircle, faSpinnerThird, faCopy)
-import { ref, watch, defineEmits } from "vue"
+import { ref, watch } from "vue"
 
 const props = defineProps<{
     form: any

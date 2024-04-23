@@ -9,15 +9,13 @@ namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
-use App\Models\SupplyChain\Agent;
-use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class GroupHydrateSupplyChain
+class GroupHydrateProductSuppliers
 {
     use AsAction;
 
@@ -36,15 +34,15 @@ class GroupHydrateSupplyChain
     public function handle(Group $group): void
     {
         $stats = [
-            'number_suppliers'          => Supplier::count(),
-            'number_active_suppliers'   => Supplier::where('suppliers.status', true)->count(),
-            'number_archived_suppliers' => Supplier::where('suppliers.status', false)->count(),
-            'number_agents'             => Agent::count(),
-            'number_active_agents'      => Agent::where('agents.status', true)->count(),
-            'number_archived_agents'    => Agent::where('agents.status', false)->count(),
 
-            'supplier_products_count'  => SupplierProduct::count(),
-            'number_supplier_products' => SupplierProduct::where('supplier_products.state', '!=', SupplierProductStateEnum::DISCONTINUED)
+            'number_supplier_products'                                => SupplierProduct::count(),
+            'number_supplier_products_state_active_and_discontinuing' => SupplierProduct::whereIn(
+                'supplier_products.state',
+                [
+                    SupplierProductStateEnum::ACTIVE,
+                    SupplierProductStateEnum::DISCONTINUING
+                ]
+            )
                 ->count(),
         ];
 

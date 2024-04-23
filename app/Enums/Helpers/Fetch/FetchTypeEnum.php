@@ -13,11 +13,14 @@ enum FetchTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case PROSPECTS    = 'prospects';
-    case CUSTOMERS    = 'customers';
-    case LOCATIONS    = 'locations';
-    case EMPLOYEES    = 'employees';
-
-    case BASE    = 'base';
+    case PROSPECTS         = 'prospects';
+    case CUSTOMERS         = 'customers';
+    case LOCATIONS         = 'locations';
+    case EMPLOYEES         = 'employees';
+    case INVOICES          = 'invoices';
+    case STOCKS            = 'stocks';
+    case ORDERS            = 'orders';
+    case SUPPLIER_PRODUCTS = 'supplier_products';
+    case BASE              = 'base';
 
 }

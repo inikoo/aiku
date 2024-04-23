@@ -100,7 +100,7 @@ class FetchAuroraInvoices extends FetchAuroraAction
             DB::connection('aurora')
                 ->table('Order Transaction Fact')
                 ->select('Order Transaction Fact Key')
-                ->where('Invoice Key', $invoice->source_id)
+                ->where('Invoice Key', $sourceData[1])
                 ->get() as $auroraData
         ) {
             $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Order Transaction Fact Key'}]);

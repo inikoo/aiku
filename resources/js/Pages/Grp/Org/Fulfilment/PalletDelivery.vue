@@ -19,6 +19,7 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import PureInput from '@/Components/Pure/PureInput.vue'
 import BoxNote from "@/Components/Pallet/BoxNote.vue"
 import { get } from 'lodash'
+import { faExclamationTriangle } from '@fad'
 import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 import { trans } from "laravel-vue-i18n"
 import { routeType } from '@/types/route'
@@ -37,7 +38,7 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone } from '@fal'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone)
+library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone,faExclamationTriangle)
 
 const props = defineProps<{
     title: string
@@ -61,6 +62,10 @@ const props = defineProps<{
     }
     box_stats: BoxStats
     notes_data: PDRNotes[]
+    pallet_limits : {
+        status : String,
+        message : String
+    }
 }>()
 
 const currentTab = ref(props.tabs.current)
@@ -198,15 +203,13 @@ const typePallet = [
 
 <template>
     <!-- <pre>{{ data.data }}</pre> -->
+
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <!-- Button: Upload -->
         <template #button-group-upload="{ action }">
-            <Button @click="() => onUploadOpen(action.button)"
-                :style="action.button.style"
-                :icon="action.button.icon"
-                v-tooltip="action.button.tooltip"
-                class="rounded-l rounded-r-none border-none" />
+            <Button @click="() => onUploadOpen(action.button)" :style="action.button.style" :icon="action.button.icon"
+                v-tooltip="action.button.tooltip" class="rounded-l rounded-r-none border-none" />
         </template>
 
         <!-- Button: Add many pallete -->
@@ -215,49 +218,37 @@ const typePallet = [
                 <template #button>
                     <Button :style="action.button.style" :icon="action.button.icon" :iconRight="action.button.iconRight"
                         :key="`ActionButton${action.button.label}${action.button.style}`"
-                        :tooltip="'Add multiple pallet'"
-                        class="rounded-none border-none" />
+                        :tooltip="'Add multiple pallet'" class="rounded-none border-none" />
                 </template>
 
                 <template #content="{ close: closed }">
                     <div class="w-[350px]">
-                        <span class="text-xs  my-2">{{ trans('Type') }}: </span>        
+                        <span class="text-xs  my-2">{{ trans('Type') }}: </span>
                         <div class="flex items-center">
                             <div v-for="(typeData, typeIdx) in typePallet" :key="typeIdx" class="relative py-3 mr-4">
                                 <div>
-                                    <input type="checkbox" 
-                                        :id="typeData.value" 
-                                        :value="typeData.value" 
+                                    <input type="checkbox" :id="typeData.value" :value="typeData.value"
                                         :checked="formMultiplePallet.type == typeData.value"
                                         @input="changePalletType(formMultiplePallet,'type',typeData.value)"
-                                        class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
-                                    >
+                                        class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4">
                                     <label :for="typeData.value" class="ml-2">{{ typeData.label }}</label>
                                 </div>
                             </div>
                         </div>
                         <span class="text-xs  my-2">Number of pallets: </span>
                         <div>
-                            <PureInput
-                                v-model="formMultiplePallet.number_pallets"
-                                autofocus
-                                placeholder="1-100"
-                                type="number"
-                                :minValue="1"
-                                :maxValue="100"
+                            <PureInput v-model="formMultiplePallet.number_pallets" autofocus placeholder="1-100"
+                                type="number" :minValue="1" :maxValue="100"
                                 @update:modelValue="() => formMultiplePallet.errors.number_pallets = ''"
-                                @keydown.enter="() => formMultiplePallet.number_pallets ? handleFormSubmitAddMultiplePallet(action.button, closed) : ''"
-                            />
-                            <p v-if="get(formMultiplePallet, ['errors', 'number_pallets'])" class="mt-2 text-xxs italic text-red-600">
+                                @keydown.enter="() => formMultiplePallet.number_pallets ? handleFormSubmitAddMultiplePallet(action.button, closed) : ''" />
+                            <p v-if="get(formMultiplePallet, ['errors', 'number_pallets'])"
+                                class="mt-2 text-xxs italic text-red-600">
                                 {{ formMultiplePallet.errors.number_pallets }}
                             </p>
                         </div>
 
                         <div class="flex justify-end mt-3">
-                            <Button
-                                :style="'save'"
-                                :loading="loading"
-                                :disabled="!formMultiplePallet.number_pallets"
+                            <Button :style="'save'" :loading="loading" :disabled="!formMultiplePallet.number_pallets"
                                 :key="formMultiplePallet.number_pallets"
                                 @click="() => handleFormSubmitAddMultiplePallet(action.button, closed)" />
                         </div>
@@ -271,40 +262,32 @@ const typePallet = [
             <div class="relative">
                 <Popover width="w-full">
                     <template #button>
-                        <Button :style="action.button.style"
-                            :label="action.button.label"
-                            :icon="action.button.icon"
+                        <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
                             :key="`ActionButton${action.button.label}${action.button.style}`"
-                            :tooltip="action.button.tooltip"
-                            class="rounded-l-none rounded-r border-none " />
+                            :tooltip="action.button.tooltip" class="rounded-l-none rounded-r border-none " />
                     </template>
 
                     <template #content="{ close: closed }">
-                        <div  class="w-[350px]">
+                        <div class="w-[350px]">
 
-                            <span class="text-xs px-1 my-2">{{ trans('Type') }}: </span>    
+                            <span class="text-xs px-1 my-2">{{ trans('Type') }}: </span>
 
-                             <div class="flex items-center">
-                            <div v-for="(typeData, typeIdx) in typePallet" :key="typeIdx" class="relative py-3 mr-4">
-                                <div>
-                                    <input type="checkbox" 
-                                        :id="typeData.value" 
-                                        :value="typeData.value" 
-                                        :checked="formAddPallet.type == typeData.value"
-                                        @input="changePalletType(formAddPallet,'type',typeData.value)"
-                                        class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
-                                    >
-                                    <label :for="typeData.value" class="ml-2">{{ typeData.label }}</label>
+                            <div class="flex items-center">
+                                <div v-for="(typeData, typeIdx) in typePallet" :key="typeIdx"
+                                    class="relative py-3 mr-4">
+                                    <div>
+                                        <input type="checkbox" :id="typeData.value" :value="typeData.value"
+                                            :checked="formAddPallet.type == typeData.value"
+                                            @input="changePalletType(formAddPallet,'type',typeData.value)"
+                                            class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4">
+                                        <label :for="typeData.value" class="ml-2">{{ typeData.label }}</label>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
                             <span class="text-xs px-1 my-2">{{ trans('Reference') }}: </span>
                             <div>
-                                <PureInput v-model="formAddPallet.customer_reference"
-                                    autofocus
-                                    placeholder="Reference"
-                                    @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)"
-                                />
+                                <PureInput v-model="formAddPallet.customer_reference" autofocus placeholder="Reference"
+                                    @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)" />
                                 <p v-if="get(formAddPallet, ['errors', 'customer_reference'])"
                                     class="mt-2 text-sm text-red-600">
                                     {{ formAddPallet.errors.customer_reference }}
@@ -323,7 +306,8 @@ const typePallet = [
                             </div>
 
                             <div class="flex justify-end mt-3">
-                                <Button :style="'save'" :loading="loading" :label="'save'" @click="() => handleFormSubmitAddPallet(action.button, closed)" />
+                                <Button :style="'save'" :loading="loading" :label="'save'"
+                                    @click="() => handleFormSubmitAddPallet(action.button, closed)" />
                             </div>
                         </div>
                     </template>
@@ -345,9 +329,28 @@ const typePallet = [
         </template>
     </PageHeading>
 
+    <div v-if="pallet_limits && pallet_limits.status == 'exceeded'">
+        <div class="rounded-md bg-yellow-50 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <font-awesome-icon :icon="['fad', 'exclamation-triangle']" class="h-5 w-5 text-yellow-400"
+                        aria-hidden="true" />
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-yellow-800">Attention needed</h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        <p>{{ pallet_limits.message }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Section: Note -->
     <div class="h-fit lg:max-h-64 w-full flex lg:justify-center border-b border-gray-300">
-        <BoxNote v-for="(note, index) in notes_data" :key="index+note.label" :noteData="note" :updateRoute="updateRoute" />
+        <BoxNote v-for="(note, index) in notes_data" :key="index+note.label" :noteData="note"
+            :updateRoute="updateRoute" />
     </div>
 
     <!-- Section: Timeline -->
@@ -358,63 +361,74 @@ const typePallet = [
     <!-- Box -->
     <div class="h-min grid grid-cols-4 border-b border-gray-200 divide-x divide-gray-300">
         <!-- Box: Customer -->
-        <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" tooltip="Customer" :label="data?.data.customer_name" icon="fal fa-user">
+        <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" tooltip="Customer" :label="data?.data.customer_name"
+            icon="fal fa-user">
             <!-- Field: Reference -->
             <Link as="a" v-if="box_stats.fulfilment_customer.customer.reference"
-                :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, box_stats.fulfilment_customer.fulfilment.slug, box_stats.fulfilment_customer.slug])" 
+                :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, box_stats.fulfilment_customer.fulfilment.slug, box_stats.fulfilment_customer.slug])"
                 class="flex items-center w-fit flex-none gap-x-2 cursor-pointer specialUnderlineSecondary">
-                <dt v-tooltip="'Company name'" class="flex-none">
-                    <span class="sr-only">Reference</span>
-                    <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.reference }}</dd>
+            <dt v-tooltip="'Company name'" class="flex-none">
+                <span class="sr-only">Reference</span>
+                <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
+                    aria-hidden='true' />
+            </dt>
+            <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.reference }}</dd>
             </Link>
-            
+
             <!-- Field: Contact name -->
             <div v-if="box_stats.fulfilment_customer.customer.contact_name"
                 class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Contact name'" class="flex-none">
                     <span class="sr-only">Contact name</span>
-                    <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
                 </dt>
                 <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.contact_name }}</dd>
             </div>
 
 
             <!-- Field: Company name -->
-            <div v-if="box_stats.fulfilment_customer.customer.company_name" class="flex items-center w-full flex-none gap-x-2">
+            <div v-if="box_stats.fulfilment_customer.customer.company_name"
+                class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Company name'" class="flex-none">
                     <span class="sr-only">Company name</span>
-                    <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
                 </dt>
                 <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.company_name }}</dd>
             </div>
-            
+
             <!-- Field: Email -->
-            <div v-if="box_stats.fulfilment_customer?.customer.email" class="flex items-center w-full flex-none gap-x-2">
+            <div v-if="box_stats.fulfilment_customer?.customer.email"
+                class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Email'" class="flex-none">
                     <span class="sr-only">Email</span>
-                    <FontAwesomeIcon icon='fal fa-envelope' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon icon='fal fa-envelope' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
                 </dt>
                 <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer?.customer.email }}</dd>
             </div>
-            
+
             <!-- Field: Phone -->
-            <div v-if="box_stats.fulfilment_customer?.customer.phone" class="flex items-center w-full flex-none gap-x-2">
+            <div v-if="box_stats.fulfilment_customer?.customer.phone"
+                class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Phone'" class="flex-none">
                     <span class="sr-only">Phone</span>
-                    <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
                 </dt>
                 <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer?.customer.phone }}</dd>
             </div>
         </BoxStatsPalletDelivery>
 
         <!-- Box: Status -->
-        <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" :tooltip="trans('Status')" :label="capitalize(data?.data.state)" icon="fal fa-truck-couch">
+        <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" :tooltip="trans('Status')" :label="capitalize(data?.data.state)"
+            icon="fal fa-truck-couch">
             <div class="flex items-center w-full flex-none gap-x-2">
                 <dt class="flex-none">
                     <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
-                    <FontAwesomeIcon :icon='box_stats.delivery_status.icon' :class='box_stats.delivery_status.class' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon :icon='box_stats.delivery_status.icon' :class='box_stats.delivery_status.class'
+                        fixed-width aria-hidden='true' />
                 </dt>
                 <dd class="text-xs text-gray-500">{{ box_stats.delivery_status.tooltip }}</dd>
             </div>
@@ -425,7 +439,8 @@ const typePallet = [
             <div class="flex items-end gap-x-3">
                 <dt class="flex-none">
                     <span class="sr-only">Total pallet</span>
-                    <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
                 </dt>
                 <dd class="text-gray-600 leading-none text-3xl font-medium">{{ data?.data.number_pallets }}</dd>
             </div>
@@ -443,21 +458,11 @@ const typePallet = [
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component
-        :is="component"
-        :key="timeline.state"
-        :data="props[currentTab]"
-        :state="timeline.state"
-        :tab="currentTab"
-        :tableKey="tableKey"
-        @renderTableKey="changeTableKey"
-        :locationRoute="locationRoute"
-        :storedItemsRoute="storedItemsRoute"
-        :rentalRoute="rentalRoute"
-    />
+    <component :is="component" :key="timeline.state" :data="props[currentTab]" :state="timeline.state" :tab="currentTab"
+        :tableKey="tableKey" @renderTableKey="changeTableKey" :locationRoute="locationRoute"
+        :storedItemsRoute="storedItemsRoute" :rentalRoute="rentalRoute" />
 
-    <UploadExcel
-        information="The list of column file: customer_reference, notes, stored_items"
+    <UploadExcel information="The list of column file: customer_reference, notes, stored_items"
         :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
         upload: get(dataModal, 'uploadRoutes', {}),
         download: props.uploadRoutes.download,
