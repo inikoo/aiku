@@ -71,6 +71,7 @@ use App\Actions\Inventory\WarehouseArea\ImportWarehouseArea;
 use App\Actions\Market\Product\DeleteProduct;
 use App\Actions\Market\Product\StorePhysicalGood;
 use App\Actions\Market\Product\UpdateProduct;
+use App\Actions\Market\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\OMS\Order\StoreOrder;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
@@ -183,6 +184,10 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
         Route::delete('stored-item/{storedItem:id}', DeleteStoredItemFromStoredItemReturn::class)->name('stored-item.delete');
         Route::post('stored-item', StoreStoredItemToStoredItemReturn::class)->name('stored-item.store');
         Route::post('state/{state}', UpdateStateStoredItemReturn::class)->name('state.update')->whereIn('state', StoredItemReturnStateEnum::values());
+    });
+
+    Route::prefix('rental-agreements')->name('rental-agreements.')->group(function () {
+        Route::post('', StoreRentalAgreement::class)->name('store');
     });
 });
 

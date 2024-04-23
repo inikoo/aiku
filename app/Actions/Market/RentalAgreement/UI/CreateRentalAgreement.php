@@ -36,7 +36,7 @@ class CreateRentalAgreement extends OrgAction
                 ],
                 'formData' => [
                     'fullLayout' => true,
-                    'blueprint' =>
+                    'blueprint'  =>
                         [
                             [
                                 'title'  => __('name'),
@@ -69,10 +69,8 @@ class CreateRentalAgreement extends OrgAction
                             ]
                         ],
                     'route' => [
-                        'name'   => 'grp.models.rental-agreement.store',
-                        'params' => [
-                            'organisation'       => $fulfilmentCustomer->organisation_id,
-                            'fulfilment'         => $fulfilmentCustomer->fulfilment_id,
+                        'name'       => 'grp.models.fulfilment-customer.rental-agreements.store',
+                        'parameters' => [
                             'fulfilmentCustomer' => $fulfilmentCustomer->id,
                         ]
                     ]

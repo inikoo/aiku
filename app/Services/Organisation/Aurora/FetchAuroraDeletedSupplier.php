@@ -24,7 +24,8 @@ class FetchAuroraDeletedSupplier extends FetchAurora
         $agent = null;
 
         if ($agentData) {
-            $agent = $this->parseAgent(Str::kebab(strtolower($agentData->{'Agent Code'})),
+            $agent = $this->parseAgent(
+                Str::kebab(strtolower($agentData->{'Agent Code'})),
                 $this->organisation->id.':'.$agentData->{'Agent Key'}
             );
             if (!$agent) {

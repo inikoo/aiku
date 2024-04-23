@@ -17,7 +17,6 @@ return new class () extends Migration {
         });
     }
 
-
     public function down()
     {
         Schema::dropIfExists('rental_agreement_snapshots');
