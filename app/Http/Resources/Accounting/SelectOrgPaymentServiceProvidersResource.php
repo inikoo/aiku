@@ -34,6 +34,10 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
     {
         $provider = Arr::get(explode('-', $this->code), 1);
 
+        if(!$provider) {
+            $provider = $this->code;
+        }
+
         $additionalFields = $this->blueprint($provider);
 
         $formData = [
