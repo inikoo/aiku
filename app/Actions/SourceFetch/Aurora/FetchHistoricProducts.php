@@ -22,6 +22,7 @@ class FetchHistoricProducts
     public function handle(SourceOrganisationService $organisationSource, int $source_id): ?HistoricOuterable
     {
         if ($historicProductData = $organisationSource->fetchHistoricProduct($source_id)) {
+
             if ($historicProduct = HistoricOuterable::withTrashed()->where('source_id', $historicProductData['historic_outerable']['source_id'])
                 ->first()) {
                 $historicProduct = UpdateHistoricOuterable::run(
@@ -30,7 +31,7 @@ class FetchHistoricProducts
                 );
             } else {
                 $historicProduct = StoreHistoricOuterable::run(
-                    product:   $historicProductData['product'],
+                    outerable:   $historicProductData['product'],
                     modelData: $historicProductData['historic_outerable']
                 );
             }

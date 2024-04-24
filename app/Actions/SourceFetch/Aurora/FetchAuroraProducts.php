@@ -26,9 +26,12 @@ class FetchAuroraProducts extends FetchAuroraAction
             $sourceData = explode(':', $productData['product']['source_id']);
             $tradeUnits =$organisationSource->fetchProductStocks($sourceData[1])['trade_units'];
 
+
+            /*
             if(count($tradeUnits)==0) {
                 return null;
             }
+            */
 
             data_set(
                 $productData,
@@ -49,6 +52,7 @@ class FetchAuroraProducts extends FetchAuroraAction
                     return null;
                 }
             } else {
+
                 try {
                     $product = StorePhysicalGood::make()->action(
                         parent: $productData['parent'],
@@ -66,10 +70,6 @@ class FetchAuroraProducts extends FetchAuroraAction
             DB::connection('aurora')->table('Product Dimension')
                 ->where('Product ID', $sourceData[1])
                 ->update(['aiku_id' => $product->id]);
-
-
-
-
 
             return $product;
         }

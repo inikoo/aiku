@@ -12,6 +12,7 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -27,6 +28,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $organisation_id
  * @property int|null $shop_id
  * @property int|null $product_id
+ * @property int|null $current_historic_outerable_id
  * @property string $slug
  * @property string $code
  * @property string|null $name
@@ -40,6 +42,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property string|null $historic_source_id
+ * @property-read \App\Models\Market\HistoricOuterable|null $currentHistoricOuterable
  * @property-read Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Market\HistoricOuterable> $historicRecords
  * @property-read Organisation $organisation
@@ -95,6 +98,11 @@ class Outer extends Model
     public function historicRecords(): MorphMany
     {
         return $this->morphMany(HistoricOuterable::class, 'outerable');
+    }
+
+    public function currentHistoricOuterable(): BelongsTo
+    {
+        return $this->belongsTo(HistoricOuterable::class);
     }
 
 

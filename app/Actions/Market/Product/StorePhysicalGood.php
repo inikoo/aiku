@@ -111,11 +111,21 @@ class StorePhysicalGood extends OrgAction
     public function rules(): array
     {
 
+
+        if($this->state==ProductStateEnum::DISCONTINUED) {
+            $tradeUnitRules=[
+                'trade_units' => ['sometimes','nullable', 'array'],
+            ];
+        } else {
+            $tradeUnitRules=[
+                'trade_units' => ['required', 'array'],
+            ];
+        }
+
+
         return array_merge(
             $this->getProductRules(),
-            [
-                'trade_units' => ['required', 'array'],
-            ]
+            $tradeUnitRules
         );
 
     }

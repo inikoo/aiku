@@ -30,7 +30,6 @@ class FetchAuroraOuters extends FetchAuroraAction
                     $outer = UpdateOuter::make()->action(
                         outer: $outer,
                         modelData: $outerData['outer'],
-                        skipHistoric: true
                     );
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $outerData['outer'], 'Outer', 'update');

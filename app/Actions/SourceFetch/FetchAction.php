@@ -33,6 +33,9 @@ class FetchAction
     protected int $counter = 0;
     protected ?ProgressBar $progressBar;
 
+    protected bool $allowLegacy     = false;
+
+
     protected int $number_stores     = 0;
     protected int $number_updates    = 0;
     protected int $number_no_changes = 0;

@@ -13,9 +13,9 @@ class FetchAuroraHistoricProduct extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $this->parsedData['product'] = $this->parseProduct($this->organisation->id.':'.$this->auroraModelData->{'Product ID'});
 
-        $deleted_at = $this->parseDate($this->auroraModelData->{'Product History Valid To'});
+        $this->parsedData['product'] = $this->parseProduct($this->organisation->id.':'.$this->auroraModelData->{'Product ID'});
+        $deleted_at                  = $this->parseDate($this->auroraModelData->{'Product History Valid To'});
 
         $status = 0;
         if (DB::connection('aurora')->table('Product Dimension')->where('Product Current Key', '=', $this->auroraModelData->{'Product Key'})->exists()) {
@@ -39,6 +39,8 @@ class FetchAuroraHistoricProduct extends FetchAurora
             'deleted_at' => $deleted_at,
             'source_id'  => $this->organisation->id.':'.$this->auroraModelData->{'Product Key'}
         ];
+
+
     }
 
 

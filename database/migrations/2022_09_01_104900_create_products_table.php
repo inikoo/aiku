@@ -34,23 +34,19 @@ return new class () extends Migration {
             $table->unsignedInteger('current_historic_outerable_id')->index()->nullable();
             $table->string('state')->default(ProductStateEnum::IN_PROCESS)->index();
             $table->boolean('status')->default(true)->index();
-
-
             $table->string('unit_relationship_type')->nullable()->index();
-
-
-
             $table->string('code')->index()->collation('und_ns');
             $table->string('name', 255)->nullable();
             $table->text('description')->nullable()->fulltext();
             $table->unsignedInteger('main_outerable_id')->nullable()->index();
             $table->decimal('main_outerable_price', 18)->nullable()->comment('main outer price');
             $table->unsignedInteger('main_outerable_available_quantity')->default(0)->nullable();
-
             $table->unsignedInteger('image_id')->nullable();
             $table->decimal('rrp', 12, 3)->nullable()->comment('RRP per outer');
             $table->jsonb('settings');
             $table->jsonb('data');
+            $table->unsignedSmallInteger('family_id')->nullable();
+            $table->unsignedSmallInteger('department_id')->nullable();
             $table->boolean('is_legacy')->default(false)->index();
             $table->timestampsTz();
             $table->softDeletesTz();

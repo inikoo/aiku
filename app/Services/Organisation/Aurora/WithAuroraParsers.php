@@ -8,6 +8,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
+use App\Actions\Market\HistoricOuterable\StoreHistoricOuterable;
 use App\Actions\SourceFetch\Aurora\FetchAuroraAgents;
 use App\Actions\SourceFetch\Aurora\FetchAuroraCustomers;
 use App\Actions\SourceFetch\Aurora\FetchAuroraDeletedCustomers;
@@ -17,9 +18,9 @@ use App\Actions\SourceFetch\Aurora\FetchAuroraDepartments;
 use App\Actions\SourceFetch\Aurora\FetchAuroraDispatchedEmails;
 use App\Actions\SourceFetch\Aurora\FetchAuroraEmployees;
 use App\Actions\SourceFetch\Aurora\FetchAuroraFamilies;
+use App\Actions\SourceFetch\Aurora\FetchAuroraOuters;
 use App\Actions\SourceFetch\Aurora\FetchAuroraSuppliers;
 use App\Actions\SourceFetch\Aurora\FetchHistoricProducts;
-use App\Actions\SourceFetch\Aurora\FetchHistoricServices;
 use App\Actions\SourceFetch\Aurora\FetchAuroraLocations;
 use App\Actions\SourceFetch\Aurora\FetchAuroraMailshots;
 use App\Actions\SourceFetch\Aurora\FetchAuroraOrders;
@@ -266,27 +267,44 @@ trait WithAuroraParsers
     */
 
 
-    public function parseHistoricItem($sourceId): HistoricOuterable
+    public function parseTransactionItem($organisation, $productID, $productKey): HistoricOuterable|null
     {
+
         $auroraData = DB::connection('aurora')
             ->table('Product History Dimension as PH')
             ->leftJoin('Product Dimension as P', 'P.Product ID', 'PH.Product ID')
-            ->select('Product Type')
-            ->where('PH.Product Key', $sourceId)->first();
+            ->select('Product Type', 'is_variant')
+            ->where('PH.Product Key', $productKey)->first();
 
-        $historicItem = HistoricOuterable::where('source_id', $sourceId)->first();
 
         if ($auroraData->{'Product Type'} == 'Product') {
-            if (!$historicItem) {
-                $historicItem = FetchHistoricProducts::run($this->organisationSource, $sourceId);
+            $historicOuterable = HistoricOuterable::where('source_id', $organisation->id.':'.$productKey)->first();
+            if($historicOuterable) {
+                return $historicOuterable;
             }
+
+
+            if($auroraData->is_variant=='No') {
+                $product=$this->parseProduct($organisation->id.':'.$productID);
+                if($product->historic_source_id==$organisation->id.':'.$productKey) {
+                    return $product->currentHistoricOuterable;
+                }
+                $outer=$product->mainOuterable;
+            } else {
+                $outer = FetchAuroraOuters::run($this->organisationSource, $productID);
+                if($outer->historic_source_id==$organisation->id.':'.$productKey) {
+                    return $outer->currentHistoricOuterable;
+                }
+            }
+
+            return StoreHistoricOuterable::run($outer, [
+                'source_id'=> $organisation->id.':'.$productKey
+            ]);
+
         } else {
-            if (!$historicItem) {
-                $historicItem = FetchHistoricServices::run($this->organisationSource, $sourceId);
-            }
+            return null;
         }
 
-        return $historicItem;
     }
 
     public function parseProduct(string $sourceId): Product

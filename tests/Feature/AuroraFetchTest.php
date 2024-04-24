@@ -120,13 +120,15 @@ test('can fetch 1 prospect from aurora', function () {
 
 test('can fetch 1 invoice from aurora', function () {
 
+    $s=10; //ok
+    $s=28;
 
 
     $command = join(
         ' ',
         [
             'fetch:invoices',
-            '-s 10',
+            '-s '.$s,
             '-w transactions'
         ]
     );
@@ -141,4 +143,4 @@ test('can fetch 1 invoice from aurora', function () {
     $invoice = Invoice::first();
 
     expect($invoice->shop->stats->number_invoices)->toBe(1);
-})->todo();
+});

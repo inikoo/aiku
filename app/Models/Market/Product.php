@@ -64,6 +64,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $rrp RRP per outer
  * @property array $settings
  * @property array $data
+ * @property int|null $family_id
+ * @property int|null $department_id
  * @property bool $is_legacy
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -71,6 +73,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property string|null $historic_source_id
  * @property-read Collection<int, Barcode> $barcode
+ * @property-read \App\Models\Market\HistoricOuterable|null $currentHistoricOuterable
  * @property-read Group $group
  * @property-read Collection<int, \App\Models\Market\HistoricOuterable> $historicOuters
  * @property-read MediaCollection<int, Media> $images
@@ -206,6 +209,11 @@ class Product extends Model implements HasMedia
     public function mainOuterable(): MorphTo
     {
         return $this->morphTo(type:'outerable_type', id:'main_outerable_id');
+    }
+
+    public function currentHistoricOuterable(): BelongsTo
+    {
+        return $this->belongsTo(HistoricOuterable::class);
     }
 
 }

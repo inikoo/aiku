@@ -95,6 +95,9 @@ class FetchAuroraInvoices extends FetchAuroraAction
     private function fetchInvoiceTransactions($organisationSource, Invoice $invoice): void
     {
         $transactionsToDelete = $invoice->invoiceTransactions()->pluck('source_id', 'id')->all();
+        $this->allowLegacy    = true;
+
+        $sourceData= explode(':', $invoice->source_id);
 
         foreach (
             DB::connection('aurora')
@@ -104,7 +107,7 @@ class FetchAuroraInvoices extends FetchAuroraAction
                 ->get() as $auroraData
         ) {
             $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Order Transaction Fact Key'}]);
-            fetchInvoiceTransactions::run($organisationSource, $auroraData->{'Order Transaction Fact Key'}, $invoice);
+            FetchInvoiceTransactions::run($organisationSource, $auroraData->{'Order Transaction Fact Key'}, $invoice);
         }
         $invoice->invoiceTransactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }

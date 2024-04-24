@@ -27,9 +27,11 @@ return new class () extends Migration {
 
             $table->unsignedInteger('product_id')->index();
             $table->foreign('product_id')->references('id')->on('products');
+            $table->unsignedSmallInteger('family_id')->nullable();
+            $table->foreign('family_id')->references('id')->on('product_categories');
 
-            $table->unsignedInteger('product_category_id')->index();
-            $table->foreign('product_category_id')->references('id')->on('product_categories');
+            $table->unsignedSmallInteger('department_id')->nullable();
+            $table->foreign('department_id')->references('id')->on('product_categories');
 
             $table->unsignedInteger('order_id');
             $table->foreign('order_id')->references('id')->on('orders');
@@ -42,9 +44,9 @@ return new class () extends Migration {
 
 
             $table->decimal('quantity', 16, 3);
-            $table->decimal('net_mount', 16)->default(0);
-            $table->decimal('group_amount', 16)->default(0);
             $table->decimal('net_amount', 16)->default(0);
+            $table->decimal('group_net_amount', 16)->default(0);
+            $table->decimal('org_net_amount', 16)->default(0);
 
 
             $table->decimal('discounts_amount', 16)->default(0);
