@@ -36,8 +36,6 @@ class CustomerHydrateInvoices
     public function handle(Customer $customer): void
     {
 
-
-
         $numberInvoices = $customer->invoices()->count();
         $stats          = [
             'number_invoices' => $numberInvoices,

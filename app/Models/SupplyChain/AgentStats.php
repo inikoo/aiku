@@ -22,6 +22,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_active_suppliers Active suppliers, status=true
  * @property int $number_archived_suppliers Archived suppliers status=false
  * @property int $number_supplier_products
+ * @property int $number_supplier_products_state_active_and_discontinuing
  * @property int $number_supplier_products_state_creating
  * @property int $number_supplier_products_state_active
  * @property int $number_supplier_products_state_discontinuing

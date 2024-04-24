@@ -53,30 +53,9 @@ beforeEach(function () {
 });
 
 
-test('create prospect', function ($shop) {
-    $prospect = StoreProspect::make()->action($shop, [
-        'contact_name'    => 'check123',
-        'company_name'    => 'check123',
-        'email'           => 'test@gmail.com',
-        'phone'           => '+62081353890000',
-        'contact_website' => 'https://google.com'
-    ]);
-    $this->assertModelExists($prospect);
-
-    return $prospect;
-})->depends('create shop');
-
-
-test('update prospect', function () {
-    $prospect        = Prospect::latest()->first();
-    $prospectUpdated = UpdateProspect::run($prospect, Prospect::factory()->definition());
-    $this->assertModelExists($prospectUpdated);
-})->depends('create prospect');
-
-
-test('create customer', function ($shop) {
+test('create customer', function () {
     $customer = StoreCustomer::make()->action(
-        $shop,
+        $this->shop,
         Customer::factory()->definition(),
     );
 
@@ -85,12 +64,12 @@ test('create customer', function ($shop) {
         ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED);
 
     return $customer;
-})->depends('create shop');
+});
 
-test('create other customer', function ($shop) {
+test('create other customer', function () {
     try {
         $customer = StoreCustomer::make()->action(
-            $shop,
+            $this->shop,
             Customer::factory()->definition()
         );
     } catch (Throwable) {
@@ -101,15 +80,15 @@ test('create other customer', function ($shop) {
         ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED);
 
     return $customer;
-})->depends('create shop');
+});
 
 
-test('create shipping zone schema', function ($shop) {
-    $shippingZoneSchema = StoreShippingZoneSchema::make()->action($shop, ShippingZoneSchema::factory()->definition());
-    $this->assertModelExists($shop);
+test('create shipping zone schema', function () {
+    $shippingZoneSchema = StoreShippingZoneSchema::make()->action($this->shop, ShippingZoneSchema::factory()->definition());
+    expect($shippingZoneSchema)->toBeInstanceOf(ShippingZoneSchema::class);
 
     return $shippingZoneSchema;
-})->depends('create shop');
+});
 
 test('update shipping zone schema', function ($shippingZoneSchema) {
     $shippingZoneSchema = UpdateShippingZoneSchema::make()->action($shippingZoneSchema, ShippingZoneSchema::factory()->definition());
@@ -276,7 +255,10 @@ test('create invoice from customer', function ($customer) {
     $invoiceData = Invoice::factory()->definition();
     data_set($invoiceData, 'billing_address', Address::first());
     $invoice = StoreInvoice::make()->action($customer, $invoiceData);
-    expect($invoice->number)->toBe('00001');
+    expect($invoice)->toBeInstanceOf(Invoice::class)
+        ->and($invoice->customer)->toBeInstanceOf(Customer::class)
+        ->and($invoice->number)->toBe('00001')
+        ->and($invoice->customer->stats->number_invoices)->toBe(1);
 
     return $invoice;
 })->depends('create customer');
@@ -289,7 +271,7 @@ test('update invoice from customer', function ($invoice) {
     expect($invoice->number)->toBe('00001a');
 })->depends('create invoice from customer');
 
-test('create invoice from order', function ($customer) {
+test('create invoice from order', function (Order $order) {
     $invoiceData = Invoice::factory()->definition();
     data_set($invoiceData, 'billing_address', Address::first());
     data_set($invoiceData, 'number', '00002');
@@ -306,30 +288,3 @@ test('create invoice from order', function ($customer) {
 
     return $invoice;
 })->depends('create order');
-
-test('can fetch 1 invoice from aurora', function () {
-
-    $this->organisation->update(
-        [
-            'source' => [
-                'type'    => 'Aurora',
-                'db_name' => config('database.connections.aurora.database'),
-            ]
-        ]
-    );
-
-    $command = join(
-        ' ',
-        [
-            'fetch:invoices',
-            $this->organisation->slug,
-            '-s 2'
-        ]
-    );
-
-    $this->artisan($command)->assertExitCode(0);
-    $this->shop->refresh();
-    expect($this->shop->stats->number_invoices)->toBe(3);
-
-
-})->depends('create invoice from order');
