@@ -86,7 +86,7 @@ class EditWebpage extends OrgAction
                             'label'  => __('SEO (Google Search)'),
                             'icon'   => 'fab fa-google',
                             'fields' => [
-                                'googleSearch' => [
+                                'google_search' => [
                                     'type'     => 'googleSearch',
                                     'value'    => [
                                         'seotitle'       => Arr::get($webpage->data, 'seotitle')       ?? '',
@@ -100,8 +100,11 @@ class EditWebpage extends OrgAction
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'org.models.webpage.update',
-                            'parameters' => $webpage->slug
+                            'name'       => 'grp.models.shop.webpage.update',
+                            'parameters' => [
+                                'shop'    => $webpage->website->shop->id,
+                                'webpage' => $webpage->id
+                            ]
                         ],
                     ]
                 ],
