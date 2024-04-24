@@ -24,6 +24,8 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('product_id')->nullable();
             $table->foreign('product_id')->references('id')->on('products');
+            $table->unsignedInteger('current_historic_outerable_id')->index()->nullable();
+
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index();
             $table->string('name', 255)->nullable();
