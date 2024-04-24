@@ -305,6 +305,13 @@ class EditWebsite extends OrgAction
                         'website' => $website->slug
                     ]
                 ]
+            ],
+            'grp.org.fulfilments.show.web.websites.edit' => [
+                'label' => $website->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => request()->route()->originalParameters()
+                ]
             ]
         };
     }
