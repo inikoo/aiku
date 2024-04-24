@@ -24,9 +24,10 @@ class GetLayout
 
         return [
 
-            'group'         => GroupResource::make(app('group'))->getArray(),
-            'organisations' => UserOrganisationResource::collectionForUser($user->authorisedShopOrganisations, $user),
-            'agents'        => UserOrganisationResource::collectionForUser($user->authorisedAgentsOrganisations, $user),
+            'group'          => GroupResource::make(app('group'))->getArray(),
+            'organisations'  => UserOrganisationResource::collectionForUser($user->authorisedShopOrganisations, $user),
+            'agents'         => UserOrganisationResource::collectionForUser($user->authorisedAgentsOrganisations, $user),
+            'digital_agency' => UserOrganisationResource::collectionForUser($user->authorisedDigitalAgencyOrganisations, $user),
 
             'navigation' => [
                 'grp' => GetGroupNavigation::run($user),

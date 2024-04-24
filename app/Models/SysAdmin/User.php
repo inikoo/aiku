@@ -62,6 +62,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $legacy_password source password
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $authorisedAgentsOrganisations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $authorisedDigitalAgencyOrganisations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Fulfilment> $authorisedFulfilments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $authorisedOrganisations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $authorisedShopOrganisations
@@ -182,6 +183,11 @@ class User extends Authenticatable implements HasMedia, Auditable
     public function authorisedAgentsOrganisations(): MorphToMany
     {
         return $this->morphedByMany(Organisation::class, 'model', 'user_has_authorised_models')->where('organisations.type', OrganisationTypeEnum::AGENT)->withTimestamps();
+    }
+
+    public function authorisedDigitalAgencyOrganisations(): MorphToMany
+    {
+        return $this->morphedByMany(Organisation::class, 'model', 'user_has_authorised_models')->where('organisations.type', OrganisationTypeEnum::DIGITAL_AGENCY)->withTimestamps();
     }
 
     public function authorisedShops(): MorphToMany
