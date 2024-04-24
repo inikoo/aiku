@@ -27,6 +27,7 @@ const emits = defineEmits<{
             :placeholder="placeholder || trans('Enter text here')"
             class="block w-full rounded-md shadow-sm text-gray-600 placeholder:text-gray-400 placeholder:italic placeholder:text-xs border-gray-300 focus:border-gray-500 focus:ring-gray-500 sm:text-sm" />
     </div>
+    
     <div v-if="counter" class="grid grid-flow-col text-xs italic text-gray-500 mt-2 space-x-12 justify-start">
         <p class="">
             <!-- {{ pageBody.layout.profile.fields.about.notes }} -->

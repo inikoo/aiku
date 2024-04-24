@@ -44,7 +44,7 @@ class UpdateWebpage extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("webpages.edit");
+        return $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
     }
 
 
@@ -96,12 +96,11 @@ class UpdateWebpage extends OrgAction
 
             ],
 
-            'level'   => ['sometimes', 'integer'],
-            'purpose' => ['sometimes', Rule::enum(WebpagePurposeEnum::class)],
-            'type'    => ['sometimes', Rule::enum(WebpageTypeEnum::class)],
-            'state'   => ['sometimes', Rule::enum(WebpageStateEnum::class)],
-
-
+            'level'         => ['sometimes', 'integer'],
+            'purpose'       => ['sometimes', Rule::enum(WebpagePurposeEnum::class)],
+            'type'          => ['sometimes', Rule::enum(WebpageTypeEnum::class)],
+            'state'         => ['sometimes', Rule::enum(WebpageStateEnum::class)],
+            'google_search' => ['sometimes', 'array']
         ];
     }
 
@@ -128,9 +127,21 @@ class UpdateWebpage extends OrgAction
     public function inShop(Shop $shop, Webpage $webpage, ActionRequest $request): Webpage
     {
         $this->webpage = $webpage;
-        $this->initialisation($shop->organisation, $request);
+        $this->initialisationFromShop($shop, $request);
 
-        return $this->handle($webpage, $this->validatedData);
+        $modelData = [];
+        foreach ($this->validatedData as $key => $value) {
+            data_set(
+                $modelData,
+                match ($key) {
+                    'google_search'  => 'data',
+                    default          => $key
+                },
+                $value
+            );
+        }
+
+        return $this->handle($webpage, $modelData);
     }
 
     public function jsonResponse(Webpage $webpage): WebpageResource

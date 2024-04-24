@@ -40,11 +40,11 @@ const props = defineProps<{
 
 // Section: Webhook
 const isWebhookLoading = ref(false)
-const webhookValue = ref(props.data.webhook.webhook_access_key || '')
+const webhookValue = ref(props.data.webhook?.webhook_access_key || '')
 const onFetchWebhook = async () => {
     isWebhookLoading.value = true
     try {
-        const response: { data: { webhook_access_key: string } } = await axios.get(route(props.data.webhook.route.name, props.data.webhook.route.parameters))
+        const response: { data: { webhook_access_key: string } } = await axios.get(route(props.data.webhook?.route.name, props.data.webhook.route.parameters))
         // console.log('response', response)
         webhookValue.value = response?.data?.webhook_access_key || ''
     } catch (error) {

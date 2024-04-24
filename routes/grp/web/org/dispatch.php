@@ -5,8 +5,10 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\Dispatch\Picking\ExportPicking;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
 
 //Route::get('/pickings/export', ExportPicking::class)->name('picking.export');
 Route::get('/', ShowDispatchHub::class)->name('backlog');
+Route::get('/delivery-notes', IndexDeliveryNotes::class)->name('delivery-notes');
