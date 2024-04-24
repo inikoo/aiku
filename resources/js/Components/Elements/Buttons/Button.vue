@@ -203,10 +203,10 @@ const getActionIcon = (icon: any) => {
     // Primary but less opacity
     background-color: v-bind('layout?.app?.theme[4] + "22"') !important;
     border: v-bind('`1px solid ${layout?.app?.theme[4] + "88"}`');
-    color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 80%, black)`') !important;
+    color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 50%, black)`') !important;
 
     &:hover {
-        background-color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4] + "22"} 85%, black)`') !important;
+        background-color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4] + "22"} 90%, black)`') !important;
     }
 
     &:focus {
