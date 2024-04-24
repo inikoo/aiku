@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import { Switch } from '@headlessui/vue'
 import { isNull } from 'lodash'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'

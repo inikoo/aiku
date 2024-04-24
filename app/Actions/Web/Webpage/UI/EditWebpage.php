@@ -13,6 +13,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Exception;
+use Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -82,96 +83,18 @@ class EditWebpage extends OrgAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => 'state',
-                            'icon'   => 'fal fa-signal-stream',
+                            'label'  => __('SEO (Google Search)'),
+                            'icon'   => 'fab fa-google',
                             'fields' => [
-                                'launch' => [
-                                    'type'     => 'action',
-                                    'label'    => __('Launch'),
-                                    'icon'     => 'fal fa-rocket-launch',
-                                    'value'    => false,
-                                    'required' => true,
-                                    'button'   => [
-                                        'method' => 'patch',
-                                        'data'   => [
-                                            'state' => 'live'
-                                        ],
-                                        'route'  => [
-                                            'name' => 'org.models.webpage.state.update'
-                                        ]
-                                    ]
-                                ],
-                            ]
-                        ],
-                        [
-                            'title'  => 'state',
-                            'icon'   => 'fal fa-signal-stream',
-                            'fields' => [
-                                'maintenance' => [
-                                    'type'     => 'action',
-                                    'label'    => __('Maintenance'),
-                                    'icon'     => 'fal fa-rocket-launch',
-                                    'value'    => false,
-                                    'required' => true,
-                                    'button'   => [
-                                        'style'  => 'negative',
-                                        'method' => 'patch',
-                                        'data'   => [
-                                            'state'  => 'live',
-                                            'status' => false
-                                        ],
-                                        'route'  => [
-                                            'name' => 'org.models.webpage.state.update'
-                                        ]
-                                    ]
-                                ],
-                            ]
-                        ],
-                        [
-                            'title'  => 'state',
-                            'icon'   => 'fal fa-signal-stream',
-                            'fields' => [
-                                'restore' => [
-                                    'type'     => 'action',
-                                    'label'    => __('Restore'),
-                                    'icon'     => 'fal fa-rocket-launch',
-                                    'value'    => false,
-                                    'required' => true,
-                                    'button'   => [
-                                        'style'  => 'primary',
-                                        'method' => 'patch',
-                                        'data'   => [
-                                            'state'  => 'live',
-                                            'status' => true
-                                        ],
-                                        'route'  => [
-                                            'name' => 'org.models.webpage.state.update'
-                                        ]
-                                    ]
-                                ],
-                            ]
-                        ],
-                        [
-                            'title'  => 'state',
-                            'icon'   => 'fal fa-signal-stream',
-                            'fields' => [
-                                'closed' => [
-                                    'type'     => 'action',
-                                    'label'    => __('Closed'),
-                                    // 'icon'     => 'fal fa-rocket-launch',
-                                    'value'    => false,
-                                    'required' => true,
-                                    'button'   => [
-                                        'style'  => 'negative',
-                                        'method' => 'patch',
-                                        'data'   => [
-                                            'state' => 'closed',
-                                        ],
-                                        'route'  => [
-                                            'name' => 'org.models.webpage.state.update'
-                                        ]
-                                    ]
-                                ],
+                                'googleSearch' => [
+                                    'type'     => 'googleSearch',
+                                    'value'    => [
+                                        'seotitle'       => Arr::get($webpage->data, 'seotitle')       ?? '',
+                                        'seodescription' => Arr::get($webpage->data, 'seodescription') ?? '',
+                                        'seourl'         => Arr::get($webpage->data, 'seourl')         ?? '',
+                                    ],
+                                    'noTitle'  => true,
+                                ]
                             ]
                         ],
                     ],
