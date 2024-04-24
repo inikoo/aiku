@@ -47,6 +47,26 @@ class UpdateUniversalSearch extends HydrateModel
         $command->line('Employees');
         $command->call('fulfilment-customer:search');
 
+        $command->line('Stock');
+        $command->call('stocks:search');
+
+        $command->line('Stock Family');
+        $command->call('stock-families:search');
+
+        $command->line('Supplier Product');
+        $command->call('supplier-products:search');
+
+        $command->line('Agent');
+        $command->call('agents:search');
+
+        $command->line('Supplier');
+        $command->call('suppliers:search');
+
+        $command->line('Webpage');
+        $command->call('webpage:search');
+
+        $command->line('Website');
+        $command->call('website:search');
 
         return 0;
 
