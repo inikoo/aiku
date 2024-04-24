@@ -100,14 +100,14 @@ class GetOrganisationNavigation
                                 "parameters" => [$organisation->slug],
                             ]
                         ],
-                        // [
-                        //     'label' => __('delivery notes'),
-                        //     'icon'  => ['fal', 'fa-truck'],
-                        //     'route' => [
-                        //         "name"       => "grp.org.dispatch.delivery-notes",
-                        //         "parameters" => [$organisation->slug],
-                        //     ]
-                        // ],
+                         [
+                             'label' => __('delivery notes'),
+                             'icon'  => ['fal', 'fa-truck'],
+                             'route' => [
+                                 "name"       => "grp.org.dispatch.delivery-notes",
+                                 "parameters" => [$organisation->slug],
+                             ]
+                         ],
                     ]
                 ],
             ];
