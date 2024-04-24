@@ -13,6 +13,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\UI\GetFulfilmentCustomerShowcase;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
+use App\Actions\Fulfilment\Proforma\UI\IndexProforma;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItemReturn\UI\IndexStoredItemReturns;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
@@ -22,6 +23,7 @@ use App\Actions\Traits\WithWebUserMeta;
 use App\Enums\UI\Fulfilment\CustomerFulfilmentTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\CRM\WebUsersResource;
+use App\Http\Resources\Fulfilment\FulfilmentProformasResource;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
@@ -178,6 +180,12 @@ class ShowFulfilmentCustomer extends OrgAction
                     fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value))
                     : Inertia::lazy(
                         fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value))
+                    ),
+
+                CustomerFulfilmentTabsEnum::PROFORMAS->value => $this->tab == CustomerFulfilmentTabsEnum::PROFORMAS->value ?
+                    fn () => FulfilmentProformasResource::collection(IndexProforma::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PROFORMAS->value))
+                    : Inertia::lazy(
+                        fn () => FulfilmentProformasResource::collection(IndexProforma::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PROFORMAS->value))
                     ),
 
                 CustomerFulfilmentTabsEnum::PALLET_RETURNS->value => $this->tab == CustomerFulfilmentTabsEnum::PALLET_RETURNS->value ?

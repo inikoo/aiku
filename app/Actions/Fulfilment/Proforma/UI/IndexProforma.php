@@ -12,6 +12,7 @@ use App\Actions\OrgAction;
 use App\Http\Resources\Fulfilment\FulfilmentCustomersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\FulfilmentProforma;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -42,13 +43,12 @@ class IndexProforma extends OrgAction
     }
 
 
-    public function handle(Fulfilment $fulfilment, $prefix = null): LengthAwarePaginator
+    public function handle(Fulfilment|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('customers.name', $value)
-                    ->orWhereStartWith('customers.email', $value)
-                    ->orWhere('customers.reference', '=', $value);
+                $query->whereAnyWordStartWith('number', $value)
+                    ->orWhereStartWith('slug', $value);
             });
         });
 
@@ -57,11 +57,13 @@ class IndexProforma extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(FulfilmentProforma::class);
-        $queryBuilder->where('fulfilment_customers.fulfilment_id', $fulfilment->id);
 
+        if($parent instanceof FulfilmentCustomer) {
+            $queryBuilder->where('fulfilment_customer_id', $parent->id);
+        }
 
         return $queryBuilder
-            ->defaultSort('fulfilment_customers.slug')
+            ->defaultSort('slug')
             ->allowedSorts(['number', 'slug'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -83,14 +85,14 @@ class IndexProforma extends OrgAction
                 ->withGlobalSearch()
                 ->withEmptyState(
                     [
-                        'title'       => __("You don't have any customer yet").' 😭',
+                        'title'       => __("You don't have any proforma yet").' 😭',
                         'description' => __("Dont worry soon you will be pretty busy"),
                         'count'       => $fulfilment->shop->crmStats->number_customers,
                         'action'      => [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('new customer'),
-                            'label'   => __('customer'),
+                            'tooltip' => __('new proforma'),
+                            'label'   => __('proforma'),
                             'route'   => [
                                 'name'       => 'grp.org.fulfilments.show.crm.customers.create',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
@@ -98,9 +100,8 @@ class IndexProforma extends OrgAction
                         ]
                     ]
                 )
-                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_pallets_status_storing', label: __('Pallets'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'slug', label: __('slug'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
@@ -119,7 +120,7 @@ class IndexProforma extends OrgAction
         ];
 
         return Inertia::render(
-            'Org/Fulfilment/Customers',
+            'Org/Fulfilment/Proformas',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()

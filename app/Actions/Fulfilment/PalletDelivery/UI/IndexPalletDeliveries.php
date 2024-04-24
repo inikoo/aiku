@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\PalletDelivery\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
+use App\Actions\Market\HasRentalAgreement;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
@@ -36,6 +37,7 @@ use App\Services\QueryBuilder;
 class IndexPalletDeliveries extends OrgAction
 {
     use HasFulfilmentAssetsAuthorisation;
+    use HasRentalAgreement;
 
     private Fulfilment|Warehouse|FulfilmentCustomer $parent;
 
@@ -177,7 +179,8 @@ class IndexPalletDeliveries extends OrgAction
                                 'options' => [
                                     'warehouses' => WarehouseResource::collection($parent->fulfilment->warehouses)
                                 ],
-                                'route'   => [
+                                'disabled' => !$this->hasRentalAgreement($parent),
+                                'route'    => [
                                     'method'     => 'post',
                                     'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
                                     'parameters' => [$parent->id]
