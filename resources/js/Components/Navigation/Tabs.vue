@@ -5,15 +5,17 @@
   -->
 
 <script setup lang="ts">
-import {ref} from "vue";
-import {capitalize} from "@/Composables/capitalize"
-import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
-import {faInfoCircle, faPallet} from '@fas'
-import {faRoad, faClock, faDatabase, faNetworkWired} from '@fal'
- import {library} from '@fortawesome/fontawesome-svg-core'
+import { inject, ref } from "vue"
+import { capitalize } from "@/Composables/capitalize"
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faInfoCircle, faPallet } from '@fas'
+import { faRoad, faClock, faDatabase, faNetworkWired } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { layoutStructure } from "@/Composables/useLayoutStructure"
 
- library.add(faInfoCircle, faRoad, faClock, faDatabase, faPallet, faNetworkWired)
+library.add(faInfoCircle, faRoad, faClock, faDatabase, faPallet, faNetworkWired)
 
+const layoutStore = inject('layout', layoutStructure)
 
 const props = defineProps<{
     navigation: {
@@ -28,19 +30,19 @@ const props = defineProps<{
     current: string
 }>()
 
-defineEmits(['update:tab']);
+const emits = defineEmits<{
+    (e: 'update:tab', value: string): void
+}>()
 
-let currentTab = ref(props.current);
-
-
-const changeTab = function (tabSlug) {
-    currentTab.value = tabSlug;
+const currentTab = ref(props.current)
+const changeTab = function (tabSlug: string) {
+    currentTab.value = tabSlug
 }
 
 
 const tabIconClass = function (current, type, align, extraClass) {
-    let iconClass = '-ml-0.5 h-5 w-5   ' + extraClass;
-    iconClass += current ? 'text-indigo-500 ' : 'text-gray-400 group-hover:text-gray-500 ';
+    let iconClass = '-ml-0.5 h-5 w-5   ' + extraClass
+    // iconClass += current ? 'text-indigo-500 ' : 'text-gray-400 group-hover:text-gray-500 ';
     iconClass += (type == 'icon' && align == 'right') ? 'ml-2 ' : 'mr-2 '
     return iconClass
 }
@@ -49,13 +51,18 @@ const tabIconClass = function (current, type, align, extraClass) {
 
 <template>
     <div>
-        <div class="sm:hidden">
+        <!-- Tabs: Mobile view -->
+        <div class="sm:hidden px-3 pt-2">
             <label for="tabs" class="sr-only">Select a tab</label>
             <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
-            <select id="tabs" name="tabs" class="block w-full rounded-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-                <option v-for="(tab,tabSlug) in navigation" :key="tabSlug" :selected="currentTab">{{ tab.title }}</option>
+            <select id="tabs" name="tabs" class="block w-full capitalize rounded-md border-gray-300 focus:border-gray-500 focus:ring-gray-500"
+                @input="(val: any) => { emits('update:tab', val.target.value), changeTab(val.target.value) }"
+            >
+                <option v-for="(tab, tabSlug) in navigation" :key="tabSlug" :selected="tabSlug == currentTab" :value="tabSlug" class="capitalize">{{ tab.title }}</option>
             </select>
         </div>
+
+        <!-- Tabs: Desktop view -->
         <div class="hidden sm:block">
             <div class="border-b border-gray-200 flex">
 
@@ -64,9 +71,9 @@ const tabIconClass = function (current, type, align, extraClass) {
                     <template v-for="(tab, tabSlug) in navigation" :key="tabSlug">
                         <button
                             v-if="tab.align !== 'right'"
-                            @click="[$emit('update:tab', tabSlug),changeTab(tabSlug)]"
-                            :class="[tabSlug === currentTab ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300']"
-                            class="group flex items-center py-2 px-1 border-b-2 font-medium capitalize text-left text-sm md:text-base w-fit"
+                            @click="[emits('update:tab', tabSlug),changeTab(tabSlug)]"
+                            :class="[tabSlug === currentTab ? 'tabNavigationActive' : 'tabNavigation']"
+                            class="group flex items-center py-2 px-1 font-medium capitalize text-left text-sm md:text-base w-fit"
                             :aria-current="tabSlug === currentTab ? 'page' : undefined">
                             <FontAwesomeIcon v-if="tab.icon" :icon="tab.icon" :class="tabIconClass(tabSlug === currentTab, tab.type, tab.align, tab.iconClass || '')" aria-hidden="true"/>
                             {{ tab.title }}
@@ -79,8 +86,8 @@ const tabIconClass = function (current, type, align, extraClass) {
                     <template v-for="(tab,tabSlug) in navigation" :key="tabSlug">
                         <button
                             v-if="tab.align === 'right'"
-                            @click="[$emit('update:tab', tabSlug), changeTab(tabSlug)]"
-                            :class="[tabSlug === currentTab ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+                            @click="[emits('update:tab', tabSlug), changeTab(tabSlug)]"
+                            :class="[tabSlug === currentTab ? 'tabNavigationActive' : 'tabNavigation',
                                 'group inline-flex justify-center items-center py-2 px-2 border-b-2 font-medium text-sm']"
                             :aria-current="tabSlug === currentTab ? 'page' : undefined"
                             v-tooltip="capitalize(tab.title)"
@@ -93,5 +100,25 @@ const tabIconClass = function (current, type, align, extraClass) {
             </div>
         </div>
     </div>
-
 </template>
+
+<style lang="scss" scoped>
+.tabNavigation {
+    @apply transition-all duration-75;
+    filter: saturate(0);
+    border-bottom: v-bind('`2px solid transparent`');
+    color: v-bind('`${layoutStore.app.theme[0]}99`');
+    
+    &:hover {
+        filter: saturate(0.85);
+        border-bottom: v-bind('`2px solid ${layoutStore.app.theme[0]}AA`');
+        color: v-bind('`${layoutStore.app.theme[0]}AA`');
+    }
+}
+
+.tabNavigationActive {
+    border-bottom: v-bind('`2px solid ${layoutStore.app.theme[0]}`');
+    color: v-bind('layoutStore.app.theme[0]');
+}
+
+</style>

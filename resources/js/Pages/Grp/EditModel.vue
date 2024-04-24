@@ -19,9 +19,10 @@ import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { inject } from 'vue'
 
 import { faUserLock, faBell, faCopyright, faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint, faLanguage, faAddressBook, faTrashAlt, faSlidersH, faCog } from '@fal'
+import { faBrowser } from '@fal'
 import { Head } from '@inertiajs/vue3'
 
-library.add(faUserLock,faBell,faCopyright,faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint,faLanguage,faAddressBook,faTrashAlt, faSlidersH, faCog, faGoogle)
+library.add(faBrowser, faUserLock,faBell,faCopyright,faUserCircle, faMobileAndroidAlt, faKey, faClone, faPaintBrush, faMoonStars, faLightbulbOn, faCheck, faPhone, faIdCard, faFingerprint,faLanguage,faAddressBook,faTrashAlt, faSlidersH, faCog, faGoogle)
 
 
 const props = defineProps<{

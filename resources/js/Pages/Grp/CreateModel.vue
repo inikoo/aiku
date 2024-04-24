@@ -28,6 +28,7 @@ import JobPosition from '@/Components/Forms/Fields/JobPosition.vue'
 import EmployeePosition from '@/Components/Forms/Fields/EmployeePosition.vue'
 import Interest from '@/Components/Forms/Fields/Interest.vue'
 import Toggle from '@/Components/Forms/Fields/Toggle.vue'
+import WebRegistrations from '@/Components/Forms/Fields/WebRegistrations.vue'
 import Rental from '@/Components/Rental/Rental.vue'
 
 import { ref, onMounted } from 'vue'
@@ -76,7 +77,8 @@ const getComponent = (componentName: string) => {
         'senderEmail': SenderEmail,
         'employeePosition': EmployeePosition,
         'interest': Interest,
-        'rental' : Rental
+        'rental' : Rental,
+        'webRegistrations' : WebRegistrations
     }
     return components[componentName] ?? null
 }

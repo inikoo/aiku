@@ -272,7 +272,7 @@ onMounted(() => {
                                 </div>
 
                             </td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">           
                                 <PureInput v-model="itemData.price" :placeholder="'Input Price'"
                                     type="number" :minValue="itemData.original_price ? 1 : itemData.original_price" step="0.01"
                                     @input="(value) => sePriceByChange(value,itemData,index)" />
@@ -308,5 +308,7 @@ onMounted(() => {
             </div>
         </div>
     </div>
-<!--     <div @click="() => console.log(form[fieldName])">see data Send</div> -->
+    <p v-if="get(form, ['errors', `${fieldName}`])" class="mt-2 text-sm text-red-600" :id="`${fieldName}-error`">
+        {{ form.errors[fieldName] }}
+    </p>
 </template>

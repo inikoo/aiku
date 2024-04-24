@@ -13,6 +13,7 @@ import { ref, computed } from 'vue'
 import axios from 'axios'
 import type { Component } from 'vue'
 
+import Toggle from '@/Components/Forms/Fields/Toggle.vue'
 import Input from '@/Components/Forms/Fields/Input.vue'
 import Phone from '@/Components/Forms/Fields/Phone.vue'
 import Date from '@/Components/Forms/Fields/Date.vue'
@@ -35,6 +36,9 @@ import EmployeePosition from '@/Components/Forms/Fields/EmployeePosition.vue'
 import AppLogin from '@/Components/Forms/Fields/AppLogin.vue'
 import AppTheme from '@/Components/Forms/Fields/AppTheme.vue'
 import Interest from '@/Components/Forms/Fields/Interest.vue'
+import WebRegistrations from '@/Components/Forms/Fields/WebRegistrations.vue'
+import GoogleSearch from '@/Components/Forms/Fields/GoogleSearch.vue'
+import Action from '@/Components/Forms/Fields/Action.vue'
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -59,6 +63,7 @@ const props = defineProps<{
         full: boolean
         noTitle?: boolean
         noSaveButton?: boolean  // Button: save
+        updateRoute?: routeType
     }
     args: {
         updateRoute: routeType
@@ -66,11 +71,13 @@ const props = defineProps<{
 }>()
 
 const layout = useLayoutStore()
-const updateRoute = props.fieldData.updateRoute ?? props.args['updateRoute'];
+const updateRoute = props.fieldData.updateRoute || props.args['updateRoute']
 
 const components: {[key: string]: Component} = {
     'select': Select,
+    'toggle': Toggle,
     'input': Input,
+    'action': Action,
     'inputWithAddOn': InputWithAddOn,
     'phone': Phone,
     'date': Date,
@@ -91,18 +98,20 @@ const components: {[key: string]: Component} = {
     'app_login': AppLogin,
     'app_theme': AppTheme,
     'interest': Interest,
+    'webRegistrations': WebRegistrations,
+    'googleSearch': GoogleSearch,
 }
 
 const getComponent = (componentName: string) => {
-    return components[componentName] ?? null;
-};
+    return components[componentName] ?? null
+}
 
 let formFields = {
     [props.field]: props.fieldData.value,
-};
+}
 
 if (props['fieldData']['hasOther']) {
-    formFields[props['fieldData']['hasOther']['name']] = props['fieldData']['hasOther']['value'];
+    formFields[props['fieldData']['hasOther']['name']] = props['fieldData']['hasOther']['value']
 }
 formFields['_method'] = 'patch'
 const form = useForm(formFields)

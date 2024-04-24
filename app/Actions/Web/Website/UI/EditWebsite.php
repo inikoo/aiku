@@ -84,7 +84,7 @@ class EditWebsite extends OrgAction
                     'formData' => [
                         'blueprint' => [
                             [
-                                'title'  => __('ID/domain'),
+                                'label'  => __('ID/domain'),
                                 'icon'   => 'fa-light fa-id-card',
                                 'fields' => [
                                     'code' => [
@@ -111,7 +111,7 @@ class EditWebsite extends OrgAction
                                 ]
                             ],
                             [
-                            'title'  => __('Registrations'),
+                            'label'  => __('Registrations'),
                             'icon'   => 'fa-light fa-id-card',
                             'fields' => [
                                 'approval' => [
@@ -125,11 +125,11 @@ class EditWebsite extends OrgAction
                                     'mode'     => 'card',
                                     'label'    => __('Registration Type'),
                                     'value'    => [
-                                            'title'        => "type B",
-                                            'description'  => 'This user able to create and delete',
-                                            'label'        => '17 users left',
-                                            'value'        => "typeB",
-                                        ],
+                                        'title'        => "type B",
+                                        'description'  => 'This user able to create and delete',
+                                        'label'        => '17 users left',
+                                        'value'        => "typeB",
+                                    ],
                                     'required' => true,
                                     'options'  => [
                                         [
@@ -304,6 +304,13 @@ class EditWebsite extends OrgAction
                     'parameters' => [
                         'website' => $website->slug
                     ]
+                ]
+            ],
+            'grp.org.fulfilments.show.web.websites.edit' => [
+                'label' => $website->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => request()->route()->originalParameters()
                 ]
             ]
         };

@@ -23,6 +23,7 @@ import { useTabChange } from "@/Composables/tab-change"
 import { computed, defineAsyncComponent, inject, onMounted, onUnmounted, ref } from "vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import TablePalletDeliveries from '@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveries.vue'
+import TableProformas from '@/Components/Tables/Grp/Org/Fulfilment/TableProformas.vue'
 import Popover from '@/Components/Popover.vue'
 import FulfilmentCustomerShowcase from "@/Components/Showcases/Grp/FulfilmentCustomerShowcase.vue"
 import CustomerInvoices from "@/Components/Fulfilment/CustomerInvoices.vue"
@@ -33,10 +34,24 @@ import { get } from 'lodash'
 import axios from 'axios'
 import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue"
 
-import { faStickyNote, faPallet, faUser, faNarwhal, faTruckCouch, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading } from '@fal'
+import {
+    faStickyNote,
+    faPallet,
+    faUser,
+    faNarwhal,
+    faTruckCouch,
+    faFileInvoiceDollar,
+    faSignOutAlt,
+    faPaperclip,
+    faPaperPlane,
+    faCheckDouble,
+    faShare,
+    faTruckLoading,
+    faFileInvoice
+} from '@fal'
 import { notify } from '@kyvg/vue3-notification'
 import FulfilmentCustomerWebhook from "@/Components/Showcases/Grp/FulfilmentCustomerWebhook.vue";
-library.add( faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading )
+library.add( faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading, faFileInvoice)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
@@ -49,6 +64,7 @@ const props = defineProps<{
     }
     showcase?: {}
     invoices?: {}
+    proformas?: {}
     pallets?: {}
     stored_items?: {}
     stored_item_returns?: {}
@@ -76,7 +92,8 @@ const component = computed(() => {
         history: ModelChangelog,
         dispatched_emails: TableDispatchedEmails,
         web_users: TableWebUsers,
-        webhook: FulfilmentCustomerWebhook
+        webhook: FulfilmentCustomerWebhook,
+        proformas: TableProformas
     }
 
     return components[currentTab.value]
