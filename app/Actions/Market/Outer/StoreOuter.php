@@ -41,7 +41,9 @@ class StoreOuter extends OrgAction
 
 
         if (!$skipHistoric) {
-            $historicProduct = StoreHistoricOuterable::run($outer);
+            $historicProduct = StoreHistoricOuterable::run($outer, [
+                'source_id'=> $outer->historic_source_id
+            ]);
             $product->update(
                 [
                     'current_historic_outerable_id' => $historicProduct->id
@@ -75,11 +77,12 @@ class StoreOuter extends OrgAction
             'units'       => ['sometimes', 'required', 'numeric'],
             'name'        => ['required', 'max:250', 'string'],
 
-            'price'       => ['required', 'numeric'],
-            'source_id'   => ['sometimes', 'required', 'string', 'max:255'],
-            'state'       => ['required', Rule::enum(OuterStateEnum::class)],
-            'data'        => ['sometimes', 'array'],
-            'created_at'  => ['sometimes', 'date'],
+            'price'                => ['required', 'numeric'],
+            'source_id'            => ['sometimes', 'required', 'string', 'max:255'],
+            'historic_source_id'   => ['sometimes', 'required', 'string', 'max:255'],
+            'state'                => ['required', Rule::enum(OuterStateEnum::class)],
+            'data'                 => ['sometimes', 'array'],
+            'created_at'           => ['sometimes', 'date'],
         ];
 
     }

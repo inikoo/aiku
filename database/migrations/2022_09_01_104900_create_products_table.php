@@ -55,6 +55,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
+            $table->string('historic_source_id')->nullable()->index();
             $table->index(['owner_id','owner_type']);
             $table->index(['parent_id','parent_type']);
         });

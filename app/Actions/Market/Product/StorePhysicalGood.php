@@ -40,14 +40,11 @@ class StorePhysicalGood extends OrgAction
 
         $modelData=$this->setDataFromParent($parent, $modelData);
 
-
-
         $tradeUnits = $modelData['trade_units'];
         data_forget($modelData, 'trade_units');
 
         data_set($modelData, 'unit_relationship_type', $this->getUnitRelationshipType($tradeUnits));
         data_set($modelData, 'outerable_type', 'Outer');
-
 
         $price=Arr::get($modelData, 'price');
         data_forget($modelData, 'price');
@@ -57,12 +54,8 @@ class StorePhysicalGood extends OrgAction
         $product = $parent->products()->create($modelData);
         $product->stats()->create();
 
-
-
         foreach ($tradeUnits as $tradeUnitId=>$tradeUnitData) {
-
             $tradeUnit=TradeUnit::find($tradeUnitId);
-
             $product->tradeUnits()->attach(
                 $tradeUnit,
                 [
@@ -77,11 +70,13 @@ class StorePhysicalGood extends OrgAction
         $outer=StoreOuter::run(
             product: $product,
             modelData: [
-                'code'            => $product->code,
-                'price'           => $price,
-                'name'            => $product->name,
-                'is_main'         => true,
-                'main_outer_ratio'=> 1
+                'code'              => $product->code,
+                'price'             => $price,
+                'name'              => $product->name,
+                'is_main'           => true,
+                'main_outer_ratio'  => 1,
+                'source_id'         => $product->source_id,
+                'historic_source_id'=> $product->historic_source_id
             ]
         );
 

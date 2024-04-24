@@ -25,6 +25,7 @@ class StoreHistoricOuterable
     public function handle(Outer|Rental|Service $outerable, array $modelData = []): HistoricOuterable
     {
 
+
         $historicOuterableData = [
             'source_id'  => Arr::get($modelData, 'source_id'),
         ];
@@ -59,7 +60,6 @@ class StoreHistoricOuterable
         data_set($historicOuterableData, 'organisation_id', $outerable->organisation_id);
         data_set($historicOuterableData, 'group_id', $outerable->group_id);
         data_set($historicOuterableData, 'product_id', $outerable->product_id);
-
 
 
         /** @var HistoricOuterable $historicOuterable */

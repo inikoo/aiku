@@ -69,6 +69,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property string|null $historic_source_id
  * @property-read Collection<int, Barcode> $barcode
  * @property-read Group $group
  * @property-read Collection<int, \App\Models\Market\HistoricOuterable> $historicOuters

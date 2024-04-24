@@ -67,7 +67,6 @@ class FetchAuroraProduct extends FetchAurora
             $units = 1;
         }
 
-
         $created_at=$this->parseDatetime($this->auroraModelData->{'Product Valid From'});
         if(!$created_at) {
             $created_at=$this->parseDatetime($this->auroraModelData->{'Product For Sale Since Date'});
@@ -75,8 +74,6 @@ class FetchAuroraProduct extends FetchAurora
         if(!$created_at) {
             $created_at=$this->parseDatetime($this->auroraModelData->{'Product First Sold Date'});
         }
-
-
 
         $unit_price        = $this->auroraModelData->{'Product Price'} / $units;
         $data['raw_price'] = $unit_price;
@@ -101,6 +98,7 @@ class FetchAuroraProduct extends FetchAurora
             'created_at'            => $created_at,
             'trade_unit_composition'=> ProductUnitRelationshipType::SINGLE,
             'source_id'             => $this->organisation->id.':'.$this->auroraModelData->{'Product ID'},
+            'historic_source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Product Current Key'},
 
         ];
     }
