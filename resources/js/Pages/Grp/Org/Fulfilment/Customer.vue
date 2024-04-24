@@ -23,6 +23,7 @@ import { useTabChange } from "@/Composables/tab-change"
 import { computed, defineAsyncComponent, inject, onMounted, onUnmounted, ref } from "vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import TablePalletDeliveries from '@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveries.vue'
+import TableProformas from '@/Components/Tables/Grp/Org/Fulfilment/TableProformas.vue'
 import Popover from '@/Components/Popover.vue'
 import FulfilmentCustomerShowcase from "@/Components/Showcases/Grp/FulfilmentCustomerShowcase.vue"
 import CustomerInvoices from "@/Components/Fulfilment/CustomerInvoices.vue"
@@ -92,7 +93,7 @@ const component = computed(() => {
         dispatched_emails: TableDispatchedEmails,
         web_users: TableWebUsers,
         webhook: FulfilmentCustomerWebhook,
-        proformas: FulfilmentCustomerWebhook
+        proformas: TableProformas
     }
 
     return components[currentTab.value]
