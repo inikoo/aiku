@@ -70,8 +70,11 @@ const isLoading = ref(false)
         <h3 class="font-logo text-lg font-bold text-gray-600">{{ data?.title ?? trans('No records found') }}</h3>
         <p v-if="data?.description" class="text-sm text-gray-500 inline-block">{{ data?.description }}</p>
 
-        <Link v-if="data?.action" as="div" :href="route(data?.action.route.name, data?.action.route.parameters)" @start="() => isLoading = true" :method="data?.action?.route?.method" class="mt-4 block">
-            <Button :style="data?.action.style" :icon="data?.action.icon" :label="data?.action.tooltip" :loading="isLoading" />
-        </Link>
+        <slot name='button-empty-state'>
+            <Link v-if="data?.action" as="div" :href="route(data?.action.route.name, data?.action.route.parameters)" @start="() => isLoading = true" :method="data?.action?.route?.method" class="mt-4 block">
+                <Button :style="data?.action.style" :icon="data?.action.icon" :label="data?.action.tooltip" :loading="isLoading" />
+            </Link>
+        </slot>
+       
     </div>
 </template>

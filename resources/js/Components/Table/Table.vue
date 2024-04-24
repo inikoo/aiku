@@ -619,11 +619,28 @@ watch(selectRow, () => {
 <template>
     <Transition>
         <!--suppress JSValidateTypes -->
-        <EmptyState :data="queryBuilderProps.emptyState"
-                    v-if="queryBuilderProps.emptyState?.count === 0 && compResourceMeta.total === 0"/>
+        <slot name='emptyState' :emptyState="queryBuilderProps.emptyState"
+            v-if="queryBuilderProps.emptyState?.count === 0 && compResourceMeta.total === 0">
+            <EmptyState :data="queryBuilderProps.emptyState">
+                <template #button-empty-state>
+                    <div>
+                       <!--  <pre>{{ queryBuilderProps.emptyState }}</pre> -->
+                        <Link v-if="queryBuilderProps.emptyState?.action" as="div"
+                            :href="route(queryBuilderProps.emptyState?.action.route.name, queryBuilderProps.emptyState?.action.route.parameters)"
+                            :method="queryBuilderProps.emptyState?.action?.route?.method" class="mt-4 block">
+                        <Button :style="queryBuilderProps.emptyState?.action.style"
+                            :icon="queryBuilderProps.emptyState?.action.icon"
+                            :label="queryBuilderProps.emptyState?.action.tooltip" />
+                        </Link>
+                    </div>
+                </template>
+            </EmptyState>
+
+        </slot>
+
         <!--suppress HtmlUnknownAttribute -->
         <fieldset v-else ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0"
-                  :class="{ 'opacity-75': isVisiting }">
+            :class="{ 'opacity-75': isVisiting }">
             <div class="my-0">
                 <!-- Wrapper -->
                 <div class="grid grid-flow-col justify-between flex-nowrap pr-4">
@@ -632,8 +649,7 @@ watch(selectRow, () => {
                     <div class="flex space-x-2">
                         <!-- Result Number -->
                         <div class="flex gap-0 items-center">
-                            <div
-                                class="grid border-r rounded-md border-gray-300 justify-end items-center text-base font-normal text-gray-700"
+                            <div class="grid border-r rounded-md border-gray-300 justify-end items-center text-base font-normal text-gray-700"
                                 title="Results">
                                 <div v-if="compResourceMeta.total"
                                     class="px-2 py-1.5 whitespace-nowrap flex gap-x-1 flex-nowrap">
@@ -641,11 +657,11 @@ watch(selectRow, () => {
                                         <CountUp :endVal="compResourceMeta.total" :duration="1.2" :scrollSpyOnce="true"
                                             :options="{
                                             formattingFn: (number) => locale.number(number)
-                                        }"/>
+                                        }" />
                                     </span>
                                     <!-- {{ locale.number(compResourceMeta.total) }} -->
                                     <span class="font-light">{{
-                                            compResourceMeta.total > 1 ? trans('records') : trans('record')
+                                        compResourceMeta.total > 1 ? trans('records') : trans('record')
                                         }}</span>
                                 </div>
                                 <div v-else class="px-2 py-1.5">{{ locale.number(0) }} {{ trans('record') }}</div>
@@ -654,66 +670,49 @@ watch(selectRow, () => {
                             <!-- Button: Model Operations -->
                             <div v-if="queryBuilderProps.modelOperations?.createLink" class="flex">
                                 <slot v-for="(linkButton, btnIndex) in queryBuilderProps.modelOperations?.createLink"
-                                    :name="`button-${kebabCase(linkButton.label)}`" :linkButton="{...linkButton, btnIndex: btnIndex }"
-                                >
-                                    <Link v-if="linkButton?.route?.name"
-                                        as="div"
+                                    :name="`button-${kebabCase(linkButton.label)}`"
+                                    :linkButton="{...linkButton, btnIndex: btnIndex }">
+                                    <Link v-if="linkButton?.route?.name" as="div"
                                         :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
-                                        :method="linkButton.route?.method || 'get'"
-                                        v-tooltip="linkButton.tooltip"
-                                        :class="[queryBuilderProps.modelOperations?.createLink.length > 1 ? 'first:rounded-l last:rounded-r' : '']"
-                                    >
-                                        <Button
-                                            :style="linkButton.style"
-                                            :icon="linkButton.icon"
-                                            :label="linkButton.label"
-                                            size="l"
-                                            class="h-full border-none rounded-none"
-                                            :class="{'rounded-l-md': btnIndex === 0, 'rounded-r-md ': btnIndex === queryBuilderProps.modelOperations?.createLink.length - 1}"
-                                        />
+                                        :method="linkButton.route?.method || 'get'" v-tooltip="linkButton.tooltip"
+                                        :class="[queryBuilderProps.modelOperations?.createLink.length > 1 ? 'first:rounded-l last:rounded-r' : '']">
+                                    <Button :style="linkButton.style" :icon="linkButton.icon" :label="linkButton.label"
+                                        size="l" class="h-full border-none rounded-none"
+                                        :class="{'rounded-l-md': btnIndex === 0, 'rounded-r-md ': btnIndex === queryBuilderProps.modelOperations?.createLink.length - 1}" />
                                     </Link>
                                 </slot>
                             </div>
                             <div v-if="queryBuilderProps.modelOperations?.bulk" class="flex">
-                          
+
                                 <slot v-for="(linkButton, btnIndex) in queryBuilderProps.modelOperations?.bulk"
-                                    :name="`button${linkButton.label}`" :linkButton="linkButton"
-                                >
-                                    <Link v-if="linkButton?.route?.name"
-                                        as="div"
+                                    :name="`button${linkButton.label}`" :linkButton="linkButton">
+                                    <Link v-if="linkButton?.route?.name" as="div"
                                         :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
-                                        :method="linkButton.route?.method || 'get'"
-                                        v-tooltip="linkButton.tooltip"
+                                        :method="linkButton.route?.method || 'get'" v-tooltip="linkButton.tooltip"
                                         :data="selectRow"
-                                        :class="[queryBuilderProps.modelOperations?.bulk.length > 1 ? 'first:rounded-l last:rounded-r' : '']"
-                                    >
-                                        <Button
-                                            :style="Object.values(selectRow).some(value => value) ? linkButton.style : 'disabled'"
-                                            :icon="linkButton.icon"
-                                            :label="linkButton.label"
-                                            size="l"
-                                            class="h-full border-none rounded-none"
-                                            :class="{'rounded-l-md': btnIndex === 0, 'rounded-r-md ': btnIndex === queryBuilderProps.modelOperations?.bulk.length - 1}"
-                                        />
+                                        :class="[queryBuilderProps.modelOperations?.bulk.length > 1 ? 'first:rounded-l last:rounded-r' : '']">
+                                    <Button
+                                        :style="Object.values(selectRow).some(value => value) ? linkButton.style : 'disabled'"
+                                        :icon="linkButton.icon" :label="linkButton.label" size="l"
+                                        class="h-full border-none rounded-none"
+                                        :class="{'rounded-l-md': btnIndex === 0, 'rounded-r-md ': btnIndex === queryBuilderProps.modelOperations?.bulk.length - 1}" />
                                     </Link>
                                 </slot>
                             </div>
 
                             <slot v-if="queryBuilderProps.modelOperations?.uploadFile" name="uploadFile" id="uploadFile"
-                                  :item="queryBuilderProps.modelOperations?.uploadFile"/>
+                                :item="queryBuilderProps.modelOperations?.uploadFile" />
 
                             <!-- Search Input Button -->
-                            <div v-if="queryBuilderProps.globalSearch"
-                                 class="flex flex-row">
+                            <div v-if="queryBuilderProps.globalSearch" class="flex flex-row">
                                 <slot name="tableFilterSearch" :has-global-search="queryBuilderProps.globalSearch"
-                                      :label="queryBuilderProps.globalSearch ? queryBuilderProps.globalSearch.label : null"
-                                      :value="queryBuilderProps.globalSearch ? queryBuilderProps.globalSearch.value : null"
-                                      :on-change="changeGlobalSearchValue">
+                                    :label="queryBuilderProps.globalSearch ? queryBuilderProps.globalSearch.label : null"
+                                    :value="queryBuilderProps.globalSearch ? queryBuilderProps.globalSearch.value : null"
+                                    :on-change="changeGlobalSearchValue">
                                     <TableFilterSearch v-if="queryBuilderProps.globalSearch" class=""
-                                                       @resetSearch="() => resetQuery()"
-                                                       :label="queryBuilderProps.globalSearch.label"
-                                                       :value="queryBuilderProps.globalSearch.value"
-                                                       :on-change="changeGlobalSearchValue"/>
+                                        @resetSearch="() => resetQuery()" :label="queryBuilderProps.globalSearch.label"
+                                        :value="queryBuilderProps.globalSearch.value"
+                                        :on-change="changeGlobalSearchValue" />
                                 </slot>
                             </div>
                         </div>
@@ -733,9 +732,8 @@ watch(selectRow, () => {
                         <!-- Element Filter -->
                         <div class="w-fit">
                             <TableElements v-if="queryBuilderProps.elementGroups"
-                                           :elements="queryBuilderProps.elementGroups"
-                                           @checkboxChanged="handleElementsChange" :title="queryBuilderData.title"
-                                           :name="props.name"/>
+                                :elements="queryBuilderProps.elementGroups" @checkboxChanged="handleElementsChange"
+                                :title="queryBuilderData.title" :name="props.name" />
                         </div>
 
                         <!-- Button: Reset -->
@@ -787,15 +785,20 @@ watch(selectRow, () => {
                         <table class="divide-y divide-gray-200 bg-white w-full">
                             <thead class="bg-gray-50">
                                 <tr class="border-t border-gray-200 divide-x divide-gray-200">
-                                    <div v-if="isCheckBox" @click="() => onClickSelectAll(Object.values(selectRow).every((value) => value === true))" class="py-1.5 cursor-pointer">
-                                        <FontAwesomeIcon v-if="Object.values(selectRow).every((value) => value === true)" icon='fal fa-check-square' class='mx-auto block h-5 my-auto' fixed-width aria-hidden='true' />
-                                        <FontAwesomeIcon v-else icon='fal fa-square' class='mx-auto block h-5 my-auto' fixed-width aria-hidden='true' />
+                                    <div v-if="isCheckBox"
+                                        @click="() => onClickSelectAll(Object.values(selectRow).every((value) => value === true))"
+                                        class="py-1.5 cursor-pointer">
+                                        <FontAwesomeIcon
+                                            v-if="Object.values(selectRow).every((value) => value === true)"
+                                            icon='fal fa-check-square' class='mx-auto block h-5 my-auto' fixed-width
+                                            aria-hidden='true' />
+                                        <FontAwesomeIcon v-else icon='fal fa-square' class='mx-auto block h-5 my-auto'
+                                            fixed-width aria-hidden='true' />
                                     </div>
 
                                     <HeaderCell v-for="column in queryBuilderProps.columns"
                                         :key="`table-${name}-header-${column.key}`" :cell="header(column.key)"
-                                        :type="columnsType[column.key]" :column="column"
-                                        :resource="compResourceData">
+                                        :type="columnsType[column.key]" :column="column" :resource="compResourceData">
                                     </HeaderCell>
                                 </tr>
                             </thead>
@@ -803,24 +806,28 @@ watch(selectRow, () => {
                             <tbody class="bg-white divide-y divide-gray-200">
                                 <slot name="body" :show="show">
                                     <tr v-for="(item, key) in compResourceData" :key="`table-${name}-row-${key}`"
-                                        class=""
-                                        :class="[{
+                                        class="" :class="[{
                                                 'bg-gray-50': striped && key % 2,
                                             },
                                                 striped ? 'hover:bg-gray-100' : 'hover:bg-gray-50'
-                                            ]"
-                                    >
+                                            ]">
                                         <!-- Column: Check box -->
-                                        <td v-if="isCheckBox" key="checkbox" class="h-full flex justify-center" >
-                                            <div v-if="selectRow[item.id]" class="absolute inset-0 bg-lime-500/10 -z-10"/>
-                                            <FontAwesomeIcon v-if="selectRow[item.id] === true" @click="selectRow[item.id] = !selectRow[item.id]" icon='fal fa-check-square' class='p-2 cursor-pointer' fixed-width aria-hidden='true' />
-                                            <FontAwesomeIcon v-else @click="selectRow[item.id] = !selectRow[item.id]" icon='fal fa-square' class='p-2 cursor-pointer' fixed-width aria-hidden='true' />
+                                        <td v-if="isCheckBox" key="checkbox" class="h-full flex justify-center">
+                                            <div v-if="selectRow[item.id]"
+                                                class="absolute inset-0 bg-lime-500/10 -z-10" />
+                                            <FontAwesomeIcon v-if="selectRow[item.id] === true"
+                                                @click="selectRow[item.id] = !selectRow[item.id]"
+                                                icon='fal fa-check-square' class='p-2 cursor-pointer' fixed-width
+                                                aria-hidden='true' />
+                                            <FontAwesomeIcon v-else @click="selectRow[item.id] = !selectRow[item.id]"
+                                                icon='fal fa-square' class='p-2 cursor-pointer' fixed-width
+                                                aria-hidden='true' />
                                         </td>
 
-                                        <td v-for="(column,index) in queryBuilderProps.columns" v-show="show(column.key)"
+                                        <td v-for="(column,index) in queryBuilderProps.columns"
+                                            v-show="show(column.key)"
                                             :key="`table-${name}-row-${key}-column-${column.key}`"
-                                            class="text-sm py-2 text-gray-700 whitespace-normal h-full"
-                                            :class="[
+                                            class="text-sm py-2 text-gray-700 whitespace-normal h-full" :class="[
                                                     column.type === 'avatar' || column.type === 'icon'
                                                         ? 'text-center min-w-fit'  // if type = icon
                                                         : typeof item[column.key] == 'number'
@@ -828,7 +835,9 @@ watch(selectRow, () => {
                                                             : 'px-6',
                                                     { 'first:border-l-4 first:border-gray-700 bg-gray-200/75': selectedRow?.[name]?.includes(item.id) }
                                             ]">
-                                            <slot :name="`cell(${column.key})`" :item="{ ...item, index : index, editingIndicator: { loading : false , isSucces : false, isFailed : false } }" :tabName="name" class="">
+                                            <slot :name="`cell(${column.key})`"
+                                                :item="{ ...item, index : index, editingIndicator: { loading : false , isSucces : false, isFailed : false } }"
+                                                :tabName="name" class="">
                                                 <div class="text-gray-500">{{ item[column.key] }}</div>
                                             </slot>
                                         </td>
@@ -840,12 +849,11 @@ watch(selectRow, () => {
 
                     <!-- Pagination -->
                     <slot name="pagination" :on-click="visit" :has-data="hasData" :meta="compResourceMeta"
-                          :per-page-options="queryBuilderProps.perPageOptions"
-                          :on-per-page-change="onPerPageChange">
+                        :per-page-options="queryBuilderProps.perPageOptions" :on-per-page-change="onPerPageChange">
                         <Pagination :on-click="visit" :has-data="hasData" :meta="compResourceMeta"
-                                    :exportLinks="queryBuilderProps.exportLinks"
-                                    :per-page-options="queryBuilderProps.perPageOptions"
-                                    :on-per-page-change="onPerPageChange"/>
+                            :exportLinks="queryBuilderProps.exportLinks"
+                            :per-page-options="queryBuilderProps.perPageOptions"
+                            :on-per-page-change="onPerPageChange" />
                     </slot>
                 </TableWrapper>
             </slot>
