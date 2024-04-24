@@ -112,7 +112,7 @@ class StorePhysicalGood extends OrgAction
     {
 
 
-        if($this->state==ProductStateEnum::DISCONTINUED) {
+        if($this->state==ProductStateEnum::DISCONTINUED or !$this->strict) {
             $tradeUnitRules=[
                 'trade_units' => ['sometimes','nullable', 'array'],
             ];

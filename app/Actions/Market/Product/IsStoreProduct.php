@@ -18,11 +18,15 @@ use Illuminate\Validation\Rule;
 
 trait IsStoreProduct
 {
-    public function action(Shop|ProductCategory $parent, array $modelData, int $hydratorsDelay = 0): Product
+    private bool $strict=true;
+
+
+    public function action(Shop|ProductCategory $parent, array $modelData, int $hydratorsDelay = 0, $strict=true): Product
     {
         $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;
         $this->state          =Arr::get($modelData, 'state');
+        $this->strict         =$strict;
         $this->parent         =$parent;
 
         if ($parent instanceof Shop) {

@@ -120,8 +120,9 @@ test('can fetch 1 prospect from aurora', function () {
 
 test('can fetch 1 invoice from aurora', function () {
 
-    $s=10; //ok
-    $s=28;
+    // $s=10;
+    // $s=28;
+    $s=450;
 
 
     $command = join(

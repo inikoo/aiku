@@ -27,11 +27,6 @@ class FetchAuroraProducts extends FetchAuroraAction
             $tradeUnits =$organisationSource->fetchProductStocks($sourceData[1])['trade_units'];
 
 
-            /*
-            if(count($tradeUnits)==0) {
-                return null;
-            }
-            */
 
             data_set(
                 $productData,
@@ -43,11 +38,15 @@ class FetchAuroraProducts extends FetchAuroraAction
             if ($product = Product::withTrashed()->where('source_id', $productData['product']['source_id'])
                 ->first()) {
                 try {
+
+
+
                     $product = UpdateProduct::make()->action(
                         product: $product,
                         modelData: $productData['product'],
                     );
                 } catch (Exception $e) {
+
                     $this->recordError($organisationSource, $e, $productData['product'], 'Product', 'update');
                     return null;
                 }
@@ -57,8 +56,10 @@ class FetchAuroraProducts extends FetchAuroraAction
                     $product = StorePhysicalGood::make()->action(
                         parent: $productData['parent'],
                         modelData: $productData['product'],
+                        strict: false
                     );
                 } catch (Exception $e) {
+                    // dd($e);
                     $this->recordError($organisationSource, $e, $productData['product'], 'Product', 'store');
                     return null;
                 }
