@@ -240,14 +240,14 @@ class ShowWarehouse extends OrgAction
 
     public function getPrevious(Warehouse $warehouse, ActionRequest $request): ?array
     {
-        $previous = Warehouse::where('code', '<', $warehouse->code)->orderBy('code', 'desc')->first();
+        $previous = Warehouse::where('code', '<', $warehouse->code)->where('organisation_id', $warehouse->organisation_id)->orderBy('code', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(Warehouse $warehouse, ActionRequest $request): ?array
     {
-        $next = Warehouse::where('code', '>', $warehouse->code)->orderBy('code')->first();
+        $next = Warehouse::where('code', '>', $warehouse->code)->where('organisation_id', $warehouse->organisation_id)->orderBy('code')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
