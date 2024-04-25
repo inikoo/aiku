@@ -201,6 +201,7 @@ class ShowWebsiteWorkshop extends OrgAction
 
     private function getNavigation(?Website $website, string $routeName): ?array
     {
+        return null;
         if (!$website) {
             return null;
         }
