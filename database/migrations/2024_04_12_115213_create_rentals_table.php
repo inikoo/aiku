@@ -35,6 +35,8 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('number_historic_outerables')->default(0);
             $table->timestampsTz();
             $table->softDeletes();
+            $table->string('source_id')->nullable()->unique();
+
 
         });
     }

@@ -43,11 +43,11 @@ const bulkData = ref([])
 const bulkDiscInput = ref(0)
 
 const defaultValue = [
-    { id: uuidv4(), rental: null, price: 0, discount: 0, agreed_price: 0, original_price : 0 },
+    { id: uuidv4(), rental: null, price: 0, discount: 0, agreed_price: 0, original_price: 0 },
 ]
 
 const addRow = () => {
-    props.form[props.fieldName].push({ id: uuidv4(), rental: null, price: 0, discount: 0, agreed_price: 0, original_price : 0  })
+    props.form[props.fieldName].push({ id: uuidv4(), rental: null, price: 0, discount: 0, agreed_price: 0, original_price: 0 })
 }
 
 const deleteRow = (index: number) => {
@@ -68,14 +68,14 @@ const sePriceByRental = (value: number, options: Array, index: number) => {
     const data = options.find((item: { id: number }) => item.id == value)
     if (data) {
         props.form[props.fieldName][index].price = data.price
-        props.form[props.fieldName][index].original_price = data.price 
-        props.form[props.fieldName][index].agreed_price = calculateDiscountedPrice(props.form[props.fieldName][index].price,props.form[props.fieldName][index].discount)
+        props.form[props.fieldName][index].original_price = data.price
+        props.form[props.fieldName][index].agreed_price = calculateDiscountedPrice(props.form[props.fieldName][index].price, props.form[props.fieldName][index].discount)
     }
 }
 
 
-const sePriceByChange = (value: number, record : Object, index: number) => {
-    props.form[props.fieldName][index].agreed_price =  calculateDiscountedPrice(props.form[props.fieldName][index].price,props.form[props.fieldName][index].discount)
+const sePriceByChange = (value: number, record: Object, index: number) => {
+    props.form[props.fieldName][index].agreed_price = calculateDiscountedPrice(props.form[props.fieldName][index].price, props.form[props.fieldName][index].discount)
 }
 
 
@@ -100,7 +100,7 @@ const onPutAllRentals = () => {
     const pullData = []
     for (const rental of rentals.value) {
         const find = props.form[props.fieldName].find((item) => item.rental == rental.id)
-        if (!find) pullData.push({ id: uuidv4(), rental: rental.id, price: rental.price, discount: 0, agreed_price: rental.price, original_price : rental.price })
+        if (!find) pullData.push({ id: uuidv4(), rental: rental.id, price: rental.price, discount: 0, agreed_price: rental.price, original_price: rental.price })
     }
     props.form[props.fieldName].push(...pullData)
 }
@@ -146,15 +146,15 @@ const onBulkDiscAction = (close) => {
     for (const [index, item] of data.entries()) {
         if (bulkData.value.includes(item.id)) {
             item.discount = bulkDiscInput.value
-            item.agreed_price =  calculateDiscountedPrice(item.price,item.discount)
+            item.agreed_price = calculateDiscountedPrice(item.price, item.discount)
         }
     }
     props.form[props.fieldName] = data
     bulkData.value = []
     close()
 }
- 
-const setOptionSelectQueryFilter = (options, index) => { 
+
+const setOptionSelectQueryFilter = (options, index) => {
     // Initialize an empty array to store filtered options 
     let pullData = [];
 
@@ -185,7 +185,15 @@ const setOptionSelectQueryFilter = (options, index) => {
 
 onMounted(() => {
     getRentals()
-    props.form[props.fieldName] = props.form[props.fieldName] ? props.form[props.fieldName] : defaultValue
+    if (props.form[props.fieldName]) {
+        const finalData = []
+        const formData = [...props.form[props.fieldName]]
+        for (const [index, item] of formData.entries()) {
+            console.log(index,item)
+        }
+    } else {
+        props.form[props.fieldName] = defaultValue              
+    }
 })
 
 
@@ -206,7 +214,7 @@ onMounted(() => {
                     <div class="w-[350px]">
                         <div class="text-xs my-2 font-medium">{{ trans('Discount(%)') }}: </div>
                         <PureInput v-model="bulkDiscInput" autofocus placeholder="1-100" type="number" :maxValue="99"
-                            :suffix="true" :minValue="0"  @onEnter="() => onBulkDiscAction(closed)">
+                            :suffix="true" :minValue="0" @onEnter="() => onBulkDiscAction(closed)">
                             <template #suffix>
                                 <div
                                     class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer hover:opacity-75 active:opacity-100 text-black">
@@ -241,13 +249,13 @@ onMounted(() => {
                             </th>
                             <th scope="col"
                                 class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
-                                {{trans('Rental')}}</th>
+                                {{ trans('Rental') }}</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                {{trans('Price')}}</th>
+                                {{ trans('Price') }}</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                {{trans('Discount (%)')}}</th>
+                                {{ trans('Discount (%)') }}</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                {{trans('Agreed Price ($)')}}</th>
+                                {{ trans('Agreed Price ($)') }}</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                 <font-awesome-icon :icon="['fas', 'edit']" />
                             </th>
@@ -261,25 +269,33 @@ onMounted(() => {
                             </td>
                             <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 w-80">
                                 <div class="relative xl:w-[500px] w-full">
-                                    <SelectQuery
-                                        :filterOptions="(e)=>setOptionSelectQueryFilter(e,index)"
+                                    <SelectQuery :filterOptions="(e) => setOptionSelectQueryFilter(e, index)"
                                         :key="itemData.id"
                                         :urlRoute="route(fieldData.indexRentalRoute.name, fieldData.indexRentalRoute.parameters)"
                                         :value="itemData" :placeholder="'Select or add rental'" :required="true"
                                         :label="'name'" :valueProp="'id'" :closeOnSelect="true" :clearOnSearch="false"
                                         :fieldName="'rental'"
                                         :on-change="(value, ref) => sePriceByRental(value, ref.options, index)" />
+                                    <p v-if="form.errors[`${fieldName}.${index}.rental`]"
+                                        class="mt-2 text-sm text-red-600" :id="`${fieldName}-${index}-error`">
+                                        {{ form.errors[`${fieldName}.${index}.rental`] }}
+                                    </p>
                                 </div>
 
                             </td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">           
-                                <PureInput v-model="itemData.price" :placeholder="'Input Price'"
-                                    type="number" :minValue="itemData.original_price ? 1 : itemData.original_price" step="0.01"
-                                    @input="(value) => sePriceByChange(value,itemData,index)" />
+                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                <PureInput v-model="itemData.price" :placeholder="'Input Price'" type="number"
+                                    :minValue="itemData.original_price ? 1 : itemData.original_price" step="0.01"
+                                    @input="(value) => sePriceByChange(value, itemData, index)" />
+                                <p v-if="form.errors[`${fieldName}.${index}.price`]" class="mt-2 text-sm text-red-600"
+                                    :id="`${fieldName}-${index}-error`">
+                                    {{ form.errors[`${fieldName}.${index}.price`] }}
+                                </p>
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                <PureInput v-model="itemData.discount" :placeholder="'Input Discount'" type="number" :maxValue="99"
-                                    :suffix="true" :minValue="0" @input="(value) => sePriceByChange(value,itemData,index)">
+                                <PureInput v-model="itemData.discount" :placeholder="'Input Discount'" type="number"
+                                    :maxValue="99" :suffix="true" :minValue="0"
+                                    @input="(value) => sePriceByChange(value, itemData, index)">
                                     <template #suffix>
                                         <div
                                             class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer hover:opacity-75 active:opacity-100 text-black">
@@ -289,7 +305,11 @@ onMounted(() => {
                                 </PureInput>
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm">
-                               <span class="text-sm font-semibold">$ {{ itemData.agreed_price }}</span> 
+                                <span class="text-sm font-semibold">$ {{ itemData.agreed_price }}</span>
+                                <p v-if="form.errors[`${fieldName}.${index}.agreed_price`]"
+                                    class="mt-2 text-sm text-red-600" :id="`${fieldName}-${index}-error`">
+                                    {{ form.errors[`${fieldName}.${index}.agreed_price`] }}
+                                </p>
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm">
                                 <font-awesome-icon :icon="['fas', 'trash']" class="text-red-500"
@@ -304,11 +324,8 @@ onMounted(() => {
                             </td>
                         </tr>
                     </tfoot>
-                </table>   
+                </table>
             </div>
         </div>
     </div>
-    <p v-if="get(form, ['errors', `${fieldName}`])" class="mt-2 text-sm text-red-600" :id="`${fieldName}-error`">
-        {{ form.errors[fieldName] }}
-    </p>
 </template>

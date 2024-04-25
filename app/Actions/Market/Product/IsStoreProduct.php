@@ -62,9 +62,7 @@ trait IsStoreProduct
             $this->set('status', true);
         }
 
-        if(!$this->has('state')) {
-            $this->set('state', ProductStateEnum::IN_PROCESS);
-        }
+
 
     }
 
@@ -96,7 +94,6 @@ trait IsStoreProduct
             'owner_id'                            => 'required',
             'owner_type'                          => 'required',
             'status'                              => ['required', 'boolean'],
-            'state'                               => ['required', Rule::enum(ProductStateEnum::class)],
             'data'                                => ['sometimes', 'array'],
             'settings'                            => ['sometimes', 'array'],
             'created_at'                          => ['sometimes', 'date'],

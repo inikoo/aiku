@@ -8,7 +8,7 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Market\Product\StorePhysicalGood;
-use App\Actions\Market\Product\UpdateProduct;
+use App\Actions\Market\Product\UpdatePhysicalGood;
 use App\Models\Market\Product;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
@@ -41,7 +41,7 @@ class FetchAuroraProducts extends FetchAuroraAction
 
 
 
-                    $product = UpdateProduct::make()->action(
+                    $product = UpdatePhysicalGood::make()->action(
                         product: $product,
                         modelData: $productData['product'],
                     );
