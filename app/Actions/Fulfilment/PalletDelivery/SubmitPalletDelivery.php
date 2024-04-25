@@ -38,7 +38,7 @@ class SubmitPalletDelivery extends OrgAction
         $numberPallets       = $palletDelivery->pallets()->count();
         $numberStoredPallets = $palletDelivery->fulfilmentCustomer->pallets()->where('state', PalletDeliveryStateEnum::BOOKED_IN->value)->count();
 
-        $palletLimits = $palletDelivery->fulfilmentCustomer->rentalAgreement->pallets_limit;
+        $palletLimits = $palletDelivery->fulfilmentCustomer?->rentalAgreement?->pallets_limit ?? 0;
         $totalPallets = $numberPallets + $numberStoredPallets;
 
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
