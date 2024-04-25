@@ -46,8 +46,6 @@ class BookedInPalletDelivery extends OrgAction
                 'end_date'   => now()->addMonth(),
                 'status'     => 'active'
             ]);
-
-
         }
 
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);

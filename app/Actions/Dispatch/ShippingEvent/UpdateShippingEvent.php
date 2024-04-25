@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Dispatch\Shipping;
+namespace App\Actions\Dispatch\ShippingEvent;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
