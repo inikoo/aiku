@@ -118,13 +118,22 @@ class ShowFulfilmentCustomer extends OrgAction
                         ]
                     ] : false,
                     'actions' => [
-                        [
+                        $fulfilmentCustomer->rentalAgreement ? [
+                            'type'    => 'button',
+                            'style'   => 'edit',
+                            'tooltip' => __('Edit Rental Agreement'),
+                            'label'   => __('Edit Rental Agreement'),
+                            'route'   => [
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.edit',
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
+                        ] : [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('Create Rental Agreement'),
                             'label'   => __('Create Rental Agreement'),
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.edit',
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],

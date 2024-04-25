@@ -8,9 +8,11 @@
 namespace App\Actions\Market\RentalAgreement;
 
 use App\Actions\Helpers\SerialReference\GetSerialReference;
+use App\Actions\Market\Rental\UpdateRental;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Market\Rental;
 use App\Models\Market\RentalAgreement;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -40,6 +42,10 @@ class StoreRentalAgreement extends OrgAction
             data_set($rental, 'agreed_price', Arr::get($rental, 'agreed_price'));
 
             $fulfilmentCustomer->rentalAgreementClauses()->create(Arr::only($rental, ['rental_id', 'agreed_price']));
+
+            UpdateRental::run(Rental::find(Arr::get($rental, 'rental')), [
+                'main_outerable_price' => Arr::get($rental, 'price')
+            ]);
         }
 
         data_forget($modelData, 'rental');
