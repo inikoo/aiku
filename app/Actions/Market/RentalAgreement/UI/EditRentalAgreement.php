@@ -25,6 +25,20 @@ class EditRentalAgreement extends OrgAction
      */
     public function handle(RentalAgreement $rentalAgreement, ActionRequest $request): Response
     {
+        $rentals = [];
+
+        foreach ($rentalAgreement->fulfilmentCustomer->rentalAgreementClauses as $clause) {
+            $price       = $clause->rental->product->main_outerable_price;
+            $agreedPrice = $clause->agreed_price;
+
+            $rentals[] = [
+                'rental'       => $clause->rental_id,
+                'agreed_price' => $agreedPrice,
+                'price'        => $price,
+                'discount'     => ($price - $agreedPrice) / $agreedPrice * 100
+            ];
+        }
+
         return Inertia::render(
             'EditModel',
             [
@@ -66,7 +80,7 @@ class EditRentalAgreement extends OrgAction
                                                 'fulfilment'   => $rentalAgreement->fulfilment->slug
                                             ]
                                         ],
-                                        'value' => ''
+                                        'value' => $rentals
                                     ],
                                 ]
                             ]
