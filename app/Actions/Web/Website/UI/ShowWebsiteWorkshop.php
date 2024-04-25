@@ -11,11 +11,10 @@ use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\Web\Website\GetWebsiteWorkshopCategory;
 use App\Actions\Web\Website\GetWebsiteWorkshopColorScheme;
-use App\Actions\Web\Website\GetWebsiteWorkshopFooter;
-use App\Actions\Web\Website\GetWebsiteWorkshopHeader;
 use App\Actions\Web\Website\GetWebsiteWorkshopMenu;
 use App\Actions\Web\Website\GetWebsiteWorkshopProduct;
 use App\Enums\UI\WebsiteWorkshopTabsEnum;
+use App\Http\Resources\Web\WebsiteLayoutWorkshopResource;
 use App\Models\Web\Website;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -96,26 +95,22 @@ class ShowWebsiteWorkshop extends OrgAction
                         fn () => GetWebsiteWorkshopColorScheme::run($website)
                     ),
 
-                WebsiteWorkshopTabsEnum::HEADER->value => $this->tab == WebsiteWorkshopTabsEnum::HEADER->value
-                    ?
-                    fn () => GetWebsiteWorkshopHeader::run($website)
-                    : Inertia::lazy(
-                        fn () => GetWebsiteWorkshopHeader::run($website)
-                    ),
                 WebsiteWorkshopTabsEnum::MENU->value   => $this->tab == WebsiteWorkshopTabsEnum::MENU->value
                     ?
                     fn () => GetWebsiteWorkshopMenu::run($website)
                     : Inertia::lazy(fn () => GetWebsiteWorkshopMenu::run($website)),
 
-                WebsiteWorkshopTabsEnum::FOOTER->value   => $this->tab == WebsiteWorkshopTabsEnum::FOOTER->value ?
-                    fn () => GetWebsiteWorkshopFooter::run($website)
-                    : Inertia::lazy(fn () => GetWebsiteWorkshopFooter::run($website)),
+                WebsiteWorkshopTabsEnum::LAYOUT->value   => $this->tab == WebsiteWorkshopTabsEnum::LAYOUT->value ?
+                    fn () => WebsiteLayoutWorkshopResource::make($website)
+                    : Inertia::lazy(fn () => WebsiteLayoutWorkshopResource::make($website)),
+
                 WebsiteWorkshopTabsEnum::CATEGORY->value => $this->tab == WebsiteWorkshopTabsEnum::CATEGORY->value
                     ?
                     fn () => GetWebsiteWorkshopCategory::run($website)
                     : Inertia::lazy(
                         fn () => GetWebsiteWorkshopCategory::run($website)
                     ),
+
                 WebsiteWorkshopTabsEnum::PRODUCT->value  => $this->tab == WebsiteWorkshopTabsEnum::PRODUCT->value
                     ?
                     fn () => GetWebsiteWorkshopProduct::run($website)
