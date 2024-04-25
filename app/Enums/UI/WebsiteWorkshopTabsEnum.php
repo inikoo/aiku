@@ -19,7 +19,7 @@ enum WebsiteWorkshopTabsEnum: string
     case MENU                 = 'menu';
     case CATEGORY             = 'category';
     case PRODUCT              = 'product';
-    case LAYOUT               = 'layout';
+    case PAGE_LAYOUT          = 'page_layout';
 
 
 
@@ -43,7 +43,7 @@ enum WebsiteWorkshopTabsEnum: string
                 'title' => __('product'),
                 'icon'  => 'fal fa-cube',
             ],
-            WebsiteWorkshopTabsEnum::LAYOUT => [
+            WebsiteWorkshopTabsEnum::PAGE_LAYOUT => [
                 'title' => __('layout'),
                 'icon'  => 'fal fa-cube',
             ],

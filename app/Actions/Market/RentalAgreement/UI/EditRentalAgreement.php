@@ -71,11 +71,13 @@ class EditRentalAgreement extends OrgAction
                                 ]
                             ]
                         ],
-                    'route' => [
-                        'name'       => 'grp.models.fulfilment-customer.rental-agreements.update',
-                        'parameters' => [
-                            'rentalAgreement' => $rentalAgreement->id,
-                        ]
+                    'args'      => [
+                        'updateRoute' => [
+                            'name'       => 'grp.models.fulfilment-customer.rental-agreements.update',
+                            'parameters' => [
+                                'rentalAgreement' => $rentalAgreement->id,
+                            ]
+                        ],
                     ]
                 ],
             ]
@@ -90,8 +92,9 @@ class EditRentalAgreement extends OrgAction
     /**
      * @throws Exception
      */
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, RentalAgreement $rentalAgreement, ActionRequest $request): Response
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Response
     {
+        $rentalAgreement = $fulfilmentCustomer->rentalAgreement;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($rentalAgreement, $request);
