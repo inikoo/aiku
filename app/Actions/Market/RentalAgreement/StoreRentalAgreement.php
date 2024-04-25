@@ -11,17 +11,18 @@ use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Market\Rental\UpdateRental;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
+use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Market\Rental;
 use App\Models\Market\RentalAgreement;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
 
 class StoreRentalAgreement extends OrgAction
 {
-
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreement
     {
         data_set($modelData, 'organisation_id', $fulfilmentCustomer->organisation_id);
@@ -55,6 +56,13 @@ class StoreRentalAgreement extends OrgAction
         /** @var RentalAgreement $rentalAgreement */
         $rentalAgreement=$fulfilmentCustomer->rentalAgreement()->create($modelData);
 
+        $fulfilmentCustomer->update(
+            [
+                'rental_agreement_state'=> $rentalAgreement->state
+            ]
+        );
+
+
         return $rentalAgreement;
     }
 
@@ -67,6 +75,8 @@ class StoreRentalAgreement extends OrgAction
             'rental.*.rental'           => ['required', 'exists:rentals,id'],
             'rental.*.agreed_price'     => ['required', 'numeric', 'gt:0'],
             'rental.*.price'            => ['required', 'numeric', 'gt:0'],
+            'state'                     => ['sometimes',Rule::enum(RentalAgreementStateEnum::class)],
+            'created_at'                => ['sometimes','date'],
         ];
     }
 
