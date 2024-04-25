@@ -26,8 +26,11 @@ class EmployeeSearchResultResource extends JsonResource
             'state'               => $employee->state,
             'user'                => $employee->user?->only('username', 'status'),
             'route'               => [
-                'name'       => 'grp.org.hr.employees.index',
-                'parameters' => $employee->slug
+                'name'       => 'grp.org.hr.employees.show',
+                'parameters' => [
+                    'organisation' => $employee->organisation->slug,
+                    'employee'     => $employee->slug
+                ]
             ],
             'icon'   => ['fal', 'fa-user-hard-hat']
         ];

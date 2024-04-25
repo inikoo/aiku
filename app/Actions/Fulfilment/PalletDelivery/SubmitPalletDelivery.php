@@ -9,18 +9,12 @@ namespace App\Actions\Fulfilment\PalletDelivery;
 
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
-use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateUniversalSearch;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
-use App\Actions\Fulfilment\Pallet\UpdatePallet;
-use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePallets;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
-use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
-use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\PalletDelivery;
@@ -41,24 +35,10 @@ class SubmitPalletDelivery extends OrgAction
         $modelData['submitted_at'] = now();
         $modelData['state']        = PalletDeliveryStateEnum::SUBMITTED;
 
-        foreach ($palletDelivery->pallets as $pallet) {
-            UpdatePallet::run($pallet, [
-                'reference' => GetSerialReference::run(
-                    container: $palletDelivery->fulfilmentCustomer,
-                    modelType: SerialReferenceModelEnum::PALLET
-                ),
-                'state'  => PalletStateEnum::SUBMITTED,
-                'status' => PalletStatusEnum::RECEIVING
-            ]);
-            $pallet->generateSlug();
-
-            PalletHydrateUniversalSearch::run($pallet);
-        }
-
         $numberPallets       = $palletDelivery->pallets()->count();
         $numberStoredPallets = $palletDelivery->fulfilmentCustomer->pallets()->where('state', PalletDeliveryStateEnum::BOOKED_IN->value)->count();
 
-        $palletLimits = $palletDelivery->fulfilmentCustomer->rentalAgreement->pallets_limit;
+        $palletLimits = $palletDelivery->fulfilmentCustomer?->rentalAgreement?->pallets_limit ?? 0;
         $totalPallets = $numberPallets + $numberStoredPallets;
 
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);

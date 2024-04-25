@@ -8,8 +8,8 @@
 namespace App\Actions\Dispatch\ShippingEvent;
 
 use App\Actions\OrgAction;
+use App\Models\Dispatch\Shipper;
 use App\Models\Dispatch\ShippingEvent;
-use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -18,12 +18,15 @@ class StoreShippingEvent extends OrgAction
     use AsAction;
     use WithAttributes;
 
-    public function handle(array $modelData): ShippingEvent
+    public function handle(Shipper $parent, array $modelData): ShippingEvent
     {
         data_set($modelData, 'organisation_id', $this->organisation->id);
         data_set($modelData, 'sent_at', now());
 
-        return ShippingEvent::create($modelData);
+        /** @var ShippingEvent $shippingEvent */
+        $shippingEvent = $parent->shippingEvents()->create($modelData);
+
+        return $shippingEvent;
     }
 
     public function rules(): array
@@ -33,10 +36,10 @@ class StoreShippingEvent extends OrgAction
         ];
     }
 
-    public function action(Organisation $organisation, array $modelData): ShippingEvent
+    public function action(Shipper $shipper, array $modelData): ShippingEvent
     {
-        $this->initialisation($organisation, $modelData);
+        $this->initialisation($shipper->organisation, $modelData);
 
-        return $this->handle($this->validatedData);
+        return $this->handle($shipper, $this->validatedData);
     }
 }

@@ -7,12 +7,15 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
+use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateUniversalSearch;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
+use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -27,6 +30,20 @@ class ConfirmPalletDelivery extends OrgAction
     {
         if ($palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS) {
             SubmitPalletDelivery::run($palletDelivery);
+        }
+
+        foreach ($palletDelivery->pallets as $pallet) {
+            UpdatePallet::run($pallet, [
+                'reference' => GetSerialReference::run(
+                    container: $palletDelivery->fulfilmentCustomer,
+                    modelType: SerialReferenceModelEnum::PALLET
+                ),
+                'state'  => PalletStateEnum::SUBMITTED,
+                'status' => PalletStatusEnum::RECEIVING
+            ]);
+            $pallet->generateSlug();
+
+            PalletHydrateUniversalSearch::run($pallet);
         }
 
         $modelData['confirmed_at'] = now();
@@ -78,7 +95,8 @@ class ConfirmPalletDelivery extends OrgAction
 
     public function action(PalletDelivery $palletDelivery): PalletDelivery
     {
-        $this->asAction = true;
+        $this->asAction       = true;
+        $this->palletDelivery = $palletDelivery;
         $this->initialisation($palletDelivery->organisation, []);
         return $this->handle($palletDelivery);
     }

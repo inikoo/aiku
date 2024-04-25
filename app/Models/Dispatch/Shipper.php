@@ -99,4 +99,9 @@ class Shipper extends Model
     {
         return $this->morphToMany(Issue::class, 'issuable');
     }
+
+    public function shippingEvents(): MorphToMany
+    {
+        return $this->morphToMany(ShippingEvent::class, 'provider');
+    }
 }

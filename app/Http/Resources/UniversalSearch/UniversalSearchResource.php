@@ -7,12 +7,14 @@
 
 namespace App\Http\Resources\UniversalSearch;
 
+use App\Http\Resources\CRM\CustomerResource;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\HumanResources\EmployeeSearchResultResource;
 use App\Http\Resources\Inventory\LocationResource;
+use App\Http\Resources\Sales\OrderResource;
 use App\Http\Resources\SysAdmin\UserSearchResultResource;
 use App\Http\Resources\Web\WebsiteSearchResultResource;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -36,7 +38,9 @@ class UniversalSearchResource extends JsonResource
                     'Item'           => new StoredItemResource($this->resource->model),
                     'PalletDelivery' => new PalletDeliveryResource($this->resource->model),
                     'PalletReturn'   => new PalletReturnResource($this->resource->model),
-                    default          => [],
+                    'Customer'       => new CustomerResource($this->resource->model),
+                    'Order'          => new OrderResource($this->resource->model),
+                    default          => $this->resource->model,
                 };
             }),
         ];

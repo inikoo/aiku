@@ -13,10 +13,13 @@ use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Market\RentalAgreement;
 use Illuminate\Support\Arr;
+use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreRentalAgreement extends OrgAction
 {
+    private FulfilmentCustomer $parent;
+
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreement
     {
         data_set($modelData, 'organisation_id', $fulfilmentCustomer->organisation_id);
@@ -33,10 +36,10 @@ class StoreRentalAgreement extends OrgAction
         );
 
         foreach (Arr::get($modelData, 'rental') as $rental) {
-            data_set($rental, 'rental', Arr::get($rental, 'rental'));
+            data_set($rental, 'rental_id', Arr::get($rental, 'rental'));
             data_set($rental, 'agreed_price', Arr::get($rental, 'agreed_price'));
 
-            $fulfilmentCustomer->rentalAgreementClauses()->create($rental);
+            $fulfilmentCustomer->rentalAgreementClauses()->create(Arr::only($rental, ['rental_id', 'agreed_price']));
         }
 
         data_forget($modelData, 'rental');
@@ -62,7 +65,7 @@ class StoreRentalAgreement extends OrgAction
     public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreement
     {
         $this->asAction       = true;
-
+        $this->parent         = $fulfilmentCustomer;
         $this->initialisationFromShop($fulfilmentCustomer->fulfilment->shop, $modelData);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
@@ -70,8 +73,18 @@ class StoreRentalAgreement extends OrgAction
 
     public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): RentalAgreement
     {
+        $this->parent = $fulfilmentCustomer;
         $this->initialisationFromShop($fulfilmentCustomer->fulfilment->shop, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
+    }
+
+    public function htmlResponse(RentalAgreement $rentalAgreement)
+    {
+        return Inertia::location(route('grp.org.fulfilments.show.crm.customers.show', [
+            'organisation'       => $rentalAgreement->organisation->slug,
+            'fulfilment'         => $rentalAgreement->fulfilment->slug,
+            'fulfilmentCustomer' => $rentalAgreement->fulfilmentCustomer->slug
+        ]));
     }
 }
