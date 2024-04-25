@@ -25,6 +25,8 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletes();
             $table->string('source_id')->nullable()->unique();
+            $table->string('historic_source_id')->nullable()->unique();
+
         });
     }
 

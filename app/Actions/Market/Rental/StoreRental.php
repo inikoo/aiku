@@ -38,7 +38,12 @@ class StoreRental extends OrgAction
         $rental->salesStats()->create();
 
 
-        $historicOuterable = StoreHistoricOuterable::run($rental);
+        $historicOuterable = StoreHistoricOuterable::run(
+            $rental,
+            [
+                    'source_id'=> $rental->historic_source_id
+            ]
+        );
         $product->update(
             [
                 'current_historic_outerable_id' => $historicOuterable->id,
