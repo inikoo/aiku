@@ -21,7 +21,23 @@ class UpdateService extends OrgAction
 
     public function handle(Service $service, array $modelData): Service
     {
-        return $this->update($service, $modelData);
+
+        $productData = Arr::only($modelData, ['code', 'name', 'main_outerable_price', 'description', 'data', 'settings', 'status']);
+
+        if(Arr::has($modelData, 'state')) {
+            $productData['state']=match($modelData['state']) {
+                ServiceStateEnum::ACTIVE       => ProductStateEnum::ACTIVE,
+                ServiceStateEnum::DISCONTINUED => ProductStateEnum::DISCONTINUED,
+                ServiceStateEnum::IN_PROCESS   => ProductStateEnum::IN_PROCESS,
+            };
+
+        }
+
+
+        $this->update($service->product, $productData);
+
+
+        return $this->update($service, Arr::except($modelData, ['code', 'name', 'main_outerable_price', 'description', 'data', 'settings']));
     }
 
     public function authorize(ActionRequest $request): bool
@@ -36,8 +52,27 @@ class UpdateService extends OrgAction
     public function rules(): array
     {
         return [
-          'status'=> ['sometimes','required','boolean'],
-          'state' => ['sometimes','required',Rule::enum(ServiceStateEnum::class)],
+            'code'        => [
+                'sometimes',
+                'required',
+                'max:32',
+                'alpha_dash',
+                new IUnique(
+                    table: 'products',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'deleted_at', 'operator'=>'notNull'],
+                        ['column' => 'id', 'value' => $this->service->product->id, 'operator' => '!=']
+                    ]
+                ),
+            ],
+            'name'                       => ['sometimes', 'required', 'max:250', 'string'],
+            'main_outerable_price'       => ['sometimes', 'required', 'numeric', 'min:0'],
+            'description'                => ['sometimes', 'required', 'max:1500'],
+            'data'                       => ['sometimes', 'array'],
+            'settings'                   => ['sometimes', 'array'],
+            'status'                     => ['sometimes','required','boolean'],
+            'state'                      => ['sometimes','required',Rule::enum(ServiceStateEnum::class)],
 
         ];
     }

@@ -7,9 +7,14 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Market\Product\StoreNoPhysicalGood;
-use App\Actions\Market\Product\UpdateProduct;
+use App\Actions\Market\Product\StoreRentalProduct;
+use App\Actions\Market\Product\StoreServiceProduct;
+use App\Actions\Market\Rental\UpdateRental;
+use App\Actions\Market\Service\UpdateService;
+use App\Enums\Market\Product\ProductTypeEnum;
 use App\Models\Market\Product;
+use App\Models\Market\Rental;
+use App\Models\Market\Service;
 use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -24,34 +29,68 @@ class FetchAuroraServices extends FetchAuroraAction
 
         if ($serviceData = $organisationSource->fetchService($organisationSourceId)) {
 
-            if ($service = Product::where('source_id', $serviceData['service']['source_id'])
-                ->first()) {
-                $service = UpdateProduct::make()->action(
-                    product:      $service,
-                    modelData:    $serviceData['service'],
-                );
-            } else {
-                try {
+            if($serviceData['type']==ProductTypeEnum::SERVICE) {
 
-                    $service = StoreNoPhysicalGood::make()->action(
-                        parent:         $serviceData['shop'],
+                if ($service = Service::where('source_id', $serviceData['service']['source_id'])
+                    ->first()) {
+                    $service = UpdateService::make()->action(
+                        service:      $service,
                         modelData:    $serviceData['service'],
                     );
-                } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $serviceData['service'], 'Product', 'store');
-                    return null;
+                    $serviceProduct=$service->product;
+                } else {
+                    try {
+
+                        $serviceProduct = StoreServiceProduct::make()->action(
+                            parent:         $serviceData['shop'],
+                            modelData:    $serviceData['service'],
+                        );
+                    } catch (Exception $e) {
+                        $this->recordError($organisationSource, $e, $serviceData['service'], 'Product', 'store');
+                        return null;
+                    }
                 }
+                $sourceData = explode(':', $serviceProduct->source_id);
+
+                DB::connection('aurora')->table('Product Dimension')
+                    ->where('Product ID', $sourceData[1])
+                    ->update(['aiku_id' =>$serviceProduct->main_outerable_id]);
+                return $serviceProduct;
+
+            } else {
+
+                if ($rental = Rental::where('source_id', $serviceData['service']['source_id'])
+                    ->first()) {
+                    $rental = UpdateRental::make()->action(
+                        rental:      $rental,
+                        modelData:    $serviceData['service'],
+                    );
+                    $rentalProduct=$rental->product;
+                } else {
+                    try {
+
+                        $rentalProduct = StoreRentalProduct::make()->action(
+                            parent:         $serviceData['shop'],
+                            modelData:    $serviceData['service'],
+                        );
+                    } catch (Exception $e) {
+                        $this->recordError($organisationSource, $e, $serviceData['service'], 'Product', 'store');
+                        return null;
+                    }
+                }
+                $sourceData = explode(':', $rentalProduct->source_id);
+
+
+                DB::connection('aurora')->table('Product Dimension')
+                    ->where('Product ID', $sourceData[1])
+                    ->update(['aiku_id' =>$rentalProduct->main_outerable_id]);
+                return $rentalProduct;
+
             }
 
-            $sourceData = explode(':', $service->source_id);
-
-            DB::connection('aurora')->table('Product Dimension')
-                ->where('Product ID', $sourceData[1])
-                ->update(['aiku_id' => $service->id]);
 
 
 
-            return $service;
         }
 
 

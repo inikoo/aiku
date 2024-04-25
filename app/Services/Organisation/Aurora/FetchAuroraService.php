@@ -54,6 +54,8 @@ class FetchAuroraService extends FetchAurora
             $type= ProductTypeEnum::RENTAL;
         }
 
+        $this->parsedData['type'] = $type;
+
         $status=false;
         if($state==ProductStateEnum::ACTIVE) {
             $status=true;

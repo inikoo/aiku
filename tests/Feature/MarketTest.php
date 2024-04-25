@@ -9,7 +9,7 @@ use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Market\Outer\StoreOuter;
 use App\Actions\Market\Outer\UpdateOuter;
 use App\Actions\Market\Product\DeleteProduct;
-use App\Actions\Market\Product\StoreNoPhysicalGood;
+use App\Actions\Market\Product\StoreServiceProduct;
 use App\Actions\Market\Product\StorePhysicalGood;
 use App\Actions\Market\Product\UpdateProduct;
 use App\Actions\Market\ProductCategory\StoreProductCategory;
@@ -352,7 +352,7 @@ test('create service', function ($shop) {
         ]
     );
 
-    $product     = StoreNoPhysicalGood::make()->action($shop, $serviceData);
+    $product     = StoreServiceProduct::make()->action($shop, $serviceData);
     $shop->refresh();
 
     $mainOuterable=$product->mainOuterable;

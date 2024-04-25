@@ -18,7 +18,7 @@ use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Inventory\Location\StoreLocation;
-use App\Actions\Market\Product\StoreNoPhysicalGood;
+use App\Actions\Market\Product\StoreServiceProduct;
 use App\Actions\Market\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Web\Website\StoreWebsite;
@@ -123,7 +123,7 @@ test('create fulfilment shop', function () {
 });
 
 test('create rental product to fulfilment shop', function (Fulfilment $fulfilment) {
-    $product = StoreNoPhysicalGood::make()->action(
+    $product = StoreServiceProduct::make()->action(
         $fulfilment->shop,
         [
             'type'                 => ProductTypeEnum::RENTAL,
@@ -141,7 +141,7 @@ test('create rental product to fulfilment shop', function (Fulfilment $fulfilmen
 })->depends('create fulfilment shop');
 
 test('create second rental product to fulfilment shop', function (Fulfilment $fulfilment) {
-    $product = StoreNoPhysicalGood::make()->action(
+    $product = StoreServiceProduct::make()->action(
         $fulfilment->shop,
         [
             'type'                 => ProductTypeEnum::RENTAL,
