@@ -73,18 +73,19 @@ class FetchAuroraService extends FetchAurora
         }
 
         $this->parsedData['service'] = [
-            'type'                      => $type,
-            'owner_type'                => $owner_type,
-            'owner_id'                  => $owner_id,
-            'state'                     => $state,
-            'code'                      => $code,
-            'name'                      => $this->auroraModelData->{'Product Name'},
-            'main_outerable_price'      => round($unit_price, 2),
-            'status'                    => $status,
-            'data'                      => $data,
-            'settings'                  => $settings,
-            'created_at'                => $created_at,
-            'source_id'                 => $this->organisation->id.':'.$this->auroraModelData->{'Product ID'},
+            'type'                               => $type,
+            'owner_type'                         => $owner_type,
+            'owner_id'                           => $owner_id,
+            'state'                              => $state,
+            'code'                               => $code,
+            'name'                               => $this->auroraModelData->{'Product Name'},
+            'main_outerable_price'               => round($unit_price, 2),
+            'status'                             => $status,
+            'data'                               => $data,
+            'settings'                           => $settings,
+            'created_at'                         => $created_at,
+            'source_id'                          => $this->organisation->id.':'.$this->auroraModelData->{'Product ID'},
+            'historic_source_id'                 => $this->organisation->id.':'.$this->auroraModelData->{'Product Current Key'},
 
         ];
     }

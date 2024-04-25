@@ -148,9 +148,6 @@ test('can fetch 1 invoice from aurora', function () {
 
 test('can fetch 1 fulfilment invoice from aurora', function () {
 
-
-
-
     $command = join(
         ' ',
         [
@@ -165,9 +162,10 @@ test('can fetch 1 fulfilment invoice from aurora', function () {
     expect($fetch->number_items)->toBe(1)
         ->and($fetch->number_errors)->toBe(0)
         ->and($fetch->number_stores)->toBe(1)
-        ->and(Invoice::count())->toBe(1);
+        ->and(Invoice::count())->toBe(2);
 
     $invoice = Invoice::first();
 
+
     expect($invoice->shop->stats->number_invoices)->toBe(1);
-})->todo();
+});

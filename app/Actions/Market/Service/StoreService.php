@@ -39,7 +39,12 @@ class StoreService extends OrgAction
         $service->salesStats()->create();
 
 
-        $historicOuterable = StoreHistoricOuterable::run($service);
+        $historicOuterable = StoreHistoricOuterable::run(
+            $service,
+            [
+                'source_id'=> $service->historic_source_id
+            ]
+        );
         $product->update(
             [
                 'current_historic_outerable_id' => $historicOuterable->id,

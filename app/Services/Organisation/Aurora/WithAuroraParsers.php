@@ -20,7 +20,6 @@ use App\Actions\SourceFetch\Aurora\FetchAuroraEmployees;
 use App\Actions\SourceFetch\Aurora\FetchAuroraFamilies;
 use App\Actions\SourceFetch\Aurora\FetchAuroraOuters;
 use App\Actions\SourceFetch\Aurora\FetchAuroraSuppliers;
-use App\Actions\SourceFetch\Aurora\FetchHistoricProducts;
 use App\Actions\SourceFetch\Aurora\FetchAuroraLocations;
 use App\Actions\SourceFetch\Aurora\FetchAuroraMailshots;
 use App\Actions\SourceFetch\Aurora\FetchAuroraOrders;
@@ -277,13 +276,11 @@ trait WithAuroraParsers
             ->where('PH.Product Key', $productKey)->first();
 
 
+        $historicOuterable = HistoricOuterable::where('source_id', $organisation->id.':'.$productKey)->first();
+        if($historicOuterable) {
+            return $historicOuterable;
+        }
         if ($auroraData->{'Product Type'} == 'Product') {
-            $historicOuterable = HistoricOuterable::where('source_id', $organisation->id.':'.$productKey)->first();
-            if($historicOuterable) {
-                return $historicOuterable;
-            }
-
-
             if($auroraData->is_variant=='No') {
                 $product=$this->parseProduct($organisation->id.':'.$productID);
                 if($product->historic_source_id==$organisation->id.':'.$productKey) {
@@ -302,9 +299,19 @@ trait WithAuroraParsers
             ]);
 
         } else {
-            //dd('caca');
-            return null;
+            $serviceableProduct=$this->parseService($organisation->id.':'.$productID);
+
+            if($serviceableProduct->historic_source_id==$organisation->id.':'.$productKey) {
+                return $serviceableProduct->currentHistoricOuterable;
+            }
+
+            return StoreHistoricOuterable::run($serviceableProduct->mainOuterable, [
+                'source_id'=> $organisation->id.':'.$productKey
+            ]);
+
+
         }
+
 
     }
 
