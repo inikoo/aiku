@@ -14,9 +14,9 @@ use App\Actions\Market\Product\StorePhysicalGood;
 use App\Actions\Market\Product\UpdatePhysicalGood;
 use App\Actions\Market\ProductCategory\StoreProductCategory;
 use App\Actions\Market\ProductCategory\UpdateProductCategory;
+use App\Actions\Market\Service\UpdateService;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Market\Shop\UpdateShop;
-use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\Product\ProductUnitRelationshipType;
 use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
@@ -347,7 +347,6 @@ test('create service', function ($shop) {
     $serviceData = array_merge(
         Product::factory()->definition(),
         [
-            'type'                      => ProductTypeEnum::SERVICE,
             'main_outerable_price'      => 100,
         ]
     );
@@ -379,14 +378,15 @@ test('update service', function ($product) {
         'description' => 'Updated Service Description',
         'rrp'         => 99.99
     ];
-    $product = UpdatePhysicalGood::make()->action($product, $productData);
+    $service = UpdateService::make()->action(service:$product->service, modelData: $productData);
+
+
+    $service->refresh();
     $product->refresh();
-    /** @var Service $service */
-    $service=$product->mainOuterable;
+
 
     expect($product->name)->toBe('Updated Service Name')
         ->and($product->stats->number_historic_outerables)->toBe(2)
-        ->and($service->number_historic_outerables)->toBe(2)
-        ->and($product->name)->toBe('Updated Service Name');
+        ->and($service->number_historic_outerables)->toBe(2);
     return $product;
 })->depends('create service');

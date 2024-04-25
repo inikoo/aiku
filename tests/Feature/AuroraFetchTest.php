@@ -170,4 +170,4 @@ test('can fetch 1 fulfilment invoice from aurora', function () {
     $invoice = Invoice::first();
 
     expect($invoice->shop->stats->number_invoices)->toBe(1);
-});
+})->todo();

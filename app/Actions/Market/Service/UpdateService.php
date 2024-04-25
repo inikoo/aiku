@@ -7,6 +7,7 @@
 
 namespace App\Actions\Market\Service;
 
+use App\Actions\Market\HistoricOuterable\StoreHistoricOuterable;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Market\Product\ProductStateEnum;
@@ -38,11 +39,29 @@ class UpdateService extends OrgAction
 
         }
 
+        $product= $service->product;
+        $this->update($product, $productData);
+        $product->refresh();
 
-        $this->update($service->product, $productData);
 
 
-        return $this->update($service, Arr::except($modelData, ['code', 'name', 'main_outerable_price', 'description', 'data', 'settings']));
+        $service= $this->update($service, Arr::except($modelData, ['code', 'name', 'main_outerable_price', 'description', 'data', 'settings']));
+
+        $changed=$product->getChanges();
+
+        if(Arr::hasAny($changed, ['name', 'code', 'main_outerable_price'])) {
+
+            $historicOuterable = StoreHistoricOuterable::run($service);
+            $product->update(
+                [
+                    'current_historic_outerable_id' => $historicOuterable->id,
+                ]
+            );
+        }
+
+
+        return $service;
+
     }
 
     public function authorize(ActionRequest $request): bool

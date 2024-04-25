@@ -14,6 +14,7 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProducts;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProducts;
 use App\Enums\Market\Product\ProductStateEnum;
+use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\Service\ServiceStateEnum;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
@@ -89,6 +90,8 @@ class StoreServiceProduct extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
+        $this->set('type', ProductTypeEnum::SERVICE);
+
         $this->prepareProductForValidation();
 
         if(!$this->has('state')) {

@@ -14,6 +14,7 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProducts;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProducts;
 use App\Enums\Market\Product\ProductStateEnum;
+use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\Product\ProductUnitRelationshipType;
 use App\Enums\Market\Rental\RentalStateEnum;
 use App\Models\Market\Product;
@@ -88,6 +89,8 @@ class StoreRentalProduct extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
+        $this->set('type', ProductTypeEnum::RENTAL);
+
         $this->prepareProductForValidation();
         if(!$this->has('state')) {
             $this->set('state', RentalStateEnum::IN_PROCESS);
