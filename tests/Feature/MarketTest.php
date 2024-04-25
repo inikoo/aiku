@@ -11,7 +11,7 @@ use App\Actions\Market\Outer\UpdateOuter;
 use App\Actions\Market\Product\DeleteProduct;
 use App\Actions\Market\Product\StoreServiceProduct;
 use App\Actions\Market\Product\StorePhysicalGood;
-use App\Actions\Market\Product\UpdateProduct;
+use App\Actions\Market\Product\UpdatePhysicalGood;
 use App\Actions\Market\ProductCategory\StoreProductCategory;
 use App\Actions\Market\ProductCategory\UpdateProductCategory;
 use App\Actions\Market\Shop\StoreShop;
@@ -262,7 +262,7 @@ test('update product', function ($product) {
         'description' => 'Updated Product Description',
         'rrp'         => 99.99
     ];
-    $product = UpdateProduct::make()->action($product, $productData);
+    $product = UpdatePhysicalGood::make()->action($product, $productData);
     $product->refresh();
     /** @var Outer $outer */
     $outer=$product->mainOuterable;
@@ -379,7 +379,7 @@ test('update service', function ($product) {
         'description' => 'Updated Service Description',
         'rrp'         => 99.99
     ];
-    $product = UpdateProduct::make()->action($product, $productData);
+    $product = UpdatePhysicalGood::make()->action($product, $productData);
     $product->refresh();
     /** @var Service $service */
     $service=$product->mainOuterable;

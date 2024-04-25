@@ -9,6 +9,8 @@ namespace App\Services\Organisation\Aurora;
 
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTypeEnum;
+use App\Enums\Market\Rental\RentalStateEnum;
+use App\Enums\Market\Service\ServiceStateEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraService extends FetchAurora
@@ -40,14 +42,7 @@ class FetchAuroraService extends FetchAurora
         $owner_type = 'Shop';
         $owner_id   = $this->parsedData['shop']->id;
 
-        $state = match ($this->auroraModelData->{'Product Status'}) {
-            'InProcess'     => ProductStateEnum::IN_PROCESS,
-            'Discontinued','Discontinuing'  => ProductStateEnum::DISCONTINUED,
-            default         => ProductStateEnum::ACTIVE
-        };
-
         $code = $this->cleanTradeUnitReference($this->auroraModelData->{'Product Code'});
-
 
         $type= ProductTypeEnum::SERVICE;
         if(preg_match('/rent/i', $code)) {
@@ -55,6 +50,22 @@ class FetchAuroraService extends FetchAurora
         }
 
         $this->parsedData['type'] = $type;
+
+        if($type==ProductTypeEnum::SERVICE) {
+            $state = match ($this->auroraModelData->{'Product Status'}) {
+                'InProcess'     => ServiceStateEnum::IN_PROCESS,
+                'Discontinued','Discontinuing'  => ServiceStateEnum::DISCONTINUED,
+                default         => ServiceStateEnum::ACTIVE
+            };
+        } else {
+            $state = match ($this->auroraModelData->{'Product Status'}) {
+                'InProcess'     => RentalStateEnum::IN_PROCESS,
+                'Discontinued','Discontinuing'  => RentalStateEnum::DISCONTINUED,
+                default         => RentalStateEnum::ACTIVE
+            };
+        }
+
+
 
         $status=false;
         if($state==ProductStateEnum::ACTIVE) {

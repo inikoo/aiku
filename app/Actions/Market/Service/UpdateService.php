@@ -9,8 +9,11 @@ namespace App\Actions\Market\Service;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Service\ServiceStateEnum;
 use App\Models\Market\Service;
+use App\Rules\IUnique;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -18,6 +21,8 @@ class UpdateService extends OrgAction
 {
     use WithActionUpdate;
 
+
+    private Service $service;
 
     public function handle(Service $service, array $modelData): Service
     {
@@ -79,6 +84,7 @@ class UpdateService extends OrgAction
 
     public function asController(Service $service, ActionRequest $request): Service
     {
+        $this->service=$service;
         $this->initialisationFromShop($service->shop, $request);
         return $this->handle($service, $this->validatedData);
     }
@@ -86,6 +92,7 @@ class UpdateService extends OrgAction
     public function action(Service $service, array $modelData, int $hydratorsDelay = 0): Service
     {
         $this->asAction       = true;
+        $this->service        =$service;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($service->shop, $modelData);
         return $this->handle($service, $this->validatedData);

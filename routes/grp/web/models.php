@@ -70,7 +70,7 @@ use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\ImportWarehouseArea;
 use App\Actions\Market\Product\DeleteProduct;
 use App\Actions\Market\Product\StorePhysicalGood;
-use App\Actions\Market\Product\UpdateProduct;
+use App\Actions\Market\Product\UpdatePhysicalGood;
 use App\Actions\Market\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\OMS\Order\StoreOrder;
@@ -107,8 +107,8 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::delete('/shop/{shop:id}/product/{product:id}', [DeleteProduct::class, 'inShop'])->name('shop.product.delete');
 
     Route::post('/product/', StorePhysicalGood::class)->name('product.store');
-    Route::patch('/product/{product:id}', UpdateProduct::class)->name('product.update');
-    Route::delete('/product/{product:id}', UpdateProduct::class)->name('product.delete');
+    Route::patch('/product/{product:id}', UpdatePhysicalGood::class)->name('product.update');
+    Route::delete('/product/{product:id}', UpdatePhysicalGood::class)->name('product.delete');
 
     Route::patch('/payment-account/{paymentAccount:id}', UpdatePaymentAccount::class)->name('payment-account.update')->withoutScopedBindings();
     Route::post('/payment-account', StorePaymentAccount::class)->name('payment-account.store');
@@ -265,8 +265,8 @@ Route::post('/shop/{shop:id}/product/', [StorePhysicalGood::class, 'inShop'])->n
 Route::post('/shop/{shop:id}/order/', [StoreOrder::class, 'inShop'])->name('show.order.store');
 
 Route::post('/product/', StorePhysicalGood::class)->name('product.store');
-Route::patch('/product/{product:id}', UpdateProduct::class)->name('product.update');
-Route::delete('/product/{product:id}', UpdateProduct::class)->name('product.delete');
+Route::patch('/product/{product:id}', UpdatePhysicalGood::class)->name('product.update');
+Route::delete('/product/{product:id}', UpdatePhysicalGood::class)->name('product.delete');
 Route::delete('/shop/{shop:id}/product/{product:id}', [DeleteProduct::class, 'inShop'])->name('shop.product.delete');
 
 Route::patch('/department/{department:id}', UpdateProductCategory::class)->name('department.update');

@@ -23,7 +23,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateProduct extends OrgAction
+class UpdatePhysicalGood extends OrgAction
 {
     use WithActionUpdate;
 
