@@ -69,14 +69,14 @@ const component = computed(() => {
     };
     return components[currentTab.value];
 
-});
+})
 
 </script>
 
 
 <template>
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead" />
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
 </template>
