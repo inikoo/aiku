@@ -18,7 +18,8 @@ use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Inventory\Location\StoreLocation;
-use App\Actions\Market\Product\StoreNoPhysicalGood;
+use App\Actions\Market\Product\StoreRentalProduct;
+use App\Actions\Market\Rental\UpdateRental;
 use App\Actions\Market\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Web\Website\StoreWebsite;
@@ -27,7 +28,6 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
-use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
@@ -123,10 +123,9 @@ test('create fulfilment shop', function () {
 });
 
 test('create rental product to fulfilment shop', function (Fulfilment $fulfilment) {
-    $product = StoreNoPhysicalGood::make()->action(
+    $product = StoreRentalProduct::make()->action(
         $fulfilment->shop,
         [
-            'type'                 => ProductTypeEnum::RENTAL,
             'main_outerable_price' => 100,
             'code'                 => 'R00001',
             'name'                 => 'Rental Product A',
@@ -140,11 +139,33 @@ test('create rental product to fulfilment shop', function (Fulfilment $fulfilmen
     return $product;
 })->depends('create fulfilment shop');
 
+
+test('update rental', function ($product) {
+
+
+    $productData = [
+        'name'        => 'Updated Rental Name',
+        'description' => 'Updated Rental Description',
+        'rrp'         => 99.99
+    ];
+    $rental = UpdateRental::make()->action(rental:$product->rental, modelData: $productData);
+
+
+    $rental->refresh();
+    $product->refresh();
+
+
+    expect($product->name)->toBe('Updated Rental Name')
+        ->and($product->stats->number_historic_outerables)->toBe(2)
+        ->and($rental->number_historic_outerables)->toBe(2);
+    return $product;
+})->depends('create rental product to fulfilment shop');
+
+
 test('create second rental product to fulfilment shop', function (Fulfilment $fulfilment) {
-    $product = StoreNoPhysicalGood::make()->action(
+    $product = StoreRentalProduct::make()->action(
         $fulfilment->shop,
         [
-            'type'                 => ProductTypeEnum::RENTAL,
             'main_outerable_price' => 200,
             'code'                 => 'R00002',
             'name'                 => 'Rental Product B',

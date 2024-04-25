@@ -145,3 +145,29 @@ test('can fetch 1 invoice from aurora', function () {
 
     expect($invoice->shop->stats->number_invoices)->toBe(1);
 });
+
+test('can fetch 1 fulfilment invoice from aurora', function () {
+
+
+
+
+    $command = join(
+        ' ',
+        [
+            'fetch:invoices',
+            '-s 57130',
+            '-w transactions'
+        ]
+    );
+    $this->artisan($command)->assertExitCode(0);
+
+    $fetch = Fetch::where('type', FetchTypeEnum::INVOICES)->latest()->first();
+    expect($fetch->number_items)->toBe(1)
+        ->and($fetch->number_errors)->toBe(0)
+        ->and($fetch->number_stores)->toBe(1)
+        ->and(Invoice::count())->toBe(1);
+
+    $invoice = Invoice::first();
+
+    expect($invoice->shop->stats->number_invoices)->toBe(1);
+})->todo();

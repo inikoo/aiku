@@ -9,14 +9,14 @@ use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Market\Outer\StoreOuter;
 use App\Actions\Market\Outer\UpdateOuter;
 use App\Actions\Market\Product\DeleteProduct;
-use App\Actions\Market\Product\StoreNoPhysicalGood;
+use App\Actions\Market\Product\StoreServiceProduct;
 use App\Actions\Market\Product\StorePhysicalGood;
-use App\Actions\Market\Product\UpdateProduct;
+use App\Actions\Market\Product\UpdatePhysicalGood;
 use App\Actions\Market\ProductCategory\StoreProductCategory;
 use App\Actions\Market\ProductCategory\UpdateProductCategory;
+use App\Actions\Market\Service\UpdateService;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\Market\Shop\UpdateShop;
-use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\Product\ProductUnitRelationshipType;
 use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
@@ -262,7 +262,7 @@ test('update product', function ($product) {
         'description' => 'Updated Product Description',
         'rrp'         => 99.99
     ];
-    $product = UpdateProduct::make()->action($product, $productData);
+    $product = UpdatePhysicalGood::make()->action($product, $productData);
     $product->refresh();
     /** @var Outer $outer */
     $outer=$product->mainOuterable;
@@ -347,12 +347,11 @@ test('create service', function ($shop) {
     $serviceData = array_merge(
         Product::factory()->definition(),
         [
-            'type'                      => ProductTypeEnum::SERVICE,
             'main_outerable_price'      => 100,
         ]
     );
 
-    $product     = StoreNoPhysicalGood::make()->action($shop, $serviceData);
+    $product     = StoreServiceProduct::make()->action($shop, $serviceData);
     $shop->refresh();
 
     $mainOuterable=$product->mainOuterable;
@@ -379,14 +378,15 @@ test('update service', function ($product) {
         'description' => 'Updated Service Description',
         'rrp'         => 99.99
     ];
-    $product = UpdateProduct::make()->action($product, $productData);
+    $service = UpdateService::make()->action(service:$product->service, modelData: $productData);
+
+
+    $service->refresh();
     $product->refresh();
-    /** @var Service $service */
-    $service=$product->mainOuterable;
+
 
     expect($product->name)->toBe('Updated Service Name')
         ->and($product->stats->number_historic_outerables)->toBe(2)
-        ->and($service->number_historic_outerables)->toBe(2)
-        ->and($product->name)->toBe('Updated Service Name');
+        ->and($service->number_historic_outerables)->toBe(2);
     return $product;
 })->depends('create service');

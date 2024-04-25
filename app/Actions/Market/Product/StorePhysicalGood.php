@@ -26,6 +26,7 @@ use App\Models\Market\Shop;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StorePhysicalGood extends OrgAction
@@ -125,7 +126,11 @@ class StorePhysicalGood extends OrgAction
 
         return array_merge(
             $this->getProductRules(),
-            $tradeUnitRules
+            $tradeUnitRules,
+            [
+                'state' => ['required', Rule::enum(ProductStateEnum::class)],
+
+            ]
         );
 
     }
@@ -134,6 +139,10 @@ class StorePhysicalGood extends OrgAction
     {
         $this->set('type', ProductTypeEnum::PHYSICAL_GOOD);
         $this->prepareProductForValidation();
+
+        if(!$this->has('state')) {
+            $this->set('state', ProductStateEnum::IN_PROCESS);
+        }
 
     }
 

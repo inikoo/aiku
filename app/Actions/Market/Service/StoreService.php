@@ -58,6 +58,7 @@ class StoreService extends OrgAction
             'state'       => ['required', Rule::enum(ServiceStateEnum::class)],
             'data'        => ['sometimes', 'array'],
             'created_at'  => ['sometimes', 'date'],
+            'source_id'   => ['sometimes','string','max:63']
         ];
 
     }
