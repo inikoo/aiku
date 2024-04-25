@@ -60,16 +60,16 @@ class ProcurementDashboard extends OrgAction
                             'index'        => [
                                 'number' => $this->organisation->procurementStats->number_agents
                             ],
-                            'rightSubLink' => [
-                                'tooltip'    => __('marketplace agents'),
-                                'icon'       => ['fal', 'fa-store'],
-                                'labelStyle' => 'bordered',
-                                'href'       => [
-                                    'name'       => 'grp.org.procurement.marketplace.agents.index',
-                                    'parameters' => ['organisation' => $this->organisation->slug]
-                                ],
-
-                            ]
+//                            'rightSubLink' => [
+//                                'tooltip'    => __('marketplace agents'),
+//                                'icon'       => ['fal', 'fa-store'],
+//                                'labelStyle' => 'bordered',
+//                                'href'       => [
+//                                    'name'       => 'grp.org.procurement.marketplace.agents.index',
+//                                    'parameters' => ['organisation' => $this->organisation->slug]
+//                                ],
+//
+//                            ]
 
                         ],
                         [
@@ -82,16 +82,16 @@ class ProcurementDashboard extends OrgAction
                             'index'        => [
                                 'number' => $this->organisation->procurementStats->number_suppliers
                             ],
-                            'rightSubLink' => [
-                                'tooltip'    => __('marketplace suppliers'),
-                                'icon'       => ['fal', 'fa-store'],
-                                'labelStyle' => 'bordered',
-                                'href'       => [
-                                    'name'       => 'grp.org.procurement.marketplace.suppliers.index',
-                                    'parameters' => ['organisation' => $this->organisation->slug]
-                                ],
-
-                            ]
+//                            'rightSubLink' => [
+//                                'tooltip'    => __('marketplace suppliers'),
+//                                'icon'       => ['fal', 'fa-store'],
+//                                'labelStyle' => 'bordered',
+//                                'href'       => [
+//                                    'name'       => 'grp.org.procurement.marketplace.suppliers.index',
+//                                    'parameters' => ['organisation' => $this->organisation->slug]
+//                                ],
+//
+//                            ]
 
                         ],
                         [
@@ -102,13 +102,13 @@ class ProcurementDashboard extends OrgAction
                             'index'        => [
                                 'number' => $this->organisation->procurementStats->number_supplier_products
                             ],
-                            'rightSubLink' => [
-                                'tooltip'    => __('marketplace suppliers'),
-                                'icon'       => ['fal', 'fa-store'],
-                                'labelStyle' => 'bordered',
-                                'href'       => ['name' => 'grp.org.procurement.marketplace.supplier-products.index', 'parameters' => ['organisation' => $this->organisation->slug]],
-
-                            ]
+//                            'rightSubLink' => [
+//                                'tooltip'    => __('marketplace suppliers'),
+//                                'icon'       => ['fal', 'fa-store'],
+//                                'labelStyle' => 'bordered',
+//                                'href'       => ['name' => 'grp.org.procurement.marketplace.supplier-products.index', 'parameters' => ['organisation' => $this->organisation->slug]],
+//
+//                            ]
 
                         ],
                     ],
