@@ -189,11 +189,14 @@ onMounted(() => {
         const finalData = []
         const formData = [...props.form[props.fieldName]]
         for (const [index, item] of formData.entries()) {
-            console.log(index,item)
+            finalData.push({...item, id : uuidv4()})
         }
+        props.form[props.fieldName] = finalData       
     } else {
         props.form[props.fieldName] = defaultValue              
     }
+    props.form.isDirty = false
+    
 })
 
 

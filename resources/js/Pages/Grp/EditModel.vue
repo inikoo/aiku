@@ -137,7 +137,7 @@ onBeforeUnmount(() => {
         <div v-if="!isMobile" class="divide-y divide-gray-200 lg:grid grid-flow-col lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
 
             <!-- Tab: Navigation -->
-            <aside class="bg-gray-50/50 py-0 lg:col-span-3 lg:h-full">
+            <aside v-if="!formData.fullLayout" class="bg-gray-50/50 py-0 lg:col-span-3 lg:h-full">
                 <div class="sticky top-16">
                     <template v-for="(sectionData, key) in formData.blueprint">
                         <!-- If Section: all fields is not hidden -->
@@ -169,7 +169,7 @@ onBeforeUnmount(() => {
             </aside>
 
             <!-- Content of forms -->
-            <div class="px-4 sm:px-6 md:px-4 col-span-9">
+            <div :class="['px-4 sm:px-6 md:px-4', formData.fullLayout ? 'col-span-12' : 'col-span-9']">
                 <template v-for="(sectionData, sectionIdx ) in formData.blueprint" :key="sectionIdx">
                     <!-- If Section: all fields is not hidden -->
                     <template v-if="!(Object.values(sectionData.fields).every((field: any) => field.hidden))">
