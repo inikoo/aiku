@@ -16,11 +16,10 @@ enum WebsiteWorkshopTabsEnum: string
     use HasTabs;
 
     case COLOR_SCHEME         = 'color_scheme';
-    case HEADER               = 'header';
     case MENU                 = 'menu';
-    case FOOTER               = 'footer';
     case CATEGORY             = 'category';
     case PRODUCT              = 'product';
+    case LAYOUT               = 'layout';
 
 
 
@@ -32,17 +31,9 @@ enum WebsiteWorkshopTabsEnum: string
                 'title' => __('color scheme'),
                 'icon'  => 'fal fa-palette',
             ],
-            WebsiteWorkshopTabsEnum::HEADER => [
-                'title' => __('header'),
-                'icon'  => 'fal fa-arrow-alt-to-top',
-            ],
             WebsiteWorkshopTabsEnum::MENU => [
                 'title' => __('menu'),
                 'icon'  => 'fal fa-bars',
-            ],
-            WebsiteWorkshopTabsEnum::FOOTER => [
-                'title' => __('footer'),
-                'icon'  => 'fal fa-arrow-alt-to-bottom',
             ],
             WebsiteWorkshopTabsEnum::CATEGORY => [
                 'title' => __('category'),
@@ -50,6 +41,10 @@ enum WebsiteWorkshopTabsEnum: string
             ],
             WebsiteWorkshopTabsEnum::PRODUCT => [
                 'title' => __('product'),
+                'icon'  => 'fal fa-cube',
+            ],
+            WebsiteWorkshopTabsEnum::LAYOUT => [
+                'title' => __('layout'),
                 'icon'  => 'fal fa-cube',
             ],
         };
