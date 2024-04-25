@@ -7,6 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
+use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\Rental\RentalStateEnum;
@@ -21,11 +22,12 @@ class FetchAuroraService extends FetchAurora
             return;
         }
 
-        $this->parsedData['shop'] = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Product Store Key'});
+        $this->parsedData['shop'] = $this->parseShop(
+            $this->organisation->id . ':' . $this->auroraModelData->{'Product Store Key'}
+        );
 
         $data     = [];
         $settings = [];
-
 
 
         if ($this->auroraModelData->{'Product Valid From'} == '0000-00-00 00:00:00') {
@@ -44,50 +46,69 @@ class FetchAuroraService extends FetchAurora
 
         $code = $this->cleanTradeUnitReference($this->auroraModelData->{'Product Code'});
 
-        $type= ProductTypeEnum::SERVICE;
-        if(preg_match('/rent/i', $code)) {
-            $type= ProductTypeEnum::RENTAL;
+        $type = ProductTypeEnum::SERVICE;
+        if (preg_match('/rent/i', $code)) {
+            $type = ProductTypeEnum::RENTAL;
         }
 
         $this->parsedData['type'] = $type;
 
-        if($type==ProductTypeEnum::SERVICE) {
+        if ($type == ProductTypeEnum::SERVICE) {
             $state = match ($this->auroraModelData->{'Product Status'}) {
-                'InProcess'     => ServiceStateEnum::IN_PROCESS,
-                'Discontinued','Discontinuing'  => ServiceStateEnum::DISCONTINUED,
-                default         => ServiceStateEnum::ACTIVE
+                'InProcess' => ServiceStateEnum::IN_PROCESS,
+                'Discontinued', 'Discontinuing' => ServiceStateEnum::DISCONTINUED,
+                default => ServiceStateEnum::ACTIVE
             };
         } else {
             $state = match ($this->auroraModelData->{'Product Status'}) {
-                'InProcess'     => RentalStateEnum::IN_PROCESS,
-                'Discontinued','Discontinuing'  => RentalStateEnum::DISCONTINUED,
-                default         => RentalStateEnum::ACTIVE
+                'InProcess' => RentalStateEnum::IN_PROCESS,
+                'Discontinued', 'Discontinuing' => RentalStateEnum::DISCONTINUED,
+                default => RentalStateEnum::ACTIVE
             };
         }
 
-
-
-        $status=false;
-        if($state==ProductStateEnum::ACTIVE) {
-            $status=true;
+        $status = false;
+        if ($state == ProductStateEnum::ACTIVE) {
+            $status = true;
         }
 
         $this->parsedData['service'] = [
-            'type'                               => $type,
-            'owner_type'                         => $owner_type,
-            'owner_id'                           => $owner_id,
-            'state'                              => $state,
-            'code'                               => $code,
-            'name'                               => $this->auroraModelData->{'Product Name'},
-            'main_outerable_price'               => round($unit_price, 2),
-            'status'                             => $status,
-            'data'                               => $data,
-            'settings'                           => $settings,
-            'created_at'                         => $created_at,
-            'source_id'                          => $this->organisation->id.':'.$this->auroraModelData->{'Product ID'},
-            'historic_source_id'                 => $this->organisation->id.':'.$this->auroraModelData->{'Product Current Key'},
-
+            'type'                 => $type,
+            'owner_type'           => $owner_type,
+            'owner_id'             => $owner_id,
+            'state'                => $state,
+            'code'                 => $code,
+            'name'                 => $this->auroraModelData->{'Product Name'},
+            'main_outerable_price' => round($unit_price, 2),
+            'status'               => $status,
+            'data'                 => $data,
+            'settings'             => $settings,
+            'created_at'           => $created_at,
+            'source_id'            => $this->organisation->id . ':' . $this->auroraModelData->{'Product ID'},
+            'historic_source_id'   => $this->organisation->id . ':' . $this->auroraModelData->{'Product Current Key'},
         ];
+
+
+        if ($type == ProductTypeEnum::RENTAL) {
+            $autoAssignAsset = match ($code) {
+                'Rent-01', 'Rent-02', 'Rent-04' => 'Pallet',
+                default => null
+            };
+
+            $autoAssignAssetType = match ($code) {
+                'Rent-01' => PalletTypeEnum::PALLET->value,
+                'Rent-02' => PalletTypeEnum::OVERSIZE->value,
+                'Rent-04' => PalletTypeEnum::BOX->value,
+                default   => null
+            };
+
+            $this->parsedData['service']['auto_assign_asset']      = $autoAssignAsset;
+            $this->parsedData['service']['auto_assign_asset_type'] = $autoAssignAssetType;
+
+        }
+
+
+
     }
 
 
@@ -97,4 +118,5 @@ class FetchAuroraService extends FetchAurora
             ->table('Product Dimension')
             ->where('Product ID', $id)->first();
     }
+
 }
