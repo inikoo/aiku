@@ -192,7 +192,7 @@ onMounted(() => {
             console.log(index,item)
         }
     } else {
-        props.form[props.fieldName] = defaultValuem               
+        props.form[props.fieldName] = defaultValue              
     }
 })
 
