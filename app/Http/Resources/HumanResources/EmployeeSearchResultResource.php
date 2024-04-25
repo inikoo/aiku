@@ -21,18 +21,24 @@ class EmployeeSearchResultResource extends JsonResource
 
         return [
 
-            'contact_name'        => $employee->contact_name,
-            'worker_number'       => $employee->worker_number,
-            'state'               => $employee->state,
-            'user'                => $employee->user?->only('username', 'status'),
-            'route'               => [
+            'route'         => [
                 'name'       => 'grp.org.hr.employees.show',
                 'parameters' => [
-                    'organisation' => $employee->organisation->slug,
-                    'employee'     => $employee->slug
+                    'organisation'  => $employee->organisation->slug,
+                    'employee'      => $employee->slug
                 ]
             ],
-            'icon'   => ['fal', 'fa-user-hard-hat']
+            'title'         => $employee->contact_name,
+            'subtitle'      => $employee->user?->username,
+            'label1'        => $employee->worker_number,
+            'label2'        => $employee->state,
+            'icon'          => ['fal', 'fa-user-hard-hat']
+
+            // 'contact_name'        => $employee->contact_name,
+            // 'worker_number'       => $employee->worker_number,
+            // 'state'               => $employee->state,
+            // 'user'                => $employee->user?->only('username', 'status'),
+
         ];
     }
 }

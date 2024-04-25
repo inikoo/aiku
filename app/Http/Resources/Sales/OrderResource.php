@@ -27,14 +27,25 @@ class OrderResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'slug'       => $this->slug,
-            'number'     => $this->number,
-            'date'       => $this->date,
-            'name'       => $this->name,
-            'state'      => $this->state,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'shop_slug'  => $this->shop_slug,
+            // 'route'         => [
+            //     'name'       => 'grp.org.hr.employees.index',
+            //     'parameters' => $employee->slug
+            // ],
+            'title'         => $this->name,
+            'subtitle'      => $this->slug,
+            'label1'        => $this->number,
+            'label2'        => $this->slug,
+            // 'icon'          => ['fal', 'fa-user-hard-hat']
+
+
+            // 'slug'       => $this->slug,
+            // 'number'     => $this->number,
+            // 'date'       => $this->date,
+            // 'name'       => $this->name,
+            // 'state'      => $this->state,
+            // 'created_at' => $this->created_at,
+            // 'updated_at' => $this->updated_at,
+            // 'shop_slug'  => $this->shop_slug,
         ];
     }
 }

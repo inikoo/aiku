@@ -12,6 +12,9 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { trans } from 'laravel-vue-i18n'
 import SearchResultGeneral from './Search/SearchResultGeneral.vue'
 import { debounce } from 'lodash'
+import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
+import SearchResultPallet from '@/Components/Search/SearchResultPallet.vue'
+import SearchResult from '@/Components/Search/SearchResult.vue'
 
 const props = defineProps<{
     isOpen: boolean
@@ -22,8 +25,9 @@ const emits = defineEmits<{
 }>()
 
 const isLoadingSearch = ref(false)
-const searchValue = ref('');
+const searchValue = ref('')
 const resultsSearch = ref()
+const selectedTab = ref(null)
 
 // Method: parameter to string '&organisation=aw&fulfilment=idf'
 const paramsToString = () => {
@@ -37,8 +41,9 @@ const fetchApi = debounce(async (query: string) => {
         isLoadingSearch.value = true
         await fetch(`${location.origin}/search?q=${query}&route_src=${route().current()}${paramsToString()}`)
             .then(response => {
-                response.json().then((data: Object) => {
-                    resultsSearch.value = data
+                response.json().then((data: { data: {} }) => {
+                    resultsSearch.value = data.data
+                    console.log('result', resultsSearch.value)
                     isLoadingSearch.value = false
                 })
             })
@@ -46,6 +51,27 @@ const fetchApi = debounce(async (query: string) => {
     }
 }, 700)
 
+function countModelTypes(data) {
+    // Initialize an empty object to store counts
+    const counts = {}
+
+    // Iterate over the array
+    data.forEach(item => {
+        // Get the model_type from each item
+        const modelType = item.model_type
+
+        // If the model_type exists in the counts object, increment its count
+        if (counts[modelType]) {
+            counts[modelType]++
+        } else {
+            // If the model_type doesn't exist, initialize its count to 1
+            counts[modelType] = 1
+        }
+    })
+
+    // Return the counts object
+    return counts
+}
 </script>
 
 <template>
@@ -53,100 +79,95 @@ const fetchApi = debounce(async (query: string) => {
         <Dialog as="div" class="relative z-[21]" @close="emits('close', false)">
             <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100"
                 leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
-                <div class="fixed inset-0 bg-slate-700 bg-opacity-35 transition-opacity" />
+                <div class="fixed inset-0 bg-slate-700/25" />
             </TransitionChild>
-            
-            <div class="fixed inset-0 z-10 overflow-y-auto pt-20 px-12">
+
+            <div class="fixed inset-0 z-10 pt-20 px-12">
                 <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0 scale-95"
                     enter-to="opacity-100 scale-100" leave="ease-in duration-200" leave-from="opacity-100 scale-100"
                     leave-to="opacity-0 scale-95">
-                    <DialogPanel class="mx-auto max-w-3xl transform divide-y divide-gray-100 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
-                        <Combobox v-slot="{ activeOption }" @update:modelValue="() => console.log('ww')">
-                            <!-- Section: Search input -->
-                            <div class="relative">
-                                <FontAwesomeIcon class="pointer-events-none absolute top-3.5 left-4 h-5 w-5 text-gray-400"
-                                    aria-hidden="true" icon="fa-regular fa-search" size="lg" />
-                                <input
-                                    v-model="searchValue"
-                                    @input="() => fetchApi(searchValue)"
-                                    type="text"
-                                    class="h-12 w-full border-0 bg-transparent pl-11 pr-4 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
-                                    placeholder="Search..."
-                                >
+                    <DialogPanel class="bg-white shadow-2xl mx-auto max-w-3xl h-[calc(100vh-20vh)] overflow-y-auto transform overflow-hidden rounded-xl ring-1 ring-black ring-opacity-5 transition-all">
+                        <!-- Section: Search input -->
+                        <div class="relative border-b border-gray-300">
+                            <FontAwesomeIcon class="pointer-events-none absolute top-3.5 left-4 h-5 w-5 text-gray-400"
+                                aria-hidden="true" icon="fa-regular fa-search" size="lg" />
+                            <input v-model="searchValue" @input="() => fetchApi(searchValue)" type="text"
+                                class="h-12 w-full border-0 bg-transparent pl-11 pr-4 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm"
+                                placeholder="Search...">
+                        </div>
+
+                        <!-- Section: Search is 0 data -->
+                        <div v-if="!searchValue.length" class="py-4 text-center italic text-gray-400">
+                            {{ trans('Nothing to show') }}
+                        </div>
+
+                        <!-- Section: Search result -->
+                        <TabGroup v-else-if="searchValue">
+                            <!-- Section: Tabs -->
+                            <TabList v-if="isLoadingSearch || resultsSearch?.length" class="flex gap-x-2 rounded-xl px-4 py-2 overflow-x-auto w-full" v-slot="{ selectedIndex }">
+                                <!-- Tabs: Loading -->
+                                <div v-if="isLoadingSearch" class="flex gap-x-2">
+                                    <div v-for=" of 3" class="h-10 skeleton min-w-28 w-min rounded-lg" />
+                                </div>
+
+                                <!-- Tab: Show all -->
+                                <button v-else as="button"
+                                    @click="() => selectedTab = null"
+                                    key="All"
+                                    class="min-w-28 w-min rounded-lg py-2.5 px-2 text-sm leading-5 whitespace-nowrap ring-1 ring-slate-200 focus:ring-transparent focus:ring-offset-2 focus:ring-offset-slate-500 focus:outline-none focus:ring-2 transition-all"
+                                    :class="[
+                                        !selectedTab
+                                            ? 'bg-indigo-600 text-white'
+                                            : 'text-slate-500 hover:bg-slate-50',
+                                        ]">
+                                    {{ trans('Show all') }} (<span class="font-bold">{{ resultsSearch?.length || 0}}</span>)
+                                </button>
+
+                                <button v-if="!isLoadingSearch && resultsSearch" v-for="(tabCount, tabName, tabIdx) in countModelTypes(resultsSearch)" as="button"
+                                    @click="() => selectedTab = tabName"
+                                    :key="tabName+tabIdx"
+                                    class="min-w-28 w-fit rounded-lg py-2.5 px-2 text-sm leading-5 whitespace-nowrap ring-1 ring-slate-200 focus:ring-transparent focus:ring-offset-2 focus:ring-offset-slate-500 focus:outline-none focus:ring-2 transition-all"
+                                    :class="[
+                                        tabName == selectedTab
+                                            ? 'bg-indigo-600 text-white'
+                                            : 'text-slate-500 hover:bg-slate-50',
+                                        ]">
+                                    {{tabName}} (<span class="font-bold">{{ tabCount }}</span>)
+                                </button>
+                            </TabList>
+
+                            
+                            <div v-else class="py-4 text-center text-gray-600">
+                                No result to show for <span class="font-bold">{{ searchValue }}</span>
                             </div>
 
-                            <!-- Result -->
-                            <ComboboxOptions class="flex divide-x divide-gray-100" as="div" static hold>
-                                <!-- Left: Result Panel -->
-                                <div :class="['h-fit min-w-0 flex-auto scroll-py-4 overflow-y-auto px-6 py-4 transition-all duration-500 ease-in-out', {'sm:h-96': false}]">
-                                    <div hold class="-mx-2 text-sm text-gray-600 space-y-2">
-                                        <!-- Looping: Results -->
-                                        <ComboboxOption v-if="resultsSearch?.data.length > 0" v-for="(item, itemIndex) in resultsSearch?.data" :key="itemIndex" :value="item" as="div" v-slot="{ active }">
-                                            <Link v-if="item.model?.route?.name" :href="`${route(item.model?.route?.name, item.model?.route?.parameters)}`"
-                                                class="group flex relative cursor-pointer select-none items-center rounded p-2 gap-x-2" :class="[active ? 'bg-gray-100 text-gray-600' : '']">
-                                                <FontAwesomeIcon :icon='item.model.icon' class='' aria-hidden='true' />
-
-                                                <div class="w-full">
-                                                    <div v-if="item.model_type == 'CustomerUser'">
-                                                        <span class="truncate">{{ item.model.contact_name }}</span>
-                                                    </div>
-                                                    <div v-else class="truncate font-semibold">
-                                                        {{ item.model.name ?? item.model.email ?? item.model.phone ?? 'Unknown' }}
-                                                    </div>
-                                                </div>
-
-                                                <FontAwesomeIcon icon="fa-regular fa-chevron-right" v-if="active" class="relative h-5 w-5 flex-none text-gray-400" aria-hidden="true" />
-                                            </Link>
-                                            
-                                            <div v-else class="rounded p-2 bg-slate-50 hover:bg-slate-100 cursor-pointer">
-                                                {{ item.model.slug || '' }}
-                                            </div>
-                                        </ComboboxOption>
-
-                                        <!-- Loading: fetching -->
-                                        <div v-else-if="isLoadingSearch" class="">
-                                            <div class="space-y-2">
-                                                <div class="w-full rounded-md flex pl-0.5 gap-x-1 overflow-hidden">
-                                                    <div class="w-8 h-9 skeleton rounded-l-md" />
-                                                    <div class="w-full skeleton"/>
-                                                </div>
-                                                <div class="w-full rounded-md flex pl-0.5 gap-x-1 overflow-hidden">
-                                                    <div class="w-8 h-9 skeleton rounded-l-md" />
-                                                    <div class="w-full skeleton"/>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Initial state or no result -->
-                                        <div v-else class="p-2">
-                                            {{ trans('Nothing to show') }}
-                                        </div>
+                            <!-- Section: Results -->
+                            <div v-if="isLoadingSearch" class="border-t-2 border-slate-300">
+                                <div class="flex-none p-6 text-center">
+                                    <div class="mx-auto h-16 w-16 rounded-full skeleton" />
+                                    <div class="mt-3 skeleton w-1/2 mx-auto h-5" />
+                                </div>
+                                <div class="flex flex-auto flex-col justify-between gap-y-4 p-6">
+                                    <div v-for=" of 3" class="flex gap-x-2 h-7 rounded overflow-hidden">
+                                        <div class="skeleton w-20" />
+                                        <div class="skeleton w-full" />
                                     </div>
                                 </div>
+                            </div>
+                            
+                            <TransitionGroup name="list" tag="ul" v-if="resultsSearch?.length" class="border-t-2 border-slate-300">
+                                <li v-for="(result, resultIdx) in (selectedTab ? resultsSearch.filter(resultSearch => resultSearch.model_type == selectedTab) : resultsSearch)"
+                                    :key="result.model_type + resultIdx"
+                                    v-tooltip="result.model_type"
+                                    class="rounded-xl bg-white hover:bg-slate-100 p-3 ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2 cursor-pointer"
+                                >
+                                    <SearchResultPallet v-if="result.model_type == 'Pallet'" :key="result.model_type + resultIdx" :data="result.model" />
+                                    <SearchResult v-else :data="result.model" @finishVisit="() => emits('close', false)" />
+                                </li>
+                            </TransitionGroup >
+                        </TabGroup>
 
-                                <!-- Right: Detail Panel -->
-                                <div class="hidden h-96 w-1/2 flex-none flex-col divide-y divide-gray-100 overflow-y-auto sm:flex">
-                                    <!-- Loading: fetching -->
-                                    <div v-if="isLoadingSearch">
-                                        <div class="flex-none p-6 text-center">
-                                            <div class="mx-auto h-16 w-16 rounded-full skeleton" />
-                                            <div class="mt-3 skeleton w-1/2 mx-auto h-5" />
-                                        </div>
-                                        <div class="flex flex-auto flex-col justify-between gap-y-4 p-6">
-                                            <div v-for=" of 3" class="flex gap-x-2 h-7 rounded overflow-hidden">
-                                                <div class="skeleton w-20" />
-                                                <div class="skeleton w-full" />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Hover the result -->
-                                    <div v-else-if="activeOption" class="flex flex-auto flex-col justify-between p-6">
-                                        <SearchResultGeneral :activeOption="activeOption" />
-                                    </div>
-                                </div>
-                            </ComboboxOptions>
-                        </Combobox>
+                        
                     </DialogPanel>
                 </TransitionChild>
             </div>
