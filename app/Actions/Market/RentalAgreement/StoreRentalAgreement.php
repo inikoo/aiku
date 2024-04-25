@@ -17,10 +17,10 @@ use App\Models\Market\RentalAgreement;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
+use Symfony\Component\HttpFoundation\Response;
 
 class StoreRentalAgreement extends OrgAction
 {
-    private FulfilmentCustomer $parent;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreement
     {
@@ -37,7 +37,9 @@ class StoreRentalAgreement extends OrgAction
             )
         );
 
-        foreach (Arr::get($modelData, 'rental') as $rental) {
+
+
+        foreach (Arr::get($modelData, 'rental', []) as $rental) {
             data_set($rental, 'rental_id', Arr::get($rental, 'rental'));
             data_set($rental, 'agreed_price', Arr::get($rental, 'agreed_price'));
 
@@ -61,7 +63,7 @@ class StoreRentalAgreement extends OrgAction
         return [
             'billing_cycle'             => ['required','integer','min:1','max:100'],
             'pallets_limit'             => ['nullable','integer','min:1','max:10000'],
-            'rental'                    => ['required', 'array'],
+            'rental'                    => ['sometimes','nullable', 'array'],
             'rental.*.rental'           => ['required', 'exists:rentals,id'],
             'rental.*.agreed_price'     => ['required', 'numeric', 'gt:0'],
             'rental.*.price'            => ['required', 'numeric', 'gt:0'],
@@ -71,7 +73,6 @@ class StoreRentalAgreement extends OrgAction
     public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreement
     {
         $this->asAction       = true;
-        $this->parent         = $fulfilmentCustomer;
         $this->initialisationFromShop($fulfilmentCustomer->fulfilment->shop, $modelData);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
@@ -79,13 +80,12 @@ class StoreRentalAgreement extends OrgAction
 
     public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): RentalAgreement
     {
-        $this->parent = $fulfilmentCustomer;
         $this->initialisationFromShop($fulfilmentCustomer->fulfilment->shop, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
-    public function htmlResponse(RentalAgreement $rentalAgreement)
+    public function htmlResponse(RentalAgreement $rentalAgreement): Response
     {
         return Inertia::location(route('grp.org.fulfilments.show.crm.customers.show', [
             'organisation'       => $rentalAgreement->organisation->slug,
