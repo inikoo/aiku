@@ -20,12 +20,16 @@ class WebsiteSearchResultResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'code'   => $this->code,
-            'name'   => $this->name,
-            'domain' => $this->domain,
-            'route'  => [
-                'name'       => 'grp.org.shops.show.web.websites.dashboard',
-                'parameters' => $this->slug
+            'subtitle'   => $this->code,
+            'title'      => $this->name,
+            'label1'     => $this->domain,
+            'route'      => [
+                'name'       => 'grp.org.shops.show.web.websites.show',
+                'parameters' => [
+                    'organisation'  => $this->organisation->slug,
+                    'shop'          => $this->shop->slug,
+                    'website'       => $this->slug
+                ]
             ],
             'icon'   => ['fal', 'fa-globe']
 
