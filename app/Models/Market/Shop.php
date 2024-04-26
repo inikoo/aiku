@@ -93,6 +93,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Market\ShopAccountingStats|null $accountingStats
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, Appointment> $appointments
+ * @property-read Collection<int, \App\Models\Market\CollectionCategory> $collectionCategories
  * @property-read Country $country
  * @property-read \App\Models\Market\ShopCRMStats|null $crmStats
  * @property-read Currency $currency
@@ -334,6 +335,16 @@ class Shop extends Model
     public function senderEmail(): BelongsTo
     {
         return $this->belongsTo(SenderEmail::class);
+    }
+
+    public function collectionCategories(): HasMany
+    {
+        return $this->hasMany(CollectionCategory::class);
+    }
+
+    public function collections(): HasMany
+    {
+        return $this->hasMany(Collection::class);
     }
 
 

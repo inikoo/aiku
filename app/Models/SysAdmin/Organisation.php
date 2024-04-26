@@ -33,6 +33,7 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\Market\CollectionCategory;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Rental;
@@ -88,6 +89,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Agent|null $agent
  * @property-read Collection<int, \App\Models\SysAdmin\OrganisationAuthorisedModels> $authorisedModels
  * @property-read Collection<int, ClockingMachine> $clockingMachines
+ * @property-read Collection<int, CollectionCategory> $collectionCategories
  * @property-read Country $country
  * @property-read \App\Models\SysAdmin\OrganisationCRMStats|null $crmStats
  * @property-read Currency $currency
@@ -440,5 +442,15 @@ class Organisation extends Model implements HasMedia
     public function rentals(): HasMany
     {
         return $this->hasMany(Rental::class);
+    }
+
+    public function collectionCategories(): HasMany
+    {
+        return $this->hasMany(CollectionCategory::class);
+    }
+
+    public function collections(): HasMany
+    {
+        return $this->hasMany(Collection::class);
     }
 }

@@ -33,6 +33,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_departments_state_active
  * @property int $number_departments_state_discontinuing
  * @property int $number_departments_state_discontinued
+ * @property int $number_collection_categories
  * @property int $number_sub_departments
  * @property int $number_current_sub_departments state: active+discontinuing
  * @property int $number_sub_departments_state_in_process

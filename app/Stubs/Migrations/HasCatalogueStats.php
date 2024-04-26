@@ -41,6 +41,9 @@ trait HasCatalogueStats
             $table->unsignedInteger('number_departments_state_'.$departmentState->snake())->default(0);
         }
 
+        $table->unsignedInteger('number_collection_categories')->default(0);
+
+
         return $this->catalogueHeadStats($table);
     }
 

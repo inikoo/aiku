@@ -42,6 +42,7 @@ class StoreProductCategory extends OrgAction
         $productCategory = ProductCategory::create($modelData);
 
         $productCategory->stats()->create();
+        $productCategory->salesStats()->create();
 
         ProductCategoryHydrateUniversalSearch::dispatch($productCategory);
 

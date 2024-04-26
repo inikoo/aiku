@@ -10,7 +10,6 @@ namespace App\Models\Market;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateDepartments;
 use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
-use App\Models\BI\SalesStats;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -24,7 +23,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -61,8 +59,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $parent
  * @property-read Collection<int, \App\Models\Market\Product> $products
- * @property-read \App\Models\Market\ProductSalesStats|null $salesStats
- * @property-read SalesStats|null $salesTenantCurrencyStats
+ * @property-read \App\Models\Market\ProductCategorySalesStats|null $salesStats
  * @property-read \App\Models\Market\Shop|null $shop
  * @property-read \App\Models\Market\ProductCategoryStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
@@ -79,7 +76,6 @@ class ProductCategory extends Model implements Auditable
 {
     use HasSlug;
     use SoftDeletes;
-
     use HasUniversalSearch;
     use HasFactory;
     use HasHistory;
@@ -101,6 +97,7 @@ class ProductCategory extends Model implements Auditable
         return 'slug';
     }
 
+    // todo move this to the action
     protected static function booted(): void
     {
         static::updated(function (ProductCategory $department) {
@@ -129,12 +126,10 @@ class ProductCategory extends Model implements Auditable
         return $this->belongsTo(Organisation::class);
     }
 
-
     public function shop(): BelongsTo
     {
         return $this->belongsTo(Shop::class);
     }
-
 
     public function stats(): HasOne
     {
@@ -143,12 +138,7 @@ class ProductCategory extends Model implements Auditable
 
     public function salesStats(): HasOne
     {
-        return $this->hasOne(ProductSalesStats::class);
-    }
-
-    public function salesTenantCurrencyStats(): MorphOne
-    {
-        return $this->morphOne(SalesStats::class, 'model')->where('scope', 'sales-organisation-currency');
+        return $this->hasOne(ProductCategorySalesStats::class);
     }
 
     public function parent(): MorphTo

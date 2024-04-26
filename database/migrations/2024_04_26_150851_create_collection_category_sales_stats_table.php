@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 26 Apr 2024 16:17:51 British Summer Time, Sheffield, UK
+ * Created: Fri, 26 Apr 2024 16:17:39 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -15,10 +15,10 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::create('product_category_sales_stats', function (Blueprint $table) {
+        Schema::create('collection_category_sales_stats', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('product_category_id')->index();
-            $table->foreign('product_category_id')->references('id')->on('product_categories');
+            $table->unsignedInteger('collection_category_id')->index();
+            $table->foreign('collection_category_id')->references('id')->on('collection_categories');
             $table=$this->salesStats($table, ['shop_amount','org_amount','group_amount']);
             $table->timestampsTz();
         });
@@ -26,6 +26,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('product_category_sales_stats');
+        Schema::dropIfExists('collection_category_sales_stats');
     }
 };

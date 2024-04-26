@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $agreed_price
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read FulfilmentCustomer $fulfilmentCustomer
+ * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Rental $rental
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementClause newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementClause newQuery()

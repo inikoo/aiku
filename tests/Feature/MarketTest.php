@@ -6,6 +6,7 @@
  */
 
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
+use App\Actions\Market\CollectionCategory\StoreCollectionCategory;
 use App\Actions\Market\Outer\StoreOuter;
 use App\Actions\Market\Outer\UpdateOuter;
 use App\Actions\Market\Product\DeleteProduct;
@@ -21,6 +22,7 @@ use App\Enums\Market\Product\ProductUnitRelationshipType;
 use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\Goods\TradeUnit;
+use App\Models\Market\CollectionCategory;
 use App\Models\Market\Outer;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
@@ -390,3 +392,24 @@ test('update service', function ($product) {
         ->and($service->number_historic_outerables)->toBe(2);
     return $product;
 })->depends('create service');
+
+test('create collection category', function ($shop) {
+
+
+    $collectionCategory = StoreCollectionCategory::make()->action(
+        $shop,
+        [
+            'code'       => 'AAA',
+            'name'       => 'Cat one aaa',
+            'description'=> 'Cat one aaa description'
+        ]
+    );
+    $shop->refresh();
+    expect($collectionCategory)->toBeInstanceOf(CollectionCategory::class)
+        ->and($shop->stats->number_collection_categories)->toBe(1)
+        ->and($shop->organisation->marketStats->number_collection_categories)->toBe(1)
+        ->and($shop->group->marketStats->number_collection_categories)->toBe(1);
+
+
+    return $collectionCategory;
+})->depends('create shop');

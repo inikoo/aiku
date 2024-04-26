@@ -182,7 +182,7 @@ class ShowProduct extends OrgAction
                         ],
                         'model' => [
                             'name'       => 'shops.products.show',
-                            'parameters' =>$routeParameters
+                            'parameters' => $routeParameters
                         ]
                     ],
                     $suffix
