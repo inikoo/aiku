@@ -7,7 +7,9 @@
 
 namespace App\Actions\UI\Accounting\Traits;
 
+use App\Models\Assets\Country;
 use Illuminate\Support\Arr;
+use Spatie\LaravelOptions\Options;
 
 trait HasPaymentServiceProviderFields
 {
@@ -72,6 +74,20 @@ trait HasPaymentServiceProviderFields
                     'label'    => __('client secret'),
                     'required' => true,
                     'value'    => Arr::get($data, 'paypal_client_secret')
+                ],
+            ],
+            'cond' => [
+                'country_id' => [
+                    'type'     => 'select',
+                    'label'    => __('country'),
+                    'required' => true,
+                    'options'  => Options::forModels(Country::class),
+                    'value'    => Arr::get($data, 'country_id')
+                ],
+                'extra_charge' => [
+                    'type'     => 'input',
+                    'label'    => __('extra charge'),
+                    'value'    => Arr::get($data, 'extra_charge')
                 ],
             ],
             default => []

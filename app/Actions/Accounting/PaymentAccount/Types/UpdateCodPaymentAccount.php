@@ -15,7 +15,7 @@ use App\Models\Accounting\PaymentServiceProvider;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdatePaypalPaymentAccount extends OrgAction
+class UpdateCodPaymentAccount extends OrgAction
 {
     use WithActionUpdate;
 
@@ -24,8 +24,8 @@ class UpdatePaypalPaymentAccount extends OrgAction
     public function handle(PaymentAccount $paymentAccount, array $modelData): PaymentAccount
     {
         data_set($modelData, 'data', [
-            'paypal_client_id'     => Arr::get($modelData, 'paypal_client_id'),
-            'paypal_client_secret' => Arr::get($modelData, 'paypal_client_secret')
+            'country_id'     => Arr::get($modelData, 'country_id'),
+            'extra_charge'   => Arr::get($modelData, 'extra_charge')
         ]);
 
         return $this->update($paymentAccount, Arr::only($modelData, 'data'), ['data']);
@@ -43,8 +43,8 @@ class UpdatePaypalPaymentAccount extends OrgAction
     public function rules(): array
     {
         return [
-            'paypal_client_id'           => ['sometimes', 'string'],
-            'paypal_client_secret'       => ['sometimes', 'string']
+            'country_id'           => ['sometimes', 'string', 'exists:countries,id'],
+            'extra_charge'         => ['sometimes', 'string']
         ];
     }
 
