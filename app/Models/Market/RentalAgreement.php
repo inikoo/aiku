@@ -60,8 +60,8 @@ class RentalAgreement extends Model
 
     protected $guarded = [];
     protected $casts   = [
-        'data'  => 'array',
-        'state' => RentalAgreementStateEnum::class,
+        'data'          => 'array',
+        'state'         => RentalAgreementStateEnum::class,
         'billing_cycle' => RentalAgreementBillingCycleEnum::class
     ];
 

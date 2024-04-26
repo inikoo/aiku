@@ -7,6 +7,8 @@
 
 namespace App\Actions\UI\Iris;
 
+use App\Models\Web\Website;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\Concerns\AsController;
@@ -17,6 +19,9 @@ class ShowHome
 
     public function handle(): Response
     {
+        /** @var Website $website */
+        $website = request()->get('website');
+
         return Inertia::render(
             'Home',
             [
@@ -25,9 +30,9 @@ class ShowHome
                         [
                             'type'    => "header",
                             'content' => [
-                                'imgLogo'     => "https://www.aw-fulfilment.co.uk/wi.php?id=1837721",
-                                'title'       => "Your UK's Best Fulfilment Warehouse",
-                                'description' => "Storage - Pick & Pack - Distribution"
+                                'imgLogo'     => Arr::get($website->structure['header'], 'imgLogo'),
+                                'title'       => Arr::get($website->structure['header'], 'title'),
+                                'description' => Arr::get($website->structure['header'], 'description')
                             ]
                         ]
                     ]
