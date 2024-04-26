@@ -72,6 +72,7 @@ use App\Actions\Market\Product\DeleteProduct;
 use App\Actions\Market\Product\StorePhysicalGood;
 use App\Actions\Market\Product\UpdatePhysicalGood;
 use App\Actions\Market\RentalAgreement\StoreRentalAgreement;
+use App\Actions\Market\RentalAgreement\UpdateRentalAgreement;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\OMS\Order\StoreOrder;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
@@ -189,7 +190,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
 
     Route::prefix('rental-agreements')->name('rental-agreements.')->group(function () {
         Route::post('/', StoreRentalAgreement::class)->name('store');
-        Route::post('{rentalAgreement}', StoreRentalAgreement::class)->name('update');
+        Route::patch('{rentalAgreement:id}', UpdateRentalAgreement::class)->name('update')->withoutScopedBindings();
     });
 });
 
