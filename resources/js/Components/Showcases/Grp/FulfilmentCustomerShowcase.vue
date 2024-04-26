@@ -50,19 +50,24 @@ const props = defineProps<{
             route: routeType
         }
         rental_agreement: {
-            data: {
-                id: number
-                slug: string
-                reference: string
-                state: string
-                billing_cycle: string
-                pallets_limit: number
-                route: routeType
+            stats?: {
+                data: {
+                    id: number
+                    slug: string
+                    reference: string
+                    state: string
+                    billing_cycle: string
+                    pallets_limit: number
+                    route: routeType
+                }
             }
+            createRoute: routeType
         }
     },
     tab: string
 }>()
+
+console.log(props.data)
 
 // Tabs radio: v-model
 const radioValue = ref<string[]>(Object.keys(props.data.fulfilment_customer.radioTabs).filter(key => props.data.fulfilment_customer.radioTabs[key]))
@@ -83,7 +88,7 @@ const optionRadio = [
     },
 ]
 
-const isLoadingEditAgreement = ref(false)
+const isLoadingButtonRentalAgreement = ref(false)
 
 </script>
 
@@ -176,33 +181,35 @@ const isLoadingEditAgreement = ref(false)
         <div class="w-full max-w-96">
             <div class="rounded-lg ring-1 ring-gray-200">
                 <div class="bg-slate-100 border-b border-gray-300 py-4 px-4 flex justify-between">
-                    <div class="font-semibold text-2xl">Rental Agreement</div>
-                    <Link v-if="data.rental_agreement" :href="route(data.rental_agreement.data.route.name, data.rental_agreement.data.route.parameters)" @start="() => isLoadingEditAgreement = true" @cancel="() => isLoadingEditAgreement = false">
-                        <Button type="edit" :loading="isLoadingEditAgreement"/>
+                    <div class="font-semibold text-2xl">{{ trans('Rental Agreement') }}</div>
+                    <Link v-if="data.rental_agreement.stats" :href="route(data.rental_agreement.stats?.data.route.name, data.rental_agreement.stats?.data.route.parameters)" @start="() => isLoadingButtonRentalAgreement = true" @cancel="() => isLoadingButtonRentalAgreement = false">
+                        <Button type="edit" :loading="isLoadingButtonRentalAgreement"/>
                     </Link>
                 </div>
 
                 <!-- Stats -->
-                <div v-if="data.rental_agreement" class="p-5 space-y-5">
+                <div v-if="data.rental_agreement.stats" class="p-5 space-y-5">
                     <div class="flex flex-col">
-                        <div class="text-sm text-gray-500">Reference:</div>
-                        <div class="font-semibold text-xl text-gray-600">#{{ data.rental_agreement.data.reference }}</div>
+                        <div class="text-sm text-gray-500">{{ trans('Reference') }}:</div>
+                        <div class="font-semibold text-xl text-gray-600">#{{ data.rental_agreement.stats?.data.reference }}</div>
                     </div>
 
                     <div class="flex flex-col">
-                        <div class="text-sm text-gray-500">Billing Cycle:</div>
-                        <div class="font-semibold text-xl text-gray-600 capitalize">{{ data.rental_agreement.data.billing_cycle }}</div>
+                        <div class="text-sm text-gray-500">{{ trans('Billing Cycle') }}:</div>
+                        <div class="font-semibold text-xl text-gray-600 capitalize">{{ data.rental_agreement.stats?.data.billing_cycle }}</div>
                     </div>
 
                     <div class="flex flex-col">
-                        <div class="text-sm text-gray-500">Pallet Limit:</div>
-                        <div class="font-semibold text-xl text-gray-600">{{ data.rental_agreement.data.pallets_limit }}</div>
+                        <div class="text-sm text-gray-500">{{ trans('Pallet Limit') }}:</div>
+                        <div class="font-semibold text-xl text-gray-600">{{ data.rental_agreement.stats?.data.pallets_limit }}</div>
                     </div>
                 </div>
                 
-                <div v-else class="text-center py-16 space-y-2">
-                    <div class="text-gray-500">The rental is not created yet.</div>
-                    <Button label="Create Rental Agreement" />
+                <div v-else class="text-center py-16">
+                    <div class="text-gray-500 text-xs mb-1">The rental agreement is not created yet.</div>
+                    <Link :href="route(data.rental_agreement.createRoute.name, data.rental_agreement.createRoute.parameters)" @start="() => isLoadingButtonRentalAgreement = true" @cancel="() => isLoadingButtonRentalAgreement = false">
+                        <Button type="secondary" label="Create Rental Agreement" :loading="isLoadingButtonRentalAgreement"/>
+                    </Link>
                 </div>
             </div>
         </div>
