@@ -28,6 +28,7 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Market\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
@@ -227,7 +228,7 @@ test('create rental agreement', function (FulfilmentCustomer $fulfilmentCustomer
     $rentalAgreement = StoreRentalAgreement::make()->action(
         $fulfilmentCustomer,
         [
-            'billing_cycle' => 7,
+            'billing_cycle' => RentalAgreementBillingCycleEnum::WEEKLY->value,
             'pallets_limit' => null,
             'rental'        => [
                 [

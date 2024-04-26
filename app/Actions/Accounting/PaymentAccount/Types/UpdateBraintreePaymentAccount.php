@@ -24,8 +24,8 @@ class UpdateBraintreePaymentAccount extends OrgAction
     public function handle(PaymentAccount $paymentAccount, array $modelData): PaymentAccount
     {
         data_set($modelData, 'data', [
-            'country_id'     => Arr::get($modelData, 'country_id'),
-            'extra_charge'   => Arr::get($modelData, 'extra_charge')
+            'braintree_client_id'       => Arr::get($modelData, 'braintree_client_id'),
+            'braintree_client_secret'   => Arr::get($modelData, 'braintree_client_secret')
         ]);
 
         return $this->update($paymentAccount, Arr::only($modelData, 'data'), ['data']);
@@ -43,8 +43,8 @@ class UpdateBraintreePaymentAccount extends OrgAction
     public function rules(): array
     {
         return [
-            'country_id'           => ['sometimes', 'string', 'exists:countries,id'],
-            'extra_charge'         => ['sometimes', 'string']
+            'braintree_client_id'             => ['sometimes', 'string'],
+            'braintree_client_secret'         => ['sometimes', 'string']
         ];
     }
 
