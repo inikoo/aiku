@@ -7,8 +7,6 @@
 
 namespace App\Http\Resources\Web;
 
-use App\Actions\Web\Website\GetWebsiteWorkshopFooter;
-use App\Actions\Web\Website\GetWebsiteWorkshopHeader;
 use App\Http\Resources\HasSelfCall;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -20,8 +18,22 @@ class WebsiteLayoutWorkshopResource extends JsonResource
         $website = $this;
 
         return [
-            'header' => GetWebsiteWorkshopHeader::run($website->resource),
-            'footer' => GetWebsiteWorkshopFooter::run($website->resource)
+            'headerRoute' => [
+                'name'       => 'grp.org.fulfilments.show.web.websites.workshop.header',
+                'parameters' => [
+                    'organisation' => $website->resource->organisation_id,
+                    'fulfilment'   => $website->resource->shop->fulfilment->id,
+                    'website'      => $website->resource->id,
+                ]
+            ],
+            'footerRoute' => [
+                'name'       => 'grp.org.fulfilments.show.web.websites.workshop.footer',
+                'parameters' => [
+                    'organisation' => $website->resource->organisation_id,
+                    'fulfilment'   => $website->resource->shop->fulfilment->id,
+                    'website'      => $website->resource->id,
+                ]
+            ]
         ];
     }
 }

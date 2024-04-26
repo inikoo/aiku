@@ -8,7 +8,7 @@
 namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Web\Website\GetWebsiteWorkshopFooter;
+use App\Actions\Web\Website\GetWebsiteWorkshopHeader;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
@@ -18,7 +18,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowFooter extends OrgAction
+class ShowHeader extends OrgAction
 {
     use AsAction;
 
@@ -35,7 +35,7 @@ class ShowFooter extends OrgAction
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Web/Footer',
+            'Org/Web/Header',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -50,7 +50,7 @@ class ShowFooter extends OrgAction
                     ],
                 ],
 
-                'data' => GetWebsiteWorkshopFooter::run($website)
+                'data' => GetWebsiteWorkshopHeader::run($website)
             ]
         );
     }
