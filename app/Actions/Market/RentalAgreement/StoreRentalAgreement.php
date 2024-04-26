@@ -70,7 +70,7 @@ class StoreRentalAgreement extends OrgAction
     public function rules(): array
     {
         return [
-            'billing_cycle'             => ['required','string', Rule::in(RentalAgreementBillingCycleEnum::values())],
+            'billing_cycle'             => ['required', Rule::enum(RentalAgreementBillingCycleEnum::class)],
             'pallets_limit'             => ['nullable','integer','min:1','max:10000'],
             'rental'                    => ['sometimes','nullable', 'array'],
             'rental.*.rental'           => ['required', 'exists:rentals,id'],

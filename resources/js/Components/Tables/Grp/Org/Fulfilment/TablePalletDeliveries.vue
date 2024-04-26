@@ -111,22 +111,6 @@ const handleClick = (action: Action) => {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
 
-        <template #emptyState="data">
-            <EmptyState>
-                <template #button-empty-state>
-                    <div>
-                        <!--    <Link v-if="data?.action" as="div"
-                            :href="route(data?.action.route.name, data?.action.route.parameters)"
-                            :method="data?.action?.route?.method" class="mt-4 block"> -->
-                        <Button :style="data.emptyState.action?.style"
-                            @click="() => handleClick(data.emptyState.action)" :icon="data.emptyState.action?.icon"
-                            :label="data.emptyState.action?.tooltip" />
-                        <!--    </Link> -->
-                    </div>
-                </template>
-            </EmptyState>
-        </template>
-
         <template #button-new-pallet-delivery="{ linkButton }">
             <Button :style="linkButton.style" :icon="linkButton.icon" :label="linkButton.label" size="l"
                 :loading="loading" @click="() => handleClick(linkButton)" />

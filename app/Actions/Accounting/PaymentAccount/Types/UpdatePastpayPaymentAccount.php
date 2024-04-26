@@ -24,8 +24,7 @@ class UpdatePastpayPaymentAccount extends OrgAction
     public function handle(PaymentAccount $paymentAccount, array $modelData): PaymentAccount
     {
         data_set($modelData, 'data', [
-            'country_id'     => Arr::get($modelData, 'country_id'),
-            'extra_charge'   => Arr::get($modelData, 'extra_charge')
+            'pastpay_apikey' => Arr::get($modelData, 'pastpay_apikey'),
         ]);
 
         return $this->update($paymentAccount, Arr::only($modelData, 'data'), ['data']);
@@ -43,8 +42,7 @@ class UpdatePastpayPaymentAccount extends OrgAction
     public function rules(): array
     {
         return [
-            'country_id'           => ['sometimes', 'string', 'exists:countries,id'],
-            'extra_charge'         => ['sometimes', 'string']
+            'pastpay_apikey' => ['sometimes', 'string']
         ];
     }
 

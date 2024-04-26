@@ -7,6 +7,7 @@
 
 namespace App\Models\Market;
 
+use App\Enums\Market\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -60,7 +61,8 @@ class RentalAgreement extends Model
     protected $guarded = [];
     protected $casts   = [
         'data'  => 'array',
-        'state' => RentalAgreementStateEnum::class
+        'state' => RentalAgreementStateEnum::class,
+        'billing_cycle' => RentalAgreementBillingCycleEnum::class
     ];
 
     protected $attributes = [

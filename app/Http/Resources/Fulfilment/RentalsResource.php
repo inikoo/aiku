@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 11 Apr 2024 18:54:21 Central Indonesia Time, Sanur , Indonesia
+ * Created: Thu, 25 Apr 2024 15:09:20 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Http\Resources\Market;
+namespace App\Http\Resources\Fulfilment;
 
 use App\Models\Market\Product;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -20,7 +20,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $type
  *
  */
-class FulfilmentProductsResource extends JsonResource
+class RentalsResource extends JsonResource
 {
     public function toArray($request): array
     {

@@ -33,7 +33,7 @@ class GetFulfilmentCustomerShowcase
                 'createRoute'                   => [
                     'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.create',
                     'parameters' => array_values($request->route()->originalParameters())
-                ]
+                ],
             ],
             'updateRoute'         => [
                 'name'       => 'grp.models.fulfilment-customer.update',

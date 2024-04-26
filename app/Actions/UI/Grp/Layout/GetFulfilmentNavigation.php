@@ -34,7 +34,7 @@ class GetFulfilmentNavigation
                 'topMenu' => [
                     'subSections' => [
                         [
-                            'label'   => __('rent'),
+                            'label'   => __('rentals'),
                             'icon'    => ['fal', 'fa-garage'],
                             'root'    => 'grp.org.fulfilments.show.products.rentals.',
                             'route'   => [

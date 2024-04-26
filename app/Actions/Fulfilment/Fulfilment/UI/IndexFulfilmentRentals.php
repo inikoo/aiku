@@ -9,7 +9,9 @@ namespace App\Actions\Fulfilment\Fulfilment\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Enums\Market\Rental\RentalStateEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
+use App\Enums\UI\Fulfilment\RentalsTabsEnum;
 use App\Http\Resources\Market\RentalsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -66,16 +68,14 @@ class IndexFulfilmentRentals extends OrgAction
         $queryBuilder->join('products', 'rentals.product_id', '=', 'products.id');
 
 
-        /*        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                    $queryBuilder->whereElementGroup(
-                        key: $key,
-                        allowedElements: array_keys($elementGroup['elements']),
-                        engine: $elementGroup['engine'],
-                        prefix: $prefix
-                    );
-                }*/
-
-
+        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine'],
+                prefix: $prefix
+            );
+        }
 
         $queryBuilder
             ->defaultSort('rentals.id')
@@ -110,9 +110,9 @@ class IndexFulfilmentRentals extends OrgAction
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(RentalsTabsEnum::values());
 
-        return $this->handle($fulfilment, 'rentals');
+        return $this->handle($fulfilment, RentalsTabsEnum::RENTALS->value);
     }
 
     public function htmlResponse(LengthAwarePaginator $rentals, ActionRequest $request): Response
@@ -127,12 +127,19 @@ class IndexFulfilmentRentals extends OrgAction
                 'pageHead'    => [
                     'title' => __('rentals'),
                 ],
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => RentalsTabsEnum::navigation()
+                ],
 
-                'data' => RentalsResource::collection($rentals)
+                RentalsTabsEnum::RENTALS->value => $this->tab == RentalsTabsEnum::RENTALS->value ?
+                    fn () => RentalsResource::collection($rentals)
+                    : Inertia::lazy(fn () => RentalsResource::collection($rentals)),
+
             ]
         )->table($this->tableStructure(
             parent:$this->fulfilment,
-            prefix: 'rentals'
+            prefix:RentalsTabsEnum::RENTALS->value
         ));
     }
 
@@ -149,13 +156,13 @@ class IndexFulfilmentRentals extends OrgAction
                     ->pageName($prefix . 'Page');
             }
 
-            /*            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                            $table->elementGroup(
-                                key: $key,
-                                label: $elementGroup['label'],
-                                elements: $elementGroup['elements']
-                            );
-                        }*/
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
 
             $table
                 ->withGlobalSearch()
@@ -164,16 +171,18 @@ class IndexFulfilmentRentals extends OrgAction
                     match (class_basename($parent)) {
                         'Fulfilment' => [
                             'title' => __("No rentals found"),
-                            'count' => $parent->shop->stats->number_rentals,
+                            'count' => $parent->shop->stats->number_products_type_rental,
                         ],
                         default => null
                     }
                 );
 
             $table
-                ->column(key: 'type', label: '', canBeHidden: false)
+                ->column(key: 'state', label: '', canBeHidden: false)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'workflow', label: __('workflow'), canBeHidden: false, sortable: true, searchable: true)
+
                 ->defaultSort('code');
         };
     }
