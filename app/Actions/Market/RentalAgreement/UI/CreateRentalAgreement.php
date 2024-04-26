@@ -9,6 +9,7 @@ namespace App\Actions\Market\RentalAgreement\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
+use App\Enums\Market\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
@@ -16,6 +17,7 @@ use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
 class CreateRentalAgreement extends OrgAction
 {
@@ -42,10 +44,10 @@ class CreateRentalAgreement extends OrgAction
                                 'title'  => __('name'),
                                 'fields' => [
                                     'billing_cycle' => [
-                                        'type'     => 'input',
-                                        'label'    => __('billing cycle'),
-                                        'required' => true,
-                                        'value'    => 7
+                                        'type'       => 'select',
+                                        'label'      => __('billing cycle'),
+                                        'required'   => true,
+                                        'options'    => Options::forEnum(RentalAgreementBillingCycleEnum::class)
                                     ],
                                     'pallets_limit' => [
                                         'type'     => 'input',

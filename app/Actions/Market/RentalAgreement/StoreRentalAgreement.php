@@ -11,6 +11,7 @@ use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Market\Rental\UpdateRental;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
+use App\Enums\Market\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Market\Rental;
@@ -69,7 +70,7 @@ class StoreRentalAgreement extends OrgAction
     public function rules(): array
     {
         return [
-            'billing_cycle'             => ['required','integer','min:1','max:100'],
+            'billing_cycle'             => ['required','string', Rule::in(RentalAgreementBillingCycleEnum::values())],
             'pallets_limit'             => ['nullable','integer','min:1','max:10000'],
             'rental'                    => ['sometimes','nullable', 'array'],
             'rental.*.rental'           => ['required', 'exists:rentals,id'],

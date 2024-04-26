@@ -164,7 +164,6 @@ const checkVerification = async () => {
             <dt v-if="!fieldData.noTitle" class="text-sm font-medium text-gray-400 capitalize">
                 <div class="inline-flex items-start leading-none"><FontAwesomeIcon v-if="fieldData.required" :icon="['fas', 'asterisk']" class="font-light text-[12px] text-red-400 mr-1"/>{{ fieldData.label }}</div>
             </dt>
-
             <dd :class="props.fieldData.full ? 'sm:col-span-3' : fieldData.noTitle ? 'sm:col-span-3' : 'sm:col-span-2'" class="flex items-start text-sm text-gray-700 sm:mt-0">
                 <div class="relative w-full">
                     <component :is="getComponent(fieldData.type)" :form="form" :fieldName="field"

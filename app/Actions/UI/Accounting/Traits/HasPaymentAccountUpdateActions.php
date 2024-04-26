@@ -8,8 +8,11 @@
 namespace App\Actions\UI\Accounting\Traits;
 
 use App\Actions\Accounting\PaymentAccount\Types\UpdateBankPaymentAccount;
+use App\Actions\Accounting\PaymentAccount\Types\UpdateBraintreePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\Types\UpdateCashPaymentAccount;
 use App\Actions\Accounting\PaymentAccount\Types\UpdateCheckoutPaymentAccount;
+use App\Actions\Accounting\PaymentAccount\Types\UpdateCodPaymentAccount;
+use App\Actions\Accounting\PaymentAccount\Types\UpdatePastpayPaymentAccount;
 use App\Actions\Accounting\PaymentAccount\Types\UpdatePaypalPaymentAccount;
 use App\Models\Accounting\PaymentAccount;
 
@@ -22,6 +25,9 @@ trait HasPaymentAccountUpdateActions
             'checkout'  => UpdateCheckoutPaymentAccount::make()->action($paymentAccount, $modelData),
             'paypal'    => UpdatePaypalPaymentAccount::make()->action($paymentAccount, $modelData),
             'bank'      => UpdateBankPaymentAccount::make()->action($paymentAccount, $modelData),
+            'cond'      => UpdateCodPaymentAccount::make()->action($paymentAccount, $modelData),
+            'pastpay'   => UpdatePastpayPaymentAccount::make()->action($paymentAccount, $modelData),
+            'braintree' => UpdateBraintreePaymentAccount::make()->action($paymentAccount, $modelData),
             default     => $paymentAccount
         };
     }
