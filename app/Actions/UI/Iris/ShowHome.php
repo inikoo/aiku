@@ -18,7 +18,21 @@ class ShowHome
     public function handle(): Response
     {
         return Inertia::render(
-            'Home'
+            'Home',
+            [
+                'data' => [
+                    'components' => [
+                        [
+                            'type'    => "header",
+                            'content' => [
+                                'imgLogo'     => "https://www.aw-fulfilment.co.uk/wi.php?id=1837721",
+                                'title'       => "Your UK's Best Fulfilment Warehouse",
+                                'description' => "Storage - Pick & Pack - Distribution"
+                            ]
+                        ]
+                    ]
+                ]
+            ]
         );
     }
 

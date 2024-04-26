@@ -10,9 +10,13 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheck, faPlus, faMinus } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Head } from '@inertiajs/vue3'
-import Layout from '@/Layouts/Iris.vue'
+import LayoutIris from '@/Layouts/Iris.vue'
 
-defineOptions({ layout: Layout })
+const props = defineProps<{
+    data: any
+}>()
+
+defineOptions({ layout: LayoutIris })
 library.add(faCheck, faPlus, faMinus)
 
 const features = [
