@@ -74,7 +74,7 @@ function countModelTypes(data) {
 </script>
 
 <template>
-    <TransitionRoot :show="isOpen" as="template" @after-leave="searchValue = ''" appear>
+    <TransitionRoot :show="isOpen" as="template" @after-leave="() => (searchValue = '', resultsSearch = [])" appear>
         <Dialog as="div" class="relative z-[21]" @close="emits('close', false)">
             <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100"
                 leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
@@ -104,7 +104,7 @@ function countModelTypes(data) {
                         <TabGroup v-else-if="searchValue">
                             <!-- Section: Tabs -->
                             <TabList v-if="isLoadingSearch || resultsSearch?.length" class="flex gap-x-2 rounded-xl px-4 py-2 overflow-x-auto w-full" v-slot="{ selectedIndex }">
-                                <!-- Tabs: Loading -->
+                                <!-- Tabs: Skeleton -->
                                 <div v-if="isLoadingSearch" class="flex gap-x-2">
                                     <div v-for=" of 3" class="h-10 skeleton min-w-28 w-min rounded-lg" />
                                 </div>
@@ -140,25 +140,25 @@ function countModelTypes(data) {
                                 No result to show for <span class="font-bold">{{ searchValue }}</span>
                             </div>
 
-                            <!-- Section: Results -->
+                            <!-- Section: Skeleton -->
                             <div v-if="isLoadingSearch" class="border-t-2 border-slate-300">
-                                <div class="flex-none p-6 text-center">
-                                    <div class="mx-auto h-16 w-16 rounded-full skeleton" />
-                                    <div class="mt-3 skeleton w-1/2 mx-auto h-5" />
-                                </div>
                                 <div class="flex flex-auto flex-col justify-between gap-y-4 p-6">
-                                    <div v-for=" of 3" class="flex gap-x-2 h-7 rounded overflow-hidden">
-                                        <div class="skeleton w-20" />
-                                        <div class="skeleton w-full" />
+                                    <div v-for=" of 3" class="flex gap-x-2 h-11 rounded overflow-hidden">
+                                        <div class="skeleton h-full aspect-square rounded-md" />
+                                        <div class="flex flex-col h-full w-full gap-y-1">
+                                            <div class="skeleton h-2/3 max-w-56 rounded" />
+                                            <div class="skeleton h-1/3 max-w-40 rounded" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             
+                            <!-- Section: Results -->
                             <TransitionGroup name="list" tag="ul" v-if="resultsSearch?.length" class="border-t-2 border-slate-300">
                                 <li v-for="(result, resultIdx) in (selectedTab ? resultsSearch.filter(resultSearch => resultSearch.model_type == selectedTab) : resultsSearch)"
                                     :key="result.model_type + resultIdx"
                                     v-tooltip="result.model_type"
-                                    class="rounded-xl bg-white hover:bg-slate-100 p-3 ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2 cursor-pointer"
+                                    class="bg-white hover:bg-slate-50 py-3 pl-6 ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2 cursor-pointer"
                                 >
                                     <SearchResultPallet v-if="result.model_type == 'Pallet'" :key="result.model_type + resultIdx" :data="result.model" />
                                     <SearchResult v-else :data="result.model" @finishVisit="() => emits('close', false)" />
