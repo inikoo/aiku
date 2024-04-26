@@ -30,14 +30,14 @@ function loadDB($dumpName): void
     $dotenv->load();
 
     $process = new Process(
-        [
+        command:[
             __DIR__.'/../devops/devel/reset_test_database.sh',
             env('DB_DATABASE_TEST', 'aiku_testing'),
             env('DB_PORT'),
             env('DB_USERNAME'),
             env('DB_PASSWORD'),
             $dumpName
-        ]
+        ],timeout: 300
     );
     $process->run();
 }
