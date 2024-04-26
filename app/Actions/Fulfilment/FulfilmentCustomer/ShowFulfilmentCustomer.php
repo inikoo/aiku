@@ -20,6 +20,7 @@ use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\Market\HasRentalAgreement;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithWebUserMeta;
+use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\UI\Fulfilment\CustomerFulfilmentTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\CRM\WebUsersResource;
@@ -89,6 +90,13 @@ class ShowFulfilmentCustomer extends OrgAction
         if (!$fulfilmentCustomer->dropshipping) {
             // todo
 
+        }
+
+        if(!$fulfilmentCustomer->rentalAgreement || ($fulfilmentCustomer->rentalAgreement->state != RentalAgreementStateEnum::ACTIVE)) {
+            unset($navigation[CustomerFulfilmentTabsEnum::PALLETS->value]);
+            unset($navigation[CustomerFulfilmentTabsEnum::INVOICES->value]);
+            unset($navigation[CustomerFulfilmentTabsEnum::PROFORMAS->value]);
+            unset($navigation[CustomerFulfilmentTabsEnum::PALLET_RETURNS->value]);
         }
 
         return Inertia::render(
