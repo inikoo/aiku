@@ -21,17 +21,17 @@ class WebsiteLayoutWorkshopResource extends JsonResource
             'headerRoute' => [
                 'name'       => 'grp.org.fulfilments.show.web.websites.workshop.header',
                 'parameters' => [
-                    'organisation' => $website->resource->organisation_id,
-                    'fulfilment'   => $website->resource->shop->fulfilment->id,
-                    'website'      => $website->resource->id,
+                    'organisation' => $website->resource->organisation->slug,
+                    'fulfilment'   => $website->resource->shop->fulfilment->slug,
+                    'website'      => $website->resource->slug,
                 ]
             ],
             'footerRoute' => [
                 'name'       => 'grp.org.fulfilments.show.web.websites.workshop.footer',
                 'parameters' => [
-                    'organisation' => $website->resource->organisation_id,
-                    'fulfilment'   => $website->resource->shop->fulfilment->id,
-                    'website'      => $website->resource->id,
+                    'organisation' => $website->resource->organisation->slug,
+                    'fulfilment'   => $website->resource->shop->fulfilment->slug,
+                    'website'      => $website->resource->slug,
                 ]
             ]
         ];
