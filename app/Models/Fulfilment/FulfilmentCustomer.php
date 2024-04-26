@@ -90,6 +90,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_pallet_returns_state_picked
  * @property int $number_pallet_returns_state_dispatched
  * @property int $number_pallet_returns_state_cancel
+ * @property RentalAgreementStateEnum|null $rental_agreement_state
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
