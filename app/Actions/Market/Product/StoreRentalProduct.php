@@ -30,43 +30,40 @@ class StoreRentalProduct extends OrgAction
 {
     use IsStoreProduct;
 
-    private RentalStateEnum|null $state=null;
+    private RentalStateEnum|null $state = null;
     private ProductCategory|Shop $parent;
 
     public function handle(Shop|ProductCategory $parent, array $modelData): Product
     {
-
-        $modelData=$this->setDataFromParent($parent, $modelData);
+        $modelData = $this->setDataFromParent($parent, $modelData);
 
         data_set($modelData, 'unit_relationship_type', ProductUnitRelationshipType::TIME_INTERVAL->value);
         data_set($modelData, 'outerable_type', 'Rental');
 
 
-        $productData=$modelData;
+        $productData = $modelData;
 
         data_set(
             $productData,
             'state',
-            match(Arr::get($modelData, 'state')) {
-                RentalStateEnum::IN_PROCESS  => ProductStateEnum::IN_PROCESS,
-                RentalStateEnum::ACTIVE      => ProductStateEnum::ACTIVE,
-                RentalStateEnum::DISCONTINUED=> ProductStateEnum::DISCONTINUED,
+            match (Arr::get($modelData, 'state')) {
+                RentalStateEnum::IN_PROCESS   => ProductStateEnum::IN_PROCESS,
+                RentalStateEnum::ACTIVE       => ProductStateEnum::ACTIVE,
+                RentalStateEnum::DISCONTINUED => ProductStateEnum::DISCONTINUED,
             }
         );
 
         /** @var Product $product */
-        $product = $parent->products()->create($productData);
+        $product = $parent->products()->create(Arr::except($productData, ['auto_assign_asset', 'auto_assign_asset_type']));
         $product->stats()->create();
 
 
-        $price=Arr::get($modelData, 'price');
+        $price = Arr::get($modelData, 'price');
         data_forget($modelData, 'price');
         data_set($modelData, 'price', $price);
 
 
-
         StoreRental::make()->action($product, $modelData);
-
 
 
         ShopHydrateProducts::dispatch($product->shop);
@@ -82,7 +79,10 @@ class StoreRentalProduct extends OrgAction
         return array_merge(
             $this->getProductRules(),
             [
-            'state' => ['required', Rule::enum(RentalStateEnum::class)],
+                'state'                  => ['required', Rule::enum(RentalStateEnum::class)],
+                'auto_assign_asset'      => ['nullable', 'string', 'in:Pallet,StoredItem'],
+                'auto_assign_asset_type' => ['nullable', 'string', 'in:pallet,box,oversize'],
+
             ]
         );
     }
@@ -92,7 +92,7 @@ class StoreRentalProduct extends OrgAction
         $this->set('type', ProductTypeEnum::RENTAL);
 
         $this->prepareProductForValidation();
-        if(!$this->has('state')) {
+        if (!$this->has('state')) {
             $this->set('state', RentalStateEnum::IN_PROCESS);
         }
     }

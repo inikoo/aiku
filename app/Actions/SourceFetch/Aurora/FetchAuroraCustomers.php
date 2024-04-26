@@ -12,6 +12,9 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
+use App\Actions\Market\RentalAgreement\StoreRentalAgreement;
+use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
+use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\CRM\Customer;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
@@ -51,6 +54,38 @@ class FetchAuroraCustomers extends FetchAuroraAction
                         hydratorsDelay: $this->hydrateDelay,
                         strict: false
                     );
+
+
+
+                    if($customerData['shop']->type == ShopTypeEnum::FULFILMENT) {
+
+                        $sourceData = explode(':', $customer->source_id);
+
+                        $palletsCount= DB::connection('aurora')
+                            ->table('Fulfilment Asset Dimension')
+                            ->where('Fulfilment Asset Customer Key', $sourceData[1])->count();
+
+
+
+                        if($palletsCount>0) {
+
+
+                            StoreRentalAgreement::make()->action(
+                                $customer->fulfilmentCustomer,
+                                [
+                                    'billing_cycle' => 30,
+                                    'state'         => RentalAgreementStateEnum::ACTIVE,
+                                    'created_at'    => $customer->created_at,
+                                ]
+                            );
+
+
+                        }
+
+
+                    }
+
+
                     $this->recordNew($organisationSource);
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $customerData['customer'], 'Customer', 'store');

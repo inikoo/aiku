@@ -11,17 +11,19 @@ use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Market\Rental\UpdateRental;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
+use App\Enums\Market\RentalAgreement\RentalAgreementBillingCycleEnum;
+use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Market\Rental;
 use App\Models\Market\RentalAgreement;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
+use Symfony\Component\HttpFoundation\Response;
 
 class StoreRentalAgreement extends OrgAction
 {
-    private FulfilmentCustomer $parent;
-
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreement
     {
         data_set($modelData, 'organisation_id', $fulfilmentCustomer->organisation_id);
@@ -37,7 +39,9 @@ class StoreRentalAgreement extends OrgAction
             )
         );
 
-        foreach (Arr::get($modelData, 'rental') as $rental) {
+
+
+        foreach (Arr::get($modelData, 'rental', []) as $rental) {
             data_set($rental, 'rental_id', Arr::get($rental, 'rental'));
             data_set($rental, 'agreed_price', Arr::get($rental, 'agreed_price'));
 
@@ -53,25 +57,33 @@ class StoreRentalAgreement extends OrgAction
         /** @var RentalAgreement $rentalAgreement */
         $rentalAgreement=$fulfilmentCustomer->rentalAgreement()->create($modelData);
 
+        $fulfilmentCustomer->update(
+            [
+                'rental_agreement_state'=> $rentalAgreement->state
+            ]
+        );
+
+
         return $rentalAgreement;
     }
 
     public function rules(): array
     {
         return [
-            'billing_cycle'             => ['required','integer','min:1','max:100'],
+            'billing_cycle'             => ['required','string', Rule::in(RentalAgreementBillingCycleEnum::values())],
             'pallets_limit'             => ['nullable','integer','min:1','max:10000'],
-            'rental'                    => ['required', 'array'],
+            'rental'                    => ['sometimes','nullable', 'array'],
             'rental.*.rental'           => ['required', 'exists:rentals,id'],
             'rental.*.agreed_price'     => ['required', 'numeric', 'gt:0'],
             'rental.*.price'            => ['required', 'numeric', 'gt:0'],
+            'state'                     => ['sometimes',Rule::enum(RentalAgreementStateEnum::class)],
+            'created_at'                => ['sometimes','date'],
         ];
     }
 
     public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreement
     {
         $this->asAction       = true;
-        $this->parent         = $fulfilmentCustomer;
         $this->initialisationFromShop($fulfilmentCustomer->fulfilment->shop, $modelData);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
@@ -79,13 +91,12 @@ class StoreRentalAgreement extends OrgAction
 
     public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): RentalAgreement
     {
-        $this->parent = $fulfilmentCustomer;
         $this->initialisationFromShop($fulfilmentCustomer->fulfilment->shop, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
-    public function htmlResponse(RentalAgreement $rentalAgreement)
+    public function htmlResponse(RentalAgreement $rentalAgreement): Response
     {
         return Inertia::location(route('grp.org.fulfilments.show.crm.customers.show', [
             'organisation'       => $rentalAgreement->organisation->slug,

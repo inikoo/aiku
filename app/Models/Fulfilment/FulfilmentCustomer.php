@@ -7,6 +7,7 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\SerialReference;
 use App\Models\Market\RecurringBill;
@@ -126,7 +127,8 @@ class FulfilmentCustomer extends Model
 
     protected $guarded = [];
     protected $casts   = [
-        'data' => 'array',
+        'data'                  => 'array',
+        'rental_agreement_state'=> RentalAgreementStateEnum::class
     ];
 
     protected $attributes = [

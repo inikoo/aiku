@@ -9,6 +9,7 @@ namespace App\Actions\Market\RentalAgreement\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
+use App\Enums\Market\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Market\RentalAgreement;
@@ -17,6 +18,7 @@ use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
 class EditRentalAgreement extends OrgAction
 {
@@ -57,10 +59,11 @@ class EditRentalAgreement extends OrgAction
                                 'title'  => __('name'),
                                 'fields' => [
                                     'billing_cycle' => [
-                                        'type'     => 'input',
-                                        'label'    => __('billing cycle'),
-                                        'required' => true,
-                                        'value'    => $rentalAgreement->billing_cycle
+                                        'type'       => 'select',
+                                        'label'      => __('billing cycle'),
+                                        'required'   => true,
+                                        'options'    => Options::forEnum(RentalAgreementBillingCycleEnum::class),
+                                        'value'      => $rentalAgreement->billing_cycle
                                     ],
                                     'pallets_limit' => [
                                         'type'     => 'input',
@@ -89,7 +92,8 @@ class EditRentalAgreement extends OrgAction
                         'updateRoute' => [
                             'name'       => 'grp.models.fulfilment-customer.rental-agreements.update',
                             'parameters' => [
-                                'rentalAgreement' => $rentalAgreement->id,
+                                'fulfilmentCustomer' => $rentalAgreement->fulfilment_customer_id,
+                                'rentalAgreement'    => $rentalAgreement->id,
                             ]
                         ],
                     ]
