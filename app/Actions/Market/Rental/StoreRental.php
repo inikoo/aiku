@@ -9,6 +9,7 @@ namespace App\Actions\Market\Rental;
 
 use App\Actions\Market\HistoricOuterable\StoreHistoricOuterable;
 use App\Actions\Market\Product\Hydrators\ProductHydrateHistoricOuterables;
+use App\Actions\Market\Shop\Hydrators\ShopHydrateRentals;
 use App\Actions\OrgAction;
 use App\Enums\Market\Rental\RentalStateEnum;
 use App\Models\Market\Product;
@@ -51,6 +52,7 @@ class StoreRental extends OrgAction
         );
 
         ProductHydrateHistoricOuterables::dispatch($product);
+        ShopHydrateRentals::dispatch($product->shop);
 
         return $rental;
     }

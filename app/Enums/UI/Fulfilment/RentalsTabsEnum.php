@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 06 Apr 2024 15:19:39 Central Indonesia Time, Sanur , Indonesia
+ * Created: Thu, 25 Apr 2024 15:05:32 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -10,23 +10,23 @@ namespace App\Enums\UI\Fulfilment;
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum FulfilmentProductsTabsEnum: string
+enum RentalsTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
 
-    case PRODUCTS                      = 'products';
+    case RENTALS                       = 'rentals';
     case HISTORY                       = 'history';
 
     public function blueprint(): array
     {
         return match ($this) {
-            FulfilmentProductsTabsEnum::PRODUCTS => [
-                'title' => __('products'),
+            RentalsTabsEnum::RENTALS => [
+                'title' => __('rentals'),
                 'icon'  => 'fal fa-bars',
             ],
 
-            FulfilmentProductsTabsEnum::HISTORY => [
+            RentalsTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',

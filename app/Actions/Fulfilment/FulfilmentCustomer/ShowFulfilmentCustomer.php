@@ -20,6 +20,7 @@ use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\Market\HasRentalAgreement;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithWebUserMeta;
+use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\UI\Fulfilment\CustomerFulfilmentTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\CRM\WebUsersResource;
@@ -91,6 +92,13 @@ class ShowFulfilmentCustomer extends OrgAction
 
         }
 
+        if(!$fulfilmentCustomer->rentalAgreement || ($fulfilmentCustomer->rentalAgreement->state != RentalAgreementStateEnum::ACTIVE)) {
+            unset($navigation[CustomerFulfilmentTabsEnum::PALLETS->value]);
+            unset($navigation[CustomerFulfilmentTabsEnum::INVOICES->value]);
+            unset($navigation[CustomerFulfilmentTabsEnum::PROFORMAS->value]);
+            unset($navigation[CustomerFulfilmentTabsEnum::PALLET_RETURNS->value]);
+        }
+
         return Inertia::render(
             'Org/Fulfilment/Customer',
             [
@@ -118,16 +126,6 @@ class ShowFulfilmentCustomer extends OrgAction
                         ]
                     ] : false,
                     'actions' => [
-                        $fulfilmentCustomer->rentalAgreement ? false : [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('Create Rental Agreement'),
-                            'label'   => __('Create Rental Agreement'),
-                            'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.create',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ],
                         [
                             'type'    => 'button',
                             'style'   => 'edit',

@@ -8,6 +8,7 @@
 namespace App\Actions\Market\Rental;
 
 use App\Actions\Market\HistoricOuterable\StoreHistoricOuterable;
+use App\Actions\Market\Shop\Hydrators\ShopHydrateRentals;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Market\Product\ProductStateEnum;
@@ -54,8 +55,9 @@ class UpdateRental extends OrgAction
                 ]
             );
         }
-
-
+        if(Arr::hasAny($rental->getChanges(), ['state'])) {
+            ShopHydrateRentals::dispatch($rental->shop);
+        }
         return $rental;
     }
 

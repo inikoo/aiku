@@ -75,6 +75,6 @@ const isLoading = ref(false)
                 <Button :style="data?.action.style" :icon="data?.action.icon" :label="data?.action.tooltip" :loading="isLoading" />
             </Link>
         </slot>
-       
+
     </div>
 </template>

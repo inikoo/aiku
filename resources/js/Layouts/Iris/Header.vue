@@ -12,6 +12,14 @@ library.add(faSearch, faArrowRight, faChevronDown)
 // const inputSearch = ref()
 // const inputValue = ref('')
 
+const props = defineProps<{
+    data: {
+        imgLogo: string
+        title: string
+        description: string
+    }
+}>()
+
 const dropdownCompanies = [
     { name: 'About us', href: '#', description: 'Learn more about our company values and mission to empower others' },
     { name: 'Careers', href: '#', description: 'Looking for you next career opportunity? See all of our open positions' },
@@ -28,12 +36,21 @@ const dropdownCompanies = [
 <template>
     <div class="grid grid-cols-3 h-24 items-center">
         <div class="justify-self-start self-center">
-            <img src="https://www.aw-fulfilment.co.uk/wi.php?id=1837721" class="h-20">
+            <img :src="data.imgLogo" class="h-20" alt="Company Logo">
         </div>
         
-        <div class="text-center place-self-center">
+        <!-- <div class="text-center place-self-center">
             <h3 class="text-indigo-600 text-xl font-bold leading-5">Your UK's Best Fulfilment Warehouse</h3>
             <span class="text-gray-500 text-sm">Storage - Pick & Pack - Distribution</span>
+        </div> -->
+        
+        <div class="text-center place-self-center">
+            <h3 class="text-indigo-600 text-xl font-bold leading-5">
+                {{ data?.title }}
+            </h3>
+            <span class="text-gray-500 text-sm">
+                {{ data?.description }}
+            </span>
         </div>
         
         <!-- <div class="w-3/4 justify-self-end text-sm pr-4">

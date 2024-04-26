@@ -90,6 +90,28 @@ trait HasPaymentServiceProviderFields
                     'value'    => Arr::get($data, 'extra_charge')
                 ],
             ],
+            'braintree' => [
+                'braintree_client_id' => [
+                    'type'     => 'input',
+                    'label'    => __('client id'),
+                    'required' => true,
+                    'value'    => Arr::get($data, 'braintree_client_id')
+                ],
+                'braintree_client_secret' => [
+                    'type'     => 'input',
+                    'label'    => __('client secret'),
+                    'required' => true,
+                    'value'    => Arr::get($data, 'braintree_client_secret')
+                ],
+            ],
+            'pastpay' => [
+                'pastpay_apikey' => [
+                    'type'     => 'input',
+                    'label'    => __('api key'),
+                    'required' => true,
+                    'value'    => Arr::get($data, 'pastpay_apikey')
+                ]
+            ],
             default => []
         };
     }

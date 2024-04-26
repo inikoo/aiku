@@ -10,6 +10,8 @@ namespace App\Stubs\Migrations;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
+use App\Enums\Market\Rental\RentalStateEnum;
+use App\Enums\Market\Service\ServiceStateEnum;
 use App\Enums\Market\Shop\ShopStateEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use Illuminate\Database\Schema\Blueprint;
@@ -67,6 +69,22 @@ trait HasCatalogueStats
         foreach (ProductTypeEnum::cases() as $case) {
             $table->unsignedInteger('number_products_type_'.$case->snake())->default(0);
         }
+
+
+        foreach (RentalStateEnum::cases() as $case) {
+            $table->unsignedInteger('number_rentals_state_'.$case->snake())->default(0);
+        }
+
+        foreach (ServiceStateEnum::cases() as $case) {
+            $table->unsignedInteger('number_services_state_'.$case->snake())->default(0);
+        }
+
+        foreach (ProductStateEnum::cases() as $case) {
+            $table->unsignedInteger('number_physical_goods_state_'.$case->snake())->default(0);
+        }
+
+
+
 
         return $table;
     }

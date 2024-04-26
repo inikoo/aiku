@@ -14,6 +14,7 @@ use App\Actions\Market\HasRentalAgreement;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\InertiaTable\InertiaTable;
@@ -153,6 +154,8 @@ class IndexPalletDeliveries extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
+            $hasRentalAgreementActive    = $parent->rentalAgreement && $parent->rentalAgreement->state == RentalAgreementStateEnum::ACTIVE;
+            $hasRentalAgreement          = (bool) $parent->rentalAgreement;
 
             $table
                 ->withModelOperations($modelOperations)
@@ -169,9 +172,12 @@ class IndexPalletDeliveries extends OrgAction
                             'count'       => $parent->stats->number_pallet_deliveries
                         ],
                         'FulfilmentCustomer' => [
-                            'title'       => __('This customer has not received any pallet deliveries yet'),
+                            'title'       => __($hasRentalAgreementActive ?
+                                'This customer has not received any pallet deliveries yet'
+                                : (!$hasRentalAgreement ? 'You dont have rental agreement active yet. Please create rental agreement below'
+                                : 'You have rental agreement but its still ' . $parent->rentalAgreement->state->value)),
                             'count'       => $parent->number_pallet_deliveries,
-                            'action'      => [
+                            'action'      => $hasRentalAgreementActive ? [
                                 'type'    => 'button',
                                 'style'   => 'create',
                                 'tooltip' => __('Create new delivery order'),
@@ -184,6 +190,15 @@ class IndexPalletDeliveries extends OrgAction
                                     'method'     => 'post',
                                     'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
                                     'parameters' => [$parent->id]
+                                ]
+                            ] : [
+                                'type'     => 'button',
+                                'style'    => 'create',
+                                'tooltip'  => __('Create new rental agreement'),
+                                'label'    => __('New rental agreement'),
+                                'route'    => [
+                                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.create',
+                                    'parameters' => array_values(request()->route()->originalParameters())
                                 ]
                             ]
                         ]

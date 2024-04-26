@@ -26,9 +26,15 @@ class GetFulfilmentCustomerShowcase
         $irisDomain = $fulfilmentCustomer->fulfilment->shop?->website?->domain;
 
         return [
-            'customer'            => CustomersResource::make($fulfilmentCustomer->customer)->getArray(),
-            'fulfilment_customer' => FulfilmentCustomerResource::make($fulfilmentCustomer)->getArray(),
-            'rental_agreement'    => RentalAgreementResource::make($fulfilmentCustomer->rentalAgreement),
+            'customer'                     => CustomersResource::make($fulfilmentCustomer->customer)->getArray(),
+            'fulfilment_customer'          => FulfilmentCustomerResource::make($fulfilmentCustomer)->getArray(),
+            'rental_agreement'             => [
+                'stats'                         => $fulfilmentCustomer->rentalAgreement ? RentalAgreementResource::make($fulfilmentCustomer->rentalAgreement) : false,
+                'createRoute'                   => [
+                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.create',
+                    'parameters' => array_values($request->route()->originalParameters())
+                ],
+            ],
             'updateRoute'         => [
                 'name'       => 'grp.models.fulfilment-customer.update',
                 'parameters' => [$fulfilmentCustomer->id]
