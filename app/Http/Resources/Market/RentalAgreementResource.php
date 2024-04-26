@@ -23,7 +23,11 @@ class RentalAgreementResource extends JsonResource
             'reference'                         => $rentalAgreement->reference,
             'state'                             => $rentalAgreement->state,
             'billing_cycle'                     => $rentalAgreement->billing_cycle,
-            'pallets_limit'                     => $rentalAgreement->pallets_limit
+            'pallets_limit'                     => $rentalAgreement->pallets_limit,
+            'route'                             => [
+                'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.create',
+                'parameters' => array_values($request->route()->originalParameters())
+            ]
         ];
     }
 }
