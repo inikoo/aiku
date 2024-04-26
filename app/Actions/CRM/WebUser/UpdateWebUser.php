@@ -11,6 +11,7 @@ use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
+use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\CRM\WebUser;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
@@ -48,7 +49,13 @@ class UpdateWebUser extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+        if($this->shop->type==ShopTypeEnum::FULFILMENT) {
+            return $request->user()->hasPermissionTo("fulfilment.{$this->shop->fulfilment->id}.edit");
+        } else {
+            return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+
+        }
+
     }
 
     public function rules(): array

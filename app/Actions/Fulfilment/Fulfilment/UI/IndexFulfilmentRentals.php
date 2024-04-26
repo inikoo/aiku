@@ -28,36 +28,25 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexFulfilmentRentals extends OrgAction
 {
-    //    protected function getElementGroups(Fulfilment $parent): array
-    //    {
-    //
-    //        return [
-    //            'type' => [
-    //                'label'    => __('Type'),
-    //                'elements' => array_merge_recursive(
-    //                    RentalStateEnum::labels($parent->shop),
-    //                    RentalStateEnum::count($parent->shop)
-    //                ),
-    //
-    //                'engine' => function ($query, $elements) {
-    //                    $query->whereIn('type', $elements);
-    //                }
-    //
-    //            ],
-    //            'state' => [
-    //                'label'    => __('State'),
-    //                'elements' => array_merge_recursive(
-    //                    rentalstateEnum::labels(),
-    //                    rentalstateEnum::count($parent->shop)
-    //                ),
-    //
-    //                'engine' => function ($query, $elements) {
-    //                    $query->whereIn('state', $elements);
-    //                }
-    //
-    //            ],
-    //        ];
-    //    }
+    protected function getElementGroups(Fulfilment $parent): array
+    {
+
+        return [
+
+            'state' => [
+                'label'    => __('State'),
+                'elements' => array_merge_recursive(
+                    RentalStateEnum::labels(),
+                    RentalStateEnum::count($parent->shop)
+                ),
+
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('state', $elements);
+                }
+
+            ],
+        ];
+    }
 
     public function handle(Fulfilment $parent, $prefix = null): LengthAwarePaginator
     {
