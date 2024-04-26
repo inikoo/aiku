@@ -10,6 +10,7 @@ use App\Actions\Web\Webpage\UI\CreateWebpage;
 use App\Actions\Web\Webpage\UI\EditWebpage;
 use App\Actions\Web\Webpage\UI\IndexWebpages;
 use App\Actions\Web\Webpage\UI\ShowFooter;
+use App\Actions\Web\Webpage\UI\ShowHeader;
 use App\Actions\Web\Webpage\UI\ShowWebpage;
 use App\Actions\Web\Webpage\UI\ShowWebpageWorkshop;
 use App\Actions\Web\Website\UI\CreateWebsite;
@@ -27,7 +28,7 @@ Route::get('/{website}', [ShowWebsite::class, 'inFulfilment'])->name('show');
 Route::get('/{website}/blog/article/create', CreateArticle::class)->name('show.blog.article.create');
 
 Route::get('/{website}/workshop/footer', ShowFooter::class)->name('workshop.footer');
-Route::get('/{website}/workshop/header', ShowFooter::class)->name('workshop.header');
+Route::get('/{website}/workshop/header', ShowHeader::class)->name('workshop.header');
 
 Route::get('/{website}/webpages/create', CreateWebpage::class)->name('show.webpages.create');
 Route::get('/{website}/webpages', [IndexWebpages::class, 'inFulfilment'])->name('show.webpages.index');

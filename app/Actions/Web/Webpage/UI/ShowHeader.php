@@ -9,7 +9,7 @@ namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Web\Website\GetWebsiteWorkshopHeader;
-use App\Models\Market\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
@@ -61,13 +61,15 @@ class ShowHeader extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
+        $this->canEdit = $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+
+        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.view");
     }
 
-    public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): Website
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Website
     {
         $this->parent = $website;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $website;
     }
