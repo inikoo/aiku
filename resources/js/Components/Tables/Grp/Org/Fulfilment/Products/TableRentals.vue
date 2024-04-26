@@ -12,11 +12,12 @@ import Table from '@/Components/Table/Table.vue';
 import {Product} from "@/types/product";
 import Icon from "@/Components/Icon.vue";
 import {library} from "@fortawesome/fontawesome-svg-core";
-import {faConciergeBell, faGarage} from '@fal'
+import {faRobot} from '@fal'
 import product from "@/Pages/Grp/Market/Product.vue";
 import { useLocaleStore } from '@/Stores/locale'
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
-library.add(faConciergeBell, faGarage)
+library.add(faRobot)
 
 
 const props = defineProps<{
@@ -67,7 +68,13 @@ function rentalRoute(product: Product) {
 
     <template #cell(price)="{ item: rental }">
       {{ useLocaleStore().currencyFormat(rental['currency_code'],rental['price']) }} /{{ rental['unit_abbreviation'] }}
+    </template>
 
+    <template #cell(workflow)="{ item: rental }">
+      <template v-if="rental['auto_assign_asset']" >
+      <FontAwesomeIcon  icon='fal fa-robot' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
+        {{rental['auto_assign_asset']}}:  {{rental['auto_assign_asset_type']}}
+      </template>
     </template>
   </Table>
 </template>
