@@ -31,6 +31,10 @@ return new class () extends Migration {
             $table->string('auto_assign_asset')->nullable()->comment('Used for auto assign this rent to this asset');
             $table->string('auto_assign_asset_type')->nullable()->comment('Used for auto assign this rent to this asset type');
 
+            $table->decimal('price', 18)->nullable();
+            $table->string('unit')->nullable();
+
+
             $table->jsonb('data');
             $table->unsignedSmallInteger('number_historic_outerables')->default(0);
             $table->timestampsTz();

@@ -11,6 +11,7 @@ use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\Rental\RentalStateEnum;
+use App\Enums\Market\Rental\RentalUnitEnum;
 use App\Enums\Market\Service\ServiceStateEnum;
 use Illuminate\Support\Facades\DB;
 
@@ -23,7 +24,7 @@ class FetchAuroraService extends FetchAurora
         }
 
         $this->parsedData['shop'] = $this->parseShop(
-            $this->organisation->id . ':' . $this->auroraModelData->{'Product Store Key'}
+            $this->organisation->id.':'.$this->auroraModelData->{'Product Store Key'}
         );
 
         $data     = [];
@@ -84,8 +85,8 @@ class FetchAuroraService extends FetchAurora
             'data'                 => $data,
             'settings'             => $settings,
             'created_at'           => $created_at,
-            'source_id'            => $this->organisation->id . ':' . $this->auroraModelData->{'Product ID'},
-            'historic_source_id'   => $this->organisation->id . ':' . $this->auroraModelData->{'Product Current Key'},
+            'source_id'            => $this->organisation->id.':'.$this->auroraModelData->{'Product ID'},
+            'historic_source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Product Current Key'},
         ];
 
 
@@ -102,13 +103,17 @@ class FetchAuroraService extends FetchAurora
                 default   => null
             };
 
+            $unit = match ($code) {
+                'Rent-06' => RentalUnitEnum::WEEK->value,
+                'Rent-05' => RentalUnitEnum::MONTH->value,
+                default   => RentalUnitEnum::DAY->value
+            };
+
+
+            $this->parsedData['service']['main_outerable_unit']    = $unit;
             $this->parsedData['service']['auto_assign_asset']      = $autoAssignAsset;
             $this->parsedData['service']['auto_assign_asset_type'] = $autoAssignAssetType;
-
         }
-
-
-
     }
 
 

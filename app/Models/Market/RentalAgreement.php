@@ -32,7 +32,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $fulfilment_customer_id
  * @property int $fulfilment_id
  * @property RentalAgreementStateEnum $state
- * @property int $billing_cycle Days
+ * @property RentalAgreementBillingCycleEnum $billing_cycle
  * @property int|null $pallets_limit Agreed max number pallets space allocated
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at

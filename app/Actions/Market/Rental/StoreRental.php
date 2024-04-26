@@ -20,18 +20,17 @@ class StoreRental extends OrgAction
 {
     public function handle(Product $product, array $modelData): Rental
     {
-
         data_set($modelData, 'organisation_id', $product->organisation_id);
         data_set($modelData, 'group_id', $product->group_id);
         data_set($modelData, 'shop_id', $product->shop_id);
         data_set($modelData, 'fulfilment_id', $product->shop->fulfilment->id);
         data_set($modelData, 'product_id', $product->id);
 
-        $rental=Rental::create($modelData);
+        $rental = Rental::create($modelData);
 
         $product->update(
             [
-                'main_outerable_id'=> $rental->id
+                'main_outerable_id' => $rental->id
             ]
         );
 
@@ -42,7 +41,7 @@ class StoreRental extends OrgAction
         $historicOuterable = StoreHistoricOuterable::run(
             $rental,
             [
-                    'source_id'=> $rental->historic_source_id
+                'source_id' => $rental->historic_source_id
             ]
         );
         $product->update(
@@ -64,12 +63,12 @@ class StoreRental extends OrgAction
             'state'                  => ['required', Rule::enum(RentalStateEnum::class)],
             'data'                   => ['sometimes', 'array'],
             'created_at'             => ['sometimes', 'date'],
-            'source_id'              => ['sometimes','string','max:63'],
+            'source_id'              => ['sometimes', 'string', 'max:63'],
             'auto_assign_asset'      => ['nullable', 'string', 'in:Pallet,StoredItem'],
             'auto_assign_asset_type' => ['nullable', 'string', 'in:pallet,box,oversize'],
-
+            'price'                  => ['required', 'numeric', 'min:0'],
+            'unit'                   => ['required', 'string'],
         ];
-
     }
 
     public function action(Product $product, array $modelData, int $hydratorsDelay = 0): Rental
@@ -78,10 +77,9 @@ class StoreRental extends OrgAction
         $this->asAction       = true;
 
         $this->initialisationFromShop($product->shop, $modelData);
+
         return $this->handle($product, $this->validatedData);
     }
-
-
 
 
 }

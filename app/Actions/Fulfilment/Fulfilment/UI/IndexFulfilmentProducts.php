@@ -32,9 +32,8 @@ class IndexFulfilmentProducts extends OrgAction
 {
     protected function getElementGroups(Fulfilment $parent): array
     {
-
         return [
-            'type' => [
+            'type'  => [
                 'label'    => __('Type'),
                 'elements' => array_merge_recursive(
                     ProductTypeEnum::labels($parent->shop),
@@ -148,10 +147,12 @@ class IndexFulfilmentProducts extends OrgAction
 
 
             ]
-        )->table($this->tableStructure(
-            parent:$this->fulfilment,
-            prefix: FulfilmentProductsTabsEnum::PRODUCTS->value
-        ));
+        )->table(
+            $this->tableStructure(
+                parent: $this->fulfilment,
+                prefix: FulfilmentProductsTabsEnum::PRODUCTS->value
+            )
+        );
     }
 
     public function tableStructure(
@@ -164,7 +165,7 @@ class IndexFulfilmentProducts extends OrgAction
             if ($prefix) {
                 $table
                     ->name($prefix)
-                    ->pageName($prefix . 'Page');
+                    ->pageName($prefix.'Page');
             }
 
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
@@ -189,9 +190,11 @@ class IndexFulfilmentProducts extends OrgAction
                 );
 
             $table
-                ->column(key: 'type', label: '', canBeHidden: false)
+                ->column(key: 'type', label: '', canBeHidden: false, type: 'icon')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true)
+
                 ->defaultSort('code');
         };
     }
@@ -205,7 +208,6 @@ class IndexFulfilmentProducts extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
-
         $fulfilment = Fulfilment::where('slug', Arr::get($routeParameters, 'fulfilment'))->first();
 
         return

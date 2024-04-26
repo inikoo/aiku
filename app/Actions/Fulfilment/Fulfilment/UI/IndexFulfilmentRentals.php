@@ -32,7 +32,6 @@ class IndexFulfilmentRentals extends OrgAction
 {
     protected function getElementGroups(Fulfilment $parent): array
     {
-
         return [
 
             'state' => [
@@ -66,6 +65,7 @@ class IndexFulfilmentRentals extends OrgAction
         $queryBuilder = QueryBuilder::for(Rental::class);
         $queryBuilder->where('rentals.shop_id', $parent->shop_id);
         $queryBuilder->join('products', 'rentals.product_id', '=', 'products.id');
+        $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
 
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
@@ -85,11 +85,13 @@ class IndexFulfilmentRentals extends OrgAction
                 'rentals.auto_assign_asset',
                 'rentals.auto_assign_asset_type',
                 'rentals.created_at',
-                'rentals.updated_at',
+                'rentals.price',
+                'rentals.unit',
                 'products.name',
                 'products.code',
                 'products.main_outerable_price',
-                'products.description'
+                'products.description',
+                'currencies.code as currency_code',
             ]);
 
 
@@ -127,20 +129,22 @@ class IndexFulfilmentRentals extends OrgAction
                 'pageHead'    => [
                     'title' => __('rentals'),
                 ],
-                'tabs' => [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => RentalsTabsEnum::navigation()
                 ],
 
                 RentalsTabsEnum::RENTALS->value => $this->tab == RentalsTabsEnum::RENTALS->value ?
-                    fn () => RentalsResource::collection($rentals)
-                    : Inertia::lazy(fn () => RentalsResource::collection($rentals)),
+                    fn() => RentalsResource::collection($rentals)
+                    : Inertia::lazy(fn() => RentalsResource::collection($rentals)),
 
             ]
-        )->table($this->tableStructure(
-            parent:$this->fulfilment,
-            prefix:RentalsTabsEnum::RENTALS->value
-        ));
+        )->table(
+            $this->tableStructure(
+                parent: $this->fulfilment,
+                prefix: RentalsTabsEnum::RENTALS->value
+            )
+        );
     }
 
     public function tableStructure(
@@ -153,7 +157,7 @@ class IndexFulfilmentRentals extends OrgAction
             if ($prefix) {
                 $table
                     ->name($prefix)
-                    ->pageName($prefix . 'Page');
+                    ->pageName($prefix.'Page');
             }
 
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
@@ -178,11 +182,11 @@ class IndexFulfilmentRentals extends OrgAction
                 );
 
             $table
-                ->column(key: 'state', label: '', canBeHidden: false)
+                ->column(key: 'state', label: '', canBeHidden: false, type: 'icon')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, type: 'number')
                 ->column(key: 'workflow', label: __('workflow'), canBeHidden: false, sortable: true, searchable: true)
-
                 ->defaultSort('code');
         };
     }
@@ -196,7 +200,6 @@ class IndexFulfilmentRentals extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
-
         $fulfilment = Fulfilment::where('slug', Arr::get($routeParameters, 'fulfilment'))->first();
 
         return

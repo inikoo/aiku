@@ -9,6 +9,7 @@ namespace App\Models\Market;
 
 use App\Enums\Market\Rental\RentalStateEnum;
 use App\Enums\Market\Rental\RentalTypeEnum;
+use App\Enums\Market\Rental\RentalUnitEnum;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -28,6 +29,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $product_id
  * @property string|null $auto_assign_asset Used for auto assign this rent to this asset
  * @property string|null $auto_assign_asset_type Used for auto assign this rent to this asset type
+ * @property string|null $price
+ * @property RentalUnitEnum|null $unit
  * @property array $data
  * @property int $number_historic_outerables
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -60,14 +63,15 @@ class Rental extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'state'                  => RentalStateEnum::class,
-        'type'                   => RentalTypeEnum::class,
-        'status'                 => 'boolean',
-        'data'                   => 'array',
+        'state'  => RentalStateEnum::class,
+        'type'   => RentalTypeEnum::class,
+        'unit'   => RentalUnitEnum::class,
+        'status' => 'boolean',
+        'data'   => 'array',
     ];
 
     protected $attributes = [
-        'data'     => '{}',
+        'data' => '{}',
     ];
 
     public function salesStats(): HasOne

@@ -40,6 +40,9 @@ return new class () extends Migration {
             $table->text('description')->nullable()->fulltext();
             $table->unsignedInteger('main_outerable_id')->nullable()->index();
             $table->decimal('main_outerable_price', 18)->nullable()->comment('main outer price');
+            $table->unsignedSmallInteger('currency_id');
+            $table->foreign('currency_id')->references('id')->on('currencies');
+            $table->string('main_outerable_unit')->nullable();
             $table->unsignedInteger('main_outerable_available_quantity')->default(0)->nullable();
             $table->unsignedInteger('image_id')->nullable();
             $table->decimal('rrp', 12, 3)->nullable()->comment('RRP per outer');

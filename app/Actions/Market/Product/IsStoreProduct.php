@@ -18,16 +18,16 @@ use Illuminate\Validation\Rule;
 
 trait IsStoreProduct
 {
-    private bool $strict=true;
+    private bool $strict = true;
 
 
-    public function action(Shop|ProductCategory $parent, array $modelData, int $hydratorsDelay = 0, $strict=true): Product
+    public function action(Shop|ProductCategory $parent, array $modelData, int $hydratorsDelay = 0, $strict = true): Product
     {
         $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;
-        $this->state          =Arr::get($modelData, 'state');
-        $this->strict         =$strict;
-        $this->parent         =$parent;
+        $this->state          = Arr::get($modelData, 'state');
+        $this->strict         = $strict;
+        $this->parent         = $parent;
 
         if ($parent instanceof Shop) {
             $shop = $parent;
@@ -42,14 +42,14 @@ trait IsStoreProduct
 
     private function prepareProductForValidation(): void
     {
-        if($this->parent instanceof ProductCategory) {
+        if ($this->parent instanceof ProductCategory) {
             $this->fill(
                 [
                     'owner_type' => 'Shop',
                     'owner_id'   => $this->parent->shop_id
                 ]
             );
-        } elseif($this->parent instanceof Shop) {
+        } elseif ($this->parent instanceof Shop) {
             $this->fill(
                 [
                     'owner_type' => 'Shop',
@@ -58,18 +58,15 @@ trait IsStoreProduct
             );
         }
 
-        if(!$this->has('status')) {
+        if (!$this->has('status')) {
             $this->set('status', true);
         }
-
-
-
     }
 
     private function getProductRules(): array
     {
-        $rules= [
-            'code'        => [
+        $rules = [
+            'code'                 => [
                 'required',
                 'max:32',
                 'alpha_dash',
@@ -77,31 +74,32 @@ trait IsStoreProduct
                     table: 'products',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
-                        ['column' => 'state', 'operator'=>'!=','value' => ProductStateEnum::DISCONTINUED->value],
-                        ['column' => 'deleted_at', 'operator'=>'notNull'],
+                        ['column' => 'state', 'operator' => '!=', 'value' => ProductStateEnum::DISCONTINUED->value],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
                     ]
                 ),
             ],
-            'family_id'                           => ['sometimes', 'required', 'exists:families,id'],
-            'image_id'                            => ['sometimes', 'required', 'exists:media,id'],
-            'main_outerable_price'                => ['required', 'numeric','min:0'],
-            'rrp'                                 => ['sometimes', 'required', 'numeric','min:0'],
-            'name'                                => ['required', 'max:250', 'string'],
-            'description'                         => ['sometimes', 'required', 'max:1500'],
-            'source_id'                           => ['sometimes', 'required', 'string', 'max:255'],
-            'historic_source_id'                  => ['sometimes', 'required', 'string', 'max:255'],
-            'type'                                => ['required', Rule::enum(ProductTypeEnum::class)],
-            'owner_id'                            => 'required',
-            'owner_type'                          => 'required',
-            'status'                              => ['required', 'boolean'],
-            'data'                                => ['sometimes', 'array'],
-            'settings'                            => ['sometimes', 'array'],
-            'created_at'                          => ['sometimes', 'date'],
+            'family_id'            => ['sometimes', 'required', 'exists:families,id'],
+            'image_id'             => ['sometimes', 'required', 'exists:media,id'],
+            'main_outerable_price' => ['required', 'numeric', 'min:0'],
+            'main_outerable_unit'  => ['sometimes', 'required', 'string'],
+            'rrp'                  => ['sometimes', 'required', 'numeric', 'min:0'],
+            'name'                 => ['required', 'max:250', 'string'],
+            'description'          => ['sometimes', 'required', 'max:1500'],
+            'source_id'            => ['sometimes', 'required', 'string', 'max:255'],
+            'historic_source_id'   => ['sometimes', 'required', 'string', 'max:255'],
+            'type'                 => ['required', Rule::enum(ProductTypeEnum::class)],
+            'owner_id'             => 'required',
+            'owner_type'           => 'required',
+            'status'               => ['required', 'boolean'],
+            'data'                 => ['sometimes', 'array'],
+            'settings'             => ['sometimes', 'array'],
+            'created_at'           => ['sometimes', 'date'],
 
         ];
 
-        if($this->state==ProductStateEnum::DISCONTINUED) {
-            $rules['code']= [
+        if ($this->state == ProductStateEnum::DISCONTINUED) {
+            $rules['code'] = [
                 'required',
                 'max:32',
                 'alpha_dash',
@@ -120,14 +118,17 @@ trait IsStoreProduct
             $modelData['parent_type'] = $parent->type;
             $modelData['owner_id']    = $parent->id;
             $modelData['owner_type']  = $parent->type;
+            $modelData['currency_id'] = $parent->currency_id;
         } else {
-            $modelData['shop_id']    = $parent->shop_id;
-            $modelData['owner_id']   = $parent->parent_id;
-            $modelData['owner_type'] = $parent->shop->type;
+            $modelData['shop_id']     = $parent->shop_id;
+            $modelData['owner_id']    = $parent->parent_id;
+            $modelData['owner_type']  = $parent->shop->type;
+            $modelData['currency_id'] = $parent->shop->currency_id;
         }
 
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'group_id', $parent->group_id);
+
         return $modelData;
     }
 

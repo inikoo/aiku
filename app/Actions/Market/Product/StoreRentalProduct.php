@@ -58,9 +58,9 @@ class StoreRentalProduct extends OrgAction
         $product->stats()->create();
 
 
-        $price = Arr::get($modelData, 'price');
-        data_forget($modelData, 'price');
-        data_set($modelData, 'price', $price);
+
+        data_set($modelData, 'price', $product->main_outerable_price);
+        data_set($modelData, 'unit', $product->main_outerable_unit);
 
 
         StoreRental::make()->action($product, $modelData);

@@ -14,6 +14,7 @@ import Icon from "@/Components/Icon.vue";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faConciergeBell, faGarage} from '@fal'
 import product from "@/Pages/Grp/Market/Product.vue";
+import { useLocaleStore } from '@/Stores/locale'
 
 library.add(faConciergeBell, faGarage)
 
@@ -62,6 +63,11 @@ function rentalRoute(product: Product) {
     </template>
     <template #cell(state)="{ item: rental }">
       <Icon :data="rental['state_icon']"/>
+    </template>
+
+    <template #cell(price)="{ item: rental }">
+      {{ useLocaleStore().currencyFormat(rental['currency_code'],rental['price']) }} /{{ rental['unit_abbreviation'] }}
+
     </template>
   </Table>
 </template>
