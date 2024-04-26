@@ -13,7 +13,7 @@ use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\UI\Fulfilment\FulfilmentProductsTabsEnum;
-use App\Http\Resources\Market\FulfilmentProductsResource;
+use App\Http\Resources\Fulfilment\FulfilmentProductsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Product;
@@ -77,8 +77,6 @@ class IndexFulfilmentProducts extends OrgAction
         $queryBuilder = QueryBuilder::for(Product::class);
         $queryBuilder->where('products.shop_id', $parent->shop_id);
 
-
-
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
@@ -87,8 +85,6 @@ class IndexFulfilmentProducts extends OrgAction
                 prefix: $prefix
             );
         }
-
-
 
         $queryBuilder
             ->defaultSort('products.code')
@@ -138,16 +134,12 @@ class IndexFulfilmentProducts extends OrgAction
                 ),
                 'pageHead'    => [
                     'title' => __('Products'),
-
-
                 ],
 
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => FulfilmentProductsTabsEnum::navigation()
                 ],
-
-
 
 
                 FulfilmentProductsTabsEnum::PRODUCTS->value => $this->tab == FulfilmentProductsTabsEnum::PRODUCTS->value ?

@@ -17,12 +17,12 @@ enum CustomerFulfilmentTabsEnum: string
 
     case SHOWCASE = 'showcase';
 
+    case PALLET_DELIVERIES          = 'pallet_deliveries';
+
     case PALLETS       = 'pallets';
     case STORED_ITEMS  = 'stored_items';
 
     case STORED_ITEM_RETURNS        = 'stored_item_returns';
-    case PALLET_DELIVERIES          = 'pallet_deliveries';
-
     case PALLET_RETURNS        = 'pallet_returns';
     case PROFORMAS             = 'proformas';
     case INVOICES              = 'invoices';

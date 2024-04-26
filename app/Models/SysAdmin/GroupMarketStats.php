@@ -53,6 +53,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_products_type_service
  * @property int $number_products_type_subscription
  * @property int $number_products_type_rental
+ * @property int $number_rentals_state_in_process
+ * @property int $number_rentals_state_active
+ * @property int $number_rentals_state_discontinued
+ * @property int $number_services_state_in_process
+ * @property int $number_services_state_active
+ * @property int $number_services_state_discontinued
+ * @property int $number_physical_goods_state_in_process
+ * @property int $number_physical_goods_state_active
+ * @property int $number_physical_goods_state_discontinuing
+ * @property int $number_physical_goods_state_discontinued
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group

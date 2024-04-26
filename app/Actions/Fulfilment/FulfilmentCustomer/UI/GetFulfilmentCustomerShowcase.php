@@ -28,14 +28,12 @@ class GetFulfilmentCustomerShowcase
         return [
             'customer'                     => CustomersResource::make($fulfilmentCustomer->customer)->getArray(),
             'fulfilment_customer'          => FulfilmentCustomerResource::make($fulfilmentCustomer)->getArray(),
-            'rental_agreement'             => $fulfilmentCustomer->rentalAgreement ? RentalAgreementResource::make($fulfilmentCustomer->rentalAgreement) : false,
-            'rentalAgreementCreateRoute'   => [
-                'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.create',
-                'parameters' => array_values($request->route()->originalParameters())
-            ],
-            'rentalAgreementEditRoute'   => [
-                'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.edit',
-                'parameters' => array_values($request->route()->originalParameters())
+            'rental_agreement'             => [
+                'stats'                         => $fulfilmentCustomer->rentalAgreement ? RentalAgreementResource::make($fulfilmentCustomer->rentalAgreement) : false,
+                'createRoute'                   => [
+                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.create',
+                    'parameters' => array_values($request->route()->originalParameters())
+                ]
             ],
             'updateRoute'         => [
                 'name'       => 'grp.models.fulfilment-customer.update',

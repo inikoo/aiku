@@ -22,17 +22,18 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class RentalsResource extends JsonResource
 {
-    // Note to be used in IndexFulfilments
     public function toArray($request): array
     {
         return [
             'id'                        => $this->id,
-            'product_code'              => $this->code,
+            'code'                      => $this->code,
             'name'                      => $this->name,
             'price'                     => $this->main_outerable_price,
             'description'               => $this->description,
             'auto_assign_asset_type'    => $this->auto_assign_asset_type,
-            'auto_assign_asset'         => $this->auto_assign_asset
+            'auto_assign_asset'         => $this->auto_assign_asset,
+            'state_label'               => $this->state->labels()[$this->state->value],
+            'state_icon'                => $this->state->stateIcon()[$this->state->value],
         ];
     }
 }
