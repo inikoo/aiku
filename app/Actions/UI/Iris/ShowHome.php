@@ -20,7 +20,15 @@ class ShowHome
     public function handle(): Response
     {
         /** @var Website $website */
-        $website = request()->get('website');
+        $website   = request()->get('website');
+        $structure = Arr::get(
+            $website->structure,
+            'header',
+            [
+            'imgLogo'     => "https://www.aw-fulfilment.co.uk/wi.php?id=1837721",
+            'title'       => "Your UK's Best Fulfilment Warehouse",
+            'description' => "Storage - Pick & Pack - Distribution"]
+        );
 
         return Inertia::render(
             'Home',
@@ -29,11 +37,7 @@ class ShowHome
                     'components' => [
                         [
                             'type'    => "header",
-                            'content' => [
-                                'imgLogo'     => Arr::get($website->structure['header'], 'imgLogo'),
-                                'title'       => Arr::get($website->structure['header'], 'title'),
-                                'description' => Arr::get($website->structure['header'], 'description')
-                            ]
+                            'content' => $structure
                         ]
                     ]
                 ]
