@@ -14,6 +14,7 @@ use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Market\RentalAgreementResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Market\RentalAgreement;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -28,7 +29,7 @@ class GetFulfilmentCustomerShowcase
         return [
             'customer'            => CustomersResource::make($fulfilmentCustomer->customer)->getArray(),
             'fulfilment_customer' => FulfilmentCustomerResource::make($fulfilmentCustomer)->getArray(),
-            'rental_agreement'    => RentalAgreementResource::make($fulfilmentCustomer->rentalAgreement),
+            'rental_agreement'    => RentalAgreementResource::make($fulfilmentCustomer->rentalAgreement ?? new RentalAgreement()),
             'updateRoute'         => [
                 'name'       => 'grp.models.fulfilment-customer.update',
                 'parameters' => [$fulfilmentCustomer->id]
