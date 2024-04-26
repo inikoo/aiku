@@ -10,6 +10,8 @@ namespace App\Actions\Market\Product\UI;
 use App\Actions\Market\HasMarketAuthorisation;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
+use App\Enums\Market\Product\ProductStateEnum;
+use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Market\ProductsResource;
 use App\Models\Market\Product;
@@ -32,18 +34,37 @@ class IndexProducts extends OrgAction
 
     private Shop|ProductCategory|Organisation $parent;
 
-    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $organisation;
-        $this->initialisation($organisation, $request);
-        return $this->handle(parent: $organisation);
-    }
 
-    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
+
+    protected function getElementGroups(Shop $shop): array
     {
-        $this->parent = $shop;
-        $this->initialisationFromShop($shop, $request);
-        return $this->handle(parent: $shop);
+        return [
+
+            'state' => [
+                'label'    => __('State'),
+                'elements' => array_merge_recursive(
+                    ProductStateEnum::labels(),
+                    ProductStateEnum::count($shop)
+                ),
+
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('state', $elements);
+                }
+
+            ],
+            'type'  => [
+                'label'    => __('Type'),
+                'elements' => array_merge_recursive(
+                    ProductTypeEnum::labels($shop),
+                    ProductTypeEnum::count($shop)
+                ),
+
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('type', $elements);
+                }
+
+            ],
+        ];
     }
 
     public function handle(Shop|ProductCategory|Organisation $parent, $prefix = null): LengthAwarePaginator
@@ -61,8 +82,7 @@ class IndexProducts extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Product::class);
 
-        /*
-        foreach ($this->elementGroups as $key => $elementGroup) {
+        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
@@ -70,7 +90,6 @@ class IndexProducts extends OrgAction
                 prefix: $prefix
             );
         }
-        */
 
 
         $queryBuilder
@@ -82,7 +101,6 @@ class IndexProducts extends OrgAction
                 'products.created_at',
                 'products.updated_at',
                 'products.slug',
-                'shops.slug as shop_slug'
             ])
             ->leftJoin('product_stats', 'products.id', 'product_stats.product_id');
 
@@ -118,6 +136,16 @@ class IndexProducts extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix . 'Page');
             }
+
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
+
+
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
@@ -222,6 +250,20 @@ class IndexProducts extends OrgAction
 
             ]
         )->table($this->tableStructure($this->parent));
+    }
+
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $organisation;
+        $this->initialisation($organisation, $request);
+        return $this->handle(parent: $organisation);
+    }
+
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $shop;
+        $this->initialisationFromShop($shop, $request);
+        return $this->handle(parent: $shop);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array

@@ -56,6 +56,7 @@ class StoreServiceProduct extends OrgAction
         /** @var Product $product */
         $product = $parent->products()->create($productData);
         $product->stats()->create();
+        $product->salesStats()->create();
 
 
         $price=Arr::get($modelData, 'price');

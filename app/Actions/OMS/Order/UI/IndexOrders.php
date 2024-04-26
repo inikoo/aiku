@@ -14,6 +14,7 @@ use App\Http\Resources\OMS\OrdersResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
+use App\Models\Market\Product;
 use App\Models\Market\Shop;
 use App\Models\OMS\Order;
 use App\Models\SysAdmin\Organisation;
@@ -28,9 +29,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexOrders extends OrgAction
 {
-    private Organisation|Shop $parent;
+    private Organisation|Shop|Customer|Product $parent;
 
-    public function handle(Organisation|Shop|Customer $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|Shop|Customer|Product $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -69,7 +70,7 @@ class IndexOrders extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|Shop $parent, $prefix=null): Closure
+    public function tableStructure(Organisation|Shop|Customer|Product $parent, $prefix=null): Closure
     {
         return function (InertiaTable $table) use ($parent, $prefix) {
             if ($prefix) {
@@ -77,6 +78,8 @@ class IndexOrders extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
+
+
             $table
                 ->withEmptyState(
                     [

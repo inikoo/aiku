@@ -8,11 +8,11 @@
 namespace App\Actions\Market\Product\UI;
 
 use App\Actions\CRM\Customer\UI\IndexCustomers;
-use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Market\Shop\UI\IndexShops;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OMS\Order\UI\IndexOrders;
+use App\Actions\OrgAction;
 use App\Enums\UI\ProductTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Mail\MailshotResource;
@@ -20,12 +20,15 @@ use App\Http\Resources\Market\ProductsResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Market\Product;
 use App\Models\Market\Shop;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowProduct extends InertiaAction
+class ShowProduct extends OrgAction
 {
+    private Organisation|Shop $parent;
+
     public function handle(Product $product): Product
     {
         return $product;
@@ -33,24 +36,31 @@ class ShowProduct extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('shops.products.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('shops.products.edit');
 
-        return $request->user()->hasPermissionTo("shops.products.view");
+        if($this->parent instanceof Organisation) {
+            $this->canEdit   = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
+            $this->canDelete = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
+            return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.view");
+        } else {
+            $this->canEdit   = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
+            $this->canDelete = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
+            return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");
+        }
+
+
     }
 
-    public function inOrganisation(Product $product, ActionRequest $request): Product
+    public function inOrganisation(Organisation $organisation, Product $product, ActionRequest $request): Product
     {
-        $this->initialisation($request)->withTab(ProductTabsEnum::values());
-
+        $this->parent= $organisation;
+        $this->initialisation($organisation, $request)->withTab(ProductTabsEnum::values());
         return $this->handle($product);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, Product $product, ActionRequest $request): Product
+    public function asController(Organisation $organisation, Shop $shop, Product $product, ActionRequest $request): Product
     {
-        $this->initialisation($request)->withTab(ProductTabsEnum::values());
-
+        $this->parent= $shop;
+        $this->initialisationFromShop($shop, $request)->withTab(ProductTabsEnum::values());
         return $this->handle($product);
     }
 
@@ -156,43 +166,41 @@ class ShowProduct extends InertiaAction
 
             ];
         };
+
+        $product=Product::where('slug', $routeParameters['product'])->first();
+
         return match ($routeName) {
             'shops.products.show' =>
             array_merge(
-                IndexShops::make()->getBreadcrumbs(),
+                IndexShops::make()->getBreadcrumbs('grp.org.shops.index', $routeParameters['organisation']),
                 $headCrumb(
                     $routeParameters['product'],
                     [
                         'index' => [
                             'name'       => 'shops.products.index',
-                            'parameters' => []
+                            'parameters' => $routeParameters
                         ],
                         'model' => [
                             'name'       => 'shops.products.show',
-                            'parameters' => [
-                                $routeParameters['product']->slug
-                            ]
+                            'parameters' =>$routeParameters
                         ]
                     ],
                     $suffix
                 )
             ),
-            'shops.show.products.show' =>
+            'grp.org.shops.show.catalogue.products.show' =>
             array_merge(
-                ShowShop::make()->getBreadcrumbs(['shop' => $routeParameters['shop']]),
+                ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
-                    $routeParameters['product'],
+                    $product,
                     [
                         'index' => [
-                            'name'       => 'shops.show.products.index',
-                            'parameters' => [$routeParameters['shop']->slug]
+                            'name'       => 'grp.org.shops.show.catalogue.products.index',
+                            'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'shops.show.products.show',
-                            'parameters' => [
-                                $routeParameters['shop']->slug,
-                                $routeParameters['product']->slug
-                            ]
+                            'name'       => 'grp.org.shops.show.catalogue.products.show',
+                            'parameters' => $routeParameters
                         ]
                     ],
                     $suffix
@@ -220,8 +228,9 @@ class ShowProduct extends InertiaAction
         if(!$product) {
             return null;
         }
+
         return match ($routeName) {
-            'shops.products.show'=> [
+            'shops.org.products.show'=> [
                 'label'=> $product->name,
                 'route'=> [
                     'name'      => $routeName,
@@ -231,13 +240,14 @@ class ShowProduct extends InertiaAction
 
                 ]
             ],
-            'shops.show.products.show'=> [
+            'grp.org.shops.show.catalogue.products.show'=> [
                 'label'=> $product->name,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'shop'   => $product->shop->slug,
-                        'product'=> $product->slug
+                        'organisation'=> $this->organisation->slug,
+                        'shop'        => $product->shop->slug,
+                        'product'     => $product->slug
                     ]
 
                 ]

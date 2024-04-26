@@ -59,6 +59,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $description
  * @property int|null $main_outerable_id
  * @property string|null $main_outerable_price main outer price
+ * @property int $currency_id
  * @property string|null $main_outerable_unit
  * @property int|null $main_outerable_available_quantity
  * @property int|null $image_id
