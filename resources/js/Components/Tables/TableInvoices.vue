@@ -9,7 +9,7 @@ import { Link } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
 import { Invoice } from "@/types/invoice"
 import { useLocaleStore } from '@/Stores/locale'
-import { useFormatTime } from '../../Composables/useFormatTime copy'
+import { useFormatTime } from "@/Composables/useFormatTime copy"
 
 console.log(useLocaleStore())
 
