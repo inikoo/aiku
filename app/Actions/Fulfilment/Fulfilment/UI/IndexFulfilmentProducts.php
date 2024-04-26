@@ -8,7 +8,6 @@
 namespace App\Actions\Fulfilment\Fulfilment\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
@@ -22,7 +21,6 @@ use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -194,7 +192,6 @@ class IndexFulfilmentProducts extends OrgAction
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true)
-
                 ->defaultSort('code');
         };
     }
@@ -206,38 +203,31 @@ class IndexFulfilmentProducts extends OrgAction
     }
 
 
-    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(array $routeParameters, $suffix = null, $icon = 'fal fa-bars'): array
     {
-        $fulfilment = Fulfilment::where('slug', Arr::get($routeParameters, 'fulfilment'))->first();
+        $headCrumb = function (array $routeParameters = []) use ($suffix, $icon) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('products'),
+                        'icon'  => $icon
+                    ],
+                    'suffix' => $suffix
+                ],
+            ];
+        };
 
         return
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
-                [
+                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
                     [
-                        'type'           => 'modelWithIndex',
-                        'modelWithIndex' => [
-                            'index' => [
-                                'route' => [
-                                    'name'       => 'grp.org.fulfilments.index',
-                                    'parameters' => Arr::only($routeParameters, 'organisation')
-                                ],
-                                'label' => __('fulfilment'),
-                                'icon'  => 'fal fa-bars'
-                            ],
-                            'model' => [
-                                'route' => [
-                                    'name'       => 'grp.org.fulfilments.show.operations.dashboard',
-                                    'parameters' => $routeParameters
-                                ],
-                                'label' => $fulfilment?->shop?->name,
-                                'icon'  => 'fal fa-bars'
-                            ]
-
-                        ],
-                        'suffix'         => $suffix,
+                        'name'       => 'grp.org.fulfilments.show.products.index',
+                        'parameters' => $routeParameters
                     ]
-                ]
+                )
             );
     }
 

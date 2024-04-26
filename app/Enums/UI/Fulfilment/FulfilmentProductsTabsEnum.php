@@ -15,14 +15,19 @@ enum FulfilmentProductsTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case PRODUCTS                      = 'products';
-    case HISTORY                       = 'history';
+    case DASHBOARD                      = 'dashboard';
+    case PRODUCTS                       = 'products';
+    case HISTORY                        = 'history';
 
     public function blueprint(): array
     {
         return match ($this) {
+            FulfilmentProductsTabsEnum::DASHBOARD => [
+                'title' => __('dashboard'),
+                'icon'  => 'fal fa-cube',
+            ],
             FulfilmentProductsTabsEnum::PRODUCTS => [
-                'title' => __('products'),
+                'title' => __('products list'),
                 'icon'  => 'fal fa-bars',
             ],
 

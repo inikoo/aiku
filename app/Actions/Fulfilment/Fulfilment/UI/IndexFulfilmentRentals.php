@@ -8,21 +8,17 @@
 namespace App\Actions\Fulfilment\Fulfilment\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\Market\Rental\RentalStateEnum;
-use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\UI\Fulfilment\RentalsTabsEnum;
 use App\Http\Resources\Market\RentalsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Rental;
-use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -135,8 +131,8 @@ class IndexFulfilmentRentals extends OrgAction
                 ],
 
                 RentalsTabsEnum::RENTALS->value => $this->tab == RentalsTabsEnum::RENTALS->value ?
-                    fn() => RentalsResource::collection($rentals)
-                    : Inertia::lazy(fn() => RentalsResource::collection($rentals)),
+                    fn () => RentalsResource::collection($rentals)
+                    : Inertia::lazy(fn () => RentalsResource::collection($rentals)),
 
             ]
         )->table(
@@ -200,71 +196,31 @@ class IndexFulfilmentRentals extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
-        $fulfilment = Fulfilment::where('slug', Arr::get($routeParameters, 'fulfilment'))->first();
+        $headCrumb = function (array $routeParameters = []) use ($suffix) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('rentals'),
+                        'icon'  => 'fal fa-bars'
+                    ],
+                    'suffix' => $suffix
+                ],
+            ];
+        };
 
         return
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
-                [
+                IndexFulfilmentProducts::make()->getBreadcrumbs(routeParameters:$routeParameters, icon: 'fal fa-cube'),
+                $headCrumb(
                     [
-                        'type'           => 'modelWithIndex',
-                        'modelWithIndex' => [
-                            'index' => [
-                                'route' => [
-                                    'name'       => 'grp.org.fulfilments.index',
-                                    'parameters' => Arr::only($routeParameters, 'organisation')
-                                ],
-                                'label' => __('fulfilment'),
-                                'icon'  => 'fal fa-bars'
-                            ],
-                            'model' => [
-                                'route' => [
-                                    'name'       => 'grp.org.fulfilments.show.operations.dashboard',
-                                    'parameters' => $routeParameters
-                                ],
-                                'label' => $fulfilment?->shop?->name,
-                                'icon'  => 'fal fa-bars'
-                            ]
-
-                        ],
-                        'suffix'         => $suffix,
+                        'name'       => 'grp.org.fulfilments.show.products.rentals.index',
+                        'parameters' => $routeParameters
                     ]
-                ]
+                )
             );
     }
 
-    public function getPrevious(Fulfilment $fulfilment, ActionRequest $request): ?array
-    {
-        $previous = Shop::where('organisation_id', $this->organisation->id)->where('type', ShopTypeEnum::FULFILMENT)->where('code', '<', $fulfilment->shop->code)->orderBy('code', 'desc')->first();
 
-        return $this->getNavigation($previous?->fulfilment, $request->route()->getName());
-    }
-
-    public function getNext(Fulfilment $fulfilment, ActionRequest $request): ?array
-    {
-        $next = Shop::where('organisation_id', $this->organisation->id)->where('type', ShopTypeEnum::FULFILMENT)->where('code', '>', $fulfilment->shop->code)->orderBy('code')->first();
-
-        return $this->getNavigation($next?->fulfilment, $request->route()->getName());
-    }
-
-    private function getNavigation(?Fulfilment $fulfilment, string $routeName): ?array
-    {
-        if (!$fulfilment) {
-            return null;
-        }
-
-        return match ($routeName) {
-            'grp.org.fulfilments.show.operations.dashboard' => [
-                'label' => $fulfilment->shop?->name,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
-                        'organisation' => $this->organisation->slug,
-                        'fulfilment'   => $fulfilment->slug
-                    ]
-
-                ]
-            ]
-        };
-    }
 }

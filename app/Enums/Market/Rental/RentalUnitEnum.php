@@ -13,8 +13,8 @@ enum RentalUnitEnum: string
 {
     use EnumHelperTrait;
 
-    case DAY = 'day';
-    case WEEK = 'week';
+    case DAY   = 'day';
+    case WEEK  = 'week';
     case MONTH = 'month';
 
     public static function labels(): array

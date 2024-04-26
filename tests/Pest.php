@@ -37,7 +37,8 @@ function loadDB($dumpName): void
             env('DB_USERNAME'),
             env('DB_PASSWORD'),
             $dumpName
-        ],timeout: 300
+        ],
+        timeout: 300
     );
     $process->run();
 }
