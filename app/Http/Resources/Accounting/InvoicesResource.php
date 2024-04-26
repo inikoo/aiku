@@ -18,8 +18,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $state
  * @property string $shop_slug
  * @property string $number
- * @property string $total
- * @property string $net
+ * @property string $total_amount
+ * @property string $net_amount
  * @property mixed $date
  * @property mixed $type
  * @property mixed $shop_code
@@ -37,8 +37,8 @@ class InvoicesResource extends JsonResource
         return [
             'slug'            => $this->slug,
             'number'          => $this->number,
-            'total'           => $this->total,
-            'net'             => $this->net,
+            'total_amount'    => $this->total_amount,
+            'net_amount'      => $this->net_amount,
             'state'           => $this->state,
             'date'            => $this->date,
             'type'            => $this->type,

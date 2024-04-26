@@ -53,11 +53,17 @@ function invoiceRoute(invoice: Invoice) {
             </div>
         </template>
 
-        <template #cell(net)="{ item: invoice }">
+        <template #cell(net_amount)="{ item: invoice }">
             <div class="text-gray-500">
-                {{ useLocaleStore().currencyFormat(invoice.currency_code, invoice.net) }}
+                {{ useLocaleStore().currencyFormat(invoice.currency_code, invoice.net_amount) }}
             </div>
         </template>
+
+      <template #cell(total_amount)="{ item: invoice }">
+        <div class="text-gray-500">
+          {{ useLocaleStore().currencyFormat(invoice.currency_code, invoice.total_amount) }}
+        </div>
+      </template>
 
     </Table>
 </template>

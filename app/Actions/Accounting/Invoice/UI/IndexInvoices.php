@@ -58,8 +58,8 @@ class IndexInvoices extends OrgAction
         $queryBuilder->defaultSort('-invoices.date')
             ->select([
                 'invoices.number',
-                'invoices.total',
-                'invoices.net',
+                'invoices.total_amount',
+                'invoices.net_amount',
                 'invoices.date',
                 'invoices.type',
                 'invoices.created_at',
@@ -89,7 +89,7 @@ class IndexInvoices extends OrgAction
                 ->addSelect('customers.name as customer_name', 'fulfilment_customers.slug as customer_slug');
         }
 
-        return $queryBuilder->allowedSorts(['number', 'total', 'net', 'date', 'customer_name'])
+        return $queryBuilder->allowedSorts(['number', 'total_amount', 'net_amount', 'date', 'customer_name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -107,13 +107,15 @@ class IndexInvoices extends OrgAction
                 ->withGlobalSearch()
                 ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true);
 
+            $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
+
+
             if ($parent instanceof Fulfilment || $parent instanceof Shop) {
                 $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: true, searchable: true);
             }
 
 
-            $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'net', label: __('net'), canBeHidden: false, sortable: true, searchable: true)
+            $table->column(key: 'total_amount', label: __('total'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('number');
         };
     }
