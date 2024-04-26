@@ -12,7 +12,7 @@ import { faCopy } from '@fal'
 import { faSpinnerThird } from '@fad'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { set, get } from "lodash"
-import { ref, watch, onMounted, onBeforeMount } from "vue"
+import { ref, watch, onMounted, onBeforeMount, isReadonly } from "vue"
 import SelectQuery from "@/Components/SelectQuery.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { notify } from "@kyvg/vue3-notification"
@@ -37,10 +37,14 @@ const props = defineProps<{
     }
 }>()
 
-const emits = defineEmits()
 const rentals = ref([])
 const bulkData = ref([])
 const bulkDiscInput = ref(0)
+
+
+const emits = defineEmits<{
+    (e: 'changeIsDirty', value: Boolean): void
+}>()
 
 const defaultValue = [
     { id: uuidv4(), rental: null, price: 0, discount: 0, agreed_price: 0, original_price: 0 },
@@ -93,6 +97,7 @@ const getRentals = async () => {
             type: "error"
         })
     }
+    props.form.isDirty = false
 }
 
 
@@ -155,6 +160,7 @@ const onBulkDiscAction = (close) => {
 }
 
 const setOptionSelectQueryFilter = (options, index) => {
+
     // Initialize an empty array to store filtered options 
     let pullData = [];
 
@@ -189,16 +195,18 @@ onMounted(() => {
         const finalData = []
         const formData = [...props.form[props.fieldName]]
         for (const [index, item] of formData.entries()) {
-            finalData.push({...item, id : uuidv4()})
+            finalData.push({ ...item, id: uuidv4() })
         }
-        props.form[props.fieldName] = finalData       
+        props.form[props.fieldName] = finalData
+        props.form.reset({ keepValues: true })
+        props.form.reset()
     } else {
-        props.form[props.fieldName] = defaultValue              
+        props.form[props.fieldName] = defaultValue
     }
-    props.form.isDirty = false
-    
 })
 
+
+console.log(props.form)
 
 </script>
 <template>
@@ -206,7 +214,7 @@ onMounted(() => {
         <div>
             <Button label="Put all rental" type="create" @click="() => onPutAllRentals()" />
         </div>
-        <div class="flex">
+        <div class="flex" v-if="(bulkData.length == props.form[props.fieldName]?.length && props.form[props.fieldName]?.length > 0)">
             <Popover width="w-full" class="relative h-full">
                 <template #button>
                     <Button :key="bulkData.length" label="Set all discount (%)"
@@ -247,7 +255,7 @@ onMounted(() => {
                                 class="px-3 py-4  pr-3 text-left text-sm font-semibold text-gray-900  flex justify-center">
                                 <input type="checkbox"
                                     class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600"
-                                    :checked="(bulkData.length === props.form[props.fieldName]?.length)"
+                                    :checked="(bulkData.length === props.form[props.fieldName]?.length && props.form[props.fieldName]?.length > 0)"
                                     @change="selectAll" />
                             </th>
                             <th scope="col"
@@ -323,7 +331,7 @@ onMounted(() => {
                     <tfoot>
                         <tr>
                             <td colspan="4" class="pl-4 py-3 pb-4 text-left text-sm font-semibold text-gray-900">
-                                <Button label="Add Row" type="create" @click="addRow" />
+                                <Button label="Rental Special Price" type="create" @click="addRow" />
                             </td>
                         </tr>
                     </tfoot>
