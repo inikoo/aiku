@@ -25,22 +25,30 @@ class ShowHome
             $website->structure,
             'header',
             [
-            'imgLogo'     => "https://www.aw-fulfilment.co.uk/wi.php?id=1837721",
-            'title'       => "Your UK's Best Fulfilment Warehouse",
-            'description' => "Storage - Pick & Pack - Distribution"]
+                'header_name' => 'HeaderTypeA1',
+                'header_data' => [
+                    [
+                        'name' => 'Image1',
+                        'data' => [
+                            'imgLogo' => 'https://www.aw-fulfilment.co.uk/wi.php?id=1837721'
+                        ]
+                    ],
+                    [
+                        'name' => 'Headline1',
+                        'data' => [
+                            'title'       => "Aiku: Fulfilment Warehouse",
+                            'description' => "Processing and Fulfillment Operations"
+                        ]
+                    ],
+                ]
+            ]
         );
+
 
         return Inertia::render(
             'Home',
             [
-                'data' => [
-                    'components' => [
-                        [
-                            'type'    => "header",
-                            'content' => $structure
-                        ]
-                    ]
-                ]
+                'header' => $structure
             ]
         );
     }

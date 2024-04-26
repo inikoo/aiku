@@ -1,34 +1,43 @@
 <script setup lang="ts">
 import Notification from '@/Components/Utils/Notification.vue'
-import Header from '@/Layouts/Iris/Header.vue'
+import IrisHeader from '@/Layouts/Iris/Header.vue'
 import NavigationMenu from '@/Layouts/Iris/NavigationMenu.vue'
 import Footer from '@/Layouts/Iris/Footer.vue'
 
 const props = defineProps<{
-    data: {
-        components: [
-            {
-                type: string,
-                content: {
-                    imgLogo: string
-                    title: string
-                    description: string
-                }
+    header: {
+        header_name: string
+        header_data: {
+            name: string
+            data: {
+                imgLogo?: string
+                title?: string
+                description?: string
             }
-        ]
+        }[]
     }
 }>()
 
-// console.log('props', props.data)
+console.log('props', props.header)
 
-const componentList = (componentName: string) => {
-    const components: any = {
-        'header': Header
-    }
-
-    return components[componentName]
+const headerData = {
+    header_name: 'HeaderTypeA1',
+    header_data: [
+        {
+            name: 'Image1',
+            data: {
+                imgLogo: 'https://www.aw-fulfilment.co.uk/wi.php?id=1837721'
+            }
+        },
+        {
+            name: 'Headline1',
+            data: {
+                title: "Your UxxxxxxK's Best Fulfilment",
+                description: "Stqqqqqqqqorage - Pick & Pack - Distribution"
+            }
+        },
+    ]
 }
-
 
 </script>
 
@@ -36,8 +45,7 @@ const componentList = (componentName: string) => {
     <div class="relative">
         <div class="container max-w-7xl mx-auto shadow-xl">
             <!-- Section: Top header -->
-            <!-- <Header /> -->
-            <component v-for="component in data.components" :is="componentList(component.type)" :data="component.content" />
+            <IrisHeader :data="header" />
 
             <!-- Section: Navigation Tab -->
             <NavigationMenu />
