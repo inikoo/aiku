@@ -12,6 +12,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Market\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Market\RentalAgreement;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -24,7 +25,7 @@ class UpdateRentalAgreement extends OrgAction
     public function handle(RentalAgreement $rentalAgreement, array $modelData): RentalAgreement
     {
         /** @var RentalAgreement $rentalAgreement */
-        $rentalAgreement = $this->update($rentalAgreement, $modelData);
+        $rentalAgreement = $this->update($rentalAgreement, Arr::except($modelData, ['rental']));
 
         return $rentalAgreement;
     }
