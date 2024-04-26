@@ -13,6 +13,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\Market\RentalAgreement\StoreRentalAgreement;
+use App\Enums\Market\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\CRM\Customer;
@@ -73,7 +74,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
                             StoreRentalAgreement::make()->action(
                                 $customer->fulfilmentCustomer,
                                 [
-                                    'billing_cycle' => 30,
+                                    'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
                                     'state'         => RentalAgreementStateEnum::ACTIVE,
                                     'created_at'    => $customer->created_at,
                                 ]

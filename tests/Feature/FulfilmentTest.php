@@ -228,7 +228,7 @@ test('create rental agreement', function (FulfilmentCustomer $fulfilmentCustomer
     $rentalAgreement = StoreRentalAgreement::make()->action(
         $fulfilmentCustomer,
         [
-            'billing_cycle' => RentalAgreementBillingCycleEnum::WEEKLY->value,
+            'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
             'pallets_limit' => null,
             'rental'        => [
                 [
@@ -253,12 +253,12 @@ test('create rental agreement', function (FulfilmentCustomer $fulfilmentCustomer
 
 test('update rental agreement', function (RentalAgreement $rentalAgreement) {
     $rentalAgreement->update([
-        'billing_cycle' => 30,
+        'billing_cycle' => RentalAgreementBillingCycleEnum::WEEKLY,
         'pallets_limit' => 10,
         'state'         => RentalAgreementStateEnum::ACTIVE
     ]);
 
-    expect($rentalAgreement->billing_cycle)->toBe(30)
+    expect($rentalAgreement->billing_cycle)->toBe(RentalAgreementBillingCycleEnum::WEEKLY)
         ->and($rentalAgreement->pallets_limit)->toBe(10);
 
     return $rentalAgreement;
