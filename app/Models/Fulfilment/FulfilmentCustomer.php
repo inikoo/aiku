@@ -12,7 +12,6 @@ use App\Models\CRM\Customer;
 use App\Models\Helpers\SerialReference;
 use App\Models\Market\RecurringBill;
 use App\Models\Market\RentalAgreement;
-use App\Models\RentalAgreementClause;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;

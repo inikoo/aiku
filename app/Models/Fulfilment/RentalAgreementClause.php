@@ -1,13 +1,12 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 19 Apr 2024 21:26:38 Malaysia Time, Kuala Lumpur , Malaysia
+ * Created: Fri, 26 Apr 2024 16:29:54 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models;
+namespace App\Models\Fulfilment;
 
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Market\Rental;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
