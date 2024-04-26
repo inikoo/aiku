@@ -40,14 +40,14 @@ const changeColumnType = (e) => {
 
 <template>
 	<div class="bg-white">
-		<div class="p-1 border border-gray-300 overflow-y-auto overflow-x-hidden">
+		<div class="p-3 border border-gray-300 overflow-y-auto overflow-x-hidden">
 			<Tools
 				:toolsBluprint="ToolsBluprint"
 				v-model="toolsValue"
 				@changeColumnType="changeColumnType" />
 		</div>
 		<div
-			class="flex justify-center items-center bg-gray-200 border border-gray-300 transform scale-80 w-full">
+			class="flex justify-center items-center bg-gray-200 border border-gray-300 transform scale-80 w-full h-screen">
 			<Footer
 				:tools="toolsValue"
 				:activeColumn="activeColumn"
