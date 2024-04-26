@@ -14,7 +14,6 @@ use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Market\RentalAgreementResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Market\RentalAgreement;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -27,9 +26,17 @@ class GetFulfilmentCustomerShowcase
         $irisDomain = $fulfilmentCustomer->fulfilment->shop?->website?->domain;
 
         return [
-            'customer'            => CustomersResource::make($fulfilmentCustomer->customer)->getArray(),
-            'fulfilment_customer' => FulfilmentCustomerResource::make($fulfilmentCustomer)->getArray(),
-            'rental_agreement'    => RentalAgreementResource::make($fulfilmentCustomer->rentalAgreement ?? new RentalAgreement()),
+            'customer'                     => CustomersResource::make($fulfilmentCustomer->customer)->getArray(),
+            'fulfilment_customer'          => FulfilmentCustomerResource::make($fulfilmentCustomer)->getArray(),
+            'rental_agreement'             => $fulfilmentCustomer->rentalAgreement ? RentalAgreementResource::make($fulfilmentCustomer->rentalAgreement) : false,
+            'rentalAgreementCreateRoute'   => [
+                'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.create',
+                'parameters' => array_values($request->route()->originalParameters())
+            ],
+            'rentalAgreementEditRoute'   => [
+                'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.edit',
+                'parameters' => array_values($request->route()->originalParameters())
+            ],
             'updateRoute'         => [
                 'name'       => 'grp.models.fulfilment-customer.update',
                 'parameters' => [$fulfilmentCustomer->id]
