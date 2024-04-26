@@ -8,9 +8,8 @@
 namespace App\Actions\Accounting\Invoice\UI;
 
 use App\Actions\Accounting\Payment\UI\IndexPayments;
-use App\Actions\Market\Shop\UI\IndexShops;
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
-use App\Actions\UI\WithInertia;
 use App\Enums\UI\CustomerTabsEnum;
 use App\Enums\UI\InvoiceTabsEnum;
 use App\Http\Resources\Accounting\InvoicesResource;
@@ -21,16 +20,10 @@ use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class ShowInvoice extends OrgAction
 {
-    use AsAction;
-    use WithInertia;
-
-
     private Organisation|Fulfilment|Shop $parent;
 
     public function handle(Invoice $invoice): Invoice
@@ -85,7 +78,11 @@ class ShowInvoice extends OrgAction
             'Org/Accounting/Invoice',
             [
                 'title'                                 => __('invoice'),
-                'breadcrumbs'                           => $this->getBreadcrumbs($invoice),
+                'breadcrumbs'                           => $this->getBreadcrumbs(
+                    $invoice,
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
                 'navigation'                            => [
                     'previous' => $this->getPrevious($invoice, $request),
                     'next'     => $this->getNext($invoice, $request),
@@ -122,17 +119,22 @@ class ShowInvoice extends OrgAction
         $this->set('canViewUsers', $request->user()->hasPermissionTo('users.view'));
     }
 
-    #[Pure] public function jsonResponse(Invoice $invoice): InvoicesResource
+    public function jsonResponse(Invoice $invoice): InvoicesResource
     {
         return new InvoicesResource($invoice);
     }
 
 
-    public function getBreadcrumbs(Invoice $invoice): array
+    public function getBreadcrumbs(Invoice $invoice, string $routeName, array $routeParameters): array
     {
-        //TODO Pending
+
+
         return array_merge(
-            (new IndexShops())->getBreadcrumbs(),
+            match ($routeName) {
+                'grp.org.fulfilments.show.operations.invoices.show'=> ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+                default                                            => []
+
+            },
             [
                 'grp.shops.show' => [
                     'route'           => 'shops.show',
@@ -174,11 +176,25 @@ class ShowInvoice extends OrgAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'invoice'=> $invoice->slug
+                        'organisation'=> $invoice->organisation->slug,
+                        'invoice'     => $invoice->slug
                     ]
 
                 ]
-            ]
+            ],
+
+            'grp.org.fulfilments.show.operations.invoices.show'=> [
+                'label'=> $invoice->number,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'organisation'=> $invoice->organisation->slug,
+                        'fulfilment'  => $this->parent->slug,
+                        'invoice'     => $invoice->slug
+                    ]
+
+                ]
+            ],
         };
     }
 }

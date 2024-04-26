@@ -16,34 +16,21 @@ enum InvoiceTabsEnum: string
     use HasTabs;
 
     case SHOWCASE               = 'showcase';
-    case ITEMS                  = 'items';
-    case PAYMENTS               = 'payments';
-    case PROPERTIES_OPERATION   = 'properties_operation';
     case HISTORY                = 'history';
-    case DATA                   = 'data';
+    case PAYMENTS               = 'payments';
 
 
     public function blueprint(): array
     {
         return match ($this) {
-            InvoiceTabsEnum::ITEMS             => [
-                'title' => __('items'),
-                'icon'  => 'fal fa-chart-line',
-            ],
+
             InvoiceTabsEnum::PAYMENTS     => [
                 'title' => __('payments'),
-                'icon'  => 'fal fa-credit-card',
-            ],
-            InvoiceTabsEnum::PROPERTIES_OPERATION     => [
-                'title' => __('properties/operation'),
-                'icon'  => 'fal fa-percent',
-            ],
-            InvoiceTabsEnum::DATA     => [
-                'title' => __('data'),
-                'icon'  => 'fal fa-database',
                 'type'  => 'icon',
                 'align' => 'right',
+                'icon'  => 'fal fa-credit-card',
             ],
+
             InvoiceTabsEnum::HISTORY     => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
@@ -52,7 +39,7 @@ enum InvoiceTabsEnum: string
             ],
             InvoiceTabsEnum::SHOWCASE => [
                 'title' => __('invoice'),
-                'icon'  => 'fas fa-info-circle',
+                'icon'  => 'fas fa-file-invoice',
             ],
         };
     }
