@@ -25,14 +25,14 @@ use App\Actions\Fulfilment\PalletReturn\IndexStoredPallets;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
 use App\Actions\Fulfilment\Proforma\UI\IndexProforma;
+use App\Actions\Fulfilment\RentalAgreement\UI\CreateRentalAgreement;
+use App\Actions\Fulfilment\RentalAgreement\UI\EditRentalAgreement;
 use App\Actions\Fulfilment\StoredItem\UI\IndexBookedInStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
 use App\Actions\Fulfilment\StoredItemReturn\UI\ShowStoredItemReturn;
 use App\Actions\Helpers\Uploads\HistoryUploads;
 use App\Actions\Inventory\Location\UI\IndexLocations;
-use App\Actions\Market\RentalAgreement\UI\CreateRentalAgreement;
-use App\Actions\Market\RentalAgreement\UI\EditRentalAgreement;
 use App\Actions\OMS\Order\UI\ShowOrder;
 
 //Route::get('', ShowFulfilmentCRMDashboard::class)->name('dashboard');

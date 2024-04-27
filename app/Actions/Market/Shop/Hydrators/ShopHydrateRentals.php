@@ -8,8 +8,8 @@
 namespace App\Actions\Market\Shop\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Market\Rental\RentalStateEnum;
-use App\Models\Market\Rental;
+use App\Enums\Fulfilment\Rental\RentalStateEnum;
+use App\Models\Fulfilment\Rental;
 use App\Models\Market\Shop;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;

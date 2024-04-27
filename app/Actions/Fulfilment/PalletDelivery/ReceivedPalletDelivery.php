@@ -18,7 +18,7 @@ use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
-use App\Models\Market\Rental;
+use App\Models\Fulfilment\Rental;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
 

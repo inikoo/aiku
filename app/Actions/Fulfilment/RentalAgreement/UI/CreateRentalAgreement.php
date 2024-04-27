@@ -1,15 +1,15 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Mon, 13 Mar 2023 15:34:29 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 27 Apr 2024 08:53:02 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Market\RentalAgreement\UI;
+namespace App\Actions\Fulfilment\RentalAgreement\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
-use App\Enums\Market\RentalAgreement\RentalAgreementBillingCycleEnum;
+use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;

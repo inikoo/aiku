@@ -10,6 +10,7 @@ namespace App\Models\Market;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\Product\ProductUnitRelationshipType;
+use App\Models\Fulfilment\Rental;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Media\Media;
@@ -83,7 +84,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read MediaCollection<int, Media> $media
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Market\Outer> $outers
- * @property-read \App\Models\Market\Rental|null $rental
+ * @property-read Rental|null $rental
  * @property-read \App\Models\Market\ProductSalesStats|null $salesStats
  * @property-read \App\Models\Market\Service|null $service
  * @property-read \App\Models\Market\Shop|null $shop

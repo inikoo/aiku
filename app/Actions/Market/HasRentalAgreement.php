@@ -7,7 +7,7 @@
 
 namespace App\Actions\Market;
 
-use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
+use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
 
 trait HasRentalAgreement

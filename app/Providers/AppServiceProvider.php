@@ -158,7 +158,7 @@ class AppServiceProvider extends ServiceProvider
                 'ShippingZone'                      => 'App\Models\Market\ShippingZone',
                 'ShippingZoneSchema'                => 'App\Models\Market\ShippingZoneSchema',
                 'Outer'                             => 'App\Models\Market\Outer',
-                'Rental'                            => 'App\Models\Market\Rental',
+                'Rental'                            => 'App\Models\Fulfilment\Rental',
                 'Service'                           => 'App\Models\Market\Service',
 
                 // Marketing

@@ -1,22 +1,17 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 17 Apr 2024 21:34:44 Malaysia Time, Kuala Lumpur , Malaysia
+ * Created: Sat, 27 Apr 2024 08:55:35 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Market;
+namespace App\Models\Fulfilment;
 
-use App\Enums\Market\RentalAgreement\RentalAgreementBillingCycleEnum;
-use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -28,31 +23,35 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
- * @property string|null $reference
+ * @property string $reference
+ * @property int $rental_agreement_id
  * @property int $fulfilment_customer_id
  * @property int $fulfilment_id
- * @property RentalAgreementStateEnum $state
- * @property RentalAgreementBillingCycleEnum $billing_cycle
- * @property int|null $pallets_limit Agreed max number pallets space allocated
- * @property array $data
+ * @property string|null $status
+ * @property string $start_date
+ * @property string $end_date
+ * @property string $amount
+ * @property string $tax
+ * @property string $total
+ * @property array|null $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read Fulfilment $fulfilment
- * @property-read FulfilmentCustomer $fulfilmentCustomer
+ * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
+ * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Group $group
  * @property-read Organisation $organisation
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Market\RecurringBill> $recurringBills
+ * @property-read \App\Models\Fulfilment\RentalAgreement $rentalAgreement
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement query()
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringBill newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringBill newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringBill onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringBill query()
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringBill withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurringBill withoutTrashed()
  * @mixin \Eloquent
  */
-class RentalAgreement extends Model
+class RecurringBill extends Model
 {
     use SoftDeletes;
     use HasUniversalSearch;
@@ -60,9 +59,7 @@ class RentalAgreement extends Model
 
     protected $guarded = [];
     protected $casts   = [
-        'data'          => 'array',
-        'state'         => RentalAgreementStateEnum::class,
-        'billing_cycle' => RentalAgreementBillingCycleEnum::class
+        'data' => 'array',
     ];
 
     protected $attributes = [
@@ -91,6 +88,7 @@ class RentalAgreement extends Model
     public function organisation(): BelongsTo
     {
         return $this->belongsTo(Organisation::class);
+
     }
 
     public function fulfilmentCustomer(): BelongsTo
@@ -103,10 +101,12 @@ class RentalAgreement extends Model
         return $this->belongsTo(Fulfilment::class);
     }
 
-    public function recurringBills(): HasMany
+    public function rentalAgreement(): BelongsTo
     {
-        return $this->hasMany(RecurringBill::class);
+        return $this->belongsTo(RentalAgreement::class);
+
     }
+
 
 
 }

@@ -7,16 +7,16 @@
 
 namespace App\Actions\Market\Product;
 
+use App\Actions\Fulfilment\Rental\StoreRental;
 use App\Actions\Market\Product\Hydrators\ProductHydrateUniversalSearch;
-use App\Actions\Market\Rental\StoreRental;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProducts;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProducts;
+use App\Enums\Fulfilment\Rental\RentalStateEnum;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\Product\ProductUnitRelationshipType;
-use App\Enums\Market\Rental\RentalStateEnum;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;

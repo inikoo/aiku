@@ -7,18 +7,18 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Fulfilment\Rental\UpdateRental;
 use App\Actions\Market\Product\StoreRentalProduct;
 use App\Actions\Market\Product\StoreServiceProduct;
-use App\Actions\Market\Rental\UpdateRental;
 use App\Actions\Market\Service\UpdateService;
 use App\Enums\Market\Product\ProductTypeEnum;
+use App\Models\Fulfilment\Rental;
 use App\Models\Market\Product;
-use App\Models\Market\Rental;
 use App\Models\Market\Service;
+use App\Services\Organisation\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use App\Services\Organisation\SourceOrganisationService;
 
 class FetchAuroraServices extends FetchAuroraAction
 {

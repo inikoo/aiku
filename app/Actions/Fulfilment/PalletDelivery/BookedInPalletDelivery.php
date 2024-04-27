@@ -9,7 +9,7 @@ namespace App\Actions\Fulfilment\PalletDelivery;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
-use App\Actions\Market\RecurringBill\StoreRecurringBill;
+use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;

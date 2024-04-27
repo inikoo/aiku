@@ -1,17 +1,17 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 18 Apr 2024 17:12:30 Malaysia Time, Kuala Lumpur , Malaysia
+ * Created: Sat, 27 Apr 2024 08:53:02 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Market\RecurringBill;
+namespace App\Actions\Fulfilment\RecurringBill;
 
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
-use App\Models\Market\RecurringBill;
-use App\Models\Market\RentalAgreement;
+use App\Models\Fulfilment\RecurringBill;
+use App\Models\Fulfilment\RentalAgreement;
 
 class StoreRecurringBill extends OrgAction
 {

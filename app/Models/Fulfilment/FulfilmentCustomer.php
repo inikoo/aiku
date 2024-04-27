@@ -7,11 +7,9 @@
 
 namespace App\Models\Fulfilment;
 
-use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
+use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\SerialReference;
-use App\Models\Market\RecurringBill;
-use App\Models\Market\RentalAgreement;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
@@ -96,7 +94,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $webhook_access_key
- * @property-read RecurringBill|null $currentRecurringBill
+ * @property-read \App\Models\Fulfilment\RecurringBill|null $currentRecurringBill
  * @property-read Customer $customer
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read Group $group
@@ -105,7 +103,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletReturn> $palletReturns
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\FulfilmentProforma> $proformas
- * @property-read RentalAgreement|null $rentalAgreement
+ * @property-read \App\Models\Fulfilment\RentalAgreement|null $rentalAgreement
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RentalAgreementClause> $rentalAgreementClauses
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemReturn> $storedItemReturns

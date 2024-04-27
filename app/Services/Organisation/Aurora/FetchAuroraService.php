@@ -8,10 +8,10 @@
 namespace App\Services\Organisation\Aurora;
 
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
+use App\Enums\Fulfilment\Rental\RentalStateEnum;
+use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTypeEnum;
-use App\Enums\Market\Rental\RentalStateEnum;
-use App\Enums\Market\Rental\RentalUnitEnum;
 use App\Enums\Market\Service\ServiceStateEnum;
 use Illuminate\Support\Facades\DB;
 

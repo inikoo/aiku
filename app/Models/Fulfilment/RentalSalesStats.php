@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 16 Apr 2024 17:24:45 Malaysia Time, Kuala Lumpur , Malaysia
+ * Created: Sat, 27 Apr 2024 08:55:35 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Market;
+namespace App\Models\Fulfilment;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -136,7 +136,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Market\Rental|null $service
+ * @property-read \App\Models\Fulfilment\Rental|null $service
  * @method static \Illuminate\Database\Eloquent\Builder|RentalSalesStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RentalSalesStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RentalSalesStats query()

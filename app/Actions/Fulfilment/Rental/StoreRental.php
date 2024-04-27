@@ -1,19 +1,19 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 16 Apr 2024 17:23:23 Malaysia Time, Kuala Lumpur , Malaysia
+ * Created: Sat, 27 Apr 2024 08:53:02 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Market\Rental;
+namespace App\Actions\Fulfilment\Rental;
 
 use App\Actions\Market\HistoricOuterable\StoreHistoricOuterable;
 use App\Actions\Market\Product\Hydrators\ProductHydrateHistoricOuterables;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateRentals;
 use App\Actions\OrgAction;
-use App\Enums\Market\Rental\RentalStateEnum;
+use App\Enums\Fulfilment\Rental\RentalStateEnum;
+use App\Models\Fulfilment\Rental;
 use App\Models\Market\Product;
-use App\Models\Market\Rental;
 use Illuminate\Validation\Rule;
 
 class StoreRental extends OrgAction

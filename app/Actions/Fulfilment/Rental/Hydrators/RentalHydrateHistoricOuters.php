@@ -1,14 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 17 Apr 2024 02:06:15 Malaysia Time, Kuala Lumpur , Malaysia
+ * Created: Sat, 27 Apr 2024 08:53:02 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Market\Rental\Hydrators;
+namespace App\Actions\Fulfilment\Rental\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Models\Market\Rental;
+use App\Models\Fulfilment\Rental;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 

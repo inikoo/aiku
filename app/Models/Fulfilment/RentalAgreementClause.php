@@ -7,7 +7,6 @@
 
 namespace App\Models\Fulfilment;
 
-use App\Models\Market\Rental;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -21,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
- * @property-read Rental $rental
+ * @property-read \App\Models\Fulfilment\Rental $rental
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementClause newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementClause newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementClause query()

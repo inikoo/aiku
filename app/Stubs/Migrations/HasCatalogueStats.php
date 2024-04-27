@@ -7,10 +7,10 @@
 
 namespace App\Stubs\Migrations;
 
+use App\Enums\Fulfilment\Rental\RentalStateEnum;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Enums\Market\Product\ProductTypeEnum;
 use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
-use App\Enums\Market\Rental\RentalStateEnum;
 use App\Enums\Market\Service\ServiceStateEnum;
 use App\Enums\Market\Shop\ShopStateEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;

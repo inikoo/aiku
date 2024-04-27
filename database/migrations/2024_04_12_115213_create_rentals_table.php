@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Enums\Market\Rental\RentalStateEnum;
+use App\Enums\Fulfilment\Rental\RentalStateEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

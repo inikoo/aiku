@@ -1,21 +1,21 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 17 Apr 2024 23:40:14 Malaysia Time, Kuala Lumpur , Malaysia
+ * Created: Sat, 27 Apr 2024 08:53:02 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Market\RentalAgreement;
+namespace App\Actions\Fulfilment\RentalAgreement;
 
+use App\Actions\Fulfilment\Rental\UpdateRental;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
-use App\Actions\Market\Rental\UpdateRental;
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
+use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
-use App\Enums\Market\RentalAgreement\RentalAgreementBillingCycleEnum;
-use App\Enums\Market\RentalAgreement\RentalAgreementStateEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Market\Rental;
-use App\Models\Market\RentalAgreement;
+use App\Models\Fulfilment\Rental;
+use App\Models\Fulfilment\RentalAgreement;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;

@@ -1,15 +1,17 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 16 Apr 2024 17:02:34 Malaysia Time, Kuala Lumpur , Malaysia
+ * Created: Sat, 27 Apr 2024 08:55:35 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Market;
+namespace App\Models\Fulfilment;
 
-use App\Enums\Market\Rental\RentalStateEnum;
-use App\Enums\Market\Rental\RentalTypeEnum;
-use App\Enums\Market\Rental\RentalUnitEnum;
+use App\Enums\Fulfilment\Rental\RentalStateEnum;
+use App\Enums\Fulfilment\Rental\RentalTypeEnum;
+use App\Enums\Fulfilment\Rental\RentalUnitEnum;
+use App\Models\Market\HistoricOuterable;
+use App\Models\Market\IsOuterable;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -40,10 +42,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $historic_source_id
  * @property RentalTypeEnum $type
  * @property-read \App\Models\SysAdmin\Group $group
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Market\HistoricOuterable> $historicRecords
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, HistoricOuterable> $historicRecords
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Market\Product|null $product
- * @property-read \App\Models\Market\RentalSalesStats|null $salesStats
+ * @property-read \App\Models\Fulfilment\RentalSalesStats|null $salesStats
  * @property-read \App\Models\Market\Shop|null $shop
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|Rental newModelQuery()

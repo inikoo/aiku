@@ -7,7 +7,7 @@
 
 namespace App\Http\Resources\Market;
 
-use App\Models\Market\RentalAgreement;
+use App\Models\Fulfilment\RentalAgreement;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class RentalAgreementResource extends JsonResource

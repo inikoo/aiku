@@ -9,7 +9,6 @@ namespace App\Models\Fulfilment;
 
 use App\Models\Helpers\SerialReference;
 use App\Models\Inventory\Warehouse;
-use App\Models\Market\Rental;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -40,7 +39,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read Group $group
  * @property-read Organisation $organisation
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Rental> $rentals
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Rental> $rentals
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
  * @property-read Shop $shop
  * @property-read \App\Models\Fulfilment\FulfilmentStats|null $stats

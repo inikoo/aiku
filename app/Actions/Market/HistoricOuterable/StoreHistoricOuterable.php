@@ -7,13 +7,13 @@
 
 namespace App\Actions\Market\HistoricOuterable;
 
+use App\Actions\Fulfilment\Rental\Hydrators\RentalHydrateHistoricOuters;
 use App\Actions\Market\Outer\Hydrators\OuterHydrateHistoricOuters;
 use App\Actions\Market\Product\Hydrators\ProductHydrateHistoricOuterables;
-use App\Actions\Market\Rental\Hydrators\RentalHydrateHistoricOuters;
 use App\Actions\Market\Service\Hydrators\ServiceHydrateHistoricOuters;
+use App\Models\Fulfilment\Rental;
 use App\Models\Market\HistoricOuterable;
 use App\Models\Market\Outer;
-use App\Models\Market\Rental;
 use App\Models\Market\Service;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
