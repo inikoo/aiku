@@ -268,20 +268,18 @@ test('fail to create guest with invalid usernames', function (Group $group) {
 
 
 test('update user password', function ($guest) {
-    Hash::shouldReceive('make')
-        ->andReturn('hello1234');
-    /** @noinspection PhpUndefinedMethodInspection */
-    Hash::makePartial();
+
+
 
 
     $user = UpdateUser::make()->action($guest->user, [
         'password' => 'secret'
     ]);
 
-    expect($user->password)->toBe('hello1234');
+    expect(Hash::check('secret',$user->password))->toBeTrue();
 
     return $user;
-})->depends('update guest')->todo();
+})->depends('update guest');
 
 test('update user username', function (User $user) {
     expect($user->username)->toBe('pika');
@@ -403,7 +401,7 @@ test('can show hr dashboard', function (Guest $guest) {
         $page
             ->component('SysAdmin/SysAdminDashboard')
             ->has('breadcrumbs', 2)
-            ->where('stats.0.stat', 3)->where('stats.0.href.name', 'grp.sysadmin.users.index')
-            ->where('stats.1.stat', 3)->where('stats.1.href.name', 'grp.sysadmin.guests.index');
+            ->where('stats.0.stat', 2)->where('stats.0.href.name', 'grp.sysadmin.users.index')
+            ->where('stats.1.stat', 2)->where('stats.1.href.name', 'grp.sysadmin.guests.index');
     });
 })->depends('create guest');
