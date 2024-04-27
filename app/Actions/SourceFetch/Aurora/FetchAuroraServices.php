@@ -74,7 +74,6 @@ class FetchAuroraServices extends FetchAuroraAction
                             modelData:    $serviceData['service'],
                         );
                     } catch (Exception $e) {
-                        dd($e);
                         $this->recordError($organisationSource, $e, $serviceData['service'], 'Product', 'store');
                         return null;
                     }
