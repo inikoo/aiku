@@ -21,7 +21,7 @@ use Illuminate\Support\Carbon;
  * @property int $currency_id
  * @property string $exchange
  * @property string $date
- * @property string|null $source F:Frankfurter, CB:currencyBeacon, M:manual
+ * @property string|null $source F:Frankfurter, A:aurora, M:manual
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Currency $currency

@@ -6,7 +6,10 @@
  */
 
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
+use App\Actions\Market\Collection\StoreCollection;
+use App\Actions\Market\Collection\UpdateCollection;
 use App\Actions\Market\CollectionCategory\StoreCollectionCategory;
+use App\Actions\Market\CollectionCategory\UpdateCollectionCategory;
 use App\Actions\Market\Outer\StoreOuter;
 use App\Actions\Market\Outer\UpdateOuter;
 use App\Actions\Market\Product\DeleteProduct;
@@ -22,6 +25,7 @@ use App\Enums\Market\Product\ProductUnitRelationshipType;
 use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\Goods\TradeUnit;
+use App\Models\Market\Collection;
 use App\Models\Market\CollectionCategory;
 use App\Models\Market\Outer;
 use App\Models\Market\Product;
@@ -413,3 +417,77 @@ test('create collection category', function ($shop) {
 
     return $collectionCategory;
 })->depends('create shop');
+
+test('create collection', function ($shop) {
+
+
+    $collectionCategory = StoreCollection::make()->action(
+        $shop,
+        [
+            'code'       => 'MyFColl',
+            'name'       => 'My first collection',
+            'description'=> 'My first collection description'
+        ]
+    );
+    $shop->refresh();
+    expect($collectionCategory)->toBeInstanceOf(Collection::class)
+        ->and($shop->stats->number_collections)->toBe(1)
+        ->and($shop->organisation->marketStats->number_collections)->toBe(1)
+        ->and($shop->group->marketStats->number_collections)->toBe(1);
+
+
+    return $collectionCategory;
+})->depends('create shop');
+
+test('create collection in a collection category', function (CollectionCategory $collectionCategory) {
+
+    $collection = StoreCollection::make()->action(
+        $collectionCategory,
+        [
+            'code'       => 'BBB',
+            'name'       => 'Cat two bbb',
+            'description'=> 'Cat two bbb description'
+        ]
+    );
+
+    $collectionCategory->refresh();
+    expect($collection)->toBeInstanceOf(Collection::class)
+        ->and($collectionCategory->stats->number_collections)->toBe(1)
+        ->and($collectionCategory->shop->stats->number_collections)->toBe(2)
+        ->and($collectionCategory->organisation->marketStats->number_collections)->toBe(2)
+        ->and($collectionCategory->group->marketStats->number_collections)->toBe(2);
+
+
+
+    return $collection;
+})->depends('create collection category');
+
+test('update collection', function ($collection) {
+
+    expect($collection->name)->not->toBe('Updated Collection Name');
+
+    $collectionData = [
+        'name'        => 'Updated Collection Name',
+        'description' => 'Updated Collection Description',
+    ];
+    $collection = UpdateCollection::make()->action($collection, $collectionData);
+
+    expect($collection->name)->toBe('Updated Collection Name');
+
+    return $collection;
+})->depends('create collection');
+
+test('update collection category', function ($collectionCategory) {
+
+    expect($collectionCategory->name)->not->toBe('Updated Collection Category Name');
+
+    $collectionCategoryData = [
+        'name'        => 'Updated Collection Category Name',
+        'description' => 'Updated Collection Category Description',
+    ];
+    $collectionCategory = UpdateCollectionCategory::make()->action($collectionCategory, $collectionCategoryData);
+
+    expect($collectionCategory->name)->toBe('Updated Collection Category Name');
+
+    return $collectionCategory;
+})->depends('create collection category');

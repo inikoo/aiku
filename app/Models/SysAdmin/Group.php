@@ -19,6 +19,7 @@ use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\Mail\Mailroom;
 use App\Models\Market\CollectionCategory;
+use App\Models\Market\Collection;
 use App\Models\Market\Product;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Stock;
@@ -28,7 +29,6 @@ use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Traits\HasLogo;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -60,38 +60,39 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\GroupAccountingStats|null $accountingStats
- * @property-read Collection<int, Agent> $agents
- * @property-read Collection<int, CollectionCategory> $collectionCategories
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, CollectionCategory> $collectionCategories
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Collection> $collections
  * @property-read \App\Models\SysAdmin\GroupCRMStats|null $crmStats
  * @property-read Currency $currency
- * @property-read Collection<int, Employee> $employees
- * @property-read Collection<int, \App\Models\SysAdmin\GroupFulfilmentStat> $fulfilmentStats
- * @property-read Collection<int, \App\Models\SysAdmin\Guest> $guests
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Employee> $employees
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\GroupFulfilmentStat> $fulfilmentStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Guest> $guests
  * @property-read \App\Models\SysAdmin\GroupHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\SysAdmin\GroupInventoryStats|null $inventoryStats
- * @property-read Collection<int, Invoice> $invoices
- * @property-read Collection<int, JobPosition> $josPositions
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $josPositions
  * @property-read \App\Models\Media\Media|null $logo
- * @property-read Collection<int, Mailroom> $mailrooms
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Mailroom> $mailrooms
  * @property-read \App\Models\SysAdmin\GroupMarketStats|null $marketStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
- * @property-read Collection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
- * @property-read Collection<int, \App\Models\SysAdmin\Organisation> $organisations
- * @property-read Collection<int, PaymentAccount> $paymentAccounts
- * @property-read Collection<int, PaymentServiceProvider> $paymentServiceProviders
- * @property-read Collection<int, Payment> $payments
- * @property-read Collection<int, Product> $products
- * @property-read Collection<int, \App\Models\SysAdmin\Role> $roles
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $organisations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentAccount> $paymentAccounts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentServiceProvider> $paymentServiceProviders
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \App\Models\SysAdmin\GroupSalesStats|null $salesStats
- * @property-read Collection<int, StockFamily> $stockFamilies
- * @property-read Collection<int, Stock> $stocks
- * @property-read Collection<int, SupplierProduct> $supplierProducts
- * @property-read Collection<int, Supplier> $suppliers
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, StockFamily> $stockFamilies
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, SupplierProduct> $supplierProducts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
  * @property-read \App\Models\SysAdmin\GroupSupplyChainStats|null $supplyChainStats
  * @property-read \App\Models\SysAdmin\GroupSysAdminStats|null $sysadminStats
- * @property-read Collection<int, TradeUnit> $tradeUnits
- * @property-read Collection<int, \App\Models\SysAdmin\User> $users
- * @property-read Collection<int, WebUser> $webUsers
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\User> $users
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, WebUser> $webUsers
  * @method static \Database\Factories\SysAdmin\GroupFactory factory($count = null, $state = [])
  * @method static Builder|Group newModelQuery()
  * @method static Builder|Group newQuery()
@@ -286,5 +287,6 @@ class Group extends Model implements HasMedia
     {
         return $this->hasMany(Collection::class);
     }
+
 
 }

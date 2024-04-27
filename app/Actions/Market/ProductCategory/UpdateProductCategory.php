@@ -13,6 +13,8 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
 use App\Http\Resources\Market\DepartmentsResource;
 use App\Models\Market\ProductCategory;
+use App\Models\Market\Shop;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
@@ -38,7 +40,7 @@ class UpdateProductCategory extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("shops.department.edit");
+        return $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
     }
 
     public function rules(): array
@@ -52,7 +54,7 @@ class UpdateProductCategory extends OrgAction
                     table: 'product_categories',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
-                        ['column' => 'deleted_at', 'operator'=>'notNull'],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
                         ['column' => 'type', 'value' => $this->productCategory->type, 'operator' => '='],
                         ['column' => 'id', 'value' => $this->productCategory->id, 'operator' => '!=']
 
@@ -77,11 +79,11 @@ class UpdateProductCategory extends OrgAction
         return $this->handle($productCategory, $this->validatedData);
     }
 
-    public function asController(ProductCategory $productCategory, ActionRequest $request): ProductCategory
+    public function asController(Organisation $organisation, Shop $shop, ProductCategory $productCategory, ActionRequest $request): ProductCategory
     {
         $this->productCategory = $productCategory;
 
-        $this->initialisationFromShop($productCategory->shop, $request);
+        $this->initialisationFromShop($shop, $request);
 
         return $this->handle($productCategory, $this->validatedData);
     }

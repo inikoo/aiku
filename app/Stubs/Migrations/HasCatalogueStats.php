@@ -42,12 +42,13 @@ trait HasCatalogueStats
         }
 
         $table->unsignedInteger('number_collection_categories')->default(0);
+        $table->unsignedInteger('number_collections')->default(0);
 
-
-        return $this->catalogueHeadStats($table);
+        $table= $this->catalogueFamilyStats($table);
+        return $this->catalogueProductsStats($table);
     }
 
-    public function catalogueHeadStats(Blueprint $table): Blueprint
+    public function catalogueFamilyStats(Blueprint $table): Blueprint
     {
         $table->unsignedInteger('number_sub_departments')->default(0);
         $table->unsignedSmallInteger('number_current_sub_departments')->default(0)->comment('state: active+discontinuing');
@@ -61,6 +62,12 @@ trait HasCatalogueStats
             $table->unsignedInteger('number_families_state_'.$familyState->snake())->default(0);
         }
         $table->unsignedInteger('number_orphan_families')->default(0);
+        return $table;
+
+    }
+
+    public function catalogueProductsStats(Blueprint $table): Blueprint
+    {
 
         $table->unsignedInteger('number_products')->default(0);
         $table->unsignedInteger('number_current_products')->default(0)->comment('state: active+discontinuing');

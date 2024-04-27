@@ -22,7 +22,8 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('product_category_id')->index();
             $table->foreign('product_category_id')->references('id')->on('product_categories');
-            $table=$this->catalogueHeadStats($table);
+            $table=$this->catalogueFamilyStats($table);
+            $table=$this->catalogueProductsStats($table);
             $table=$this->salesStats($table, ['shop_amount','org_amount','group_amount']);
             $table->timestampsTz();
         });

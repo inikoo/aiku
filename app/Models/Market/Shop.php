@@ -41,7 +41,7 @@ use App\Models\Traits\HasUniversalSearch;
 use App\Models\Web\Website;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection as LaravelCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -91,33 +91,34 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property-read \App\Models\Market\ShopAccountingStats|null $accountingStats
- * @property-read Collection<int, Address> $addresses
- * @property-read Collection<int, Appointment> $appointments
- * @property-read Collection<int, \App\Models\Market\CollectionCategory> $collectionCategories
+ * @property-read LaravelCollection<int, Address> $addresses
+ * @property-read LaravelCollection<int, Appointment> $appointments
+ * @property-read LaravelCollection<int, \App\Models\Market\CollectionCategory> $collectionCategories
+ * @property-read LaravelCollection<int, \App\Models\Market\Collection> $collections
  * @property-read Country $country
  * @property-read \App\Models\Market\ShopCRMStats|null $crmStats
  * @property-read Currency $currency
- * @property-read Collection<int, Customer> $customers
+ * @property-read LaravelCollection<int, Customer> $customers
  * @property-read Fulfilment|null $fulfilment
  * @property-read Group $group
- * @property-read Collection<int, Invoice> $invoices
- * @property-read Collection<int, Issue> $issues
+ * @property-read LaravelCollection<int, Invoice> $invoices
+ * @property-read LaravelCollection<int, Issue> $issues
  * @property-read \App\Models\Market\ShopMailStats|null $mailStats
- * @property-read Collection<int, OfferCampaign> $offerCampaigns
- * @property-read Collection<int, Order> $orders
- * @property-read Collection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
+ * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
+ * @property-read LaravelCollection<int, Order> $orders
+ * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read Organisation $organisation
- * @property-read Collection<int, Outbox> $outboxes
- * @property-read Collection<int, PaymentAccount> $paymentAccounts
- * @property-read Collection<int, Payment> $payments
- * @property-read Collection<int, \App\Models\Market\ProductCategory> $productCategories
- * @property-read Collection<int, \App\Models\Market\Product> $products
- * @property-read Collection<int, Prospect> $prospects
- * @property-read Collection<int, Role> $roles
+ * @property-read LaravelCollection<int, Outbox> $outboxes
+ * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
+ * @property-read LaravelCollection<int, Payment> $payments
+ * @property-read LaravelCollection<int, \App\Models\Market\ProductCategory> $productCategories
+ * @property-read LaravelCollection<int, \App\Models\Market\Product> $products
+ * @property-read LaravelCollection<int, Prospect> $prospects
+ * @property-read LaravelCollection<int, Role> $roles
  * @property-read \App\Models\Market\ShopSalesStats|null $salesStats
  * @property-read SenderEmail|null $senderEmail
- * @property-read Collection<int, SerialReference> $serialReferences
- * @property-read Collection<int, \App\Models\Market\ShippingZoneSchema> $shippingZoneSchemas
+ * @property-read LaravelCollection<int, SerialReference> $serialReferences
+ * @property-read LaravelCollection<int, \App\Models\Market\ShippingZoneSchema> $shippingZoneSchemas
  * @property-read \App\Models\Market\ShopStats|null $stats
  * @property-read TaxNumber|null $taxNumber
  * @property-read Timezone $timezone
@@ -236,12 +237,12 @@ class Shop extends Model
         return $this->hasMany(ProductCategory::class);
     }
 
-    public function departments(): Collection
+    public function departments(): LaravelCollection
     {
         return $this->productCategories()->where('type', ProductCategoryTypeEnum::DEPARTMENT)->get();
     }
 
-    public function families(): Collection
+    public function families(): LaravelCollection
     {
         return $this->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
     }

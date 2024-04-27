@@ -33,6 +33,7 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\Market\Collection;
 use App\Models\Market\CollectionCategory;
 use App\Models\Market\Product;
 use App\Models\Market\ProductCategory;
@@ -46,7 +47,7 @@ use App\Models\SupplyChain\Agent;
 use App\Models\Traits\HasLogo;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection as LaravelCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -87,54 +88,55 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationAccountingStats|null $accountingStats
  * @property-read Address|null $address
  * @property-read Agent|null $agent
- * @property-read Collection<int, \App\Models\SysAdmin\OrganisationAuthorisedModels> $authorisedModels
- * @property-read Collection<int, ClockingMachine> $clockingMachines
- * @property-read Collection<int, CollectionCategory> $collectionCategories
+ * @property-read LaravelCollection<int, \App\Models\SysAdmin\OrganisationAuthorisedModels> $authorisedModels
+ * @property-read LaravelCollection<int, ClockingMachine> $clockingMachines
+ * @property-read LaravelCollection<int, CollectionCategory> $collectionCategories
+ * @property-read LaravelCollection<int, Collection> $collections
  * @property-read Country $country
  * @property-read \App\Models\SysAdmin\OrganisationCRMStats|null $crmStats
  * @property-read Currency $currency
- * @property-read Collection<int, Customer> $customers
- * @property-read Collection<int, Employee> $employees
- * @property-read Collection<int, FulfilmentCustomer> $fulfilmentCustomers
+ * @property-read LaravelCollection<int, Customer> $customers
+ * @property-read LaravelCollection<int, Employee> $employees
+ * @property-read LaravelCollection<int, FulfilmentCustomer> $fulfilmentCustomers
  * @property-read \App\Models\SysAdmin\OrganisationFulfilmentStats|null $fulfilmentStats
- * @property-read Collection<int, Fulfilment> $fulfilments
+ * @property-read LaravelCollection<int, Fulfilment> $fulfilments
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\OrganisationHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\SysAdmin\OrganisationInventoryStats|null $inventoryStats
- * @property-read Collection<int, Invoice> $invoices
- * @property-read Collection<int, JobPosition> $josPositions
+ * @property-read LaravelCollection<int, Invoice> $invoices
+ * @property-read LaravelCollection<int, JobPosition> $josPositions
  * @property-read Language $language
- * @property-read Collection<int, Location> $locations
+ * @property-read LaravelCollection<int, Location> $locations
  * @property-read Media|null $logo
  * @property-read \App\Models\SysAdmin\OrganisationMailStats|null $mailStats
  * @property-read \App\Models\SysAdmin\OrganisationMarketStats|null $marketStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
- * @property-read Collection<int, OrgAgent> $orgAgents
- * @property-read Collection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
- * @property-read Collection<int, OrgStock> $orgStocks
- * @property-read Collection<int, OrgSupplier> $orgSuppliers
- * @property-read Collection<int, PaymentAccount> $paymentAccounts
- * @property-read Collection<int, PaymentServiceProvider> $paymentServiceProviders
- * @property-read Collection<int, Payment> $payments
+ * @property-read LaravelCollection<int, OrgAgent> $orgAgents
+ * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
+ * @property-read LaravelCollection<int, OrgStock> $orgStocks
+ * @property-read LaravelCollection<int, OrgSupplier> $orgSuppliers
+ * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
+ * @property-read LaravelCollection<int, PaymentServiceProvider> $paymentServiceProviders
+ * @property-read LaravelCollection<int, Payment> $payments
  * @property-read \App\Models\SysAdmin\OrganisationProcurementStats|null $procurementStats
- * @property-read Collection<int, ProductCategory> $productCategories
+ * @property-read LaravelCollection<int, ProductCategory> $productCategories
  * @property-read \App\Models\SysAdmin\OrganisationProductionStats|null $productionStats
- * @property-read Collection<int, Product> $products
- * @property-read Collection<int, Prospect> $prospects
- * @property-read Collection<int, PurchaseOrder> $purchaseOrders
- * @property-read Collection<int, Rental> $rentals
- * @property-read Collection<int, \App\Models\SysAdmin\Role> $roles
+ * @property-read LaravelCollection<int, Product> $products
+ * @property-read LaravelCollection<int, Prospect> $prospects
+ * @property-read LaravelCollection<int, PurchaseOrder> $purchaseOrders
+ * @property-read LaravelCollection<int, Rental> $rentals
+ * @property-read LaravelCollection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \App\Models\SysAdmin\OrganisationSalesStats|null $salesStats
- * @property-read Collection<int, Shipper> $shippers
- * @property-read Collection<int, Shop> $shops
+ * @property-read LaravelCollection<int, Shipper> $shippers
+ * @property-read LaravelCollection<int, Shop> $shops
  * @property-read \App\Models\SysAdmin\OrganisationStats|null $stats
  * @property-read Timezone $timezone
- * @property-read Collection<int, WarehouseArea> $warehouseAreas
- * @property-read Collection<int, Warehouse> $warehouses
+ * @property-read LaravelCollection<int, WarehouseArea> $warehouseAreas
+ * @property-read LaravelCollection<int, Warehouse> $warehouses
  * @property-read \App\Models\SysAdmin\OrganisationWebStats|null $webStats
- * @property-read Collection<int, Webpage> $webpages
- * @property-read Collection<int, Website> $websites
- * @property-read Collection<int, Workplace> $workplaces
+ * @property-read LaravelCollection<int, Webpage> $webpages
+ * @property-read LaravelCollection<int, Website> $websites
+ * @property-read LaravelCollection<int, Workplace> $workplaces
  * @method static \Database\Factories\SysAdmin\OrganisationFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Organisation newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Organisation newQuery()
@@ -424,12 +426,12 @@ class Organisation extends Model implements HasMedia
         return $this->hasMany(ProductCategory::class);
     }
 
-    public function departments(): Collection
+    public function departments(): LaravelCollection
     {
         return $this->productCategories()->where('type', ProductCategoryTypeEnum::DEPARTMENT)->get();
     }
 
-    public function families(): ?Collection
+    public function families(): ?LaravelCollection
     {
         return $this->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
     }

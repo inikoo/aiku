@@ -9,6 +9,7 @@ namespace App\Actions\SysAdmin\Organisation;
 
 use App\Actions\HydrateModel;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCollectionCategories;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCollections;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateDepartments;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateFamilies;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateInvoices;
@@ -59,6 +60,7 @@ class HydrateOrganisation extends HydrateModel
             OrganisationHydrateDepartments::run($organisation);
             OrganisationHydrateFamilies::run($organisation);
             OrganisationHydrateCollectionCategories::run($organisation);
+            OrganisationHydrateCollections::run($organisation);
         }
 
     }
