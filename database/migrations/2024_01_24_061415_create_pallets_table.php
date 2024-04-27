@@ -46,6 +46,7 @@ return new class () extends Migration {
                 $table->string('state')->index()->default(PalletStateEnum::IN_PROCESS->value);
                 $table->string('type')->index()->default(PalletTypeEnum::PALLET->value);
                 $table->text('notes')->nullable();
+                $table->unsignedSmallInteger('current_recurring_bill_id')->nullable()->index()->after('pallet_return_id');
                 $table->unsignedSmallInteger('number_stored_items')->default(0);
                 $table->dateTimeTz('received_at')->nullable();
                 $table->dateTimeTz('booked_in_at')->nullable();
