@@ -76,6 +76,9 @@ use Illuminate\Support\Carbon;
  * @property int $number_pallet_returns_state_picked
  * @property int $number_pallet_returns_state_dispatched
  * @property int $number_pallet_returns_state_cancel
+ * @property int $number_recurring_bills
+ * @property int $number_recurring_bills_status_current
+ * @property int $number_recurring_bills_status_former
  * @property int $number_customers_interest_pallets_storage
  * @property int $number_customers_interest_items_storage
  * @property int $number_customers_interest_dropshipping

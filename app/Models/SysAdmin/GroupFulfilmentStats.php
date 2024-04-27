@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\SysAdmin\GroupFulfilmentStat
+ *
  *
  * @property int $id
  * @property int $group_id
@@ -81,16 +81,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_pallet_returns_state_picked
  * @property int $number_pallet_returns_state_dispatched
  * @property int $number_pallet_returns_state_cancel
+ * @property int $number_recurring_bills
+ * @property int $number_recurring_bills_status_current
+ * @property int $number_recurring_bills_status_former
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
- * @method static \Illuminate\Database\Eloquent\Builder|GroupFulfilmentStat newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupFulfilmentStat newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupFulfilmentStat query()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupFulfilmentStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupFulfilmentStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupFulfilmentStats query()
  * @mixin \Eloquent
  */
-class GroupFulfilmentStat extends Model
+class GroupFulfilmentStats extends Model
 {
+    protected $table = 'group_fulfilment_stats';
+
     protected $guarded = [];
 
     public function group(): BelongsTo

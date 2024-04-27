@@ -14,6 +14,7 @@ use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Assets\Currency;
 use App\Models\CRM\WebUser;
+use App\Models\Fulfilment\RecurringBill;
 use App\Models\Goods\TradeUnit;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
@@ -66,7 +67,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Employee> $employees
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\GroupFulfilmentStat> $fulfilmentStats
+ * @property-read \App\Models\SysAdmin\GroupFulfilmentStats|null $fulfilmentStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Guest> $guests
  * @property-read \App\Models\SysAdmin\GroupHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\SysAdmin\GroupInventoryStats|null $inventoryStats
@@ -82,6 +83,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, RecurringBill> $recurringBills
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \App\Models\SysAdmin\GroupSalesStats|null $salesStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StockFamily> $stockFamilies
@@ -238,9 +240,9 @@ class Group extends Model implements HasMedia
         return $this->hasMany(Role::class);
     }
 
-    public function fulfilmentStats(): HasMany
+    public function fulfilmentStats(): HasOne
     {
-        return $this->hasMany(GroupFulfilmentStat::class);
+        return $this->hasOne(GroupFulfilmentStats::class);
     }
 
     public function invoices(): HasMany
@@ -286,6 +288,11 @@ class Group extends Model implements HasMedia
     public function collections(): HasMany
     {
         return $this->hasMany(Collection::class);
+    }
+
+    public function recurringBills(): HasMany
+    {
+        return $this->hasMany(RecurringBill::class);
     }
 
 

@@ -24,6 +24,7 @@ use App\Models\CRM\Prospect;
 use App\Models\Dispatch\Shipper;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Rental;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\ClockingMachine;
@@ -124,6 +125,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Product> $products
  * @property-read LaravelCollection<int, Prospect> $prospects
  * @property-read LaravelCollection<int, PurchaseOrder> $purchaseOrders
+ * @property-read LaravelCollection<int, RecurringBill> $recurringBills
  * @property-read LaravelCollection<int, Rental> $rentals
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \App\Models\SysAdmin\OrganisationSalesStats|null $salesStats
@@ -454,5 +456,10 @@ class Organisation extends Model implements HasMedia
     public function collections(): HasMany
     {
         return $this->hasMany(Collection::class);
+    }
+
+    public function recurringBills(): HasMany
+    {
+        return $this->hasMany(RecurringBill::class);
     }
 }

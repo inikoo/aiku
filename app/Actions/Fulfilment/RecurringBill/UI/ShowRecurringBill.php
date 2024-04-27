@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 25 May 2023 21:14:38 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sat, 27 Apr 2024 16:54:01 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\Proforma\UI;
+namespace App\Actions\Fulfilment\RecurringBill\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\StoredItem\UI\GetStoredItemShowcase;
@@ -13,7 +13,7 @@ use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemPallets;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
-use App\Enums\UI\ProformaTabsEnum;
+use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Enums\UI\StoredItemTabsEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
@@ -30,7 +30,7 @@ use Lorisleiva\Actions\ActionRequest;
 /**
  * @property StoredItem $storedItem
  */
-class ShowProforma extends OrgAction
+class ShowRecurringBill extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
@@ -45,7 +45,7 @@ class ShowProforma extends OrgAction
 
     public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, StoredItem $storedItem, ActionRequest $request): StoredItem
     {
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(ProformaTabsEnum::values());
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(RecurringBillTabsEnum::values());
 
         return $this->handle($storedItem);
     }
@@ -53,7 +53,7 @@ class ShowProforma extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, StoredItem $storedItem, ActionRequest $request): StoredItem
     {
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(ProformaTabsEnum::values());
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(RecurringBillTabsEnum::values());
 
         return $this->handle($storedItem);
     }
@@ -66,15 +66,15 @@ class ShowProforma extends OrgAction
     public function htmlResponse(StoredItem $storedItem, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Fulfilment/Proforma',
+            'Org/Fulfilment/RecurringBill',
             [
-                'title'       => __('proforma'),
+                'title'       => __('recurring bill'),
                 'breadcrumbs' => $this->getBreadcrumbs($storedItem),
                 'pageHead'    => [
                     'icon'          =>
                         [
                             'icon'  => ['fa', 'fa-narwhal'],
-                            'title' => __('proforma')
+                            'title' => __('recurring bill')
                         ],
                     'title'  => $storedItem->slug,
                     'actions'=> [
@@ -105,8 +105,8 @@ class ShowProforma extends OrgAction
                             'type'    => 'button',
                             'style'   => 'secondary',
                             'icon'    => 'fal fa-pencil',
-                            'tooltip' => __('Edit proformas'),
-                            'label'   => __('proformas'),
+                            'tooltip' => __('Edit recurring bill'),
+                            'label'   => __('recurring bills'),
                             'route'   => [
                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                                 'parameters' => array_values($request->route()->originalParameters())
@@ -173,7 +173,7 @@ class ShowProforma extends OrgAction
 
     public function getBreadcrumbs(StoredItem $storedItem, $suffix = null): array
     {
-        return [];
+
         return array_merge(
             ShowFulfilmentCustomer::make()->getBreadcrumbs(request()->route()->originalParameters()),
             [
@@ -184,7 +184,7 @@ class ShowProforma extends OrgAction
                             'route' => [
                                 'name' => 'grp.fulfilment.stored-items.index',
                             ],
-                            'label' => __('proformas')
+                            'label' => __('recurring bills')
                         ],
                         'model' => [
                             'route' => [

@@ -276,7 +276,7 @@ test('update user password', function ($guest) {
         'password' => 'secret'
     ]);
 
-    expect(Hash::check('secret',$user->password))->toBeTrue();
+    expect(Hash::check('secret', $user->password))->toBeTrue();
 
     return $user;
 })->depends('update guest');

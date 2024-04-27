@@ -7,11 +7,17 @@
 
 namespace App\Actions\Fulfilment\RecurringBill;
 
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateRecurringBills;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateRecurringBills;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRecurringBills;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRecurringBills;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\RentalAgreement;
+use Exception;
+use Illuminate\Console\Command;
 
 class StoreRecurringBill extends OrgAction
 {
@@ -36,6 +42,12 @@ class StoreRecurringBill extends OrgAction
         $recurringBill=$rentalAgreement->recurringBills()->create($modelData);
         $rentalAgreement->fulfilmentCustomer->update(['current_recurring_bill_id'=>$recurringBill->id]);
 
+        GroupHydrateRecurringBills::dispatch($rentalAgreement->group);
+        OrganisationHydrateRecurringBills::dispatch($rentalAgreement->organisation);
+        FulfilmentHydrateRecurringBills::dispatch($rentalAgreement->fulfilment);
+        FulfilmentCustomerHydrateRecurringBills::dispatch($rentalAgreement->fulfilmentCustomer);
+
+
         return $recurringBill;
     }
 
@@ -56,7 +68,32 @@ class StoreRecurringBill extends OrgAction
         return $this->handle($rentalAgreement, $this->validatedData);
     }
 
+    public string $commandSignature = 'proforma:create {rental-agreement}';
 
+    public function asCommand(Command $command): int
+    {
+        $this->asAction = true;
+
+        try {
+            $rentalAgreement = RentalAgreement::where('slug', $command->argument('rental-agreement'))->firstOrFail();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+            return 1;
+        }
+
+        try {
+            $this->initialisationFromFulfilment($rentalAgreement->fulfilment, []);
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+            return 1;
+        }
+
+        $proforma = $this->handle($rentalAgreement, modelData: $this->validatedData);
+
+        $command->info("Recurring bill $proforma->slug created successfully 🎉");
+
+        return 0;
+    }
 
 
 }

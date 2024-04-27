@@ -33,12 +33,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property PaymentServiceProviderTypeEnum $type
  * @property string $code
  * @property string $name
+ * @property string $state
  * @property array $data
  * @property string|null $last_used_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property string $state
  * @property-read Collection<int, \App\Models\Accounting\PaymentAccount> $accounts
  * @property-read Group $group
  * @property-read Collection<int, \App\Models\Accounting\OrgPaymentServiceProvider> $orgPaymentServiceProviders

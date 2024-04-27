@@ -12,6 +12,7 @@ use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
@@ -65,8 +66,7 @@ trait HasFulfilmentStats
             $table->unsignedInteger("number_pallet_returns_state_{$case->snake()}")->default(0);
         }
 
-
-        return $table;
+        return $this->recurringBillStats($table);
     }
 
     public function containerFulfilmentStats(Blueprint $table): Blueprint
@@ -85,6 +85,17 @@ trait HasFulfilmentStats
         }
         foreach (StoredItemStatusEnum::cases() as $status) {
             $table->unsignedInteger("number_customers_with_stored_items_status_{$status->snake()}")->default(0);
+        }
+
+        return $table;
+    }
+
+    public function recurringBillStats(Blueprint $table): Blueprint
+    {
+
+        $table->unsignedInteger('number_recurring_bills')->default(0);
+        foreach (RecurringBillStatusEnum::cases() as $case) {
+            $table->unsignedInteger("number_recurring_bills_status_{$case->snake()}")->default(0);
         }
 
         return $table;

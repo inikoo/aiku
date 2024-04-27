@@ -23,7 +23,7 @@ import { useTabChange } from "@/Composables/tab-change"
 import { computed, defineAsyncComponent, inject, onMounted, onUnmounted, ref } from "vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import TablePalletDeliveries from '@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveries.vue'
-import TableProformas from '@/Components/Tables/Grp/Org/Fulfilment/TableProformas.vue'
+import TableRecurringBills from '@/Components/Tables/Grp/Org/Fulfilment/TableRecurringBills.vue'
 import Popover from '@/Components/Popover.vue'
 import FulfilmentCustomerShowcase from "@/Components/Showcases/Grp/FulfilmentCustomerShowcase.vue"
 import CustomerInvoices from "@/Components/Fulfilment/CustomerInvoices.vue"
@@ -64,7 +64,7 @@ const props = defineProps<{
     }
     showcase?: {}
     invoices?: {}
-    proformas?: {}
+    recurringBills?: {}
     pallets?: {}
     stored_items?: {}
     stored_item_returns?: {}
@@ -72,6 +72,7 @@ const props = defineProps<{
     pallet_deliveries?: {}
     pallet_returns?: {}
     web_users?: {}
+    recurring_bills?: {}
     webhook?: {}
 }>()
 
@@ -93,7 +94,7 @@ const component = computed(() => {
         dispatched_emails: TableDispatchedEmails,
         web_users: TableWebUsers,
         webhook: FulfilmentCustomerWebhook,
-        proformas: TableProformas
+        recurring_bills: TableRecurringBills
     }
 
     return components[currentTab.value]

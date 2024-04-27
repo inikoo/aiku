@@ -13,20 +13,17 @@ enum RecurringBillStatusEnum: string
 {
     use EnumHelperTrait;
 
-    case CURRENT    = 'current';
-    case PAST       = 'past';
+    case CURRENT      = 'current';
+    case FORMER       = 'former';
 
 
-    public static function labels($forElements = false): array
+    public static function labels(): array
     {
-        $labels = [
-            'current'    => __('Current bill'),
-            'past'       => __('Previous bill'),
+        return [
+            'current'      => __('Current bill'),
+            'former'       => __('Previous bill'),
 
         ];
-
-
-        return $labels;
     }
 
 }

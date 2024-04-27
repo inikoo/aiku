@@ -7,20 +7,17 @@
 
 namespace App\Http\Resources\Fulfilment;
 
-use App\Models\Fulfilment\FulfilmentProforma;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class FulfilmentProformasResource extends JsonResource
+class RecurringBillsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        /** @var FulfilmentProforma $proforma */
-        $proforma = $this;
+
 
         return [
-            'id'     => $proforma->id,
-            'slug'   => $proforma->slug,
-            'number' => $proforma->number
+            'id'     => $this->id,
+            'slug'   => $this->slug,
         ];
     }
 }

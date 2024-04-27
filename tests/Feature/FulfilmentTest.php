@@ -39,6 +39,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Rental;
 use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Inventory\Location;
@@ -395,8 +396,7 @@ test('set rental to first pallet in the pallet delivery', function (PalletDelive
     $palletNotInRentalCount = $palletDelivery->pallets()->whereNull('rental_id')->count();
 
     expect($pallet->rental)->toBeInstanceOf(Rental::class)
-        ->and($palletNotInRentalCount)->toBe(0);
-    ;
+        ->and($palletNotInRentalCount)->toBe(0);;
 
     return $palletDelivery;
 })->depends('set location of first pallet in the pallet delivery');
@@ -454,13 +454,28 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
 
     $palletDelivery = BookedInPalletDelivery::make()->action($palletDelivery);
     $palletDelivery->refresh();
+    $fulfilmentCustomer->refresh();
 
 
-    expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKED_IN)
+    expect($fulfilmentCustomer->currentRecurringBill)->toBeInstanceOf(RecurringBill::class)
+        ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKED_IN)
         ->and($palletDelivery->booked_in_at)->toBeInstanceOf(Carbon::class)
         ->and($palletDelivery->number_pallets)->toBe(3)
         ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
-        ->and($palletDelivery->number_stored_items)->toBe(0);
+        ->and($palletDelivery->number_stored_items)->toBe(0)
+        ->and($palletDelivery->group->fulfilmentStats->number_recurring_bills)->toBe(1)
+        ->and($palletDelivery->group->fulfilmentStats->number_recurring_bills_status_former)->toBe(0)
+        ->and($palletDelivery->group->fulfilmentStats->number_recurring_bills_status_current)->toBe(1)
+        ->and($palletDelivery->organisation->fulfilmentStats->number_recurring_bills)->toBe(1)
+        ->and($palletDelivery->organisation->fulfilmentStats->number_recurring_bills_status_former)->toBe(0)
+        ->and($palletDelivery->organisation->fulfilmentStats->number_recurring_bills_status_current)->toBe(1)
+        ->and($palletDelivery->fulfilment->stats->number_recurring_bills)->toBe(1)
+        ->and($palletDelivery->fulfilment->stats->number_recurring_bills_status_former)->toBe(0)
+        ->and($palletDelivery->fulfilment->stats->number_recurring_bills_status_current)->toBe(1)
+        ->and($palletDelivery->fulfilmentCustomer->number_recurring_bills)->toBe(1)
+        ->and($palletDelivery->fulfilmentCustomer->number_recurring_bills_status_former)->toBe(0)
+        ->and($palletDelivery->fulfilmentCustomer->number_recurring_bills_status_current)->toBe(1);
+
 
     return $palletDelivery;
 })->depends('set location of third pallet in the pallet delivery');

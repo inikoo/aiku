@@ -1,13 +1,13 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Thu, 25 Apr 2024 15:00:59 British Summer Time, Sheffield, UK
+  - Created: Sat, 27 Apr 2024 18:08:36 British Summer Time, Sheffield, UK
   - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableRentals from "@/Components/Tables/Grp/Org/Fulfilment/Products/TableRentals.vue";
+import TableRecurringBills from "@/Components/Tables/Grp/Org/Fulfilment/TableRecurringBills.vue";
 import {capitalize} from "@/Composables/capitalize"
 import {computed, ref} from "vue";
 import {useTabChange} from "@/Composables/tab-change";
@@ -21,7 +21,7 @@ const props = defineProps<{
     current: string
     navigation: {}
   }
-  rentals?: {}
+  recurring_bills?: {}
   history?: {}
 }>()
 
@@ -31,7 +31,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
 
   const components = {
-    rentals: TableRentals,
+    recurring_bills: TableRecurringBills,
     history: TableHistories
   }
   return components[currentTab.value]

@@ -22,10 +22,10 @@ enum CustomerFulfilmentTabsEnum: string
     case PALLETS       = 'pallets';
     case STORED_ITEMS  = 'stored_items';
 
-    case STORED_ITEM_RETURNS        = 'stored_item_returns';
-    case PALLET_RETURNS             = 'pallet_returns';
-    case PROFORMAS                  = 'proformas';
-    case INVOICES                   = 'invoices';
+    case STORED_ITEM_RETURNS              = 'stored_item_returns';
+    case PALLET_RETURNS                   = 'pallet_returns';
+    case RECURRING_BILLS                  = 'recurring_bills';
+    case INVOICES                         = 'invoices';
 
     case DATA              = 'data';
     case ATTACHMENTS       = 'attachments';
@@ -60,9 +60,9 @@ enum CustomerFulfilmentTabsEnum: string
                 'title' => __('invoices'),
                 'icon'  => 'fal fa-file-invoice-dollar',
             ],
-            CustomerFulfilmentTabsEnum::PROFORMAS => [
-                'title' => __('proformas'),
-                'icon'  => 'fal fa-file-invoice',
+            CustomerFulfilmentTabsEnum::RECURRING_BILLS => [
+                'title' => __('recurring bills'),
+                'icon'  => 'fal fa-receipt',
             ],
             CustomerFulfilmentTabsEnum::PALLET_DELIVERIES => [
                 'title' => __('deliveries'),

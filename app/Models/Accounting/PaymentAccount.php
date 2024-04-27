@@ -35,6 +35,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property int $payment_service_provider_id
+ * @property int|null $org_payment_service_provider_id
  * @property PaymentAccountTypeEnum $type
  * @property string $code
  * @property string $name
@@ -45,7 +46,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
- * @property int|null $org_payment_service_provider_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\Accounting\OrgPaymentServiceProvider|null $orgPaymentServiceProvider
  * @property-read Organisation $organisation

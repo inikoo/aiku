@@ -24,7 +24,7 @@ use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\IndexStoredPallets;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
-use App\Actions\Fulfilment\Proforma\UI\IndexProforma;
+use App\Actions\Fulfilment\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\Fulfilment\RentalAgreement\UI\CreateRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UI\EditRentalAgreement;
 use App\Actions\Fulfilment\StoredItem\UI\IndexBookedInStoredItems;
@@ -92,7 +92,7 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     });
 
     Route::prefix('proformas')->as('.proformas.')->group(function () {
-        Route::get('', [IndexProforma::class, 'inFulfilmentCustomer'])->name('index');
+        Route::get('', [IndexRecurringBills::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('{palletReturn}', [ShowPalletReturn::class, 'inFulfilmentCustomer'])->name('show');
     });
 });

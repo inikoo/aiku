@@ -81,6 +81,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_pallet_returns_state_picked
  * @property int $number_pallet_returns_state_dispatched
  * @property int $number_pallet_returns_state_cancel
+ * @property int $number_recurring_bills
+ * @property int $number_recurring_bills_status_current
+ * @property int $number_recurring_bills_status_former
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment

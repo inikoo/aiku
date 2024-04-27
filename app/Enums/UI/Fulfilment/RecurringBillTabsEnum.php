@@ -1,16 +1,16 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 19 Mar 2023 01:54:57 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sat, 27 Apr 2024 17:01:01 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Enums\UI;
+namespace App\Enums\UI\Fulfilment;
 
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum ProformaTabsEnum: string
+enum RecurringBillTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
@@ -24,21 +24,21 @@ enum ProformaTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            ProformaTabsEnum::SHOWCASE => [
+            RecurringBillTabsEnum::SHOWCASE => [
                 'title' => __('stored item'),
                 'icon'  => 'fas fa-info-circle',
             ],
-            ProformaTabsEnum::PALLETS => [
+            RecurringBillTabsEnum::PALLETS => [
                 'title' => __('pallets'),
                 'icon'  => 'fal fa-pallet',
             ],
-            ProformaTabsEnum::DATA => [
+            RecurringBillTabsEnum::DATA => [
                 'align' => 'right',
                 'type'  => 'icon',
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
             ],
-            ProformaTabsEnum::HISTORY => [
+            RecurringBillTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',

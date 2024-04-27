@@ -212,7 +212,7 @@ class IndexFulfilmentRentals extends OrgAction
 
         return
             array_merge(
-                IndexFulfilmentProducts::make()->getBreadcrumbs(routeParameters:$routeParameters, icon: 'fal fa-cube'),
+                IndexFulfilmentProducts::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-cube'),
                 $headCrumb(
                     [
                         'name'       => 'grp.org.fulfilments.show.products.rentals.index',

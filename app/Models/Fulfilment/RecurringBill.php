@@ -7,6 +7,7 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
@@ -27,7 +28,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $rental_agreement_id
  * @property int $fulfilment_customer_id
  * @property int $fulfilment_id
- * @property string|null $status
+ * @property RecurringBillStatusEnum|null $status
  * @property string $start_date
  * @property string $end_date
  * @property string $amount
@@ -58,8 +59,10 @@ class RecurringBill extends Model
     use HasSlug;
 
     protected $guarded = [];
+
     protected $casts   = [
-        'data' => 'array',
+        'data'   => 'array',
+        'status' => RecurringBillStatusEnum::class
     ];
 
     protected $attributes = [
@@ -88,7 +91,6 @@ class RecurringBill extends Model
     public function organisation(): BelongsTo
     {
         return $this->belongsTo(Organisation::class);
-
     }
 
     public function fulfilmentCustomer(): BelongsTo

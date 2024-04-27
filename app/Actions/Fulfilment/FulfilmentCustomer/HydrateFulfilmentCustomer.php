@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\FulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletDeliveries;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletReturns;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateRecurringBills;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItems;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
 use App\Actions\Fulfilment\PalletReturn\Hydrators\HydratePalletReturns;
@@ -36,6 +37,8 @@ class HydrateFulfilmentCustomer extends HydrateModel
         foreach ($fulfilmentCustomer->palletReturns as $palletReturn) {
             HydratePalletReturns::run($palletReturn);
         }
+
+        FulfilmentCustomerHydrateRecurringBills::run($fulfilmentCustomer);
     }
 
     protected function getModel(string $slug): FulfilmentCustomer

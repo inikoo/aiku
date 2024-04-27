@@ -72,7 +72,7 @@ class ShowFulfilment extends OrgAction
 
                     ],
                     [
-                        'name'  => __('Proformas'),
+                        'name'  => __('Recurring bills'),
                         'icon'  => ['fal', 'fa-receipt'],
                         'index' => [
                             'number' => 0  // TODO

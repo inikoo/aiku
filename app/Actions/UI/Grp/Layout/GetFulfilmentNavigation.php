@@ -114,12 +114,12 @@ class GetFulfilmentNavigation
                             ],
                         ],
                         [
-                            'label'   => __('Proformas'),
-                            'tooltip' => __('Proforma invoices'),
+                            'label'   => __('Recurring bills'),
+                            'tooltip' => __('Recurring bills'),
                             'icon'    => ['fal', 'fa-receipt'],
-                            'root'    => 'grp.org.fulfilments.show.operations.fulfilment_proformas.',
+                            'root'    => 'grp.org.fulfilments.show.operations.recurring_bills.',
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
+                                'name'       => 'grp.org.fulfilments.show.operations.recurring_bills.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ],
                         ],

@@ -34,6 +34,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $pallets_storage
  * @property bool $items_storage
  * @property bool $dropshipping
+ * @property string|null $webhook_access_key
  * @property int|null $current_recurring_bill_id
  * @property int $number_pallets
  * @property int $number_pallets_type_pallet
@@ -87,13 +88,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_pallet_returns_state_picked
  * @property int $number_pallet_returns_state_dispatched
  * @property int $number_pallet_returns_state_cancel
+ * @property int $number_recurring_bills
+ * @property int $number_recurring_bills_status_current
+ * @property int $number_recurring_bills_status_former
  * @property RentalAgreementStateEnum|null $rental_agreement_state
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
- * @property string|null $webhook_access_key
  * @property-read \App\Models\Fulfilment\RecurringBill|null $currentRecurringBill
  * @property-read Customer $customer
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
@@ -102,7 +105,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletDelivery> $palletDeliveries
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletReturn> $palletReturns
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\FulfilmentProforma> $proformas
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
  * @property-read \App\Models\Fulfilment\RentalAgreement|null $rentalAgreement
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RentalAgreementClause> $rentalAgreementClauses
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
@@ -189,9 +192,9 @@ class FulfilmentCustomer extends Model
         return $this->hasMany(PalletReturn::class);
     }
 
-    public function proformas(): HasMany
+    public function recurringBills(): HasMany
     {
-        return $this->hasMany(FulfilmentProforma::class);
+        return $this->hasMany(RecurringBill::class);
     }
 
     public function storedItemReturns(): HasMany

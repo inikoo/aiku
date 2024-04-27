@@ -23,6 +23,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgPaymentServiceProviders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProspects;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRecurringBills;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSales;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStocks;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouse;
@@ -61,6 +62,7 @@ class HydrateOrganisation extends HydrateModel
             OrganisationHydrateFamilies::run($organisation);
             OrganisationHydrateCollectionCategories::run($organisation);
             OrganisationHydrateCollections::run($organisation);
+            OrganisationHydrateRecurringBills::run($organisation);
         }
 
     }
