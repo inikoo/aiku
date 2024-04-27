@@ -6,26 +6,24 @@
  */
 
 use App\Stubs\Migrations\HasCatalogueStats;
-use App\Stubs\Migrations\HasSalesStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasCatalogueStats;
-    use HasSalesStats;
+
     public function up(): void
     {
         Schema::create('collection_category_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedInteger('collection_category_id')->index();
             $table->foreign('collection_category_id')->references('id')->on('collection_categories');
-            $table=$this->catalogueHeadStats($table);
-            $table=$this->salesStats($table, ['shop_amount','org_amount','group_amount']);
+            $table->unsignedInteger('number_collections')->default(0);
+            $table = $this->catalogueProductsStats($table);
             $table->timestampsTz();
         });
     }
-
 
     public function down(): void
     {

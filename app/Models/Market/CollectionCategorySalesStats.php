@@ -8,7 +8,6 @@
 namespace App\Models\Market;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  *
@@ -136,7 +135,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Market\CollectionCategory $collectionCategory
  * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategorySalesStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategorySalesStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategorySalesStats query()
@@ -146,8 +144,4 @@ class CollectionCategorySalesStats extends Model
 {
     protected $guarded = [];
 
-    public function collectionCategory(): BelongsTo
-    {
-        return $this->belongsTo(CollectionCategory::class);
-    }
 }

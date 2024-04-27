@@ -26,7 +26,6 @@ return new class () extends Migration {
             $table->unsignedInteger('image_id')->nullable();
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->string('state')->nullable()->index();
             $table->jsonb('data');
             $table->timestampstz();
             $this->softDeletes($table);

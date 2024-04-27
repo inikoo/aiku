@@ -19,7 +19,7 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedInteger('collection_category_id')->index();
             $table->foreign('collection_category_id')->references('id')->on('collection_categories');
-            $table=$this->salesStats($table, ['shop_amount','org_amount','group_amount']);
+            $table = $this->salesStats($table, ['shop_amount', 'org_amount', 'group_amount']);
             $table->timestampsTz();
         });
     }

@@ -13,6 +13,7 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -31,13 +32,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $description
  * @property int|null $image_id
  * @property int|null $shop_id
- * @property string|null $state
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Market\Collection> $collections
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read \App\Models\Market\CollectionCategorySalesStats|null $salesStats
@@ -106,6 +107,11 @@ class CollectionCategory extends Model implements Auditable
     public function salesStats(): HasOne
     {
         return $this->hasOne(CollectionCategorySalesStats::class);
+    }
+
+    public function collections(): BelongsToMany
+    {
+        return $this->belongsToMany(Collection::class);
     }
 
 }
