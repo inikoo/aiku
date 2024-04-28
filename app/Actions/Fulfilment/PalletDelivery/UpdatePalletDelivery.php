@@ -29,9 +29,6 @@ class UpdatePalletDelivery extends OrgAction
     use WithActionUpdate;
 
     public Customer $customer;
-    /**
-     * @var true
-     */
     private bool $action = false;
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
@@ -46,7 +43,6 @@ class UpdatePalletDelivery extends OrgAction
         }
 
         if ($request->user() instanceof WebUser) {
-            // TODO: Raul please do the permission for the web user
             return true;
         }
 
@@ -56,9 +52,9 @@ class UpdatePalletDelivery extends OrgAction
     public function rules(): array
     {
         return [
-            'customer_notes'=> ['sometimes','nullable','string'],
-            'public_notes'  => ['sometimes','nullable','string'],
-            'internal_notes'=> ['sometimes','nullable','string'],
+            'customer_notes'=> ['sometimes','nullable','string','max:4000'],
+            'public_notes'  => ['sometimes','nullable','string','max:4000'],
+            'internal_notes'=> ['sometimes','nullable','string','max:4000'],
         ];
     }
 

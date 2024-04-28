@@ -300,7 +300,13 @@ test('update pallet delivery notes', function (PalletDelivery $palletDelivery) {
         ->and($palletDelivery->public_notes)->toBe('Note B')
         ->and($palletDelivery->internal_notes)->toBe('Note C');
 
+    $palletDelivery->update(
+        [
+            'customer_notes' => '',
 
+        ]
+    );
+    expect($palletDelivery->customer_notes)->toBe('');
     return $palletDelivery;
 })->depends('create pallet delivery');
 
