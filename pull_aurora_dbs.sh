@@ -4,12 +4,7 @@
 # Copyright (c) 2023, Raul A Perusquia Flores
 #
 
-scp export_aurora_db.sh devels:paso_au/
-#scp aurora_migration_base.sh devels:paso_au/
-#scp aurora_migration_crm.sh devels:paso_au/
-echo "copying sql 🍬"
-ssh devels 'cd paso_au; ./export_aurora_db.sh'
-scp devels:paso_au/*.bz2 devops/paso_au/
+scp devels:paso/*.bz2 devops/paso_au/
 cd devops/paso_au
 rm *_base.sql
 echo "uncompressing sql dumps 🎡"
