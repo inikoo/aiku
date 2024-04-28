@@ -40,7 +40,9 @@ class StoreRecurringBill extends OrgAction
 
         /** @var RecurringBill $recurringBill */
         $recurringBill=$rentalAgreement->recurringBills()->create($modelData);
-        $rentalAgreement->fulfilmentCustomer->update(['current_recurring_bill_id'=>$recurringBill->id]);
+        $recurringBill->stats()->create();
+        StoreStrayRecurringBillTransactionables::run($recurringBill);
+
 
         GroupHydrateRecurringBills::dispatch($rentalAgreement->group);
         OrganisationHydrateRecurringBills::dispatch($rentalAgreement->organisation);

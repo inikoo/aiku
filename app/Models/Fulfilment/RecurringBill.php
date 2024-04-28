@@ -14,6 +14,8 @@ use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InFulfilmentCustomer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -44,6 +46,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read \App\Models\Fulfilment\RentalAgreement $rentalAgreement
+ * @property-read \App\Models\Fulfilment\RecurringBillStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBillTransaction> $transactions
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|RecurringBill newModelQuery()
@@ -63,7 +66,7 @@ class RecurringBill extends Model
 
     protected $guarded = [];
 
-    protected $casts   = [
+    protected $casts = [
         'data'   => 'array',
         'status' => RecurringBillStatusEnum::class
     ];
@@ -90,9 +93,17 @@ class RecurringBill extends Model
     public function rentalAgreement(): BelongsTo
     {
         return $this->belongsTo(RentalAgreement::class);
-
     }
 
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(RecurringBillTransaction::class);
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(RecurringBillStats::class);
+    }
 
 
 }

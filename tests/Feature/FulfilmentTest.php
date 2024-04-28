@@ -480,8 +480,7 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
     $fulfilmentCustomer->refresh();
 
 
-    expect($fulfilmentCustomer->currentRecurringBill)->toBeInstanceOf(RecurringBill::class)
-        ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKED_IN)
+    expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKED_IN)
         ->and($palletDelivery->booked_in_at)->toBeInstanceOf(Carbon::class)
         ->and($palletDelivery->number_pallets)->toBe(3)
         ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
@@ -497,7 +496,24 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
         ->and($palletDelivery->fulfilment->stats->number_recurring_bills_status_current)->toBe(1)
         ->and($palletDelivery->fulfilmentCustomer->number_recurring_bills)->toBe(1)
         ->and($palletDelivery->fulfilmentCustomer->number_recurring_bills_status_former)->toBe(0)
-        ->and($palletDelivery->fulfilmentCustomer->number_recurring_bills_status_current)->toBe(1);
+        ->and($palletDelivery->fulfilmentCustomer->number_recurring_bills_status_current)->toBe(1)
+        ->and($fulfilmentCustomer->currentRecurringBill)->toBeInstanceOf(RecurringBill::class);
+
+    $recurringBill = $fulfilmentCustomer->currentRecurringBill;
+    expect($recurringBill->stats->number_transactions)->toBe(2)
+        ->and($recurringBill->stats->number_transactions_type_pallets)->toBe(2)
+        ->and($recurringBill->stats->number_transactions_type_stored_items)->toBe(0);
+
+    $firstPallet  = $palletDelivery->pallets->first();
+    $secondPallet = $palletDelivery->pallets->skip(1)->first();
+    $thirdPallet  = $palletDelivery->pallets->last();
+
+    expect($firstPallet->state)->toBe(PalletStateEnum::NOT_RECEIVED)
+        ->and($secondPallet->state)->toBe(PalletStateEnum::STORING)
+        ->and($secondPallet->storing_at)->toBeInstanceOf(Carbon::class)
+        ->and($secondPallet->currentRecurringBill)->toBeInstanceOf(RecurringBill::class)
+        ->and($thirdPallet->state)->toBe(PalletStateEnum::STORING);
+
 
 
     return $palletDelivery;
