@@ -25,9 +25,13 @@ class SetPalletAsNotReceived extends OrgAction
 
     public function handle(Pallet $pallet): Pallet
     {
-        $modelData['state']       = PalletStateEnum::NOT_RECEIVED;
-        $modelData['status']      = PalletStatusEnum::NOT_RECEIVED;
-        $modelData['location_id'] = null;
+
+        data_set($modelData, 'state', PalletStateEnum::NOT_RECEIVED);
+        data_set($modelData, 'status', PalletStatusEnum::NOT_RECEIVED);
+        data_set($modelData, 'location_id', null);
+        data_set($modelData, 'booked_in_at', null);
+        data_set($modelData, 'set_as_not_received_at', now());
+
 
         $pallet = UpdatePallet::run($pallet, $modelData, ['data']);
 

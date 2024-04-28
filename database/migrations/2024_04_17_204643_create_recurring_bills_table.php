@@ -29,7 +29,7 @@ return new class () extends Migration {
             $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
             $table->string('status')->nullable()->index()->default(RecurringBillStatusEnum::CURRENT->value);
             $table->dateTimeTz('start_date');
-            $table->dateTimeTz('end_date');
+            $table->dateTimeTz('end_date')->nullable();
             $table->decimal('amount', 10, 2)->default(0);
             $table->decimal('tax', 10, 2)->default(0);
             $table->decimal('total', 10, 2)->default(0);

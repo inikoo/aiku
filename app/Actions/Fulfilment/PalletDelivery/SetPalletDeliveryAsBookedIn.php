@@ -18,7 +18,7 @@ use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Models\Fulfilment\PalletDelivery;
 use Lorisleiva\Actions\ActionRequest;
 
-class BookedInPalletDelivery extends OrgAction
+class SetPalletDeliveryAsBookedIn extends OrgAction
 {
     use WithActionUpdate;
     private PalletDelivery $palletDelivery;
@@ -32,8 +32,9 @@ class BookedInPalletDelivery extends OrgAction
         foreach ($palletDelivery->pallets as $pallet) {
             if ($pallet->state == PalletStateEnum::BOOKED_IN) {
                 UpdatePallet::run($pallet, [
-                    'state'  => PalletStateEnum::STORING,
-                    'status' => PalletStatusEnum::STORING
+                    'state'      => PalletStateEnum::STORING,
+                    'status'     => PalletStatusEnum::STORING,
+                    'storing_at' => now()
                 ]);
             }
         }

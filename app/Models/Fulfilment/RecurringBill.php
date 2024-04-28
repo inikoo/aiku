@@ -31,7 +31,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $fulfilment_id
  * @property RecurringBillStatusEnum|null $status
  * @property string $start_date
- * @property string $end_date
+ * @property string|null $end_date
  * @property string $amount
  * @property string $tax
  * @property string $total

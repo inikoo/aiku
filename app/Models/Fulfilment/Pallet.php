@@ -47,9 +47,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $notes
  * @property int|null $current_recurring_bill_id
  * @property int $number_stored_items
- * @property string|null $received_at
- * @property string|null $booked_in_at
- * @property string|null $settled_at
+ * @property \Illuminate\Support\Carbon|null $received_at
+ * @property \Illuminate\Support\Carbon|null $booking_in_at
+ * @property \Illuminate\Support\Carbon|null $set_as_not_received_at
+ * @property \Illuminate\Support\Carbon|null $booked_in_at
+ * @property \Illuminate\Support\Carbon|null $storing_at
+ * @property \Illuminate\Support\Carbon|null $requested_for_return_at
+ * @property \Illuminate\Support\Carbon|null $picking_at
+ * @property \Illuminate\Support\Carbon|null $picked_at
+ * @property \Illuminate\Support\Carbon|null $set_as_incident_at
+ * @property \Illuminate\Support\Carbon|null $dispatched_at
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -86,10 +93,21 @@ class Pallet extends Model
 
     protected $guarded = [];
     protected $casts   = [
-        'data'   => 'array',
-        'state'  => PalletStateEnum::class,
-        'status' => PalletStatusEnum::class,
-        'type'   => PalletTypeEnum::class
+        'data'                     => 'array',
+        'state'                    => PalletStateEnum::class,
+        'status'                   => PalletStatusEnum::class,
+        'type'                     => PalletTypeEnum::class,
+        'set_as_not_received_at'   => 'datetime',
+        'received_at'              => 'datetime',
+        'booking_in_at'            => 'datetime',
+        'booked_in_at'             => 'datetime',
+        'storing_at'               => 'datetime',
+        'requested_for_return_at'  => 'datetime',
+        'picking_at'               => 'datetime',
+        'picked_at'                => 'datetime',
+        'set_as_incident_at'       => 'datetime',
+        'dispatched_at'            => 'datetime',
+
     ];
 
     protected $attributes = [
@@ -169,4 +187,10 @@ class Pallet extends Model
     {
         return $this->belongsTo(PalletReturn::class);
     }
+
+    public function currentRecurringBill(): BelongsTo
+    {
+        return $this->belongsTo(RecurringBill::class, 'current_recurring_bill_id');
+    }
+
 }

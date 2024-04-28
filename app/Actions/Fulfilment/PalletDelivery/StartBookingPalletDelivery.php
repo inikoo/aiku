@@ -1,14 +1,13 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Wed, 24 Jan 2024 16:14:16 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 28 Apr 2024 19:15:04 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
-use App\Actions\Fulfilment\Pallet\SetPalletRental;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -16,46 +15,28 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
-use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
-use App\Models\Fulfilment\Rental;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;
 
-class ReceivedPalletDelivery extends OrgAction
+class StartBookingPalletDelivery extends OrgAction
 {
     use WithActionUpdate;
     private PalletDelivery $palletDelivery;
 
     public function handle(PalletDelivery $palletDelivery, array $modelData = []): PalletDelivery
     {
-        $modelData['received_at'] = now();
-        $modelData['state']       = PalletDeliveryStateEnum::RECEIVED;
+        $modelData['booking_in_at'] = now();
+        $modelData['state']         = PalletDeliveryStateEnum::BOOKING_IN;
 
         foreach ($palletDelivery->pallets as $pallet) {
-
-
-
             UpdatePallet::run($pallet, [
-                'state'       => PalletStateEnum::RECEIVED,
-                'status'      => PalletStatusEnum::RECEIVING,
-                'received_at' => now()
+                'state'         => PalletStateEnum::BOOKING_IN,
+                'status'        => PalletStatusEnum::RECEIVING,
+                'booking_in_at' => now()
             ]);
 
-            $pallet->generateSlug();
-            $pallet->save();
 
-            /** @var Rental $rental */
-            $rental = $this->organisation->rentals()
-                ->where('auto_assign_asset', class_basename(Pallet::class))
-                ->where('auto_assign_asset_type', $pallet->type->value)
-                ->first();
-
-            if($rental) {
-                SetPalletRental::run($pallet, [
-                    'rental_id' => $rental->id
-                ]);
-            }
 
         }
 
@@ -63,14 +44,13 @@ class ReceivedPalletDelivery extends OrgAction
 
 
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
-        SendPalletDeliveryNotification::run($palletDelivery);
 
         return $palletDelivery;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->palletDelivery->state != PalletDeliveryStateEnum::CONFIRMED) {
+        if($this->palletDelivery->state != PalletDeliveryStateEnum::RECEIVED) {
             return false;
         }
 

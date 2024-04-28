@@ -49,8 +49,15 @@ return new class () extends Migration {
                 $table->unsignedSmallInteger('current_recurring_bill_id')->nullable()->index()->after('pallet_return_id');
                 $table->unsignedSmallInteger('number_stored_items')->default(0);
                 $table->dateTimeTz('received_at')->nullable();
+                $table->dateTimeTz('booking_in_at')->nullable();
+                $table->dateTimeTz('set_as_not_received_at')->nullable();
                 $table->dateTimeTz('booked_in_at')->nullable();
-                $table->dateTimeTz('settled_at')->nullable();
+                $table->dateTimeTz('storing_at')->nullable();
+                $table->dateTimeTz('requested_for_return_at')->nullable();
+                $table->dateTimeTz('picking_at')->nullable();
+                $table->dateTimeTz('picked_at')->nullable();
+                $table->dateTimeTz('set_as_incident_at')->nullable();
+                $table->dateTimeTz('dispatched_at')->nullable();
                 $table->jsonb('data');
                 $table->timestampsTz();
                 $table = $this->softDeletes($table);

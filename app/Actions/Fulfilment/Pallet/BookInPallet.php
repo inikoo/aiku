@@ -26,7 +26,10 @@ class BookInPallet extends OrgAction
 
     public function handle(Pallet $pallet, array $modelData): Pallet
     {
-        $modelData['state'] = PalletStateEnum::BOOKED_IN;
+        data_set($modelData, 'state', PalletStateEnum::BOOKED_IN);
+        data_set($modelData, 'booked_in_at', now());
+        data_set($modelData, 'set_as_not_received_at', null);
+
         $pallet             = $this->update($pallet, $modelData, ['data']);
         UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
 

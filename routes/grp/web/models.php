@@ -29,7 +29,7 @@ use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
-use App\Actions\Fulfilment\PalletDelivery\BookedInPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\DeletePalletFromDelivery;
 use App\Actions\Fulfilment\PalletDelivery\PdfPalletDelivery;
@@ -122,7 +122,7 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('submit', SubmitPalletDelivery::class)->name('submit');
     Route::post('confirm', ConfirmPalletDelivery::class)->name('confirm');
     Route::post('received', ReceivedPalletDelivery::class)->name('received');
-    Route::post('booked-in', BookedInPalletDelivery::class)->name('booked-in');
+    Route::post('booked-in', SetPalletDeliveryAsBookedIn::class)->name('booked-in');
 
 
     Route::post('pallet-upload', [ImportPallet::class,'fromGrp'])->name('pallet.import');

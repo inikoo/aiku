@@ -40,8 +40,6 @@ class UpdatePalletDeliveryStateFromItems
                 return $palletDelivery;
             }
 
-
-
             if ($palletReceivedCount == $palletStateNotReceivedCount) {
                 return NotReceivedPalletDelivery::run($palletDelivery);
             }
@@ -49,7 +47,6 @@ class UpdatePalletDeliveryStateFromItems
             if ($palletNotInRentalCount >0) {
                 return $palletDelivery;
             }
-
 
 
             return $this->update(
