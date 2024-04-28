@@ -9,6 +9,7 @@ namespace App\Models\Accounting;
 
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -47,6 +48,7 @@ use Spatie\Sluggable\SlugOptions;
 class OrgPaymentServiceProvider extends Model
 {
     use HasSlug;
+    use InOrganisation;
 
     protected $casts = [
         'data' => 'array',
@@ -74,16 +76,6 @@ class OrgPaymentServiceProvider extends Model
     public function paymentServiceProvider(): BelongsTo
     {
         return $this->belongsTo(PaymentServiceProvider::class);
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
-
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
     }
 
     public function payments(): HasManyThrough

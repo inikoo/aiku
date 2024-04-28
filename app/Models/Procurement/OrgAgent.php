@@ -11,6 +11,7 @@ use App\Enums\Procurement\AgentOrganisation\AgentOrganisationStatusEnum;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -39,6 +40,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class OrgAgent extends Model
 {
+    use InOrganisation;
+
     protected $casts = [
         'status' => AgentOrganisationStatusEnum::class
     ];
@@ -59,16 +62,6 @@ class OrgAgent extends Model
     public function orgSuppliers(): HasMany
     {
         return $this->hasMany(OrgSupplier::class);
-    }
-
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
     }
 
 

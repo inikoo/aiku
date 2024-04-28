@@ -13,6 +13,7 @@ use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InCustomer;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -65,6 +66,7 @@ class Shipment extends Model
     use SoftDeletes;
     use HasUniversalSearch;
     use HasFactory;
+    use InCustomer;
 
     protected $casts = [
         'data' => 'array',
@@ -87,25 +89,6 @@ class Shipment extends Model
         return $this->hasMany(ShipmentEvent::class);
     }
 
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
-
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
-
-    public function shop(): BelongsTo
-    {
-        return $this->belongsTo(Shop::class);
-    }
-
-    public function customer(): BelongsTo
-    {
-        return $this->belongsTo(Customer::class);
-    }
 
     public function deliveryNotes(): BelongsToMany
     {

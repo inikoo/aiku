@@ -19,6 +19,7 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasImages;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InShop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -104,11 +105,10 @@ class Product extends Model implements HasMedia
 {
     use SoftDeletes;
     use HasSlug;
-
     use HasUniversalSearch;
     use HasImages;
     use HasFactory;
-
+    use InShop;
 
     protected $casts = [
         'data'                   => 'array',
@@ -134,7 +134,7 @@ class Product extends Model implements HasMedia
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                return $this->shop->slug . '-' . $this->code;
+                return $this->shop->slug.'-'.$this->code;
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
@@ -143,27 +143,13 @@ class Product extends Model implements HasMedia
 
     protected $guarded = [];
 
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
-
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
-
-    public function shop(): BelongsTo
-    {
-        return $this->belongsTo(Shop::class);
-    }
 
     public function tradeUnits(): BelongsToMany
     {
         return $this->belongsToMany(
             TradeUnit::class,
             'product_trade_unit',
-        )->withPivot(['units_per_main_outer','notes'])->withTimestamps();
+        )->withPivot(['units_per_main_outer', 'notes'])->withTimestamps();
     }
 
     public function salesStats(): HasOne
@@ -206,12 +192,11 @@ class Product extends Model implements HasMedia
     public function rental(): HasOne
     {
         return $this->hasOne(Rental::class, 'id', 'main_outerable_id');
-
     }
 
     public function mainOuterable(): MorphTo
     {
-        return $this->morphTo(type:'outerable_type', id:'main_outerable_id');
+        return $this->morphTo(type: 'outerable_type', id: 'main_outerable_id');
     }
 
     public function currentHistoricOuterable(): BelongsTo

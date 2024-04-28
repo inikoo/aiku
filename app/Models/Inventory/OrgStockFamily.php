@@ -12,6 +12,7 @@ use App\Models\SupplyChain\StockFamily;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -53,6 +54,7 @@ class OrgStockFamily extends Model
     use HasSlug;
     use SoftDeletes;
     use HasUniversalSearch;
+    use InOrganisation;
 
     protected $casts = [
         'data'  => 'array',
@@ -97,14 +99,5 @@ class OrgStockFamily extends Model
         return $this->belongsTo(StockFamily::class);
     }
 
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
-
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
 
 }

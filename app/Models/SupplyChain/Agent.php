@@ -105,6 +105,7 @@ class Agent extends Model implements HasMedia, Auditable
         return $this->belongsTo(Group::class);
     }
 
+    // Note: this a one-to-one relationship (agent is an extension of an organisation)
     public function organisation(): BelongsTo
     {
         return $this->belongsTo(Organisation::class);

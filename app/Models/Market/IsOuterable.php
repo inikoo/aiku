@@ -7,26 +7,12 @@
 
 namespace App\Models\Market;
 
-use App\Models\SysAdmin\Group;
-use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 trait IsOuterable
 {
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
-
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
-
-    public function shop(): BelongsTo
-    {
-        return $this->belongsTo(Shop::class);
-    }
+    use InShop;
 
     public function product(): BelongsTo
     {

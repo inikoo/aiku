@@ -22,6 +22,7 @@ use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InCustomer;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -84,9 +85,9 @@ class Payment extends Model
 {
     use SoftDeletes;
     use HasSlug;
-
     use HasUniversalSearch;
     use HasFactory;
+    use InCustomer;
 
     protected $casts = [
         'data'              => 'array',
@@ -149,33 +150,15 @@ class Payment extends Model
         return $this->belongsTo(OrgPaymentServiceProvider::class);
     }
 
-    public function shop(): BelongsTo
-    {
-        return $this->belongsTo(Shop::class);
-    }
-
     public function paymentAccount(): BelongsTo
     {
         return $this->belongsTo(PaymentAccount::class);
     }
 
-    public function customer(): BelongsTo
-    {
-        return $this->belongsTo(Customer::class);
-    }
 
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
     }
 
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
 }

@@ -19,6 +19,7 @@ use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InCustomer;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -104,6 +105,7 @@ class Prospect extends Model
     use HasUniversalSearch;
     use HasFactory;
     use HasTags;
+    use InCustomer;
 
     protected $casts = [
         'data'                 => 'array',
@@ -187,25 +189,6 @@ class Prospect extends Model
             ->slugsShouldBeNoLongerThan(64);
     }
 
-    public function shop(): BelongsTo
-    {
-        return $this->belongsTo(Shop::class);
-    }
-
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
-
-    public function customer(): BelongsTo
-    {
-        return $this->belongsTo(Customer::class);
-    }
 
     public function address(): BelongsTo
     {

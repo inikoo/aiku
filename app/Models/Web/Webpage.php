@@ -15,6 +15,7 @@ use App\Models\Helpers\Snapshot;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -85,6 +86,7 @@ class Webpage extends Model
     use HasFactory;
     use HasUniversalSearch;
     use SoftDeletes;
+    use InOrganisation;
 
     protected $casts = [
         'data'            => 'array',
@@ -133,15 +135,6 @@ class Webpage extends Model
         return $this->belongsTo(Website::class);
     }
 
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
 
     public function snapshots(): MorphMany
     {

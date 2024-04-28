@@ -13,11 +13,11 @@ use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\InCustomer;
 use App\Models\Traits\IsUserable;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -87,7 +87,7 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
     use IsUserable;
     use HasPermissions;
     use Notifiable;
-
+    use InCustomer;
 
     public function getSlugOptions(): SlugOptions
     {
@@ -102,11 +102,6 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
             })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(12);
-    }
-
-    public function customer(): BelongsTo
-    {
-        return $this->belongsTo(Customer::class);
     }
 
     protected $guarded = [
@@ -135,24 +130,11 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
         SendLinkResetPassword::run($token, $this);
     }
 
-    public function shop(): BelongsTo
-    {
-        return $this->belongsTo(Shop::class);
-    }
-
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
 
     public function stats(): HasOne
     {
         return $this->hasOne(WebUserStats::class);
     }
 
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
 
 }

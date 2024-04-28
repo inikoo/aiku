@@ -10,6 +10,7 @@ namespace App\Models\Procurement;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -39,6 +40,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class OrgSupplier extends Model
 {
+    use InOrganisation;
+
     protected $table = 'org_suppliers';
 
     protected $guarded = [];
@@ -48,15 +51,6 @@ class OrgSupplier extends Model
         return $this->belongsTo(Supplier::class);
     }
 
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
 
     public function stats(): HasOne
     {

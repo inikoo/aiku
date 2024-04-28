@@ -13,6 +13,7 @@ use App\Enums\OMS\Transaction\TransactionTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Dispatch\DeliveryNoteItem;
 use App\Models\Market\Shop;
+use App\Models\Traits\InCustomer;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -56,8 +57,10 @@ use Illuminate\Support\Carbon;
  * @property string|null $source_id
  * @property-read Customer $customer
  * @property-read Collection<int, DeliveryNoteItem> $deliveryNoteItems
+ * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Model|\Eloquent $item
  * @property-read \App\Models\OMS\Order|null $order
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-write mixed $quantity
  * @property-read Shop $shop
  * @method static \Database\Factories\OMS\TransactionFactory factory($count = null, $state = [])
@@ -73,6 +76,7 @@ class Transaction extends Model
 {
     use SoftDeletes;
     use HasFactory;
+    use InCustomer;
 
     protected $table = 'transactions';
 
@@ -106,15 +110,6 @@ class Transaction extends Model
         return $this->belongsTo(Order::class);
     }
 
-    public function shop(): BelongsTo
-    {
-        return $this->belongsTo(Shop::class);
-    }
-
-    public function customer(): BelongsTo
-    {
-        return $this->belongsTo(Customer::class);
-    }
 
 
     /** @noinspection PhpUnused */

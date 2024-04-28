@@ -11,9 +11,9 @@ use App\Enums\CRM\Appointment\AppointmentEventEnum;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
 use App\Enums\CRM\Appointment\AppointmentTypeEnum;
 use App\Models\Market\Shop;
+use App\Models\Traits\InCustomer;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -38,6 +38,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\CRM\Customer $customer
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read Shop $shop
  * @method static \Illuminate\Database\Eloquent\Builder|Appointment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Appointment newQuery()
@@ -48,6 +50,7 @@ class Appointment extends Model
 {
     use HasFactory;
     use HasSlug;
+    use InCustomer;
 
     protected $casts = [
         'state'            => AppointmentStateEnum::class,
@@ -71,13 +74,4 @@ class Appointment extends Model
         return 'slug';
     }
 
-    public function customer(): BelongsTo
-    {
-        return $this->belongsTo(Customer::class);
-    }
-
-    public function shop(): BelongsTo
-    {
-        return $this->belongsTo(Shop::class);
-    }
 }

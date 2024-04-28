@@ -18,12 +18,12 @@ use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Role;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -57,6 +57,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, Fulfilment> $fulfilments
+ * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Collection<int, Issue> $issues
  * @property-read Collection<int, \App\Models\Inventory\Location> $locations
  * @property-read Organisation $organisation
@@ -80,10 +81,10 @@ class Warehouse extends Model implements Auditable
 {
     use HasSlug;
     use SoftDeletes;
-
     use HasUniversalSearch;
     use HasFactory;
     use HasHistory;
+    use InOrganisation;
 
     protected $casts = [
         'state'    => WarehouseStateEnum::class,
@@ -105,11 +106,6 @@ class Warehouse extends Model implements Auditable
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(4);
-    }
-
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
     }
 
     public function warehouseAreas(): HasMany

@@ -18,12 +18,12 @@ use App\Models\SysAdmin\User;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -96,6 +96,7 @@ class Employee extends Model implements HasMedia, Auditable
     use HasPhoto;
     use HasFactory;
     use HasHistory;
+    use InOrganisation;
 
     protected $casts = [
         'data'                => 'array',
@@ -151,16 +152,6 @@ class Employee extends Model implements HasMedia, Auditable
     public function issues(): MorphToMany
     {
         return $this->morphToMany(Issue::class, 'issuable');
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
-
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
     }
 
     public function workplaces(): BelongsToMany

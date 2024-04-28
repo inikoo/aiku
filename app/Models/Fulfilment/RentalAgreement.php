@@ -12,8 +12,8 @@ use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InFulfilmentCustomer;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
@@ -55,6 +55,7 @@ class RentalAgreement extends Model
     use SoftDeletes;
     use HasUniversalSearch;
     use HasSlug;
+    use InFulfilmentCustomer;
 
     protected $guarded = [];
     protected $casts   = [
@@ -79,26 +80,6 @@ class RentalAgreement extends Model
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
-
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
-
-    public function fulfilmentCustomer(): BelongsTo
-    {
-        return $this->belongsTo(FulfilmentCustomer::class);
-    }
-
-    public function fulfilment(): BelongsTo
-    {
-        return $this->belongsTo(Fulfilment::class);
     }
 
     public function recurringBills(): HasMany

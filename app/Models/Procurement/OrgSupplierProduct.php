@@ -9,10 +9,10 @@ namespace App\Models\Procurement;
 
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
@@ -34,6 +34,8 @@ use Illuminate\Support\Carbon;
  */
 class OrgSupplierProduct extends Model
 {
+    use InOrganisation;
+
     protected $table = 'org_supplier_products';
 
     protected $guarded = [];
@@ -43,14 +45,5 @@ class OrgSupplierProduct extends Model
         return 'slug';
     }
 
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
 
 }

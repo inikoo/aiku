@@ -396,7 +396,8 @@ test('set rental to first pallet in the pallet delivery', function (PalletDelive
     $palletNotInRentalCount = $palletDelivery->pallets()->whereNull('rental_id')->count();
 
     expect($pallet->rental)->toBeInstanceOf(Rental::class)
-        ->and($palletNotInRentalCount)->toBe(0);;
+        ->and($palletNotInRentalCount)->toBe(0);
+    ;
 
     return $palletDelivery;
 })->depends('set location of first pallet in the pallet delivery');

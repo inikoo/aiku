@@ -13,6 +13,7 @@ use App\Models\Helpers\SerialReference;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InFulfilment;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -125,6 +126,7 @@ class FulfilmentCustomer extends Model
     use SoftDeletes;
     use HasUniversalSearch;
     use HasSlug;
+    use InFulfilment;
 
     protected $guarded = [];
     protected $casts   = [
@@ -152,24 +154,10 @@ class FulfilmentCustomer extends Model
             ->slugsShouldBeNoLongerThan(16);
     }
 
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
-
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
 
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
-    }
-
-    public function fulfilment(): BelongsTo
-    {
-        return $this->belongsTo(Fulfilment::class);
     }
 
     public function pallets(): HasMany

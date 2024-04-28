@@ -12,6 +12,7 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -59,10 +60,10 @@ class ClockingMachine extends Model implements Auditable
 {
     use SoftDeletes;
     use HasSlug;
-
     use HasUniversalSearch;
     use HasFactory;
     use HasHistory;
+    use InOrganisation;
 
     protected $casts = [
         'data'        => 'array',
@@ -99,13 +100,4 @@ class ClockingMachine extends Model implements Auditable
         return $this->hasMany(Clocking::class);
     }
 
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
 }

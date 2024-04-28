@@ -18,8 +18,9 @@ use App\Models\Market\Shop;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
-use App\Models\Traits\HasOrder;
+use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InCustomer;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -33,6 +34,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\OMS\Order
@@ -97,11 +99,12 @@ use Spatie\Sluggable\HasSlug;
  */
 class Order extends Model
 {
-    use HasOrder;
     use HasSlug;
+    use HasAddresses;
     use SoftDeletes;
     use HasUniversalSearch;
     use HasFactory;
+    use InCustomer;
 
     protected $casts = [
         'data'   => 'array',
@@ -119,6 +122,20 @@ class Order extends Model
     {
         return 'slug';
     }
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('number')
+            ->doNotGenerateSlugsOnUpdate()
+            ->saveSlugsTo('slug');
+    }
+
+    public function customerClient(): BelongsTo
+    {
+        return $this->belongsTo(CustomerClient::class);
+    }
+
 
     public function transactions(): HasMany
     {
@@ -145,18 +162,5 @@ class Order extends Model
         return $this->hasOne(OrderStats::class);
     }
 
-    public function shop(): BelongsTo
-    {
-        return $this->belongsTo(Shop::class);
-    }
 
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
 }

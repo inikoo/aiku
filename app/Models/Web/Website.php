@@ -20,6 +20,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasLogo;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InShop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -115,6 +116,7 @@ class Website extends Model implements Auditable, HasMedia
     use HasFactory;
     use InteractsWithMedia;
     use HasLogo;
+    use InShop;
 
     protected $casts = [
         'type'              => WebsiteTypeEnum::class,
@@ -173,20 +175,6 @@ class Website extends Model implements Auditable, HasMedia
             ->saveSlugsTo('slug');
     }
 
-    public function shop(): BelongsTo
-    {
-        return $this->belongsTo(Shop::class);
-    }
-
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
 
     public function webpages(): HasMany
     {

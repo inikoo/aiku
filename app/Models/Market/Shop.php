@@ -38,6 +38,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InOrganisation;
 use App\Models\Web\Website;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -138,9 +139,9 @@ class Shop extends Model
     use HasAddresses;
     use SoftDeletes;
     use HasSlug;
-
     use HasUniversalSearch;
     use HasFactory;
+    use InOrganisation;
 
     protected $casts = [
         'data'     => 'array',
@@ -170,16 +171,6 @@ class Shop extends Model
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(6);
-    }
-
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
-
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
     }
 
     public function crmStats(): HasOne
