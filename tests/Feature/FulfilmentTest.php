@@ -12,6 +12,7 @@ use App\Actions\Fulfilment\Pallet\SetPalletRental;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
+use App\Actions\Fulfilment\PalletDelivery\DeletePalletInDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
@@ -285,6 +286,26 @@ test('create pallet delivery', function ($fulfilmentCustomer) {
     return $palletDelivery;
 })->depends('create fulfilment customer');
 
+test('update pallet delivery notes', function (PalletDelivery $palletDelivery) {
+    $palletDelivery->update(
+        [
+            'customer_notes' => 'Note A',
+            'public_notes'   => 'Note B',
+            'internal_notes' => 'Note C',
+
+        ]
+    );
+
+    expect($palletDelivery->customer_notes)->toBe('Note A')
+        ->and($palletDelivery->public_notes)->toBe('Note B')
+        ->and($palletDelivery->internal_notes)->toBe('Note C');
+
+
+    return $palletDelivery;
+})->depends('create pallet delivery');
+
+
+
 test('add pallet to pallet delivery', function (PalletDelivery $palletDelivery) {
     $pallet = StorePalletFromDelivery::make()->action(
         $palletDelivery,
@@ -319,9 +340,26 @@ test('add multiple pallets to pallet delivery', function (PalletDelivery $pallet
         $palletDelivery,
         [
             'warehouse_id'   => $this->warehouse->id,
-            'number_pallets' => 2,
+            'number_pallets' => 3,
             'type'           => PalletTypeEnum::PALLET->value,
         ]
+    );
+
+    $palletDelivery->refresh();
+
+    expect($palletDelivery->number_pallets)->toBe(4)
+        ->and($palletDelivery->stats->number_pallets_type_pallet)->toBe(3)
+        ->and($palletDelivery->stats->number_pallets_type_oversize)->toBe(1)
+        ->and($palletDelivery->number_pallet_stored_items)->toBe(0)
+        ->and($palletDelivery->number_stored_items)->toBe(0);
+
+    return $palletDelivery;
+})->depends('create pallet delivery');
+
+test('remove a pallet from pallet delivery', function (PalletDelivery $palletDelivery) {
+
+    DeletePalletInDelivery::make()->action(
+        $palletDelivery->pallets->last()
     );
 
     $palletDelivery->refresh();
@@ -333,7 +371,7 @@ test('add multiple pallets to pallet delivery', function (PalletDelivery $pallet
         ->and($palletDelivery->number_stored_items)->toBe(0);
 
     return $palletDelivery;
-})->depends('create pallet delivery');
+})->depends('add multiple pallets to pallet delivery');
 
 test('confirm pallet delivery', function (PalletDelivery $palletDelivery) {
     SendPalletDeliveryNotification::shouldRun()->andReturn();

@@ -7,9 +7,15 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
-use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
+use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateUniversalSearch;
+use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePallets;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -18,7 +24,7 @@ use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
-class DeletePalletFromDelivery extends OrgAction
+class DeletePalletInDelivery extends OrgAction
 {
     use WithActionUpdate;
 
@@ -27,21 +33,34 @@ class DeletePalletFromDelivery extends OrgAction
 
     public function handle(PalletDelivery $palletDelivery, Pallet $pallet): bool
     {
-        $this->update($pallet, ['pallet_delivery_id' => null, 'customer_reference' => null]);
 
-        HydrateFulfilmentCustomer::run($palletDelivery->fulfilmentCustomer);
+        $pallet->delete();
+        PalletDeliveryHydratePallets::run($palletDelivery);
+        FulfilmentCustomerHydratePallets::dispatch($pallet->fulfilmentCustomer);
+        FulfilmentHydratePallets::dispatch($pallet->fulfilment);
+        OrganisationHydratePallets::dispatch($pallet->organisation);
+        WarehouseHydratePallets::dispatch($pallet->warehouse);
+        PalletHydrateUniversalSearch::dispatch($pallet);
 
         return true;
     }
 
     public function authorize(ActionRequest $request): bool
     {
+
+        if(!($this->pallet->state==PalletStateEnum::IN_PROCESS or $this->pallet->state==PalletStateEnum::SUBMITTED)) {
+            return false;
+        }
+
         if ($this->asAction) {
             return true;
         }
 
         if ($request->user() instanceof WebUser) {
-            // TODO: Raul please do the permission for the web user
+            if(!$this->pallet->state==PalletStateEnum::IN_PROCESS) {
+                return false;
+            }
+
             return true;
         }
 
@@ -67,12 +86,12 @@ class DeletePalletFromDelivery extends OrgAction
         return $this->handle($palletDelivery, $pallet);
     }
 
-    public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0): bool
+    public function action(Pallet $pallet, int $hydratorsDelay = 0): bool
     {
         $this->pallet         = $pallet;
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisationFromFulfilment($pallet->fulfilment, $modelData);
+        $this->initialisationFromFulfilment($pallet->fulfilment, []);
 
         return $this->handle($pallet->palletDelivery, $pallet);
     }

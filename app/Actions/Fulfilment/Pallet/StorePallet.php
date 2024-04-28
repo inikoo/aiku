@@ -80,8 +80,6 @@ class StorePallet extends OrgAction
         if ($pallet->location && $pallet->location->warehouseArea) {
             WarehouseAreaHydratePallets::dispatch($pallet->location->warehouseArea);
         }
-
-
         PalletHydrateUniversalSearch::dispatch($pallet);
 
         return $pallet;
