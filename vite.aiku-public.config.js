@@ -50,6 +50,7 @@ export default defineConfig(
             }
         },
         build  : {
+            outDir       : 'public/aiku-public',
             sourcemap    : true,
             devSourcemap : true,
             rollupOptions: {
