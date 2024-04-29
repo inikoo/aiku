@@ -87,5 +87,15 @@ class RentalAgreement extends Model
         return $this->hasMany(RecurringBill::class);
     }
 
+    public function snapshot(): HasMany
+    {
+        return $this->hasMany(RentalAgreementSnapshot::class);
+    }
+
+    public function clauses(): HasMany
+    {
+        return $this->hasMany(RentalAgreementClause::class);
+    }
+
 
 }

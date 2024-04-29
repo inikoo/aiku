@@ -8,24 +8,21 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     use HasGroupOrganisationRelationship;
 
-    public function up()
+    public function up(): void
     {
         Schema::create('rental_agreement_clauses', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedInteger('fulfilment_customer_id');
             $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
-
-            $table->unsignedInteger('rental_id');
-            $table->foreign('rental_id')->references('id')->on('rentals');
-
+            $table->unsignedInteger('product_id');
+            $table->foreign('product_id')->references('id')->on('products');
             $table->decimal('agreed_price');
-
             $table->timestampsTz();
         });
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('rental_agreement_clauses');
     }
