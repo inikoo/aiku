@@ -827,18 +827,19 @@ watch(selectRow, () => {
                                         <td v-for="(column,index) in queryBuilderProps.columns"
                                             v-show="show(column.key)"
                                             :key="`table-${name}-row-${key}-column-${column.key}`"
-                                            class="text-sm py-2 text-gray-700 whitespace-normal h-full" :class="[
+                                            class="text-sm py-2 text-gray-500 whitespace-normal h-full" :class="[
                                                     column.type === 'avatar' || column.type === 'icon'
                                                         ? 'text-center min-w-fit'  // if type = icon
                                                         : typeof item[column.key] == 'number'
                                                             ? 'text-right pr-11 tabular-nums'  // if the value is number
                                                             : 'px-6',
-                                                    { 'first:border-l-4 first:border-gray-700 bg-gray-200/75': selectedRow?.[name]?.includes(item.id) }
+                                                    { 'first:border-l-4 first:border-gray-700 bg-gray-200/75': selectedRow?.[name]?.includes(item.id) },
+                                                    column.className
                                             ]">
                                             <slot :name="`cell(${column.key})`"
                                                 :item="{ ...item, index : index, editingIndicator: { loading : false , isSucces : false, isFailed : false } }"
                                                 :tabName="name" class="">
-                                                <div class="text-gray-500" :class="item[column.className]">{{ item[column.key] }}</div>
+                                                {{ item[column.key] }}
                                             </slot>
                                         </td>
                                     </tr>
