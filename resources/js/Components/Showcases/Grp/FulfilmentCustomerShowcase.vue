@@ -9,7 +9,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
-import { useCopyText } from '@/Composables/useCopyText'
 import CustomerShowcaseStats from '@/Components/Showcases/Grp/CustomerShowcaseStats.vue'
 
 import { routeType } from '@/types/route'
@@ -21,9 +20,6 @@ import { faLink} from '@far'
 import { faSync, faCalendarAlt, faEnvelope, faPhone } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import Button from '@/Components/Elements/Buttons/Button.vue'
-import axios from 'axios'
-import { notify } from '@kyvg/vue3-notification'
-import BoxNote from '@/Components/Pallet/BoxNote.vue'
 import { Link } from '@inertiajs/vue3'
 library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone)
 
@@ -93,11 +89,6 @@ const isLoadingButtonRentalAgreement = ref(false)
 </script>
 
 <template>
-    <!-- Section: Note -->
-    <!-- <div v-if="notesData" class="h-fit lg:max-h-64 w-full flex lg:justify-center border-b border-gray-300">
-        <BoxNote v-for="(note, index) in notesData" :key="index+note.label" :noteData="note" />
-    </div> -->
-
     <!-- Section: Stats box -->
     <div class="px-4 py-5 md:px-6 lg:px-8 flex gap-x-8 lg:gap-x-12 gap-y-3">
 

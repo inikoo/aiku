@@ -2,8 +2,9 @@
 import { trans } from 'laravel-vue-i18n'
 import { inject, ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faPencil, faStickyNote, faTrash, faSparkles, faLock } from '@fas'
+import { faPencil, faStickyNote, faTrash, faLock } from '@fas'
 import { faTimes } from '@fal'
+import { faPlus } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import Modal from '@/Components/Utils/Modal.vue'
 import PureTextarea from '@/Components/Pure/PureTextarea.vue'
@@ -12,9 +13,12 @@ import axios from 'axios'
 import { routeType } from '@/types/route'
 import { notify } from '@kyvg/vue3-notification'
 import { PDRNotes } from '@/types/Pallet'
-library.add(faPencil, faStickyNote, faTrash, faSparkles, faLock, faTimes)
+import { layoutStructure } from '@/Composables/useLayoutStructure'
+import { useBasicColor } from '@/Composables/useColors'
+library.add(faPencil, faStickyNote, faTrash, faPlus, faLock, faTimes)
 
-const layout = inject('layout', {})
+// const layout = inject('layout', layoutStructure)
+
 const props = defineProps<{
     noteData: PDRNotes
     updateRoute: routeType
@@ -48,27 +52,24 @@ const fallbackColor = '#374151'  // Color
 </script>
 
 <template>
-    <div class="relative w-full py-2 pt-4"
-        :style="{
-            backgroundColor: noteData.bgColor || fallbackBgColor
-        }"
+    <div class="relative w-full pt-4"
     >
         <!-- Section: Header -->
-        <div class="absolute top-0 left-0 w-full flex gap-x-1 pr-4 lg:pr-0 justify-between lg:justify-normal">
-            <div class="w-full flex justify-between text-xs truncate text-center py-0.5 pl-3 pr-4" :style="{
-                // borderBottom: `color-mix(in srgb, ${noteData.bgColor} 80%, black) solid 1px`,
-                backgroundColor: noteData.bgColor ? `color-mix(in srgb, ${noteData.bgColor} 80%, white)` : fallbackBgColor,
-                color: fallbackColor + '77'
+        <div class="absolute top-0 left-0 w-full flex gap-x-1 lg:pr-0 justify-between lg:justify-normal">
+            <div class="w-full flex items-center justify-between text-xs truncate text-center py-0.5 pl-3 pr-3" :style="{
+                // borderBottom: `color-mix(in srgb, ${useBasicColor(noteData.bgColor)} 80%, black) solid 1px`,
+                backgroundColor: useBasicColor(noteData.bgColor) ? `color-mix(in srgb, ${useBasicColor(noteData.bgColor)} 40%, white)` : fallbackBgColor,
+                color: noteData.color || fallbackColor
             }">
                 <div>
                     <FontAwesomeIcon icon='fas fa-sticky-note' class='' fixed-width aria-hidden='true' />
                     {{ noteData.label }}
                 </div>
 
-                    <!-- Section: Actions -->
+                <!-- Section: Actions -->
                 <template v-if="noteData.editable">
                     <!-- Icon: pencil (edit) -->
-                    <div v-if="noteData.note" @click="isModalOpen = true" v-tooltip="trans('Edit note')" class="group px-0.5 cursor-pointer w-fit h-5">
+                    <div v-if="noteData.note" @click="isModalOpen = true" v-tooltip="trans('Edit note')" class="group px-0.5 cursor-pointer w-fit h-5 flex items-center">
                         <FontAwesomeIcon icon='fas fa-pencil' size="xs" class='group-hover:text-gray-100'
                             fixed-width aria-hidden='true'
                             :style="{
@@ -77,38 +78,42 @@ const fallbackColor = '#374151'  // Color
                         />
                     </div>
 
-                    <!-- Icon: -->
-                    <div v-else="!noteData.note" @click="isModalOpen = true" class="h-5 cursor-pointer">
-                        <FontAwesomeIcon v-tooltip="trans('Add note')" icon='fas fa-sparkles' class='' fixed-width aria-hidden='true'
+                    <!-- Icon: Plus (add note) -->
+                    <div v-else="!noteData.note" @click="isModalOpen = true" class="h-5 aspect-square flex items-center justify-center cursor-pointer">
+                        <FontAwesomeIcon v-tooltip="trans('Add note')" icon='far fa-plus' class='' fixed-width aria-hidden='true'
                             :style="{
-                                    color: fallbackColor
-                                }"
+                                color: fallbackColor
+                            }"
                         />
                     </div>
                 </template>
 
                 <!-- Icon: Lock -->
-                <div v-else v-tooltip="noteData.lockMessage || trans('This note is not editable')" class="h-5">
+                <div v-else v-tooltip="noteData.lockMessage || trans('This note is not editable')" class="h-5 flex items-center cursor-not-allowed">
                     <FontAwesomeIcon icon='fas fa-lock' class='text-gray-400' fixed-width aria-hidden='true' />
                 </div>
             </div>
-
         </div>
 
         <!-- Section: Note -->
-        <!-- <h3 class="font-medium ">Customer's note</h3> -->
-        <div @dblclick="noteData.editable ? isModalOpen = true : false"
+        <p @dblclick="noteData.editable ? isModalOpen = true : false"
             v-tooltip="trans('Double click to edit')"
-            class="rounded-md mx-auto flex items-center px-4 mt-4 text-white"
-            :class="noteData.editable ? 'cursor-pointer' : ''">
-            <p class="text-sm hover:text-gray-300"
+            class="h-full mx-auto items-center px-4 rounded-md pt-4 pb-2 text-xxs break-words"
+            :class="noteData.editable ? 'cursor-pointer' : ''"
+            :style="{
+                backgroundColor: useBasicColor(noteData.bgColor) + '11' || fallbackBgColor,
+                color: fallbackColor
+            }"
+        >
+            <template v-if="noteData.note">{{ noteData.note }}</template>
+            <span v-else class="italic"
                 :style="{
-                    color: fallbackColor
+                    color: fallbackColor + '55'
                 }"
             >
-                {{ noteData.note || '' }}
-            </p>
-        </div>
+                {{ trans('No note added') }}
+            </span>
+        </p>
     </div>
 
     <Modal :isOpen="isModalOpen" @onClose="() => (isModalOpen = false, noteModalValue = noteData.note)">

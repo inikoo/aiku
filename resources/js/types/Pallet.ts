@@ -1,3 +1,5 @@
+// PDR = Pallet Delivery/Return
+
 import { Timeline } from "@/types/Timeline"
 import { FulfilmentCustomer } from '@/types/Customer'
 import { routeType } from "@/types/route"

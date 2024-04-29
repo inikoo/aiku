@@ -8,14 +8,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useFormatTime } from '@/Composables/useFormatTime'
 import { useCopyText } from '@/Composables/useCopyText'
-import CustomerShowcaseStats from '@/Components/Showcases/Grp/CustomerShowcaseStats.vue'
 
 import { routeType } from '@/types/route'
-import { PalletCustomer, PieCustomer } from '@/types/Pallet'
 import { trans } from 'laravel-vue-i18n'
-import TabSelector from '@/Components/Elements/TabSelector.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faLink} from '@far'
 import { faSync, faCalendarAlt, faEnvelope, faPhone } from '@fal'
@@ -23,7 +19,6 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
-import BoxNote from '@/Components/Pallet/BoxNote.vue'
 library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone)
 
 const props = defineProps<{
@@ -61,12 +56,6 @@ const onFetchWebhook = async () => {
 </script>
 
 <template>
-    <!-- Section: Note -->
-    <!-- <div v-if="notesData" class="h-fit lg:max-h-64 w-full flex lg:justify-center border-b border-gray-300">
-        <BoxNote v-for="(note, index) in notesData" :key="index+note.label" :noteData="note" />
-    </div> -->
-
-    <!-- Section: Stats box -->
     <div class="px-4 py-5 md:px-6 lg:px-8 grid grid-cols-2 gap-x-8 gap-y-3">
         <!-- Section: Webhook -->
         <div class="flex justify-center flex-col">
@@ -85,7 +74,6 @@ const onFetchWebhook = async () => {
 
             <Button v-else label="Click to retrieve webhook" :loading="isWebhookLoading" @click="() => onFetchWebhook()" />
         </div>
-        <!-- Section: Profile box -->
     </div>
 </template>
 

@@ -68,6 +68,8 @@ const props = defineProps<{
     }
 }>()
 
+// console.log('ewqewq', props.notes_data)
+
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const loading = ref(false)
@@ -347,8 +349,8 @@ const typePallet = [
     </div>
 
 
-    <!-- Section: Note -->
-    <div class="h-fit lg:max-h-64 w-full flex lg:justify-center border-b border-gray-300">
+    <!-- Section: Box Note -->
+    <div class="grid grid-cols-3 h-fit lg:max-h-64 w-full lg:justify-center border-b border-gray-300">
         <BoxNote v-for="(note, index) in notes_data" :key="index+note.label" :noteData="note"
             :updateRoute="updateRoute" />
     </div>

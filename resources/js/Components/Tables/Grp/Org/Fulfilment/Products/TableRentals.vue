@@ -11,7 +11,7 @@ import { Product } from "@/types/product"
 import Icon from "@/Components/Icon.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faRobot } from '@fal'
-import product from "@/Pages/Grp/Market/Product.vue"
+// import product from "@/Pages/Grp/Market/Product.vue"
 import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
@@ -59,7 +59,7 @@ function rentalRoute(product: Product) {
 
         <!-- Column: Shop Code -->
         <template #cell(shop_code)="{ item: rental }">
-            <Link v-if="product['shop_slug']" :href="rentalRoute(rental)" class="specialUnderlineSecondary">
+            <Link v-if="rental['shop_slug']" :href="rentalRoute(rental)" class="specialUnderlineSecondary">
                 {{ rental['shop_slug'] }}
             </Link>
         </template>

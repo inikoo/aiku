@@ -8,13 +8,13 @@
 
 
 const props = defineProps<{
-    data: object
-}>();
+    data: {}
+}>()
 
 
 </script>
 
 
 <template>
-
+    /Grp/ShopShowcase.vue
 </template>
