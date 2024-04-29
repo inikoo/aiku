@@ -12,7 +12,7 @@ import { faCopy } from '@fal'
 import { faSpinnerThird } from '@fad'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { set, get } from "lodash"
-import { ref, watch, onMounted, onBeforeMount, isReadonly } from "vue"
+import { ref, watch, onMounted, onBeforeMount, isReadonly , inject}  from "vue"
 import SelectQuery from "@/Components/SelectQuery.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { notify } from "@kyvg/vue3-notification"
@@ -20,6 +20,8 @@ import axios from "axios"
 import { v4 as uuidv4 } from 'uuid';
 import Popover from '@/Components/Popover.vue'
 import { trans } from "laravel-vue-i18n"
+import Currency from "@/Components/Pure/Currency.vue"
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 
 library.add(faExclamationCircle, faCheckCircle, faSpinnerThird, faCopy, faTrash, faEdit)
@@ -40,6 +42,8 @@ const props = defineProps<{
 const rentals = ref([])
 const bulkData = ref([])
 const bulkDiscInput = ref(0)
+const currency = inject('layout', layoutStructure).group.currency
+
 
 
 const emits = defineEmits<{
@@ -56,6 +60,7 @@ const addRow = () => {
 
 const deleteRow = (index: number) => {
     props.form[props.fieldName].splice(index, 1)
+    bulkData.value = []
 }
 
 const calculateDiscountedPrice = (price, discount) => {
@@ -71,6 +76,7 @@ const calculateDiscountedPrice = (price, discount) => {
 const sePriceByRental = (value: number, options: Array, index: number) => {
     const data = options.find((item: { id: number }) => item.id == value)
     if (data) {
+        console.log('rental',data)
         props.form[props.fieldName][index].price = data.price
         props.form[props.fieldName][index].original_price = data.price
         props.form[props.fieldName][index].agreed_price = calculateDiscountedPrice(props.form[props.fieldName][index].price, props.form[props.fieldName][index].discount)
@@ -103,11 +109,12 @@ const getRentals = async () => {
 
 const onPutAllRentals = () => {
     const pullData = []
+    const formData =  props.form[props.fieldName].filter((item)=> item.rental != null)
     for (const rental of rentals.value) {
-        const find = props.form[props.fieldName].find((item) => item.rental == rental.id)
+        const find = formData.find((item) => item.rental == rental.id)
         if (!find) pullData.push({ id: uuidv4(), rental: rental.id, price: rental.price, discount: 0, agreed_price: rental.price, original_price: rental.price })
     }
-    props.form[props.fieldName].push(...pullData)
+    props.form[props.fieldName] = [...pullData]
 }
 
 /* const onChecked = (value) => {
@@ -165,7 +172,7 @@ const setOptionSelectQueryFilter = (options, index) => {
     let pullData = [];
 
     // Find the first item in options whose id matches the rental property
-    const first = options.find(item => item.id === props.form[props.fieldName][index].rental);
+    const first = options.find(item => item.id == props.form[props.fieldName][index]?.rental);
 
     // If such an item exists, add it to pullData
     if (first) {
@@ -206,7 +213,6 @@ onMounted(() => {
 })
 
 
-console.log(props.form)
 
 </script>
 <template>
@@ -214,7 +220,7 @@ console.log(props.form)
         <div>
             <Button label="Put all rental" type="create" @click="() => onPutAllRentals()" />
         </div>
-        <div class="flex" v-if="(bulkData.length == props.form[props.fieldName]?.length && props.form[props.fieldName]?.length > 0)">
+        <div class="flex" v-if="(bulkData.length > 0)">
             <Popover width="w-full" class="relative h-full">
                 <template #button>
                     <Button :key="bulkData.length" label="Set all discount (%)"
@@ -265,8 +271,8 @@ console.log(props.form)
                                 {{ trans('Price') }}</th>
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                 {{ trans('Discount (%)') }}</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                {{ trans('Agreed Price ($)') }}</th>
+                            <!-- <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                {{ trans('Agreed Price ($)') }}</th> -->
                             <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
                                 <font-awesome-icon :icon="['fas', 'edit']" />
                             </th>
@@ -280,6 +286,7 @@ console.log(props.form)
                             </td>
                             <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 w-80">
                                 <div class="relative xl:w-[500px] w-full">
+                                <div>
                                     <SelectQuery :filterOptions="(e) => setOptionSelectQueryFilter(e, index)"
                                         :key="itemData.id"
                                         :urlRoute="route(fieldData.indexRentalRoute.name, fieldData.indexRentalRoute.parameters)"
@@ -287,6 +294,7 @@ console.log(props.form)
                                         :label="'name'" :valueProp="'id'" :closeOnSelect="true" :clearOnSearch="false"
                                         :fieldName="'rental'"
                                         :on-change="(value, ref) => sePriceByRental(value, ref.options, index)" />
+                                    </div>
                                     <p v-if="form.errors[`${fieldName}.${index}.rental`]"
                                         class="mt-2 text-sm text-red-600" :id="`${fieldName}-${index}-error`">
                                         {{ form.errors[`${fieldName}.${index}.rental`] }}
@@ -295,8 +303,8 @@ console.log(props.form)
 
                             </td>
                             <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                <PureInput v-model="itemData.price" :placeholder="'Input Price'" type="number"
-                                    :minValue="itemData.original_price ? 1 : itemData.original_price" step="0.01"
+                                <Currency v-model="itemData.price" :placeholder="'Input Price'" :currency="currency.code"
+                                    :minValue="0" step="0.01"
                                     @input="(value) => sePriceByChange(value, itemData, index)" />
                                 <p v-if="form.errors[`${fieldName}.${index}.price`]" class="mt-2 text-sm text-red-600"
                                     :id="`${fieldName}-${index}-error`">
@@ -314,11 +322,11 @@ console.log(props.form)
                                         </div>
                                     </template>
                                 </PureInput>
-                            </td>
+                            </td> 
                             <td class="whitespace-nowrap px-3 py-4 text-sm">
                                 <span class="text-sm font-semibold">$ {{ itemData.agreed_price }}</span>
                                 <p v-if="form.errors[`${fieldName}.${index}.agreed_price`]"
-                                    class="mt-2 text-sm text-red-600" :id="`${fieldName}-${index}-error`">
+                                    class="mt-2 text-sm text-red-600" :id="`${fieldName}-${index}-error`">      
                                     {{ form.errors[`${fieldName}.${index}.agreed_price`] }}
                                 </p>
                             </td>
@@ -328,7 +336,7 @@ console.log(props.form)
                             </td>
                         </tr>
                     </tbody>
-                    <tfoot>
+                    <tfoot v-if="form[fieldName]?.length != rentals.length || props.form[props.fieldName]?.length == 0">
                         <tr>
                             <td colspan="4" class="pl-4 py-3 pb-4 text-left text-sm font-semibold text-gray-900">
                                 <Button label="Rental Special Price" type="create" @click="addRow" />
