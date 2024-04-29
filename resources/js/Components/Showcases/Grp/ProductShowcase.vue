@@ -18,7 +18,7 @@ const props = defineProps<{
 <template>
     <div>
         resources/js/Components/Showcases/Grp/ProductShowcase.vue
-        <pre>{{ usePage().props }}</pre>
+        <!-- <pre>{{ usePage().props }}</pre> -->
     </div>
 
 </template>

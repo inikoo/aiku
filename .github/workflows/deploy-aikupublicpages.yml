@@ -13,6 +13,14 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v4
 
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+
+    - name: Install Composer Dependencies
+      run: composer install --prefer-dist --no-progress --no-interaction
+
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
