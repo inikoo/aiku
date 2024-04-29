@@ -19,19 +19,21 @@ class Column implements Arrayable
         public bool $sortable,
         public bool|string $sorted,
         public ?string $type,
+        public ?string $className,
     ) {
     }
 
     public function toArray(): array
     {
         return [
-            'key'           => $this->key,
-            'label'         => $this->label,
-            'can_be_hidden' => $this->canBeHidden,
-            'hidden'        => $this->hidden,
-            'sortable'      => $this->sortable,
-            'sorted'        => $this->sorted,
-            'type'          => $this->type,
+            'key'                => $this->key,
+            'label'              => $this->label,
+            'can_be_hidden'      => $this->canBeHidden,
+            'hidden'             => $this->hidden,
+            'sortable'           => $this->sortable,
+            'sorted'             => $this->sorted,
+            'type'               => $this->type,
+            'className'          => $this->className,
         ];
     }
 }

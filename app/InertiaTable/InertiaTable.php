@@ -254,6 +254,7 @@ class InertiaTable
         bool $sortable = false,
         bool $searchable = false,
         string $type = null,
+        string $className = null,
     ): self {
 
 
@@ -269,6 +270,7 @@ class InertiaTable
                 sortable: $sortable,
                 sorted: false,
                 type: $type,
+                className: $className,
             )
         )->values();
 
