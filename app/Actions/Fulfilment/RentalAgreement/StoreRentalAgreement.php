@@ -74,10 +74,10 @@ class StoreRentalAgreement extends OrgAction
         return [
             'billing_cycle'             => ['required', Rule::enum(RentalAgreementBillingCycleEnum::class)],
             'pallets_limit'             => ['nullable','integer','min:1','max:10000'],
-            'rental'                    => ['nullable', 'array'],
-            'rental.*.rental_id'        => ['required', 'exists:rentals,id'],
-            'rental.*.agreed_price'     => ['required', 'numeric', 'gt:0'],
-            'rental.*.price'            => ['required', 'numeric', 'gt:0'],
+            'rental'                    => ['sometimes', 'array'],
+            'rental.*.rental_id'        => ['sometimes', 'exists:rentals,id'],
+            'rental.*.agreed_price'     => ['sometimes', 'numeric', 'gt:0'],
+            'rental.*.price'            => ['sometimes', 'numeric', 'gt:0'],
             'state'                     => ['sometimes',Rule::enum(RentalAgreementStateEnum::class)],
             'created_at'                => ['sometimes','date']
         ];

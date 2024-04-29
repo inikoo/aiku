@@ -234,14 +234,14 @@ test('create rental agreement', function (FulfilmentCustomer $fulfilmentCustomer
             'pallets_limit' => null,
             'rental'        => [
                 [
-                    'rental'       => $fulfilmentCustomer->fulfilment->rentals->first()->id,
-                    'agreed_price' => 100,
-                    'price'        => 100,
+                    'rental_id'       => $fulfilmentCustomer->fulfilment->rentals->first()->id,
+                    'agreed_price'    => 100,
+                    'price'           => 100,
                 ],
                 [
-                    'rental'       => $fulfilmentCustomer->fulfilment->rentals->last()->id,
-                    'agreed_price' => 200,
-                    'price'        => 200,
+                    'rental_id'       => $fulfilmentCustomer->fulfilment->rentals->last()->id,
+                    'agreed_price'    => 200,
+                    'price'           => 200,
                 ],
             ]
         ]
