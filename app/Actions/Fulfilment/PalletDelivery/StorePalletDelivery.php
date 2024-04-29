@@ -108,11 +108,19 @@ class StorePalletDelivery extends OrgAction
 
     public function rules(): array
     {
+        $rules = [];
+
+        if(!request()->user() instanceof WebUser) {
+            $rules = [
+                'public_notes'  => ['sometimes','nullable','string','max:4000'],
+                'internal_notes'=> ['sometimes','nullable','string','max:4000'],
+            ];
+        }
+
         return [
             'warehouse_id'  => ['required','integer','exists:warehouses,id'],
             'customer_notes'=> ['sometimes','nullable','string'],
-            'public_notes'  => ['sometimes','nullable','string'],
-            'internal_notes'=> ['sometimes','nullable','string'],
+            ...$rules
         ];
     }
 

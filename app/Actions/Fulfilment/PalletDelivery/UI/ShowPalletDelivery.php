@@ -244,6 +244,8 @@ class ShowPalletDelivery extends OrgAction
             }
         }
 
+        $palletLimitLeft = ($palletLimits - ($totalPallets + $numberStoredPallets));
+
         return Inertia::render(
             'Org/Fulfilment/PalletDelivery',
             [
@@ -350,9 +352,9 @@ class ShowPalletDelivery extends OrgAction
                     'navigation' => PalletDeliveryTabsEnum::navigation()
                 ],
 
-                'pallet_limits' => $palletLimits == null ? null : ($palletLimits - ($totalPallets + $numberStoredPallets) <= 2 ? [
+                'pallet_limits' => $palletLimits == null ? null : ($palletLimitLeft <= 2 ? [
                     'status'  => 'exceeded',
-                    'message' => __("Pallet almost reached the limits: $palletLimits left.")
+                    'message' => __("Pallet almost reached the limits: $palletLimitLeft left.")
                 ] : false),
 
                 'data'             => PalletDeliveryResource::make($palletDelivery),

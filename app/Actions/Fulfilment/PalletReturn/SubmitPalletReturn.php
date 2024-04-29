@@ -45,7 +45,7 @@ class SubmitPalletReturn extends OrgAction
                     container: $palletReturn->fulfilmentCustomer,
                     modelType: SerialReferenceModelEnum::PALLET
                 ),
-                'state'  => $modelData['state'],
+                'state'  => $modelData['state']->value,
                 'status' => PalletStatusEnum::RECEIVING
             ]);
 
@@ -65,7 +65,6 @@ class SubmitPalletReturn extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($request->user() instanceof WebUser) {
-            // TODO: Raul please do the permission for the web user
             return true;
         }
 

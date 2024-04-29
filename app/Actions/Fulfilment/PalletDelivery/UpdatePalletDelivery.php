@@ -51,13 +51,20 @@ class UpdatePalletDelivery extends OrgAction
 
     public function rules(): array
     {
+        $rules = [];
+
+        if(!request()->user() instanceof WebUser) {
+            $rules = [
+                'public_notes'  => ['sometimes','nullable','string','max:4000'],
+                'internal_notes'=> ['sometimes','nullable','string','max:4000'],
+            ];
+        }
+
         return [
             'customer_notes'=> ['sometimes','nullable','string','max:4000'],
-            'public_notes'  => ['sometimes','nullable','string','max:4000'],
-            'internal_notes'=> ['sometimes','nullable','string','max:4000'],
+            ...$rules
         ];
     }
-
 
     public function fromRetina(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {

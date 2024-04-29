@@ -47,7 +47,6 @@ class DeletePalletFromReturn extends OrgAction
         }
 
         if ($request->user() instanceof WebUser) {
-            // TODO: Raul please do the permission for the web user
             return true;
         }
 

@@ -162,7 +162,8 @@ defineExpose({
         :searchable="props.searchable" :caret="props.caret" :canClear="props.canClear" :options="optionData"
         :mode="props.mode" :on-create="props.onCreate" :create-option="props.createOption"
         :noResultsText="loading ? 'loading...' : 'No Result'" @open="getOptions()" @search-change="SearchChange"
-        @change="props.onChange" :closeOnDeselect="closeOnDeselect" :isSelected="isSelected">
+        @change="props.onChange" :closeOnDeselect="closeOnDeselect" :isSelected="isSelected"
+        >
         <template
             #tag="{ option, handleTagRemove, disabled }: { option: tag, handleTagRemove: Function, disabled: boolean }">
             <div class="px-0.5 py-[3px]">
@@ -175,29 +176,25 @@ defineExpose({
 
 <style src="@vueform/multiselect/themes/default.css"></style>
 
-<style lang="scss">
-.multiselect-tags-search {
-    @apply focus:outline-none focus:ring-0
+<style>
+/* Style for multiselect globally */
+.multiselect-option.is-selected,
+.multiselect-option.is-selected.is-pointed {
+	@apply bg-gray-500 text-white;
+}
+
+.multiselect-option.is-selected.is-disabled {
+	@apply bg-gray-200 text-white;
 }
 
 .multiselect.is-active {
-    @apply shadow-none
+	border: var(--ms-border-width-active, var(--ms-border-width, 1px)) solid
+		var(--ms-border-color-active, var(--ms-border-color, #787878)) !important;
+	box-shadow: 0 0 0 var(--ms-ring-width, 3px) var(--ms-ring-color, rgba(42, 42, 42, 0.188)) !important;
+	/* box-shadow: 4px 0 0 0 calc(4px + 4px) rgba(42, 42, 42, 1); */
 }
 
-// .multiselect-tag {
-//     @apply bg-gradient-to-r from-lime-300 to-lime-200 hover:bg-lime-400 ring-1 ring-lime-500 text-lime-600
-// }
-
-.multiselect-tags {
-    @apply m-0.5
-}
-
-.multiselect-tag-remove-icon {
-    @apply text-lime-800
-}
-
-.multiselect-dropdown {
-    min-height: fit-content;
-    max-height: 120px !important;
-}
+/* .multiselect-option.is-open {
+	@apply outline-none border-none ring-transparent;
+} */
 </style>

@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\PalletReturn;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
@@ -30,7 +31,10 @@ class CancelPalletReturn extends OrgAction
         $modelData[PalletReturnStateEnum::CANCEL->value.'_at']    = now();
         $modelData['state']                                       = PalletReturnStateEnum::CANCEL;
 
-        $palletReturn->pallets()->update(['status' => PalletStatusEnum::STORING]);
+        $palletReturn->pallets()->update([
+            'status' => PalletStatusEnum::STORING,
+            'state'  => PalletStateEnum::STORING
+        ]);
 
         $palletReturn = $this->update($palletReturn, $modelData);
 
@@ -43,7 +47,6 @@ class CancelPalletReturn extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($request->user() instanceof WebUser) {
-            // TODO: Raul please do the permission for the web user
             return true;
         }
 

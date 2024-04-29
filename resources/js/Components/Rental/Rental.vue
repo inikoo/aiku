@@ -51,11 +51,11 @@ const emits = defineEmits<{
 }>()
 
 const defaultValue = [
-    { id: uuidv4(), rental: null, price: 0, discount: 0, agreed_price: 0, original_price: 0 },
+    { id: uuidv4(), rental_id: null, price: 0, discount: 0, agreed_price: 0, original_price: 0 },
 ]
 
 const addRow = () => {
-    props.form[props.fieldName].push({ id: uuidv4(), rental: null, price: 0, discount: 0, agreed_price: 0, original_price: 0 })
+    props.form[props.fieldName].push({ id: uuidv4(), rental_id: null, price: 0, discount: 0, agreed_price: 0, original_price: 0 })
 }
 
 const deleteRow = (index: number) => {
@@ -76,7 +76,7 @@ const calculateDiscountedPrice = (price, discount) => {
 const sePriceByRental = (value: number, options: Array, index: number) => {
     const data = options.find((item: { id: number }) => item.id == value)
     if (data) {
-        console.log('rental',data)
+        console.log('rental_id',data)
         props.form[props.fieldName][index].price = data.price
         props.form[props.fieldName][index].original_price = data.price
         props.form[props.fieldName][index].agreed_price = calculateDiscountedPrice(props.form[props.fieldName][index].price, props.form[props.fieldName][index].discount)
@@ -109,10 +109,10 @@ const getRentals = async () => {
 
 const onPutAllRentals = () => {
     const pullData = []
-    const formData =  props.form[props.fieldName].filter((item)=> item.rental != null)
+    const formData =  props.form[props.fieldName].filter((item)=> item.rental_id != null)
     for (const rental of rentals.value) {
-        const find = formData.find((item) => item.rental == rental.id)
-        if (!find) pullData.push({ id: uuidv4(), rental: rental.id, price: rental.price, discount: 0, agreed_price: rental.price, original_price: rental.price })
+        const find = formData.find((item) => item.rental_id == rental.id)
+        if (!find) pullData.push({ id: uuidv4(), rental_id: rental.id, price: rental.price, discount: 0, agreed_price: rental.price, original_price: rental.price })
     }
     props.form[props.fieldName] = [...pullData]
 }
@@ -172,7 +172,7 @@ const setOptionSelectQueryFilter = (options, index) => {
     let pullData = [];
 
     // Find the first item in options whose id matches the rental property
-    const first = options.find(item => item.id == props.form[props.fieldName][index]?.rental);
+    const first = options.find(item => item.id == props.form[props.fieldName][index]?.rental_id);
 
     // If such an item exists, add it to pullData
     if (first) {
@@ -182,7 +182,7 @@ const setOptionSelectQueryFilter = (options, index) => {
     // Iterate through each option
     for (const rental of options) {
         // Check if the rental id exists in props.form[fieldName]
-        const find = props.form[props.fieldName].find(item => item.rental === rental.id);
+        const find = props.form[props.fieldName].find(item => item.rental_id === rental.id);
         // If not found, add the option to pullData
         if (!find) {
             pullData.push(rental);
@@ -208,7 +208,7 @@ onMounted(() => {
         props.form.reset({ keepValues: true })
         props.form.reset()
     } else {
-        props.form[props.fieldName] = defaultValue
+        props.form[props.fieldName] = []
     }
 })
 
@@ -280,11 +280,11 @@ onMounted(() => {
                     </thead>
                     <tbody class="divide-y divide-gray-200 bg-white">
                         <tr v-for="(itemData, index) in form[props.fieldName]" :key="itemData.email">
-                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 flex justify-center">
+                            <td class="whitespace-nowrap px-3 py-4 text-sm  text-center">
                                 <input type="checkbox" :id="itemData.id" :value="itemData.id" v-model="bulkData"
                                     class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600" />
                             </td>
-                            <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6 w-80">
+                            <td class="whitespace-nowrap px-3 py-4 text-sm xl:w-[500px] w-full">
                                 <div class="relative xl:w-[500px] w-full">
                                 <div>
                                     <SelectQuery :filterOptions="(e) => setOptionSelectQueryFilter(e, index)"
@@ -292,7 +292,7 @@ onMounted(() => {
                                         :urlRoute="route(fieldData.indexRentalRoute.name, fieldData.indexRentalRoute.parameters)"
                                         :value="itemData" :placeholder="'Select or add rental'" :required="true"
                                         :label="'name'" :valueProp="'id'" :closeOnSelect="true" :clearOnSearch="false"
-                                        :fieldName="'rental'"
+                                        :fieldName="'rental_id'"
                                         :on-change="(value, ref) => sePriceByRental(value, ref.options, index)" />
                                     </div>
                                     <p v-if="form.errors[`${fieldName}.${index}.rental`]"
@@ -302,7 +302,7 @@ onMounted(() => {
                                 </div>
 
                             </td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                            <td class="whitespace-nowrap px-3 py-4 text-sm xl:w-[500px] w-full">
                                 <Currency v-model="itemData.price" :placeholder="'Input Price'" :currency="currency.code"
                                     :minValue="0" step="0.01"
                                     @input="(value) => sePriceByChange(value, itemData, index)" />
@@ -311,7 +311,7 @@ onMounted(() => {
                                     {{ form.errors[`${fieldName}.${index}.price`] }}
                                 </p>
                             </td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                            <td class="whitespace-nowrap px-3 py-4 text-sm xl:w-[500px] w-full">
                                 <PureInput v-model="itemData.discount" :placeholder="'Input Discount'" type="number"
                                     :maxValue="99" :suffix="true" :minValue="0"
                                     @input="(value) => sePriceByChange(value, itemData, index)">
