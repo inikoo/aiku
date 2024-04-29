@@ -51,6 +51,7 @@ import {
 } from '@fal'
 import { notify } from '@kyvg/vue3-notification'
 import FulfilmentCustomerWebhook from "@/Components/Showcases/Grp/FulfilmentCustomerWebhook.vue";
+import TableInvoices from "@/Components/Tables/TableInvoices.vue";
 library.add( faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading, faFileInvoice)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
@@ -88,7 +89,7 @@ const component = computed(() => {
         stored_item_returns: TableStoredItemReturn,
         pallet_deliveries: TablePalletDeliveries,
         pallet_returns: TablePalletReturns,
-        invoices: CustomerInvoices,
+        invoices: TableInvoices,
         details: ModelDetails,
         history: ModelChangelog,
         dispatched_emails: TableDispatchedEmails,

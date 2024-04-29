@@ -45,7 +45,7 @@ class SubmitPalletDelivery extends OrgAction
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
 
-        if($totalPallets < $palletLimits) {
+        if($totalPallets < $palletLimits && !(request()->user() instanceof WebUser)) {
             $palletDelivery = ConfirmPalletDelivery::run($palletDelivery);
         }
 

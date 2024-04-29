@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
+use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\GetFulfilmentCustomerShowcase;
@@ -22,6 +23,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithWebUserMeta;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\UI\Fulfilment\CustomerFulfilmentTabsEnum;
+use App\Http\Resources\Accounting\InvoicesResource;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\CRM\WebUsersResource;
 use App\Http\Resources\Fulfilment\RecurringBillsResource;
@@ -182,6 +184,12 @@ class ShowFulfilmentCustomer extends OrgAction
                     fn () => RecurringBillsResource::collection(IndexRecurringBills::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::RECURRING_BILLS->value))
                     : Inertia::lazy(
                         fn () => RecurringBillsResource::collection(IndexRecurringBills::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::RECURRING_BILLS->value))
+                    ),
+
+                CustomerFulfilmentTabsEnum::INVOICES->value => $this->tab == CustomerFulfilmentTabsEnum::INVOICES->value ?
+                    fn () => InvoicesResource::collection(IndexInvoices::run($fulfilmentCustomer->fulfilment, CustomerFulfilmentTabsEnum::INVOICES->value))
+                    : Inertia::lazy(
+                        fn () => InvoicesResource::collection(IndexInvoices::run($fulfilmentCustomer->fulfilment, CustomerFulfilmentTabsEnum::INVOICES->value))
                     ),
 
                 CustomerFulfilmentTabsEnum::PALLET_RETURNS->value => $this->tab == CustomerFulfilmentTabsEnum::PALLET_RETURNS->value ?
@@ -355,6 +363,11 @@ class ShowFulfilmentCustomer extends OrgAction
                 IndexRecurringBills::make()->tableStructure(
                     parent: $fulfilmentCustomer,
                     prefix: CustomerFulfilmentTabsEnum::RECURRING_BILLS->value,
+                )
+            )->table(
+                IndexInvoices::make()->tableStructure(
+                    parent: $fulfilmentCustomer->fulfilment,
+                    prefix: CustomerFulfilmentTabsEnum::INVOICES->value,
                 )
             );
     }
