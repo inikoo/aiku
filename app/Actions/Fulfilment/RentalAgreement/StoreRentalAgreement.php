@@ -39,20 +39,22 @@ class StoreRentalAgreement extends OrgAction
             )
         );
 
-
-
         foreach (Arr::get($modelData, 'rental', []) as $rental) {
-            data_set($rental, 'rental_id', Arr::get($rental, 'rental'));
+            data_set($rental, 'rental_id', Arr::get($rental, 'rental_id'));
             data_set($rental, 'agreed_price', Arr::get($rental, 'agreed_price'));
 
             $fulfilmentCustomer->rentalAgreementClauses()->create(Arr::only($rental, ['rental_id', 'agreed_price']));
 
-            UpdateRental::run(Rental::find(Arr::get($rental, 'rental')), [
+            UpdateRental::run(Rental::find(Arr::get($rental, 'rental_id')), [
                 'main_outerable_price' => Arr::get($rental, 'price')
             ]);
         }
 
         data_forget($modelData, 'rental');
+
+        if(!Arr::get($modelData, 'state')) {
+            data_set($modelData, 'state', RentalAgreementStateEnum::ACTIVE->value);
+        }
 
         /** @var RentalAgreement $rentalAgreement */
         $rentalAgreement=$fulfilmentCustomer->rentalAgreement()->create($modelData);
@@ -72,12 +74,12 @@ class StoreRentalAgreement extends OrgAction
         return [
             'billing_cycle'             => ['required', Rule::enum(RentalAgreementBillingCycleEnum::class)],
             'pallets_limit'             => ['nullable','integer','min:1','max:10000'],
-            'rental'                    => ['sometimes','nullable', 'array'],
-            'rental.*.rental'           => ['required', 'exists:rentals,id'],
+            'rental'                    => ['nullable', 'array'],
+            'rental.*.rental_id'        => ['required', 'exists:rentals,id'],
             'rental.*.agreed_price'     => ['required', 'numeric', 'gt:0'],
             'rental.*.price'            => ['required', 'numeric', 'gt:0'],
             'state'                     => ['sometimes',Rule::enum(RentalAgreementStateEnum::class)],
-            'created_at'                => ['sometimes','date'],
+            'created_at'                => ['sometimes','date']
         ];
     }
 

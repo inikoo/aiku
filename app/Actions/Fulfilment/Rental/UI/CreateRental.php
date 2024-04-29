@@ -5,11 +5,10 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\RentalAgreement\UI;
+namespace App\Actions\Fulfilment\Rental\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
@@ -17,9 +16,8 @@ use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Spatie\LaravelOptions\Options;
 
-class CreateRentalAgreement extends OrgAction
+class CreateRental extends OrgAction
 {
     /**
      * @throws Exception
@@ -32,42 +30,27 @@ class CreateRentalAgreement extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'title'    => __('new rental agreement'),
+                'title'    => __('new rental'),
                 'pageHead' => [
-                    'title' => __('new rental agreement')
+                    'title' => __('new rental')
                 ],
                 'formData' => [
                     'fullLayout' => true,
                     'blueprint'  =>
                         [
                             [
-                                'title'  => __(''),
+                                'title'  => __('name'),
                                 'fields' => [
-                                    'billing_cycle' => [
-                                        'type'       => 'select',
-                                        'label'      => __('billing cycle'),
-                                        'required'   => true,
-                                        'options'    => Options::forEnum(RentalAgreementBillingCycleEnum::class),
-                                        'value'      => RentalAgreementBillingCycleEnum::MONTHLY->value
+                                    'price' => [
+                                        'type'       => 'input',
+                                        'label'      => __('price'),
+                                        'required'   => true
                                     ],
-                                    'pallets_limit' => [
+                                    'unit' => [
                                         'type'     => 'input',
-                                        'label'    => __('pallets limit'),
-                                        'required' => false
-                                    ],
-                                    'rental' => [
-                                        'type'             => 'rental',
-                                        'label'            => __('Rental'),
-                                        'required'         => false,
-                                        'full'             => true,
-                                        'indexRentalRoute' => [
-                                            'name'       => 'grp.org.fulfilments.show.products.rentals.index',
-                                            'parameters' => [
-                                                'organisation' => $this->organisation->slug,
-                                                'fulfilment'   => $fulfilmentCustomer->fulfilment->slug
-                                            ]
-                                        ]
-                                    ],
+                                        'label'    => __('unit'),
+                                        'required' => true
+                                    ]
                                 ]
                             ]
                         ],

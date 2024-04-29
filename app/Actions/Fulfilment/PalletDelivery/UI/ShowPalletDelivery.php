@@ -350,10 +350,10 @@ class ShowPalletDelivery extends OrgAction
                     'navigation' => PalletDeliveryTabsEnum::navigation()
                 ],
 
-                'pallet_limits' => $palletLimits - ($totalPallets + $numberStoredPallets) <= 2 ? [
+                'pallet_limits' => $palletLimits == null ? null : ($palletLimits - ($totalPallets + $numberStoredPallets) <= 2 ? [
                     'status'  => 'exceeded',
-                    'message' => __('Pallet limit exceeded')
-                ] : false,
+                    'message' => __("Pallet almost reached the limits: $palletLimits left.")
+                ] : false),
 
                 'data'             => PalletDeliveryResource::make($palletDelivery),
                 'box_stats'        => [
