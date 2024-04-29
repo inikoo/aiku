@@ -1,11 +1,11 @@
 <script setup>
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
+// import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 // import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // import { faCheck, faPlus, faMinus } from '@fal'
 // import { faGithub } from "@fortawesome/free-brands-svg-icons"
 // import { library } from '@fortawesome/fontawesome-svg-core'
-import { Head } from '@inertiajs/vue3'
-import Button from '@/Components/Elements/Buttons/Button.vue'
+// import { Head } from '@inertiajs/vue3'
+// import Button from '@/Components/Elements/Buttons/Button.vue'
 // library.add(faCheck, faPlus, faMinus, faGithub)
 
 const features = [
@@ -197,7 +197,7 @@ const faqs = [
 </script>
 
 <template>
-    <Head title="Warehouse Solution" />
+    <!-- <Head title="Warehouse Solution" /> -->
 
     <div class="bg-white pb-20">
         Hellooooo
