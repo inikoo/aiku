@@ -42,6 +42,7 @@ export interface Group {
     logo: Image
     slug: string
     label: string
+    currency: Currency
 }
 
 // Each organisation have their own state
