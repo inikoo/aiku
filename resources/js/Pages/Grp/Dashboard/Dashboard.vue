@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 import { Switch } from '@headlessui/vue'
 import { useLocaleStore } from '@/Stores/locale'
@@ -10,12 +10,14 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { Head } from '@inertiajs/vue3'
 import { trans } from 'laravel-vue-i18n'
 import { get } from 'lodash'
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 library.add(faArrowUp, faArrowDown, faChevronDown)
 
 const props = defineProps<{
     groupStats: {}
 }>()
 
+const layout = inject('layout', layoutStructure)
 // console.log('asdsadsa', props.groupStats)
 
 // Decriptor: Date interval
@@ -119,8 +121,6 @@ const calcPercentage = (stat) => {
     <Head :title="trans('Dashboard')" />
 
     <div class="px-4 sm:px-6 lg:px-8 py-6">
-
-
         <!-- Section: Table -->
         <div class="mt-8">
             <!-- Sections: Tabs -->

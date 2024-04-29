@@ -838,7 +838,7 @@ watch(selectRow, () => {
                                             <slot :name="`cell(${column.key})`"
                                                 :item="{ ...item, index : index, editingIndicator: { loading : false , isSucces : false, isFailed : false } }"
                                                 :tabName="name" class="">
-                                                <div class="text-gray-500">{{ item[column.key] }}</div>
+                                                <div class="text-gray-500" :class="item[column.className]">{{ item[column.key] }}</div>
                                             </slot>
                                         </td>
                                     </tr>

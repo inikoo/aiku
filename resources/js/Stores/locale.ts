@@ -27,6 +27,7 @@ export const useLocaleStore = defineStore('locale', {
             return new Intl.NumberFormat(this.language.code).format(number)
         },
         currencyFormat(currency: string, amount: number) {
+            // 'IDR 0.00', '£1,313,058.83'
             return new Intl.NumberFormat(this.language.code, { style: 'currency', currency: currency }).format(amount)
         }
     }
