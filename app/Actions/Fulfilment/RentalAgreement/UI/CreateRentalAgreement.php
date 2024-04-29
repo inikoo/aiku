@@ -41,13 +41,14 @@ class CreateRentalAgreement extends OrgAction
                     'blueprint'  =>
                         [
                             [
-                                'title'  => __('name'),
+                                'title'  => __(''),
                                 'fields' => [
                                     'billing_cycle' => [
                                         'type'       => 'select',
                                         'label'      => __('billing cycle'),
                                         'required'   => true,
-                                        'options'    => Options::forEnum(RentalAgreementBillingCycleEnum::class)
+                                        'options'    => Options::forEnum(RentalAgreementBillingCycleEnum::class),
+                                        'value'      => RentalAgreementBillingCycleEnum::MONTHLY->value
                                     ],
                                     'pallets_limit' => [
                                         'type'     => 'input',
@@ -57,7 +58,7 @@ class CreateRentalAgreement extends OrgAction
                                     'rental' => [
                                         'type'             => 'rental',
                                         'label'            => __('Rental'),
-                                        'required'         => true,
+                                        'required'         => false,
                                         'full'             => true,
                                         'indexRentalRoute' => [
                                             'name'       => 'grp.org.fulfilments.show.products.rentals.index',

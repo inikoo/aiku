@@ -175,7 +175,7 @@ class IndexPalletDeliveries extends OrgAction
                             'title'       => __($hasRentalAgreementActive ?
                                 'This customer has not received any pallet deliveries yet'
                                 : (!$hasRentalAgreement ? 'You dont have rental agreement active yet. Please create rental agreement below'
-                                : 'You have rental agreement but its still ' . $parent->rentalAgreement->state->value)),
+                                : 'You have rental agreement but its ' . $parent->rentalAgreement->state->value)),
                             'count'       => $parent->number_pallet_deliveries,
                             'action'      => $hasRentalAgreementActive ? [
                                 'type'    => 'button',
@@ -191,16 +191,16 @@ class IndexPalletDeliveries extends OrgAction
                                     'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
                                     'parameters' => [$parent->id]
                                 ]
-                            ] : [
-                                'type'     => 'button',
-                                'style'    => 'create',
-                                'tooltip'  => __('Create new rental agreement'),
-                                'label'    => __('New rental agreement'),
-                                'route'    => [
+                            ] : (!$parent->rentalAgreement ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('Create new rental agreement'),
+                                'label'   => __('New rental agreement'),
+                                'route'   => [
                                     'name'       => 'grp.org.fulfilments.show.crm.customers.show.rental-agreement.create',
                                     'parameters' => array_values(request()->route()->originalParameters())
                                 ]
-                            ]
+                            ] : false)
                         ]
                     }
                 )

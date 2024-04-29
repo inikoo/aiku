@@ -15,4 +15,12 @@ enum RentalAgreementBillingCycleEnum: string
 
     case WEEKLY              = 'weekly';
     case MONTHLY             = 'monthly';
+
+    public function labels(): array
+    {
+        return [
+            'weekly'  => __('Weekly'),
+            'monthly' => __('Monthly')
+        ];
+    }
 }

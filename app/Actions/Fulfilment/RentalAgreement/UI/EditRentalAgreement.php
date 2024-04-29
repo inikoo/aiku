@@ -47,9 +47,9 @@ class EditRentalAgreement extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'title'    => __('new rental agreement'),
+                'title'    => __('edit rental agreement'),
                 'pageHead' => [
-                    'title' => __('new rental agreement')
+                    'title' => __('edit rental agreement')
                 ],
                 'formData' => [
                     'fullLayout' => true,
@@ -74,7 +74,7 @@ class EditRentalAgreement extends OrgAction
                                     'rental' => [
                                         'type'             => 'rental',
                                         'label'            => __('Rental'),
-                                        'required'         => true,
+                                        'required'         => false,
                                         'full'             => true,
                                         'indexRentalRoute' => [
                                             'name'       => 'grp.org.fulfilments.show.products.rentals.index',
