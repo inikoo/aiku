@@ -5,21 +5,14 @@
   -->
 
 <script setup lang="ts">
-import { usePage } from "@inertiajs/vue3"
-import Header from '@/Layouts/AikuPublic/Header.vue'
+// import { usePage } from "@inertiajs/vue3"
+// import Header from '@/Layouts/AikuPublic/Header.vue'
 
 
 </script>
 
 <template>
     <div class="relative">
-        <div class="container max-w-7xl mx-auto shadow-xl">
-            <Header />
-
-            <main
-                class="text-gray-700">
-                <slot />
-            </main>
-        </div>
+        Hellooooooo
     </div>
 </template>
