@@ -17,7 +17,8 @@ const props = withDefaults(defineProps<{
     minValue?: string | number
     maxValue?: string | number
     currency: String
-}>(), {})
+}>(), {
+})
 const { inputRef, formattedValue, numberValue, setValue } = useCurrencyInput({
     currency: props.currency,
     hideCurrencySymbolOnFocus: false,
@@ -37,6 +38,13 @@ watch(
     }
 );
 
+const increment = () => {
+    setValue((parseFloat(numberValue.value) || 0) + 1);
+}
+
+const decrement = () => {
+    setValue((parseFloat(numberValue.value) || 0) - 1);
+}
 
 </script>
 
@@ -49,7 +57,7 @@ watch(
                     border-transparent
                     focus:ring-0 focus:ring-gray-500 focus:outline-0 focus:border-transparent
                     read-only:bg-gray-100 read-only:ring-0 read-only:ring-transparent read-only:focus:border-transparent read-only:focus:border-gray-300 read-only:text-gray-500
-                " />
+                " @keydown.up.prevent="increment" @keydown.down.prevent="decrement"/>
         </div>
     </div>
 </template>

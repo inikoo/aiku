@@ -8,7 +8,7 @@
 import {  Head, useForm } from '@inertiajs/vue3'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faExclamationCircle, faCheckCircle, faAsterisk } from '@fas'
+import { faExclamationCircle, faCheckCircle, faAsterisk, faChevronDown } from '@fas'
 import { faPhone } from '@fal'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import Input from '@/Components/Forms/Fields/Input.vue'
@@ -30,19 +30,22 @@ import Interest from '@/Components/Forms/Fields/Interest.vue'
 import Toggle from '@/Components/Forms/Fields/Toggle.vue'
 import WebRegistrations from '@/Components/Forms/Fields/WebRegistrations.vue'
 import Rental from '@/Components/Rental/Rental.vue'
+import { isArray } from 'lodash'
 
 import { ref, onMounted } from 'vue'
 import Textarea from "@/Components/Forms/Fields/Textarea.vue"
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from '@/Composables/capitalize'
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
+import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 
-library.add(faExclamationCircle, faAsterisk, faCheckCircle, faPhone)
+library.add(faExclamationCircle, faAsterisk, faCheckCircle, faPhone, faChevronDown)
 
 const props = defineProps<{
     title: string
     pageHead: PageHeadingTypes
     formData: {
+        submitButton?: String
         fullLayout?: Boolean
         blueprint: {
             title?: string
@@ -90,13 +93,28 @@ Object.entries(props.formData.blueprint).forEach(([, val]) => {
     })
 })
 
-const form = useForm(fields);
+const ButtonActive = ref(isArray(props.formData.route) ? props.formData.route[0] : null)
+const form = useForm(
+  props.formData.submitField // This seems to be a condition for choosing between two objects
+    ? { ...fields, [props.formData.submitField]: 'active' } // This part executes if the condition is truthy
+    : fields // This part executes if the condition is falsy
+);
+
 
 const handleFormSubmit = () => {
-    form.post(route(
-        props.formData.route.name,
-        props.formData.route.parameters
-    ))
+    console.log(form.data(),ButtonActive)
+    if (!props.formData.submitButton) {
+        form.post(route(
+            props.formData.route.name,
+            props.formData.route.parameters
+        ))
+    }else{
+        form.post(route(
+            ButtonActive.value.name,
+            ButtonActive.value.parameters
+        ))
+    }
+
 }
 
 const buttonRefs = ref([])
@@ -125,12 +143,19 @@ onMounted(() => {
     }
 })
 
+
+const onSelectSubmitChange = (value) => {
+    form[props.formData.submitField] = value.key
+    ButtonActive.value = value
+}
+
 </script>
 
 <template>
+
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
-    
+
     <div class="rounded-lg bg-white shadow">
         <div class="divide-y divide-gray-200 lg:grid grid-flow-col lg:grid-cols-12 lg:divide-y-0 lg:divide-x">
 
@@ -157,16 +182,19 @@ onMounted(() => {
             </aside>
 
             <!-- Main form -->
-            <form :class="['px-4 sm:px-6 md:px-10 gap-y-8 pb-8 divide-y divide-gray-200', formData.fullLayout ? 'col-span-12' : 'col-span-9']"
+            <form
+                :class="['px-4 sm:px-6 md:px-10 gap-y-8 pb-8 divide-y divide-gray-200', formData.fullLayout ? 'col-span-12' : 'col-span-9']"
                 @submit.prevent="handleFormSubmit">
                 <template v-for="(sectionData, sectionIdx ) in formData['blueprint']" :key="sectionIdx">
                     <!-- If Section: all fields is not hidden -->
-                    <div v-if="!(Object.values(sectionData.fields).every((field: any) => field.hidden))" class="relative py-4">
+                    <div v-if="!(Object.values(sectionData.fields).every((field: any) => field.hidden))"
+                        class="relative py-4">
                         <!-- Helper: Section click -->
                         <div class="sr-only absolute -top-16" :id="`field${sectionIdx}`" />
                         <!-- Title -->
                         <div class="flex items-center gap-x-2" ref="buttonRefs">
-                            <FontAwesomeIcon v-if="sectionData.icon" :icon='sectionData.icon' class='' aria-hidden='true' />
+                            <FontAwesomeIcon v-if="sectionData.icon" :icon='sectionData.icon' class=''
+                                aria-hidden='true' />
                             <h3 v-if="sectionData.title" class="text-lg leading-6 font-medium text-gray-700 capitalize">
                                 {{ sectionData.title }}
                             </h3>
@@ -180,13 +208,13 @@ onMounted(() => {
                                 <div v-if="!fieldData.hidden" class="mt-1 ">
                                     <dl class="divide-y divide-green-200  ">
                                         <div class="pb-4 sm:pb-5 sm:grid sm:grid-cols-3 sm:gap-4"
-                                            :class="fieldData.full ? '' : 'max-w-2xl'"
-                                        >
+                                            :class="fieldData.full ? '' : 'max-w-2xl'">
                                             <!-- Title of Field -->
                                             <dt class="text-sm font-medium text-gray-500 capitalize">
                                                 <div class="inline-flex items-start leading-none">
                                                     <!-- Icon: Required -->
-                                                    <FontAwesomeIcon v-if="fieldData.required" :icon="['fas', 'asterisk']"
+                                                    <FontAwesomeIcon v-if="fieldData.required"
+                                                        :icon="['fas', 'asterisk']"
                                                         class="font-light text-[12px] text-red-400 mr-1" />
                                                     <span>{{ fieldData.label }}</span>
                                                 </div>
@@ -210,13 +238,61 @@ onMounted(() => {
                         </div>
                     </div>
                 </template>
-
                 <!-- Button -->
                 <div class="pt-5 border-t-2 border-orange-500">
                     <div class="flex justify-end">
-                        <Button type="submit" :disabled="form.processing" :style="'primary'" size="m" icon="fas fa-save" @click="handleFormSubmit">
+                        <Button v-if="!formData.submitButton" type="submit" :disabled="form.processing"
+                            :style="'primary'" size="m" icon="fas fa-save" @click="handleFormSubmit">
                             {{ trans('Save') }}
                         </Button>
+
+                      
+
+                        <div v-else-if="formData.submitButton == 'dropdown'" class="flex justify-center">
+                            <Button :key="ButtonActive.key" type="submit" :disabled="form.processing"
+                                class="capitalize inline-flex items-center h-full rounded-r-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
+                                :style="'primary'" size="m" @click="handleFormSubmit">
+                                {{ ButtonActive.label }}
+                            </Button>
+                            <Menu as="div" class="relative inline-block text-left">
+                                    <MenuButton  as="template">
+                                        <Button :icon="['fas', 'chevron-down']" :disabled="form.processing"
+                                            class="capitalize inline-flex items-center h-full rounded-l-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
+                                            :style="'primary'" size="l">
+                                        </Button>
+                                    </MenuButton>
+
+
+                                    <transition 
+                                        enter-active-class="transition duration-100 ease-out"
+                                        enter-from-class="transform scale-95 opacity-0"
+                                        enter-to-class="transform scale-100 opacity-100"
+                                        leave-active-class="transition duration-75 ease-in"
+                                        leave-from-class="transform scale-100 opacity-100"
+                                        leave-to-class="transform scale-95 opacity-0">
+                                        <MenuItems
+                                            class="absolute top-[-90px] right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                                            <div class="px-1 py-1">
+                                            <div v-for="(item, index) in formData.route">
+                                                <MenuItem >
+                                                <div :class="[
+                                                    'text-gray-900',
+                                                    'group flex w-full items-center rounded-md px-2 py-2 text-sm',
+                                                
+                                                ]" @click="()=>onSelectSubmitChange(item)">
+                                                    {{ item.label }}
+                                                </div>
+                                                </MenuItem>
+                                            </div>
+                                            </div>
+                                        </MenuItems>
+                                        </transition>
+
+                            </Menu>
+
+                        </div>
+
+
                     </div>
                 </div>
 
