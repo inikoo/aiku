@@ -9,6 +9,7 @@ export interface OrganisationsData {
     label: string
     logo: Image
     route: routeType
+    currency: Currency
     authorised_shops: {
         id: number
         slug: string
@@ -46,4 +47,18 @@ export interface Group {
 // Each organisation have their own state
 export interface OrganisationState {
     [key: string] : string  // 'currentShop' | 'currentWarehouse' | 'currentFulfilment'
+}
+
+export interface Currency {
+    id: number
+    code: string  // 'GBP', 'USD', 'IDR'
+    name: string
+    symbol: string
+    fraction_digits: string
+    status: boolean
+    store_historic_data: boolean
+    historic_data_since: Date
+    data: []
+    created_at: Date
+    updated_at: Date
 }
