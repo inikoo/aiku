@@ -10,7 +10,6 @@ namespace App\Actions\Fulfilment\Pallet;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePallets;
 use App\Actions\Fulfilment\Pallet\Hydrators\PalletHydrateUniversalSearch;
-use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePallets;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydratePallets;
@@ -71,7 +70,6 @@ class StorePallet extends OrgAction
 
 
         if ($this->parent instanceof PalletDelivery) {
-            PalletDeliveryHydratePallets::run($this->parent);
         }
         FulfilmentCustomerHydratePallets::dispatch($fulfilmentCustomer);
         FulfilmentHydratePallets::dispatch($fulfilmentCustomer->fulfilment);

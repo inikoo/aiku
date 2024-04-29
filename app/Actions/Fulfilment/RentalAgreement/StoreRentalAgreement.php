@@ -7,14 +7,13 @@
 
 namespace App\Actions\Fulfilment\RentalAgreement;
 
-use App\Actions\Fulfilment\Rental\UpdateRental;
+use App\Actions\Fulfilment\RentalAgreementClause\StoreRentalAgreementClause;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\Rental;
 use App\Models\Fulfilment\RentalAgreement;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -39,31 +38,30 @@ class StoreRentalAgreement extends OrgAction
             )
         );
 
-        foreach (Arr::get($modelData, 'rental', []) as $rental) {
-            data_set($rental, 'rental_id', Arr::get($rental, 'rental_id'));
-            data_set($rental, 'agreed_price', Arr::get($rental, 'agreed_price'));
 
-            $fulfilmentCustomer->rentalAgreementClauses()->create(Arr::only($rental, ['rental_id', 'agreed_price']));
+        $causes=Arr::get($modelData, 'causes', []);
+        data_forget($modelData, 'causes');
 
-            UpdateRental::run(Rental::find(Arr::get($rental, 'rental_id')), [
-                'main_outerable_price' => Arr::get($rental, 'price')
-            ]);
-        }
 
-        data_forget($modelData, 'rental');
 
-        if(!Arr::get($modelData, 'state')) {
+
+
+        if (!Arr::get($modelData, 'state')) {
             data_set($modelData, 'state', RentalAgreementStateEnum::ACTIVE->value);
         }
 
         /** @var RentalAgreement $rentalAgreement */
-        $rentalAgreement=$fulfilmentCustomer->rentalAgreement()->create($modelData);
+        $rentalAgreement = $fulfilmentCustomer->rentalAgreement()->create($modelData);
 
         $fulfilmentCustomer->update(
             [
-                'rental_agreement_state'=> $rentalAgreement->state
+                'rental_agreement_state' => $rentalAgreement->state
             ]
         );
+
+        foreach ($causes as $causeData) {
+            StoreRentalAgreementClause::run($rentalAgreement, $causeData);
+        }
 
 
         return $rentalAgreement;
@@ -72,28 +70,30 @@ class StoreRentalAgreement extends OrgAction
     public function rules(): array
     {
         return [
-            'billing_cycle'             => ['required', Rule::enum(RentalAgreementBillingCycleEnum::class)],
-            'pallets_limit'             => ['nullable','integer','min:1','max:10000'],
-            'rental'                    => ['sometimes', 'array'],
-            'rental.*.rental_id'        => ['sometimes', 'exists:rentals,id'],
-            'rental.*.agreed_price'     => ['sometimes', 'numeric', 'gt:0'],
-            'rental.*.price'            => ['sometimes', 'numeric', 'gt:0'],
-            'state'                     => ['sometimes',Rule::enum(RentalAgreementStateEnum::class)],
-            'created_at'                => ['sometimes','date']
+            'billing_cycle'          => ['required', Rule::enum(RentalAgreementBillingCycleEnum::class)],
+            'pallets_limit'          => ['nullable', 'integer', 'min:1', 'max:10000'],
+            'causes'                 => ['sometimes', 'array'],
+            'causes.*.product_id'    => ['sometimes',
+                                         Rule::exists('products', 'id')
+                                             ->where('shop_id', $this->fulfilment->shop_id)
+                ],
+            'causes.*.agreed_price'  => ['sometimes', 'numeric', 'gt:0'],
+            'state'                  => ['sometimes', Rule::enum(RentalAgreementStateEnum::class)],
+            'created_at'             => ['sometimes', 'date']
         ];
     }
 
     public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreement
     {
-        $this->asAction       = true;
-        $this->initialisationFromShop($fulfilmentCustomer->fulfilment->shop, $modelData);
+        $this->asAction = true;
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
     public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): RentalAgreement
     {
-        $this->initialisationFromShop($fulfilmentCustomer->fulfilment->shop, $request);
+        $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }

@@ -227,21 +227,21 @@ test('create fulfilment customer', function (Fulfilment $fulfilment) {
 })->depends('create fulfilment shop');
 
 test('create rental agreement', function (FulfilmentCustomer $fulfilmentCustomer) {
+
+
     $rentalAgreement = StoreRentalAgreement::make()->action(
         $fulfilmentCustomer,
         [
             'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
             'pallets_limit' => null,
-            'rental'        => [
+            'causes'        => [
                 [
-                    'rental_id'       => $fulfilmentCustomer->fulfilment->rentals->first()->id,
-                    'agreed_price'    => 100,
-                    'price'           => 100,
+                    'product_id'       => $fulfilmentCustomer->fulfilment->rentals->first()->product_id,
+                    'agreed_price'     => 100,
                 ],
                 [
-                    'rental_id'       => $fulfilmentCustomer->fulfilment->rentals->last()->id,
-                    'agreed_price'    => 200,
-                    'price'           => 200,
+                    'product_id'       => $fulfilmentCustomer->fulfilment->rentals->last()->product_id,
+                    'agreed_price'     => 200,
                 ],
             ]
         ]

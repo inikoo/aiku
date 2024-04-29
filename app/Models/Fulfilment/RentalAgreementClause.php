@@ -7,6 +7,8 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Models\Market\Product;
+use App\Models\Traits\InFulfilmentCustomer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -28,18 +30,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class RentalAgreementClause extends Model
 {
+
+    use InFulfilmentCustomer;
+
     protected $guarded = [];
 
 
-    public function rental(): BelongsTo
+    public function product(): BelongsTo
     {
-        return $this->belongsTo(Rental::class);
+        return $this->belongsTo(Product::class);
     }
 
-    public function fulfilmentCustomer(): BelongsTo
-    {
-        return $this->belongsTo(FulfilmentCustomer::class);
-    }
+
 
 
 }
