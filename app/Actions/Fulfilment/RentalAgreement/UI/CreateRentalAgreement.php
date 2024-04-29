@@ -38,6 +38,8 @@ class CreateRentalAgreement extends OrgAction
                 ],
                 'formData' => [
                     'fullLayout' => true,
+                    'submitButton' => 'dropdown',
+                    'submitField'   => 'state',
                     'blueprint'  =>
                         [
                             [
@@ -72,10 +74,19 @@ class CreateRentalAgreement extends OrgAction
                             ]
                         ],
                     'route' => [
+                       [
+                        'label'     => __('Save'),
+                        'key'       => 'active',
                         'name'       => 'grp.models.fulfilment-customer.rental-agreements.store',
-                        'parameters' => [
-                            'fulfilmentCustomer' => $fulfilmentCustomer->id,
-                        ]
+                        'parameters' => ['fulfilmentCustomer' => $fulfilmentCustomer->id]
+                       ],
+                       [
+                        'label'     => __('Draft'),
+                        'key'       => 'draft',
+                        'name'       => 'grp.models.fulfilment-customer.rental-agreements.store',
+                        'parameters' => ['fulfilmentCustomer' => $fulfilmentCustomer->id]
+                       ],
+
                     ]
                 ],
 
