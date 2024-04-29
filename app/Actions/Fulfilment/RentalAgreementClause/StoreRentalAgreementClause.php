@@ -16,7 +16,14 @@ class StoreRentalAgreementClause extends OrgAction
 {
     public function handle(RentalAgreement $rentalAgreement, array $modelData): RentalAgreementClause
     {
-        /** @var \App\Models\Fulfilment\RentalAgreementClause $rentalAgreementClause */
+
+        data_set($modelData, 'organisation_id', $rentalAgreement->organisation_id);
+        data_set($modelData, 'group_id', $rentalAgreement->group_id);
+        data_set($modelData, 'fulfilment_id', $rentalAgreement->fulfilment_id);
+        data_set($modelData, 'fulfilment_customer_id', $rentalAgreement->fulfilment_customer_id);
+
+
+        /** @var RentalAgreementClause $rentalAgreementClause */
         $rentalAgreementClause = $rentalAgreement->clauses()->create($modelData);
 
         return $rentalAgreementClause;

@@ -12,6 +12,9 @@ return new class () extends Migration {
     {
         Schema::create('rental_agreement_clauses', function (Blueprint $table) {
             $table->smallIncrements('id');
+            $table = $this->groupOrgRelationship($table);
+            $table->unsignedInteger('fulfilment_id');
+            $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
             $table->unsignedInteger('fulfilment_customer_id');
             $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
             $table->unsignedInteger('product_id');
