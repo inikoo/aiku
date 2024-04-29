@@ -323,13 +323,13 @@ onMounted(() => {
                                     </template>
                                 </PureInput>
                             </td> 
-                            <td class="whitespace-nowrap px-3 py-4 text-sm">
+                           <!--  <td class="whitespace-nowrap px-3 py-4 text-sm">
                                 <span class="text-sm font-semibold">$ {{ itemData.agreed_price }}</span>
                                 <p v-if="form.errors[`${fieldName}.${index}.agreed_price`]"
                                     class="mt-2 text-sm text-red-600" :id="`${fieldName}-${index}-error`">      
                                     {{ form.errors[`${fieldName}.${index}.agreed_price`] }}
                                 </p>
-                            </td>
+                            </td> -->
                             <td class="whitespace-nowrap px-3 py-4 text-sm">
                                 <font-awesome-icon :icon="['fas', 'trash']" class="text-red-500"
                                     @click="() => deleteRow(index)" />
