@@ -5,16 +5,20 @@
   -->
 
 <script setup lang="ts">
+import { usePage } from '@inertiajs/vue3'
 
 const props = defineProps<{
-    data: object
-}>();
+    data: {}
+}>()
 
 
 </script>
 
 
 <template>
-
+    <div>
+        resources/js/Components/Showcases/Grp/ProductShowcase.vue
+        <pre>{{ usePage().props }}</pre>
+    </div>
 
 </template>

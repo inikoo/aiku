@@ -62,7 +62,7 @@ const originUrl = location.origin
                         :icon="data.iconBis.icon" size="sm" class="" :class="data.iconBis.class"/> -->
                 </div>
                 <h2 :class="!data.noCapitalise? 'capitalize' : ''">
-                    <span v-if="data.model" class="text-gray-500 mr-2">{{ data.model }}</span> {{ data.title }}
+                    <span v-if="data.model" class="text-gray-400 mr-2 font-medium">{{ data.model }}</span>{{ data.title }}
                 </h2>
                 <FontAwesomeIcon v-if="data.iconRight"
                     :title="capitalize(data.iconRight.tooltip || '')"
@@ -110,7 +110,7 @@ const originUrl = location.origin
                                     <slot v-for="(button, index) in action.button" :name="'button-group-' + kebabCase(button.label)" :action="{ button }">
                                         <Link
                                             :href="`${route(button.route.name, button.route.parameters)}`" class=""
-                                            :method="button.route.method ?? 'get'"
+                                            :method="button.route.method || 'get'"
                                             :as="button.target ? 'a' : 'div'"
                                             :target="button.target"
                                         >

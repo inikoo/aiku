@@ -5,24 +5,21 @@
   -->
 
 <script setup lang="ts">
-import {Head} from '@inertiajs/vue3';
-import {library} from '@fortawesome/fontawesome-svg-core';
-import {
-    faBox,
-    faBullhorn, faCameraRetro,
-    faCube,
-    faFolder, faMoneyBillWave, faProjectDiagram, faRoad, faShoppingCart, faStream, faUsers
-} from '@fal';
-import PageHeading from '@/Components/Headings/PageHeading.vue';
-import ModelDetails from "@/Components/ModelDetails.vue";
-import TableOrders from "@/Components/Tables/TableOrders.vue";
-import {useTabChange} from "@/Composables/tab-change";
-import {computed, defineAsyncComponent, ref} from "vue";
-import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableMailshots from "@/Components/Tables/TableMailshots.vue";
-import TableCustomers from "@/Components/Tables/Grp/Org/CRM/TableCustomers.vue";
-import ProductShowcase from "@/Components/Showcases/Grp/ProductShowcase.vue";
+import { Head } from '@inertiajs/vue3'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faBox, faBullhorn, faCameraRetro, faCube, faFolder, faMoneyBillWave, faProjectDiagram, faRoad, faShoppingCart, faStream, faUsers } from '@fal'
+import PageHeading from '@/Components/Headings/PageHeading.vue'
+import ModelDetails from "@/Components/ModelDetails.vue"
+import TableOrders from "@/Components/Tables/TableOrders.vue"
+import { useTabChange } from "@/Composables/tab-change"
+import { computed, defineAsyncComponent, ref } from "vue"
+import type { Component } from 'vue'
+import Tabs from "@/Components/Navigation/Tabs.vue"
+import TableMailshots from "@/Components/Tables/TableMailshots.vue"
+import TableCustomers from "@/Components/Tables/Grp/Org/CRM/TableCustomers.vue"
+import ProductShowcase from "@/Components/Showcases/Grp/ProductShowcase.vue"
 import { capitalize } from "@/Composables/capitalize"
+import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
 
 library.add(
     faFolder,
@@ -36,48 +33,46 @@ library.add(
     faBox,
     faCameraRetro,
     faRoad
-);
+)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
-    title: string,
-    pageHead: object,
+    title: string
+    pageHead: PageHeadingTypes
     tabs: {
-        current: string;
-        navigation: object;
+        current: string
+        navigation: {}
     }
-    orders?: object
-    customers?: object
-    mailshots?: object,
-    showcase?: object
+    orders?: {}
+    customers?: {}
+    mailshots?: {},
+    showcase?: {}
 }>()
 
 
-let currentTab = ref(props.tabs.current);
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+const currentTab = ref(props.tabs.current)
+const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
-
-    const components = {
+    const components: {[key: string]: Component} = {
         showcase: ProductShowcase,
         mailshots: TableMailshots,
         customers: TableCustomers,
         orders: TableOrders,
         details: ModelDetails,
         history: ModelChangelog,
-    };
-    return components[currentTab.value];
+    }
 
-});
+    return components[currentTab.value]
+})
 
 </script>
 
 
 <template>
-    <Head :title="capitalize(title)"/>
-    <PageHeading :data="pageHead"></PageHeading>
-    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
+    <Head :title="capitalize(title)" />
+    <PageHeading :data="pageHead" />
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
 </template>
-

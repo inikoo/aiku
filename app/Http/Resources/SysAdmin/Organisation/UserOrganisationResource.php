@@ -31,13 +31,14 @@ class UserOrganisationResource extends JsonResource
         $user = self::$user;
 
         return [
-            'id'    => $organisation->id,
-            'slug'  => $organisation->slug,
-            'code'  => $organisation->code,
-            'label' => $organisation->name,
-            'type'  => $organisation->type,
-            'logo'  => $organisation->logoImageSources(48, 48),
-            'route' => [
+            'id'        => $organisation->id,
+            'slug'      => $organisation->slug,
+            'code'      => $organisation->code,
+            'label'     => $organisation->name,
+            'type'      => $organisation->type,
+            'currency'  => $organisation->currency,
+            'logo'      => $organisation->logoImageSources(48, 48),
+            'route'     => [
                 'name'       => 'grp.org.dashboard.show',
                 'parameters' => [
                     $organisation->slug

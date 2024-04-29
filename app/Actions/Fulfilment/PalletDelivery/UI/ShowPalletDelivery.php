@@ -362,25 +362,25 @@ class ShowPalletDelivery extends OrgAction
                 ],
                 'notes_data'             => [
                     [
-                        'label'         => __('Customer'),
-                        'note'          => $palletDelivery->customer_notes ?? '',
-                        'editable'      => false,
-                        'color'         => 'blue',
-                        'field'         => 'customer_notes'
+                        'label'           => __('Customer'),
+                        'note'            => $palletDelivery->customer_notes ?? '',
+                        'editable'        => false,
+                        'bgColor'         => 'blue',
+                        'field'           => 'customer_notes'
                     ],
                     [
-                        'label'         => __('Public'),
-                        'note'          => $palletDelivery->public_notes ?? '',
-                        'editable'      => true,
-                        'color'         => 'pink',
-                        'field'         => 'public_notes'
+                        'label'           => __('Public'),
+                        'note'            => $palletDelivery->public_notes ?? '',
+                        'editable'        => true,
+                        'bgColor'         => 'pink',
+                        'field'           => 'public_notes'
                     ],
                     [
-                        'label'         => __('Private'),
-                        'note'          => $palletDelivery->internal_notes ?? '',
-                        'editable'      => true,
-                        'color'         => 'purple',
-                        'field'         => 'internal_notes'
+                        'label'           => __('Private'),
+                        'note'            => $palletDelivery->internal_notes ?? '',
+                        'editable'        => true,
+                        'bgColor'         => 'purple',
+                        'field'           => 'internal_notes'
                     ],
                 ],
 

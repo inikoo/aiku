@@ -18,7 +18,7 @@ const props = defineProps<{
 }>()
 
 const layout = inject('layout', layoutStructure)
-// console.log('asdsadsa', props.groupStats)
+// console.log('asdsadsa', layout.organisations)
 
 // Decriptor: Date interval
 const dateOptions = [

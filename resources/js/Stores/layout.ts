@@ -9,49 +9,50 @@ import { useColorTheme } from '@/Composables/useStockList'
 
 import { defineStore } from "pinia"
 import { Image } from "@/types/Image"
-import { routeType } from "@/types/route"
+// import { routeType } from "@/types/route"
 import { Colors } from "@/types/Color"
+import { OrganisationsData, Group } from "@/types/LayoutRules"
 
-interface OrganisationsData {
-    id: number
-    slug: string
-    code: string
-    label: string
-    logo: Image
-    route: routeType
-    authorised_shops: {
-        id: number
-        slug: string
-        code: string
-        label: string
-        state: string
-        type: string
-        route: routeType
-    }[]
-    authorised_warehouses: {
-        id: number
-        slug: string
-        code: string
-        label: string
-        state: string
-        route: routeType
-    }[]
-    authorised_fulfilments: {
-        id: number
-        slug: string
-        code: string
-        label: string
-        state: string
-        type: string
-        route: routeType
-    }[]
-}
+// interface OrganisationsData {
+//     id: number
+//     slug: string
+//     code: string
+//     label: string
+//     logo: Image
+//     route: routeType
+//     authorised_shops: {
+//         id: number
+//         slug: string
+//         code: string
+//         label: string
+//         state: string
+//         type: string
+//         route: routeType
+//     }[]
+//     authorised_warehouses: {
+//         id: number
+//         slug: string
+//         code: string
+//         label: string
+//         state: string
+//         route: routeType
+//     }[]
+//     authorised_fulfilments: {
+//         id: number
+//         slug: string
+//         code: string
+//         label: string
+//         state: string
+//         type: string
+//         route: routeType
+//     }[]
+// }
 
-interface Group {
-    logo: Image
-    slug: string
-    label: string
-}
+// interface Group {
+//     logo: Image
+//     slug: string
+//     label: string
+// }
 
 // Each organisation have their own state
 interface OrganisationState {
