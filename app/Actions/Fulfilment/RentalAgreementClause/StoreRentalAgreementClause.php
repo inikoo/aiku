@@ -8,16 +8,16 @@
 namespace App\Actions\Fulfilment\RentalAgreementClause;
 
 use App\Actions\OrgAction;
-use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Fulfilment\RentalAgreementClause;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreRentalAgreementClause extends OrgAction
 {
-    public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreementClause
+    public function handle(RentalAgreement $rentalAgreement, array $modelData): RentalAgreementClause
     {
         /** @var \App\Models\Fulfilment\RentalAgreementClause $rentalAgreementClause */
-        $rentalAgreementClause = $fulfilmentCustomer->rentalAgreementClauses()->create($modelData);
+        $rentalAgreementClause = $rentalAgreement->clauses()->create($modelData);
 
         return $rentalAgreementClause;
     }
@@ -30,18 +30,18 @@ class StoreRentalAgreementClause extends OrgAction
         ];
     }
 
-    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreementClause
+    public function action(RentalAgreement $rentalAgreement, array $modelData): RentalAgreementClause
     {
         $this->asAction       = true;
-        $this->initialisationFromShop($fulfilmentCustomer->fulfilment->shop, $modelData);
+        $this->initialisationFromShop($rentalAgreement->fulfilment->shop, $modelData);
 
-        return $this->handle($fulfilmentCustomer, $this->validatedData);
+        return $this->handle($rentalAgreement, $this->validatedData);
     }
 
-    public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): RentalAgreementClause
+    public function asController(RentalAgreement $rentalAgreement, ActionRequest $request): RentalAgreementClause
     {
-        $this->initialisationFromShop($fulfilmentCustomer->fulfilment->shop, $request);
+        $this->initialisationFromShop($rentalAgreement->fulfilment->shop, $request);
 
-        return $this->handle($fulfilmentCustomer, $this->validatedData);
+        return $this->handle($rentalAgreement, $this->validatedData);
     }
 }

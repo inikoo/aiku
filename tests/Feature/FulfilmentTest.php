@@ -237,11 +237,11 @@ test('create rental agreement', function (FulfilmentCustomer $fulfilmentCustomer
             'causes'        => [
                 [
                     'product_id'       => $fulfilmentCustomer->fulfilment->rentals->first()->product_id,
-                    'agreed_price'    => 100,
+                    'agreed_price'     => 100,
                 ],
                 [
                     'product_id'       => $fulfilmentCustomer->fulfilment->rentals->last()->product_id,
-                    'agreed_price'    => 200,
+                    'agreed_price'     => 200,
                 ],
             ]
         ]
