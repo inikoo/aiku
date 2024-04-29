@@ -11,12 +11,14 @@ use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
+use App\Actions\HumanResources\Timesheet\StoreTimesheet;
 use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Actions\HumanResources\Workplace\UpdateWorkplace;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\Timesheet;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\User;
 
@@ -227,3 +229,26 @@ test('can show employee', function () {
             ->has('tabs.navigation', 7);
     });
 })->todo();
+
+test('new timesheet for employee', function (Employee $employee) {
+    $timesheet = StoreTimesheet::make()->action($employee, [
+        'date' => now(),
+    ]);
+
+
+    expect($timesheet)->toBeInstanceOf(Timesheet::class)
+        ->and($timesheet->subject_id)->toBe($employee->id)
+        ->and($timesheet->subject_type)->toBe('Employee')
+        ->and($timesheet->number_breaks)->toBe(0)
+        ->and($timesheet->number_time_trackers)->toBe(0)
+        ->and($timesheet->working_minutes)->toBe(0)
+        ->and($timesheet->breaks_minutes)->toBe(0)
+        ->and($employee->stats->number_timesheets)->toBe(1);
+
+    return $timesheet;
+
+})->depends('create employee successful');
+
+test('create clocking ', function (Timesheet $timesheet) {
+
+})->depends('new timesheet for employee')->todo();

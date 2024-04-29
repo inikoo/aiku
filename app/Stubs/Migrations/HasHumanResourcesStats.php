@@ -63,4 +63,17 @@ trait HasHumanResourcesStats
 
         return $table;
     }
+
+    public function getTimesheetsStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedSmallInteger('number_timesheets')->default(0);
+        return $table;
+    }
+
+    public function getTimeTrackersStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedSmallInteger('number_time_trackers')->default(0);
+        return $table;
+    }
+
 }
