@@ -352,7 +352,7 @@ class ShowPalletDelivery extends OrgAction
 
                 'pallet_limits' => $palletLimits == null ? null : ($palletLimits - ($totalPallets + $numberStoredPallets) <= 2 ? [
                     'status'  => 'exceeded',
-                    'message' => __('Pallet limit exceeded')
+                    'message' => __("Pallet almost reached the limits: $palletLimits left.")
                 ] : false),
 
                 'data'             => PalletDeliveryResource::make($palletDelivery),
