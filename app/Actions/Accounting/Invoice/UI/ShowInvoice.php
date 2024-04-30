@@ -9,6 +9,7 @@ namespace App\Actions\Accounting\Invoice\UI;
 
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Enums\UI\CustomerTabsEnum;
 use App\Enums\UI\InvoiceTabsEnum;
@@ -16,6 +17,7 @@ use App\Http\Resources\Accounting\InvoicesResource;
 use App\Http\Resources\Accounting\PaymentsResource;
 use App\Models\Accounting\Invoice;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -24,7 +26,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowInvoice extends OrgAction
 {
-    private Organisation|Fulfilment|Shop $parent;
+    private Organisation|Fulfilment|FulfilmentCustomer|Shop $parent;
 
     public function handle(Invoice $invoice): Invoice
     {
@@ -40,6 +42,8 @@ class ShowInvoice extends OrgAction
             //todo think about it
             return false;
         } elseif($this->parent instanceof Fulfilment) {
+            return $request->user()->hasPermissionTo("fulfilments.{$this->organisation->id}.view");
+        } elseif($this->parent instanceof FulfilmentCustomer) {
             return $request->user()->hasPermissionTo("fulfilments.{$this->organisation->id}.view");
         }
         return false;
@@ -66,6 +70,15 @@ class ShowInvoice extends OrgAction
     {
         $this->parent=$fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(CustomerTabsEnum::values());
+        return $this->handle($invoice);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Invoice $invoice, ActionRequest $request): Invoice
+    {
+        $this->parent = $fulfilmentCustomer;
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(CustomerTabsEnum::values());
+
         return $this->handle($invoice);
     }
 
@@ -131,8 +144,9 @@ class ShowInvoice extends OrgAction
 
         return array_merge(
             match ($routeName) {
-                'grp.org.fulfilments.show.operations.invoices.show'=> ShowFulfilment::make()->getBreadcrumbs($routeParameters),
-                default                                            => []
+                'grp.org.fulfilments.show.operations.invoices.show'         => ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+                'grp.org.fulfilments.show.crm.customers.show.invoices.show' => ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
+                default                                                     => []
 
             },
             [
@@ -191,6 +205,20 @@ class ShowInvoice extends OrgAction
                         'organisation'=> $invoice->organisation->slug,
                         'fulfilment'  => $this->parent->slug,
                         'invoice'     => $invoice->slug
+                    ]
+
+                ]
+            ],
+
+            'grp.org.fulfilments.show.crm.customers.show.invoices.show'=> [
+                'label'=> $invoice->number,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'organisation'       => $invoice->organisation->slug,
+                        'fulfilment'         => $this->parent->slug,
+                        'fulfilmentCustomer' => $this->parent->slug,
+                        'invoice'            => $invoice->slug
                     ]
 
                 ]

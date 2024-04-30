@@ -6,6 +6,7 @@
  */
 
 
+use App\Actions\Accounting\Invoice\UI\ShowInvoice;
 use App\Actions\CRM\Customer\UI\EditCustomer;
 use App\Actions\CRM\WebUser\CreateWebUser;
 use App\Actions\CRM\WebUser\EditWebUser;
@@ -57,6 +58,10 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
             Route::get('', [ShowWebUser::class, 'inFulfilmentCustomer'])->name('show');
             Route::get('edit', [EditWebUser::class, 'inFulfilmentCustomer'])->name('edit');
         });
+    });
+
+    Route::prefix('invoices')->as('.invoices.')->group(function () {
+        Route::get('{invoice}', [ShowInvoice::class, 'inFulfilmentCustomer'])->name('show');
     });
 
     Route::get('webhook', FetchNewWebhookFulfilmentCustomer::class)->name('.webhook.fetch');
