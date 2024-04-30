@@ -74,7 +74,7 @@ class GetRetinaFulfilmentNavigation
                 ]
             ]
         ];
-        $groupNavigation['dropshipping'] = [
+        /*$groupNavigation['dropshipping'] = [
             'label'   => __('Dropshipping'),
             'icon'    => ['fal', 'fa-hand-holding-box'],
             'route'   => [
@@ -103,7 +103,7 @@ class GetRetinaFulfilmentNavigation
                     ],
                 ]
             ]
-        ];
+        ];*/
 
         if ($webUser->is_root) {
 

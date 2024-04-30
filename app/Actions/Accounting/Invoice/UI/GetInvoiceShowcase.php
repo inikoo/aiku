@@ -7,6 +7,9 @@
 
 namespace App\Actions\Accounting\Invoice\UI;
 
+use App\Actions\Accounting\InvoiceTransaction\UI\IndexInvoiceTransactions;
+use App\Enums\UI\InvoiceTabsEnum;
+use App\Http\Resources\Accounting\InvoiceTransactionsResource;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceTransaction;
@@ -20,6 +23,7 @@ class GetInvoiceShowcase
     {
         // dd($invoice);
         return [
+            'items'    => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value)),
             'customer' => [
                 'slug'         => $invoice->customer->slug,
                 'reference'    => $invoice->customer->reference,
