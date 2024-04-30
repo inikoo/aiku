@@ -25,7 +25,6 @@ const emits = defineEmits<{
 }>()
 
 const layout = inject('layout', layoutStructure)
-console.log('layout', layout.app.name)
 const isLoadingSearch = ref(false)
 const searchValue = ref('')
 const resultsSearch = ref()
