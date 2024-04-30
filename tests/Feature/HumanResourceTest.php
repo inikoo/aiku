@@ -17,6 +17,7 @@ use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Actions\HumanResources\Workplace\UpdateWorkplace;
 use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Enums\HumanResources\TimeTracker\TimeTrackerStatusEnum;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\Clocking;
@@ -251,7 +252,7 @@ test('new timesheet for employee', function (Employee $employee) {
 
 })->depends('create employee successful');
 
-test('create clocking ', function (Timesheet $timesheet, Workplace $workplace) {
+test('create clocking', function (Timesheet $timesheet, Workplace $workplace) {
     /** @var Employee $employee */
     $employee = $timesheet->subject;
 
@@ -267,8 +268,37 @@ test('create clocking ', function (Timesheet $timesheet, Workplace $workplace) {
         ->and($clocking->clocking_machine_id)->toBeNull()
         ->and($clocking->type)->toBe(ClockingTypeEnum::MANUAL)
         ->and($employee->stats->number_timesheets)->toBe(1)
-        ->and($employee->stats->number_clockings)->toBe(1);
-    //        ->and($employee->stats->number_time_trackers)->toBe(1);
+        ->and($employee->stats->number_clockings)->toBe(1)
+            ->and($employee->stats->number_time_trackers)->toBe(1);
 
+    return $timesheet;
 
 })->depends('new timesheet for employee', 'create working place successful');
+
+test('second clocking ', function (Timesheet $timesheet, Workplace $workplace) {
+    /** @var Employee $employee */
+    $employee = $timesheet->subject;
+
+    $clocking=StoreClocking::make()->action($this->organisation, $workplace, $employee, [
+        'clocked_at' => now()->subMinutes(5),
+    ]);
+    $clocking->refresh();
+    $timesheet=$clocking->timesheet;
+    $employee->refresh();
+
+    expect($clocking)->toBeInstanceOf(Clocking::class)
+        ->and($clocking->subject_id)->toBe($employee->id)
+        ->and($clocking->subject_type)->toBe('Employee')
+        ->and($clocking->workplace_id)->toBe($workplace->id)
+        ->and($clocking->clocking_machine_id)->toBeNull()
+        ->and($timesheet->number_time_trackers)->toBe(1)
+        ->and($clocking->type)->toBe(ClockingTypeEnum::MANUAL)
+        ->and($employee->stats->number_timesheets)->toBe(1)
+        ->and($employee->stats->number_clockings)->toBe(2)
+        ->and($employee->stats->number_time_trackers)->toBe(1);
+
+    $timeTracker=$timesheet->timeTrackers->first();
+    expect($timeTracker->status)->toBe(TimeTrackerStatusEnum::CLOSED)
+        ->and($timeTracker->end_clocking_id)->toBe($clocking->id);
+
+})->depends('create clocking', 'create working place successful');

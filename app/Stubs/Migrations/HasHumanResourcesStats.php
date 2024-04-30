@@ -10,6 +10,7 @@ namespace App\Stubs\Migrations;
 use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
+use App\Enums\HumanResources\TimeTracker\TimeTrackerStatusEnum;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 
 use App\Enums\Miscellaneous\GenderEnum;
@@ -49,15 +50,16 @@ trait HasHumanResourcesStats
             $table->unsignedSmallInteger('number_workplaces_type_'.$case->snake())->default(0);
         }
 
-
         return $table;
     }
 
     public function getClockingMachinesFieldStats(Blueprint $table): Blueprint
     {
         $table->unsignedSmallInteger('number_clocking_machines')->default(0);
-        $table->unsignedSmallInteger('number_clocking_machines_type_'.ClockingMachineTypeEnum::STATIC_NFC->snake())->default(0);
-        $table->unsignedSmallInteger('number_clocking_machines_type_'.ClockingMachineTypeEnum::MOBILE_APP->snake())->default(0);
+
+        foreach (ClockingMachineTypeEnum::cases() as $case) {
+            $table->unsignedSmallInteger('number_clocking_machines_type_'.$case->snake())->default(0);
+        }
 
         return $this->getClockingsFieldStats($table);
     }
@@ -80,6 +82,9 @@ trait HasHumanResourcesStats
     public function getTimeTrackersStats(Blueprint $table): Blueprint
     {
         $table->unsignedSmallInteger('number_time_trackers')->default(0);
+        foreach (TimeTrackerStatusEnum::cases() as $case) {
+            $table->unsignedSmallInteger('number_time_trackers_status_'.$case->snake())->default(0);
+        }
         return $table;
     }
 

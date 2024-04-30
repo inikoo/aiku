@@ -5,7 +5,6 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Enums\HumanResources\TimeTracker\TimeTrackerStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -19,12 +18,9 @@ return new class () extends Migration {
             $table->foreign('workplace_id')->references('id')->on('workplaces');
             $table->unsignedSmallInteger('timesheet_id')->nullable()->index();
             $table->foreign('timesheet_id')->references('id')->on('timesheets');
-
-
-            $table->string('status')->default(TimeTrackerStatusEnum::CREATING->value)->index();
-
-
-
+            $table->string('subject_type')->comment('Employee|Guest');
+            $table->unsignedSmallInteger('subject_id');
+            $table->string('status')->index();
             $table->dateTimeTz('starts_at')->nullable();
             $table->dateTimeTz('ends_at')->nullable();
             $table->unsignedInteger('start_clocking_id')->nullable()->index();
@@ -33,6 +29,8 @@ return new class () extends Migration {
             $table->foreign('end_clocking_id')->references('id')->on('clockings');
             $table->timestampsTz();
             $table->softDeletesTz();
+            $table->index(['subject_type', 'subject_id']);
+
         });
 
         Schema::table('clockings', function (Blueprint $table) {

@@ -10,6 +10,7 @@ namespace App\Models\SysAdmin;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\JobPosition;
 use App\Models\HumanResources\Timesheet;
+use App\Models\HumanResources\TimeTracker;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -58,6 +59,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \App\Models\SysAdmin\GuestStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, TimeTracker> $timeTrackers
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Timesheet> $timesheets
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \App\Models\SysAdmin\User|null $user
@@ -159,6 +161,11 @@ class Guest extends Model implements HasMedia, Auditable
     public function timesheets(): MorphMany
     {
         return $this->morphMany(Timesheet::class, 'subject');
+    }
+
+    public function timeTrackers(): MorphMany
+    {
+        return $this->morphMany(TimeTracker::class, 'subject');
     }
 
     public function clockings(): MorphMany

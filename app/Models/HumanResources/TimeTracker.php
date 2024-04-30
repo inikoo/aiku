@@ -10,6 +10,8 @@ namespace App\Models\HumanResources;
 use App\Enums\HumanResources\TimeTracker\TimeTrackerStatusEnum;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -18,6 +20,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $id
  * @property int|null $workplace_id
  * @property int|null $timesheet_id
+ * @property string $subject_type Employee|Guest
+ * @property int $subject_id
  * @property TimeTrackerStatusEnum $status
  * @property string|null $starts_at
  * @property string|null $ends_at
@@ -26,6 +30,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read Model|\Eloquent $subject
+ * @property-read \App\Models\HumanResources\Timesheet|null $timesheet
  * @method static Builder|TimeTracker newModelQuery()
  * @method static Builder|TimeTracker newQuery()
  * @method static Builder|TimeTracker onlyTrashed()
@@ -45,5 +51,14 @@ class TimeTracker extends Model
 
     protected $guarded = [];
 
+    public function subject(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    public function timesheet(): BelongsTo
+    {
+        return $this->belongsTo(Timesheet::class);
+    }
 
 }

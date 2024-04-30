@@ -9,6 +9,7 @@ namespace App\Actions\HumanResources\Clocking;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateClockings;
 use App\Actions\HumanResources\Timesheet\GetTimesheet;
+use App\Actions\HumanResources\TimeTracker\AddClockingToTimeTracker;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateClockings;
 use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
@@ -43,8 +44,12 @@ class StoreClocking extends OrgAction
         $timesheet=GetTimesheet::run($subject, $modelData['clocked_at']);
         data_set($modelData, 'timesheet_id', $timesheet->id);
 
+
+
         /** @var Clocking $clocking */
         $clocking = $subject->clockings()->create($modelData);
+        AddClockingToTimeTracker::run($timesheet, $clocking);
+
 
         if($subject instanceof Employee) {
             EmployeeHydrateClockings::dispatch($subject);

@@ -9,6 +9,7 @@ namespace App\Actions\SysAdmin\Guest;
 
 use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateClockings;
 use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateTimesheets;
+use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateTimeTracker;
 use App\Models\SysAdmin\Guest;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -22,9 +23,9 @@ class HydrateGuest
 
     public function handle(Guest $guest): void
     {
-
         GuestHydrateTimesheets::run($guest);
         GuestHydrateClockings::run($guest);
+        GuestHydrateTimeTracker::run($guest);
     }
 
 

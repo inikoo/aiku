@@ -33,8 +33,8 @@ return new class () extends Migration {
             $table->softDeletes();
             $table->nullableMorphs('deleted_by');
             $table->string('source_id')->nullable()->unique();
-            $table->unique(['subject_type', 'subject_id']);
-            $table->unique(['generator_type', 'generator_id']);
+            $table->index(['subject_type', 'subject_id']);
+            $table->index(['generator_type', 'generator_id']);
         });
     }
 

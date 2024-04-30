@@ -41,6 +41,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $deleted_by_id
  * @property string|null $source_id
  * @property-read \App\Models\HumanResources\ClockingMachine|null $clockingMachine
+ * @property-read \App\Models\HumanResources\Timesheet|null $timesheet
  * @property-read \App\Models\HumanResources\Workplace|null $workplace
  * @method static Builder|Clocking newModelQuery()
  * @method static Builder|Clocking newQuery()
@@ -86,6 +87,11 @@ class Clocking extends Model
     public function clockingMachine(): BelongsTo
     {
         return $this->belongsTo(ClockingMachine::class);
+    }
+
+    public function timesheet(): BelongsTo
+    {
+        return $this->belongsTo(Timesheet::class);
     }
 
 }

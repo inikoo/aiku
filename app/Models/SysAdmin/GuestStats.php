@@ -17,6 +17,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_timesheets
  * @property int $number_clockings
  * @property int $number_time_trackers
+ * @property int $number_time_trackers_status_open
+ * @property int $number_time_trackers_status_closed
+ * @property int $number_time_trackers_status_error
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|GuestStats newModelQuery()

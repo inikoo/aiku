@@ -80,6 +80,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read Organisation $organisation
  * @property-read \App\Models\HumanResources\EmployeeStats|null $stats
+ * @property-read Collection<int, \App\Models\HumanResources\TimeTracker> $timeTrackers
  * @property-read Collection<int, \App\Models\HumanResources\Timesheet> $timesheets
  * @property-read UniversalSearch|null $universalSearch
  * @property-read User|null $user
@@ -182,6 +183,11 @@ class Employee extends Model implements HasMedia, Auditable
     public function timesheets(): MorphMany
     {
         return $this->morphMany(Timesheet::class, 'subject');
+    }
+
+    public function timeTrackers(): MorphMany
+    {
+        return $this->morphMany(TimeTracker::class, 'subject');
     }
 
     public function clockings(): MorphMany
