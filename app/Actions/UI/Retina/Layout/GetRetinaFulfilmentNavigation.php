@@ -111,26 +111,26 @@ class GetRetinaFulfilmentNavigation
                 'label'   => __('billing'),
                 'icon'    => ['fal', 'fa-file-invoice-dollar'],
                 'route'   => [
-                    'name' => 'retina.sysadmin.dashboard'
+                    'name' => 'retina.billing.dashboard'
                 ],
                 'topMenu' => [
                     'subSections' => [
                         [
-                            'label' => __('users'),
+                            'label' => __('recurring billing'),
                             'icon'  => ['fal', 'fa-terminal'],
-                            'root'  => 'retina.sysadmin.users.',
+                            'root'  => 'retina.billing.recurring.',
                             'route' => [
-                                'name' => 'retina.sysadmin.web-users.index',
+                                'name' => 'retina.billing.recurring.index',
 
                             ]
                         ],
 
                         [
-                            'label' => __('system settings'),
+                            'label' => __('invoice'),
                             'icon'  => ['fal', 'fa-cog'],
-                            'root'  => 'retina.sysadmin.settings.',
+                            'root'  => 'retina.billing.invoice.',
                             'route' => [
-                                'name' => 'retina.sysadmin.settings.edit',
+                                'name' => 'retina.billing.invoice.index',
 
                             ]
                         ],
