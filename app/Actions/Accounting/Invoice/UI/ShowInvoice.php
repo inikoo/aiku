@@ -7,12 +7,14 @@
 
 namespace App\Actions\Accounting\Invoice\UI;
 
+use App\Actions\Accounting\InvoiceTransaction\UI\IndexInvoiceTransactions;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Enums\UI\InvoiceTabsEnum;
 use App\Http\Resources\Accounting\InvoicesResource;
+use App\Http\Resources\Accounting\InvoiceTransactionsResource;
 use App\Http\Resources\Accounting\PaymentsResource;
 use App\Models\Accounting\Invoice;
 use App\Models\Fulfilment\Fulfilment;
@@ -113,8 +115,8 @@ class ShowInvoice extends OrgAction
                     : Inertia::lazy(fn () => GetInvoiceShowcase::run($invoice)),
 
                 InvoiceTabsEnum::ITEMS->value => $this->tab == InvoiceTabsEnum::ITEMS->value ?
-                    fn () => GetInvoiceShowcase::run($invoice)
-                    : Inertia::lazy(fn () => GetInvoiceShowcase::run($invoice)),
+                    fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))
+                    : Inertia::lazy(fn () => InvoiceTransactionsResource::collection(IndexInvoiceTransactions::run($invoice, InvoiceTabsEnum::ITEMS->value))),
 
                 InvoiceTabsEnum::PAYMENTS->value => $this->tab == InvoiceTabsEnum::PAYMENTS->value ?
                     fn () => PaymentsResource::collection(IndexPayments::run($invoice))
@@ -123,7 +125,8 @@ class ShowInvoice extends OrgAction
 
 
             ]
-        )->table(IndexPayments::make()->tableStructure($invoice));
+        )->table(IndexPayments::make()->tableStructure($invoice, [], InvoiceTabsEnum::PAYMENTS->value))
+            ->table(IndexInvoiceTransactions::make()->tableStructure($invoice, InvoiceTabsEnum::ITEMS->value));
     }
 
     public function prepareForValidation(ActionRequest $request): void

@@ -32,6 +32,7 @@ const props = defineProps<{
     }
     showcase: {}
     payments: {}
+    items: {}
     details: {}
     history: {}
 }>()
@@ -43,6 +44,7 @@ const component = computed(() => {
     const components = {
         showcase: OperationsInvoiceShowcase,
         payments: TablePayments,
+        items: TablePayments,
         details: ModelDetails,
         history: ModelChangelog,
     }
