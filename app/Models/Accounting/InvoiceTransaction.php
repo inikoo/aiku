@@ -7,6 +7,7 @@
 
 namespace App\Models\Accounting;
 
+use App\Models\Market\Product;
 use App\Models\OMS\Transaction;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -49,6 +50,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $source_alt_id
  * @property-read Model|\Eloquent $item
  * @property-read Transaction|null $transaction
+ * @property-read Product|null $product
  * @method static Builder|InvoiceTransaction newModelQuery()
  * @method static Builder|InvoiceTransaction newQuery()
  * @method static Builder|InvoiceTransaction onlyTrashed()
@@ -81,6 +83,11 @@ class InvoiceTransaction extends Model
     public function transaction(): BelongsTo
     {
         return $this->belongsTo(Transaction::class);
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
     }
 
     public function setQuantityAttribute($val)

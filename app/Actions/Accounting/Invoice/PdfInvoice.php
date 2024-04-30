@@ -9,6 +9,7 @@ namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\Traits\WithExportData;
 use App\Models\Accounting\Invoice;
+use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf as PDF;
@@ -25,15 +26,16 @@ class PdfInvoice
      */
     public function handle(Invoice $invoice): Response
     {
-        $totalShipping = $invoice->order['shipping'];
-        $totalItemsNet = $invoice->order['items_net'];
+        $totalItemsNet = (int) $invoice->total_amount;
+        $totalShipping = (int) $invoice->order->shipping;
 
-        $totalNet = $totalItemsNet - $totalShipping;
+        $totalNet = $totalItemsNet + $totalShipping;
 
         $filename = $invoice->slug . '-' . now()->format('Y-m-d');
         $pdf      = PDF::loadView('invoices.templates.pdf.invoice', [
-            'invoice'  => $invoice,
-            'totalNet' => $totalNet
+            'invoice'       => $invoice,
+            'transactions'  => $invoice->invoiceTransactions,
+            'totalNet'      => $totalNet
         ]);
 
         return $pdf->stream($filename . '.pdf');
@@ -42,7 +44,7 @@ class PdfInvoice
     /**
      * @throws \Mpdf\MpdfException
      */
-    public function asController(Invoice $invoice): Response
+    public function asController(Organisation $organisation, Invoice $invoice): Response
     {
         return $this->handle($invoice);
     }

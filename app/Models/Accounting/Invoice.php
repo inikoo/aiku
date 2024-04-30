@@ -92,9 +92,10 @@ class Invoice extends Model
     use InCustomer;
 
     protected $casts = [
-        'type'    => InvoiceTypeEnum::class,
-        'data'    => 'array',
-        'paid_at' => 'array'
+        'type'             => InvoiceTypeEnum::class,
+        'data'             => 'array',
+        'paid_at'          => 'datetime',
+        'tax_liability_at' => 'datetime'
     ];
 
     protected $attributes = [

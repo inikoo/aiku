@@ -132,11 +132,11 @@
             </div>
 
             <div style="text-align: right">
-                Tax liability date: <b>20 Jun 2023</b>
+                Tax liability date: <b>{{ $invoice->tax_liability_at->format('j F Y') }}</b>
             </div>
 
             <div style="text-align: right">
-                Order Date: <b>20 Jun 2023</b>
+                Order Date: <b>{{ $invoice->order->date->format('j F Y') }}</b>
             </div>
         </td>
     </tr>
@@ -150,7 +150,7 @@
                 </div>
                 <div>
                     Customer: <b>{{ $invoice->customer['name'] }}</b>
-                    ({{ $invoice->customer['id'] }})
+                    ({{ $invoice->customer['reference'] }})
                 </div>
                 <div class=" {if !$customer->get('Customer Main Plain Mobile')}hide{/if}">
                     <span class="address_label">Mobile:</span> <span class="address_value">{{ $invoice->customer['phone'] }}</span>
@@ -220,6 +220,7 @@
 
         <td style="text-align:left">Description</td>
         <td style="text-align:left;width:20% ">Discount</td>
+        <td style="text-align:left;width:20% ">Price</td>
 
         <td style="text-align:left">Qty</td>
 
@@ -228,54 +229,52 @@
     </thead>
     <tbody>
 
-    @foreach($invoice->order->transactions as $transaction)
+    @foreach($transactions as $transaction)
     <tr class="@if($loop->last) last @endif">
-        <td style="text-align:left">{{ $transaction->item['name'] }}</td>
+        <td style="text-align:left">{{ $transaction->product['code'] }}</td>
 
         <td style="text-align:left">
-            1x Bergamot (FCF) Bulk Essential Oil (£50.00)
-            Weight: 1Kg
-            Origin: Côte d’Ivoire (CIV)
-            Tariff Code: 3301294100
+            {{ $transaction->product['description'] }}
         </td>
-        <td style="text-align:left">0</td>
+        <td style="text-align:left">{{ $transaction->discounts_amount }}</td>
+        <td style="text-align:left">{{ $transaction->item['price'] }}</td>
 
-        <td style="text-align:right">100</td>
+        <td style="text-align:right">{{ $transaction->quantity }}</td>
 
-        <td style="text-align:right">$50</td>
+        <td style="text-align:right">{{ $transaction->net_amount }}</td>
     </tr>
     @endforeach
 
     </tbody>
     <tbody class="totals">
     <tr>
-        <td style="border:none" colspan="3"></td>
+        <td style="border:none" colspan="4"></td>
         <td>Items Net</td>
-        <td>{{ $invoice->order['items_net'] }}</td>
+        <td>{{ $invoice->total_amount }}</td>
     </tr>
 
     <tr>
-        <td style="border:none" colspan="3"></td>
+        <td style="border:none" colspan="4"></td>
         <td>Shipping</td>
         <td>{{ $invoice->order['shipping'] }}</td>
     </tr>
 
     <tr class="total_net">
-        <td style="border:none" colspan="3"></td>
+        <td style="border:none" colspan="4"></td>
         <td>Total Net</td>
-        <td>{{ $totalNet }}</td>
+        <td>{{ $invoice->net_amount }}</td>
     </tr>
 
     <tr>
-        <td style="border:none" colspan="3"></td>
+        <td style="border:none" colspan="4"></td>
         <td class="totals">TAX <br> <small>GB-SR VAT 20%</small></td>
         <td class="totals">{{ $invoice->order['tax'] }}</td>
     </tr>
 
     <tr class="total">
-        <td style="border:none" colspan="3"></td>
+        <td style="border:none" colspan="4"></td>
         <td><b>Total</b></td>
-        <td>{{ $invoice->order['net'] }}</td>
+        <td>{{ $totalNet }}</td>
     </tr>
     </tbody>
 

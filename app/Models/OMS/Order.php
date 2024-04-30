@@ -108,6 +108,7 @@ class Order extends Model
 
     protected $casts = [
         'data'   => 'array',
+        'date'   => 'datetime',
         'state'  => OrderStateEnum::class,
         'status' => OrderStatusEnum::class
     ];
