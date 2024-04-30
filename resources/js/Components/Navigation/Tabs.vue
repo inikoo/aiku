@@ -5,15 +5,16 @@
   -->
 
 <script setup lang="ts">
-import { inject, ref } from "vue"
+import { inject, ref, watch } from "vue"
 import { capitalize } from "@/Composables/capitalize"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faInfoCircle, faPallet } from '@fas'
+import { faSpinnerThird } from '@fad'
 import { faRoad, faClock, faDatabase, faNetworkWired } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 
-library.add(faInfoCircle, faRoad, faClock, faDatabase, faPallet, faNetworkWired)
+library.add(faInfoCircle, faRoad, faClock, faDatabase, faPallet, faNetworkWired, faSpinnerThird)
 
 const layoutStore = inject('layout', layoutStructure)
 
@@ -35,14 +36,27 @@ const emits = defineEmits<{
 }>()
 
 const currentTab = ref(props.current)
-const changeTab = function (tabSlug: string) {
-    currentTab.value = tabSlug
+const tabLoading = ref<boolean | string>(false)
+// const changeTab = function (tabSlug: string) {
+//     currentTab.value = tabSlug
+// }
+
+// Method: click Tab
+const onChangeTab = async (tabSlug: string) => {
+    tabLoading.value = tabSlug
+    emits('update:tab', tabSlug)
 }
 
+// Set new active Tab after parent has changed page
+watch(() => props.current, (newVal) => {
+    currentTab.value = newVal
+    tabLoading.value = false
+})
 
-const tabIconClass = function (current, type, align, extraClass) {
-    let iconClass = '-ml-0.5 h-5 w-5   ' + extraClass
-    // iconClass += current ? 'text-indigo-500 ' : 'text-gray-400 group-hover:text-gray-500 ';
+const tabIconClass = function (isCurrent: boolean, type: string | undefined, align: string | undefined, extraIconClass: string) {
+    // console.log(isCurrent, type, align, extraIconClass)
+    let iconClass = '-ml-0.5 h-5 w-5   ' + extraIconClass
+    // iconClass += isCurrent ? 'text-indigo-500 ' : 'text-gray-400 group-hover:text-gray-500 ';
     iconClass += (type == 'icon' && align == 'right') ? 'ml-2 ' : 'mr-2 '
     return iconClass
 }
@@ -54,11 +68,16 @@ const tabIconClass = function (current, type, align, extraClass) {
         <!-- Tabs: Mobile view -->
         <div class="sm:hidden px-3 pt-2">
             <label for="tabs" class="sr-only">Select a tab</label>
-            <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
+            
+            <!-- TODO: use Headless or component Dropdown so the icon is able to show (currrently not) -->
             <select id="tabs" name="tabs" class="block w-full capitalize rounded-md border-gray-300 focus:border-gray-500 focus:ring-gray-500"
-                @input="(val: any) => { emits('update:tab', val.target.value), changeTab(val.target.value) }"
+                @input="(val: any) => onChangeTab(val.target.value)"
             >
-                <option v-for="(tab, tabSlug) in navigation" :key="tabSlug" :selected="tabSlug == currentTab" :value="tabSlug" class="capitalize">{{ tab.title }}</option>
+                <option v-for="(tab, tabSlug) in navigation" :key="tabSlug" :selected="tabSlug == currentTab" :value="tabSlug" class="capitalize">
+                    <FontAwesomeIcon v-if="tabLoading == tabSlug" icon="fad fa-spinner-third" class="animate-spin" :class="tabIconClass(tabSlug === currentTab, tab.type, tab.align, tab.iconClass || '')" aria-hidden="true"/>
+                    <FontAwesomeIcon v-else-if="tab.icon" :icon="tab.icon" aria-hidden="true"/>
+                    {{ tab.title }}
+                </option>
             </select>
         </div>
 
@@ -71,11 +90,12 @@ const tabIconClass = function (current, type, align, extraClass) {
                     <template v-for="(tab, tabSlug) in navigation" :key="tabSlug">
                         <button
                             v-if="tab.align !== 'right'"
-                            @click="[emits('update:tab', tabSlug),changeTab(tabSlug)]"
+                            @click="onChangeTab(tabSlug)"
                             :class="[tabSlug === currentTab ? 'tabNavigationActive' : 'tabNavigation']"
                             class="group flex items-center py-2 px-1 font-medium capitalize text-left text-sm md:text-base w-fit"
                             :aria-current="tabSlug === currentTab ? 'page' : undefined">
-                            <FontAwesomeIcon v-if="tab.icon" :icon="tab.icon" :class="tabIconClass(tabSlug === currentTab, tab.type, tab.align, tab.iconClass || '')" aria-hidden="true"/>
+                            <FontAwesomeIcon v-if="tabLoading == tabSlug" icon="fad fa-spinner-third" class="animate-spin" :class="tabIconClass(tabSlug === currentTab, tab.type, tab.align, tab.iconClass || '')" aria-hidden="true"/>
+                            <FontAwesomeIcon v-else-if="tab.icon" :icon="tab.icon" :class="tabIconClass(tabSlug === currentTab, tab.type, tab.align, tab.iconClass || '')" aria-hidden="true"/>
                             {{ tab.title }}
                         </button>
                     </template>
@@ -86,13 +106,14 @@ const tabIconClass = function (current, type, align, extraClass) {
                     <template v-for="(tab,tabSlug) in navigation" :key="tabSlug">
                         <button
                             v-if="tab.align === 'right'"
-                            @click="[emits('update:tab', tabSlug), changeTab(tabSlug)]"
+                            @click="onChangeTab(tabSlug)"
                             :class="[tabSlug === currentTab ? 'tabNavigationActive' : 'tabNavigation',
                                 'group inline-flex justify-center items-center py-2 px-2 border-b-2 font-medium text-sm']"
                             :aria-current="tabSlug === currentTab ? 'page' : undefined"
                             v-tooltip="capitalize(tab.title)"
                         >
-                            <FontAwesomeIcon v-if="tab.icon" :icon="tab.icon" class="h-5 w-5" aria-hidden="true"/>
+                            <FontAwesomeIcon v-if="tabLoading == tabSlug" icon="fad fa-spinner-third" class="animate-spin h-5 w-5" aria-hidden="true"/>
+                            <FontAwesomeIcon v-else-if="tab.icon" :icon="tab.icon" class="h-5 w-5" aria-hidden="true"/>
                             <span v-if="tab.type!=='icon'" class="capitalize">{{ tab.title }}</span>
                         </button>
                     </template>
