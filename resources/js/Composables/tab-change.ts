@@ -19,8 +19,12 @@ export const useTabChange = (tabSlug: string, currentTab: Ref<string>) => {
             data: { tab: tabSlug },  // Sent to url parameter (?tab=showcase, ?tab=menu)
             only: [tabSlug],  // Only reload the props with dynamic name tabSlug (i.e props.showcase, props.menu)
             onSuccess: () => {
+                // console.log('suksescc')
                 currentTab.value = tabSlug;
             },
+            onError: (e) => {
+                // console.log('eeerr', e)
+            }
         }
     )
 }
