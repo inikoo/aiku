@@ -19,6 +19,7 @@ const props = defineProps<{
 </script>
 
 <template>
+    <!-- <pre>{{ data }}</pre> -->
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
     <TableCustomers :data="data"  />

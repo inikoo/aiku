@@ -46,7 +46,7 @@ const props = defineProps<{
     }
     orders?: {}
     customers?: {}
-    mailshots?: {},
+    mailshots?: {}
     showcase?: {}
 }>()
 

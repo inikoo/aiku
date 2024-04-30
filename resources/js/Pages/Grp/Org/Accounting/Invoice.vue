@@ -15,6 +15,7 @@ import { useTabChange } from "@/Composables/tab-change"
 import ModelDetails from "@/Components/ModelDetails.vue"
 import TablePayments from "@/Components/Tables/Grp/Accounting/TablePayments.vue"
 import OperationsInvoiceShowcase from "@/Components/Showcases/Grp/Fulfilment/OperationsInvoiceShowcase.vue"
+// import TableOperationsInvoiceItems from "@/Components/Tables/TableOperationsInvoiceItems.vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import { faClock, faFileInvoice } from '@fas'
 import { capitalize } from "@/Composables/capitalize"
@@ -31,8 +32,8 @@ const props = defineProps<{
         navigation: {}
     }
     showcase: {}
-    payments: {}
     items: {}
+    payments: {}
     details: {}
     history: {}
 }>()
@@ -43,8 +44,8 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
     const components = {
         showcase: OperationsInvoiceShowcase,
+        // items: TableOperationsInvoiceItems,
         payments: TablePayments,
-        items: TablePayments,
         details: ModelDetails,
         history: ModelChangelog,
     }

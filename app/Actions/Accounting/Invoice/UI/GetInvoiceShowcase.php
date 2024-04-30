@@ -37,6 +37,8 @@ class GetInvoiceShowcase
                 'number'                    => $invoice->number,
                 'profit_amount'             => $invoice->profit_amount,
                 'margin_percentage'         => $invoice->margin_percentage,
+                'date'                      => $invoice->date,
+                'currency'                  => $invoice->currency->code,
 
                 'item_gross'                => $invoice->item_gross,
                 'discounts_total'           => $invoice->discounts_total,
@@ -54,13 +56,11 @@ class GetInvoiceShowcase
 
             ],
             'type'             => $invoice->type,
-            'currency'         => $invoice->currency->code,
             'paid_at'          => $invoice->paid_at,
             'group_exchange'   => $invoice->group_exchange,
             'org_exchange'     => $invoice->org_exchange,
             'group_net_amount' => $invoice->group_net_amount,
             'org_net_amount'   => $invoice->org_net_amount,
-            'date'             => $invoice->date,
             'tax_liability_at' => $invoice->tax_liability_at,
 
             'transactions'     => $invoice->invoiceTransactions->map(function (InvoiceTransaction $transaction) {
