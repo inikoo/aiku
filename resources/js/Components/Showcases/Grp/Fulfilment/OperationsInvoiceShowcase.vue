@@ -6,9 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faIdCardAlt, faMapMarkedAlt, faPhone } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import BoxStatsPalletDelivery from '@/Components/Pallet/BoxStatsPalletDelivery.vue'
-import Table from '@/Components/Table/Table.vue'
 import FulfilmentInvoiceCalculation from "@/Components/Fulfilment/FulfilmentInvoiceCalculation.vue"
-import { Table as TableTS} from '@/types/Table'
 import { Calculation, ProductTransaction } from '@/types/Invoices'
 import { routeType } from '@/types/route'
 

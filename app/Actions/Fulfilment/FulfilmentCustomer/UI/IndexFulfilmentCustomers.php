@@ -108,9 +108,9 @@ class IndexFulfilmentCustomers extends OrgAction
                         ]
                     ]
                 )
+                ->column(key: 'rental_agreement', label: __(''), canBeHidden: false, sortable: false, searchable: false, type: 'avatar')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'rental_agreement', label: __('rental agreement'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_pallets_status_storing', label: ['type'=>'text', 'data'=>__('Pallets'), 'tooltip'=>__('Number of pallets in warehouse')], canBeHidden: false, sortable: true, searchable: false);
         };
     }
