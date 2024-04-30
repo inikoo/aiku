@@ -7,30 +7,17 @@ import { faIdCardAlt, faMapMarkedAlt, faPhone } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import BoxStatsPalletDelivery from '@/Components/Pallet/BoxStatsPalletDelivery.vue'
 import Table from '@/Components/Table/Table.vue'
-import { useLocaleStore } from '@/Stores/locale'
+import FulfilmentInvoiceCalculation from "@/Components/Fulfilment/FulfilmentInvoiceCalculation.vue"
+import { Table as TableTS} from '@/types/Table'
+import { Calculation, ProductTransaction } from '@/types/Invoices'
+import { routeType } from '@/types/route'
 
 library.add(faIdCardAlt, faMapMarkedAlt, faPhone)
 
-const locale = useLocaleStore()
 
 const props = defineProps<{
     data: {
-        calculation: {
-            profit_amount: number
-            margin_percentage: number
-            charges: number
-            discounts_total: number
-            insurance: number
-            item_gross: number
-            items_net: number
-            net_amount: number
-            number: string
-            payment_amount: number
-            shipping: number
-            tax_amount: number
-            tax_percentage: number
-            total_amount: number
-        }
+        calculation: Calculation 
         currency: string
         customer: {
             company_name: string
@@ -40,16 +27,25 @@ const props = defineProps<{
             reference: string
             slug: string
         }
+        items: {
+            data: ProductTransaction[]
+        }
+        exportPdfRoute: routeType
+        // items: TableTS
     }
 }>()
 
-console.log('Invoice Showcase', props.data)
+// console.log('Invoice Showcase', props.data)
 
 </script>
 
 <template>
-    <!-- Box -->
     <div class="h-min grid grid-cols-4 border-b border-gray-200 divide-x divide-gray-300">
+        <!-- Section Calculation -->
+        <div class="col-span-3 py-3">
+            <FulfilmentInvoiceCalculation :pdfRoute="data.exportPdfRoute" :dataCalculations="data.calculation" :dataTable="data.items.data" />
+        </div>
+
         <!-- Box: Customer -->
         <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" :tooltip="trans('Customer')" icon="fal fa-user">
             <!-- Field: Registration Number -->
@@ -167,8 +163,8 @@ console.log('Invoice Showcase', props.data)
         </BoxStatsPalletDelivery> -->
 
         <!-- Box: Calculation -->
-        <BoxStatsPalletDelivery class="col-span-2 py-5 px-3">
-            <div class="px-4">
+        <!-- <BoxStatsPalletDelivery class="col-span-2 py-5 px-3">
+            <div class="px-4 max-w-xl">
                 <div class="px-5 py-5 border-2 border-gray-300 rounded-md shadow text-gray-500">
                     <div class="mb-4 space-y-1">
                         <div class="text-2xl font-bold text-gray-600 leading-none">
@@ -236,7 +232,7 @@ console.log('Invoice Showcase', props.data)
                     </div>
                 </div>
             </div>
-        </BoxStatsPalletDelivery>
+        </BoxStatsPalletDelivery> -->
     </div>
 
     <!-- <Table resources="" /> -->

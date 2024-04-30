@@ -20,8 +20,10 @@ class InvoiceTransactionsResource extends JsonResource
 {
     public function toArray($request): array
     {
+        // dd($this);
         return [
             'code'        => $this->code,
+            'name'        => $this->name,
             'quantity'    => $this->quantity,
             'price'       => $this->net_amount,
             'description' => $this->description,
