@@ -7,6 +7,8 @@
 
 namespace App\Actions\Accounting\Invoice\UI;
 
+use App\Http\Resources\CRM\CustomerResource;
+use App\Http\Resources\Sales\OrderResource;
 use App\Models\Accounting\Invoice;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -17,7 +19,9 @@ class GetInvoiceShowcase
     public function handle(Invoice $invoice): array
     {
         return [
-            []
+            'customer'     => CustomerResource::make($invoice->customer),
+            'transactions' => $invoice->invoiceTransactions,
+            'order'        => OrderResource::make($invoice->order)
         ];
     }
 }
