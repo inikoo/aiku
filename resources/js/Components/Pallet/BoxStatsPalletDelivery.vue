@@ -40,12 +40,12 @@ const props = defineProps<{
 
         <div class="flex flex-col justify-center w-full flex-none gap-x-4 py-1">
             <slot>
-                <div class="flex gap-x-3">
-                    <dt class="flex-none">
+                <div v-if="icon || label" class="flex gap-x-3">
+                    <dt v-if="icon" class="flex-none">
                         <span class="sr-only">Contact name</span>
-                        <FontAwesomeIcon v-if="icon" :icon='icon' class='text-gray-400' fixed-width aria-hidden='true' />
+                        <FontAwesomeIcon :icon='icon' class='text-gray-400' fixed-width aria-hidden='true' />
                     </dt>
-                    <dd class="text-gray-500">{{ label }}</dd>
+                    <dd v-if="label" class="text-gray-500">{{ label }}</dd>
                 </div>
             </slot>
         </div>

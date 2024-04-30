@@ -68,7 +68,7 @@ const props = defineProps<{
     }
 }>()
 
-// console.log('ewqewq', props.notes_data)
+console.log('ewqewq', props.box_stats)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -201,6 +201,7 @@ const typePallet = [
     { label : 'Oversize', value : 'oversize'}
 ]
 
+
 </script>
 
 <template>
@@ -331,6 +332,7 @@ const typePallet = [
         </template>
     </PageHeading>
 
+    <!-- Section: Warning -->
     <div v-if="pallet_limits && pallet_limits.status == 'exceeded'">
         <div class="rounded-md bg-yellow-50 p-4">
             <div class="flex">
