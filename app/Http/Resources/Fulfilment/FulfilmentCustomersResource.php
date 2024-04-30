@@ -18,6 +18,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $contact_name
  * @property string $company_name
  * @property string $phone
+ * @property \App\Models\Fulfilment\RentalAgreement $rentalAgreement
  * @property string $shop_code
  * @property string $shop_slug
  * @property string $slug
@@ -38,9 +39,8 @@ class FulfilmentCustomersResource extends JsonResource
             'company_name'                  => $this->company_name,
             'email'                         => $this->email,
             'phone'                         => $this->phone,
-            'number_pallets_status_storing' => $this->number_pallets_status_storing,
-
-
+            'rental_agreement'              => (bool) $this->rentalAgreement,
+            'number_pallets_status_storing' => $this->number_pallets_status_storing
         ];
     }
 }
