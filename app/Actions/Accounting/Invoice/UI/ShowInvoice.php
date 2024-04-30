@@ -11,7 +11,6 @@ use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
-use App\Enums\UI\CustomerTabsEnum;
 use App\Enums\UI\InvoiceTabsEnum;
 use App\Http\Resources\Accounting\InvoicesResource;
 use App\Http\Resources\Accounting\PaymentsResource;
@@ -52,7 +51,7 @@ class ShowInvoice extends OrgAction
     public function inOrganisation(Organisation $organisation, Invoice $invoice, ActionRequest $request): Invoice
     {
         $this->parent=$organisation;
-        $this->initialisation($organisation, $request)->withTab(CustomerTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(InvoiceTabsEnum::values());
 
         return $this->handle($invoice);
     }
@@ -61,7 +60,7 @@ class ShowInvoice extends OrgAction
     public function inShop(Organisation $organisation, Shop $shop, Invoice $invoice, ActionRequest $request): Invoice
     {
         $this->parent=$shop;
-        $this->initialisationFromShop($shop, $request)->withTab(CustomerTabsEnum::values());
+        $this->initialisationFromShop($shop, $request)->withTab(InvoiceTabsEnum::values());
         return $this->handle($invoice);
     }
 
@@ -69,7 +68,7 @@ class ShowInvoice extends OrgAction
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Invoice $invoice, ActionRequest $request): Invoice
     {
         $this->parent=$fulfilment;
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(CustomerTabsEnum::values());
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(InvoiceTabsEnum::values());
         return $this->handle($invoice);
     }
 
@@ -77,7 +76,7 @@ class ShowInvoice extends OrgAction
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Invoice $invoice, ActionRequest $request): Invoice
     {
         $this->parent = $fulfilmentCustomer;
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(CustomerTabsEnum::values());
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(InvoiceTabsEnum::values());
 
         return $this->handle($invoice);
     }
@@ -85,7 +84,6 @@ class ShowInvoice extends OrgAction
     public function htmlResponse(Invoice $invoice, ActionRequest $request): Response
     {
         $this->validateAttributes();
-
 
         return Inertia::render(
             'Org/Accounting/Invoice',
@@ -111,6 +109,10 @@ class ShowInvoice extends OrgAction
                 ],
 
                 InvoiceTabsEnum::SHOWCASE->value => $this->tab == InvoiceTabsEnum::SHOWCASE->value ?
+                    fn () => GetInvoiceShowcase::run($invoice)
+                    : Inertia::lazy(fn () => GetInvoiceShowcase::run($invoice)),
+
+                InvoiceTabsEnum::ITEMS->value => $this->tab == InvoiceTabsEnum::ITEMS->value ?
                     fn () => GetInvoiceShowcase::run($invoice)
                     : Inertia::lazy(fn () => GetInvoiceShowcase::run($invoice)),
 

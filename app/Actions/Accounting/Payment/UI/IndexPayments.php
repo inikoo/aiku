@@ -47,7 +47,6 @@ class IndexPayments extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(Payment::class);
-
         if (class_basename($parent) == 'Organisation') {
             $queryBuilder->where('payments.organisation_id', $parent->id);
         } elseif (class_basename($parent) == 'OrgPaymentServiceProvider') {
@@ -58,7 +57,7 @@ class IndexPayments extends OrgAction
             $queryBuilder->where('payments.shop_id', $parent->id);
         } elseif (class_basename($parent) == 'Invoice') {
             // todo
-            abort(404);
+            //            abort(404);
         } elseif (class_basename($parent) == 'Order') {
             $queryBuilder->leftJoin(
                 'paymentables',
