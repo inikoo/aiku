@@ -73,7 +73,14 @@ class GetInvoiceShowcase
                     'discounts_amount' => $transaction->discounts_amount,
                     'tax_amount'       => $transaction->tax_amount,
                 ];
-            })
+            }),
+            'exportPdfRoute' => [
+                'name'       => 'grp.org.accounting.invoices.download',
+                'parameters' => [
+                    'organisation' => $invoice->organisation->slug,
+                    'invoice'      => $invoice->slug
+                ]
+            ]
         ];
     }
 }
