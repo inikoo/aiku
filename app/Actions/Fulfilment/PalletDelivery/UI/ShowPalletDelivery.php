@@ -97,7 +97,7 @@ class ShowPalletDelivery extends OrgAction
                 'label'   => Str::possessive($this->parent->customer->reference)
             ];
         }
-        $palletStateReceivedCount = $palletDelivery->pallets()->where('state', PalletStateEnum::RECEIVED)->count();
+        $palletStateReceivedCount = $palletDelivery->pallets()->where('state', PalletStateEnum::BOOKING_IN)->count();
         $palletNotInRentalCount   = $palletDelivery->pallets()->whereNull('rental_id')->count();
 
         $numberPallets       = $palletDelivery->fulfilmentCustomer->pallets()->count();
@@ -197,6 +197,23 @@ class ShowPalletDelivery extends OrgAction
                         'route'   => [
                             'method'     => 'post',
                             'name'       => 'grp.models.pallet-delivery.received',
+                            'parameters' => [
+                                'palletDelivery' => $palletDelivery->id
+                            ]
+                        ]
+                    ],
+                ],
+                PalletDeliveryStateEnum::RECEIVED => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'primary',
+                        'icon'    => 'fal fa-clipboard',
+                        'tooltip' => __('Start booking'),
+                        'label'   => __('start booking'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'post',
+                            'name'       => 'grp.models.pallet-delivery.booking',
                             'parameters' => [
                                 'palletDelivery' => $palletDelivery->id
                             ]

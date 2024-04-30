@@ -8,7 +8,7 @@
 import { trans } from 'laravel-vue-i18n'
 import { faSave as fadSave } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import {faDownload, faFileExport, faPlus as falPlus} from '@fal'
+import {faClipboard, faDownload, faFileExport, faPlus as falPlus} from '@fal'
 import { faArrowLeft, faPencil, faTrashAlt, faPersonDolly } from '@far'
 import { faPlus, faSave, faUpload, faTrashUndoAlt } from '@fas'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -19,7 +19,7 @@ import { inject } from 'vue'
 // const layout = useLayoutStore()
 const layout: any = inject('layout', {})
 
-library.add(faPlus, faSave, fadSave, faUpload, faDownload, falPlus, faArrowLeft, faPencil, faTrashAlt, faSpinnerThird, faTrashUndoAlt, faPersonDolly, faFileExport)
+library.add(faPlus, faSave, fadSave, faUpload, faDownload, falPlus, faArrowLeft, faPencil, faTrashAlt, faSpinnerThird, faTrashUndoAlt, faPersonDolly, faFileExport, faClipboard)
 
 
 const props = withDefaults(defineProps<{
