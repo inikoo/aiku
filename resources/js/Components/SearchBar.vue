@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
 import { Combobox, ComboboxOptions, ComboboxOption, Dialog, DialogPanel, TransitionChild, TransitionRoot, } from '@headlessui/vue'
 import { Link } from '@inertiajs/vue3'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -14,6 +14,7 @@ import { debounce } from 'lodash'
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
 import SearchResultPallet from '@/Components/Search/SearchResultPallet.vue'
 import SearchResult from '@/Components/Search/SearchResult.vue'
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 const props = defineProps<{
     isOpen: boolean
@@ -23,6 +24,8 @@ const emits = defineEmits<{
     (e: 'close', data: boolean): void
 }>()
 
+const layout = inject('layout', layoutStructure)
+console.log('layout', layout.app.name)
 const isLoadingSearch = ref(false)
 const searchValue = ref('')
 const resultsSearch = ref()
@@ -33,12 +36,18 @@ const paramsToString = () => {
     return route().v().params ? '&' + Object.entries(route().v().params).map(([key, value]) => `${key}=${value}`).join('&') : ''
 }
 
+
 // Method: Fetch result
+const urlSearch = () => {
+    return layout.app.name == 'retina'
+        ? `${location.origin}/app/search`
+        : `${location.origin}/search`
+} 
 const fetchApi = debounce(async (query: string) => {
     if (query !== '') {
         resultsSearch.value = null
         isLoadingSearch.value = true
-        await fetch(`${location.origin}/search?q=${query}&route_src=${route().current()}${paramsToString()}`)
+        await fetch(`${urlSearch()}?q=${query}&route_src=${route().current()}${paramsToString()}`)
             .then(response => {
                 response.json().then((data: { data: {} }) => {
                     resultsSearch.value = data.data
