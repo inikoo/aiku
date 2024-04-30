@@ -18,9 +18,9 @@ class PalletDeliveryResource extends JsonResource
     {
         /** @var PalletDelivery $palletDelivery */
         $palletDelivery = $this;
-
-        $timeline = [];
+        $timeline       = [];
         foreach (PalletDeliveryStateEnum::cases() as $state) {
+
             $timeline[$state->value] = [
                 'label'   => $state->labels()[$state->value],
                 'tooltip' => $state->labels()[$state->value],
