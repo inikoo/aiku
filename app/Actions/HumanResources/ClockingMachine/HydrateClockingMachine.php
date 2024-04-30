@@ -7,9 +7,9 @@
 
 namespace App\Actions\HumanResources\ClockingMachine;
 
+use App\Actions\HumanResources\ClockingMachine\Hydrators\ClockingMachineHydrateClockings;
 use App\Actions\HydrateModel;
 use App\Models\HumanResources\ClockingMachine;
-use App\Models\HumanResources\Employee;
 use Illuminate\Support\Collection;
 
 class HydrateClockingMachine extends HydrateModel
@@ -17,9 +17,9 @@ class HydrateClockingMachine extends HydrateModel
     public string $commandSignature = 'hydrate:clocking-machine {organisations?*} {--i|id=}';
 
 
-    public function handle(Employee $employee): void
+    public function handle(ClockingMachine $clockingMachine): void
     {
-
+        ClockingMachineHydrateClockings::run($clockingMachine);
     }
 
 

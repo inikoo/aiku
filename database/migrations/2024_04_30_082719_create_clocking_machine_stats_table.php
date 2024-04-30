@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 29 Apr 2024 16:14:02 British Summer Time, Sheffield, UK
+ * Created: Tue, 30 Apr 2024 09:27:29 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -15,13 +15,12 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::create('employee_stats', function (Blueprint $table) {
+        Schema::create('clocking_machine_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('employee_id')->nullable()->index();
-            $table->foreign('employee_id')->references('id')->on('employees');
-            $table = $this->getTimesheetsStats($table);
+            $table->unsignedSmallInteger('clocking_machine_id')->nullable()->index();
+            $table->foreign('clocking_machine_id')->references('id')->on('clocking_machines');
             $table = $this->getClockingsFieldStats($table);
-            $table = $this->getTimeTrackersStats($table);
+
             $table->timestampsTz();
         });
     }
@@ -29,6 +28,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('employee_stats');
+        Schema::dropIfExists('clocking_machine_stats');
     }
 };

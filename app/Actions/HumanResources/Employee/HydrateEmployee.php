@@ -7,7 +7,9 @@
 
 namespace App\Actions\HumanResources\Employee;
 
+use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateClockings;
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateJobPositionsShare;
+use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateTimesheets;
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
 use App\Actions\HydrateModel;
 use App\Models\HumanResources\Employee;
@@ -22,6 +24,8 @@ class HydrateEmployee extends HydrateModel
     {
         EmployeeHydrateJobPositionsShare::run($employee);
         EmployeeHydrateWeekWorkingHours::run($employee);
+        EmployeeHydrateTimesheets::run($employee);
+        EmployeeHydrateClockings::run($employee);
     }
 
 

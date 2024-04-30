@@ -14,13 +14,14 @@ return new class () extends Migration {
     {
         Schema::create('clockings', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedInteger('workplace_id')->nullable()->index();
+            $table->foreign('workplace_id')->references('id')->on('workplaces');
+            $table->unsignedInteger('timesheet_id')->nullable()->index();
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('type')->index();
             $table->string('subject_type')->nullable();
             $table->unsignedInteger('subject_id')->nullable();
             $table->unsignedInteger('time_tracker_id')->index()->nullable();
-            $table->unsignedInteger('workplace_id')->nullable()->index();
-            $table->foreign('workplace_id')->references('id')->on('workplaces');
             $table->unsignedInteger('clocking_machine_id')->nullable()->index();
             $table->foreign('clocking_machine_id')->references('id')->on('clocking_machines');
             $table->dateTimeTz('clocked_at');

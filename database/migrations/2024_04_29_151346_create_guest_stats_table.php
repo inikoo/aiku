@@ -20,6 +20,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('guest_id')->nullable()->index();
             $table->foreign('guest_id')->references('id')->on('guests');
             $table = $this->getTimesheetsStats($table);
+            $table = $this->getClockingsFieldStats($table);
             $table = $this->getTimeTrackersStats($table);
             $table->timestampsTz();
         });

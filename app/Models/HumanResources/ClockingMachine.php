@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -46,6 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\HumanResources\Clocking> $clockings
  * @property-read Group $group
  * @property-read Organisation $organisation
+ * @property-read \App\Models\HumanResources\ClockingMachineStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
  * @property-read \App\Models\HumanResources\Workplace $workplace
  * @method static Builder|ClockingMachine newModelQuery()
@@ -98,6 +100,11 @@ class ClockingMachine extends Model implements Auditable
     public function clockings(): HasMany
     {
         return $this->hasMany(Clocking::class);
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(ClockingMachineStats::class);
     }
 
 }

@@ -7,25 +7,38 @@
 
 namespace App\Actions\HumanResources\ClockingMachine\Hydrators;
 
-use App\Models\Inventory\WarehouseArea;
+use App\Actions\Traits\WithEnumStats;
+use App\Models\HumanResources\ClockingMachine;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class ClockingMachineHydrateClockings
 {
     use AsAction;
+    use WithEnumStats;
 
+    private ClockingMachine $clockingMachine;
 
-    public function handle(WarehouseArea $warehouseArea): void
+    public function __construct(ClockingMachine $clockingMachine)
     {
-        $numberLocations            = $warehouseArea->locations()->count();
-        $numberOperationalLocations = $warehouseArea->locations()->where('status', 'operational')->count();
-        $warehouseArea->stats()->update(
-            [
-                'number_locations'                   => $numberLocations,
-                'number_locations_state_operational' => $numberOperationalLocations,
-                'number_locations_state_broken'      => $numberLocations - $numberOperationalLocations
-
-            ]
-        );
+        $this->clockingMachine = $clockingMachine;
     }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->clockingMachine->id))->dontRelease()];
+    }
+
+    public function handle(ClockingMachine $clockingMachine): void
+    {
+        $stats = [
+            'number_clockings' => $clockingMachine->clockings()->count(),
+        ];
+
+
+
+        $clockingMachine->stats()->update($stats);
+    }
+
+
 }

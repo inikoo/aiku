@@ -53,11 +53,18 @@ trait HasHumanResourcesStats
         return $table;
     }
 
-    public function getClockingFieldStats(Blueprint $table): Blueprint
+    public function getClockingMachinesFieldStats(Blueprint $table): Blueprint
     {
         $table->unsignedSmallInteger('number_clocking_machines')->default(0);
         $table->unsignedSmallInteger('number_clocking_machines_type_'.ClockingMachineTypeEnum::STATIC_NFC->snake())->default(0);
         $table->unsignedSmallInteger('number_clocking_machines_type_'.ClockingMachineTypeEnum::MOBILE_APP->snake())->default(0);
+
+        return $this->getClockingsFieldStats($table);
+    }
+
+    public function getClockingsFieldStats(Blueprint $table): Blueprint
+    {
+
         $table->unsignedSmallInteger('number_clockings')->default(0);
 
 

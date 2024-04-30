@@ -21,7 +21,7 @@ return new class () extends Migration {
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
             $this->getJobPositionsStats($table);
             $this->getWorkplaceFieldStats($table);
-            $this->getClockingFieldStats($table);
+            $this->getClockingMachinesFieldStats($table);
             $this->getEmployeeFieldStats($table);
             $table->timestampsTz();
         });

@@ -55,8 +55,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $group_net_amount
  * @property string $org_net_amount
  * @property string|null $date
- * @property string|null $tax_liability_at
- * @property array|null $paid_at
+ * @property Carbon|null $tax_liability_at
+ * @property Carbon|null $paid_at
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at

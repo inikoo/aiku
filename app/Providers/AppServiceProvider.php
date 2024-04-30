@@ -125,7 +125,7 @@ class AppServiceProvider extends ServiceProvider
                 'Clocking'                         => 'App\Models\HumanResources\Clocking',
                 'ClockingMachine'                  => 'App\Models\HumanResources\ClockingMachine',
                 'EmployeeJobPosition'              => 'App\Models\HumanResources\EmployeeJobPosition',
-                'TimeTracking'                     => 'App\Models\HumanResources\TimeTracking',
+                'TimeTracker'                      => 'App\Models\HumanResources\TimeTracker',
 
                 // Inventory
                 'Warehouse'                 => 'App\Models\Inventory\Warehouse',

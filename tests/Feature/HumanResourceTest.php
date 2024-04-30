@@ -5,6 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\HumanResources\Clocking\StoreClocking;
 use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UpdateClockingMachine;
 use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
@@ -14,9 +15,11 @@ use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
 use App\Actions\HumanResources\Timesheet\StoreTimesheet;
 use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Actions\HumanResources\Workplace\UpdateWorkplace;
+use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Models\Helpers\Address;
+use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Timesheet;
 use App\Models\HumanResources\Workplace;
@@ -235,7 +238,6 @@ test('new timesheet for employee', function (Employee $employee) {
         'date' => now(),
     ]);
 
-
     expect($timesheet)->toBeInstanceOf(Timesheet::class)
         ->and($timesheet->subject_id)->toBe($employee->id)
         ->and($timesheet->subject_type)->toBe('Employee')
@@ -249,6 +251,24 @@ test('new timesheet for employee', function (Employee $employee) {
 
 })->depends('create employee successful');
 
-test('create clocking ', function (Timesheet $timesheet) {
+test('create clocking ', function (Timesheet $timesheet, Workplace $workplace) {
+    /** @var Employee $employee */
+    $employee = $timesheet->subject;
 
-})->depends('new timesheet for employee')->todo();
+    $clocking=StoreClocking::make()->action($this->organisation, $workplace, $employee, [
+        'clocked_at' => now()->subMinutes(10),
+    ]);
+    $clocking->refresh();
+
+    expect($clocking)->toBeInstanceOf(Clocking::class)
+        ->and($clocking->subject_id)->toBe($employee->id)
+        ->and($clocking->subject_type)->toBe('Employee')
+        ->and($clocking->workplace_id)->toBe($workplace->id)
+        ->and($clocking->clocking_machine_id)->toBeNull()
+        ->and($clocking->type)->toBe(ClockingTypeEnum::MANUAL)
+        ->and($employee->stats->number_timesheets)->toBe(1)
+        ->and($employee->stats->number_clockings)->toBe(1);
+    //        ->and($employee->stats->number_time_trackers)->toBe(1);
+
+
+})->depends('new timesheet for employee', 'create working place successful');

@@ -7,6 +7,7 @@
 
 namespace App\Models\SysAdmin;
 
+use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\JobPosition;
 use App\Models\HumanResources\Timesheet;
 use App\Models\Traits\HasHistory;
@@ -52,6 +53,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Clocking> $clockings
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
@@ -157,6 +159,11 @@ class Guest extends Model implements HasMedia, Auditable
     public function timesheets(): MorphMany
     {
         return $this->morphMany(Timesheet::class, 'subject');
+    }
+
+    public function clockings(): MorphMany
+    {
+        return $this->morphMany(Clocking::class, 'subject');
     }
 
 }

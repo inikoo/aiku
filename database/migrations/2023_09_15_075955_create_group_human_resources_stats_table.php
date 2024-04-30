@@ -23,7 +23,7 @@ return new class () extends Migration {
             $this->getJobPositionsStats($table);
             $this->getWorkplaceFieldStats($table);
             $this->getEmployeeFieldStats($table);
-            $this->getClockingFieldStats($table);
+            $this->getClockingMachinesFieldStats($table);
             $table->timestampsTz();
         });
     }

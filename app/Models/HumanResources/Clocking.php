@@ -22,14 +22,15 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\HumanResources\Clocking
  *
  * @property int $id
+ * @property int|null $workplace_id
+ * @property int|null $timesheet_id
  * @property string $slug
  * @property ClockingTypeEnum $type
  * @property string|null $subject_type
  * @property int|null $subject_id
  * @property int|null $time_tracker_id
- * @property int|null $workplace_id
  * @property int|null $clocking_machine_id
- * @property string $clocked_at
+ * @property Carbon $clocked_at
  * @property string|null $generator_type
  * @property int|null $generator_id
  * @property string|null $notes
@@ -55,7 +56,8 @@ class Clocking extends Model
     use SoftDeletes;
 
     protected $casts = [
-        'type'      => ClockingTypeEnum::class
+        'clocked_at' => 'datetime:Y-m-d H:i:s',
+        'type'       => ClockingTypeEnum::class
     ];
 
 

@@ -5,11 +5,11 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\HumanResources\TimeTracking;
+namespace App\Enums\HumanResources\TimeTracker;
 
 use App\Enums\EnumHelperTrait;
 
-enum TimeTrackingStatusEnum: string
+enum TimeTrackerStatusEnum: string
 {
     use EnumHelperTrait;
 

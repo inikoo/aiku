@@ -40,6 +40,8 @@ class StoreClockingMachine extends OrgAction
 
         /** @var ClockingMachine $clockingMachine */
         $clockingMachine =  $workplace->clockingMachines()->create($modelData);
+        $clockingMachine->stats()->create();
+
         OrganisationHydrateClockingMachines::dispatch($workplace->organisation);
         WorkplaceHydrateClockingMachines::dispatch($workplace);
 

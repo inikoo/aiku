@@ -73,6 +73,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read Collection<int, \App\Models\HumanResources\Clocking> $clockings
  * @property-read Group $group
  * @property-read Collection<int, Issue> $issues
  * @property-read Collection<int, \App\Models\HumanResources\JobPosition> $jobPositions
@@ -181,6 +182,11 @@ class Employee extends Model implements HasMedia, Auditable
     public function timesheets(): MorphMany
     {
         return $this->morphMany(Timesheet::class, 'subject');
+    }
+
+    public function clockings(): MorphMany
+    {
+        return $this->morphMany(Clocking::class, 'subject');
     }
 
 

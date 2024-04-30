@@ -50,7 +50,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $customer_number Customers own order number
  * @property OrderStateEnum $state
  * @property OrderStatusEnum $status
- * @property string $date
+ * @property Carbon $date
  * @property string|null $submitted_at
  * @property string|null $in_warehouse_at
  * @property string|null $handling_at
