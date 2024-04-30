@@ -8,6 +8,7 @@
 namespace App\Models\SysAdmin;
 
 use App\Models\HumanResources\JobPosition;
+use App\Models\HumanResources\Timesheet;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -15,6 +16,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -52,6 +55,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read \App\Models\SysAdmin\GuestStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Timesheet> $timesheets
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read \App\Models\SysAdmin\User|null $user
  * @method static \Database\Factories\SysAdmin\GuestFactory factory($count = null, $state = [])
@@ -143,4 +148,15 @@ class Guest extends Model implements HasMedia, Auditable
     {
         return $this->group_id;
     }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(GuestStats::class);
+    }
+
+    public function timesheets(): MorphMany
+    {
+        return $this->morphMany(Timesheet::class, 'subject');
+    }
+
 }

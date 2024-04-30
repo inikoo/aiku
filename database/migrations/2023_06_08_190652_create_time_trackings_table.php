@@ -33,7 +33,7 @@ return new class () extends Migration {
         });
 
         Schema::table('clockings', function (Blueprint $table) {
-            $table->foreign('time_tracking_id')->references('id')->on('time_trackings');
+            $table->foreign('time_tracker_id')->references('id')->on('time_trackers');
         });
     }
 
@@ -41,8 +41,8 @@ return new class () extends Migration {
     public function down(): void
     {
         Schema::table('clockings', function (Blueprint $table) {
-            $table->dropForeign('clockings_time_tracking_id_foreign');
+            $table->dropForeign('clockings_time_tracker_id_foreign');
         });
-        Schema::dropIfExists('time_trackings');
+        Schema::dropIfExists('time_trackers');
     }
 };

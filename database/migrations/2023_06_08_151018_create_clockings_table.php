@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->string('type')->index();
             $table->string('subject_type')->nullable();
             $table->unsignedInteger('subject_id')->nullable();
-            $table->unsignedInteger('time_tracking_id')->index()->nullable();
+            $table->unsignedInteger('time_tracker_id')->index()->nullable();
             $table->unsignedInteger('workplace_id')->nullable()->index();
             $table->foreign('workplace_id')->references('id')->on('workplaces');
             $table->unsignedInteger('clocking_machine_id')->nullable()->index();

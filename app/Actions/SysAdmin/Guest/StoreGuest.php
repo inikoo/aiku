@@ -58,6 +58,7 @@ class StoreGuest
                 'reset_password'
             ])
         );
+        $guest->stats()->create();
 
         GuestHydrateUniversalSearch::dispatch($guest);
 

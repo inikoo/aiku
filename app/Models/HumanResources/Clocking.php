@@ -26,7 +26,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property ClockingTypeEnum $type
  * @property string|null $subject_type
  * @property int|null $subject_id
- * @property int|null $time_tracking_id
+ * @property int|null $time_tracker_id
  * @property int|null $workplace_id
  * @property int|null $clocking_machine_id
  * @property string $clocked_at

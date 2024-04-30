@@ -52,6 +52,7 @@ class StoreEmployee extends OrgAction
 
         /** @var Employee $employee */
         $employee = $parent->employees()->create($modelData);
+        $employee->stats()->create();
 
 
         if (Arr::get($credentials, 'username')) {

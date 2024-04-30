@@ -25,6 +25,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -76,6 +78,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\HumanResources\JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read Organisation $organisation
+ * @property-read \App\Models\HumanResources\EmployeeStats|null $stats
+ * @property-read Collection<int, \App\Models\HumanResources\Timesheet> $timesheets
  * @property-read UniversalSearch|null $universalSearch
  * @property-read User|null $user
  * @property-read Collection<int, \App\Models\HumanResources\Workplace> $workplaces
@@ -167,6 +171,16 @@ class Employee extends Model implements HasMedia, Auditable
     public function getGroupId(): int
     {
         return $this->group_id;
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(EmployeeStats::class);
+    }
+
+    public function timesheets(): MorphMany
+    {
+        return $this->morphMany(Timesheet::class, 'subject');
     }
 
 

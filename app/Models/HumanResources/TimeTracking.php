@@ -18,19 +18,7 @@ use Spatie\Sluggable\SlugOptions;
 /**
  * App\Models\HumanResources\TimeTracking
  *
- * @property int $id
- * @property string $slug
  * @property TimeTrackingStatusEnum $status
- * @property string $subject_type Employee|Guest
- * @property int $subject_id
- * @property int|null $workplace_id
- * @property string|null $starts_at
- * @property string|null $ends_at
- * @property int|null $start_clocking_id
- * @property int|null $end_clocking_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
  * @method static Builder|TimeTracking newModelQuery()
  * @method static Builder|TimeTracking newQuery()
  * @method static Builder|TimeTracking onlyTrashed()
