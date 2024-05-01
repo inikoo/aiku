@@ -502,7 +502,6 @@ trait WithAuroraParsers
         if (!$employee) {
             $employee = FetchAuroraDeletedEmployees::run($this->organisationSource, $sourceId);
         }
-
         return $employee;
     }
 

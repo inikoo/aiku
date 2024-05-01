@@ -31,6 +31,15 @@ class CloseTimeTracker extends OrgAction
 
 
         $timeTracker = $this->update($timeTracker, $modelData);
+        $timeTracker->refresh();
+        $timeTracker->timesheet->update(['end_at' => $clocking->clocked_at]);
+
+
+        $timeTracker->update(
+            [
+                'duration' => $timeTracker->starts_at->diffInSeconds($timeTracker->ends_at)
+            ]
+        );
 
 
         if($timeTracker->subject_type === 'Employee') {

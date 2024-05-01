@@ -119,4 +119,6 @@ interface SourceOrganisationService
 
     public function fetchPallet($id);
 
+    public function fetchTimesheet($id);
+
 }

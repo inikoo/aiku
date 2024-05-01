@@ -15,16 +15,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
-
 /**
  * App\Models\HumanResources\Clocking
  *
  * @property int $id
  * @property int|null $workplace_id
  * @property int|null $timesheet_id
- * @property string $slug
  * @property ClockingTypeEnum $type
  * @property string|null $subject_type
  * @property int|null $subject_id
@@ -53,7 +49,6 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Clocking extends Model
 {
-    use HasSlug;
     use SoftDeletes;
 
     protected $casts = [
@@ -63,21 +58,6 @@ class Clocking extends Model
 
 
     protected $guarded = [];
-
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
-
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom(function () {
-                return $this->clocked_at;
-            })
-            ->saveSlugsTo('slug')
-            ->doNotGenerateSlugsOnUpdate();
-    }
 
     public function workplace(): BelongsTo
     {

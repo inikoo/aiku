@@ -7,6 +7,7 @@
 
 namespace App\Models\HumanResources;
 
+use App\Models\SysAdmin\Guest;
 use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -24,15 +25,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon $date
  * @property string $subject_type Employee|Guest
  * @property int $subject_id
- * @property string|null $start_at
- * @property string|null $end_at
- * @property int $number_breaks
+ * @property \Illuminate\Support\Carbon|null $start_at
+ * @property \Illuminate\Support\Carbon|null $end_at
  * @property int $number_time_trackers
- * @property int $working_minutes
- * @property int $breaks_minutes
- * @property int $total_minutes
+ * @property int $number_open_time_trackers
+ * @property int $working_duration seconds
+ * @property int $breaks_duration seconds
+ * @property int $total_duration seconds
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $source_id
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read Model|\Eloquent $subject
@@ -49,7 +51,9 @@ class Timesheet extends Model
 
 
     protected $casts = [
-        'date' => 'date'
+        'date'     => 'date',
+        'start_at' => 'datetime',
+        'end_at'   => 'datetime',
     ];
 
     protected $guarded = [];
@@ -58,11 +62,17 @@ class Timesheet extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                return $this->date.' '.$this->subject->slug;
+                if ($this->subject_type == 'Employee') {
+                    $subject = Employee::find($this->subject_id);
+                } else {
+                    $subject = Guest::find($this->subject_id);
+                }
+
+                return $this->date->format('Y-m-d').' '.$subject->slug;
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(16);
+            ->slugsShouldBeNoLongerThan(64);
     }
 
     public function subject(): MorphTo

@@ -34,24 +34,19 @@ class HydrateModel
     public function asCommand(Command $command): int
     {
         $exitCode = 0;
-        if(!$command->option('slugs')) {
-
-            if($command->argument('organisations')) {
+        if (!$command->option('slugs')) {
+            if ($command->argument('organisations')) {
                 $this->organisation = $this->getOrganisations($command)->first();
             }
 
             $this->loopAll($command);
         } else {
-
-            foreach($command->option('slugs') as $slug) {
-                $model=$this->getModel($slug);
-                $this->handle($model);
-                $command->line(class_basename($model)." $model->name hydrated 💦");
-            }
+            $model = $this->getModel($command->option('slugs'));
+            $this->handle($model);
+            $command->line(class_basename($model)." $model->name hydrated 💦");
         }
 
         return $exitCode;
-
     }
 
     protected function loopAll(Command $command): void

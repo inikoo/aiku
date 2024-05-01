@@ -21,7 +21,6 @@ class StoreTimeTracker extends OrgAction
 {
     public function handle(Timesheet $timesheet, Clocking $clocking, array $modelData): TimeTracker
     {
-
         data_set($modelData, 'workplace_id', $clocking->workplace_id);
         data_set($modelData, 'status', TimeTrackerStatusEnum::OPEN);
         data_set($modelData, 'starts_at', $clocking->clocked_at);
@@ -30,12 +29,21 @@ class StoreTimeTracker extends OrgAction
         data_set($modelData, 'subject_id', $timesheet->subject_id);
 
         /** @var TimeTracker $timeTracker */
-        $timeTracker=$timesheet->timeTrackers()->create($modelData);
+        $timeTracker = $timesheet->timeTrackers()->create($modelData);
 
-        if($timeTracker->subject_type === 'Employee') {
+        if ($timeTracker->subject_type === 'Employee') {
             EmployeeHydrateTimeTracker::dispatch($timeTracker->subject);
         } else {
             GuestHydrateTimeTracker::dispatch($timeTracker->subject);
+        }
+
+        if ($timesheet->number_time_trackers === 0) {
+            $timesheet->update(
+                [
+                    'start_at'             => $clocking->clocked_at,
+                    'number_time_trackers' => 1
+                ]
+            );
         }
 
         TimesheetHydrateTimeTrackers::dispatch($timesheet);

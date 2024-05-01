@@ -16,7 +16,7 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedSmallInteger('workplace_id')->nullable()->index();
             $table->foreign('workplace_id')->references('id')->on('workplaces');
-            $table->unsignedSmallInteger('timesheet_id')->nullable()->index();
+            $table->unsignedInteger('timesheet_id')->nullable()->index();
             $table->foreign('timesheet_id')->references('id')->on('timesheets');
             $table->string('subject_type')->comment('Employee|Guest');
             $table->unsignedSmallInteger('subject_id');
@@ -27,6 +27,7 @@ return new class () extends Migration {
             $table->foreign('start_clocking_id')->references('id')->on('clockings');
             $table->unsignedInteger('end_clocking_id')->nullable()->index();
             $table->foreign('end_clocking_id')->references('id')->on('clockings');
+            $table->unsignedInteger('duration')->nullable()->comment('seconds');
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->index(['subject_type', 'subject_id']);

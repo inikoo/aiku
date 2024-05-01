@@ -24,13 +24,14 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('subject_id');
             $table->dateTimeTz('start_at')->nullable();
             $table->dateTimeTz('end_at')->nullable();
-            $table->unsignedSmallInteger('number_breaks')->default(0);
             $table->unsignedSmallInteger('number_time_trackers')->default(0);
-            $table->unsignedSmallInteger('working_minutes')->default(0);
-            $table->unsignedSmallInteger('breaks_minutes')->default(0);
-            $table->unsignedSmallInteger('total_minutes')->default(0);
+            $table->unsignedSmallInteger('number_open_time_trackers')->default(0);
+            $table->unsignedInteger('working_duration')->default(0)->comment('seconds');
+            $table->unsignedInteger('breaks_duration')->default(0)->comment('seconds');
+            $table->unsignedInteger('total_duration')->default(0)->comment('seconds');
             $table->timestampsTz();
             $table->unique(['date','subject_type', 'subject_id']);
+            $table->string('source_id')->index()->nullable();
         });
 
         Schema::table('clockings', function (Blueprint $table) {

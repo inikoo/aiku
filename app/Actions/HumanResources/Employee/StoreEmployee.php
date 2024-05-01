@@ -79,13 +79,8 @@ class StoreEmployee extends OrgAction
             $jobPositions[] = $jobPosition->id;
         }
         SyncJobPosition::run($employee, $jobPositions);
-
-
         EmployeeHydrateWeekWorkingHours::dispatch($employee);
-
         OrganisationHydrateEmployees::dispatch($organisation);
-
-
         EmployeeHydrateUniversalSearch::dispatch($employee);
 
         return $employee;

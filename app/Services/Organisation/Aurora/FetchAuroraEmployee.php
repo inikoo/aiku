@@ -27,7 +27,7 @@ class FetchAuroraEmployee extends FetchAurora
             $this->parseModel();
             $this->parseUser();
             $this->parsePhoto();
-            $this->parseJobPositions();
+
         }
 
 
@@ -71,7 +71,7 @@ class FetchAuroraEmployee extends FetchAurora
         $this->parsedData['working_hours'] = $working_hours ?? [];
 
 
-        $positions = [];
+        $positions =    $this->parseJobPositions();
 
 
         if ($this->auroraModelData->{'Staff ID'}) {
@@ -211,7 +211,7 @@ class FetchAuroraEmployee extends FetchAurora
         $this->parsedData['photo'] = $profile_images->toArray();
     }
 
-    private function parseJobPositions(): void
+    private function parseJobPositions(): array
     {
         $jobPositions = JobPosition::all()->pluck('id', 'slug')->all();
 
@@ -232,11 +232,11 @@ class FetchAuroraEmployee extends FetchAurora
 
         foreach ($jobPositionCodes as $jobPositionCode) {
             if (array_key_exists($jobPositionCode, $jobPositions)) {
-                $jobPositionIds[$jobPositions[$jobPositionCode]] = $jobPositions[$jobPositionCode];
+                $jobPositionIds[$jobPositions[$jobPositionCode]] = $jobPositionCode;
             }
         }
 
-        $this->parsedData['job-positions'] = $jobPositionIds;
+        return $jobPositionIds;
     }
 
 

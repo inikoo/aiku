@@ -28,9 +28,17 @@ class AddClockingToTimeTracker
                 $clocking,
                 []
             );
+
+
         } else {
             CloseTimeTracker::make()->action($timeTracker, $clocking, []);
         }
+
+        $clocking->update(
+            [
+                'time_tracker_id' => $timeTracker->id
+            ]
+        );
 
         return $timeTracker;
     }

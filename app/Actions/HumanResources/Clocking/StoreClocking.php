@@ -9,6 +9,7 @@ namespace App\Actions\HumanResources\Clocking;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateClockings;
 use App\Actions\HumanResources\Timesheet\GetTimesheet;
+use App\Actions\HumanResources\Timesheet\Hydrators\TimesheetHydrateTimeTrackers;
 use App\Actions\HumanResources\TimeTracker\AddClockingToTimeTracker;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateClockings;
@@ -21,12 +22,13 @@ use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreClocking extends OrgAction
 {
-    public function handle(Organisation|User $generator, ClockingMachine|Workplace $parent, Employee|Guest $subject, array $modelData): Clocking
+    public function handle(Organisation|User|Employee|Guest $generator, ClockingMachine|Workplace $parent, Employee|Guest $subject, array $modelData): Clocking
     {
         data_set($modelData, 'generator_type', class_basename($generator));
         data_set($modelData, 'generator_id', $generator->id);
@@ -41,17 +43,17 @@ class StoreClocking extends OrgAction
         }
         data_set($modelData, 'clocked_at', now(), overwrite: false);
 
-        $timesheet=GetTimesheet::run($subject, $modelData['clocked_at']);
+        $timesheet = GetTimesheet::run($subject, $modelData['clocked_at']);
         data_set($modelData, 'timesheet_id', $timesheet->id);
-
 
 
         /** @var Clocking $clocking */
         $clocking = $subject->clockings()->create($modelData);
         AddClockingToTimeTracker::run($timesheet, $clocking);
 
+        TimesheetHydrateTimeTrackers::run($timesheet);
 
-        if($subject instanceof Employee) {
+        if ($subject instanceof Employee) {
             EmployeeHydrateClockings::dispatch($subject);
         } else {
             GuestHydrateClockings::dispatch($subject);
@@ -79,9 +81,9 @@ class StoreClocking extends OrgAction
     public function asController(ClockingMachine|Workplace $parent, Employee|Guest $subject, ActionRequest $request): Clocking
     {
         $this->initialisation($parent->organisation, $request);
+
         return $this->handle($request->user(), $parent, $subject, $this->validatedData);
     }
-
 
 
     public function htmlResponse(Clocking $clocking): RedirectResponse
@@ -100,7 +102,14 @@ class StoreClocking extends OrgAction
         }
     }
 
-    public function action(Organisation|User $generator, ClockingMachine|Workplace $parent, Employee|Guest $subject, array $modelData): Clocking
+    public function prepareForValidation(): void
+    {
+        if ($this->has('clocked_at') && is_string($this->get('clocked_at'))) {
+            $this->set('clocked_at', Carbon::parse($this->get('clocked_at')));
+        }
+    }
+
+    public function action(Organisation|User|Employee|Guest $generator, ClockingMachine|Workplace $parent, Employee|Guest $subject, array $modelData): Clocking
     {
         $this->asAction = true;
         $this->setRawAttributes($modelData);

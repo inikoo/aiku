@@ -146,7 +146,7 @@ test('launch fulfilment website from command', function (Website $website) {
 test('hydrate website from command', function (Website $website) {
     $this->artisan('website:hydrate', [
         'organisations' => $this->organisation->slug,
-        '--slugs'       => [$website->slug]
+        '--slugs'       => $website->slug
     ])
         ->assertExitCode(0);
     $website->refresh();

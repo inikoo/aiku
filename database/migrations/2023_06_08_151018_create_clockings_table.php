@@ -17,7 +17,6 @@ return new class () extends Migration {
             $table->unsignedInteger('workplace_id')->nullable()->index();
             $table->foreign('workplace_id')->references('id')->on('workplaces');
             $table->unsignedInteger('timesheet_id')->nullable()->index();
-            $table->string('slug')->unique()->collation('und_ns');
             $table->string('type')->index();
             $table->string('subject_type')->nullable();
             $table->unsignedInteger('subject_id')->nullable();

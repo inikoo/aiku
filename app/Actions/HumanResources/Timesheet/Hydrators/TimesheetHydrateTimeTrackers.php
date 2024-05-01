@@ -8,6 +8,7 @@
 namespace App\Actions\HumanResources\Timesheet\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
+use App\Enums\HumanResources\TimeTracker\TimeTrackerStatusEnum;
 use App\Models\HumanResources\Timesheet;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -31,10 +32,49 @@ class TimesheetHydrateTimeTrackers
 
     public function handle(Timesheet $timesheet): void
     {
+
+        $timesheet->refresh();
+
         $stats = [
             'number_time_trackers' => $timesheet->timeTrackers()->count(),
         ];
 
+        $timeTrackers = $timesheet->timeTrackers()->orderBy('starts_at')->get();
+
+        $workDuration             = 0;
+        $breakDuration            = 0;
+        $breakStart               = null;
+        $numberClosedTimeTrackers = 0;
+        foreach ($timeTrackers as $timeTracker) {
+
+
+
+
+            if ($breakStart) {
+                $breakDuration += $breakStart->diffInSeconds($timeTracker->starts_at);
+                $breakStart    = null;
+            }
+
+            if ($timeTracker->status == TimeTrackerStatusEnum::CLOSED) {
+                $numberClosedTimeTrackers++;
+                $workDuration += $timeTracker->duration;
+                $breakStart   = $timeTracker->ends_at;
+            }
+
+
+
+        }
+
+        $stats['number_open_time_trackers'] = $stats['number_time_trackers']-$numberClosedTimeTrackers;
+
+        if ($timesheet->end_at) {
+            $stats['total_duration'] = $timesheet->start_at->diffInSeconds($timesheet->end_at);
+        }
+
+        if($numberClosedTimeTrackers) {
+            $stats['working_duration']  = $workDuration;
+            $stats['breaks_duration']   = $breakDuration;
+        }
 
         $timesheet->update($stats);
     }

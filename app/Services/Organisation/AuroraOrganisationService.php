@@ -55,6 +55,7 @@ use App\Services\Organisation\Aurora\FetchAuroraSupplier;
 use App\Services\Organisation\Aurora\FetchAuroraSupplierDelivery;
 use App\Services\Organisation\Aurora\FetchAuroraSupplierProduct;
 use App\Services\Organisation\Aurora\FetchAuroraOrganisation;
+use App\Services\Organisation\Aurora\FetchAuroraTimesheet;
 use App\Services\Organisation\Aurora\FetchAuroraTradeUnit;
 use App\Services\Organisation\Aurora\FetchAuroraTradeUnitImages;
 use App\Services\Organisation\Aurora\FetchAuroraTransaction;
@@ -345,6 +346,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchPallet($id): ?array
     {
         return (new FetchAuroraPallet($this))->fetch($id);
+    }
+
+    public function fetchTimesheet($id): ?array
+    {
+        return (new FetchAuroraTimesheet($this))->fetch($id);
     }
 
 }

@@ -242,10 +242,9 @@ test('new timesheet for employee', function (Employee $employee) {
     expect($timesheet)->toBeInstanceOf(Timesheet::class)
         ->and($timesheet->subject_id)->toBe($employee->id)
         ->and($timesheet->subject_type)->toBe('Employee')
-        ->and($timesheet->number_breaks)->toBe(0)
         ->and($timesheet->number_time_trackers)->toBe(0)
-        ->and($timesheet->working_minutes)->toBe(0)
-        ->and($timesheet->breaks_minutes)->toBe(0)
+        ->and($timesheet->working_duration)->toBe(0)
+        ->and($timesheet->breaks_duration)->toBe(0)
         ->and($employee->stats->number_timesheets)->toBe(1);
 
     return $timesheet;

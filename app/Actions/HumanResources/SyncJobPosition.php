@@ -19,26 +19,40 @@ class SyncJobPosition
 
     public function handle(Employee|Guest $model, array $jobPositions): void
     {
-        $model->jobPositions()->sync($jobPositions);
-        if($user=$model->user) {
 
-            $roles=[];
-            foreach($model->jobPositions as $jobPosition) {
-                $roles=array_merge($roles, $jobPosition->roles()->pluck('id')->all());
+        $currentJobPositions=$model->jobPositions()->pluck('job_positions.id')->all();
+
+        $newJobPositions   =array_diff($jobPositions, $currentJobPositions);
+        $removeJobPositions=array_diff($currentJobPositions, $jobPositions);
+
+        $model->jobPositions()->detach($removeJobPositions);
+
+        $model->jobPositions()->attach($newJobPositions);
+
+
+        if(count($newJobPositions) || count($removeJobPositions)) {
+            if($user=$model->user) {
+
+                $roles=[];
+                foreach($model->jobPositions as $jobPosition) {
+                    $roles=array_merge($roles, $jobPosition->roles()->pluck('id')->all());
+                }
+
+
+                $user->roles()->sync($roles);
+                $user->refresh();
             }
 
 
-            $user->roles()->sync($roles);
-            $user->refresh();
-        }
-
-
-        if(class_basename($model)=='Employee') {
-            EmployeeHydrateJobPositionsShare::dispatch($model);
-            foreach($jobPositions as $jobPositionId) {
-                HydrateJobPosition::dispatch($jobPositionId);
+            if(class_basename($model)=='Employee') {
+                EmployeeHydrateJobPositionsShare::dispatch($model);
+                foreach($jobPositions as $jobPositionId) {
+                    HydrateJobPosition::dispatch($jobPositionId);
+                }
             }
         }
+
+
 
 
     }

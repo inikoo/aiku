@@ -23,10 +23,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $subject_type Employee|Guest
  * @property int $subject_id
  * @property TimeTrackerStatusEnum $status
- * @property string|null $starts_at
- * @property string|null $ends_at
+ * @property \Illuminate\Support\Carbon|null $starts_at
+ * @property \Illuminate\Support\Carbon|null $ends_at
  * @property int|null $start_clocking_id
  * @property int|null $end_clocking_id
+ * @property int|null $duration seconds
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -45,7 +46,10 @@ class TimeTracker extends Model
     use SoftDeletes;
 
     protected $casts = [
-        'status'      => TimeTrackerStatusEnum::class
+        'status'    => TimeTrackerStatusEnum::class,
+        'starts_at' => 'datetime:Y-m-d H:i:s',
+        'ends_at'   => 'datetime:Y-m-d H:i:s'
+
     ];
 
 

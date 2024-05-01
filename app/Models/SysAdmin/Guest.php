@@ -135,7 +135,7 @@ class Guest extends Model implements HasMedia, Auditable
 
     public function jobPositions(): MorphToMany
     {
-        return $this->morphToMany(JobPosition::class, 'job_positionable');
+        return $this->morphToMany(JobPosition::class, 'job_positionable')->withPivot('share')->withTimestamps();
     }
 
     public function group(): BelongsTo
