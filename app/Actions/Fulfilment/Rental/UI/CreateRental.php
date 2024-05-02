@@ -7,22 +7,23 @@
 
 namespace App\Actions\Fulfilment\Rental\UI;
 
-use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentRentals;
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
 use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
 class CreateRental extends OrgAction
 {
     /**
      * @throws Exception
      */
-    public function handle(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Response
+    public function handle(Fulfilment $fulfilment, ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
@@ -47,17 +48,19 @@ class CreateRental extends OrgAction
                                         'required'   => true
                                     ],
                                     'unit' => [
-                                        'type'     => 'input',
+                                        'type'     => 'select',
                                         'label'    => __('unit'),
-                                        'required' => true
+                                        'required' => true,
+                                        'options'  => Options::forEnum(RentalUnitEnum::class)
                                     ]
                                 ]
                             ]
                         ],
                     'route' => [
-                        'name'       => 'grp.models.fulfilment-customer.rental-agreements.store',
+                        'name'       => 'grp.models.org.fulfilment.rentals.store',
                         'parameters' => [
-                            'fulfilmentCustomer' => $fulfilmentCustomer->id,
+                            'organisation' => $fulfilment->organisation_id,
+                            'fulfilment'   => $fulfilment->id,
                         ]
                     ]
                 ],
@@ -74,24 +77,24 @@ class CreateRental extends OrgAction
     /**
      * @throws Exception
      */
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Response
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): Response
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilmentCustomer, $request);
+        return $this->handle($fulfilment, $request);
     }
 
     public function getBreadcrumbs(array $routeParameters): array
     {
         return array_merge(
-            ShowFulfilmentCustomer::make()->getBreadcrumbs(
+            IndexFulfilmentRentals::make()->getBreadcrumbs(
                 routeParameters: $routeParameters,
             ),
             [
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating rental agreement'),
+                        'label' => __('creating rental'),
                     ]
                 ]
             ]
