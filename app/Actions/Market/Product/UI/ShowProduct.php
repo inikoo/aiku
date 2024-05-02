@@ -18,6 +18,7 @@ use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Market\ProductsResource;
 use App\Http\Resources\Sales\OrderResource;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Market\Product;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -27,7 +28,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowProduct extends OrgAction
 {
-    private Organisation|Shop $parent;
+    private Organisation|Shop|Fulfilment $parent;
 
     public function handle(Product $product): Product
     {
@@ -36,8 +37,11 @@ class ShowProduct extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-
-        if($this->parent instanceof Organisation) {
+        if($this->parent instanceof Fulfilment) {
+            $this->canEdit   = $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+            $this->canDelete = $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+            return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.view");
+        } elseif($this->parent instanceof Organisation) {
             $this->canEdit   = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
             $this->canDelete = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
             return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.view");
@@ -61,6 +65,13 @@ class ShowProduct extends OrgAction
     {
         $this->parent= $shop;
         $this->initialisationFromShop($shop, $request)->withTab(ProductTabsEnum::values());
+        return $this->handle($product);
+    }
+
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Product $product, ActionRequest $request): Product
+    {
+        $this->parent= $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(ProductTabsEnum::values());
         return $this->handle($product);
     }
 
@@ -250,6 +261,17 @@ class ShowProduct extends OrgAction
                         'product'     => $product->slug
                     ]
 
+                ]
+            ],
+            'grp.org.fulfilments.show.products.show'=> [
+                'label'=> $product->name,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'organisation'=> $this->organisation->slug,
+                        'fulfilment'  => $product->shop->fulfilment->slug,
+                        'product'     => $product->slug
+                    ]
                 ]
             ],
         };
