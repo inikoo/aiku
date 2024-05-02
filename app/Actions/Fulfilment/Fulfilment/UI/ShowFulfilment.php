@@ -59,6 +59,7 @@ class ShowFulfilment extends OrgAction
                     [
                         'name'  => __('Products'),
                         'icon'  => ['fal', 'fa-cube'],
+                        'href'  => ['grp.org.fulfilments.show.products.index', $fulfilment->organisation->slug, $fulfilment->slug],
                         'index' => [
                             'number' => 0  // TODO
                         ],
@@ -66,6 +67,7 @@ class ShowFulfilment extends OrgAction
                     [
                         'name'  => __('Customers'),
                         'icon'  => ['fal', 'fa-user-tie'],
+                        'href'  => ['grp.org.fulfilments.show.crm.customers.index', $fulfilment->organisation->slug, $fulfilment->slug],
                         'index' => [
                             'number' => $fulfilment->shop->crmStats->number_customers
                         ],
@@ -74,6 +76,7 @@ class ShowFulfilment extends OrgAction
                     [
                         'name'  => __('Recurring bills'),
                         'icon'  => ['fal', 'fa-receipt'],
+                        'href'  => ['grp.org.fulfilments.show.operations.recurring_bills.index', $fulfilment->organisation->slug, $fulfilment->slug],
                         'index' => [
                             'number' => 0  // TODO
                         ],
@@ -81,6 +84,7 @@ class ShowFulfilment extends OrgAction
                     [
                         'name'  => __('Invoices'),
                         'icon'  => ['fal', 'fa-file-invoice-dollar'],
+                        'href'  => ['grp.org.fulfilments.show.operations.invoices.index', $fulfilment->organisation->slug, $fulfilment->slug],
                         'index' => [
                             'number' => $fulfilment->shop->stats->number_invoices
                         ],
@@ -92,6 +96,7 @@ class ShowFulfilment extends OrgAction
                     [
                         'name'  => __('Pallets'),
                         'icon'  => ['fal', 'fa-pallet'],
+                        'href'  => ['grp.org.fulfilments.show.operations.pallets.index', $fulfilment->organisation->slug, $fulfilment->slug],
                         'index' => [
                             'number' => $this->organisation->fulfilmentStats->number_pallets_status_storing
                         ],
@@ -99,6 +104,7 @@ class ShowFulfilment extends OrgAction
                     [
                         'name'  => __('Stored Items'),
                         'icon'  => ['fal', 'fa-narwhal'],
+                        'href'  => ['grp.org.fulfilments.show.operations.pallets.index', $fulfilment->organisation->slug, $fulfilment->slug],
                         'index' => [
                             'number' => $this->organisation->fulfilmentStats->number_stored_items
                         ],
@@ -109,6 +115,7 @@ class ShowFulfilment extends OrgAction
                     [
                         'name'  => __('Deliveries'),
                         'icon'  => ['fal', 'fa-truck-couch'],
+                        'href'  => ['grp.org.fulfilments.show.operations.pallet-deliveries.index', $fulfilment->organisation->slug, $fulfilment->slug],
                         'index' => [
                             'number' => $fulfilment->stats->number_pallet_deliveries
                         ],
@@ -116,6 +123,7 @@ class ShowFulfilment extends OrgAction
                     [
                         'name'  => __('Returns'),
                         'icon'  => ['fal', 'fa-sign-out'],
+                        'href'  => ['grp.org.fulfilments.show.operations.pallet-returns.index', $fulfilment->organisation->slug, $fulfilment->slug],
                         'index' => [
                             'number' => $this->organisation->fulfilmentStats->number_pallet_returns
                         ],
