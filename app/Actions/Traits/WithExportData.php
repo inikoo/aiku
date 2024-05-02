@@ -22,7 +22,7 @@ trait WithExportData
     {
         $result = null;
 
-        $query = (new $callback())->query();
+        $query = $callback->query();
 
         if($query->count() >= 2000) {
             $type = ExportTypeEnum::CSV->value;

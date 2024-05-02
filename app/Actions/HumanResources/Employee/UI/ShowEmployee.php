@@ -8,12 +8,14 @@
 namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\EmployeeTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
+use App\Http\Resources\HumanResources\TimesheetsResource;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
@@ -85,6 +87,14 @@ class ShowEmployee extends OrgAction
                     'navigation' => EmployeeTabsEnum::navigation()
                 ],
 
+                EmployeeTabsEnum::TIMESHEETS->value => $this->tab == EmployeeTabsEnum::TIMESHEETS->value ?
+                    fn () => TimesheetsResource::collection(IndexTimesheets::run($employee, EmployeeTabsEnum::TIMESHEETS->value))
+                    : Inertia::lazy(fn () => TimesheetsResource::collection(IndexTimesheets::run($employee, EmployeeTabsEnum::TIMESHEETS->value))),
+
+                EmployeeTabsEnum::TODAY_TIMESHEETS->value => $this->tab == EmployeeTabsEnum::TODAY_TIMESHEETS->value ?
+                    fn () => TimesheetsResource::collection(IndexTimesheets::run($employee, EmployeeTabsEnum::TODAY_TIMESHEETS->value, true))
+                    : Inertia::lazy(fn () => TimesheetsResource::collection(IndexTimesheets::run($employee, EmployeeTabsEnum::TODAY_TIMESHEETS->value, true))),
+
                 EmployeeTabsEnum::DATA->value => $this->tab == EmployeeTabsEnum::DATA->value ?
                     fn () => $this->getData($employee)
                     : Inertia::lazy(fn () => $this->getData($employee)),
@@ -93,7 +103,29 @@ class ShowEmployee extends OrgAction
                     fn () => HistoryResource::collection(IndexHistory::run($employee))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($employee)))
             ]
-        )->table(IndexHistory::make()->tableStructure());
+        )->table(IndexHistory::make()->tableStructure())
+            ->table(IndexTimesheets::make()->tableStructure(modelOperations: [
+                'createLink' => [
+                    [
+                        'type'          => 'button',
+                        'style'         => 'primary',
+                        'icon'          => 'fal fa-file-export',
+                        'id'            => 'pdf-export',
+                        'label'         => 'Excel',
+                        'key'           => 'action',
+                        'target'        => '_blank',
+                        'route'         => [
+                            'name'       => 'grp.org.hr.employees.timesheets.export',
+                            'parameters' => [
+                                'organisation' => $employee->organisation->slug,
+                                'employee'     => $employee->slug,
+                                'type'         => 'xlsx'
+                            ]
+                        ]
+                    ]
+                ],
+            ], prefix: EmployeeTabsEnum::TIMESHEETS->value))
+            ->table(IndexTimesheets::make()->tableStructure(prefix: EmployeeTabsEnum::TODAY_TIMESHEETS->value));
     }
 
     public function getData(Employee $employee): array
