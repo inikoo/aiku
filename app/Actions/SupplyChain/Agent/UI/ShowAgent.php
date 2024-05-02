@@ -11,7 +11,7 @@ use App\Actions\GrpAction;
 use App\Actions\Procurement\Agent\UI\DeletedMarketplaceAgentTrait;
 use App\Actions\Procurement\Agent\UI\GetMarketplaceAgentShowcase;
 use App\Actions\Procurement\Marketplace\SupplierProduct\UI\IndexMarketplaceSupplierProducts;
-use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
+use App\Actions\ProcurementToDelete\Supplier\UI\IndexSuppliers;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\UI\AgentTabsEnum;

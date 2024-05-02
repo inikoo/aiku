@@ -11,9 +11,9 @@ use App\Actions\OrgAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
-use App\Models\SupplyChain\Agent;
-use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -27,7 +27,7 @@ use App\Services\QueryBuilder;
 
 class IndexPurchaseOrders extends OrgAction
 {
-    public function handle(Organisation|Agent|Supplier $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|OrgAgent|OrgSupplier $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -96,11 +96,18 @@ class IndexPurchaseOrders extends OrgAction
         return $this->handle($organisation);
     }
 
-    public function inAgent(Agent $agent): LengthAwarePaginator
+    public function inOrgAgent(Organisation $organisation, OrgAgent  $orgAgent, ActionRequest $request): LengthAwarePaginator
     {
-        $this->validateAttributes();
+        $this->initialisation($organisation, $request);
 
-        return $this->handle($agent);
+        return $this->handle($orgAgent);
+    }
+
+    public function inOrSupplier(Organisation $organisation, OrgSupplier  $orgSupplier, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($orgSupplier);
     }
 
 

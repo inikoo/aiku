@@ -23,7 +23,7 @@ function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
                 [route().params['organisation'],purchaseOrder.slug]);
         case 'grp.org.procurement.agents.show':
             return route(
-                'grp.procurement.agents.show.purchase-orders.show',
+                'grp.org.procurement.agents.show.purchase-orders.show',
                 [route().params['organisation'],route().params['agent'],purchaseOrder.slug]);
     }
 }

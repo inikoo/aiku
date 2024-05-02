@@ -142,13 +142,9 @@ class IndexOrgSuppliers extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('procurement.suppliers.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('procurement.view')
-            );
+        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
     }
 
     public function asController(ActionRequest $request): LengthAwarePaginator
