@@ -49,6 +49,8 @@ use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\PalletReturnItem\UpdatePalletReturnItem;
+use App\Actions\Fulfilment\Rental\StoreRental;
+use App\Actions\Fulfilment\Rental\UpdateRental;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
 use App\Actions\Fulfilment\StoredItem\MoveStoredItem;
@@ -99,6 +101,11 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('/working-place/', StoreWorkplace::class)->name('working-place.store');
     Route::post('/shop/', StoreShop::class)->name('shop.store');
     Route::post('/fulfilment/', StoreFulfilment::class)->name('fulfilment.store');
+
+    Route::prefix('fulfilment/{fulfilment:id}/rentals')->name('fulfilment.rentals.')->group(function () {
+        Route::post('/', StoreRental::class)->name('store');
+        Route::patch('{rental:id}', UpdateRental::class)->name('update')->withoutScopedBindings();
+    });
 
     Route::post('/shop/{shop:id}/customer', StoreCustomer::class)->name('shop.customer.store');
     Route::patch('/shop/{shop:id}/customer/{customer:id}', UpdateCustomer::class)->name('shop.customer.update')->withoutScopedBindings();

@@ -123,7 +123,19 @@ class IndexFulfilmentRentals extends OrgAction
                     $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
-                    'title' => __('rentals'),
+                    'title'   => __('rentals'),
+                    'actions' => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'primary',
+                            'icon'  => 'fal fa-plus',
+                            'label' => __('create rental'),
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.products.rentals.create',
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
+                        ],
+                    ]
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
