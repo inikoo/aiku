@@ -31,10 +31,33 @@ const formatDate = (dateIso: Date) => {
 
     return `${year}-${month}-${day} ${hours}:${minutes}`
 }
+
+const timesheetRoute = (timesheet) =>
+{
+    switch (route().current()) {
+        case "grp.org.hr.employees.show":
+            return route(
+                "grp.org.hr.employees.show.timesheets.show",
+                [route().params["organisation"], route().params["employee"], timesheet.slug]);
+        default:
+            return route(
+                "grp.org.shops.show.crm.customers.show",
+                [
+                    route().params["organisation"],
+                    route().params["shop"],
+                    customer.slug
+                ]);
+    }
+}
 </script>
 
 <template>
     <Table :resource="data" class="mt-5" :name="tab">
+        <template #cell(slug)="{ item: timesheet }">
+            <Link :href="timesheetRoute(timesheet)" class="specialUnderline">
+                {{ timesheet["slug"] }}
+            </Link>
+        </template>
         <template #cell(date)="{ item: user }">
             {{ formatDate(user.datetime) }}
         </template>

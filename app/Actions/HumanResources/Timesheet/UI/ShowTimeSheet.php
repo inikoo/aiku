@@ -7,11 +7,12 @@
 
 namespace App\Actions\HumanResources\Timesheet\UI;
 
+use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\OrgAction;
-use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\EmployeeTabsEnum;
-use App\Http\Resources\HumanResources\EmployeeResource;
+use App\Http\Resources\HumanResources\TimesheetsResource;
 use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\Timesheet;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -19,9 +20,9 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowTimeSheet extends OrgAction
 {
-    public function handle(Employee $employee): Employee
+    public function handle(Timesheet $timesheet): Timesheet
     {
-        return $employee;
+        return $timesheet;
     }
 
 
@@ -32,43 +33,33 @@ class ShowTimeSheet extends OrgAction
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
     }
 
-    public function asController(Organisation $organisation, Employee $employee, ActionRequest $request): Employee
+    public function asController(Organisation $organisation, Timesheet $timesheet, ActionRequest $request): Timesheet
     {
         $this->initialisation($organisation, $request)->withTab(EmployeeTabsEnum::values());
-        return $this->handle($employee);
+
+        return $this->handle($timesheet);
     }
 
-    public function htmlResponse(Employee $employee, ActionRequest $request): Response
+    public function inEmployee(Organisation $organisation, Employee $employee, Timesheet $timesheet, ActionRequest $request): Timesheet
+    {
+        $this->initialisation($organisation, $request)->withTab(EmployeeTabsEnum::values());
+
+        return $this->handle($timesheet);
+    }
+
+    public function htmlResponse(Timesheet $timesheet, ActionRequest $request): Response
     {
         return Inertia::render(
             'HumanResources/TimeSheet',
             [
-                'title'                                 => __('employee'),
-                'breadcrumbs'                           => $this->getBreadcrumbs($employee),
+                'title'                                 => __('timesheet'),
+                'breadcrumbs'                           => $this->getBreadcrumbs($timesheet),
                 'navigation'                            => [
-                    'previous' => $this->getPrevious($employee, $request),
-                    'next'     => $this->getNext($employee, $request),
+                    'previous' => $this->getPrevious($timesheet, $request),
+                    'next'     => $this->getNext($timesheet, $request),
                 ],
                 'pageHead'    => [
-                    'title' => $employee->slug,
-                    'meta'  => [
-                        [
-                            'name'     => $employee->worker_number,
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-id-card',
-                                'tooltip' => __('Worker number')
-                            ]
-                        ],
-
-                        $employee->user ?
-                            [
-                                'name'     => $employee->user->username,
-                                'leftIcon' => [
-                                    'icon'    => 'fal fa-user',
-                                    'tooltip' => __('User')
-                                ]
-                            ] : []
-                    ],
+                    'title' => $timesheet->slug,
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
@@ -78,23 +69,24 @@ class ShowTimeSheet extends OrgAction
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => EmployeeTabsEnum::navigation()
+                    'navigation' => []
                 ]
             ]
         );
     }
 
 
-    public function jsonResponse(Employee $employee): EmployeeResource
+    public function jsonResponse(Timesheet $timesheet): TimesheetsResource
     {
-        return new EmployeeResource($employee);
+        return new TimesheetsResource($timesheet);
     }
 
-    public function getBreadcrumbs(Employee $employee, $suffix = null): array
+    public function getBreadcrumbs(Timesheet $timesheet, $suffix = null): array
     {
         return array_merge(
-            (new ShowHumanResourcesDashboard())->getBreadcrumbs([
-                'organisation' => $this->organisation->slug
+            (new ShowEmployee())->getBreadcrumbs([
+                'organisation' => $this->organisation->slug,
+                'employee'     => $timesheet->subject->slug
             ]),
             [
                 [
@@ -102,22 +94,17 @@ class ShowTimeSheet extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name'       => 'grp.org.hr.employees.index',
-                                'parameters' => [
-                                    'organisation' => $this->organisation->slug
-                                ]
-                            ],
-                            'label' => __('employees')
-                        ],
-                        'model' => [
-                            'route' => [
                                 'name'       => 'grp.org.hr.employees.show',
                                 'parameters' => [
                                     'organisation' => $this->organisation->slug,
-                                    'employee'     => $employee->slug
+                                    'employee'     => $timesheet->subject->slug,
+                                    'tab'          => EmployeeTabsEnum::TIMESHEETS->value
                                 ]
                             ],
-                            'label' => $employee->worker_number,
+                            'label' => __('timesheet')
+                        ],
+                        'model' => [
+                            'label' => $timesheet->slug,
                         ],
                     ],
                     'suffix'         => $suffix,
@@ -127,32 +114,34 @@ class ShowTimeSheet extends OrgAction
         );
     }
 
-    public function getPrevious(Employee $employee, ActionRequest $request): ?array
+    public function getPrevious(Timesheet $timesheet, ActionRequest $request): ?array
     {
-        $previous = Employee::where('slug', '<', $employee->slug)->orderBy('slug', 'desc')->first();
+        $previous = Timesheet::where('slug', '<', $timesheet->slug)->orderBy('slug', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
 
-    public function getNext(Employee $employee, ActionRequest $request): ?array
+    public function getNext(Timesheet $timesheet, ActionRequest $request): ?array
     {
-        $next = Employee::where('slug', '>', $employee->slug)->orderBy('slug')->first();
+        $next = Timesheet::where('slug', '>', $timesheet->slug)->orderBy('slug')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
-    private function getNavigation(?Employee $employee, string $routeName): ?array
+    private function getNavigation(?Timesheet $timesheet, string $routeName): ?array
     {
-        if(!$employee) {
+        if(!$timesheet) {
             return null;
         }
+
         return match ($routeName) {
-            'grp.org.hr.employees.show'=> [
-                'label'=> $employee->contact_name,
+            'grp.org.hr.employees.show.timesheets.show' => [
+                'label'=> $timesheet->subject->contact_name,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'organisation'=> $this->organisation->slug,
-                        'employee'    => $employee->slug
+                        'organisation' => $this->organisation->slug,
+                        'employee'     => $timesheet->subject->slug,
+                        'timesheet'    => $timesheet->slug,
                     ]
                 ]
             ]

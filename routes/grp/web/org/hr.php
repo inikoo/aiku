@@ -59,6 +59,7 @@ Route::get('/employees/{employee}/delete', RemoveEmployee::class)->name('employe
 
 Route::post('/employees/{employee}/user', ShowEmployee::class)->name('employees.show.user');
 Route::post('/employees/{employee}/user', CreateUserFromEmployee::class)->name('employees.show.user.store');
+Route::get('/employees/{employee}/timesheets/{timesheet}', [ShowTimeSheet::class, 'inEmployee'])->name('employees.show.timesheets.show');
 
 Route::get('/employees/{employee}/timesheets/export', ExportEmployeeTimesheets::class)->name('employees.timesheets.export');
 
