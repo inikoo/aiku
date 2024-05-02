@@ -22,6 +22,7 @@ import DataModel from "@/Components/DataModel.vue";
 
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
+import TableTimesheets from "@/Components/Tables/TableTimesheets.vue";
 
 library.add(
     faIdCard,
@@ -57,6 +58,8 @@ const props = defineProps<{
     },
     history?: object
     data?:object
+    timesheets?:object
+    today_timesheets?:object
 
 }>()
 
@@ -68,13 +71,13 @@ const component = computed(() => {
     const components = {
         details: ModelDetails,
         history: TableHistories,
-        data: DataModel
+        data: DataModel,
+        timesheets: TableTimesheets,
+        today_timesheets: TableTimesheets
     };
     return components[currentTab.value];
 
 });
-
-
 
 </script>
 

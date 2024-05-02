@@ -13,6 +13,8 @@ use App\Http\Resources\HumanResources\EmployeeInertiaResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\Timesheet;
+use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -25,24 +27,33 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexTimesheets extends OrgAction
 {
-    public function handle($prefix = null): LengthAwarePaginator
+    public function handle(Employee|Guest $subject, $prefix = null, $isTodayTimesheet = false): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('employees.contact_name', $value);
+                $query->whereAnyWordStartWith('timesheets.slug', $value);
             });
         });
+
+        $query = QueryBuilder::for(Timesheet::class);
 
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(Employee::class)
-            ->defaultSort('employees.slug')
-            ->select(['slug', 'id', 'job_title', 'contact_name', 'state'])
-            ->with('jobPositions')
-            ->allowedSorts(['slug', 'state', 'contact_name','job_title'])
-            ->allowedFilters([$globalSearch, 'slug', 'contact_name', 'state'])
+        if($subject instanceof Employee) {
+            $query->where([['subject_type', class_basename($subject)], ['subject_id', $subject->id]]);
+        }
+
+        if($isTodayTimesheet) {
+            $query->whereDate('date', now()->format('Y-m-d'));
+        }
+
+        return $query
+            ->defaultSort('slug')
+            ->with(['organisation', 'subject'])
+            ->allowedSorts(['slug'])
+            ->allowedFilters([$globalSearch, 'slug'])
             ->withPaginator($prefix)
             ->withQueryString();
     }
@@ -59,10 +70,14 @@ class IndexTimesheets extends OrgAction
 
             $table
                 ->withGlobalSearch()
+                ->withModelOperations($modelOperations)
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'job_title', label: __('position'), canBeHidden: false)
-                ->column(key: 'state', label: __('state'), canBeHidden: false)
+                ->column(key: 'start_at', label: __('start at'), canBeHidden: false)
+                ->column(key: 'end_at', label: __('end at'), canBeHidden: false)
+                ->column(key: 'working_duration', label: __('working duration'), canBeHidden: false)
+                ->column(key: 'breaks_duration', label: __('breaks duration'), canBeHidden: false)
+                ->column(key: 'number_time_trackers', label: __('time tracker'), canBeHidden: false)
+                ->column(key: 'number_open_time_trackers', label: __('open time tracker'), canBeHidden: false)
                 ->defaultSort('slug');
         };
     }
