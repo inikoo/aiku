@@ -86,10 +86,10 @@ class ClockingMachine extends Model implements Auditable
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('code')
+            ->generateSlugsFrom('name')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(8);
+            ->slugsShouldBeNoLongerThan(64);
     }
 
     public function workplace(): BelongsTo

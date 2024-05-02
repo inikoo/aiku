@@ -12,6 +12,7 @@ use App\Models\Dispatch\DeliveryNote;
 use App\Models\Helpers\Fetch;
 use App\Models\SysAdmin\Organisation;
 use App\Services\Organisation\Aurora\FetchAuroraAgent;
+use App\Services\Organisation\Aurora\FetchAuroraClockingMachine;
 use App\Services\Organisation\Aurora\FetchAuroraCustomer;
 use App\Services\Organisation\Aurora\FetchAuroraCustomerClient;
 use App\Services\Organisation\Aurora\FetchAuroraDeletedCustomer;
@@ -351,6 +352,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchTimesheet($id): ?array
     {
         return (new FetchAuroraTimesheet($this))->fetch($id);
+    }
+
+    public function fetchClockingMachine($id): ?array
+    {
+        return (new FetchAuroraClockingMachine($this))->fetch($id);
     }
 
 }

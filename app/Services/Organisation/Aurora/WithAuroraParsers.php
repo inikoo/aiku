@@ -10,6 +10,7 @@ namespace App\Services\Organisation\Aurora;
 
 use App\Actions\Market\HistoricOuterable\StoreHistoricOuterable;
 use App\Actions\SourceFetch\Aurora\FetchAuroraAgents;
+use App\Actions\SourceFetch\Aurora\FetchAuroraClockingMachines;
 use App\Actions\SourceFetch\Aurora\FetchAuroraCustomers;
 use App\Actions\SourceFetch\Aurora\FetchAuroraDeletedCustomers;
 use App\Actions\SourceFetch\Aurora\FetchAuroraDeletedEmployees;
@@ -49,6 +50,7 @@ use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Dispatch\Shipper;
 use App\Models\Goods\TradeUnit;
+use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\OrgStock;
@@ -514,6 +516,18 @@ trait WithAuroraParsers
         }
 
         return $outbox;
+    }
+
+    public function parseClockingMachine($sourceId): ?ClockingMachine
+    {
+        $clockingMachine = ClockingMachine::where('source_id', $sourceId)->first();
+        if (!$clockingMachine) {
+            $sourceData     = explode(':', $sourceId);
+
+            $clockingMachine = FetchAuroraClockingMachines::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $clockingMachine;
     }
 
     public function parseMailshot($sourceId): ?Mailshot

@@ -13,8 +13,10 @@ enum ClockingMachineTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case STATIC_NFC           = 'static-nfc';
-    case MOBILE_APP           = 'mobile-app';
+    case BIOMETRIC  = 'biometric';
+    case STATIC_NFC = 'static-nfc';
+    case MOBILE_APP = 'mobile-app';
+    case LEGACY     = 'legacy';
 
 
 }

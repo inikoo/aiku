@@ -26,8 +26,6 @@ class UpdateClockingMachine extends OrgAction
     public function handle(ClockingMachine $clockingMachine, array $modelData): ClockingMachine
     {
         $clockingMachine = $this->update($clockingMachine, $modelData, ['data']);
-
-
         ClockingMachineHydrateUniversalSearch::dispatch($clockingMachine);
 
         return $clockingMachine;
@@ -42,7 +40,7 @@ class UpdateClockingMachine extends OrgAction
     public function rules(): array
     {
         return [
-            'code' => [
+            'name' => [
                 'sometimes',
                 'required',
                 'max:255',
@@ -63,6 +61,8 @@ class UpdateClockingMachine extends OrgAction
                 ),
 
             ],
+            'source_id' => 'sometimes|string|max:255',
+
         ];
     }
 
@@ -70,6 +70,14 @@ class UpdateClockingMachine extends OrgAction
     {
         $this->clockingMachine = $clockingMachine;
         $this->initialisation($organisation, $request);
+
+        return $this->handle($clockingMachine, $this->validatedData);
+    }
+
+    public function action(ClockingMachine $clockingMachine, array $modelData): ClockingMachine
+    {
+        $this->clockingMachine = $clockingMachine;
+        $this->initialisation($clockingMachine->organisation, $modelData);
 
         return $this->handle($clockingMachine, $this->validatedData);
     }

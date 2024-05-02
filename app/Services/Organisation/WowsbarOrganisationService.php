@@ -308,4 +308,9 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchClockingMachine($id): ?array
+    {
+        return null;
+    }
+
 }
