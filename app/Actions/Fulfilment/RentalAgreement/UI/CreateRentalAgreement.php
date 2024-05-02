@@ -53,9 +53,10 @@ class CreateRentalAgreement extends OrgAction
                                         'value'      => RentalAgreementBillingCycleEnum::MONTHLY->value
                                     ],
                                     'pallets_limit' => [
-                                        'type'     => 'input',
-                                        'label'    => __('pallets limit'),
-                                        'required' => false
+                                        'type'        => 'input',
+                                        'label'       => __('pallets limit'),
+                                        'placeholder' => '0',
+                                        'required'    => false
                                     ],
                                     'rental' => [
                                         'type'             => 'rental',

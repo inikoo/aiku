@@ -9,22 +9,23 @@ import PureInput from "@/Components/Pure/PureInput.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExclamationCircle, faCheckCircle, faTrash, faEdit } from '@fas'
 import { faCopy } from '@fal'
+import { faTrash as farTrash } from '@far'
 import { faSpinnerThird } from '@fad'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { set, get } from "lodash"
-import { ref, watch, onMounted, onBeforeMount, isReadonly , inject}  from "vue"
+import { ref, watch, onMounted, onBeforeMount, isReadonly, inject } from "vue"
 import SelectQuery from "@/Components/SelectQuery.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { notify } from "@kyvg/vue3-notification"
 import axios from "axios"
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from 'uuid'
 import Popover from '@/Components/Popover.vue'
 import { trans } from "laravel-vue-i18n"
 import Currency from "@/Components/Pure/Currency.vue"
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 
-library.add(faExclamationCircle, faCheckCircle, faSpinnerThird, faCopy, faTrash, faEdit)
+library.add(faExclamationCircle, faCheckCircle, faSpinnerThird, faCopy, faTrash, farTrash, faEdit)
 
 const props = defineProps<{
     form: any
@@ -42,41 +43,43 @@ const props = defineProps<{
 const rentals = ref([])
 const bulkData = ref([])
 const bulkDiscInput = ref(0)
-const currency = inject('layout', layoutStructure).group.currency
-
-
+const currency = (inject('layout', layoutStructure))?.group?.currency
 
 const emits = defineEmits<{
     (e: 'changeIsDirty', value: Boolean): void
 }>()
 
+
 const defaultValue = [
     { id: uuidv4(), rental_id: null, price: 0, discount: 0, agreed_price: 0, original_price: 0 },
 ]
 
+
 const addRow = () => {
     props.form[props.fieldName].push({ id: uuidv4(), rental_id: null, price: 0, discount: 0, agreed_price: 0, original_price: 0 })
 }
+
 
 const deleteRow = (index: number) => {
     props.form[props.fieldName].splice(index, 1)
     bulkData.value = []
 }
 
+
 const calculateDiscountedPrice = (price, discount) => {
     // Calculate the discounted price
-    let discountedPrice = price - (price * (discount / 100));
+    let discountedPrice = price - (price * (discount / 100))
 
     // Round the result to two decimal places
-    discountedPrice = discountedPrice.toFixed(2);
+    discountedPrice = discountedPrice.toFixed(2)
 
-    return discountedPrice;
-};
+    return discountedPrice
+}
 
 const sePriceByRental = (value: number, options: Array, index: number) => {
     const data = options.find((item: { id: number }) => item.id == value)
     if (data) {
-        console.log('rental_id',data)
+        console.log('rental_id', data)
         props.form[props.fieldName][index].price = data.price
         props.form[props.fieldName][index].original_price = data.price
         props.form[props.fieldName][index].agreed_price = calculateDiscountedPrice(props.form[props.fieldName][index].price, props.form[props.fieldName][index].discount)
@@ -84,11 +87,9 @@ const sePriceByRental = (value: number, options: Array, index: number) => {
 }
 
 
-const sePriceByChange = (value: number, record: Object, index: number) => {
+const setPriceByChange = (value: number, record: Object, index: number) => {
     props.form[props.fieldName][index].agreed_price = calculateDiscountedPrice(props.form[props.fieldName][index].price, props.form[props.fieldName][index].discount)
 }
-
-
 
 
 const getRentals = async () => {
@@ -109,7 +110,7 @@ const getRentals = async () => {
 
 const onPutAllRentals = () => {
     const pullData = []
-    const formData =  props.form[props.fieldName].filter((item)=> item.rental_id != null)
+    const formData = props.form[props.fieldName].filter((item) => item.rental_id != null)
     for (const rental of rentals.value) {
         const find = formData.find((item) => item.rental_id == rental.id)
         if (!find) pullData.push({ id: uuidv4(), rental_id: rental.id, price: rental.price, discount: 0, agreed_price: rental.price, original_price: rental.price })
@@ -125,7 +126,8 @@ const onPutAllRentals = () => {
     else checkedAll.value = false
 } */
 
-const selectAll = (input) => {
+// Method: On select all rows
+const onSelectAllRows = (input) => {
     const value = []
     if (input.target.checked) {
         props.form[props.fieldName].forEach((item) => value.push(item.id))
@@ -133,35 +135,52 @@ const selectAll = (input) => {
     bulkData.value = value
 }
 
+// Method: Remove selected rows
 const bulkDeleteAction = () => {
-    const deleteData = [...props.form[props.fieldName]];
-    const itemsToDelete = [];
+    const deleteData = [...props.form[props.fieldName]]
+    const itemsToDelete = []
 
     for (const [index, item] of deleteData.entries()) {
         if (bulkData.value.includes(item.id)) {
-            itemsToDelete.push(index);
+            itemsToDelete.push(index)
         }
     }
 
     // Remove items from deleteData in reverse order to avoid changing indices
     for (let i = itemsToDelete.length - 1; i >= 0; i--) {
-        deleteData.splice(itemsToDelete[i], 1);
+        deleteData.splice(itemsToDelete[i], 1)
     }
 
     props.form[props.fieldName] = deleteData
     bulkData.value = []
-};
+}
+
+// Method: Set discount on selected rows
+const onBulkDiscount = (close: Function) => {
+    // const data = [...props.form[props.fieldName]]
+
+    // console.log('tt', bulkData.value)
+    // console.log('ee', data)
+    // for (const [index, item] of data.entries()) {
+    //     if (bulkData.value.includes(item.id)) {
+    //         item.discount = bulkDiscInput.value
+    //         item.agreed_price = calculateDiscountedPrice(item.price, item.discount)
+    //     }
+    //     console.log('qqq', item, props.form[props.fieldName])
+    // }
+    
+    // props.form[props.fieldName] = data
+    // bulkData.value = []
+    // close()
 
 
-const onBulkDiscAction = (close) => {
-    const data = [...props.form[props.fieldName]];
-    for (const [index, item] of data.entries()) {
-        if (bulkData.value.includes(item.id)) {
-            item.discount = bulkDiscInput.value
-            item.agreed_price = calculateDiscountedPrice(item.price, item.discount)
+    for (const rental of props.form[props.fieldName]) {
+        if (bulkData.value.includes(rental.id)) {
+            rental.discount = bulkDiscInput.value
+            rental.agreed_price = calculateDiscountedPrice(rental.price, rental.discount)
         }
     }
-    props.form[props.fieldName] = data
+    
     bulkData.value = []
     close()
 }
@@ -169,31 +188,28 @@ const onBulkDiscAction = (close) => {
 const setOptionSelectQueryFilter = (options, index) => {
 
     // Initialize an empty array to store filtered options 
-    let pullData = [];
+    let pullData = []
 
     // Find the first item in options whose id matches the rental property
-    const first = options.find(item => item.id == props.form[props.fieldName][index]?.rental_id);
+    const first = options.find(item => item.id == props.form[props.fieldName][index]?.rental_id)
 
     // If such an item exists, add it to pullData
     if (first) {
-        pullData.push({ ...first });
+        pullData.push({ ...first })
     }
 
     // Iterate through each option
     for (const rental of options) {
         // Check if the rental id exists in props.form[fieldName]
-        const find = props.form[props.fieldName].find(item => item.rental_id === rental.id);
+        const find = props.form[props.fieldName].find(item => item.rental_id === rental.id)
         // If not found, add the option to pullData
         if (!find) {
-            pullData.push(rental);
+            pullData.push(rental)
         }
     }
     // Return the filtered options
     return pullData
-};
-
-
-
+}
 
 
 onMounted(() => {
@@ -215,11 +231,12 @@ onMounted(() => {
 
 
 </script>
+
+
 <template>
     <div class="flex justify-between py-4">
-        <div>
-            <Button label="Put all rental" type="create" @click="() => onPutAllRentals()" />
-        </div>
+        <Button label="Put all rentals" type="secondary" @click="() => onPutAllRentals()" />
+        
         <div class="flex" v-if="(bulkData.length > 0)">
             <Popover width="w-full" class="relative h-full">
                 <template #button>
@@ -231,7 +248,7 @@ onMounted(() => {
                     <div class="w-[350px]">
                         <div class="text-xs my-2 font-medium">{{ trans('Discount(%)') }}: </div>
                         <PureInput v-model="bulkDiscInput" autofocus placeholder="1-100" type="number" :maxValue="99"
-                            :suffix="true" :minValue="0" @onEnter="() => onBulkDiscAction(closed)">
+                            :suffix="true" :minValue="0" @onEnter="() => onBulkDiscount(closed)">
                             <template #suffix>
                                 <div
                                     class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer hover:opacity-75 active:opacity-100 text-black">
@@ -241,12 +258,12 @@ onMounted(() => {
                         </PureInput>
 
                         <div class="flex justify-end mt-3">
-                            <Button type="save" label="Set All" @click="() => onBulkDiscAction(closed)" />
+                            <Button type="save" label="Set All" @click="() => onBulkDiscount(closed)" />
                         </div>
                     </div>
                 </template>
             </Popover>
-            <Button :key="bulkData.length" label="Delete" :icon='["far", "fa-trash-alt"]'
+            <Button :key="bulkData.length" :label="`Delete (${bulkData.length})`" :icon='["far", "fa-trash-alt"]'
                 :type="bulkData.length > 0 ? 'delete' : 'disabled'" @click="bulkDeleteAction" />
         </div>
     </div>
@@ -258,32 +275,43 @@ onMounted(() => {
                     <thead class="bg-gray-50">
                         <tr>
                             <th scope="col"
-                                class="px-3 py-4  pr-3 text-left text-sm font-semibold text-gray-900  flex justify-center">
+                                class="px-3 py-4  pr-3 text-left text-sm font-semibold  flex justify-center">
                                 <input type="checkbox"
                                     class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600"
                                     :checked="(bulkData.length === props.form[props.fieldName]?.length && props.form[props.fieldName]?.length > 0)"
-                                    @change="selectAll" />
+                                    @change="onSelectAllRows" />
                             </th>
+                            
                             <th scope="col"
-                                class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">
-                                {{ trans('Rental') }}</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                {{ trans('Price') }}</th>
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                {{ trans('Discount (%)') }}</th>
-                            <!-- <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold sm:pl-6 w-full">
+                                {{ trans('Rental') }}
+                            </th>
+                            
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold min-w-40 max-w-64">
+                                {{ trans('Price') }}
+                            </th>
+                            
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold whitespace-nowrap min-w-40 max-w-64">
+                                {{ trans('Discount (%)') }}
+                            </th>
+                            
+                            <!-- <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold">
                                 {{ trans('Agreed Price ($)') }}</th> -->
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
-                                <font-awesome-icon :icon="['fas', 'edit']" />
+                            <th scope="col" class="px-3 py-3.5 text-center text-sm font-semibold min-w-16">
+                                <FontAwesomeIcon icon="fas fa-edit" />
                             </th>
                         </tr>
                     </thead>
+                    
                     <tbody class="divide-y divide-gray-200 bg-white">
                         <tr v-for="(itemData, index) in form[props.fieldName]" :key="itemData.email">
+                            <!-- Column: Selector -->
                             <td class="whitespace-nowrap px-3 py-4 text-sm  text-center">
                                 <input type="checkbox" :id="itemData.id" :value="itemData.id" v-model="bulkData"
                                     class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600" />
                             </td>
+
+                            <!-- Column: Rental name -->
                             <td class="whitespace-nowrap px-3 py-4 text-sm xl:w-[500px] w-full">
                                 <div class="relative xl:w-[500px] w-full">
                                 <div>
@@ -302,22 +330,25 @@ onMounted(() => {
                                 </div>
 
                             </td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm xl:w-[500px] w-full">
+
+                            <!-- Column: Price -->
+                            <td class="whitespace-nowrap px-3 py-4 text-sm w-full">
                                 <Currency v-model="itemData.price" :placeholder="'Input Price'" :currency="currency.code"
                                     :minValue="0" step="0.01"
-                                    @input="(value) => sePriceByChange(value, itemData, index)" />
+                                    @input="(value) => setPriceByChange(value, itemData, index)" />
                                 <p v-if="form.errors[`${fieldName}.${index}.price`]" class="mt-2 text-sm text-red-600"
                                     :id="`${fieldName}-${index}-error`">
                                     {{ form.errors[`${fieldName}.${index}.price`] }}
                                 </p>
                             </td>
-                            <td class="whitespace-nowrap px-3 py-4 text-sm xl:w-[500px] w-full">
+
+                            <!-- Column: Discount -->
+                            <td class="whitespace-nowrap px-3 py-4 text-sm w-full">
                                 <PureInput v-model="itemData.discount" :placeholder="'Input Discount'" type="number"
                                     :maxValue="99" :suffix="true" :minValue="0"
-                                    @input="(value) => sePriceByChange(value, itemData, index)">
+                                    @input="(value) => setPriceByChange(value, itemData, index)">
                                     <template #suffix>
-                                        <div
-                                            class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer hover:opacity-75 active:opacity-100 text-black">
+                                        <div class="flex justify-center items-center px-2 absolute inset-y-0 right-0 text-gray-400">
                                             %
                                         </div>
                                     </template>
@@ -330,16 +361,20 @@ onMounted(() => {
                                     {{ form.errors[`${fieldName}.${index}.agreed_price`] }}
                                 </p>
                             </td> -->
+
+                            <!-- Column: Actions -->
                             <td class="whitespace-nowrap px-3 py-4 text-sm">
-                                <font-awesome-icon :icon="['fas', 'trash']" class="text-red-500"
+                                <!-- <Button label="Reset" type="negative" @click="() => deleteRow(index)" /> -->
+                                <FontAwesomeIcon icon="far fa-trash" class="text-red-400 cursor-pointer hover:text-red-600"
                                     @click="() => deleteRow(index)" />
                             </td>
                         </tr>
                     </tbody>
+                    
                     <tfoot v-if="form[fieldName]?.length != rentals.length || props.form[props.fieldName]?.length == 0">
                         <tr>
-                            <td colspan="4" class="pl-4 py-3 pb-4 text-left text-sm font-semibold text-gray-900">
-                                <Button label="Rental Special Price" type="create" @click="addRow" />
+                            <td colspan="4" class="pl-4 py-3 pb-4 text-left text-sm font-semibold">
+                                <Button label="Add Rental Special Price" type="tertiary" icon="fas fa-plus" @click="addRow" />
                             </td>
                         </tr>
                     </tfoot>
