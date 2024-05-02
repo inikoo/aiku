@@ -29,7 +29,7 @@ class CreatePurchaseOrder extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.procurement.purchase-orders.index',
+                                'name'       => 'grp.org.procurement.purchase-orders.index',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]
