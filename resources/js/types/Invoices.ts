@@ -2,9 +2,10 @@ export interface Calculation {
     profit_amount: number
     margin_percentage: number
     charges: number
-    currency: string
+    // currency: string
     discounts_total: number
     insurance: number
+
     item_gross: number
     items_net: number
     net_amount: number

@@ -672,7 +672,7 @@ watch(selectRow, () => {
                                 <slot v-for="(linkButton, btnIndex) in queryBuilderProps.modelOperations?.createLink"
                                     :name="`button-${kebabCase(linkButton.label)}`"
                                     :linkButton="{...linkButton, btnIndex: btnIndex }">
-                                    <component v-if="linkButton?.route?.name" :is="linkButton.target ? Link : 'a'"
+                                    <component v-if="linkButton?.route?.name" :is="linkButton.target ? 'a' : Link"
                                         as="div"
                                         :target="linkButton.target || undefined"
                                         :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"

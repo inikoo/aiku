@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { capitalize } from '@/Composables/capitalize'
-import { Link } from '@inertiajs/vue3'
+import { Link, usePage } from '@inertiajs/vue3'
 import { trans } from 'laravel-vue-i18n'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faIdCardAlt, faMapMarkedAlt, faPhone } from '@fal'
@@ -9,13 +9,17 @@ import BoxStatsPalletDelivery from '@/Components/Pallet/BoxStatsPalletDelivery.v
 import FulfilmentInvoiceCalculation from "@/Components/Fulfilment/FulfilmentInvoiceCalculation.vue"
 import { Calculation, ProductTransaction } from '@/types/Invoices'
 import { routeType } from '@/types/route'
+import Table from '@/Components/Table/Table.vue'
+import { useLocaleStore } from '@/Stores/locale'
+
+const locale = useLocaleStore()
 
 library.add(faIdCardAlt, faMapMarkedAlt, faPhone)
 
 
 const props = defineProps<{
     data: {
-        calculation: Calculation 
+        invoice_information: Calculation 
         currency: string
         customer: {
             company_name: string
@@ -33,132 +37,163 @@ const props = defineProps<{
     }
 }>()
 
-// console.log('Invoice Showcase', props.data)
+const boxInvoiceInformation = [
+    [
+        {
+            name: "item_gross",
+            label: "Item gross",
+            value: props.data.invoice_information.item_gross
+        },
+        {
+            name: "discounts",
+            label: "Discounts",
+            value: props.data.invoice_information.discounts_total
+        },
+        {
+            name: "items_net",
+            label: "Items net",
+            value: props.data.invoice_information.items_net
+        },
+        {
+            name: "charges",
+            label: "Charges",
+            value: props.data.invoice_information.charges
+        },
+        {
+            name: "shipping",
+            label: "Shipping",
+            value: props.data.invoice_information.shipping
+        },
+        {
+            name: "insurance",
+            label: "Insurance",
+            value: props.data.invoice_information.insurance
+        },
+    ],
+    [
+        {
+            name: "total_net",
+            label: "Total net",
+            value: props.data.invoice_information.net_amount
+        },
+        {
+            name: "tax",
+            label: "Tax",
+            value: props.data.invoice_information.tax_amount
+        },
+    ],
+    [
+        {
+            name: "total",
+            label: "Total",
+            value: props.data.invoice_information.total_amount
+        },
+    ]
+]
+
+console.log('Invoice Showcase', props.data)
 
 </script>
 
 <template>
-    <div class="h-min grid grid-cols-4 border-b border-gray-200 divide-x divide-gray-300">
-        <!-- Section Calculation -->
-        <div class="col-span-3 py-3">
-            <FulfilmentInvoiceCalculation :pdfRoute="data.exportPdfRoute" :dataCalculations="data.calculation" :dataTable="data.items.data" />
+    <!-- <pre>{{ usePage().props }}</pre> -->
+    <div class="h-min   ">
+        <div class="grid grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
+            <!-- Box: Customer -->
+            <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" :tooltip="trans('Customer')" icon="fal fa-user">
+                <!-- Field: Registration Number -->
+                <Link as="a" v-if="data.customer.reference"
+                    :href="'#'"
+                    class="flex items-center w-fit flex-none gap-x-2 cursor-pointer specialUnderlineSecondary">
+                    <dt v-tooltip="'Company name'" class="flex-none">
+                        <span class="sr-only">Registration number</span>
+                        <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
+                            aria-hidden='true' />
+                    </dt>
+                    <dd class="text-xs text-gray-500">#{{ data.customer.reference }}</dd>
+                </Link>
+                <!-- Field: Contact name -->
+                <div v-if="data.customer.contact_name"
+                    class="flex items-center w-full flex-none gap-x-2">
+                    <dt v-tooltip="'Contact name'" class="flex-none">
+                        <span class="sr-only">Contact name</span>
+                        <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width
+                            aria-hidden='true' />
+                    </dt>
+                    <dd class="text-xs text-gray-500">{{ data.customer.contact_name }}</dd>
+                </div>
+                <!-- Field: Company name -->
+                <div v-if="data.customer.company_name"
+                    class="flex items-center w-full flex-none gap-x-2">
+                    <dt v-tooltip="'Company name'" class="flex-none">
+                        <span class="sr-only">Company name</span>
+                        <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width
+                            aria-hidden='true' />
+                    </dt>
+                    <dd class="text-xs text-gray-500">{{ data.customer.company_name }}</dd>
+                </div>
+                <!-- Field: Tax number -->
+                <!-- <div v-if="data.customer.tax_number"
+                    class="flex items-center w-full flex-none gap-x-2">
+                    <dt v-tooltip="'Email'" class="flex-none">
+                        <span class="sr-only">Tax Number</span>
+                        <FontAwesomeIcon icon='fal fa-passport' size="xs" class='text-gray-400' fixed-width
+                            aria-hidden='true' />
+                    </dt>
+                    <dd class="text-xs text-gray-500">{{ data.customer.tax_number }}</dd>
+                </div> -->
+                <!-- Field: Location -->
+                <div v-if="data.customer.location"
+                    class="flex items-center w-full flex-none gap-x-2">
+                    <dt v-tooltip="'Email'" class="flex-none">
+                        <span class="sr-only">Location</span>
+                        <FontAwesomeIcon icon='fal fa-map-marked-alt' size="xs" class='text-gray-400' fixed-width
+                            aria-hidden='true' />
+                    </dt>
+                    <dd class="text-xs text-gray-500">{{ data.customer.location.join(', ') }}</dd>
+                </div>
+                <!-- Field: Phone -->
+                <div v-if="data.customer.phone"
+                    class="flex items-center w-full flex-none gap-x-2">
+                    <dt v-tooltip="'Phone'" class="flex-none">
+                        <span class="sr-only">Phone</span>
+                        <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width
+                            aria-hidden='true' />
+                    </dt>
+                    <dd class="text-xs text-gray-500">{{ data.customer.phone }}</dd>
+                </div>
+            </BoxStatsPalletDelivery>
+
+            <!-- Section: Invoice Information (looping) -->
+            <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" :tooltip="trans('Invoice information')">
+                <div class="pt-1 text-gray-500">
+                    <template v-for="invoiceGroup in boxInvoiceInformation">
+                        <div class="space-y-1">
+                            <div v-for="invoice in invoiceGroup" class="flex justify-between"
+                                :class="invoice.label == 'Total' ? 'font-semibold' : ''"
+                            >
+                                <div>{{ invoice.label }} <span v-if="invoice.label == 'Tax'" class="text-sm text-gray-400">(VAT {{data.invoice_information.tax_percentage || 0}}%)</span></div>
+                                <div>{{ locale.currencyFormat(data.currency, invoice.value || 0) }}</div>
+                            </div>
+                        </div>
+                        <hr class="last:hidden my-1.5 border-gray-300">
+                    </template>
+                </div>
+            </BoxStatsPalletDelivery>
         </div>
 
-        <!-- Box: Customer -->
-        <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" :tooltip="trans('Customer')" icon="fal fa-user">
-            <!-- Field: Registration Number -->
-            <Link as="a" v-if="data.customer.reference"
-                :href="'#'"
-                class="flex items-center w-fit flex-none gap-x-2 cursor-pointer specialUnderlineSecondary">
-                <dt v-tooltip="'Company name'" class="flex-none">
-                    <span class="sr-only">Registration number</span>
-                    <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">#{{ data.customer.reference }}</dd>
-            </Link>
+        <!-- Section Calculation -->
+        <div class="rounded-md">
+            <Table :data="data.items.data" name="items" />
+            <!-- For Retina -->
+            <!-- <FulfilmentInvoiceCalculation :pdfRoute="data.exportPdfRoute" :dataCalculations="data.calculation" :dataTable="data.items.data" /> -->
+        </div>
 
-            <!-- Field: Contact name -->
-            <div v-if="data.customer.contact_name"
-                class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Contact name'" class="flex-none">
-                    <span class="sr-only">Contact name</span>
-                    <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ data.customer.contact_name }}</dd>
-            </div>
-
-            <!-- Field: Company name -->
-            <div v-if="data.customer.company_name"
-                class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Company name'" class="flex-none">
-                    <span class="sr-only">Company name</span>
-                    <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ data.customer.company_name }}</dd>
-            </div>
-
-            <!-- Field: Tax number -->
-            <!-- <div v-if="data.customer.tax_number"
-                class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Email'" class="flex-none">
-                    <span class="sr-only">Tax Number</span>
-                    <FontAwesomeIcon icon='fal fa-passport' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ data.customer.tax_number }}</dd>
-            </div> -->
-
-            <!-- Field: Location -->
-            <div v-if="data.customer.location"
-                class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Email'" class="flex-none">
-                    <span class="sr-only">Location</span>
-                    <FontAwesomeIcon icon='fal fa-map-marked-alt' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ data.customer.location.join(', ') }}</dd>
-            </div>
-
-            <!-- Field: Phone -->
-            <div v-if="data.customer.phone"
-                class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Phone'" class="flex-none">
-                    <span class="sr-only">Phone</span>
-                    <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ data.customer.phone }}</dd>
-            </div>
-        </BoxStatsPalletDelivery>
+        
 
         <!-- TODO: Order link, Category, Date -->
         <!-- Box: Invoice Information -->
-        <!-- <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" :tooltip="trans('Invoice informatino')"
-            icon="fal fa-truck-couch">
-            <div class="pt-1">
-                <div class="space-y-1">
-                    <div class="flex justify-between">
-                        <div>Items net</div>
-                        <div>68.50</div>
-                    </div>
-                    <div class="flex justify-between">
-                        <div>Charges</div>
-                        <div>68.50</div>
-                    </div>
-                    <div class="flex justify-between">
-                        <div>Shipping</div>
-                        <div>68.50</div>
-                    </div>
-                    <div class="flex justify-between">
-                        <div>Insurance</div>
-                        <div>68.50</div>
-                    </div>
-                </div>
-
-                <hr class="my-1.5 border-gray-300">
-
-                <div class="space-y-1">
-                    <div class="flex justify-between">
-                        <div>Total net</div>
-                        <div>68.50</div>
-                    </div>
-                    <div class="flex justify-between">
-                        <div>Tax <span class="text-sm text-gray-400">(VAT 20%)</span></div>
-                        <div>68.50</div>
-                    </div>
-                </div>
-
-                <hr class="my-1.5 border-gray-300">
-
-                <div class="flex justify-between font-bold">
-                    <div class="">Total</div>
-                    <div>68.50</div>
-                </div>
-            </div>
-        </BoxStatsPalletDelivery> -->
+        
 
         <!-- Box: Calculation -->
         <!-- <BoxStatsPalletDelivery class="col-span-2 py-5 px-3">
