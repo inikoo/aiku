@@ -58,7 +58,7 @@ class UpdateProfile
     {
         return [
             'password'    => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-            'email'       => 'sometimes|required|email|unique:App\Models\SysAdmin\User,email',
+            'email'       => 'sometimes|required|email|unique:App\Models\SysAdmin\User,email,' . request()->user()->id,
             'about'       => ['sometimes', 'nullable', 'string', 'max:255'],
             'language_id' => ['sometimes', 'required', 'exists:languages,id'],
             'app_theme'   => ['sometimes', 'required'],
