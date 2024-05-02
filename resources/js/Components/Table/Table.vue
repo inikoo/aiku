@@ -672,14 +672,17 @@ watch(selectRow, () => {
                                 <slot v-for="(linkButton, btnIndex) in queryBuilderProps.modelOperations?.createLink"
                                     :name="`button-${kebabCase(linkButton.label)}`"
                                     :linkButton="{...linkButton, btnIndex: btnIndex }">
-                                    <Link v-if="linkButton?.route?.name" as="div"
+                                    <component v-if="linkButton?.route?.name" :is="linkButton.target ? Link : 'a'"
+                                        as="div"
+                                        :target="linkButton.target || undefined"
                                         :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
-                                        :method="linkButton.route?.method || 'get'" v-tooltip="linkButton.tooltip"
+                                        :method="linkButton.route?.method || 'get'"
+                                        v-tooltip="linkButton.tooltip"
                                         :class="[queryBuilderProps.modelOperations?.createLink.length > 1 ? 'first:rounded-l last:rounded-r' : '']">
-                                    <Button :style="linkButton.style" :icon="linkButton.icon" :label="linkButton.label"
-                                        size="l" class="h-full border-none rounded-none"
-                                        :class="{'rounded-l-md': btnIndex === 0, 'rounded-r-md ': btnIndex === queryBuilderProps.modelOperations?.createLink.length - 1}" />
-                                    </Link>
+                                        <Button :style="linkButton.style" :icon="linkButton.icon" :label="linkButton.label"
+                                            size="l" class="h-full border-none rounded-none"
+                                            :class="{'rounded-l-md': btnIndex === 0, 'rounded-r-md ': btnIndex === queryBuilderProps.modelOperations?.createLink.length - 1}" />
+                                    </component>
                                 </slot>
                             </div>
                             <div v-if="queryBuilderProps.modelOperations?.bulk" class="flex">
