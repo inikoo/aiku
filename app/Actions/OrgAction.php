@@ -28,12 +28,12 @@ class OrgAction
     protected Fulfilment $fulfilment;
     protected Warehouse $warehouse;
 
-    protected bool $asAction       = false;
-    protected bool $canEdit        = false;
-    protected bool $canDelete      = false;
-    protected bool $isSupervisor   = false;
-    public int $hydratorsDelay     = 0;
-    private bool $strict           = true;
+    protected bool $asAction         = false;
+    protected bool $canEdit          = false;
+    protected bool $canDelete        = false;
+    protected bool $isSupervisor     = false;
+    public int $hydratorsDelay       = 0;
+    protected bool $strict           = true;
 
     protected array $validatedData;
 

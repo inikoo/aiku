@@ -209,6 +209,8 @@ class FetchAction
         if ($command->option('source_id')) {
             $this->handle($this->organisationSource, $command->option('source_id'));
             UpdateFetch::run($this->organisationSource->fetch, ['number_items' => 1]);
+
+
         } else {
             $numberItems = $this->count() ?? 0;
             UpdateFetch::run($this->organisationSource->fetch, ['number_items' => $numberItems]);

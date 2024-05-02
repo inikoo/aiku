@@ -7,10 +7,15 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStateEnum;
-use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStatusEnum;
+use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
+use App\Actions\SourceFetch\Aurora\FetchAuroraDeletedSuppliers;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
+use App\Models\Assets\Currency;
 use App\Models\Helpers\Address;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class FetchAuroraPurchaseOrder extends FetchAurora
 {
@@ -23,14 +28,33 @@ class FetchAuroraPurchaseOrder extends FetchAurora
         //todo deal with inter group supplier products
 
 
+        if ($this->auroraModelData->{'Purchase Order Parent'} == 'Agent') {
+            $agentData = DB::connection("aurora")
+                ->table("Agent Dimension")
+                ->where("Agent Key", $this->auroraModelData->{'Purchase Order Parent Key'})
+                ->first();
 
+            $agentSourceSlug = Str::kebab(strtolower($agentData->{'Agent Code'}));
+            $parent          = $this->parseAgent(
+                $agentSourceSlug,
+                $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Parent Key'}
+            );
+        } else {
+            $supplierData = DB::connection("aurora")
+                ->table("Supplier Dimension")
+                ->where("Supplier Key", $this->auroraModelData->{'Purchase Order Parent Key'})
+                ->first();
 
-        $parent = match ($this->auroraModelData->{'Purchase Order Parent'}) {
-            'Agent' => $this->parseAgent($this->auroraModelData->{'Purchase Order Parent Key'}),
-            default => $this->parseSupplier($this->auroraModelData->{'Purchase Order Parent Key'})
-        };
-
-
+            if ($supplierData) {
+                $supplierSourceSlug = Str::kebab(strtolower($supplierData->{'Supplier Code'}));
+                $parent             = $this->parseSupplier(
+                    $supplierSourceSlug,
+                    $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Parent Key'}
+                );
+            } else {
+                $parent = FetchAuroraDeletedSuppliers::run($this->organisationSource, $this->auroraModelData->{'Purchase Order Parent Key'});
+            }
+        }
 
 
         //enum('Cancelled','NoReceived','InProcess','Submitted',
@@ -43,22 +67,22 @@ class FetchAuroraPurchaseOrder extends FetchAurora
 
         //print ">>".$this->auroraModelData->{'Purchase Order State'}."\n";
         $state = match ($this->auroraModelData->{'Purchase Order State'}) {
-            "Cancelled", "NoReceived", "Placed", "Costing", "InvoiceChecked" => PurchaseOrderItemStateEnum::SETTLED,
-            "InProcess" => PurchaseOrderItemStateEnum::CREATING,
-            "Confirmed" => PurchaseOrderItemStateEnum::CONFIRMED,
-            "Manufactured", "QC_Pass" => PurchaseOrderItemStateEnum::MANUFACTURED,
+            "Cancelled", "NoReceived", "Placed", "Costing", "InvoiceChecked" => PurchaseOrderStateEnum::SETTLED,
+            "InProcess" => PurchaseOrderStateEnum::CREATING,
+            "Confirmed" => PurchaseOrderStateEnum::CONFIRMED,
+            "Manufactured", "QC_Pass" => PurchaseOrderStateEnum::MANUFACTURED,
 
-            "Inputted", "Dispatched" => PurchaseOrderItemStateEnum::DISPATCHED,
-            "Received"  => PurchaseOrderItemStateEnum::RECEIVED,
-            "Checked"   => PurchaseOrderItemStateEnum::CHECKED,
-            "Submitted" => PurchaseOrderItemStateEnum::SUBMITTED,
+            "Inputted", "Dispatched" => PurchaseOrderStateEnum::DISPATCHED,
+            "Received"  => PurchaseOrderStateEnum::RECEIVED,
+            "Checked"   => PurchaseOrderStateEnum::CHECKED,
+            "Submitted" => PurchaseOrderStateEnum::SUBMITTED,
         };
 
         $status = match ($this->auroraModelData->{'Purchase Order State'}) {
-            "Placed", "Costing", "InvoiceChecked" => PurchaseOrderItemStatusEnum::PLACED,
-            "NoReceived" => PurchaseOrderItemStatusEnum::FAIL,
-            "Cancelled"  => PurchaseOrderItemStatusEnum::CANCELLED,
-            default      => PurchaseOrderItemStatusEnum::PROCESSING,
+            "Placed", "Costing", "InvoiceChecked" => PurchaseOrderStatusEnum::PLACED,
+            "NoReceived" => PurchaseOrderStatusEnum::FAIL,
+            "Cancelled"  => PurchaseOrderStatusEnum::CANCELLED,
+            default      => PurchaseOrderStatusEnum::PROCESSING,
         };
 
 
@@ -66,6 +90,15 @@ class FetchAuroraPurchaseOrder extends FetchAurora
         if ($this->auroraModelData->{'Purchase Order State'} == "Cancelled") {
             $cancelled_at = $this->auroraModelData->{'Purchase Order Cancelled Date'};
         }
+
+
+        $org_exchange = $this->auroraModelData->{'Purchase Order Currency Exchange'};
+
+        $group_exchange = GetHistoricCurrencyExchange::run(
+            Currency::find($this->parseCurrencyID($this->auroraModelData->{'Purchase Order Currency Code'})),
+            $this->organisation->group->currency,
+            Carbon::parse($this->auroraModelData->{'Purchase Order Date'})
+        );
 
 
         $data = [];
@@ -89,12 +122,13 @@ class FetchAuroraPurchaseOrder extends FetchAurora
 
             "cost_total" => $this->auroraModelData->{'Purchase Order Total Amount'},
 
-            "source_id"    => $this->auroraModelData->{'Purchase Order Key'},
-            "exchange"     => $this->auroraModelData->{'Purchase Order Currency Exchange'},
-            "currency_id"  => $this->parseCurrencyID($this->auroraModelData->{'Purchase Order Currency Code'}),
-            "created_at"   => $this->auroraModelData->{'Purchase Order Creation Date'},
-            "cancelled_at" => $cancelled_at,
-            "data"         => $data
+            "source_id"      => $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Key'},
+            "org_exchange"   => $org_exchange,
+            "group_exchange" => $group_exchange,
+            "currency_id"    => $this->parseCurrencyID($this->auroraModelData->{'Purchase Order Currency Code'}),
+            "created_at"     => $this->auroraModelData->{'Purchase Order Creation Date'},
+            "cancelled_at"   => $cancelled_at,
+            "data"           => $data
         ];
 
         $deliveryAddressData                  = $this->parseAddress(
