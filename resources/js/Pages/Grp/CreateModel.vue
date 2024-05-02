@@ -238,64 +238,48 @@ const onSelectSubmitChange = (value) => {
                         </div>
                     </div>
                 </template>
+                
                 <!-- Button -->
-                <div class="pt-5 border-t-2 border-orange-500">
-                    <div class="flex justify-end">
-                        <Button v-if="!formData.submitButton" type="submit" :disabled="form.processing"
-                            :style="'primary'" size="m" icon="fas fa-save" @click="handleFormSubmit">
-                            {{ trans('Save') }}
+                <div class="pt-5 flex justify-end">
+                    <Button v-if="!formData.submitButton" type="submit" :disabled="form.processing"
+                        :style="'primary'" size="m" icon="fas fa-save" @click="handleFormSubmit">
+                        {{ trans('Save') }}
+                    </Button>
+
+                    <div v-else-if="formData.submitButton == 'dropdown'" class="flex justify-center">
+                        <Button :key="ButtonActive.key" type="submit" :disabled="form.processing"
+                            class="rounded-r-none border-none"
+                            :style="'primary'" size="m" @click="handleFormSubmit">
+                            {{ ButtonActive.label }}
                         </Button>
 
-                      
+                        <Menu as="div" class="relative inline-block text-left">
+                            <MenuButton as="template">
+                                <Button icon="fas fa-chevron-down" :disabled="form.processing" class="rounded-l-none border-none" :style="'tertiary'" size="l" />
+                            </MenuButton>
 
-                        <div v-else-if="formData.submitButton == 'dropdown'" class="flex justify-center">
-                            <Button :key="ButtonActive.key" type="submit" :disabled="form.processing"
-                                class="capitalize inline-flex items-center h-full rounded-r-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
-                                :style="'primary'" size="m" @click="handleFormSubmit">
-                                {{ ButtonActive.label }}
-                            </Button>
-                            <Menu as="div" class="relative inline-block text-left">
-                                    <MenuButton  as="template">
-                                        <Button :icon="['fas', 'chevron-down']" :disabled="form.processing"
-                                            class="capitalize inline-flex items-center h-full rounded-l-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
-                                            :style="'primary'" size="l">
-                                        </Button>
-                                    </MenuButton>
-
-
-                                    <transition 
-                                        enter-active-class="transition duration-100 ease-out"
-                                        enter-from-class="transform scale-95 opacity-0"
-                                        enter-to-class="transform scale-100 opacity-100"
-                                        leave-active-class="transition duration-75 ease-in"
-                                        leave-from-class="transform scale-100 opacity-100"
-                                        leave-to-class="transform scale-95 opacity-0">
-                                        <MenuItems
-                                            class="absolute top-[-90px] right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
-                                            <div class="px-1 py-1">
-                                            <div v-for="(item, index) in formData.route">
-                                                <MenuItem >
-                                                <div :class="[
-                                                    'text-gray-900',
-                                                    'group flex w-full items-center rounded-md px-2 py-2 text-sm',
-                                                
-                                                ]" @click="()=>onSelectSubmitChange(item)">
-                                                    {{ item.label }}
-                                                </div>
-                                                </MenuItem>
+                            <transition enter-active-class="transition duration-100 ease-out"
+                                enter-from-class="transform scale-95 opacity-0"
+                                enter-to-class="transform scale-100 opacity-100"
+                                leave-active-class="transition duration-75 ease-in"
+                                leave-from-class="transform scale-100 opacity-100"
+                                leave-to-class="transform scale-95 opacity-0">
+                                <MenuItems
+                                    class="absolute top-[-90px] right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                                    <div class="px-1 py-1">
+                                        <div v-for="(item, index) in formData.route">
+                                            <MenuItem>
+                                            <div class="hover:bg-gray-50 group flex w-full items-center rounded-md px-2 py-2 text-sm cursor-pointer" @click="() => onSelectSubmitChange(item)">
+                                                {{ item.label }}
                                             </div>
-                                            </div>
-                                        </MenuItems>
-                                        </transition>
-
-                            </Menu>
-
-                        </div>
-
-
+                                            </MenuItem>
+                                        </div>
+                                    </div>
+                                </MenuItems>
+                            </transition>
+                        </Menu>
                     </div>
                 </div>
-
             </form>
         </div>
     </div>

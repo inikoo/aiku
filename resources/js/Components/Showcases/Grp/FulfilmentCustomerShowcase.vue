@@ -63,7 +63,7 @@ const props = defineProps<{
     tab: string
 }>()
 
-console.log(props.data)
+// console.log(props.data)
 
 // Tabs radio: v-model
 const radioValue = ref<string[]>(Object.keys(props.data.fulfilment_customer.radioTabs).filter(key => props.data.fulfilment_customer.radioTabs[key]))
@@ -192,7 +192,7 @@ const isLoadingButtonRentalAgreement = ref(false)
 
                     <div class="flex flex-col">
                         <div class="text-sm text-gray-500">{{ trans('Pallet Limit') }}:</div>
-                        <div class="font-semibold text-xl text-gray-600">{{ data.rental_agreement.stats?.data.pallets_limit }}</div>
+                        <div class="font-semibold text-xl text-gray-600">{{ data.rental_agreement.stats?.data.pallets_limit || trans('No limit') }}</div>
                     </div>
                 </div>
                 

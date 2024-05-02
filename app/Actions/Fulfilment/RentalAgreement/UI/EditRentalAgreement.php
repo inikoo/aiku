@@ -66,10 +66,11 @@ class EditRentalAgreement extends OrgAction
                                         'value'      => $rentalAgreement->billing_cycle
                                     ],
                                     'pallets_limit' => [
-                                        'type'     => 'input',
-                                        'label'    => __('pallets limit'),
-                                        'required' => false,
-                                        'value'    => $rentalAgreement->pallets_limit
+                                        'type'        => 'input',
+                                        'label'       => __('pallets limit'),
+                                        'placeholder' => '0',
+                                        'required'    => false,
+                                        'value'       => $rentalAgreement->pallets_limit
                                     ],
                                     'rental' => [
                                         'type'             => 'rental',
