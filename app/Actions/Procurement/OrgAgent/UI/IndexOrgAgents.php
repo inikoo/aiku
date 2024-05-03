@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\OrgAgent\UI;
 
-use App\Actions\OrgAction;
+use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\Procurement\OrgAgentTabsEnum;
 use App\Http\Resources\Procurement\AgentResource;
@@ -23,7 +23,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexOrgAgents extends OrgAction
+class IndexOrgAgents extends InertiaAction
 {
     public function handle(Organisation $organisation, $prefix = null): LengthAwarePaginator
     {
@@ -94,12 +94,12 @@ class IndexOrgAgents extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
 
         return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
     }
 
-    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($organisation, $request)->withTab(OrgAgentTabsEnum::values());
 
@@ -116,7 +116,7 @@ class IndexOrgAgents extends OrgAction
     public function htmlResponse(LengthAwarePaginator $agents, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Procurement/OrgAgents',
+            'Procurement/Agents',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('agents'),

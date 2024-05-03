@@ -9,6 +9,7 @@
 use App\Actions\Procurement\OrgAgent\UI\EditOrgAgent;
 use App\Actions\Procurement\OrgAgent\UI\IndexOrgAgents;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
+use App\Actions\Procurement\OrgSupplier\UI\IndexOrgSuppliers;
 use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\CreatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\EditPurchaseOrder;
@@ -38,7 +39,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', ProcurementDashboard::class)->name('dashboard');
 
-//Route::get('/suppliers/export', ExportSuppliers::class)->name('suppliers.export');
+Route::get('/suppliers/export', ExportSuppliers::class)->name('suppliers.export');
 
 Route::get('/suppliers', IndexSuppliers::class)->name('suppliers.index');
 //Route::get('/suppliers/{supplier}', ShowSupplier::class)->name('suppliers.show');

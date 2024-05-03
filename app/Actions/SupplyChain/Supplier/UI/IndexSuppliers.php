@@ -7,7 +7,7 @@
 
 namespace App\Actions\SupplyChain\Supplier\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\InertiaTable\InertiaTable;
@@ -23,8 +23,13 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexSuppliers extends InertiaAction
+class IndexSuppliers extends OrgAction
 {
+    /**
+     * @var array|array[]
+     */
+    private array $elementGroups;
+
     protected function getSupplierElementGroups(Organisation|Agent $parent): void
     {
         $this->elementGroups =
@@ -58,9 +63,6 @@ class IndexSuppliers extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $parent->suppliers()->count();
-
-
         $queryBuilder = QueryBuilder::for(Supplier::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -84,8 +86,8 @@ class IndexSuppliers extends InertiaAction
                     $query->addSelect('agents.name as agent_name');
                 } else {
                     $query ->leftJoin('org_suppliers', 'suppliers.id', 'org_suppliers.supplier_id');
-                    $query->where('suppliers.owner_type', 'Organisation');
-                    $query->where('org_suppliers.organisation_id', app('currentTenant')->id);
+                    // $query->where('suppliers.owner_type', 'Organisation');
+                    $query->where('org_suppliers.organisation_id', $this->organisation->id);
 
                 }
             })
@@ -118,7 +120,7 @@ class IndexSuppliers extends InertiaAction
                     [
                         'title'       => __('no suppliers'),
                         'description' => $this->canEdit ? __('Get started by creating a new supplier.') : null,
-                        'count'       => app('currentTenant')->inventoryStats->number_warehouse_areas,
+                        'count'       => $this->organisation->inventoryStats->number_warehouse_areas,
                         'action'      => $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -126,7 +128,7 @@ class IndexSuppliers extends InertiaAction
                             'label'   => __('supplier'),
                             'route'   => [
                                 'name'       => 'grp.procurement.suppliers.create',
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'parameters' => array_values(request()->route()->originalParameters())
                             ]
                         ] : null
                     ]
@@ -142,26 +144,28 @@ class IndexSuppliers extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('procurement.suppliers.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
 
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('procurement.view')
+                $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view")
             );
     }
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
-        $this->getSupplierElementGroups(app('currentTenant'));
-        return $this->handle(app('currentTenant'));
+        $this->initialisation($organisation, $request);
+        $this->getSupplierElementGroups($organisation);
+
+        return $this->handle($organisation);
     }
 
-    public function inAgent(Agent $agent, ActionRequest $request): LengthAwarePaginator
+    public function inAgent(Organisation $organisation, Agent $agent, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
         $this->getSupplierElementGroups($agent);
+
         return $this->handle($agent);
     }
 
@@ -170,13 +174,12 @@ class IndexSuppliers extends InertiaAction
         return SupplierResource::collection($suppliers);
     }
 
-
-    public function htmlResponse(LengthAwarePaginator $suppliers): Response
+    public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request): Response
     {
         return Inertia::render(
             'Procurement/Suppliers',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('suppliers'),
                 'pageHead'    => [
                     'title' => __('suppliers'),
@@ -188,11 +191,11 @@ class IndexSuppliers extends InertiaAction
         )->table($this->tableStructure());
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
         return
             array_merge(
-                ProcurementDashboard::make()->getBreadcrumbs(),
+                ProcurementDashboard::make()->getBreadcrumbs($routeParameters),
                 [
                     [
                         'type'   => 'simple',
