@@ -263,6 +263,7 @@ class Shop extends Model
         return $this->belongsToMany(OrgPaymentServiceProvider::class)->using(OrgPaymentServiceProviderShop::class)
             ->withTimestamps();
     }
+
     public function paymentAccounts(): BelongsToMany
     {
         return $this->belongsToMany(PaymentAccount::class)->using(PaymentAccountShop::class)
