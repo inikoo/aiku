@@ -116,7 +116,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \App\Models\Market\Product> $products
  * @property-read LaravelCollection<int, Prospect> $prospects
  * @property-read LaravelCollection<int, Role> $roles
- * @property-read \App\Models\Market\ShopSalesDashboard|null $salesStats
+ * @property-read \App\Models\Market\ShopSalesIntervals|null $salesIntervals
  * @property-read SenderEmail|null $senderEmail
  * @property-read LaravelCollection<int, SerialReference> $serialReferences
  * @property-read LaravelCollection<int, \App\Models\Market\ShippingZoneSchema> $shippingZoneSchemas
@@ -178,9 +178,9 @@ class Shop extends Model
         return $this->hasOne(ShopCRMStats::class);
     }
 
-    public function salesStats(): HasOne
+    public function salesIntervals(): HasOne
     {
-        return $this->hasOne(ShopSalesDashboard::class);
+        return $this->hasOne(ShopSalesIntervals::class);
     }
 
     public function stats(): HasOne
@@ -272,7 +272,9 @@ class Shop extends Model
 
     public function accounts(): PaymentAccount
     {
-        return $this->paymentAccounts()->where('shop_id', $this->id)->where('type', PaymentAccountTypeEnum::ACCOUNT)->first();
+        /** @var PaymentAccount $paymentAccount */
+        $paymentAccount= $this->paymentAccounts()->where('shop_id', $this->id)->where('type', PaymentAccountTypeEnum::ACCOUNT)->first();
+        return $paymentAccount;
     }
 
     public function outboxes(): HasMany

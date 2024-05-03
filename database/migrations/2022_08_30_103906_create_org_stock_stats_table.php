@@ -6,14 +6,14 @@
  */
 
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
-use App\Stubs\Migrations\HasSalesStats;
+use App\Stubs\Migrations\HasSalesIntervals;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasGroupOrganisationRelationship;
-    use HasSalesStats;
+    use HasSalesIntervals;
 
     public function up(): void
     {
@@ -26,7 +26,7 @@ return new class () extends Migration {
 
             $table->unsignedSmallInteger('number_locations')->default(0);
 
-            $table=$this->salesStats($table, ['shop_amount','org_amount','group_amount']);
+            $table=$this->salesIntervalFields($table, ['shop_amount', 'org_amount', 'group_amount']);
 
             $table->timestampsTz();
         });

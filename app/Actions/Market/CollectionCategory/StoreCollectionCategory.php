@@ -32,7 +32,7 @@ class StoreCollectionCategory extends OrgAction
         $collectionCategory = $shop->collectionCategories()->create($modelData);
 
         $collectionCategory->stats()->create();
-        $collectionCategory->salesStats()->create();
+        $collectionCategory->salesIntervals()->create();
 
         CollectionCategoryHydrateUniversalSearch::dispatch($collectionCategory);
         OrganisationHydrateCollectionCategories::dispatch($collectionCategory->organisation)->delay($this->hydratorsDelay);

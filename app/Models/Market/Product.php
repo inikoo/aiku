@@ -86,7 +86,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Market\Outer> $outers
  * @property-read Rental|null $rental
- * @property-read \App\Models\Market\ProductSalesStats|null $salesStats
+ * @property-read \App\Models\Market\ProductSalesIntervals|null $salesStats
  * @property-read \App\Models\Market\Service|null $service
  * @property-read \App\Models\Market\Shop|null $shop
  * @property-read \App\Models\Market\ProductStats|null $stats
@@ -152,9 +152,9 @@ class Product extends Model implements HasMedia
         )->withPivot(['units_per_main_outer', 'notes'])->withTimestamps();
     }
 
-    public function salesStats(): HasOne
+    public function salesIntervals(): HasOne
     {
-        return $this->hasOne(ProductSalesStats::class);
+        return $this->hasOne(ProductSalesIntervals::class);
     }
 
     public function historicOuters(): HasMany

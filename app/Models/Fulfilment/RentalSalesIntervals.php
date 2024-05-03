@@ -1,20 +1,20 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 16 Apr 2024 16:46:17 Malaysia Time, Kuala Lumpur , Malaysia
+ * Created: Sat, 27 Apr 2024 08:55:35 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Market;
+namespace App\Models\Fulfilment;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\Market\ServiceSalesStats
+ * App\Models\Market\RentalSalesIntervals
  *
  * @property int $id
- * @property int $service_id
+ * @property int $rental_id
  * @property int $number_orders
  * @property int $number_orders_state_creating
  * @property int $number_orders_state_submitted
@@ -136,18 +136,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Market\Service $service
- * @method static \Illuminate\Database\Eloquent\Builder|ServiceSalesStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ServiceSalesStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ServiceSalesStats query()
+ * @property-read \App\Models\Fulfilment\Rental|null $service
+ * @method static \Illuminate\Database\Eloquent\Builder|RentalSalesIntervals newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|RentalSalesIntervals newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|RentalSalesIntervals query()
  * @mixin \Eloquent
  */
-class ServiceSalesStats extends Model
+class RentalSalesIntervals extends Model
 {
     protected $guarded = [];
 
     public function service(): BelongsTo
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsTo(Rental::class);
     }
 }

@@ -59,7 +59,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $parent
  * @property-read Collection<int, \App\Models\Market\Product> $products
- * @property-read \App\Models\Market\ProductCategorySalesStats|null $salesStats
+ * @property-read \App\Models\Market\ProductCategorySalesIntervals|null $salesStats
  * @property-read \App\Models\Market\Shop|null $shop
  * @property-read \App\Models\Market\ProductCategoryStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
@@ -122,9 +122,9 @@ class ProductCategory extends Model implements Auditable
         return $this->hasOne(ProductCategoryStats::class);
     }
 
-    public function salesStats(): HasOne
+    public function salesIntervals(): HasOne
     {
-        return $this->hasOne(ProductCategorySalesStats::class);
+        return $this->hasOne(ProductCategorySalesIntervals::class);
     }
 
     public function parent(): MorphTo

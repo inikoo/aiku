@@ -10,11 +10,11 @@ namespace App\Stubs\Migrations;
 use App\Enums\OMS\Order\OrderStateEnum;
 use Illuminate\Database\Schema\Blueprint;
 
-trait HasSalesStats
+trait HasSalesIntervals
 {
     use HasDateIntervalsStats;
 
-    public function salesStats(Blueprint $table, $dateIntervals): Blueprint
+    public function salesIntervalFields(Blueprint $table, $dateIntervals): Blueprint
     {
         $table->unsignedInteger('number_orders')->default(0);
 

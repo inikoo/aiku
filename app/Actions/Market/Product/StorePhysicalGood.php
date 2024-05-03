@@ -54,7 +54,7 @@ class StorePhysicalGood extends OrgAction
         /** @var Product $product */
         $product = $parent->products()->create($modelData);
         $product->stats()->create();
-        $product->salesStats()->create();
+        $product->salesIntervals()->create();
 
         foreach ($tradeUnits as $tradeUnitId=>$tradeUnitData) {
             $tradeUnit=TradeUnit::find($tradeUnitId);

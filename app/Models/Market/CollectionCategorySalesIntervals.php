@@ -1,20 +1,19 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 27 Apr 2024 08:55:35 British Summer Time, Sheffield, UK
+ * Created: Fri, 26 Apr 2024 16:29:00 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Fulfilment;
+namespace App\Models\Market;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\Market\RentalSalesStats
+ *
  *
  * @property int $id
- * @property int $rental_id
+ * @property int $collection_category_id
  * @property int $number_orders
  * @property int $number_orders_state_creating
  * @property int $number_orders_state_submitted
@@ -136,18 +135,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Fulfilment\Rental|null $service
- * @method static \Illuminate\Database\Eloquent\Builder|RentalSalesStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RentalSalesStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RentalSalesStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategorySalesIntervals newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategorySalesIntervals newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategorySalesIntervals query()
  * @mixin \Eloquent
  */
-class RentalSalesStats extends Model
+class CollectionCategorySalesIntervals extends Model
 {
     protected $guarded = [];
 
-    public function service(): BelongsTo
-    {
-        return $this->belongsTo(Rental::class);
-    }
 }

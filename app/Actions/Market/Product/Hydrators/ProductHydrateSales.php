@@ -39,7 +39,7 @@ class ProductHydrateSales
 
         $stats=array_merge($stats, $this->processIntervalShopAssetsStats($queryBase));
 
-        $product->salesStats()->update($stats);
+        $product->salesIntervals()->update($stats);
     }
 
 

@@ -39,7 +39,7 @@ class GroupHydrateSales
         $stats=array_merge($stats, $this->getIntervalStats($queryBase, 'group_amount_'));
         $stats=array_merge($stats, $this->getLastYearIntervalStats($queryBase, 'group_amount_'));
 
-        $group->salesStats()->update($stats);
+        $group->salesIntervals()->update($stats);
     }
 
 

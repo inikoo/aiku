@@ -37,7 +37,7 @@ class StoreOuter extends OrgAction
 
         /** @var Outer $outer */
         $outer = $product->outers()->create($modelData);
-        $outer->salesStats()->create();
+        $outer->salesIntervals()->create();
 
 
         if (!$skipHistoric) {

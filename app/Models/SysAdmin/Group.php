@@ -85,7 +85,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, RecurringBill> $recurringBills
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Role> $roles
- * @property-read \App\Models\SysAdmin\GroupSalesStats|null $salesStats
+ * @property-read \App\Models\SysAdmin\GroupSalesIntervals|null $salesStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StockFamily> $stockFamilies
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SupplierProduct> $supplierProducts
@@ -170,9 +170,9 @@ class Group extends Model implements HasMedia
         return $this->hasOne(GroupAccountingStats::class);
     }
 
-    public function salesStats(): HasOne
+    public function salesIntervals(): HasOne
     {
-        return $this->hasOne(GroupSalesStats::class);
+        return $this->hasOne(GroupSalesIntervals::class);
     }
 
     public function sysadminStats(): HasOne

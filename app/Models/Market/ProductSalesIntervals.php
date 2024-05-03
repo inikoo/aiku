@@ -1,25 +1,31 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:29:03 Malaysia Time, Pantai Lembeng, Bali, Id
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Fri, 12 Apr 2024 14:12:39 Central Indonesia Time, Sanur , Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\BI;
+namespace App\Models\Market;
 
-use Eloquent;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\BI\SalesStats
+ * App\Models\Market\ShopSalesStats
  *
  * @property int $id
- * @property string $model_type
- * @property int $model_id
- * @property string $scope
+ * @property int $product_id
+ * @property int $number_orders
+ * @property int $number_orders_state_creating
+ * @property int $number_orders_state_submitted
+ * @property int $number_orders_state_handling
+ * @property int $number_orders_state_packed
+ * @property int $number_orders_state_finalised
+ * @property int $number_orders_state_settled
+ * @property int $number_invoices
+ * @property int $number_invoices_type_invoice
+ * @property int $number_invoices_type_refund
+ * @property int|null $currency_id
  * @property string $shop_amount_all
  * @property string $shop_amount_1y
  * @property string $shop_amount_1q
@@ -128,22 +134,20 @@ use Illuminate\Support\Carbon;
  * @property string $group_amount_pq3
  * @property string $group_amount_pq4
  * @property string $group_amount_pq5
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property-read Model|\Eloquent $model
- * @method static Builder|SalesStats newModelQuery()
- * @method static Builder|SalesStats newQuery()
- * @method static Builder|SalesStats query()
- * @mixin Eloquent
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Market\Product $product
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductSalesIntervals newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductSalesIntervals newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductSalesIntervals query()
+ * @mixin \Eloquent
  */
-class SalesStats extends Model
+class ProductSalesIntervals extends Model
 {
-    protected $table   = 'sales_stats';
     protected $guarded = [];
 
-
-    public function model(): MorphTo
+    public function product(): BelongsTo
     {
-        return $this->morphTo('model');
+        return $this->belongsTo(Product::class);
     }
 }

@@ -1,20 +1,19 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 12 Apr 2024 14:12:39 Central Indonesia Time, Sanur , Indonesia
+ * Created: Sat, 27 Apr 2024 06:43:05 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Models\Market;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\Market\ShopSalesStats
+ *
  *
  * @property int $id
- * @property int $product_id
+ * @property int $collection_id
  * @property int $number_orders
  * @property int $number_orders_state_creating
  * @property int $number_orders_state_submitted
@@ -136,18 +135,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Market\Product $product
- * @method static \Illuminate\Database\Eloquent\Builder|ProductSalesStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ProductSalesStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ProductSalesStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder|CollectionSalesIntervals newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|CollectionSalesIntervals newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|CollectionSalesIntervals query()
  * @mixin \Eloquent
  */
-class ProductSalesStats extends Model
+class CollectionSalesIntervals extends Model
 {
     protected $guarded = [];
-
-    public function product(): BelongsTo
-    {
-        return $this->belongsTo(Product::class);
-    }
 }

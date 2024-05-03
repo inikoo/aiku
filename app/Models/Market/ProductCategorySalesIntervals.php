@@ -137,12 +137,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Market\ProductCategory $productCategory
- * @method static \Illuminate\Database\Eloquent\Builder|ProductCategorySalesStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ProductCategorySalesStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ProductCategorySalesStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductCategorySalesIntervals newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductCategorySalesIntervals newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductCategorySalesIntervals query()
  * @mixin \Eloquent
  */
-class ProductCategorySalesStats extends Model
+class ProductCategorySalesIntervals extends Model
 {
     protected $guarded = [];
 

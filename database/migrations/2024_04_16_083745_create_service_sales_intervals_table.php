@@ -5,21 +5,21 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Stubs\Migrations\HasSalesStats;
+use App\Stubs\Migrations\HasSalesIntervals;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use HasSalesStats;
+    use HasSalesIntervals;
 
     public function up(): void
     {
-        Schema::create('service_sales_stats', function (Blueprint $table) {
+        Schema::create('service_sales_intervals', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('service_id')->index();
             $table->foreign('service_id')->references('id')->on('services');
-            $table=$this->salesStats($table, ['shop_amount','org_amount','group_amount']);
+            $table=$this->salesIntervalFields($table, ['shop_amount', 'org_amount', 'group_amount']);
             $table->timestampsTz();
         });
     }
@@ -27,6 +27,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('service_sales_stats');
+        Schema::dropIfExists('service_sales_intervals');
     }
 };

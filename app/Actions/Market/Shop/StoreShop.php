@@ -54,7 +54,7 @@ class StoreShop extends OrgAction
         $shop->accountingStats()->create();
         $shop->mailStats()->create();
         $shop->crmStats()->create();
-        $shop->salesStats()->create([
+        $shop->salesIntervals()->create([
             'currency_id' => $shop->currency_id
         ]);
 

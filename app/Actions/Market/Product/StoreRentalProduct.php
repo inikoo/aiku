@@ -56,7 +56,7 @@ class StoreRentalProduct extends OrgAction
         /** @var Product $product */
         $product = $parent->products()->create(Arr::except($productData, ['auto_assign_asset', 'auto_assign_asset_type']));
         $product->stats()->create();
-        $product->salesStats()->create();
+        $product->salesIntervals()->create();
 
 
 

@@ -36,7 +36,7 @@ class StoreService extends OrgAction
         );
 
 
-        $service->salesStats()->create();
+        $service->salesIntervals()->create();
 
 
         $historicOuterable = StoreHistoricOuterable::run(

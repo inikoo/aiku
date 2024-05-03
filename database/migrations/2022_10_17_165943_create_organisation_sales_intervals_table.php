@@ -5,24 +5,21 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Stubs\Migrations\HasSalesStats;
+use App\Stubs\Migrations\HasSalesIntervals;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use  HasSalesStats;
+    use  HasSalesIntervals;
 
     public function up(): void
     {
-        Schema::create('organisation_sales_dashboards', function (Blueprint $table) {
+        Schema::create('organisation_sales_intervals', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('organisation_id');
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
-
-
-            $table=$this->salesStats($table, ['org_amount','group_amount']);
-
+            $table=$this->salesIntervalFields($table, ['org_amount', 'group_amount']);
             $table->timestampsTz();
             $table->unique(['organisation_id', 'currency_id']);
         });
@@ -31,6 +28,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('organisation_sales_stats');
+        Schema::dropIfExists('organisation_sales_intervals');
     }
 };

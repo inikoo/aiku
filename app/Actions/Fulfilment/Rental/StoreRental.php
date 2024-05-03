@@ -35,7 +35,7 @@ class StoreRental extends OrgAction
         );
 
 
-        $rental->salesStats()->create();
+        $rental->salesIntervals()->create();
 
         $historicOuterable = StoreHistoricOuterable::run(
             $rental,

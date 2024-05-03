@@ -47,7 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Market\HistoricOuterable> $historicRecords
  * @property-read Organisation $organisation
  * @property-read \App\Models\Market\Product|null $product
- * @property-read \App\Models\Market\OuterSalesStats|null $salesStats
+ * @property-read \App\Models\Market\OuterSalesIntervals|null $salesStats
  * @property-read \App\Models\Market\Shop|null $shop
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|Outer newModelQuery()
@@ -90,9 +90,9 @@ class Outer extends Model
     }
 
 
-    public function salesStats(): HasOne
+    public function salesIntervals(): HasOne
     {
-        return $this->hasOne(OuterSalesStats::class);
+        return $this->hasOne(OuterSalesIntervals::class);
     }
 
     public function historicRecords(): MorphMany

@@ -31,7 +31,7 @@ class ShowDashboard
                     'code'      => $organisation->code,
                     'type'      => $organisation->type,
                     'currency'  => $organisation->currency,
-                    'sales'     => $organisation->salesDashboards,
+                    'sales'     => $organisation->salesIntervals,
                     'invoices'  => [
                         'number_invoices' => $organisation->accountingStats->number_invoices_type_invoice
                     ],
