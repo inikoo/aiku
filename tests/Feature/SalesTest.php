@@ -282,7 +282,7 @@ test('create invoice from order', function (Order $order) {
         ->and($customer)->toBeInstanceOf(Customer::class)
         ->and($invoice->number)->toBe('00002')
         ->and($customer->stats->number_invoices)->toBe(2)
-        ->and($this->shop->stats->number_invoices)->toBe(2);
+        ->and($this->shop->salesStats->number_invoices)->toBe(2);
     ;
 
 
