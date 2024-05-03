@@ -27,7 +27,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -136,14 +135,14 @@ class Agent extends Model implements HasMedia, Auditable
         return 'slug';
     }
 
-    public function purchaseOrders(): MorphMany
+    public function purchaseOrders(): HasMany
     {
-        return $this->morphMany(PurchaseOrder::class, 'parent');
+        return $this->hasMany(PurchaseOrder::class);
     }
 
-    public function supplierDeliveries(): MorphMany
+    public function supplierDeliveries(): HasMany
     {
-        return $this->morphMany(SupplierDelivery::class, 'parent');
+        return $this->hasMany(SupplierDelivery::class);
     }
 
     public function orgAgents(): HasMany

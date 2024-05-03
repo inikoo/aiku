@@ -42,6 +42,7 @@ use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
 use App\Models\Media\Media;
 use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Agent;
@@ -113,6 +114,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationMarketStats|null $marketStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read LaravelCollection<int, OrgAgent> $orgAgents
+ * @property-read LaravelCollection<int, OrgPartner> $orgPartners
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read LaravelCollection<int, OrgStock> $orgStocks
  * @property-read LaravelCollection<int, OrgSupplier> $orgSuppliers
@@ -393,9 +395,14 @@ class Organisation extends Model implements HasMedia
         return $this->hasMany(Webpage::class);
     }
 
+    public function orgPartners(): HasMany
+    {
+        return $this->hasMany(OrgPartner::class, 'partner_id');
+    }
+
     public function orgAgents(): HasMany
     {
-        return $this->hasMany(OrgAgent::class);
+        return $this->hasMany(OrgAgent::class, );
     }
 
     public function orgSuppliers(): HasMany

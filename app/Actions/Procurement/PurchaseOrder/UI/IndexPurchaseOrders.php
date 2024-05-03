@@ -41,13 +41,12 @@ class IndexPurchaseOrders extends OrgAction
 
         $query = QueryBuilder::for(PurchaseOrder::class);
 
-        if (class_basename($parent) == 'Agent') {
+        if (class_basename($parent) == 'OrgAgent') {
             $query->leftJoin('agents', 'agents.id', 'purchase_orders.parent_id');
             $query->where('parent_type', 'Agent')->where('purchase_orders.parent_id', $parent->id);
             $query->addSelect('agents.slug as agent_slug');
         } elseif (class_basename($parent) == 'Organisation') {
             $query->where('purchase_orders.organisation_id', $parent->id);
-
             $query->addSelect(['parent_id', 'parent_type']);
         } else {
             $query->where('parent_type', 'Supplier')->where('parent_id', $parent->id);
@@ -72,11 +71,11 @@ class IndexPurchaseOrders extends OrgAction
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
+                ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'parent', label: __('OrgAgent/Supplier'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'created_by', label: __('Created by'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'parent', label: __('supplier'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'author', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'items', label: __('items'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'amount', label: __('amount'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('number');
         };

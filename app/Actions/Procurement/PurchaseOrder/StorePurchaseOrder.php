@@ -31,33 +31,30 @@ class StorePurchaseOrder extends OrgAction
     use AsAction;
     use WithAttributes;
 
-    private OrgSupplier|OrgAgent $orgParent;
+    private OrgSupplier|OrgAgent|Organisation $parent;
 
-    public function handle(Organisation $organisation, OrgSupplier|OrgAgent $orgParent, array $modelData): PurchaseOrder
+    public function handle(Organisation $organisation, OrgSupplier|OrgAgent|Organisation $parent, array $modelData): PurchaseOrder
     {
         data_set($modelData, 'organisation_id', $organisation->id);
         data_set($modelData, 'group_id', $organisation->group_id);
 
-        if (class_basename($orgParent) == 'OrgSupplier') {
-            data_set($modelData, 'parent_type', 'Supplier');
-            data_set($modelData, 'parent_id', $orgParent->supplier_id);
-        } else {
-            data_set($modelData, 'parent_type', 'Agent');
-            data_set($modelData, 'parent_id', $orgParent->agent_id);
+        if (class_basename($parent) == 'OrgSupplier') {
+            data_set($modelData, 'supplier_id', $parent->supplier_id);
+
+        } elseif (class_basename($parent) == 'OrgAgent') {
+            data_set($modelData, 'agent_id', $parent->agent_id);
         }
 
 
         /** @var PurchaseOrder $purchaseOrder */
-        $purchaseOrder = $orgParent->purchaseOrders()->create($modelData);
+        $purchaseOrder = $parent->purchaseOrders()->create($modelData);
 
-        if (class_basename($orgParent) == 'OrgSupplier') {
-
-
-            OrgSupplierHydratePurchaseOrders::dispatch($orgParent);
-            SupplierHydratePurchaseOrders::dispatch($orgParent->supplier);
-        } else {
-            OrgAgentHydratePurchaseOrders::dispatch($orgParent);
-            AgentHydratePurchaseOrders::dispatch($orgParent->agent);
+        if (class_basename($parent) == 'OrgSupplier') {
+            OrgSupplierHydratePurchaseOrders::dispatch($parent);
+            SupplierHydratePurchaseOrders::dispatch($parent->supplier);
+        } elseif (class_basename($parent) == 'OrgAgent') {
+            OrgAgentHydratePurchaseOrders::dispatch($parent);
+            AgentHydratePurchaseOrders::dispatch($parent->agent);
         }
 
         OrganisationHydrateProcurement::dispatch($organisation);
@@ -111,7 +108,7 @@ class StorePurchaseOrder extends OrgAction
 
     public function afterValidator(Validator $validator): void
     {
-        $numberPurchaseOrdersStateCreating = $this->orgParent->purchaseOrders()->where('state', PurchaseOrderStateEnum::CREATING)->count();
+        $numberPurchaseOrdersStateCreating = $this->parent->purchaseOrders()->where('state', PurchaseOrderStateEnum::CREATING)->count();
 
         if ($this->strict && $numberPurchaseOrdersStateCreating >= 1) {
             $validator->errors()->add('purchase_order', 'Are you sure want to create new purchase order?');
@@ -129,20 +126,20 @@ class StorePurchaseOrder extends OrgAction
         */
     }
 
-    public function action(Organisation $organisation, OrgAgent|OrgSupplier $orgParent, array $modelData, bool $strict = true): \Illuminate\Http\RedirectResponse|PurchaseOrder
+    public function action(Organisation $organisation, OrgAgent|OrgSupplier|Organisation $parent, array $modelData, bool $strict = true): \Illuminate\Http\RedirectResponse|PurchaseOrder
     {
-        $this->asAction    = true;
-        $this->orgParent   = $orgParent;
-        $this->strict      = $strict;
+        $this->asAction  = true;
+        $this->parent    = $parent;
+        $this->strict    = $strict;
         $this->initialisation($organisation, $modelData);
 
 
-        return $this->handle($organisation, $orgParent, $this->validatedData);
+        return $this->handle($organisation, $parent, $this->validatedData);
     }
 
     public function inOrgAgent(Organisation $organisation, OrgAgent $orgAgent, ActionRequest $request): \Illuminate\Http\RedirectResponse
     {
-        $this->orgParent = $orgAgent;
+        $this->parent = $orgAgent;
 
 
         $this->initialisation($organisation, $request);
@@ -154,7 +151,7 @@ class StorePurchaseOrder extends OrgAction
 
     public function inOrgSupplier(Organisation $organisation, OrgSupplier $orgSupplier, ActionRequest $request): \Illuminate\Http\RedirectResponse|PurchaseOrder
     {
-        $this->orgParent = $orgSupplier;
+        $this->parent = $orgSupplier;
         $this->initialisation($organisation, $request);
 
         $purchaseOrder = $this->handle($organisation, $orgSupplier, $this->validatedData);

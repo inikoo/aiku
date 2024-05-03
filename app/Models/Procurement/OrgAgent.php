@@ -64,7 +64,7 @@ class OrgAgent extends Model
 
     public function purchaseOrders(): MorphMany
     {
-        return $this->morphMany(PurchaseOrder::class, 'org_parent');
+        return $this->morphMany(PurchaseOrder::class, 'parent');
     }
 
     public function products(): HasMany

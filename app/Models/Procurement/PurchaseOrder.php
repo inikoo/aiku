@@ -35,10 +35,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
- * @property string $parent_type
+ * @property string $parent_type OrgAgent|OrgSupplier|Organisation(intra-group sales)
  * @property int $parent_id
- * @property string $org_parent_type
- * @property int $org_parent_id
  * @property string $number
  * @property array $data
  * @property PurchaseOrderStateEnum $state
@@ -64,6 +62,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $cost_duties
  * @property string $cost_tax
  * @property string $cost_total
+ * @property int|null $agent_id
+ * @property int|null $supplier_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -72,7 +72,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
  * @property-read Collection<int, \App\Models\Procurement\PurchaseOrderItem> $items
- * @property-read Model|\Eloquent $orgParent
  * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $parent
  * @method static \Database\Factories\Procurement\PurchaseOrderFactory factory($count = null, $state = [])
@@ -127,17 +126,6 @@ class PurchaseOrder extends Model implements Auditable
     {
         return $this->morphTo();
     }
-
-    public function orgParent(): MorphTo
-    {
-        return $this->morphTo();
-    }
-
-    //
-    //    public function supplierDeliveries(): BelongsToMany
-    //    {
-    //        return $this->belongsToMany(SupplierDelivery::class);
-    //    }
 
     public function items(): HasMany
     {

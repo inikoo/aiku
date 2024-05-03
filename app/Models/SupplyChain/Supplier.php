@@ -26,7 +26,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -172,15 +171,16 @@ class Supplier extends Model implements HasMedia, Auditable
         return $this->belongsTo(Currency::class);
     }
 
-    public function purchaseOrders(): MorphMany
+    public function purchaseOrders(): HasMany
     {
-        return $this->morphMany(PurchaseOrder::class, 'parent');
+        return $this->hasMany(PurchaseOrder::class);
     }
 
-    public function supplierDeliveries(): MorphMany
+    public function supplierDeliveries(): HasMany
     {
-        return $this->morphMany(SupplierDelivery::class, 'parent');
+        return $this->hasMany(SupplierDelivery::class);
     }
+
 
     public function orgSuppliers(): HasMany
     {

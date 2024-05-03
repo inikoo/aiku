@@ -9,8 +9,7 @@ namespace App\Actions\SysAdmin\Organisation;
 
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
-use App\Actions\Mail\Outbox\SeedOrganisationOutboxes;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrganisations;
+use App\Actions\Procurement\OrgPartner\StoreOrgPartner;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
@@ -72,14 +71,17 @@ class StoreOrganisation
 
         foreach ($superAdmins as $superAdmin) {
             UserAddRoles::run($superAdmin, [
-                Role::where('name', RolesEnum::getRoleName(
-                    match($organisation->type) {
-                        OrganisationTypeEnum::SHOP          => 'org-shop-admin',
-                        OrganisationTypeEnum::DIGITAL_AGENCY=> 'org-digital_agency-admin',
-                        OrganisationTypeEnum::AGENT         => 'org-agent-admin',
-                    },
-                    $organisation
-                ))->where('scope_id', $organisation->id)->first()
+                Role::where(
+                    'name',
+                    RolesEnum::getRoleName(
+                        match ($organisation->type) {
+                            OrganisationTypeEnum::SHOP           => 'org-shop-admin',
+                            OrganisationTypeEnum::DIGITAL_AGENCY => 'org-digital_agency-admin',
+                            OrganisationTypeEnum::AGENT          => 'org-agent-admin',
+                        },
+                        $organisation
+                    )
+                )->where('scope_id', $organisation->id)->first()
             ]);
         }
 
@@ -102,9 +104,7 @@ class StoreOrganisation
         $organisation->webStats()->create();
 
 
-
         if ($organisation->type == OrganisationTypeEnum::SHOP) {
-
             $paymentServiceProvider = PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::ACCOUNT)->first();
 
             StoreOrgPaymentServiceProvider::make()->action(
@@ -114,13 +114,17 @@ class StoreOrganisation
                     'code' => 'account-'.$organisation->code,
                 ]
             );
+
+            $otherOrganisations = Organisation::where('type', OrganisationTypeEnum::SHOP)->where('group_id', $group->id)->where('id', '!=', $organisation->id)->get();
+            foreach ($otherOrganisations as $otherOrganisation) {
+                StoreOrgPartner::make()->action($otherOrganisation, $organisation);
+                StoreOrgPartner::make()->action($organisation, $otherOrganisation);
+            }
         }
 
-        GroupHydrateOrganisations::dispatch($group);
-        SetOrganisationLogo::dispatch($organisation);
-        SeedOrganisationOutboxes::run();
         return $organisation;
     }
+
 
     public function rules(): array
     {
@@ -224,6 +228,7 @@ class StoreOrganisation
                 $source = json_decode($command->option('source'), true);
             } else {
                 $command->error('Source data is not a valid json');
+
                 return 1;
             }
         }

@@ -110,8 +110,8 @@ test('create purchase order independent supplier', function (Supplier $supplier,
 
     expect($purchaseOrder)->toBeInstanceOf(PurchaseOrder::class)
         ->and($supplier->stats->number_purchase_orders)->toBe(1)
-        ->and($purchaseOrder->parent_id)->toBe($supplier->id)
-        ->and($purchaseOrder->org_parent_id)->toBe($orgSupplier->id);
+        ->and($purchaseOrder->parent_id)->toBe($orgSupplier->id)
+        ->and($purchaseOrder->supplier_id)->toBe($supplier->id);
 
 
     return $purchaseOrder;
@@ -140,12 +140,12 @@ test('delete purchase order', function () {
     StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
 
     $purchaseOrder = StorePurchaseOrder::make()->action($this->organisation, $orgSupplier, PurchaseOrder::factory()->definition());
+    $purchaseOrder->fresh();
 
-
-    expect($supplier->stats->number_purchase_orders)->toBe(1);
+    expect($supplier->stats->number_purchase_orders)->toBe(1)->and($purchaseOrder)->toBeInstanceOf(PurchaseOrder::class);
     $purchaseOrderDeleted = false;
     try {
-        $purchaseOrderDeleted = DeletePurchaseOrder::make()->action($purchaseOrder->fresh());
+        $purchaseOrderDeleted = DeletePurchaseOrder::make()->action($purchaseOrder);
     } catch (ValidationException) {
     }
     $supplier->refresh();

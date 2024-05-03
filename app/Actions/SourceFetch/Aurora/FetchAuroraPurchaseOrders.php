@@ -52,7 +52,7 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
                     //  try {
                     $purchaseOrder = StorePurchaseOrder::make()->action(
                         organisation: $organisationSource->organisation,
-                        orgParent: $purchaseOrderData['org_parent'],
+                        parent: $purchaseOrderData['org_parent'],
                         modelData: $purchaseOrderData['purchase_order'],
                         strict: false
                     );
@@ -69,8 +69,6 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
                 }
                 print "Warning purchase order ".$purchaseOrderData['purchase_order']['number']."  Id:$organisationSourceId do not have parent\n";
             }
-        } else {
-            //print "Warning error fetching order $organisationSourceId\n";
         }
 
         return null;
