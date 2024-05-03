@@ -10,7 +10,7 @@ namespace App\Actions\Procurement\SupplierDelivery\Traits;
 use App\Actions\ProcurementToDelete\Supplier\Hydrators\HydrateSupplierDeliveries;
 use App\Actions\ProcurementToDelete\Supplier\Hydrators\SupplierHydrateSupplierDeliveries;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSupplierDeliveries;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePurchaseOrders;
 use App\Models\Procurement\SupplierDelivery;
 
 trait HasHydrators
@@ -27,6 +27,6 @@ trait HasHydrators
 
         HydrateSupplierDeliveries::dispatch($supplierDelivery);
 
-        OrganisationHydrateProcurement::dispatch($supplierDelivery->organisation);
+        OrganisationHydratePurchaseOrders::dispatch($supplierDelivery->organisation);
     }
 }

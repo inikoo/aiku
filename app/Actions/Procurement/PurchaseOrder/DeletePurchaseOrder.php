@@ -11,9 +11,12 @@ use App\Actions\Procurement\OrgAgent\Hydrators\OrgAgentHydratePurchaseOrders;
 use App\Actions\Procurement\OrgSupplier\Hydrators\OrgSupplierHydratePurchaseOrders;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydratePurchaseOrders;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydratePurchaseOrders;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePurchaseOrders;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
+use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgPartner;
+use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -30,26 +33,31 @@ class DeletePurchaseOrder
      */
     public function handle(PurchaseOrder $purchaseOrder): bool
     {
+
         if((in_array($purchaseOrder->state, [PurchaseOrderStateEnum::CREATING, PurchaseOrderStateEnum::SUBMITTED]))) {
-            $orgParent = $purchaseOrder->orgParent;
+            /** @var OrgSupplier|OrgAgent|OrgPartner $parent */
+            $parent = $purchaseOrder->parent;
 
             $purchaseOrder->items()->delete();
             $purchaseOrderDeleted = $purchaseOrder->delete();
 
-            if (class_basename($orgParent) == 'OrgSupplier') {
-                OrgSupplierHydratePurchaseOrders::dispatch($orgParent);
-                SupplierHydratePurchaseOrders::dispatch($orgParent->supplier);
+            if (class_basename($parent) == 'OrgSupplier') {
+                OrgSupplierHydratePurchaseOrders::dispatch($parent);
+                SupplierHydratePurchaseOrders::dispatch($parent->supplier);
             } else {
-                OrgAgentHydratePurchaseOrders::dispatch($orgParent);
-                AgentHydratePurchaseOrders::dispatch($orgParent->agent);
+                OrgAgentHydratePurchaseOrders::dispatch($parent);
+                AgentHydratePurchaseOrders::dispatch($parent->agent);
             }
 
-            OrganisationHydrateProcurement::dispatch($purchaseOrder->organisation);
+            OrganisationHydratePurchaseOrders::dispatch($purchaseOrder->organisation);
 
             return $purchaseOrderDeleted;
         }
 
-        throw ValidationException::withMessages(['purchase_order' => 'You can not delete this purchase order']);
+
+        throw ValidationException::withMessages([
+            'purchase_order' => 'You can not delete this purchase order with state '.$purchaseOrder->state->value
+        ]);
     }
 
     /**

@@ -7,16 +7,17 @@
 
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
+use App\Actions\Traits\WithEnumStats;
 use App\Enums\OMS\Order\OrderStateEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\OMS\Order;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GroupHydrateOrders
 {
     use AsAction;
+    use WithEnumStats;
 
     private Group $group;
 
@@ -33,16 +34,21 @@ class GroupHydrateOrders
     public function handle(Group $group): void
     {
         $stats = [
-            'number_orders' => Order::count(),
+            'number_orders' => $group->orders->count(),
         ];
 
-        $stateCounts = Order::selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
-
-        foreach (OrderStateEnum::cases() as $orderState) {
-            $stats['number_orders_state_'.$orderState->snake()] = Arr::get($stateCounts, $orderState->value, 0);
-        }
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'orders',
+                field: 'state',
+                enum: OrderStateEnum::class,
+                models: Order::class,
+                where: function ($q) use ($group) {
+                    $q->where('group_id', $group->id);
+                }
+            )
+        );
 
         $group->salesStats()->update($stats);
     }

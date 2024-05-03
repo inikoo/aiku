@@ -13,6 +13,7 @@ use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
@@ -30,6 +31,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property string|null $source_id
  * @property-read Group $group
+ * @property-read \App\Models\Procurement\OrgSupplier|null $orgSupplier
  * @property-read Organisation $organisation
  * @property-read \App\Models\Procurement\OrgSupplierProductStats|null $stats
  * @method static Builder|OrgSupplierProduct newModelQuery()
@@ -53,6 +55,11 @@ class OrgSupplierProduct extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(OrgSupplierProductStats::class);
+    }
+
+    public function orgSupplier(): BelongsTo
+    {
+        return $this->belongsTo(OrgSupplier::class);
     }
 
 

@@ -7,6 +7,7 @@
 
 
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
+use App\Actions\Procurement\OrgSupplierProducts\StoreOrgSupplierProduct;
 use App\Actions\Procurement\PurchaseOrder\AddItemPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
@@ -19,7 +20,7 @@ use App\Actions\Procurement\PurchaseOrder\UpdateStateToDispatchedPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToManufacturedPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToReceivedPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToSettledPurchaseOrder;
-use App\Actions\Procurement\PurchaseOrder\UpdateStateToSubmittedPurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
 use App\Actions\Procurement\SupplierDelivery\StoreSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UpdateStateToCheckedSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UpdateStateToDispatchSupplierDelivery;
@@ -33,6 +34,7 @@ use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Models\Procurement\OrgSupplier;
+use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderItem;
 use App\Models\Procurement\SupplierDeliveryItem;
@@ -96,15 +98,28 @@ test('create supplier product', function ($supplier) {
         ->and($supplierProduct->cost)->toBeNumeric(200);
     $supplier->refresh();
 
-    return $supplier;
+    return $supplierProduct;
 })->depends('create independent supplier');
 
+test('attach supplier product to organisation', function (SupplierProduct $supplierProduct) {
+    $orgSupplierProduct = StoreOrgSupplierProduct::make()->action($this->organisation, $supplierProduct);
 
-test('create purchase order independent supplier', function (Supplier $supplier, OrgSupplier $orgSupplier) {
+    $orgSupplierProduct->refresh();
+    expect($orgSupplierProduct)->toBeInstanceOf(OrgSupplierProduct::class)
+        ->and($orgSupplierProduct->supplier_product_id)->toBe($supplierProduct->id)
+        ->and($orgSupplierProduct->organisation_id)->toBe($this->organisation->id);
+
+    return $orgSupplierProduct;
+})->depends('create supplier product');
+
+
+test('create purchase order independent supplier', function (OrgSupplierProduct $orgSupplierProduct) {
     $purchaseOrderData = PurchaseOrder::factory()->definition();
 
+    $orgSupplier = $orgSupplierProduct->orgSupplier;
 
     $purchaseOrder = StorePurchaseOrder::make()->action($this->organisation, $orgSupplier, $purchaseOrderData);
+    $supplier      = $orgSupplier->supplier;
 
     expect($purchaseOrder)->toBeInstanceOf(PurchaseOrder::class)
         ->and($supplier->stats->number_purchase_orders)->toBe(1)
@@ -113,7 +128,7 @@ test('create purchase order independent supplier', function (Supplier $supplier,
 
 
     return $purchaseOrder;
-})->depends('create supplier product', 'attach supplier to organisation');
+})->depends('attach supplier product to organisation');
 
 test('add items to purchase order', function ($purchaseOrder) {
     $i = 1;
@@ -130,21 +145,23 @@ test('add items to purchase order', function ($purchaseOrder) {
 
 
 test('delete purchase order', function () {
-    $supplier    = StoreSupplier::make()->action(
+    $supplier        = StoreSupplier::make()->action(
         parent: $this->group,
         modelData: Supplier::factory()->definition()
     );
-    $orgSupplier = StoreOrgSupplier::make()->action($this->organisation, $supplier);
-    StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
+    $orgSupplier     = StoreOrgSupplier::make()->action($this->organisation, $supplier);
+    $supplierProduct = StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
+    StoreOrgSupplierProduct::make()->action($this->organisation, $supplierProduct);
 
     $purchaseOrder = StorePurchaseOrder::make()->action($this->organisation, $orgSupplier, PurchaseOrder::factory()->definition());
-    $purchaseOrder->fresh();
+    $purchaseOrder->refresh();
 
     expect($supplier->stats->number_purchase_orders)->toBe(1)->and($purchaseOrder)->toBeInstanceOf(PurchaseOrder::class);
     $purchaseOrderDeleted = false;
     try {
         $purchaseOrderDeleted = DeletePurchaseOrder::make()->action($purchaseOrder);
-    } catch (ValidationException) {
+    } catch (ValidationException $e) {
+        dd($e);
     }
     $supplier->refresh();
 
@@ -187,10 +204,9 @@ test('create purchase order by agent', function () {
 
 test('change state to submit purchase order', function ($purchaseOrder) {
     $purchaseOrder->refresh();
-    try {
-        $purchaseOrder = UpdateStateToSubmittedPurchaseOrder::make()->action($purchaseOrder);
-    } catch (ValidationException) {
-    }
+
+    $purchaseOrder = UpdatePurchaseOrderStateToSubmitted::make()->action($purchaseOrder);
+
     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::SUBMITTED);
 
     return $purchaseOrder;
@@ -279,7 +295,7 @@ test('change state to confirmed from manufactured purchase order', function ($pu
 })->depends('create purchase order independent supplier');
 
 test('change state to submitted from confirmed purchase order', function ($purchaseOrder) {
-    $purchaseOrder = UpdateStateToSubmittedPurchaseOrder::make()->action($purchaseOrder);
+    $purchaseOrder = UpdatePurchaseOrderStateToSubmitted::make()->action($purchaseOrder);
     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::SUBMITTED);
 })->depends('create purchase order independent supplier');
 

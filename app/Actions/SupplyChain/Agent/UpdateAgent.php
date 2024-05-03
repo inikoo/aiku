@@ -11,7 +11,7 @@ use App\Actions\GrpAction;
 use App\Actions\Procurement\OrgAgent\UpdateOrgAgent;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateUniversalSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAgents;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePurchaseOrders;
 use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Procurement\AgentResource;
@@ -39,7 +39,7 @@ class UpdateAgent extends GrpAction
                 if (!$agent->status) {
                     UpdateOrgAgent::make()->action($orgAgent, ['status' => false]);
                 }
-                OrganisationHydrateProcurement::dispatch($orgAgent->organisation);
+                OrganisationHydratePurchaseOrders::dispatch($orgAgent->organisation);
             }
 
             GroupHydrateAgents::run($this->group);

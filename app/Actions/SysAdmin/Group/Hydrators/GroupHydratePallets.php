@@ -16,7 +16,7 @@ use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class GroupFulfilmentHydratePallets
+class GroupHydratePallets
 {
     use AsAction;
     use WithEnumStats;

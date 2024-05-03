@@ -12,7 +12,7 @@ use App\Actions\Procurement\OrgAgent\Hydrators\OrgAgentHydratePurchaseOrders;
 use App\Actions\Procurement\OrgSupplier\Hydrators\OrgSupplierHydratePurchaseOrders;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydratePurchaseOrders;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydratePurchaseOrders;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePurchaseOrders;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Procurement\OrgAgent;
@@ -56,7 +56,7 @@ class StorePurchaseOrder extends OrgAction
             AgentHydratePurchaseOrders::dispatch($parent->agent);
         }
 
-        OrganisationHydrateProcurement::dispatch($organisation);
+        OrganisationHydratePurchaseOrders::dispatch($organisation);
 
         return $purchaseOrder;
     }

@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\PurchaseOrder;
 
-use App\Actions\Procurement\PurchaseOrder\Traits\HasHydrators;
+use App\Actions\Procurement\PurchaseOrder\Traits\HasPurchaseOrderHydrators;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
@@ -19,7 +19,7 @@ class UpdateStateToDispatchedPurchaseOrder
 {
     use WithActionUpdate;
     use AsAction;
-    use HasHydrators;
+    use HasPurchaseOrderHydrators;
 
     /**
      * @throws \Illuminate\Validation\ValidationException

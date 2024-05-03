@@ -14,6 +14,7 @@ use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasAddresses;
+use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -71,6 +72,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
+ * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Collection<int, \App\Models\Procurement\PurchaseOrderItem> $items
  * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $parent
@@ -90,6 +92,7 @@ class PurchaseOrder extends Model implements Auditable
     use HasSlug;
     use HasFactory;
     use HasHistory;
+    use InOrganisation;
 
 
     protected $casts = [
@@ -115,11 +118,6 @@ class PurchaseOrder extends Model implements Auditable
     public function getRouteKeyName(): string
     {
         return 'slug';
-    }
-
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
     }
 
     public function parent(): MorphTo

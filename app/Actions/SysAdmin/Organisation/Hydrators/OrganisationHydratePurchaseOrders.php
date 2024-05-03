@@ -8,13 +8,14 @@
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\OMS\Order\OrderStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\SysAdmin\Organisation;
-use App\Models\OMS\Order;
+use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrganisationHydrateOrders
+class OrganisationHydratePurchaseOrders
 {
     use AsAction;
     use WithEnumStats;
@@ -34,23 +35,37 @@ class OrganisationHydrateOrders
     public function handle(Organisation $organisation): void
     {
         $stats = [
-            'number_orders' => $organisation->orders()->count()
+            'number_purchase_orders' => $organisation->purchaseOrders->count()
         ];
+
 
         $stats = array_merge(
             $stats,
             $this->getEnumStats(
-                model: 'orders',
-                field: 'state',
-                enum: OrderStateEnum::class,
-                models: Order::class,
+                model: 'purchase_orders',
+                field: 'status',
+                enum: PurchaseOrderStatusEnum::class,
+                models: PurchaseOrder::class,
                 where: function ($q) use ($organisation) {
                     $q->where('organisation_id', $organisation->id);
                 }
             )
         );
-        $organisation->salesStats()->update($stats);
+
+
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'purchase_orders',
+                field: 'state',
+                enum: PurchaseOrderStateEnum::class,
+                models: PurchaseOrder::class,
+                where: function ($q) use ($organisation) {
+                    $q->where('organisation_id', $organisation->id);
+                }
+            )
+        );
+
+        $organisation->procurementStats()->update($stats);
     }
-
-
 }
