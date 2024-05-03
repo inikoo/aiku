@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\Agent\UI;
 
 use App\Actions\Procurement\Marketplace\SupplierProduct\UI\IndexMarketplaceSupplierProducts;
-use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
+use App\Actions\ProcurementToDelete\Supplier\UI\IndexSuppliers;
 use App\Enums\UI\AgentTabsEnum;
 use App\Http\Resources\Procurement\MarketplaceSupplierProductResource;
 use App\Http\Resources\Procurement\MarketplaceSupplierResource;

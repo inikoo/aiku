@@ -8,14 +8,12 @@
 namespace App\Actions\Procurement\SupplierPurchaseOrder\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\OrgAgent\UI\HasUIAgents;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class CreateSupplierPurchaseOrder extends InertiaAction
 {
-    use HasUIAgents;
     public function handle(): Response
     {
         return Inertia::render(

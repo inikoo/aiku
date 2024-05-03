@@ -34,7 +34,7 @@ class CreateAgent extends GrpAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.procurement.agents.index',
+                                'name'       => 'grp.supply-chain.agents.index',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]

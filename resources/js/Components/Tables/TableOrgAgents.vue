@@ -18,10 +18,10 @@ const props = defineProps<{
 
 function agentRoute(agent: Agent) {
     switch (route().current()) {
-        case 'grp.procurement.agents.index':
+        case 'grp.org.procurement.agents.index':
             return route(
-                'grp.procurement.agents.show',
-                [agent.slug]);
+                'grp.org.procurement.agents.show',
+                [route().params['organisation'],agent.slug]);
     }
 }
 

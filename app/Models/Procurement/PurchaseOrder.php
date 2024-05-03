@@ -120,7 +120,7 @@ class PurchaseOrder extends Model implements Auditable
         return $this->belongsTo(Organisation::class);
     }
 
-    public function provider(): MorphTo
+    public function parent(): MorphTo
     {
         return $this->morphTo();
     }

@@ -7,8 +7,8 @@
 
 namespace App\Actions\Procurement\SupplierPurchaseOrder\Traits;
 
-use App\Actions\Procurement\Supplier\Hydrators\HydrateSupplierPurchaseOrders;
-use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrders;
+use App\Actions\ProcurementToDelete\Supplier\Hydrators\HydrateSupplierPurchaseOrders;
+use App\Actions\ProcurementToDelete\Supplier\Hydrators\SupplierHydratePurchaseOrders;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydratePurchaseOrders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Models\Procurement\PurchaseOrder;

@@ -14,7 +14,7 @@ use App\Actions\Procurement\Marketplace\Supplier\UI\RemoveMarketplaceSupplier;
 use App\Actions\Procurement\Marketplace\Supplier\UI\ShowMarketplaceSupplier;
 use App\Actions\Procurement\Marketplace\SupplierProduct\UI\IndexMarketplaceSupplierProducts;
 use App\Actions\Procurement\Marketplace\SupplierProduct\UI\ShowMarketplaceSupplierProduct;
-use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
+use App\Actions\ProcurementToDelete\Supplier\UI\IndexSuppliers;
 use App\Actions\SupplyChain\Agent\UI\EditAgent;
 use App\Actions\SupplyChain\Agent\UI\ShowAgent;
 use Illuminate\Support\Facades\Route;

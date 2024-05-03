@@ -34,15 +34,19 @@ trait FetchSuppliersTrait
                 $supplier = UpdateSupplier::make()->run($supplier, $supplierData['supplier']);
             }
             $baseSupplier = Supplier::withTrashed()->where('source_slug', $supplierData['supplier']['source_slug'])->first();
-
         } else {
             $supplier = StoreSupplier::run(
                 parent: $supplierData['parent'],
                 modelData: $supplierData['supplier'],
             );
         }
+        $organisation = $organisationSource->getOrganisation();
 
         if ($supplier) {
+            $orgSupplier = OrgSupplier::where('organisation_id', $organisation->id)->where('supplier_id', $supplier->id)->first();
+            if ($orgSupplier) {
+                return $supplier;
+            }
 
             if ($supplier->agent_id) {
                 OrgSupplier::where('supplier_id', $supplier->id)
@@ -68,6 +72,11 @@ trait FetchSuppliersTrait
                 }
             }
         } elseif ($baseSupplier) {
+            $orgSupplier = OrgSupplier::where('organisation_id', $organisation->id)->where('supplier_id', $baseSupplier->id)->first();
+            if ($orgSupplier) {
+                return $supplier;
+            }
+
             StoreOrgSupplier::make()->run(
                 $organisationSource->getOrganisation(),
                 $baseSupplier,
@@ -75,11 +84,7 @@ trait FetchSuppliersTrait
                     'source_id' => $supplierData['supplier']['source_id']
                 ]
             );
-
-
-
         }
-
 
 
         return $supplier;

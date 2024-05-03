@@ -18,7 +18,7 @@ function supplierPurchaseOrderRoute(supplierPurchaseOrder: {}) {
     switch (route().current()) {
         case 'grp.procurement.supplier-purchase-orders.index':
             return route(
-                'grp.procurement.purchase-orders.show',
+                'grp.org.procurement.purchase-orders.show',
                 [supplierPurchaseOrder.slug]);
         case 'grp.procurement.agents.show':
             return route(

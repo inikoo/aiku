@@ -20,8 +20,8 @@ return new class () extends Migration {
             $table->increments('id');
             $table=$this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
-            $table->unsignedInteger('provider_id')->index();
-            $table->string('provider_type');
+            $table->unsignedInteger('parent_id')->index();
+            $table->string('parent_type');
             $table->string('number');
             $table->jsonb('data');
             $table->string('state')->index()->default(PurchaseOrderItemStateEnum::CREATING->value);
@@ -53,7 +53,7 @@ return new class () extends Migration {
             $table->string('source_id')->nullable()->unique();
 
 
-            $table->index(['provider_id', 'provider_type']);
+            $table->index(['parent_id', 'parent_type']);
         });
     }
 

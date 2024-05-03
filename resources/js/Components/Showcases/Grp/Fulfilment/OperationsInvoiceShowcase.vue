@@ -91,7 +91,7 @@ const boxInvoiceInformation = [
     ]
 ]
 
-console.log('Invoice Showcase', props.data)
+// console.log('Invoice Showcase', props.data)
 
 </script>
 

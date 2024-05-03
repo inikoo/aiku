@@ -139,7 +139,7 @@ class IndexOrgSuppliers extends OrgAction
         return
             (
                 $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view")
+                $request->user()->hasPermissionTo('procurement.view')
             );
     }
 
