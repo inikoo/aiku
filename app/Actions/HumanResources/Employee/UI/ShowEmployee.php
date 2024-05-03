@@ -61,8 +61,8 @@ class ShowEmployee extends OrgAction
                     'title' => $employee->contact_name,
                     'meta'  => [
                         [
-                            'name'     => $employee->worker_number,
-                            'leftIcon' => [
+                            'label'     => $employee->worker_number,
+                            'leftIcon'  => [
                                 'icon'    => 'fal fa-id-card',
                                 'tooltip' => __('Worker number')
                             ]
@@ -70,8 +70,8 @@ class ShowEmployee extends OrgAction
 
                         $employee->user ?
                             [
-                                'name'     => $employee->user->username,
-                                'leftIcon' => [
+                                'label'     => $employee->user->username,
+                                'leftIcon'  => [
                                     'icon'    => 'fal fa-user',
                                     'tooltip' => __('User')
                                 ]

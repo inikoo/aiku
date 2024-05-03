@@ -79,6 +79,20 @@
     opacity: 0;
 }
 
+/* Transition name="slide-to-up" */
+.spin-to-down-enter-active,
+.spin-to-down-leave-active {
+    transition: all 0.1s ease;
+}
+.spin-to-down-enter-from{
+    position: absolute;
+    transform: translateY(-100%);
+}
+.spin-to-down-leave-to {
+    position: absolute;
+    transform: translateY(100%);
+}
+
 /* Transition for <li> vertical */
 .list-move,
 .list-enter-active,
