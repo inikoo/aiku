@@ -131,6 +131,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Rental> $rentals
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \App\Models\SysAdmin\OrganisationSalesIntervals|null $salesIntervals
+ * @property-read \App\Models\SysAdmin\OrganisationSalesStats|null $salesStats
  * @property-read LaravelCollection<int, Shipper> $shippers
  * @property-read LaravelCollection<int, Shop> $shops
  * @property-read \App\Models\SysAdmin\OrganisationStats|null $stats
@@ -242,6 +243,11 @@ class Organisation extends Model implements HasMedia
     public function mailStats(): HasOne
     {
         return $this->hasOne(OrganisationMailStats::class);
+    }
+
+    public function salesStats(): HasOne
+    {
+        return $this->hasOne(OrganisationSalesStats::class);
     }
 
     public function salesIntervals(): HasOne

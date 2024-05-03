@@ -67,9 +67,6 @@ use Illuminate\Support\Carbon;
  * @property string $group_amount Group currency, amount_successfully_paid-amount_returned
  * @property string $group_amount_successfully_paid
  * @property string $group_amount_refunded
- * @property int $number_invoices
- * @property int $number_invoices_type_invoice
- * @property int $number_invoices_type_refund
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation

@@ -94,17 +94,21 @@ class StoreOrganisation
         $organisation->humanResourcesStats()->create();
         $organisation->procurementStats()->create();
         $organisation->inventoryStats()->create();
-        $organisation->productionStats()->create();
-        $organisation->marketStats()->create();
-        $organisation->salesIntervals()->create();
-        $organisation->fulfilmentStats()->create();
         $organisation->accountingStats()->create();
-        $organisation->mailStats()->create();
-        $organisation->crmStats()->create();
+
+
         $organisation->webStats()->create();
 
 
         if ($organisation->type == OrganisationTypeEnum::SHOP) {
+            $organisation->mailStats()->create();
+            $organisation->crmStats()->create();
+            $organisation->salesStats()->create();
+            $organisation->salesIntervals()->create();
+            $organisation->fulfilmentStats()->create();
+            $organisation->productionStats()->create();
+            $organisation->marketStats()->create();
+
             $paymentServiceProvider = PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::ACCOUNT)->first();
 
             StoreOrgPaymentServiceProvider::make()->action(

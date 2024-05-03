@@ -51,8 +51,7 @@ class OrganisationHydrateInvoices
             )
         );
 
-
-        $organisation->accountingStats()->update($stats);
+        $organisation->salesStats()->update($stats);
     }
 
 
