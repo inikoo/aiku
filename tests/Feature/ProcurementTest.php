@@ -65,22 +65,20 @@ test('create independent supplier', function () {
 });
 
 test('attach supplier to organisation', function ($supplier) {
-
-    $orgSupplier=StoreOrgSupplier::make()->action($this->organisation, $supplier);
+    $orgSupplier = StoreOrgSupplier::make()->action($this->organisation, $supplier);
 
 
     expect($orgSupplier)->toBeInstanceOf(OrgSupplier::class)
-    ->and($this->organisation->procurementStats->number_suppliers)->toBe(1);
+        ->and($this->organisation->procurementStats->number_suppliers)->toBe(1);
 
     return $orgSupplier;
-
 })->depends('create independent supplier');
 
 test('create purchase order while no products', function ($orgSupplier) {
     expect(function () use ($orgSupplier) {
         StorePurchaseOrder::make()->action($this->organisation, $orgSupplier, PurchaseOrder::factory()->definition());
     })->toThrow(ValidationException::class);
-})->depends('attach supplier to organisation')->todo();
+})->depends('attach supplier to organisation');
 
 
 test('create supplier product', function ($supplier) {
@@ -97,13 +95,13 @@ test('create supplier product', function ($supplier) {
         ->and($supplierProduct->name)->toBe($arrayData['name'])
         ->and($supplierProduct->cost)->toBeNumeric(200);
     $supplier->refresh();
+
     return $supplier;
 })->depends('create independent supplier');
 
 
 test('create purchase order independent supplier', function (Supplier $supplier, OrgSupplier $orgSupplier) {
     $purchaseOrderData = PurchaseOrder::factory()->definition();
-
 
 
     $purchaseOrder = StorePurchaseOrder::make()->action($this->organisation, $orgSupplier, $purchaseOrderData);
@@ -132,11 +130,11 @@ test('add items to purchase order', function ($purchaseOrder) {
 
 
 test('delete purchase order', function () {
-    $supplier = StoreSupplier::make()->action(
+    $supplier    = StoreSupplier::make()->action(
         parent: $this->group,
         modelData: Supplier::factory()->definition()
     );
-    $orgSupplier=StoreOrgSupplier::make()->action($this->organisation, $supplier);
+    $orgSupplier = StoreOrgSupplier::make()->action($this->organisation, $supplier);
     StoreSupplierProduct::make()->action($supplier, SupplierProduct::factory()->definition());
 
     $purchaseOrder = StorePurchaseOrder::make()->action($this->organisation, $orgSupplier, PurchaseOrder::factory()->definition());
@@ -174,9 +172,8 @@ test('update quantity items in purchase order', function ($purchaseOrder) {
 })->depends('add items to purchase order');
 
 
-
 test('update purchase order', function ($purchaseOrder) {
-    $dataToUpdate=[
+    $dataToUpdate  = [
         'number' => 'PO-12345bis',
     ];
     $purchaseOrder = UpdatePurchaseOrder::make()->action($purchaseOrder, $dataToUpdate);
@@ -293,8 +290,8 @@ test('change state to creating from submitted purchase order', function ($purcha
 
 test('create supplier delivery', function ($supplier) {
     $arrayData = [
-        'number'    => 12345,
-        'date'      => date('Y-m-d')
+        'number' => 12345,
+        'date'   => date('Y-m-d')
     ];
 
     $supplierDelivery = StoreSupplierDelivery::make()->action($this->organisation, $supplier, $arrayData);
@@ -308,14 +305,12 @@ test('create supplier delivery', function ($supplier) {
 
 
 test('create supplier delivery items', function ($supplierDelivery) {
-
     $supplier = StoreSupplierDeliveryItem::run($supplierDelivery, SupplierDeliveryItem::factory()->definition());
 
     expect($supplier->supplier_delivery_id)->toBe($supplierDelivery->id);
 
     return $supplier;
 })->depends('create supplier delivery');
-
 
 
 test('create supplier delivery items by selected purchase order', function ($supplierDelivery, $items) {

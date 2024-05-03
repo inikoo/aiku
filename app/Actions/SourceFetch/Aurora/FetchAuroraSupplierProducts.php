@@ -7,9 +7,11 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Procurement\OrgSupplierProducts\StoreOrgSupplierProduct;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
 use App\Actions\Procurement\SupplierProduct\SyncSupplierProductTradeUnits;
 use App\Actions\Procurement\SupplierProduct\UpdateSupplierProduct;
+use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
@@ -23,6 +25,35 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?SupplierProduct
     {
+
+        $supplierProduct= $this->fetchSupplierProduct($organisationSource, $organisationSourceId);
+
+        if($supplierProduct) {
+            $organisation = $organisationSource->getOrganisation();
+
+            $orgSupplierProduct = OrgSupplierProduct::where('organisation_id', $organisation->id)->where('supplier_product_id', $supplierProduct->id)->first();
+            if(!$orgSupplierProduct) {
+                StoreOrgSupplierProduct::make()->run(
+                    organisation: $organisation,
+                    supplierProduct: $supplierProduct,
+                    modelData: [
+                        'source_id' => $supplierProduct->source_id
+                    ]
+                );
+            }
+
+
+        }
+
+
+        return $supplierProduct;
+
+    }
+
+
+    public function fetchSupplierProduct($organisationSource, $organisationSourceId)
+    {
+
         $supplierProductData = $organisationSource->fetchSupplierProduct($organisationSourceId);
 
         if ($supplierProductData) {
@@ -123,6 +154,7 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
         }
 
         return null;
+
     }
 
     public function getModelsQuery(): Builder
@@ -161,10 +193,3 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
             ->count();
     }
 }
-
-//todo
-// sk resin-22C https://sk.aurora.systems/part/5982 sp ignored plase pu tit manually
-// sk  [source_slug_inter_org] => crafts:1:1:tbmkg-20b  [source_id] => 2:19159
-// sk [source_slug_inter_org] => crafts:1:1:tbmkg-24l [source_id] => 2:19163
-// sk [source_slug_inter_org] => crafts:1:1:tbmkg-24m [source_id] => 2:20382
-// [source_slug_inter_org] => crafts:1:1:tbmkg-53mb [source_id] => 2:20383

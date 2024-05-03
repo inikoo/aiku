@@ -9,7 +9,6 @@ namespace App\Models\Procurement;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * App\Models\OrgSupplierProductStats
@@ -19,7 +18,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Procurement\OrgSupplierProduct $orgSupplierProduct
- * @property-read OrgSupplierProductStats|null $stats
  * @method static \Illuminate\Database\Eloquent\Builder|OrgSupplierProductStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgSupplierProductStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgSupplierProductStats query()
@@ -36,8 +34,4 @@ class OrgSupplierProductStats extends Model
         return $this->belongsTo(OrgSupplierProduct::class);
     }
 
-    public function stats(): HasOne
-    {
-        return $this->hasOne(OrgSupplierProductStats::class);
-    }
 }

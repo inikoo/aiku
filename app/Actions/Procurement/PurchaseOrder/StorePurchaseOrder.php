@@ -40,7 +40,6 @@ class StorePurchaseOrder extends OrgAction
 
         if (class_basename($parent) == 'OrgSupplier') {
             data_set($modelData, 'supplier_id', $parent->supplier_id);
-
         } elseif (class_basename($parent) == 'OrgAgent') {
             data_set($modelData, 'agent_id', $parent->agent_id);
         }
@@ -114,23 +113,21 @@ class StorePurchaseOrder extends OrgAction
             $validator->errors()->add('purchase_order', 'Are you sure want to create new purchase order?');
         }
 
-        //todo #170
-        /*
-        if ($this->strict && $this->parent->products->where('state', '<>', SupplierProductStateEnum::DISCONTINUED)->count() == 0) {
+        if ($this->strict && $this->parent->products()->where('status', true)->count() == 0) {
             $message = match (class_basename($this->parent)) {
-                'OrgAgent' => 'You can not create purchase order if the agent dont have any product',
-                'Supplier' => 'You can not create purchase order if the supplier dont have any product',
+                'OrgAgent'    => __("Agent don't have any product"),
+                'OrgSupplier' => __("Supplier don't have any product"),
+                'OrgPartner'  => __("Partner don't have any product"),
             };
             $validator->errors()->add('purchase_order', $message);
         }
-        */
     }
 
     public function action(Organisation $organisation, OrgAgent|OrgSupplier|Organisation $parent, array $modelData, bool $strict = true): \Illuminate\Http\RedirectResponse|PurchaseOrder
     {
-        $this->asAction  = true;
-        $this->parent    = $parent;
-        $this->strict    = $strict;
+        $this->asAction = true;
+        $this->parent   = $parent;
+        $this->strict   = $strict;
         $this->initialisation($organisation, $modelData);
 
 

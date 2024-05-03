@@ -12,6 +12,7 @@ use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductTradeUnitCompositionEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\Procurement\HistoricSupplierProduct;
+use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\Procurement\SupplierProductTradeUnit;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
@@ -69,6 +70,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Collection<int, HistoricSupplierProduct> $historicRecords
  * @property-read mixed $net_weight
+ * @property-read Collection<int, OrgSupplierProduct> $orgSupplierProducts
  * @property-read \App\Models\SupplyChain\SupplierProductStats|null $stats
  * @property-read \App\Models\SupplyChain\Supplier|null $supplier
  * @property-read Collection<int, TradeUnit> $tradeUnits
@@ -166,5 +168,10 @@ class SupplierProduct extends Model implements Auditable
             ->using(SupplierProductTradeUnit::class)
             ->withPivot('package_quantity')
             ->withTimestamps();
+    }
+
+    public function orgSupplierProducts(): HasMany
+    {
+        return $this->hasMany(OrgSupplierProduct::class);
     }
 }

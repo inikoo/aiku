@@ -13,6 +13,7 @@ use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -22,12 +23,15 @@ use Illuminate\Support\Carbon;
  * @property int $group_id
  * @property int $organisation_id
  * @property int $supplier_product_id
+ * @property int|null $org_agent_id
+ * @property int|null $org_supplier_id
  * @property bool $status
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $source_id
  * @property-read Group $group
  * @property-read Organisation $organisation
+ * @property-read \App\Models\Procurement\OrgSupplierProductStats|null $stats
  * @method static Builder|OrgSupplierProduct newModelQuery()
  * @method static Builder|OrgSupplierProduct newQuery()
  * @method static Builder|OrgSupplierProduct query()
@@ -44,6 +48,11 @@ class OrgSupplierProduct extends Model
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(OrgSupplierProductStats::class);
     }
 
 
