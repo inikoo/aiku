@@ -15,7 +15,7 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::create('organisation_sales_stats', function (Blueprint $table) {
+        Schema::create('organisation_sales_dashboards', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('organisation_id');
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');

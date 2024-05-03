@@ -1,20 +1,23 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 16 Jan 2024 01:00:00 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Created: Sun, 23 Apr 2023 11:32:22 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Market;
+namespace App\Models\SysAdmin;
 
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
- * App\Models\Market\ShopSalesStats
+ * App\Models\SysAdmin\OrganisationSalesStats
  *
  * @property int $id
- * @property int $shop_id
+ * @property int $organisation_id
  * @property int $number_orders
  * @property int $number_orders_state_creating
  * @property int $number_orders_state_submitted
@@ -26,42 +29,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_invoices_type_invoice
  * @property int $number_invoices_type_refund
  * @property int|null $currency_id
- * @property string $shop_amount_all
- * @property string $shop_amount_1y
- * @property string $shop_amount_1q
- * @property string $shop_amount_1m
- * @property string $shop_amount_1w
- * @property string $shop_amount_ytd
- * @property string $shop_amount_qtd
- * @property string $shop_amount_mtd
- * @property string $shop_amount_wtd
- * @property string $shop_amount_lm
- * @property string $shop_amount_lw
- * @property string $shop_amount_yda
- * @property string $shop_amount_tdy
- * @property string $shop_amount_all_ly
- * @property string $shop_amount_1y_ly
- * @property string $shop_amount_1q_ly
- * @property string $shop_amount_1m_ly
- * @property string $shop_amount_1w_ly
- * @property string $shop_amount_ytd_ly
- * @property string $shop_amount_qtd_ly
- * @property string $shop_amount_mtd_ly
- * @property string $shop_amount_wtd_ly
- * @property string $shop_amount_lm_ly
- * @property string $shop_amount_lw_ly
- * @property string $shop_amount_yda_ly
- * @property string $shop_amount_tdy_ly
- * @property string $shop_amount_py1
- * @property string $shop_amount_py2
- * @property string $shop_amount_py3
- * @property string $shop_amount_py4
- * @property string $shop_amount_py5
- * @property string $shop_amount_pq1
- * @property string $shop_amount_pq2
- * @property string $shop_amount_pq3
- * @property string $shop_amount_pq4
- * @property string $shop_amount_pq5
  * @property string $org_amount_all
  * @property string $org_amount_1y
  * @property string $org_amount_1q
@@ -134,22 +101,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount_pq3
  * @property string $group_amount_pq4
  * @property string $group_amount_pq5
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Market\Shop $shop
- * @method static \Illuminate\Database\Eloquent\Builder|ShopSalesStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopSalesStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopSalesStats query()
- * @mixin \Eloquent
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @method static Builder|OrganisationSalesDashboard newModelQuery()
+ * @method static Builder|OrganisationSalesDashboard newQuery()
+ * @method static Builder|OrganisationSalesDashboard query()
+ * @mixin Eloquent
  */
-class ShopSalesStats extends Model
+class OrganisationSalesDashboard extends Model
 {
-    protected $table = 'shop_sales_stats';
+    protected $table = 'organisation_sales_dashboards';
 
     protected $guarded = [];
 
-    public function shop(): BelongsTo
+    public function organisation(): BelongsTo
     {
-        return $this->belongsTo(Shop::class);
+        return $this->belongsTo(Organisation::class);
     }
 }

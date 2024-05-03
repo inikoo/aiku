@@ -27,11 +27,17 @@ class ShowDashboard
             'currency'      => $group->currency,
             'organisations' => $group->organisations->map(function (Organisation $organisation) {
                 return [
-                    'name'     => $organisation->name,
-                    'code'     => $organisation->code,
-                    'type'     => $organisation->type,
-                    'currency' => $organisation->currency,
-                    'sales'    => $organisation->salesStats
+                    'name'      => $organisation->name,
+                    'code'      => $organisation->code,
+                    'type'      => $organisation->type,
+                    'currency'  => $organisation->currency,
+                    'sales'     => $organisation->salesDashboards,
+                    'invoices'  => [
+                        'number_invoices' => $organisation->accountingStats->number_invoices_type_invoice
+                    ],
+                    'refunds' => [
+                        'number_refunds' => $organisation->accountingStats->number_invoices_type_refund
+                    ]
                 ];
             })
         ];

@@ -116,7 +116,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \App\Models\Market\Product> $products
  * @property-read LaravelCollection<int, Prospect> $prospects
  * @property-read LaravelCollection<int, Role> $roles
- * @property-read \App\Models\Market\ShopSalesStats|null $salesStats
+ * @property-read \App\Models\Market\ShopSalesDashboard|null $salesStats
  * @property-read SenderEmail|null $senderEmail
  * @property-read LaravelCollection<int, SerialReference> $serialReferences
  * @property-read LaravelCollection<int, \App\Models\Market\ShippingZoneSchema> $shippingZoneSchemas
@@ -180,7 +180,7 @@ class Shop extends Model
 
     public function salesStats(): HasOne
     {
-        return $this->hasOne(ShopSalesStats::class);
+        return $this->hasOne(ShopSalesDashboard::class);
     }
 
     public function stats(): HasOne
