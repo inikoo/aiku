@@ -5,33 +5,35 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheck, faPlus, faMinus } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Head } from '@inertiajs/vue3'
-library.add(faCheck, faPlus, faMinus)
+import Button from '@/Components/Elements/Buttons/Button.vue'
+import { faGithub } from '@fortawesome/free-brands-svg-icons'
+library.add(faCheck, faPlus, faMinus, faGithub)
 
 const features = [
     {
-        name: 'Flexible Storage Options',
-        description: 'Choose from a variety of warehouse spaces tailored to your needs. Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus, laboriosam?'
+        name: 'Customized Configurations',
+        description: 'Tailor your ERP system to fit your unique requirements.'
     },
     {
-        name: 'Secure Facilities',
-        description: 'Rest assured with our state-of-the-art security systems and personnel. Amet consectetur adipisicing elit. Adipisci, consectetur dolorem.'
+        name: 'Robust Security Measures',
+        description: 'Rest easy knowing your data is protected by our advanced security protocols.'
     },
     {
-        name: '24/7 Access',
-        description: 'Access your stored items whenever you need them, day or night. Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusantium, quisquam.'
+        name: '24/7 Accessibility',
+        description: 'Access your ERP data anytime, anywhere for seamless business operations.'
     },
     {
-        name: 'Climate Control',
-        description: 'Ensure the optimal condition of your goods with our climate-controlled warehouses. Consectetur adipisicing elit. Ad, explicabo labore.'
+        name: 'Data Integrity Assurance',
+        description: 'Ensure the accuracy and integrity of your business data with our comprehensive management solutions.'
     },
     {
-        name: 'Inventory Management',
-        description: 'Streamline your operations with our advanced inventory tracking and management solutions. Dolor sit amet consectetur adipisicing elit. Aperiam, molestiae.'
+        name: 'Efficient Workflow Management',
+        description: 'Streamline your business processes with our intuitive workflow tools.'
     },
     {
-        name: 'Loading Docks',
-        description: 'Efficiently load and unload your shipments with our convenient loading docks. Lorem ipsum dolor sit amet consectetur adipisicing elit. Mollitia, odit.'
-    }
+        name: 'Seamless Integration',
+        description: 'Effortlessly integrate your ERP software with existing systems for enhanced efficiency.'
+    },
 ];
 
 const pricing = [
@@ -76,13 +78,12 @@ const faqs = [
 </script>
 
 <template layout="AikuPublic">
-    <Head title="Warehouse Solution" />
+    <Head title="Free ERP Online Software" />
     <div class="bg-white pb-16">
         <!-- Hero section -->
         <div class="relative isolate overflow-hidden bg-gray-900 pb-16 pt-14 sm:pb-20">
             <img src="https://wallpapers.com/images/hd/warehouse-background-pzkv8y7kvdmmnyej.jpg" alt="" class="absolute inset-0 -z-10 h-full w-full object-cover"
-                style="filter: brightness(0.4) blur(5px)" />   
-            />
+                style="filter: brightness(0.4) blur(5px)" />
             <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
                 aria-hidden="true">
                 <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
@@ -90,50 +91,28 @@ const faqs = [
             </div>
             <div class="mx-auto max-w-7xl px-6 lg:px-8">
                 <div class="mx-auto max-w-2xl py-32 sm:py-44">
-                    <div class="hidden sm:mb-8 sm:flex sm:justify-center">
+                    <!-- <div class="hidden sm:mb-8 sm:flex sm:justify-center">
                         <div
                             class="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-400 ring-1 ring-white/10 hover:ring-white/20">
-                            Learm more about our warehouse. <a href="#" class="font-semibold text-white"><span
+                            Learn more about our Aiku. <a href="#" class="font-semibold text-white"><span
                                     class="absolute inset-0" aria-hidden="true" />Read more <span
                                     aria-hidden="true">&rarr;</span></a>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="text-center">
-                        <h1 class="text-4xl font-bold tracking-tight text-white sm:text-6xl">
-                            Secure Storage Solutions for Your Products.
+                        <h1 class="text-4xl font-medium tracking-tight text-white sm:text-6xl">
+                            <span class="font-black">Take Control of Your Warehouse</span>
                         </h1>
                         <p class="mt-6 leading-8 text-gray-300">
-                            Discover our warehouse facilities designed to safeguard your inventory with top-notch security and customizable storage options.
-                            Streamline your operations with ease, whether you're a small business or a large enterprise.
+                            We are building an open-source 100% free ERP online software. Aiku Warehouse Management ERP provides the comprehensive solution you need to take control.
+                            Streamline operations, boost productivity, and gain real-time inventory insights with our powerful features designed to optimize every aspect of your warehouse.
+                            Reduce costs, minimize errors, and enhance customer satisfaction with our user-friendly software.
                         </p>
-                        <div class="mt-10 flex items-center justify-center gap-x-6">
-                            <a href="https://github.com/inikoo/aiku"
-                                class="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-600 shadow-sm hover:bg-gray-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400">
-                                Github
-                            </a>
-                        </div>
+                        <a href="https://github.com/inikoo/aiku" target="_blank" class="mt-10 flex items-center justify-center gap-x-6">
+                            <Button type="white" label="Github" icon="fab fa-github" />
+                        </a>
                     </div>
                 </div>
-
-                <!-- Logo cloud -->
-                <!-- <div
-                    class="mx-auto grid max-w-lg grid-cols-4 items-center gap-x-8 gap-y-10 sm:max-w-xl sm:grid-cols-6 sm:gap-x-10 lg:mx-0 lg:max-w-none lg:grid-cols-5">
-                    <img class="col-span-2 max-h-12 w-full object-contain lg:col-span-1"
-                        src="https://tailwindui.com/img/logos/158x48/transistor-logo-white.svg" alt="Transistor"
-                        width="158" height="48" />
-                    <img class="col-span-2 max-h-12 w-full object-contain lg:col-span-1"
-                        src="https://tailwindui.com/img/logos/158x48/reform-logo-white.svg" alt="Reform" width="158"
-                        height="48" />
-                    <img class="col-span-2 max-h-12 w-full object-contain lg:col-span-1"
-                        src="https://tailwindui.com/img/logos/158x48/tuple-logo-white.svg" alt="Tuple" width="158"
-                        height="48" />
-                    <img class="col-span-2 max-h-12 w-full object-contain sm:col-start-2 lg:col-span-1"
-                        src="https://tailwindui.com/img/logos/158x48/savvycal-logo-white.svg" alt="SavvyCal" width="158"
-                        height="48" />
-                    <img class="col-span-2 col-start-2 max-h-12 w-full object-contain sm:col-start-auto lg:col-span-1"
-                        src="https://tailwindui.com/img/logos/158x48/statamic-logo-white.svg" alt="Statamic" width="158"
-                        height="48" />
-                </div> -->
             </div>
             <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]"
                 aria-hidden="true">
@@ -148,11 +127,10 @@ const faqs = [
                 <div class="mx-auto max-w-2xl sm:text-center">
                     <h2 class="text-base font-semibold leading-7 text-indigo-600">All-Inclusive Solutions</h2>
                     <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-                        Your Warehousing Woes, Solved.
+                        End-to-End ERP Solutions: Your Answer to Streamlined Operations
                     </p>
                     <p class="mt-6 text-lg leading-8 text-gray-600">
-                        Say goodbye to logistical headaches.
-                        With our comprehensive warehouse services, we've got you covered from storage to logistics, ensuring seamless operations for your business.
+                        Simplify your business processes effortlessly. Our comprehensive ERP software covers everything from inventory management to logistics, guaranteeing smooth operations for your enterprise.
                     </p>
 
                 </div>
