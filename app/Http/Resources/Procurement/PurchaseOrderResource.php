@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\Procurement;
 
+use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -24,22 +25,16 @@ class PurchaseOrderResource extends JsonResource
     public function toArray($request): array
     {
 
+        /** @var PurchaseOrder $purchaseOrder */
+        $purchaseOrder = $this;
+
 
         return [
-            'number'     => $this->number,
-            'slug'       => $this->slug,
-            'date'       => $this->date,
-            'provider'   => $this->when($this->relationLoaded('provider'), function () {
-                switch (true) {
-                    case $this->resource->resource instanceof \App\Models\SupplyChain\Agent:
-                        return new AgentResource($this->resource->resource);
-
-                    case $this->resource->resource instanceof \App\Models\SupplyChain\Supplier:
-                        return new SupplierResource($this->resource->resource);
-                }
-            }),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'number'     => $purchaseOrder->number,
+            'slug'       => $purchaseOrder->slug,
+            'date'       => $purchaseOrder->date,
+            'created_at' => $purchaseOrder->created_at,
+            'updated_at' => $purchaseOrder->updated_at,
         ];
     }
 }

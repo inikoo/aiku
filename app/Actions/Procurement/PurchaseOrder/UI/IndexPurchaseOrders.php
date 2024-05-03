@@ -9,9 +9,10 @@ namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Http\Resources\Procurement\PurchaseOrderResource;
+use App\Http\Resources\Procurement\PurchaseOrdersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\Organisation;
@@ -27,7 +28,7 @@ use App\Services\QueryBuilder;
 
 class IndexPurchaseOrders extends OrgAction
 {
-    public function handle(Organisation|OrgAgent|OrgSupplier $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|OrgAgent|OrgSupplier|OrgPartner $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -42,19 +43,24 @@ class IndexPurchaseOrders extends OrgAction
         $query = QueryBuilder::for(PurchaseOrder::class);
 
         if (class_basename($parent) == 'OrgAgent') {
-            $query->leftJoin('agents', 'agents.id', 'purchase_orders.parent_id');
-            $query->where('parent_type', 'Agent')->where('purchase_orders.parent_id', $parent->id);
+            $query->leftJoin('org_agents', 'org_agents.id', 'purchase_orders.parent_id');
+            $query->where('purchase_orders.parent_type', 'OrgAgent')->where('purchase_orders.parent_id', $parent->id);
             $query->addSelect('agents.slug as agent_slug');
-        } elseif (class_basename($parent) == 'Organisation') {
+        } elseif (class_basename($parent) == 'OrgSupplier') {
+            $query->leftJoin('suppliers', 'suppliers.id', 'purchase_orders.parent_id');
+            $query->where('purchase_orders.parent_type', 'OrgSupplier')->where('purchase_orders.parent_id', $parent->id);
+            $query->addSelect('agents.slug as agent_slug');
+        } elseif (class_basename($parent) == 'OrgPartner') {
             $query->where('purchase_orders.organisation_id', $parent->id);
             $query->addSelect(['parent_id', 'parent_type']);
         } else {
-            $query->where('parent_type', 'Supplier')->where('parent_id', $parent->id);
+            $query->where('purchase_orders.organisation_id', $parent->id);
+            $query->with('parent');
         }
 
 
         return $query->defaultSort('purchase_orders.number')
-            ->select(['number', 'purchase_orders.slug', 'date'])
+
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -112,7 +118,7 @@ class IndexPurchaseOrders extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $purchaseOrders): AnonymousResourceCollection
     {
-        return PurchaseOrderResource::collection($purchaseOrders);
+        return PurchaseOrdersResource::collection($purchaseOrders);
     }
 
 
@@ -126,7 +132,7 @@ class IndexPurchaseOrders extends OrgAction
                 'pageHead'    => [
                     'title' => __('purchase orders'),
                 ],
-                'data'        => PurchaseOrderResource::collection($purchaseOrders),
+                'data'        => PurchaseOrdersResource::collection($purchaseOrders),
             ]
         )->table($this->tableStructure());
     }

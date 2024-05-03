@@ -49,6 +49,9 @@ const formatDate = (dateIso: Date) => {
         <template #cell(date)="{ item: purchaseOrder }">
             {{ formatDate(purchaseOrder['date']) }}
         </template>
+      <template #cell(parent)="{ item: purchaseOrder }">
+        {{ purchaseOrder['parent_name']}}
+      </template>
     </Table>
 </template>
 
