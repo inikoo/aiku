@@ -18,7 +18,7 @@ const props = defineProps<{
 
 const locale = useLocaleStore();
 
-function supplierRoute(supplier: Supplier) {
+/*function supplierRoute(supplier: Supplier) {
     switch (route().current()) {
         case 'grp.procurement.suppliers.index':
             return route(
@@ -26,26 +26,27 @@ function supplierRoute(supplier: Supplier) {
                 [supplier.slug]);
         default:
             return route(
-                'grp.procurement.agents.show.suppliers.show',
+                'grp.org.procurement.agents.show.suppliers.show',
                 [
+                    supplier.org_slug,
                     supplier.agent_slug,
                     supplier.slug
                 ]);
     }
-}
+}*/
 
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(code)="{ item: supplier }">
-            <Link :href="supplierRoute(supplier)">
+<!--        <template #cell(code)="{ item: supplier }">-->
+<!--            <Link :href="supplierRoute(supplier)">
                 {{ supplier['code'] }}
-            </Link>
-        </template>
-        <template #cell(supplier_locations)="{ item: supplier }">
+            </Link>-->
+<!--        </template>-->
+<!--        <template #cell(supplier_locations)="{ item: supplier }">
             <AddressLocation :data="supplier['supplier_locations']"/>
-        </template>
+        </template>-->
         <template #cell(number_supplier_products)="{ item: supplier }">
             {{locale.number(supplier.number_supplier_products)}}
         </template>

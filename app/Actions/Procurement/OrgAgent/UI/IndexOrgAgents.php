@@ -38,8 +38,6 @@ class IndexOrgAgents extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-
-
         $queryBuilder = QueryBuilder::for(OrgAgent::class);
 
         return $queryBuilder

@@ -14,6 +14,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $name
  * @property string $agent_name
  * @property string $slug
+ * @property string $org_slug
  * @property string $supplier_locations
  * @property string $number_supplier_products
  * @property string $number_purchase_orders
@@ -26,6 +27,7 @@ class SupplierResource extends JsonResource
     public function toArray($request): array
     {
         return [
+            'org_slug'                 => $this->org_slug,
             'agent_slug'               => $this->agent_slug,
             'code'                     => $this->code,
             'name'                     => $this->name,
