@@ -10,6 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Procurement\OrgAgent\StoreOrgAgent;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Agent\UpdateAgent;
+use App\Models\Procurement\OrgAgent;
 use App\Models\SupplyChain\Agent;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
@@ -28,9 +29,7 @@ class FetchAuroraAgents extends FetchAuroraAction
             $organisation = $organisationSource->getOrganisation();
 
 
-
-
-            if ($baseAgent=Agent::withTrashed()->where('source_slug', $agentData['agent']['source_slug'])->first()) {
+            if ($baseAgent = Agent::withTrashed()->where('source_slug', $agentData['agent']['source_slug'])->first()) {
                 if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])->first()) {
                     $agent = UpdateAgent::make()->run($agent, $agentData['agent']);
                 }
@@ -41,8 +40,12 @@ class FetchAuroraAgents extends FetchAuroraAction
                 );
             }
 
-
             if ($agent) {
+                $orgAgent = OrgAgent::where('organisation_id', $organisation->id)->where('agent_id', $agent->id)->first();
+                if ($orgAgent) {
+                    return $agent;
+                }
+
                 StoreOrgAgent::make()->action(
                     $organisation,
                     $agent,
@@ -63,6 +66,11 @@ class FetchAuroraAgents extends FetchAuroraAction
                     ->where('Agent Key', $sourceData[1])
                     ->update(['aiku_id' => $agent->id]);
             } elseif ($baseAgent) {
+                $orgAgent = OrgAgent::where('organisation_id', $organisation->id)->where('agent_id', $baseAgent->id)->first();
+                if ($orgAgent) {
+                    return $agent;
+                }
+
                 StoreOrgAgent::make()->action(
                     $organisation,
                     $baseAgent,
