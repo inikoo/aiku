@@ -50,7 +50,6 @@ class IndexPaymentAccounts extends OrgAction
         } elseif ($parent instanceof OrgPaymentServiceProvider) {
             $queryBuilder->where('org_payment_service_provider_id', $parent->id);
         } elseif ($parent instanceof Shop) {
-            $queryBuilder->leftJoin('payment_account_shop', 'payment_account_shop.payment_account_id', 'payment_accounts.id');
             $queryBuilder->where('payment_account_shop.shop_id', $parent->id);
         }
 
@@ -75,8 +74,11 @@ class IndexPaymentAccounts extends OrgAction
                 'payment_service_providers.slug as payment_service_provider_slug',
                 'payment_service_providers.name as payment_service_provider_name',
                 'payment_service_providers.code as payment_service_provider_code',
-
+                'shops.code as shop_code',
+                'shops.name as shop_name'
             ])
+            ->leftJoin('payment_account_shop', 'payment_account_shop.payment_account_id', 'payment_accounts.id')
+            ->leftJoin('shops', 'payment_account_shop.shop_id', 'shops.id')
             ->leftJoin('payment_account_stats', 'payment_accounts.id', 'payment_account_stats.payment_account_id')
             ->leftJoin('payment_service_providers', 'payment_service_provider_id', 'payment_service_providers.id')
             ->allowedSorts(['code', 'name', 'number_payments','payment_service_provider_code'])
@@ -121,6 +123,8 @@ class IndexPaymentAccounts extends OrgAction
             if (!$parent instanceof OrgPaymentServiceProvider) {
                 $table->column(key: 'payment_service_provider_code', label: __('provider'), canBeHidden: false, sortable: true, searchable: true);
             }
+
+            $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
 
             $table->column(key: 'number_payments', label: __('payments'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');

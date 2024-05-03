@@ -11,12 +11,14 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @property int $number_payments
+ * @property \App\Models\Market\Shop $shops
  * @property string $payment_service_provider_slug
  * @property string $payment_service_provider_code
  * @property string $payment_service_provider_name
  * @property string $slug
  * @property string $name
  * @property string $code
+ * @property string $shop_name
  *
  */
 class PaymentAccountsResource extends JsonResource
@@ -31,6 +33,7 @@ class PaymentAccountsResource extends JsonResource
             'payment_service_provider_name' => $this->payment_service_provider_name,
             'number_payments'               => $this->number_payments,
             'code'                          => $this->code,
+            'shop_name'                     => $this->shop_name
         ];
     }
 }
