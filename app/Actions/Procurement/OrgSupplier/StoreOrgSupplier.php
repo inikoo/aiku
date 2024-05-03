@@ -8,6 +8,7 @@
 namespace App\Actions\Procurement\OrgSupplier;
 
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgSuppliers;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Organisation;
@@ -25,6 +26,8 @@ class StoreOrgSupplier extends OrgAction
         $orgSupplier = $supplier->orgSuppliers()->create($modelData);
         $orgSupplier->stats()->create();
 
+        OrganisationHydrateOrgSuppliers::dispatch($organisation);
+
 
         return $orgSupplier;
     }
@@ -33,11 +36,11 @@ class StoreOrgSupplier extends OrgAction
     public function rules(ActionRequest $request): array
     {
         return [
-            'source_id' => 'sometimes|nullable|string'
+            'source_id' => 'sometimes|nullable|string|max:64',
         ];
     }
 
-    public function action(Organisation $organisation, Supplier $supplier, $modelData, $hydratorDelay = 0): OrgSupplier
+    public function action(Organisation $organisation, Supplier $supplier, $modelData = [], $hydratorDelay = 0): OrgSupplier
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorDelay;

@@ -112,9 +112,9 @@ class IndexSupplierPurchaseOrders extends InertiaAction
                 'title'       => __('supplier purchase orders'),
                 'pageHead'    => [
                     'title'   => __('supplier purchase orders'),
-                    'create'  => $this->canEdit && $request->route()->getName()=='grp.procurement.supplier-purchase-orders.index' ? [
+                    'create'  => $this->canEdit && $request->route()->getName()=='grp.org.procurement.supplier-purchase-orders.index' ? [
                         'route' => [
-                            'name'       => 'grp.procurement.supplier-purchase-orders.create',
+                            'name'       => 'grp.org.procurement.supplier-purchase-orders.create',
                             'parameters' => array_values($request->route()->originalParameters())
                         ],
                         'label'=> __('supplier deliveries')
@@ -137,7 +137,7 @@ class IndexSupplierPurchaseOrders extends InertiaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'grp.procurement.supplier-purchase-orders.index'
+                                'name' => 'grp.org.procurement.supplier-purchase-orders.index'
                             ],
                             'label' => __('supplier purchase order'),
                             'icon'  => 'fal fa-bars'

@@ -19,6 +19,7 @@ return new class () extends Migration {
             $table = $this->groupOrgRelationship($table);
             $table->unsignedInteger('supplier_product_id');
             $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
+            $table->boolean('status')->default(true)->index();
             $table->timestampsTz();
             $table->string('source_id')->index()->nullable();
         });

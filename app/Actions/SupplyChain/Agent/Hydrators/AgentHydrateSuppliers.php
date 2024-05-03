@@ -9,12 +9,23 @@ namespace App\Actions\SupplyChain\Agent\Hydrators;
 
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class AgentHydrateSuppliers
 {
     use AsAction;
+    private Agent $agent;
 
+    public function __construct(Agent $agent)
+    {
+        $this->agent = $agent;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->agent->id))->dontRelease()];
+    }
 
     public function handle(Agent $agent): void
     {

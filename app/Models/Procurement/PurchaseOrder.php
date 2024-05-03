@@ -35,8 +35,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
- * @property int $provider_id
- * @property string $provider_type
+ * @property string $parent_type
+ * @property int $parent_id
+ * @property string $org_parent_type
+ * @property int $org_parent_id
  * @property string $number
  * @property array $data
  * @property PurchaseOrderStateEnum $state
@@ -70,8 +72,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
  * @property-read Collection<int, \App\Models\Procurement\PurchaseOrderItem> $items
+ * @property-read Model|\Eloquent $orgParent
  * @property-read Organisation $organisation
- * @property-read Model|\Eloquent $provider
+ * @property-read Model|\Eloquent $parent
  * @method static \Database\Factories\Procurement\PurchaseOrderFactory factory($count = null, $state = [])
  * @method static Builder|PurchaseOrder newModelQuery()
  * @method static Builder|PurchaseOrder newQuery()
@@ -124,6 +127,12 @@ class PurchaseOrder extends Model implements Auditable
     {
         return $this->morphTo();
     }
+
+    public function orgParent(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
     //
     //    public function supplierDeliveries(): BelongsToMany
     //    {

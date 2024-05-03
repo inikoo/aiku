@@ -8,6 +8,7 @@
 namespace App\Actions\SupplyChain\Agent;
 
 use App\Actions\GrpAction;
+use App\Actions\Procurement\OrgAgent\UpdateOrgAgent;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateUniversalSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAgents;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
@@ -30,15 +31,14 @@ class UpdateAgent extends GrpAction
 
     public function handle(Agent $agent, array $modelData): Agent
     {
-
-        UpdateOrganisation::run($agent->organisation, Arr::except($modelData, ['source_id','source_slug','status']));
-
-
+        UpdateOrganisation::run($agent->organisation, Arr::except($modelData, ['source_id', 'source_slug', 'status']));
 
         $agent = $this->update($agent, Arr::only($modelData, 'status'));
         if ($agent->wasChanged('status')) {
-
-            foreach($agent->orgAgents as $orgAgent) {
+            foreach ($agent->orgAgents as $orgAgent) {
+                if (!$agent->status) {
+                    UpdateOrgAgent::make()->action($orgAgent, ['status' => false]);
+                }
                 OrganisationHydrateProcurement::dispatch($orgAgent->organisation);
             }
 
@@ -46,7 +46,6 @@ class UpdateAgent extends GrpAction
         }
 
         AgentHydrateUniversalSearch::dispatch($agent);
-
 
 
         return $agent;
@@ -58,13 +57,13 @@ class UpdateAgent extends GrpAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("procurement.".$this->group->id.".edit");
+        return $request->user()->hasPermissionTo("supply-chain.".$this->group->id.".edit");
     }
 
     public function rules(): array
     {
         return [
-            'code'         => [
+            'code'        => [
                 'sometimes',
                 'required',
                 'max:9',
@@ -81,11 +80,12 @@ class UpdateAgent extends GrpAction
                     ]
                 ),
             ],
-            'name'         => ['sometimes', 'required', 'string', 'max:255'],
-            'email'        => ['nullable', 'email'],
-            'phone'        => ['nullable', 'phone:AUTO'],
-            'address'      => ['sometimes', 'required', new ValidAddress()],
-            'currency_id'  => ['sometimes', 'required', 'exists:currencies,id'],
+            'name'        => ['sometimes', 'required', 'string', 'max:255'],
+            'email'       => ['nullable', 'email'],
+            'phone'       => ['nullable', 'phone:AUTO'],
+            'address'     => ['sometimes', 'required', new ValidAddress()],
+            'currency_id' => ['sometimes', 'required', 'exists:currencies,id'],
+            'status'      => ['sometimes', 'required', 'boolean'],
         ];
     }
 
@@ -94,6 +94,7 @@ class UpdateAgent extends GrpAction
         $this->agent  = $agent;
         $this->action = true;
         $this->initialisation($agent->group, $modelData);
+
         return $this->handle($agent, $this->validatedData);
     }
 
@@ -101,6 +102,7 @@ class UpdateAgent extends GrpAction
     {
         $this->agent = $agent;
         $this->initialisation($agent->group, $request);
+
         return $this->handle($agent, $this->validatedData);
     }
 

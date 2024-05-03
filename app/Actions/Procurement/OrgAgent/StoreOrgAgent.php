@@ -19,6 +19,7 @@ class StoreOrgAgent extends OrgAction
     {
         data_set($modelData, 'group_id', $organisation->group_id);
         data_set($modelData, 'organisation_id', $organisation->id);
+        data_set($modelData, 'status', $agent->status, false);
 
 
         /** @var OrgAgent $orgAgent */

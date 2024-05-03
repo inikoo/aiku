@@ -100,7 +100,7 @@ class EditSupplierDelivery extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'grp.procurement.supplier-deliveries.edit'=> [
+            'grp.org.procurement.supplier-deliveries.edit'=> [
                 'label'=> $supplierDelivery->number,
                 'route'=> [
                     'name'      => $routeName,

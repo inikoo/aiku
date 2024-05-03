@@ -185,7 +185,7 @@ class EditOrgAgent extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.procurement.agents.edit' => [
+            'grp.org.procurement.agents.edit' => [
                 'label' => $agent->name,
                 'route' => [
                     'name'       => $routeName,

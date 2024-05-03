@@ -82,13 +82,13 @@ class ShowSupplierDelivery extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.procurement.supplier-deliveries.index',
+                                'name' => 'grp.org.procurement.supplier-deliveries.index',
                             ],
                             'label' => __('supplier delivery')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.procurement.supplier-deliveries.show',
+                                'name'       => 'grp.org.procurement.supplier-deliveries.show',
                                 'parameters' => [$supplierDelivery->slug]
                             ],
                             'label' => $supplierDelivery->number,
@@ -120,7 +120,7 @@ class ShowSupplierDelivery extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'grp.procurement.supplier-deliveries.show'=> [
+            'grp.org.procurement.supplier-deliveries.show'=> [
                 'label'=> $supplierDelivery->number,
                 'route'=> [
                     'name'      => $routeName,

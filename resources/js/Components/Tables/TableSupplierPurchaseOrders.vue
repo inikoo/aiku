@@ -16,21 +16,21 @@ const props = defineProps<{
 
 function supplierPurchaseOrderRoute(supplierPurchaseOrder: {}) {
     switch (route().current()) {
-        case 'grp.procurement.supplier-purchase-orders.index':
+        case 'grp.org.procurement.supplier-purchase-orders.index':
             return route(
                 'grp.org.procurement.purchase-orders.show',
                 [supplierPurchaseOrder.slug]);
-        case 'grp.procurement.agents.show':
+        case 'grp.org.procurement.agents.show':
             return route(
-                'grp.procurement.agents.show.supplier-purchase-orders.show',
+                'grp.org.procurement.agents.show.supplier-purchase-orders.show',
                 [supplierPurchaseOrder.agent_slug, supplierPurchaseOrder.slug]);
-        case 'grp.procurement.agents.show.suppliers.show':
+        case 'grp.org.procurement.agents.show.suppliers.show':
             return route(
-                'grp.procurement.agents.show.suppliers.show.supplier-purchase-orders.show',
+                'grp.org.procurement.agents.show.suppliers.show.supplier-purchase-orders.show',
                 [supplierPurchaseOrder.agent_slug, supplierPurchaseOrder.supplier_slug, supplierPurchaseOrder.slug]);
         default:
             return route(
-                'grp.procurement.supplier-purchase-orders.show',
+                'grp.org.procurement.supplier-purchase-orders.show',
                 [supplierPurchaseOrder.slug]);
     }
 }

@@ -79,13 +79,13 @@ class ShowSupplierPurchaseOrder extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.procurement.supplier-deliveries.index',
+                                'name' => 'grp.org.procurement.supplier-deliveries.index',
                             ],
                             'label' => __('supplier delivery')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.procurement.supplier-deliveries.show',
+                                'name'       => 'grp.org.procurement.supplier-deliveries.show',
                                 'parameters' => [$supplierDelivery->slug]
                             ],
                             'label' => $supplierDelivery->number,

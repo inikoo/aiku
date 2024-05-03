@@ -15,7 +15,9 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * App\Models\Procurement\OrgSupplier
@@ -31,6 +33,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string|null $source_id
  * @property-read Group $group
  * @property-read Organisation $organisation
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\OrgSupplierProduct> $products
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\Procurement\OrgSupplierStats|null $stats
  * @property-read Supplier $supplier
  * @method static Builder|OrgSupplier newModelQuery()
@@ -51,10 +55,19 @@ class OrgSupplier extends Model
         return $this->belongsTo(Supplier::class);
     }
 
-
     public function stats(): HasOne
     {
         return $this->hasOne(OrgSupplierStats::class);
+    }
+
+    public function purchaseOrders(): MorphMany
+    {
+        return $this->morphMany(PurchaseOrder::class, 'org_parent');
+    }
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(OrgSupplierProduct::class);
     }
 
 }

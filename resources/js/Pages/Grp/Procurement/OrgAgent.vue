@@ -20,7 +20,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
 import ModelDetails from "@/Components/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
-import TableSuppliers from "@/Components/Tables/TableSuppliers.vue";
+import TableSuppliers from "@/Components/Tables/Grp/SupplyChain/TableSuppliers.vue";
 import TableSupplierProducts from "@/Components/Tables/TableSupplierProducts.vue";
 import AgentShowcase from "@/Components/Showcases/Grp/AgentShowcase.vue";
 import { capitalize } from "@/Composables/capitalize"

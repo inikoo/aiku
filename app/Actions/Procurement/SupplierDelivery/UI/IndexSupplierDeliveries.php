@@ -95,9 +95,9 @@ class IndexSupplierDeliveries extends InertiaAction
                 'title'       => __('supplier deliveries'),
                 'pageHead'    => [
                     'title'  => __('supplier deliveries'),
-                    'create' => $this->canEdit && $request->route()->getName() == 'grp.procurement.supplier-deliveries.index' ? [
+                    'create' => $this->canEdit && $request->route()->getName() == 'grp.org.procurement.supplier-deliveries.index' ? [
                         'route' => [
-                            'name'       => 'grp.procurement.supplier-deliveries.create',
+                            'name'       => 'grp.org.procurement.supplier-deliveries.create',
                             'parameters' => array_values($request->route()->originalParameters())
                         ],
                         'label' => __('supplier deliveries')
@@ -120,7 +120,7 @@ class IndexSupplierDeliveries extends InertiaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'grp.procurement.supplier-deliveries.index'
+                                'name' => 'grp.org.procurement.supplier-deliveries.index'
                             ],
                             'label' => __('supplier deliveries'),
                             'icon'  => 'fal fa-bars'

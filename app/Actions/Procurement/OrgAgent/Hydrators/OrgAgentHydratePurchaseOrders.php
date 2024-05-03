@@ -5,55 +5,56 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SupplyChain\Agent\Hydrators;
+namespace App\Actions\Procurement\OrgAgent\Hydrators;
 
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
-use App\Models\SupplyChain\Agent;
+use App\Models\Procurement\OrgAgent;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class AgentHydrateSupplierDeliveries
+class OrgAgentHydratePurchaseOrders
 {
     use AsAction;
-    private Agent $agent;
+    private OrgAgent $orgAgent;
 
-    public function __construct(Agent $agent)
+
+    public function __construct(OrgAgent $orgAgent)
     {
-        $this->agent = $agent;
+        $this->orgAgent = $orgAgent;
     }
 
     public function getJobMiddleware(): array
     {
-        return [(new WithoutOverlapping($this->agent->id))->dontRelease()];
+        return [(new WithoutOverlapping($this->orgAgent->id))->dontRelease()];
     }
 
-    public function handle(Agent $agent): void
+    public function handle(OrgAgent $orgAgent): void
     {
         $stats = [
-            'number_supplier_deliveries' => $agent->purchaseOrders->count(),
+            'number_purchase_orders' => $orgAgent->purchaseOrders()->count(),
         ];
 
-        $purchaseOrderStateCounts = $agent->purchaseOrders()
+        $purchaseOrderStateCounts = $orgAgent->purchaseOrders()
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
 
         foreach (PurchaseOrderStateEnum::cases() as $productState) {
-            $stats['number_supplier_deliveries_state_'.$productState->snake()] = Arr::get($purchaseOrderStateCounts, $productState->value, 0);
+            $stats['number_purchase_orders_state_'.$productState->snake()] = Arr::get($purchaseOrderStateCounts, $productState->value, 0);
         }
 
-        $purchaseOrderStatusCounts =  $agent->purchaseOrders()
+        $purchaseOrderStatusCounts =  $orgAgent->purchaseOrders()
             ->selectRaw('status, count(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status')->all();
 
         foreach (PurchaseOrderStatusEnum::cases() as $purchaseOrderStatusEnum) {
-            $stats['number_supplier_deliveries_status_'.$purchaseOrderStatusEnum->snake()] = Arr::get($purchaseOrderStatusCounts, $purchaseOrderStatusEnum->value, 0);
+            $stats['number_purchase_orders_status_'.$purchaseOrderStatusEnum->snake()] = Arr::get($purchaseOrderStatusCounts, $purchaseOrderStatusEnum->value, 0);
         }
 
-        $agent->stats()->update($stats);
+        $orgAgent->stats()->update($stats);
     }
 
 

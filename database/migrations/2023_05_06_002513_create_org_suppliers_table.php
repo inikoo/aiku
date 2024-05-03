@@ -21,13 +21,11 @@ return new class () extends Migration {
             $table->foreign('supplier_id')->references('id')->on('suppliers');
             $table->unsignedSmallInteger('agent_id')->nullable();
             $table->foreign('agent_id')->references('id')->on('agents');
-
-
             $table->unsignedSmallInteger('org_agent_id')->nullable();
             $table->foreign('org_agent_id')->references('id')->on('org_agents');
-
             $table->timestampsTz();
             $table->string('source_id')->index()->nullable();
+            $table->unique(['group_id','organisation_id','supplier_id']);
         });
     }
 

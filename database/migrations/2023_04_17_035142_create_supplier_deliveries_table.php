@@ -21,8 +21,10 @@ return new class () extends Migration {
             $table->increments('id');
             $table=$this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
-            $table->unsignedInteger('provider_id')->index();
-            $table->string('provider_type');
+            $table->string('parent_type');
+            $table->unsignedInteger('parent_id')->index();
+            $table->string('org_parent_type');
+            $table->unsignedInteger('org_parent_id')->index();
             $table->string('number');
             $table->string('state')->index()->default(SupplierDeliveryStateEnum::CREATING->value);
             $table->string('status')->index()->default(SupplierDeliveryStatusEnum::PROCESSING->value);
@@ -51,7 +53,8 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
-            $table->index(['provider_id', 'provider_type']);
+            $table->index(['parent_id', 'parent_type']);
+            $table->index(['org_parent_id', 'org_parent_type']);
 
         });
     }

@@ -24,6 +24,8 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?PurchaseOrder
     {
         if ($purchaseOrderData = $organisationSource->fetchPurchaseOrder($organisationSourceId)) {
+
+            //print_r($purchaseOrderData['purchase_order']);
             if (!empty($purchaseOrderData['purchase_order']['source_id']) and $purchaseOrder = PurchaseOrder::withTrashed()->where('source_id', $purchaseOrderData['purchase_order']['source_id'])->first()) {
                 $purchaseOrder = UpdatePurchaseOrder::make()->action(
                     purchaseOrder: $purchaseOrder,
@@ -46,19 +48,19 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
 
                 return $purchaseOrder;
             } else {
-                if ($purchaseOrderData['parent']) {
-                    try {
-                        $purchaseOrder = StorePurchaseOrder::make()->action(
-                            organisation: $organisationSource->organisation,
-                            parent: $purchaseOrderData['parent'],
-                            modelData: $purchaseOrderData['purchase_order'],
-                            strict: false
-                        );
-                    } catch (Exception $e) {
-                        $this->recordError($organisationSource, $e, $purchaseOrderData['purchase_order'], 'PurchaseOrder', 'store');
-
-                        return null;
-                    }
+                if ($purchaseOrderData['org_parent']) {
+                    //  try {
+                    $purchaseOrder = StorePurchaseOrder::make()->action(
+                        organisation: $organisationSource->organisation,
+                        orgParent: $purchaseOrderData['org_parent'],
+                        modelData: $purchaseOrderData['purchase_order'],
+                        strict: false
+                    );
+                    //  } catch (Exception $e) {
+                    //      dd($e);
+                    //      $this->recordError($organisationSource, $e, $purchaseOrderData['purchase_order'], 'PurchaseOrder', 'store');
+                    //      return null;
+                    //  }
 
                     $this->updateAurora($purchaseOrder);
 

@@ -23,6 +23,7 @@ class CustomerHydrateInvoices
     use WithElasticsearch;
     use WithEnumStats;
     private Customer $customer;
+
     public function __construct(Customer $customer)
     {
         $this->customer = $customer;

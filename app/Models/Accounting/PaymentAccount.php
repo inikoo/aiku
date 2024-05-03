@@ -54,6 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read Collection<int, SerialReference> $serialReferences
+ * @property-read Collection<int, Shop> $shops
  * @property-read \App\Models\Accounting\PaymentAccountStats|null $stats
  * @method static \Database\Factories\Accounting\PaymentAccountFactory factory($count = null, $state = [])
  * @method static Builder|PaymentAccount newModelQuery()

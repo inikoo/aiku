@@ -11,13 +11,24 @@ use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\SupplierProduct;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class AgentHydrateSupplierProducts implements ShouldBeUnique
+class AgentHydrateSupplierProducts
 {
     use AsAction;
+    private Agent $agent;
+
+    public function __construct(Agent $agent)
+    {
+        $this->agent = $agent;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->agent->id))->dontRelease()];
+    }
 
 
     public function handle(Agent $agent): void
@@ -46,8 +57,4 @@ class AgentHydrateSupplierProducts implements ShouldBeUnique
     }
 
 
-    public function getJobUniqueId(Agent $agent): int
-    {
-        return $agent->id;
-    }
 }

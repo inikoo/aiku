@@ -19,8 +19,10 @@ return new class () extends Migration {
             $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('agent_id');
             $table->foreign('agent_id')->references('id')->on('agents');
+            $table->boolean('status')->default(true)->index();
             $table->timestampsTz();
             $table->string('source_id')->index()->nullable();
+            $table->unique(['group_id','organisation_id','agent_id']);
 
         });
     }

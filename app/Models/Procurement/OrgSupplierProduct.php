@@ -22,6 +22,7 @@ use Illuminate\Support\Carbon;
  * @property int $group_id
  * @property int $organisation_id
  * @property int $supplier_product_id
+ * @property bool $status
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $source_id

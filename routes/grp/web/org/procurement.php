@@ -9,7 +9,9 @@
 use App\Actions\Procurement\OrgAgent\UI\EditOrgAgent;
 use App\Actions\Procurement\OrgAgent\UI\IndexOrgAgents;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
+use App\Actions\Procurement\OrgSupplier\UI\EditOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UI\IndexOrgSuppliers;
+use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
 use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\CreatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\EditPurchaseOrder;
@@ -27,10 +29,6 @@ use App\Actions\Procurement\SupplierPurchaseOrder\UI\CreateSupplierPurchaseOrder
 use App\Actions\Procurement\SupplierPurchaseOrder\UI\EditSupplierPurchaseOrder;
 use App\Actions\Procurement\SupplierPurchaseOrder\UI\IndexSupplierPurchaseOrders;
 use App\Actions\Procurement\SupplierPurchaseOrder\UI\ShowSupplierPurchaseOrder;
-use App\Actions\ProcurementToDelete\Supplier\ExportSuppliers;
-use App\Actions\ProcurementToDelete\Supplier\UI\EditSupplier;
-use App\Actions\ProcurementToDelete\Supplier\UI\RemoveSupplier;
-use App\Actions\ProcurementToDelete\Supplier\UI\ShowSupplier;
 use App\Actions\SupplyChain\Agent\ExportAgents;
 use App\Actions\SupplyChain\Agent\UI\RemoveAgent;
 use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
@@ -39,27 +37,26 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', ProcurementDashboard::class)->name('dashboard');
 
-Route::get('/suppliers/export', ExportSuppliers::class)->name('suppliers.export');
+//Route::get('/suppliers/export', ExportSuppliers::class)->name('suppliers.export');
 
-Route::get('/suppliers', IndexSuppliers::class)->name('suppliers.index');
-//Route::get('/suppliers/{supplier}', ShowSupplier::class)->name('suppliers.show');
-//Route::get('/suppliers/{supplier}/edit', EditSupplier::class)->name('suppliers.edit');
-//Route::get('/suppliers/{supplier}/delete', RemoveSupplier::class)->name('suppliers.remove');
+Route::get('/suppliers', IndexOrgSuppliers::class)->name('suppliers.index');
+Route::get('/suppliers/{orgSupplier}', ShowOrgSupplier::class)->name('suppliers.show');
+Route::get('/suppliers/{orgSupplier}/edit', EditOrgSupplier::class)->name('suppliers.edit');
 
 Route::get('/agents/export', ExportAgents::class)->name('agents.export');
 
 Route::get('/agents', IndexOrgAgents::class)->name('agents.index');
 
-Route::get('/agents/{agent}', ShowOrgAgent::class)->name('agents.show');
-Route::get('/agents/{agent}/edit', EditOrgAgent::class)->name('agents.edit');
-Route::get('/agents/{agent}/delete', RemoveAgent::class)->name('agents.remove');
+Route::get('/agents/{orgAgent}', ShowOrgAgent::class)->name('agents.show');
+Route::get('/agents/{orgAgent}/edit', EditOrgAgent::class)->name('agents.edit');
+Route::get('/agents/{orgAgent}/delete', RemoveAgent::class)->name('agents.remove');
 
-Route::get('/agents/{agent}/suppliers', [IndexSuppliers::class, 'inAgent'])->name('agents.show.suppliers.index');
-//Route::get('/agents/{agent}/suppliers/{supplier}', [ShowSupplier::class, 'inAgent'])->name('agents.show.suppliers.show');
-//Route::get('/agents/{agent}/suppliers/{supplier}/edit', [EditSupplier::class, 'inAgent'])->name('agents.show.suppliers.edit');
-Route::get('/agents/{agent}/supplier-products', [IndexSupplierProducts::class, 'inAgent'])->name('agents.show.supplier-products.index');
-Route::get('/agents/{agent}/supplier-products/{supplierProduct}', [ShowSupplierProduct::class, 'inAgent'])->name('agents.show.supplier-products.show');
-Route::get('/agents/{agent}/supplier-purchase-orders/{supplierPurchaseOrder}', ShowSupplierPurchaseOrder::class)->name('agents.show.supplier-purchase-orders.show');
+Route::get('/agents/{orgAgent}/suppliers', [IndexSuppliers::class, 'inOrgAgent'])->name('agents.show.suppliers.index');
+//Route::get('/agents/{orgAgent}/suppliers/{orgSupplier}', [ShowSupplier::class, 'inOrgAgent'])->name('agents.show.suppliers.show');
+//Route::get('/agents/{orgAgent}/suppliers/{orgSupplier}/edit', [EditOrgSupplier::class, 'inOrgAgent'])->name('agents.show.suppliers.edit');
+Route::get('/agents/{orgAgent}/supplier-products', [IndexSupplierProducts::class, 'inOrgAgent'])->name('agents.show.supplier-products.index');
+Route::get('/agents/{orgAgent}/supplier-products/{supplierProduct}', [ShowSupplierProduct::class, 'inOrgAgent'])->name('agents.show.supplier-products.show');
+Route::get('/agents/{orgAgent}/supplier-purchase-orders/{supplierPurchaseOrder}', ShowSupplierPurchaseOrder::class)->name('agents.show.supplier-purchase-orders.show');
 
 Route::get('/supplier-products/export', ExportSupplierProducts::class)->name('supplier-products.export');
 
@@ -70,7 +67,7 @@ Route::get('/purchase-orders/export', ExportPurchaseOrders::class)->name('purcha
 
 Route::get('/purchase-orders', IndexPurchaseOrders::class)->name('purchase-orders.index');
 Route::get('/purchase-orders/create', CreatePurchaseOrder::class)->name('purchase-orders.create');
-Route::get('/suppliers/{supplier}/purchase-orders/create', [CreatePurchaseOrder::class, 'inSupplier'])->name('suppliers.show.purchase-orders.create');
+Route::get('/suppliers/{orgSupplier}/purchase-orders/create', [CreatePurchaseOrder::class, 'inSupplier'])->name('suppliers.show.purchase-orders.create');
 Route::get('/purchase-orders/{purchaseOrder}', ShowPurchaseOrder::class)->name('purchase-orders.show');
 Route::get('/purchase-orders/{purchaseOrder}/edit', EditPurchaseOrder::class)->name('purchase-orders.edit');
 

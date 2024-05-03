@@ -45,7 +45,7 @@ class UpdatePurchaseOrder extends OrgAction
                 'sometimes',
                 'required',
                 $this->strict ? 'alpha_dash' : 'string',
-                new IUnique(
+                $this->strict ? new IUnique(
                     table: 'purchase_orders',
                     extraConditions: [
                         [
@@ -58,7 +58,7 @@ class UpdatePurchaseOrder extends OrgAction
                             'value'    => $this->purchaseOrder->id
                         ]
                     ]
-                ),
+                ) : null,
             ],
             'date'   => ['sometimes', 'date'],
         ];

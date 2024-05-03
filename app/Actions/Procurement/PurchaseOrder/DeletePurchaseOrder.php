@@ -7,8 +7,10 @@
 
 namespace App\Actions\Procurement\PurchaseOrder;
 
-use App\Actions\ProcurementToDelete\Supplier\Hydrators\SupplierHydratePurchaseOrders;
+use App\Actions\Procurement\OrgAgent\Hydrators\OrgAgentHydratePurchaseOrders;
+use App\Actions\Procurement\OrgSupplier\Hydrators\OrgSupplierHydratePurchaseOrders;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydratePurchaseOrders;
+use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydratePurchaseOrders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
@@ -22,21 +24,24 @@ class DeletePurchaseOrder
     use WithAttributes;
     use AsAction;
 
+
     /**
      * @throws \Illuminate\Validation\ValidationException
      */
     public function handle(PurchaseOrder $purchaseOrder): bool
     {
         if((in_array($purchaseOrder->state, [PurchaseOrderStateEnum::CREATING, PurchaseOrderStateEnum::SUBMITTED]))) {
-            $parent = $purchaseOrder->provider;
+            $orgParent = $purchaseOrder->orgParent;
 
             $purchaseOrder->items()->delete();
             $purchaseOrderDeleted = $purchaseOrder->delete();
 
-            if (class_basename($parent) == 'Supplier') {
-                SupplierHydratePurchaseOrders::dispatch($parent);
+            if (class_basename($orgParent) == 'OrgSupplier') {
+                OrgSupplierHydratePurchaseOrders::dispatch($orgParent);
+                SupplierHydratePurchaseOrders::dispatch($orgParent->supplier);
             } else {
-                AgentHydratePurchaseOrders::dispatch($parent);
+                OrgAgentHydratePurchaseOrders::dispatch($orgParent);
+                AgentHydratePurchaseOrders::dispatch($orgParent->agent);
             }
 
             OrganisationHydrateProcurement::dispatch($purchaseOrder->organisation);

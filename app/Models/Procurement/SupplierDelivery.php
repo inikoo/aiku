@@ -33,8 +33,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
- * @property int $provider_id
- * @property string $provider_type
+ * @property string $parent_type
+ * @property int $parent_id
+ * @property string $org_parent_type
+ * @property int $org_parent_id
  * @property string $number
  * @property SupplierDeliveryStateEnum $state
  * @property SupplierDeliveryStatusEnum $status

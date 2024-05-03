@@ -13,6 +13,8 @@ use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Assets\Currency;
 use App\Models\Helpers\Address;
+use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgSupplier;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -22,6 +24,11 @@ class FetchAuroraPurchaseOrder extends FetchAurora
     protected function parseModel(): void
     {
         if (in_array($this->auroraModelData->{'Purchase Order Parent'}, ['Parcel', 'Container'])) {
+            return;
+        }
+
+
+        if($this->auroraModelData->{'Purchase Order State'}=='Cancelled' and !$this->auroraModelData->{'Purchase Order Public ID'}) {
             return;
         }
 
@@ -39,6 +46,10 @@ class FetchAuroraPurchaseOrder extends FetchAurora
                 $agentSourceSlug,
                 $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Parent Key'}
             );
+
+            $orgParent = OrgAgent::where('organisation_id', $this->organisation->id)
+                ->where('agent_id', $parent->id)->first();
+
         } else {
             $supplierData = DB::connection("aurora")
                 ->table("Supplier Dimension")
@@ -54,6 +65,10 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             } else {
                 $parent = FetchAuroraDeletedSuppliers::run($this->organisationSource, $this->auroraModelData->{'Purchase Order Parent Key'});
             }
+
+            $orgParent = OrgSupplier::where('organisation_id', $this->organisation->id)
+                ->where('supplier_id', $parent->id)->first();
+
         }
 
 
@@ -62,7 +77,7 @@ class FetchAuroraPurchaseOrder extends FetchAurora
         //'Checked','Placed','Costing','InvoiceChecked')
 
 
-        $this->parsedData["parent"] = $parent;
+        $this->parsedData["org_parent"] = $orgParent;
 
 
         //print ">>".$this->auroraModelData->{'Purchase Order State'}."\n";
@@ -113,7 +128,7 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             'settled_at'      => $this->parseDate($this->auroraModelData->{'Purchase Order Consolidated Date'}),
 
 
-            "number" => $this->auroraModelData->{'Purchase Order Public ID'} ?? $this->auroraModelData->{'Purchase Order Key'},
+            "number" => (string) $this->auroraModelData->{'Purchase Order Public ID'} ?? $this->auroraModelData->{'Purchase Order Key'},
             "state"  => $state,
             "status" => $status,
 

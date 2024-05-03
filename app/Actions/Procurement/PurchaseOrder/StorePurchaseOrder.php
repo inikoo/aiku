@@ -8,15 +8,16 @@
 namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\OrgAction;
-use App\Actions\ProcurementToDelete\Supplier\Hydrators\SupplierHydratePurchaseOrders;
+use App\Actions\Procurement\OrgAgent\Hydrators\OrgAgentHydratePurchaseOrders;
+use App\Actions\Procurement\OrgSupplier\Hydrators\OrgSupplierHydratePurchaseOrders;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydratePurchaseOrders;
+use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydratePurchaseOrders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
-use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
+use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
-use App\Models\SupplyChain\Agent;
-use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
@@ -30,20 +31,33 @@ class StorePurchaseOrder extends OrgAction
     use AsAction;
     use WithAttributes;
 
-    private Supplier|Agent $parent;
+    private OrgSupplier|OrgAgent $orgParent;
 
-    public function handle(Organisation $organisation, Agent|Supplier $parent, array $modelData): PurchaseOrder
+    public function handle(Organisation $organisation, OrgSupplier|OrgAgent $orgParent, array $modelData): PurchaseOrder
     {
         data_set($modelData, 'organisation_id', $organisation->id);
         data_set($modelData, 'group_id', $organisation->group_id);
 
-        /** @var PurchaseOrder $purchaseOrder */
-        $purchaseOrder = $parent->purchaseOrders()->create($modelData);
-
-        if (class_basename($parent) == 'Supplier') {
-            SupplierHydratePurchaseOrders::dispatch($parent);
+        if (class_basename($orgParent) == 'OrgSupplier') {
+            data_set($modelData, 'parent_type', 'Supplier');
+            data_set($modelData, 'parent_id', $orgParent->supplier_id);
         } else {
-            AgentHydratePurchaseOrders::dispatch($parent);
+            data_set($modelData, 'parent_type', 'Agent');
+            data_set($modelData, 'parent_id', $orgParent->agent_id);
+        }
+
+
+        /** @var PurchaseOrder $purchaseOrder */
+        $purchaseOrder = $orgParent->purchaseOrders()->create($modelData);
+
+        if (class_basename($orgParent) == 'OrgSupplier') {
+
+
+            OrgSupplierHydratePurchaseOrders::dispatch($orgParent);
+            SupplierHydratePurchaseOrders::dispatch($orgParent->supplier);
+        } else {
+            OrgAgentHydratePurchaseOrders::dispatch($orgParent);
+            AgentHydratePurchaseOrders::dispatch($orgParent->agent);
         }
 
         OrganisationHydrateProcurement::dispatch($organisation);
@@ -67,12 +81,12 @@ class StorePurchaseOrder extends OrgAction
                 'sometimes',
                 'required',
                 $this->strict ? 'alpha_dash' : 'string',
-                new IUnique(
+                $this->strict ? new IUnique(
                     table: 'purchase_orders',
                     extraConditions: [
                         ['column' => 'organisation_id', 'value' => $this->organisation->id],
                     ]
-                ),
+                ) : null,
             ],
             'date'            => ['required', 'date'],
             'submitted_at'    => ['sometimes', 'nullable', 'date'],
@@ -97,12 +111,14 @@ class StorePurchaseOrder extends OrgAction
 
     public function afterValidator(Validator $validator): void
     {
-        $numberPurchaseOrdersStateCreating = $this->parent->purchaseOrders()->where('state', PurchaseOrderStateEnum::CREATING)->count();
+        $numberPurchaseOrdersStateCreating = $this->orgParent->purchaseOrders()->where('state', PurchaseOrderStateEnum::CREATING)->count();
 
         if ($this->strict && $numberPurchaseOrdersStateCreating >= 1) {
             $validator->errors()->add('purchase_order', 'Are you sure want to create new purchase order?');
         }
 
+        //todo #170
+        /*
         if ($this->strict && $this->parent->products->where('state', '<>', SupplierProductStateEnum::DISCONTINUED)->count() == 0) {
             $message = match (class_basename($this->parent)) {
                 'OrgAgent' => 'You can not create purchase order if the agent dont have any product',
@@ -110,37 +126,38 @@ class StorePurchaseOrder extends OrgAction
             };
             $validator->errors()->add('purchase_order', $message);
         }
+        */
     }
 
-    public function action(Organisation $organisation, Agent|Supplier $parent, array $modelData, bool $strict = true): \Illuminate\Http\RedirectResponse|PurchaseOrder
+    public function action(Organisation $organisation, OrgAgent|OrgSupplier $orgParent, array $modelData, bool $strict = true): \Illuminate\Http\RedirectResponse|PurchaseOrder
     {
-        $this->asAction = true;
-        $this->parent   = $parent;
-        $this->strict   = $strict;
+        $this->asAction    = true;
+        $this->orgParent   = $orgParent;
+        $this->strict      = $strict;
         $this->initialisation($organisation, $modelData);
 
 
-        return $this->handle($organisation, $parent, $this->validatedData);
+        return $this->handle($organisation, $orgParent, $this->validatedData);
     }
 
-    public function inAgent(Organisation $organisation, Agent $agent, ActionRequest $request): \Illuminate\Http\RedirectResponse
+    public function inOrgAgent(Organisation $organisation, OrgAgent $orgAgent, ActionRequest $request): \Illuminate\Http\RedirectResponse
     {
-        $this->parent = $agent;
+        $this->orgParent = $orgAgent;
 
 
         $this->initialisation($organisation, $request);
 
-        $purchaseOrder = $this->handle($organisation, $agent, $this->validatedData);
+        $purchaseOrder = $this->handle($organisation, $orgAgent, $this->validatedData);
 
         return redirect()->route('grp.org.procurement.purchase-orders.show', $purchaseOrder->slug);
     }
 
-    public function inSupplier(Organisation $organisation, Supplier $supplier, ActionRequest $request): \Illuminate\Http\RedirectResponse|PurchaseOrder
+    public function inOrgSupplier(Organisation $organisation, OrgSupplier $orgSupplier, ActionRequest $request): \Illuminate\Http\RedirectResponse|PurchaseOrder
     {
-        $this->parent = $supplier;
+        $this->orgParent = $orgSupplier;
         $this->initialisation($organisation, $request);
 
-        $purchaseOrder = $this->handle($organisation, $supplier, $this->validatedData);
+        $purchaseOrder = $this->handle($organisation, $orgSupplier, $this->validatedData);
 
         return redirect()->route('grp.org.procurement.purchase-orders.show', $purchaseOrder->slug);
     }

@@ -41,6 +41,7 @@ class FetchAuroraAgents extends FetchAuroraAction
             }
 
             if ($agent) {
+                $agent->refresh();
                 $orgAgent = OrgAgent::where('organisation_id', $organisation->id)->where('agent_id', $agent->id)->first();
                 if ($orgAgent) {
                     return $agent;

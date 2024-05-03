@@ -21,7 +21,7 @@ function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
             return route(
                 'grp.org.procurement.purchase-orders.show',
                 [purchaseOrder.slug]);
-        case 'grp.procurement.agents.show':
+        case 'grp.org.procurement.agents.show':
             return route(
                 'grp.org.procurement.purchase-orders.show',
                 [purchaseOrder.slug]);

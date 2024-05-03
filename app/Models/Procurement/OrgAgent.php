@@ -7,7 +7,6 @@
 
 namespace App\Models\Procurement;
 
-use App\Enums\Procurement\AgentOrganisation\AgentOrganisationStatusEnum;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -16,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * App\Models\Procurement\OrgAgent
@@ -24,14 +24,16 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property int $group_id
  * @property int $organisation_id
  * @property int $agent_id
+ * @property bool $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $source_id
- * @property AgentOrganisationStatusEnum $status
  * @property-read Agent $agent
  * @property-read Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\OrgSupplier> $orgSuppliers
  * @property-read Organisation $organisation
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\OrgSupplierProduct> $products
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\Procurement\OrgAgentStats|null $stats
  * @method static \Illuminate\Database\Eloquent\Builder|OrgAgent newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgAgent newQuery()
@@ -41,10 +43,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class OrgAgent extends Model
 {
     use InOrganisation;
-
-    protected $casts = [
-        'status' => AgentOrganisationStatusEnum::class
-    ];
 
 
     protected $guarded = [];
@@ -64,6 +62,15 @@ class OrgAgent extends Model
         return $this->hasMany(OrgSupplier::class);
     }
 
+    public function purchaseOrders(): MorphMany
+    {
+        return $this->morphMany(PurchaseOrder::class, 'org_parent');
+    }
+
+    public function products(): HasMany
+    {
+        return $this->hasMany(OrgSupplierProduct::class);
+    }
 
 
 }

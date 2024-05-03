@@ -138,12 +138,12 @@ class Agent extends Model implements HasMedia, Auditable
 
     public function purchaseOrders(): MorphMany
     {
-        return $this->morphMany(PurchaseOrder::class, 'provider');
+        return $this->morphMany(PurchaseOrder::class, 'parent');
     }
 
     public function supplierDeliveries(): MorphMany
     {
-        return $this->morphMany(SupplierDelivery::class, 'provider');
+        return $this->morphMany(SupplierDelivery::class, 'parent');
     }
 
     public function orgAgents(): HasMany

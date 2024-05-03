@@ -94,7 +94,7 @@ class StoreOrganisation
         $organisation->inventoryStats()->create();
         $organisation->productionStats()->create();
         $organisation->marketStats()->create();
-        $organisation->salesStats()->create();
+        $organisation->salesDashboard()->create();
         $organisation->fulfilmentStats()->create();
         $organisation->accountingStats()->create();
         $organisation->mailStats()->create();

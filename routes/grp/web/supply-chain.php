@@ -67,7 +67,7 @@ Route::get('/agents/{agent}/delete', RemoveAgent::class)->name('agents.remove');
 
 Route::get('/agents/{agent}/suppliers', [IndexSuppliers::class, 'inAgent'])->name('agents.show.suppliers.index');
 Route::get('/agents/{agent}/suppliers/{supplier}', [ShowSupplier::class, 'inAgent'])->name('agents.show.suppliers.show');
-Route::get('/agents/{agent}/suppliers/{supplier}/edit', [EditSupplier::class, 'inAgent'])->name('agents.show.suppliers.edit');
+Route::get('/agents/{agent}/suppliers/{supplier}/edit', [EditOrgSupplier::class, 'inAgent'])->name('agents.show.suppliers.edit');
 Route::get('/agents/{agent}/supplier-products', [IndexSupplierProducts::class, 'inAgent'])->name('agents.show.supplier-products.index');
 Route::get('/agents/{agent}/supplier-products/{supplierProduct}', [ShowSupplierProduct::class, 'inAgent'])->name('agents.show.supplier-products.show');
 Route::get('/agents/{agent}/supplier-purchase-orders/{supplierPurchaseOrder}', ShowSupplierPurchaseOrder::class)->name('agents.show.supplier-purchase-orders.show');
