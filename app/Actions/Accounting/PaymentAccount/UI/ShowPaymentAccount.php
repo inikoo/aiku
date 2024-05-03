@@ -128,7 +128,7 @@ class ShowPaymentAccount extends OrgAction
                             'tooltip' => __('edit payment account'),
                             'label'   => __('Edit Payment Account'),
                             'route'   => [
-                                'name'       => 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.edit',
+                                'name'       => 'grp.org.accounting.payment-accounts.edit',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ]
