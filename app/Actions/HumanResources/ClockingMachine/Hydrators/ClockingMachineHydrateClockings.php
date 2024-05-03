@@ -8,8 +8,6 @@
 namespace App\Actions\HumanResources\ClockingMachine\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
-use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
