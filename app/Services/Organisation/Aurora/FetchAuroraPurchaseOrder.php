@@ -23,17 +23,16 @@ class FetchAuroraPurchaseOrder extends FetchAurora
 {
     protected function parseModel(): void
     {
+
+
+
         if (in_array($this->auroraModelData->{'Purchase Order Parent'}, ['Parcel', 'Container'])) {
             return;
         }
 
-
         if($this->auroraModelData->{'Purchase Order State'}=='Cancelled' and !$this->auroraModelData->{'Purchase Order Public ID'}) {
             return;
         }
-
-        //todo deal with inter group supplier products
-
 
         if ($this->auroraModelData->{'Purchase Order Parent'} == 'Agent') {
             $agentData = DB::connection("aurora")
@@ -57,6 +56,11 @@ class FetchAuroraPurchaseOrder extends FetchAurora
                 ->first();
 
             if ($supplierData) {
+
+                if($supplierData->aiku_ignore){
+                    return;
+                }
+
                 $supplierSourceSlug = Str::kebab(strtolower($supplierData->{'Supplier Code'}));
                 $parent             = $this->parseSupplier(
                     $supplierSourceSlug,

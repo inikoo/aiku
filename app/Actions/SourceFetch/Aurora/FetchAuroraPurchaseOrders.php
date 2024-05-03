@@ -70,7 +70,7 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
                 print "Warning purchase order ".$purchaseOrderData['purchase_order']['number']."  Id:$organisationSourceId do not have parent\n";
             }
         } else {
-            print "Warning error fetching order $organisationSourceId\n";
+            //print "Warning error fetching order $organisationSourceId\n";
         }
 
         return null;
