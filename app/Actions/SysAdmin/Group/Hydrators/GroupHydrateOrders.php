@@ -1,6 +1,6 @@
 <?php
 /*
- * Author: Raul Perusquia <raul@inikoo.com>  
+ * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Fri, 03 May 2024 19:26:53 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */

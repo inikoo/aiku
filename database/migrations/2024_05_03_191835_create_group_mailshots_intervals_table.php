@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 03 May 2024 17:36:07 British Summer Time, Sheffield, UK
+ * Created: Fri, 03 May 2024 20:18:46 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -14,10 +14,10 @@ return new class () extends Migration {
     use HasDateIntervalsStats;
     public function up(): void
     {
-        Schema::create('organisation_mailshots_intervals', function (Blueprint $table) {
+        Schema::create('group_mailshots_intervals', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('organisation_id');
-            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedSmallInteger('group_id');
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table=$this->dateIntervals($table, ['newsletters', 'marketing_emails', 'abandoned_carts', 'total_mailshots', 'total_emails']);
             $table->timestampsTz();
         });
@@ -26,6 +26,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('organisation_mailshots_intervals');
+        Schema::dropIfExists('group_mailshots_intervals');
     }
 };

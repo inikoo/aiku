@@ -30,6 +30,8 @@ use App\Models\Helpers\SerialReference;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Mail\Outbox;
 use App\Models\Mail\SenderEmail;
+use App\Models\Market\Shop\ShopMailshotsIntervals;
+use App\Models\Market\Shop\ShopOrdersIntervals;
 use App\Models\Marketing\OfferCampaign;
 use App\Models\OMS\Order;
 use App\Models\Search\UniversalSearch;
@@ -105,7 +107,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Invoice> $invoices
  * @property-read LaravelCollection<int, Issue> $issues
  * @property-read \App\Models\Market\ShopMailStats|null $mailStats
+ * @property-read ShopMailshotsIntervals|null $mailshotsIntervals
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
+ * @property-read ShopOrdersIntervals|null $orderIntervals
  * @property-read LaravelCollection<int, Order> $orders
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read Organisation $organisation
@@ -187,6 +191,16 @@ class Shop extends Model
     public function salesIntervals(): HasOne
     {
         return $this->hasOne(ShopSalesIntervals::class);
+    }
+
+    public function orderIntervals(): HasOne
+    {
+        return $this->hasOne(ShopOrdersIntervals::class);
+    }
+
+    public function mailshotsIntervals(): HasOne
+    {
+        return $this->hasOne(ShopMailshotsIntervals::class);
     }
 
     public function stats(): HasOne

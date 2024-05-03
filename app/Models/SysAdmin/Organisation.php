@@ -111,8 +111,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Location> $locations
  * @property-read Media|null $logo
  * @property-read \App\Models\SysAdmin\OrganisationMailStats|null $mailStats
+ * @property-read \App\Models\SysAdmin\OrganisationMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\OrganisationMarketStats|null $marketStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
+ * @property-read \App\Models\SysAdmin\OrganisationOrdersIntervals|null $ordersIntervals
  * @property-read LaravelCollection<int, OrgAgent> $orgAgents
  * @property-read LaravelCollection<int, OrgPartner> $orgPartners
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
@@ -253,6 +255,16 @@ class Organisation extends Model implements HasMedia
     public function salesIntervals(): HasOne
     {
         return $this->hasOne(OrganisationSalesIntervals::class);
+    }
+
+    public function ordersIntervals(): HasOne
+    {
+        return $this->hasOne(OrganisationOrdersIntervals::class);
+    }
+
+    public function mailshotsIntervals(): HasOne
+    {
+        return $this->hasOne(OrganisationMailshotsIntervals::class);
     }
 
     public function crmStats(): HasOne

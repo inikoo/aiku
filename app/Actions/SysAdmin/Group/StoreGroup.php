@@ -46,6 +46,8 @@ class StoreGroup
         $group->fulfilmentStats()->create();
         $group->salesStats()->create();
         $group->salesIntervals()->create();
+        $group->ordersIntervals()->create();
+        $group->mailshotsIntervals()->create();
 
         SetGroupLogo::dispatch($group);
 

@@ -75,8 +75,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $josPositions
  * @property-read \App\Models\Media\Media|null $logo
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Mailroom> $mailrooms
+ * @property-read \App\Models\SysAdmin\GroupMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\GroupMarketStats|null $marketStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read \App\Models\SysAdmin\GroupOrdersIntervals|null $ordersIntervals
  * @property-read \Illuminate\Database\Eloquent\Collection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $organisations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentAccount> $paymentAccounts
@@ -86,6 +88,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, RecurringBill> $recurringBills
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \App\Models\SysAdmin\GroupSalesIntervals|null $salesIntervals
+ * @property-read \App\Models\SysAdmin\GroupSalesStats|null $salesStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StockFamily> $stockFamilies
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SupplierProduct> $supplierProducts
@@ -178,6 +181,16 @@ class Group extends Model implements HasMedia
     public function salesIntervals(): HasOne
     {
         return $this->hasOne(GroupSalesIntervals::class);
+    }
+
+    public function ordersIntervals(): HasOne
+    {
+        return $this->hasOne(GroupOrdersIntervals::class);
+    }
+
+    public function mailshotsIntervals(): HasOne
+    {
+        return $this->hasOne(GroupMailshotsIntervals::class);
     }
 
     public function sysadminStats(): HasOne
