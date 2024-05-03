@@ -51,6 +51,8 @@ Route::get('/providers/{orgPaymentServiceProvider}/payments/{payment}/edit', [Ed
 Route::get('/providers/{orgPaymentServiceProvider}/payments/{payment}', [ShowPayment::class, 'inPaymentServiceProvider'])->name('org-payment-service-providers.show.payments.show');
 
 
+Route::get('/accounts/{paymentAccount}/edit', EditPaymentAccount::class)->name('payment-accounts.edit');
+
 Route::get('/accounts/create', CreatePaymentAccount::class)->name('payment-accounts.create');
 Route::get('/accounts/export', ExportPaymentAccounts::class)->name('payment-accounts.export');
 Route::get('/accounts/{paymentAccount}/payments/create', [CreatePayment::class, 'inPaymentAccount'])->name('payment-accounts.show.payments.create');
