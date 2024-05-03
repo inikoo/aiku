@@ -13,12 +13,11 @@ enum SupplierDeliveryStateEnum: string
 {
     use EnumHelperTrait;
 
-    case CREATING     = 'creating';
-
-    case DISPATCHED   = 'dispatched';
-    case RECEIVED     = 'received';
-    case CHECKED      = 'checked';
-    case  SETTLED     = 'settled';
+    case CREATING   = 'creating';
+    case DISPATCHED = 'dispatched';
+    case RECEIVED   = 'received';
+    case CHECKED    = 'checked';
+    case SETTLED    = 'settled';
 
 
 }

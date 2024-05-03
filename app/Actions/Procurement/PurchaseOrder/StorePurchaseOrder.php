@@ -16,6 +16,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePurchaseOrder
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\Organisation;
@@ -23,17 +24,12 @@ use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StorePurchaseOrder extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
+    private OrgSupplier|OrgAgent|OrgPartner $parent;
 
-    private OrgSupplier|OrgAgent|Organisation $parent;
-
-    public function handle(Organisation $organisation, OrgSupplier|OrgAgent|Organisation $parent, array $modelData): PurchaseOrder
+    public function handle(Organisation $organisation, OrgSupplier|OrgAgent|OrgPartner $parent, array $modelData): PurchaseOrder
     {
         data_set($modelData, 'organisation_id', $organisation->id);
         data_set($modelData, 'group_id', $organisation->group_id);
@@ -42,6 +38,8 @@ class StorePurchaseOrder extends OrgAction
             data_set($modelData, 'supplier_id', $parent->supplier_id);
         } elseif (class_basename($parent) == 'OrgAgent') {
             data_set($modelData, 'agent_id', $parent->agent_id);
+        } elseif (class_basename($parent) == 'OrgPartner') {
+            data_set($modelData, 'partner_id', $parent->organisation_id);
         }
 
 
@@ -123,7 +121,7 @@ class StorePurchaseOrder extends OrgAction
         }
     }
 
-    public function action(Organisation $organisation, OrgAgent|OrgSupplier|Organisation $parent, array $modelData, bool $strict = true): \Illuminate\Http\RedirectResponse|PurchaseOrder
+    public function action(Organisation $organisation, OrgAgent|OrgSupplier|OrgPartner $parent, array $modelData, bool $strict = true): \Illuminate\Http\RedirectResponse|PurchaseOrder
     {
         $this->asAction = true;
         $this->parent   = $parent;

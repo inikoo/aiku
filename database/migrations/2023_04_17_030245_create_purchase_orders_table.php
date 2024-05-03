@@ -53,6 +53,8 @@ return new class () extends Migration {
             $table->foreign('agent_id')->references('id')->on('agents');
             $table->unsignedSmallInteger('supplier_id')->nullable();
             $table->foreign('supplier_id')->references('id')->on('suppliers');
+            $table->unsignedSmallInteger('partner_id')->nullable();
+            $table->foreign('partner_id')->references('id')->on('organisations');
 
             $table->timestampsTz();
             $table->softDeletesTz();

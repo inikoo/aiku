@@ -21,10 +21,8 @@ return new class () extends Migration {
             $table->increments('id');
             $table=$this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('parent_type');
+            $table->string('parent_type')->comment('OrgAgent|OrgSupplier|Organisation(intra-group sales)')->index();
             $table->unsignedInteger('parent_id')->index();
-            $table->string('org_parent_type');
-            $table->unsignedInteger('org_parent_id')->index();
             $table->string('number');
             $table->string('state')->index()->default(SupplierDeliveryStateEnum::CREATING->value);
             $table->string('status')->index()->default(SupplierDeliveryStatusEnum::PROCESSING->value);
@@ -50,11 +48,18 @@ return new class () extends Migration {
             $table->decimal('cost_total', 16)->default(0);
 
             $table->jsonb('data');
+
+            $table->unsignedSmallInteger('agent_id')->nullable();
+            $table->foreign('agent_id')->references('id')->on('agents');
+            $table->unsignedSmallInteger('supplier_id')->nullable();
+            $table->foreign('supplier_id')->references('id')->on('suppliers');
+            $table->unsignedSmallInteger('partner_id')->nullable();
+            $table->foreign('partner_id')->references('id')->on('organisations');
+
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
             $table->index(['parent_id', 'parent_type']);
-            $table->index(['org_parent_id', 'org_parent_type']);
 
         });
     }

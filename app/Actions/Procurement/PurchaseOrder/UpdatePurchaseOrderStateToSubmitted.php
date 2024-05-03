@@ -14,6 +14,7 @@ use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Validation\Validator;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdatePurchaseOrderStateToSubmitted extends OrgAction
@@ -49,6 +50,14 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
         return $purchaseOrder;
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
+    }
 
     public function afterValidator(Validator $validator): void
     {
@@ -60,6 +69,7 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
 
     public function action(PurchaseOrder $purchaseOrder): PurchaseOrder
     {
+        $this->asAction      = true;
         $this->purchaseOrder = $purchaseOrder;
         $this->initialisation($purchaseOrder->organisation, []);
 

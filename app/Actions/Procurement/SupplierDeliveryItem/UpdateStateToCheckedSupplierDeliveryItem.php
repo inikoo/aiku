@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\SupplierDeliveryItem;
 
-use App\Actions\Procurement\SupplierDelivery\Traits\HasHydrators;
+use App\Actions\Procurement\SupplierDelivery\Traits\HasSupplierDeliveryHydrators;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Procurement\SupplierDeliveryItem\SupplierDeliveryItemStateEnum;
 use App\Models\Procurement\SupplierDeliveryItem;
@@ -18,7 +18,7 @@ class UpdateStateToCheckedSupplierDeliveryItem
 {
     use WithActionUpdate;
     use AsAction;
-    use HasHydrators;
+    use HasSupplierDeliveryHydrators;
 
     public function handle(SupplierDeliveryItem $supplierDeliveryItem, $modelData): SupplierDeliveryItem
     {
@@ -30,7 +30,7 @@ class UpdateStateToCheckedSupplierDeliveryItem
 
         $supplierDeliveryItem = $this->update($supplierDeliveryItem, $data);
 
-        $this->getHydrators($supplierDeliveryItem->supplierDelivery);
+        $this->runHydrators($supplierDeliveryItem->supplierDelivery);
 
         return $supplierDeliveryItem;
     }

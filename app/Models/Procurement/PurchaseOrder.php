@@ -65,6 +65,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $cost_total
  * @property int|null $agent_id
  * @property int|null $supplier_id
+ * @property int|null $partner_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at

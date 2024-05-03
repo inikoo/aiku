@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\SupplierDelivery;
 
-use App\Actions\Procurement\SupplierDelivery\Traits\HasHydrators;
+use App\Actions\Procurement\SupplierDelivery\Traits\HasSupplierDeliveryHydrators;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Models\Procurement\SupplierDelivery;
@@ -18,7 +18,7 @@ class UpdateStateToDispatchSupplierDelivery
 {
     use WithActionUpdate;
     use AsAction;
-    use HasHydrators;
+    use HasSupplierDeliveryHydrators;
 
     /**
      * @throws ValidationException
@@ -37,7 +37,7 @@ class UpdateStateToDispatchSupplierDelivery
 
             $supplierDelivery = $this->update($supplierDelivery, $data);
 
-            $this->getHydrators($supplierDelivery);
+            $this->runHydrators($supplierDelivery);
 
             return $supplierDelivery;
         }
