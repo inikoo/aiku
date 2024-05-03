@@ -43,6 +43,7 @@ const tabLoading = ref<boolean | string>(false)
 
 // Method: click Tab
 const onChangeTab = async (tabSlug: string) => {
+    if(tabSlug === currentTab.value) return  // To avoid click on the current tab occurs loading
     tabLoading.value = tabSlug
     emits('update:tab', tabSlug)
 }
