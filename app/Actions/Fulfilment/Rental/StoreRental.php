@@ -12,42 +12,30 @@ use App\Actions\Market\Product\Hydrators\ProductHydrateHistoricOuterables;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateRentals;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Rental\RentalStateEnum;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Rental;
 use App\Models\Market\Product;
-use App\Models\SysAdmin\Organisation;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
-use Lorisleiva\Actions\ActionRequest;
 
 class StoreRental extends OrgAction
 {
-    public function handle(array $modelData): Rental
+    public function handle(Product $product, array $modelData): Rental
     {
-        $productId = Arr::get($modelData, 'product_id');
-
-        if($productId) {
-            $product = Product::find($productId);
-
-            data_set($modelData, 'organisation_id', $product->organisation_id);
-            data_set($modelData, 'group_id', $product->group_id);
-            data_set($modelData, 'shop_id', $product->shop_id);
-            data_set($modelData, 'fulfilment_id', $product->shop->fulfilment->id);
-            data_set($modelData, 'product_id', $product->id);
-        }
+        data_set($modelData, 'organisation_id', $product->organisation_id);
+        data_set($modelData, 'group_id', $product->group_id);
+        data_set($modelData, 'shop_id', $product->shop_id);
+        data_set($modelData, 'fulfilment_id', $product->shop->fulfilment->id);
+        data_set($modelData, 'product_id', $product->id);
 
         $rental = Rental::create($modelData);
 
-        if($productId) {
-            $product->update(
-                [
-                    'main_outerable_id' => $rental->id
-                ]
-            );
-        }
+        $product->update(
+            [
+                'main_outerable_id' => $rental->id
+            ]
+        );
+
 
         $rental->salesStats()->create();
-
 
         $historicOuterable = StoreHistoricOuterable::run(
             $rental,
@@ -55,17 +43,14 @@ class StoreRental extends OrgAction
                 'source_id' => $rental->historic_source_id
             ]
         );
+        $product->update(
+            [
+                'current_historic_outerable_id' => $historicOuterable->id,
+            ]
+        );
 
-        if($productId) {
-            $product->update(
-                [
-                    'current_historic_outerable_id' => $historicOuterable->id,
-                ]
-            );
-
-            ProductHydrateHistoricOuterables::dispatch($product);
-            ShopHydrateRentals::dispatch($product->shop);
-        }
+        ProductHydrateHistoricOuterables::dispatch($product);
+        ShopHydrateRentals::dispatch($product->shop);
 
         return $rental;
     }
@@ -73,9 +58,8 @@ class StoreRental extends OrgAction
     public function rules(): array
     {
         return [
-            'status'                 => ['sometimes', 'boolean'],
-            'product_id'             => ['sometimes', 'exists:products,id'],
-            'state'                  => ['sometimes', Rule::enum(RentalStateEnum::class)],
+            'status'                 => ['required', 'boolean'],
+            'state'                  => ['required', Rule::enum(RentalStateEnum::class)],
             'data'                   => ['sometimes', 'array'],
             'created_at'             => ['sometimes', 'date'],
             'source_id'              => ['sometimes', 'string', 'max:63'],
@@ -86,21 +70,13 @@ class StoreRental extends OrgAction
         ];
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): Rental
-    {
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($this->validatedData);
-    }
-
     public function action(Product $product, array $modelData, int $hydratorsDelay = 0): Rental
     {
         $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;
 
-        $modelData['product_id'] = $product->id;
         $this->initialisationFromShop($product->shop, $modelData);
 
-        return $this->handle($this->validatedData);
+        return $this->handle($product, $this->validatedData);
     }
 }
