@@ -170,6 +170,11 @@ class Group extends Model implements HasMedia
         return $this->hasOne(GroupAccountingStats::class);
     }
 
+    public function salesStats(): HasOne
+    {
+        return $this->hasOne(GroupSalesStats::class);
+    }
+
     public function salesIntervals(): HasOne
     {
         return $this->hasOne(GroupSalesIntervals::class);

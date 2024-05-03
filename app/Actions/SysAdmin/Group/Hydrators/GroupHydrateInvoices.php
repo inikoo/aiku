@@ -52,7 +52,7 @@ class GroupHydrateInvoices
         );
 
 
-        $group->accountingStats()->update($stats);
+        $group->salesStats()->update($stats);
     }
 
 

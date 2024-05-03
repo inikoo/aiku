@@ -12,6 +12,7 @@ use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Actions\Market\Shop\Hydrators\ShopHydrateOrders;
 use App\Actions\OMS\Order\Hydrators\OrderHydrateUniversalSearch;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrders;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
@@ -68,6 +69,7 @@ class StoreOrder extends OrgAction
 
         HydrateOrder::make()->originalItems($order);
 
+        GroupHydrateOrders::dispatch($order->shop->group)->delay($this->hydratorsDelay);
         OrganisationHydrateOrders::dispatch($order->shop->organisation)->delay($this->hydratorsDelay);
         if (class_basename($parent) == 'Shop') {
             ShopHydrateOrders::dispatch($parent)->delay($this->hydratorsDelay);
