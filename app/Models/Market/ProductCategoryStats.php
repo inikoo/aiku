@@ -50,17 +50,6 @@ use Illuminate\Support\Carbon;
  * @property int $number_physical_goods_state_active
  * @property int $number_physical_goods_state_discontinuing
  * @property int $number_physical_goods_state_discontinued
- * @property int $number_orders
- * @property int $number_orders_state_creating
- * @property int $number_orders_state_submitted
- * @property int $number_orders_state_handling
- * @property int $number_orders_state_packed
- * @property int $number_orders_state_finalised
- * @property int $number_orders_state_settled
- * @property int $number_invoices
- * @property int $number_invoices_type_invoice
- * @property int $number_invoices_type_refund
- * @property int|null $currency_id
  * @property string $shop_amount_all
  * @property string $shop_amount_1y
  * @property string $shop_amount_1q

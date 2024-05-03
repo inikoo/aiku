@@ -21,7 +21,6 @@ return new class () extends Migration {
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->salesIntervalFields($table, ['group_amount']);
             $table->timestampsTz();
-            $table->unique(['group_id', 'currency_id']);
         });
     }
 

@@ -50,7 +50,7 @@ class ShopHydrateOrders
             )
         );
 
-        $shop->salesIntervals()->update($stats);
+        $shop->salesStats()->update($stats);
     }
 
 }

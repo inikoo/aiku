@@ -85,7 +85,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, RecurringBill> $recurringBills
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Role> $roles
- * @property-read \App\Models\SysAdmin\GroupSalesIntervals|null $salesStats
+ * @property-read \App\Models\SysAdmin\GroupSalesIntervals|null $salesIntervals
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StockFamily> $stockFamilies
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SupplierProduct> $supplierProducts

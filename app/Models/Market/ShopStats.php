@@ -59,30 +59,6 @@ use Illuminate\Support\Carbon;
  * @property int $number_physical_goods_state_active
  * @property int $number_physical_goods_state_discontinuing
  * @property int $number_physical_goods_state_discontinued
- * @property int $number_deliveries
- * @property int $number_deliveries_type_order
- * @property int $number_deliveries_type_replacement
- * @property int $number_deliveries_state_submitted
- * @property int $number_deliveries_state_in_queue
- * @property int $number_deliveries_state_picker_assigned
- * @property int $number_deliveries_state_picking
- * @property int $number_deliveries_state_picked
- * @property int $number_deliveries_state_packing
- * @property int $number_deliveries_state_packed
- * @property int $number_deliveries_state_finalised
- * @property int $number_deliveries_state_settled
- * @property int $number_deliveries_cancelled_at_state_submitted
- * @property int $number_deliveries_cancelled_at_state_in_queue
- * @property int $number_deliveries_cancelled_at_state_picker_assigned
- * @property int $number_deliveries_cancelled_at_state_picking
- * @property int $number_deliveries_cancelled_at_state_picked
- * @property int $number_deliveries_cancelled_at_state_packing
- * @property int $number_deliveries_cancelled_at_state_packed
- * @property int $number_deliveries_cancelled_at_state_finalised
- * @property int $number_deliveries_cancelled_at_state_settled
- * @property int $number_invoices
- * @property int $number_invoices_type_invoice
- * @property int $number_invoices_type_refund
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\Market\Shop $shop

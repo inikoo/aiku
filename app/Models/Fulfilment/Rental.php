@@ -45,7 +45,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, HistoricOuterable> $historicRecords
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Market\Product|null $product
- * @property-read \App\Models\Fulfilment\RentalSalesIntervals|null $salesStats
+ * @property-read \App\Models\Fulfilment\RentalSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Market\Shop|null $shop
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|Rental newModelQuery()

@@ -86,7 +86,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Market\Outer> $outers
  * @property-read Rental|null $rental
- * @property-read \App\Models\Market\ProductSalesIntervals|null $salesStats
+ * @property-read \App\Models\Market\ProductSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Market\Service|null $service
  * @property-read \App\Models\Market\Shop|null $shop
  * @property-read \App\Models\Market\ProductStats|null $stats

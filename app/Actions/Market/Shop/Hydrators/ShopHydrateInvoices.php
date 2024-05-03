@@ -52,7 +52,7 @@ class ShopHydrateInvoices
         );
 
 
-        $shop->stats()->update($stats);
+        $shop->salesStats()->update($stats);
     }
 
 

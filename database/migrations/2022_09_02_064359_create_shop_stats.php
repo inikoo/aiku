@@ -5,7 +5,6 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Stubs\Migrations\HasCatalogueStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -23,24 +22,7 @@ return new class () extends Migration {
 
             $table = $this->catalogueStats($table);
 
-            $table->unsignedInteger('number_deliveries')->default(0);
-            $table->unsignedInteger('number_deliveries_type_order')->default(0);
-            $table->unsignedInteger('number_deliveries_type_replacement')->default(0);
 
-
-            foreach (DeliveryNoteStateEnum::cases() as $deliveryState) {
-                $table->unsignedInteger('number_deliveries_state_'.$deliveryState->snake())->default(0);
-            }
-
-            foreach (DeliveryNoteStateEnum::cases() as $deliveryState) {
-                if ($deliveryState->value != 'cancelled') {
-                    $table->unsignedInteger('number_deliveries_cancelled_at_state_'.$deliveryState->snake())->default(0);
-                }
-            }
-
-            $table->unsignedInteger('number_invoices')->default(0);
-            $table->unsignedInteger('number_invoices_type_invoice')->default(0);
-            $table->unsignedInteger('number_invoices_type_refund')->default(0);
 
             $table->timestampsTz();
         });
