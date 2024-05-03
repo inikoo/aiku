@@ -105,13 +105,13 @@ class ShowPurchaseOrder extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.procurement.purchase-orders.index',
+                                'name' => 'grp.org.procurement.purchase-orders.index',
                             ],
                             'label' => __('purchaseOrder')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.procurement.purchase-orders.show',
+                                'name'       => 'grp.org.procurement.purchase-orders.show',
                                 'parameters' => [$purchaseOrder->slug]
                             ],
                             'label' => $purchaseOrder->number,
@@ -144,7 +144,7 @@ class ShowPurchaseOrder extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.procurement.purchase-orders.show'=> [
+            'grp.org.procurement.purchase-orders.show'=> [
                 'label'=> $purchaseOrder->number,
                 'route'=> [
                     'name'      => $routeName,

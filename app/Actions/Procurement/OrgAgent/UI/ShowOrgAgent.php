@@ -14,7 +14,7 @@ use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\Procurement\SupplierPurchaseOrder\UI\IndexSupplierPurchaseOrders;
 use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\AgentOrganisationTabsEnum;
+use App\Enums\UI\Procurement\OrgAgentTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
@@ -47,7 +47,7 @@ class ShowOrgAgent extends InertiaAction
         if ($agent->trashed()) {
             return Redirect::route($request->route()->getName(), $request->route()->originalParameters());
         }
-        $this->initialisation($request)->withTab(AgentOrganisationTabsEnum::values());
+        $this->initialisation($request)->withTab(OrgAgentTabsEnum::values());
 
         return $this->handle($agent);
     }
@@ -92,7 +92,7 @@ class ShowOrgAgent extends InertiaAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'grp.procurement.agents.remove',
+                                'name'       => 'grp.org.procurement.agents.remove',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
@@ -103,7 +103,7 @@ class ShowOrgAgent extends InertiaAction
                             'name'     => trans_choice('supplier|suppliers', $agent->stats->number_suppliers),
                             'number'   => $agent->stats->number_suppliers,
                             'href'     => [
-                                'grp.procurement.agents.show.suppliers.index',
+                                'grp.org.procurement.agents.show.suppliers.index',
                                 $agent->slug
                             ],
                             'leftIcon' => [
@@ -115,7 +115,7 @@ class ShowOrgAgent extends InertiaAction
                             'name'     => trans_choice('product|products', $agent->stats->number_supplier_products),
                             'number'   => $agent->stats->number_supplier_products,
                             'href'     => [
-                                'grp.procurement.agents.show.suppliers.index',
+                                'grp.org.procurement.agents.show.suppliers.index',
                                 $agent->slug
                             ],
                             'leftIcon' => [
@@ -128,15 +128,15 @@ class ShowOrgAgent extends InertiaAction
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => AgentOrganisationTabsEnum::navigation()
+                    'navigation' => OrgAgentTabsEnum::navigation()
                 ],
 
-                AgentOrganisationTabsEnum::SHOWCASE->value => $this->tab == AgentOrganisationTabsEnum::SHOWCASE->value ?
+                OrgAgentTabsEnum::SHOWCASE->value => $this->tab == OrgAgentTabsEnum::SHOWCASE->value ?
                     fn () => GetAgentShowcase::run($agent)
                     : Inertia::lazy(fn () => GetAgentShowcase::run($agent)),
 
 
-                AgentOrganisationTabsEnum::PURCHASE_ORDERS->value   => $this->tab == AgentOrganisationTabsEnum::PURCHASE_ORDERS->value
+                OrgAgentTabsEnum::PURCHASE_ORDERS->value   => $this->tab == OrgAgentTabsEnum::PURCHASE_ORDERS->value
                     ?
                     fn () => PurchaseOrderResource::collection(
                         IndexSupplierPurchaseOrders::run(
@@ -150,7 +150,7 @@ class ShowOrgAgent extends InertiaAction
                             prefix: 'purchase_orders'
                         )
                     )),
-                AgentOrganisationTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == AgentOrganisationTabsEnum::SUPPLIER_PRODUCTS->value
+                OrgAgentTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == OrgAgentTabsEnum::SUPPLIER_PRODUCTS->value
                     ?
                     fn () => SupplierProductResource::collection(
                         IndexSupplierProducts::run(
@@ -164,7 +164,7 @@ class ShowOrgAgent extends InertiaAction
                             prefix: 'supplier_products'
                         )
                     )),
-                AgentOrganisationTabsEnum::SUPPLIERS->value         => $this->tab == AgentOrganisationTabsEnum::SUPPLIERS->value
+                OrgAgentTabsEnum::SUPPLIERS->value         => $this->tab == OrgAgentTabsEnum::SUPPLIERS->value
                     ?
                     fn () => SupplierResource::collection(
                         IndexSuppliers::run(
@@ -179,7 +179,7 @@ class ShowOrgAgent extends InertiaAction
                         )
                     )),
 
-                AgentOrganisationTabsEnum::HISTORY->value => $this->tab == AgentOrganisationTabsEnum::HISTORY->value ?
+                OrgAgentTabsEnum::HISTORY->value => $this->tab == OrgAgentTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($agent))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($agent)))
             ]
@@ -188,7 +188,7 @@ class ShowOrgAgent extends InertiaAction
                 /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'grp.procurement.agents.show.purchase-orders.create',
+                            'name'       => 'grp.org.procurement.agents.show.purchase-orders.create',
                             'parameters' => array_values([$agent->slug])
                         ],
                         'label' => __('purchase_orders')
@@ -201,7 +201,7 @@ class ShowOrgAgent extends InertiaAction
                 /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'grp.procurement.agents.show.supplier-products-orders.create',
+                            'name'       => 'grp.org.procurement.agents.show.supplier-products-orders.create',
                             'parameters' => array_values([$agent->slug])
                         ],
                         'label' => __('supplier products')
@@ -214,7 +214,7 @@ class ShowOrgAgent extends InertiaAction
                 /* modelOperations: [
                      'createLink' => $this->canEdit ? [
                          'route' => [
-                             'name'       => 'grp.procurement.agents.show.suppliers.create',
+                             'name'       => 'grp.org.procurement.agents.show.suppliers.create',
                              'parameters' => array_values([$agent->slug])
                          ],
                          'label' => __('suppliers')
@@ -241,13 +241,13 @@ class ShowOrgAgent extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.procurement.agents.index',
+                                'name' => 'grp.org.procurement.agents.index',
                             ],
                             'label' => __('agent')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.procurement.agents.show',
+                                'name'       => 'grp.org.procurement.agents.show',
                                 'parameters' => [$routeParameters['agent']->slug]
                             ],
                             'label' => $routeParameters['agent']->code,
@@ -281,7 +281,7 @@ class ShowOrgAgent extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.procurement.agents.show' => [
+            'grp.org.procurement.agents.show' => [
                 'label' => $agent->name,
                 'route' => [
                     'name'       => $routeName,

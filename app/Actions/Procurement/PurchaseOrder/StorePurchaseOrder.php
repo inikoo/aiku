@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\OrgAction;
-use App\Actions\Procurement\Supplier\Hydrators\SupplierHydratePurchaseOrders;
+use App\Actions\ProcurementToDelete\Supplier\Hydrators\SupplierHydratePurchaseOrders;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydratePurchaseOrders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProcurement;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
@@ -132,7 +132,7 @@ class StorePurchaseOrder extends OrgAction
 
         $purchaseOrder = $this->handle($organisation, $agent, $this->validatedData);
 
-        return redirect()->route('grp.procurement.purchase-orders.show', $purchaseOrder->slug);
+        return redirect()->route('grp.org.procurement.purchase-orders.show', $purchaseOrder->slug);
     }
 
     public function inSupplier(Organisation $organisation, Supplier $supplier, ActionRequest $request): \Illuminate\Http\RedirectResponse|PurchaseOrder
@@ -142,6 +142,6 @@ class StorePurchaseOrder extends OrgAction
 
         $purchaseOrder = $this->handle($organisation, $supplier, $this->validatedData);
 
-        return redirect()->route('grp.procurement.purchase-orders.show', $purchaseOrder->slug);
+        return redirect()->route('grp.org.procurement.purchase-orders.show', $purchaseOrder->slug);
     }
 }

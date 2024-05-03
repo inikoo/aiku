@@ -7,13 +7,14 @@
 
 namespace App\Actions\Procurement\OrgAgent\UI;
 
-use App\Actions\OrgAction;
+use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\AgentOrganisationTabsEnum;
+use App\Enums\UI\Procurement\OrgAgentTabsEnum;
 use App\Http\Resources\Procurement\AgentResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\OrgAgent;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -21,11 +22,10 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
-class IndexOrgAgents extends OrgAction
+class IndexOrgAgents extends InertiaAction
 {
-    public function handle($prefix = null): LengthAwarePaginator
+    public function handle(Organisation $organisation, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -40,21 +40,34 @@ class IndexOrgAgents extends OrgAction
 
         $queryBuilder = QueryBuilder::for(OrgAgent::class);
 
+        $queryBuilder->where('org_agents.organisation_id', $organisation->id);
+
+        /*
+        foreach ($this->elementGroups as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine'],
+                prefix: $prefix
+            );
+        }
+        */
+
         return $queryBuilder
             ->defaultSort('organisations.code')
-            ->leftJoin('organisations', 'organisation_id', 'organisations.id')
-            ->select(['organisations.code', 'organisations.name', 'organisations.slug', 'organisations.location', 'agent_stats.number_suppliers', 'agent_stats.number_purchase_orders', 'agent_stats.number_supplier_products'])
+            ->select(['organisations.name', 'agents.slug', 'location', 'number_suppliers', 'number_purchase_orders', 'number_supplier_products'])
             ->leftJoin('agents', 'agents.id', 'org_agents.agent_id')
+            ->leftJoin('organisations', 'organisations.id', 'agents.organisation_id')
+
             ->leftJoin('agent_stats', 'agent_stats.agent_id', 'agents.id')
-            ->where('org_agents.organisation_id', $this->organisation->id)
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure($prefix = null): Closure
+    public function tableStructure(Organisation $organisation, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($prefix) {
+        return function (InertiaTable $table) use ($prefix, $organisation) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -64,19 +77,9 @@ class IndexOrgAgents extends OrgAction
                 ->withGlobalSearch()
                 ->withEmptyState(
                     [
-                        'title'       => __('no agents'),
-                        'description' => $this->canEdit ? __('Get started by creating a new agent.') : null,
-                        'count'       => $this->organisation->stats->number_agents,
-                        'action'      => $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new agent'),
-                            'label'   => __('agent'),
-                            'route'   => [
-                                'name' => 'grp.procurement.agents.create',
+                        'title' => __('no agents'),
+                        'count' => $organisation->procurementStats->number_agents,
 
-                            ]
-                        ] : null
                     ]
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
@@ -91,20 +94,16 @@ class IndexOrgAgents extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view")
-            );
+        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
     }
 
-    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($organisation, $request)->withTab(AgentOrganisationTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(OrgAgentTabsEnum::values());
 
-        return $this->handle();
+        return $this->handle($organisation);
     }
 
 
@@ -117,7 +116,7 @@ class IndexOrgAgents extends OrgAction
     public function htmlResponse(LengthAwarePaginator $agents, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Procurement/OrgAgents',
+            'Procurement/Agents',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('agents'),
@@ -128,7 +127,7 @@ class IndexOrgAgents extends OrgAction
                         'icon'  => 'fal fa-people-arrows'
                     ],
                     'actions' => [
-                        $this->canEdit && $request->route()->getName() == 'grp.procurement.agents.index' ? [
+                        $this->canEdit && $request->route()->getName() == 'grp.org.procurement.agents.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new agent'),
@@ -142,7 +141,7 @@ class IndexOrgAgents extends OrgAction
                 ],
                 'data'        => AgentResource::collection($agents),
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($this->organisation));
     }
 
     public function getBreadcrumbs(array $routeParameters): array
@@ -156,7 +155,7 @@ class IndexOrgAgents extends OrgAction
                         'simple' => [
                             'route' => [
                                 'name'       => 'grp.org.procurement.agents.index',
-                                'parameters' => [$this->organisation->slug]
+                                'parameters' => ['organisation' => $routeParameters['organisation']]
                             ],
                             'label' => __('agents'),
                             'icon'  => 'fal fa-bars'

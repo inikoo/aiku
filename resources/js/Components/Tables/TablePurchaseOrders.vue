@@ -8,23 +8,23 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {PurchaseOrder} from "@/types/purchase-order";
+import purchaseOrder from "@/Pages/Grp/Procurement/PurchaseOrder.vue";
 
 const props = defineProps<{
     data: object,
     tab?: string
 }>()
 
-
 function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
     switch (route().current()) {
-        case 'grp.procurement.purchase-orders.index':
+        case 'grp.org.procurement.purchase-orders.index':
             return route(
-                'grp.procurement.purchase-orders.show',
-                [purchaseOrder.slug]);
-        case 'grp.procurement.agents.show':
+                'grp.org.procurement.purchase-orders.show',
+                [route().params['organisation'],purchaseOrder.slug]);
+        case 'grp.org.procurement.agents.show':
             return route(
-                'grp.procurement.purchase-orders.show',
-                [purchaseOrder.slug]);
+                'grp.org.procurement.agents.show.purchase-orders.show',
+                [route().params['organisation'],route().params['agent'],purchaseOrder.slug]);
     }
 }
 

@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 24 Jun 2023 13:12:05 Malaysia Time, Pantai Lembeng, Bali, Id
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 02 May 2024 19:44:10 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\Supplier;
+namespace App\Actions\SupplyChain\Supplier;
 
 use App\Models\SupplyChain\Agent;
 use Illuminate\Http\RedirectResponse;
@@ -28,7 +28,7 @@ class DeleteSupplier
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("procurement.edit");
+        return $request->user()->hasPermissionTo("supply-chain.edit");
     }
 
     public function asController(Agent $agent, ActionRequest $request): Agent
@@ -40,7 +40,7 @@ class DeleteSupplier
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('grp.procurement.agents.index');
+        return Redirect::route('grp.supply-chain.agents.index');
     }
 
 }

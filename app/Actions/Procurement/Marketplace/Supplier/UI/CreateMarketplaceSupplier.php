@@ -11,7 +11,7 @@ use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\Assets\Country\UI\GetCountriesOptions;
 use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\InertiaAction;
-use App\Actions\Procurement\Supplier\UI\IndexSuppliers;
+use App\Actions\ProcurementToDelete\Supplier\UI\IndexSuppliers;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Helpers\Address;
 use App\Models\SupplyChain\Agent;

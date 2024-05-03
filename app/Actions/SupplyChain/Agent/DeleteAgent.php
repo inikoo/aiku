@@ -40,7 +40,7 @@ class DeleteAgent
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('grp.procurement.agents.index');
+        return Redirect::route('grp.supply-chain.agents.index');
     }
 
 }

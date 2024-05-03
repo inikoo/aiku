@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\Marketplace\Supplier;
 
-use App\Actions\Procurement\Supplier\Hydrators\SupplierHydrateUniversalSearch;
+use App\Actions\ProcurementToDelete\Supplier\Hydrators\SupplierHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\SupplyChain\Supplier;
