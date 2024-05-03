@@ -28,6 +28,8 @@ class ShowDashboard
             'organisations' => $group->organisations->map(function (Organisation $organisation) {
                 return [
                     'name'     => $organisation->name,
+                    'code'     => $organisation->code,
+                    'type'     => $organisation->type,
                     'currency' => $organisation->currency,
                     'sales'    => $organisation->salesStats
                 ];

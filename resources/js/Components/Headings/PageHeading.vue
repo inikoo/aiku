@@ -78,16 +78,18 @@ const originUrl = location.origin
                         <FontAwesomeIcon v-if="item.leftIcon"
                             :title="capitalize(item.leftIcon.tooltip)"
                             aria-hidden="true" :icon="item.leftIcon.icon" class="text-gray-400 pr-2" />
-                        <Link v-if="item.href" :href="route(item.href.name, item.href.parameters)"
+                        <component :is="item.href?.name ? Link : 'div'" :href="item.href?.name ? route(item.href.name, item.href.parameters) : '#'"
                             :class="[
-                                $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), '')) ? 'text-org-600 font-medium' : 'text-org-300 hover:text-org-500'
+                                item.href?.name && $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), ''))
+                                ? 'text-gray-600 font-medium'
+                                : 'text-gray-400 hover:text-gray-500'
                             ]"
                         >
+                            <MetaLabel :item="item" />
+                        </component>
+                        <!-- <span v-else>
                             <MetaLabel :item=item />
-                        </Link>
-                        <span v-else>
-                            <MetaLabel :item=item />
-                        </span>
+                        </span> -->
                     </div>
                 </div>
             </div>

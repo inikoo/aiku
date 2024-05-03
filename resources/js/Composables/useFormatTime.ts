@@ -40,9 +40,9 @@ export const useTimeCountdown: any = (dateIso: string, options?: { human?: boole
         end: new Date(dateIso)
     })
 
-    if(isPast(new Date(dateIso))) return false  // If the provided date already passed then return false
+    if (isPast(new Date(dateIso))) return false  // If the provided date already passed then return false
 
-    if(options?.human) return formatDuration(countdown, options)  // 5 days 23 hours 3 minutes 58 seconds
+    if (options?.human) return formatDuration(countdown, options)  // 5 days 23 hours 3 minutes 58 seconds
 
     return countdown  // { "years": 0, "months": 0, "days": 0, "hours": 0, "minutes": 51, "seconds": 0 } 
 }
@@ -53,7 +53,7 @@ export const useSecondCountdown: any = (dateIso: string | Date, duration: number
     if (!dateIso) return false  // If the provided data date is null
 
     const newDate = addSeconds(new Date(dateIso), duration)
-    if(isPast(newDate)) return false
+    if (isPast(newDate)) return false
     return formatDistanceToNowStrict(newDate)  // 23 seconds
 }
 
@@ -73,8 +73,8 @@ export const useMilisecondToTime = (miliSecond: number) => {
                 ? ' '
                 : ''}
                 ${seconds} second${seconds > 1
-                    ? 's'
-                    : ''}`
+                ? 's'
+                : ''}`
             : '0 second')
 
     return formattedTime // 2 hours 56 minutes 23 seconds
@@ -87,4 +87,20 @@ export const useIsFutureIsAPast = (dateIso: Date | string, additionalSeconds: nu
     const newDate = addSeconds(new Date(dateIso), additionalSeconds)
 
     return isPast(newDate)  // true or false
+}
+
+
+// Method: Convert from '28359' (in seconds) to '7h 52m 39s'
+export const useSecondsToMS = (seconds: number) => {
+    if (!seconds) return '00m 00s'
+
+    // Create a duration object with only seconds
+    const duration = intervalToDuration({ start: 0, end: seconds * 1000 }); // Convert seconds to milliseconds
+
+    // console.log('wew', duration)
+    const strHour = duration.hours ? duration.hours + 'h' : ''
+    const strMinutes = duration.minutes.toString().padStart(2, '0') + 'm'
+    const strSeconds = duration.seconds.toString().padStart(2, '0') + 's'
+
+    return `${strHour} ${strMinutes} ${strSeconds}`
 }
