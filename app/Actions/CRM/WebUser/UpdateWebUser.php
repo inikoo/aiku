@@ -24,7 +24,6 @@ class UpdateWebUser extends OrgAction
     use WithActionUpdate;
 
     private WebUser $webUser;
-    private bool $strict=true;
 
     public function handle(WebUser $webUser, array $modelData): WebUser
     {

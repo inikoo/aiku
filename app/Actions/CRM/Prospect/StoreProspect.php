@@ -40,8 +40,6 @@ class StoreProspect extends OrgAction
     use WithCheckCanContactByPhone;
 
 
-    private bool $strict=true;
-
     public function handle(Shop $shop, array $modelData): Prospect
     {
         $tags = Arr::get($modelData, 'tags', []);

@@ -121,4 +121,6 @@ interface SourceOrganisationService
 
     public function fetchTimesheet($id);
 
+    public function fetchClockingMachine($id);
+
 }

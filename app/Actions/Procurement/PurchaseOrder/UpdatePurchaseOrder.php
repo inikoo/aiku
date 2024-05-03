@@ -7,14 +7,19 @@
 
 namespace App\Actions\Procurement\PurchaseOrder;
 
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrder;
+use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdatePurchaseOrder
+class UpdatePurchaseOrder extends OrgAction
 {
     use WithActionUpdate;
+
+
+    private PurchaseOrder $purchaseOrder;
 
     public function handle(PurchaseOrder $purchaseOrder, array $modelData): PurchaseOrder
     {
@@ -24,32 +29,58 @@ class UpdatePurchaseOrder
         return $purchaseOrder;
     }
 
-    //    public function authorize(ActionRequest $request): bool
-    //    {
-    //        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
-    //    }
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
+    }
 
     public function rules(): array
     {
         return [
-            'number'        => ['sometimes', 'numeric', 'unique:purchase_orders'],
-            'date'          => ['sometimes', 'date'],
-            'currency_id'   => ['sometimes', 'exists:currencies,id'],
+            'number' => [
+                'sometimes',
+                'required',
+                $this->strict ? 'alpha_dash' : 'string',
+                new IUnique(
+                    table: 'purchase_orders',
+                    extraConditions: [
+                        [
+                            'column' => 'organisation_id',
+                            'value'  => $this->organisation->id,
+                        ],
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->purchaseOrder->id
+                        ]
+                    ]
+                ),
+            ],
+            'date'   => ['sometimes', 'date'],
         ];
     }
 
-    public function action(PurchaseOrder $purchaseOrder, array $modelData): PurchaseOrder
+    public function action(PurchaseOrder $purchaseOrder, array $modelData, bool $strict = true): PurchaseOrder
     {
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->asAction      = true;
+        $this->strict        = $strict;
+        $this->purchaseOrder = $purchaseOrder;
+        $this->initialisation($purchaseOrder->organisation, $modelData);
 
-        return $this->handle($purchaseOrder, $validatedData);
+        return $this->handle($purchaseOrder, $this->validatedData);
     }
 
     public function asController(PurchaseOrder $purchaseOrder, ActionRequest $request): PurchaseOrder
     {
-        $request->validate();
-        return $this->handle($purchaseOrder, $request->all());
+        $this->purchaseOrder = $purchaseOrder;
+
+        $this->initialisation($purchaseOrder->organisation, $request);
+
+        return $this->handle($purchaseOrder, $this->validatedData);
     }
 
     public function jsonResponse(PurchaseOrder $purchaseOrder): PurchaseOrderResource

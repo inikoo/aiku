@@ -42,7 +42,6 @@ class StoreCustomer extends OrgAction
     use AsCommand;
 
 
-    private bool $strict;
 
     public function handle(Shop $shop, array $modelData): Customer
     {

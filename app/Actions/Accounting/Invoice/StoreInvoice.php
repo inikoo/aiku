@@ -30,8 +30,6 @@ use Illuminate\Validation\Rule;
 
 class StoreInvoice extends OrgAction
 {
-    private bool $strict = true;
-
     public function handle(
         Customer|Order $parent,
         array $modelData,

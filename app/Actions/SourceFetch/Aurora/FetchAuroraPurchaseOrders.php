@@ -13,6 +13,7 @@ use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
 use App\Models\Procurement\PurchaseOrder;
 use App\Services\Organisation\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -22,34 +23,49 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?PurchaseOrder
     {
-        if ($orderData = $organisationSource->fetchPurchaseOrder($organisationSourceId)) {
-            if (!empty($orderData['purchase_order']['source_id']) and $order = PurchaseOrder::withTrashed()->where('source_id', $orderData['purchase_order']['source_id'])
-                    ->first()) {
-                $order = UpdatePurchaseOrder::run($order, $orderData['purchase_order']);
+        if ($purchaseOrderData = $organisationSource->fetchPurchaseOrder($organisationSourceId)) {
+            if (!empty($purchaseOrderData['purchase_order']['source_id']) and $purchaseOrder = PurchaseOrder::withTrashed()->where('source_id', $purchaseOrderData['purchase_order']['source_id'])->first()) {
+                $purchaseOrder = UpdatePurchaseOrder::make()->action(
+                    purchaseOrder: $purchaseOrder,
+                    modelData: $purchaseOrderData['purchase_order'],
+                    strict: false
+                );
 
-                $currentDeliveryAddress = $order->getAddress('delivery');
 
-                if ($currentDeliveryAddress and $currentDeliveryAddress->checksum != $orderData['delivery_address']->getChecksum()) {
-                    $deliveryAddress = StoreHistoricAddress::run($orderData['delivery_address']);
-                    UpdateHistoricAddressToModel::run($order, $currentDeliveryAddress, $deliveryAddress, ['scope' => 'delivery']);
+                $currentDeliveryAddress = $purchaseOrder->getAddress('delivery');
+
+                if ($currentDeliveryAddress and $currentDeliveryAddress->checksum != $purchaseOrderData['delivery_address']->getChecksum()) {
+                    $deliveryAddress = StoreHistoricAddress::run($purchaseOrderData['delivery_address']);
+                    UpdateHistoricAddressToModel::run($purchaseOrder, $currentDeliveryAddress, $deliveryAddress, ['scope' => 'delivery']);
                 }
 
 
-                //  $this->fetchTransactions($organisationSource, $order);
-                $this->updateAurora($order);
+                //  $this->fetchTransactions($organisationSource, $purchaseOrder);
+                $this->updateAurora($purchaseOrder);
 
 
-                return $order;
+                return $purchaseOrder;
             } else {
-                if ($orderData['parent']) {
-                    $order = StorePurchaseOrder::run($orderData['parent'], $orderData['purchase_order'], $orderData['delivery_address']);
-                    //  $this->fetchTransactions($organisationSource, $order);
-                    $this->updateAurora($order);
+                if ($purchaseOrderData['parent']) {
+                    try {
+                        $purchaseOrder = StorePurchaseOrder::make()->action(
+                            organisation: $organisationSource->organisation,
+                            parent: $purchaseOrderData['parent'],
+                            modelData: $purchaseOrderData['purchase_order'],
+                            strict: false
+                        );
+                    } catch (Exception $e) {
+                        $this->recordError($organisationSource, $e, $purchaseOrderData['purchase_order'], 'PurchaseOrder', 'store');
+
+                        return null;
+                    }
+
+                    $this->updateAurora($purchaseOrder);
 
 
-                    return $order;
+                    return $purchaseOrder;
                 }
-                print "Warning purchase order ".$orderData['purchase_order']['number']."  Id:$organisationSourceId do not have parent\n";
+                print "Warning purchase order ".$purchaseOrderData['purchase_order']['number']."  Id:$organisationSourceId do not have parent\n";
             }
         } else {
             print "Warning error fetching order $organisationSourceId\n";
@@ -60,28 +76,30 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
 
     /*
 
-    private function fetchTransactions($organisationSource, $order): void
+    private function fetchTransactions($organisationSource, $purchaseOrder): void
     {
-        $transactionsToDelete = $order->transactions()->where('type', TransactionTypeEnum::ORDER)->pluck('source_id', 'id')->all();
+        $transactionsToDelete = $purchaseOrder->transactions()->where('type', TransactionTypeEnum::ORDER)->pluck('source_id', 'id')->all();
         foreach (
             DB::connection('aurora')
                 ->table('Order Transaction Fact')
                 ->select('Order Transaction Fact Key')
                 ->where('Order Transaction Type', 'Order')
-                ->where('Order Key', $order->source_id)
+                ->where('Order Key', $purchaseOrder->source_id)
                 ->get() as $auroraData
         ) {
             $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Order Transaction Fact Key'}]);
-            FetchTransactions::run($organisationSource, $auroraData->{'Order Transaction Fact Key'}, $order);
+            FetchTransactions::run($organisationSource, $auroraData->{'Order Transaction Fact Key'}, $purchaseOrder);
         }
-        $order->transactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
+        $purchaseOrder->transactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }
     */
 
     public function updateAurora(PurchaseOrder $purchaseOrder): void
     {
+        $sourceData = explode(':', $purchaseOrder->source_id);
+
         DB::connection('aurora')->table('Purchase Order Dimension')
-            ->where('Purchase Order Key', $purchaseOrder->source_id)
+            ->where('Purchase Order Key', $sourceData[1])
             ->update(['aiku_id' => $purchaseOrder->id]);
     }
 

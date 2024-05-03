@@ -29,7 +29,6 @@ class UpdateCustomer extends OrgAction
     use WithActionUpdate;
 
     private Customer $customer;
-    private bool $strict;
 
     public function handle(Customer $customer, array $modelData): Customer
     {

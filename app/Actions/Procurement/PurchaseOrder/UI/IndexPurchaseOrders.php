@@ -28,7 +28,7 @@ class IndexPurchaseOrders extends InertiaAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('purchase_orders.number', 'ILIKE', "$value%");
+                $query->whereStartWith('purchase_orders.number', $value);
             });
         });
 

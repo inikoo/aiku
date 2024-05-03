@@ -68,6 +68,7 @@ trait HasHumanResourcesStats
     {
 
         $table->unsignedSmallInteger('number_clockings')->default(0);
+        $table->dateTimeTz('last_clocking_at')->nullable();
 
 
         return $table;

@@ -18,9 +18,6 @@ use Illuminate\Validation\Rule;
 
 trait IsStoreProduct
 {
-    private bool $strict = true;
-
-
     public function action(Shop|ProductCategory $parent, array $modelData, int $hydratorsDelay = 0, $strict = true): Product
     {
         $this->hydratorsDelay = $hydratorsDelay;
