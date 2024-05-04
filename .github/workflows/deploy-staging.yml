@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 jobs:
-  laravel-tests:
+  deployment:
     name: Deploy aiku staging 🎭
     runs-on: ubuntu-latest
     steps:

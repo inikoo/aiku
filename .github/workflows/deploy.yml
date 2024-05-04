@@ -10,9 +10,10 @@ permissions:
   contents: write
 
 jobs:
-  laravel-tests:
+  deployment:
     name: Deploy aiku 🚀
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -53,9 +54,9 @@ jobs:
         uses: deployphp/action@v1
         with:
           dep: deploy aiku
-          ssh-config: ${{ secrets.DEPLOY_SSH_CONFIG }}
-          private-key: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
-          known-hosts: ${{ secrets.DEPLOYER_KNOWN_HOSTS }}
+          ssh-config: ${{ env.DEPLOY_SSH_CONFIG }}
+          private-key: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+          known-hosts: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
       - name: Create Release
         uses: ncipollo/release-action@v1.12.0
         with:
