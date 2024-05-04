@@ -8,13 +8,12 @@
 namespace App\Actions\SupplyChain\Agent\UI;
 
 use App\Actions\GrpAction;
-use App\Actions\Procurement\Agent\UI\DeletedMarketplaceAgentTrait;
-use App\Actions\Procurement\Agent\UI\GetMarketplaceAgentShowcase;
+use App\Actions\Procurement\Marketplace\Agent\UI\DeletedMarketplaceAgentTrait;
 use App\Actions\Procurement\Marketplace\SupplierProduct\UI\IndexMarketplaceSupplierProducts;
-use App\Actions\ProcurementToDelete\Supplier\UI\IndexSuppliers;
+use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
-use App\Enums\UI\AgentTabsEnum;
+use App\Enums\UI\SupplyChain\AgentTabsEnum;
 use App\Http\Resources\Procurement\AgentResource;
 use App\Http\Resources\Procurement\MarketplaceSupplierProductResource;
 use App\Http\Resources\Procurement\MarketplaceSupplierResource;
@@ -56,7 +55,7 @@ class ShowAgent extends GrpAction
         }
 
         return Inertia::render(
-            'Procurement/MarketplaceAgent',
+            'SupplyChain/Agent',
             [
                 'title'                                   => __("agent"),
                 'breadcrumbs'                             => $this->getBreadcrumbs(
@@ -72,7 +71,7 @@ class ShowAgent extends GrpAction
                             'icon'  => ['fal', 'people-arrows'],
                             'title' => __('agent')
                         ],
-                    'title'   => $agent->name,
+                    'title'   => $agent->organisation->name,
                     'actions' => [
                         $this->canEdit ? [
                             'type'  => 'button',
@@ -129,8 +128,8 @@ class ShowAgent extends GrpAction
                     'navigation' => AgentTabsEnum::navigation()
                 ],
                 AgentTabsEnum::SHOWCASE->value => $this->tab == AgentTabsEnum::SHOWCASE->value ?
-                    fn () => GetMarketplaceAgentShowcase::run($agent)
-                    : Inertia::lazy(fn () => GetMarketplaceAgentShowcase::run($agent)),
+                    fn () => GetAgentShowcase::run($agent)
+                    : Inertia::lazy(fn () => GetAgentShowcase::run($agent)),
 
                 AgentTabsEnum::SUPPLIERS->value => $this->tab == AgentTabsEnum::SUPPLIERS->value
                     ?
@@ -154,6 +153,7 @@ class ShowAgent extends GrpAction
             ]
         )->table(
             IndexSuppliers::make()->tableStructure(
+                parent:$agent
                 /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
@@ -223,14 +223,14 @@ class ShowAgent extends GrpAction
     {
         $previous = Organisation::where('group_id', $agent->group_id)->where('type', OrganisationTypeEnum::AGENT)->where('code', '<', $agent->organisation->code)->orderBy('code', 'desc')->first();
 
-        return $this->getNavigation($previous->agent, $request->route()->getName());
+        return $this->getNavigation($previous?->agent, $request->route()->getName());
     }
 
     public function getNext(Agent $agent, ActionRequest $request): ?array
     {
         $next = Organisation::where('group_id', $agent->group_id)->where('type', OrganisationTypeEnum::AGENT)->where('code', '>', $agent->organisation->code)->orderBy('code')->first();
 
-        return $this->getNavigation($next->agent, $request->route()->getName());
+        return $this->getNavigation($next?->agent, $request->route()->getName());
     }
 
     private function getNavigation(?Agent $agent, string $routeName): ?array

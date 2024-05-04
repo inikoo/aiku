@@ -71,10 +71,9 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Agent withoutTrashed()
  * @mixin Eloquent
  */
-class Agent extends Model implements HasMedia, Auditable
+class Agent extends Model implements  Auditable
 {
     use SoftDeletes;
-    use HasAddresses;
     use HasSlug;
     use HasUniversalSearch;
     use HasPhoto;
