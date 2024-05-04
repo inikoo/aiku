@@ -6,8 +6,8 @@
  */
 
 use App\Actions\Procurement\Agent\UI\CreateMarketplaceAgent;
-use App\Actions\Procurement\Agent\UI\IndexMarketAgents;
-use App\Actions\Procurement\Agent\UI\RemoveMarketplaceAgent;
+use App\Actions\Procurement\Marketplace\Agent\UI\IndexMarketAgents;
+use App\Actions\Procurement\Marketplace\Agent\UI\RemoveMarketplaceAgent;
 use App\Actions\Procurement\Marketplace\Supplier\UI\CreateMarketplaceSupplier;
 use App\Actions\Procurement\Marketplace\Supplier\UI\EditMarketplaceSupplier;
 use App\Actions\Procurement\Marketplace\Supplier\UI\RemoveMarketplaceSupplier;

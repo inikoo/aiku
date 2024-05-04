@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 18 Jan 2024 18:24:53 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sat, 04 May 2024 12:55:09 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\Agent;
+namespace App\Actions\Procurement\Marketplace\Agent;
 
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;

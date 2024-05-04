@@ -16,7 +16,7 @@ enum AgentTabsEnum: string
     use HasTabs;
 
     case SHOWCASE            = 'showcase';
-    case SUPPLIERS          = 'suppliers';
+    case SUPPLIERS           = 'suppliers';
     case SUPPLIER_PRODUCTS   = 'supplier_products';
     case HISTORY             = 'history';
 

@@ -48,6 +48,7 @@ use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Agent;
 use App\Models\Traits\HasLogo;
+use App\Models\Traits\HasPhoto;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Collection as LaravelCollection;
@@ -158,6 +159,7 @@ class Organisation extends Model implements HasMedia
     use HasSlug;
     use InteractsWithMedia;
     use HasLogo;
+    use HasPhoto;
 
     protected $casts = [
         'data'     => 'array',

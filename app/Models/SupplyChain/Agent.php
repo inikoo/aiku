@@ -15,7 +15,6 @@ use App\Models\Procurement\SupplierDelivery;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
-use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
@@ -30,7 +29,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
-use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -71,7 +69,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Agent withoutTrashed()
  * @mixin Eloquent
  */
-class Agent extends Model implements  Auditable
+class Agent extends Model implements Auditable
 {
     use SoftDeletes;
     use HasSlug;

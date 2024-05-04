@@ -1,15 +1,15 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 18 Jan 2024 16:20:26 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sat, 04 May 2024 12:55:09 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Procurement\Agent\UI;
+namespace App\Actions\Procurement\Marketplace\Agent\UI;
 
 use App\Actions\Procurement\Marketplace\SupplierProduct\UI\IndexMarketplaceSupplierProducts;
 use App\Actions\ProcurementToDelete\Supplier\UI\IndexSuppliers;
-use App\Enums\UI\AgentTabsEnum;
+use App\Enums\UI\SupplyChain\AgentTabsEnum;
 use App\Http\Resources\Procurement\MarketplaceSupplierProductResource;
 use App\Http\Resources\Procurement\MarketplaceSupplierResource;
 use App\Models\SupplyChain\Agent;
