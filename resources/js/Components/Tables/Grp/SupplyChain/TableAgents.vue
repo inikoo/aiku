@@ -38,7 +38,7 @@ function marketplacesAgentRoute(agent: Agent) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: agent }">
-            <Link :href="marketplacesAgentRoute(agent)">
+            <Link :href="marketplacesAgentRoute(agent)" class="specialUnderline">
                 {{ agent['code'] }}
             </Link>
         </template>
