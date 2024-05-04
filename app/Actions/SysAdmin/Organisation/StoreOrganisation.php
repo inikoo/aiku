@@ -199,7 +199,6 @@ class StoreOrganisation
             $currency = Currency::where('code', $command->argument('currency_code'))->firstOrFail();
         } catch (Exception $e) {
             $command->error($e->getMessage());
-
             return 1;
         }
 

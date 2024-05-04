@@ -11,6 +11,8 @@ use App\Actions\OrgAction;
 use App\Models\Procurement\OrgAgent;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Organisation;
+use Exception;
+use Illuminate\Console\Command;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreOrgAgent extends OrgAction
@@ -45,6 +47,35 @@ class StoreOrgAgent extends OrgAction
         $this->initialisation($organisation, $modelData);
 
         return $this->handle($organisation, $agent, $this->validatedData);
+    }
+
+    public function getCommandSignature(): string
+    {
+        return 'org:attach-agent {organisation} {agent}';
+    }
+
+    public function asCommand(Command $command): int
+    {
+        try {
+            $organisation = Organisation::where('slug', $command->argument('organisation'))->firstOrFail();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+
+            return 1;
+        }
+
+        try {
+            $agent = Agent::where('slug', $command->argument('agent'))->firstOrFail();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+
+            return 1;
+        }
+
+        $this->handle($organisation, $agent);
+        $command->info('Agent attached to organisation');
+
+        return 0;
     }
 
 

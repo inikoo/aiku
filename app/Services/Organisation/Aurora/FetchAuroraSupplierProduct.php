@@ -18,6 +18,7 @@ class FetchAuroraSupplierProduct extends FetchAurora
     protected function parseModel(): void
     {
 
+
         if ($this->auroraModelData->aiku_ignore == 'Yes') {
             return;
         }

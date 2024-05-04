@@ -28,8 +28,11 @@ class FetchAuroraAgents extends FetchAuroraAction
         if ($agentData = $organisationSource->fetchAgent($organisationSourceId)) {
             $organisation = $organisationSource->getOrganisation();
 
+            $baseAgent = null;
 
-            if ($baseAgent = Agent::withTrashed()->where('source_slug', $agentData['agent']['source_slug'])->first()) {
+            if (isset($agentData['foundAgent'])) {
+                $agent = $agentData['foundAgent'];
+            } elseif ($baseAgent = Agent::withTrashed()->where('source_slug', $agentData['agent']['source_slug'])->first()) {
                 if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])->first()) {
                     $agent = UpdateAgent::make()->run($agent, $agentData['agent']);
                 }
@@ -39,6 +42,7 @@ class FetchAuroraAgents extends FetchAuroraAction
                     modelData: $agentData['agent'],
                 );
             }
+
 
             if ($agent) {
                 $agent->refresh();
@@ -87,6 +91,7 @@ class FetchAuroraAgents extends FetchAuroraAction
 
         return null;
     }
+
 
     public function getModelsQuery(): Builder
     {

@@ -26,9 +26,14 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?SupplierProduct
     {
 
-        $supplierProduct= $this->fetchSupplierProduct($organisationSource, $organisationSourceId);
+        $supplierProductData = $organisationSource->fetchSupplierProduct($organisationSourceId);
+
+
+        $supplierProduct= $this->fetchSupplierProduct($supplierProductData, $organisationSource);
+
 
         if($supplierProduct) {
+            $supplierProduct->refresh();
             $organisation = $organisationSource->getOrganisation();
 
             $orgSupplierProduct = OrgSupplierProduct::where('organisation_id', $organisation->id)->where('supplier_product_id', $supplierProduct->id)->first();
@@ -37,7 +42,7 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                     organisation: $organisation,
                     supplierProduct: $supplierProduct,
                     modelData: [
-                        'source_id' => $supplierProduct->source_id
+                        'source_id' => $supplierProductData['supplierProduct']['source_id']
                     ]
                 );
             }
@@ -51,10 +56,11 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
     }
 
 
-    public function fetchSupplierProduct($organisationSource, $organisationSourceId)
+    public function fetchSupplierProduct($supplierProductData, $organisationSource)
     {
 
-        $supplierProductData = $organisationSource->fetchSupplierProduct($organisationSourceId);
+
+
 
         if ($supplierProductData) {
 
@@ -68,6 +74,8 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                 )
                 ->first()) {
                 $found = true;
+
+
 
                 if ($supplierProduct = SupplierProduct::withTrashed()
                     ->where('source_id', $supplierProductData['supplierProduct']['source_id'])

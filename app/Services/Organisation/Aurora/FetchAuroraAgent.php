@@ -30,10 +30,21 @@ class FetchAuroraAgent extends FetchAurora
         $timezone_id = $country->timezones()->first()->id;
         $language_id = Language::where('code', 'en-gb')->first()->id;
 
-        $code=strtolower($this->auroraModelData->{'Agent Code'});
+        $code = strtolower($this->auroraModelData->{'Agent Code'});
 
-        $code=preg_replace('/\s/', '', $code);
-        $code=preg_replace('/^aw/', '', $code);
+        $code = preg_replace('/\s/', '', $code);
+        $code = preg_replace('/^aw/', '', $code);
+
+        if ($code == 'zesttex') {
+            $agent                                  = $this->parseAgent(
+                Str::kebab(strtolower($this->auroraModelData->{'Agent Code'})),
+                $this->organisation->id.':'.$this->auroraModelData->{'Agent Key'}
+            );
+            $this->parsedData['agent']['source_id'] = $this->organisation->id.':'.$this->auroraModelData->{'Agent Key'};
+            $this->parsedData['foundAgent']         = $agent;
+
+            return;
+        }
 
         $this->parsedData['agent'] =
             [
@@ -52,7 +63,6 @@ class FetchAuroraAgent extends FetchAurora
 
 
             ];
-
         //    $this->parsePhoto();
     }
 

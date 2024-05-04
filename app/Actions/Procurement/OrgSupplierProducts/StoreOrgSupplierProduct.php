@@ -25,7 +25,6 @@ class StoreOrgSupplierProduct extends OrgAction
 
 
         if($supplierProduct->agent_id) {
-
             /** @var OrgAgent $orgAgent */
             $orgAgent=$organisation->orgAgents()->where('agent_id', $supplierProduct->agent_id)->first();
             data_set($modelData, 'org_agent_id', $orgAgent->id);

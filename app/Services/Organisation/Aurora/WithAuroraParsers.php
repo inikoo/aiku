@@ -390,6 +390,11 @@ trait WithAuroraParsers
 
     public function parseAgent($sourceSlug, $sourceID): ?Agent
     {
+
+        if($sourceSlug=='awzesttex') {
+            $sourceSlug='awindia';
+        }
+
         $agent= Agent::withTrashed()->where('source_slug', $sourceSlug)->first();
         if (!$agent) {
             $sourceData = explode(':', $sourceID);
