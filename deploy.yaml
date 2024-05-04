@@ -13,7 +13,7 @@ config:
 hosts:
   aiku:
     environment: 'production'
-    deploy_path: '~/www'
+    deploy_path: '~/aiku'
     branch: production
   staging:
     environment: 'staging'
