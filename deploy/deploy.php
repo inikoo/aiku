@@ -7,6 +7,10 @@
 
 namespace Deployer;
 
+set('bin/php', function () {
+    return '/usr/bin/php8.3';
+});
+
 desc('🚡 Migrating database');
 task('deploy:migrate', function () {
     artisan('migrate --force --database=backup --path=database/migrations/backup', ['skipIfNoEnv', 'showOutput'])();
