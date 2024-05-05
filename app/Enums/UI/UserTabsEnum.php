@@ -15,22 +15,14 @@ enum UserTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE                       = 'showcase';
-    case HISTORY                        = 'history';
-    case DATA                           = 'data';
-    case REQUEST_LOGS                   = 'request_logs';
+    case SHOWCASE     = 'showcase';
+    case HISTORY      = 'history';
+    case REQUEST_LOGS = 'request_logs';
 
 
     public function blueprint(): array
     {
         return match ($this) {
-
-            UserTabsEnum::DATA => [
-                'title' => __('database'),
-                'icon'  => 'fal fa-database',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
             UserTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
@@ -42,7 +34,7 @@ enum UserTabsEnum: string
                 'icon'  => 'fas fa-info-circle',
             ],
             UserTabsEnum::REQUEST_LOGS => [
-                'title' => __('Visit Logs'),
+                'title' => __('Visit logs'),
                 'icon'  => 'fas fa-road',
             ],
         };

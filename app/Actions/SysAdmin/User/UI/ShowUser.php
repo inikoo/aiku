@@ -7,8 +7,8 @@
 
 namespace App\Actions\SysAdmin\User\UI;
 
+use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaAction;
 use App\Actions\SysAdmin\UserRequest\ShowUserRequestLogs;
 use App\Actions\Traits\WithElasticsearch;
 use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
@@ -21,13 +21,13 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowUser extends InertiaAction
+class ShowUser extends GrpAction
 {
     use WithElasticsearch;
 
     public function asController(User $user, ActionRequest $request): User
     {
-        $this->initialisation($request)->withTab(UserTabsEnum::values());
+        $this->initialisation(app('group'), $request)->withTab(UserTabsEnum::values());
         return $user;
     }
 
@@ -38,7 +38,7 @@ class ShowUser extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('sysadmin.users.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('sysadmin.edit');
         return $request->user()->hasPermissionTo("sysadmin.view");
     }
 
@@ -114,6 +114,8 @@ class ShowUser extends InertiaAction
             ];
         };
 
+        $user=User::where('username', $routeParameters['user'])->first();
+
         return match ($routeName) {
             'grp.sysadmin.users.show',
             'grp.sysadmin.users.edit' =>
@@ -121,7 +123,7 @@ class ShowUser extends InertiaAction
             array_merge(
                 ShowSysAdminDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
-                    $routeParameters['user'],
+                    $user,
                     [
                         'index' => [
                             'name'       => 'grp.sysadmin.users.index',
@@ -129,7 +131,7 @@ class ShowUser extends InertiaAction
                         ],
                         'model' => [
                             'name'       => 'grp.sysadmin.users.show',
-                            'parameters' => [$routeParameters['user']->username]
+                            'parameters' => $user->username
                         ]
                     ],
                     $suffix
