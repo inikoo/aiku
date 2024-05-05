@@ -78,6 +78,7 @@ use App\Actions\Market\Product\StorePhysicalGood;
 use App\Actions\Market\Product\UpdatePhysicalGood;
 use App\Actions\Market\Shop\StoreShop;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
+use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
 use App\Actions\Web\Webpage\UpdateWebpage;
@@ -89,6 +90,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::patch('/profile', UpdateProfile::class)->name('profile.update');
 Route::get('/profile/app-login-qrcode', GetProfileAppLoginQRCode::class)->name('profile.app-login-qrcode');
+
+Route::patch('/user/{user:id}', UpdateUser::class)->name('user.update');
 
 
 Route::patch('/employees/{employee:id}', UpdateEmployee::class)->name('employee.update');
@@ -357,14 +360,12 @@ Route::delete('/provider/{paymentServiceProvider:id}', DeletePaymentServiceProvi
 
 Route::patch('/payment/{payment:id}', UpdatePayment::class)->name('payment.update');
 
-Route::patch('/user/{user:id}', UpdateUser::class)->name('user.update');
 
 
 
 Route::patch('/guest/{guest:id}', UpdateGuest::class)->name('guest.update');
 Route::post('/guest/', StoreGuest::class)->name('guest.store');
 Route::delete('/guest/{guest:id}', DeleteGuest::class)->name('guest.delete');
-Route::post('/group-user/{GroupUser:id}guest/', [StoreGuest::class, 'inGroupUser'])->name('group-user.guest.store');
 
 Route::patch('/outbox/{outbox:id}', UpdateOutbox::class)->name('outbox.update');
 
