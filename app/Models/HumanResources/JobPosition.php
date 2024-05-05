@@ -31,9 +31,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $team
  * @property array $data
  * @property int $number_employees
+ * @property int $number_guests
  * @property int $number_roles
  * @property float $number_work_time
  * @property string|null $share_work_time
+ * @property bool $locked Seeded job positions should be locked
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits

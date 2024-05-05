@@ -64,6 +64,9 @@ use App\Actions\Helpers\Tag\StoreTag;
 use App\Actions\HumanResources\Employee\DeleteEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
+use App\Actions\HumanResources\JobPosition\DeleteJobPosition;
+use App\Actions\HumanResources\JobPosition\StoreJobPosition;
+use App\Actions\HumanResources\JobPosition\UpdateJobPosition;
 use App\Actions\HumanResources\Workplace\DeleteWorkplace;
 use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Actions\HumanResources\Workplace\UpdateWorkplace;
@@ -99,8 +102,13 @@ Route::delete('/employee/{employee:id}', DeleteEmployee::class)->name('employee.
 Route::patch('/working-place/{workplace:id}', UpdateWorkplace::class)->name('working-place.update');
 Route::delete('/working-place/{workplace:id}', DeleteWorkplace::class)->name('working-place.delete');
 
+Route::patch('/position/{jobPosition:id}', UpdateJobPosition::class)->name('job-position.update');
+Route::delete('/position/{jobPosition:id}', DeleteJobPosition::class)->name('job-position.delete');
+
 Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('/employee/', StoreEmployee::class)->name('employee.store');
+    Route::post('/position/', StoreJobPosition::class)->name('job-position.store');
+
     Route::post('/working-place/', StoreWorkplace::class)->name('working-place.store');
     Route::post('/shop/', StoreShop::class)->name('shop.store');
     Route::post('/fulfilment/', StoreFulfilment::class)->name('fulfilment.store');
@@ -292,9 +300,7 @@ Route::post('/order/', StoreOrder::class)->name('order.store');
 Route::patch('/order/{order:id}', UpdateOrder::class)->name('order.update');
 
 
-Route::patch('/position/{employee:id}', UpdateJobPosition::class)->name('job-position.update');
-Route::post('/position/', StoreJobPosition::class)->name('job-position.store');
-Route::delete('/position/{employee:id}', DeleteJobPosition::class)->name('job-position.delete');
+
 
 
 Route::patch('/clocking-machine/{clockingMachine:id}', UpdateClockingMachine::class)->name('clocking-machine.update');

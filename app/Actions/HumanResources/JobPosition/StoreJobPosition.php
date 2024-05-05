@@ -19,8 +19,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreJobPosition extends OrgAction
 {
-    private bool $trusted=false;
-
     public function handle(Organisation $organisation, array $modelData): JobPosition
     {
         data_set($modelData, 'group_id', $organisation->group_id);
@@ -35,31 +33,46 @@ class StoreJobPosition extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->trusted) {
+        if ($this->asAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("supervisor.human-resources.{$this->organisation->slug}");
+
+        return $request->user()->hasPermissionTo("org-supervisor.{$this->organisation->id}.human-resources");
     }
 
 
     public function rules(): array
     {
         return [
-            'code' => ['required',
-                       new IUnique(
-                           table: 'job_positions',
-                           extraConditions: [
-                               ['column' => 'organisation_id', 'value' => $this->organisation->id]
-                           ],
-                       ),
-                        'max:8', 'alpha_dash'],
-            'name' => ['required', 'max:255'],
+            'code'   => [
+                'required',
+                new IUnique(
+                    table: 'job_positions',
+                    extraConditions: [
+                        ['column' => 'organisation_id', 'value' => $this->organisation->id]
+                    ],
+                ),
+                'max:8',
+                'alpha_dash'
+            ],
+            'name'   => ['required', 'max:255'],
+            'locked' => ['sometimes', 'boolean']
         ];
+    }
+
+    public function prepareForValidation(): void
+    {
+        if (!$this->asAction) {
+            if ($this->has('code')) {
+                $this->set('code', 'c-'.$this->get('code'));
+                $this->set('locked', false);
+            }
+        }
     }
 
     public function action(Organisation $organisation, array $modelData): JobPosition
     {
-        $this->trusted = true;
+        $this->asAction = true;
         $this->initialisation($organisation, $modelData);
 
         return $this->handle($organisation, $this->validatedData);

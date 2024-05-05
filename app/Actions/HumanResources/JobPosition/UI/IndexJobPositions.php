@@ -46,8 +46,6 @@ class IndexJobPositions extends OrgAction
             $queryBuilder->where('group_id', $this->organisation->group_id);
         }
 
-
-
         return $queryBuilder
             ->defaultSort('job_positions.slug')
             ->select(['slug', 'id', 'name', 'number_employees'])
@@ -59,13 +57,8 @@ class IndexJobPositions extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
-
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view")
-            );
+        $this->canEdit = $request->user()->hasPermissionTo("org-supervisor.{$this->organisation->id}.human-resources");
+        return  $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
     }
 
 

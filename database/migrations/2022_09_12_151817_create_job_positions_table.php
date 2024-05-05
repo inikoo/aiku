@@ -24,10 +24,11 @@ return new class () extends Migration {
             $table->string('team')->nullable();
             $table->jsonb('data');
             $table->unsignedSmallInteger('number_employees')->default(0);
+            $table->unsignedSmallInteger('number_guests')->default(0);
             $table->unsignedSmallInteger('number_roles')->default(0);
-
             $table->double('number_work_time')->default(0);
             $table->decimal('share_work_time', 7, 6)->nullable();
+            $table->boolean('locked')->default(true)->comment('Seeded job positions should be locked');
             $table->timestampsTz();
             $table->index(['code','organisation_id']);
         });

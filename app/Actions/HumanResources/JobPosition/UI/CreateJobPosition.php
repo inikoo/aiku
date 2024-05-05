@@ -8,30 +8,30 @@
 namespace App\Actions\HumanResources\JobPosition\UI;
 
 use App\Actions\OrgAction;
-use App\Models\Market\ProductCategory;
 use App\Models\SysAdmin\Organisation;
 use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Spatie\LaravelOptions\Options;
 
 class CreateJobPosition extends OrgAction
 {
     /**
      * @throws Exception
      */
-    public function handle(): Response
+    public function handle(ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->originalParameters()
+                ),
                 'title'       => __('new job position'),
                 'pageHead'    => [
-                    'title'        => __('new job position'),
+                    'title' => __('new job position'),
 
-                    'actions'      => [
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',
@@ -44,40 +44,33 @@ class CreateJobPosition extends OrgAction
                     ]
 
                 ],
-                'formData' => [
+                'formData'    => [
                     'blueprint' => [
                         [
                             'title'  => __('creating job positions'),
                             'fields' => [
                                 'code' => [
-                                    'type'      => 'input',
-                                    'label'     => __('code'),
-                                    'required'  => true
+                                    'type'     => 'input',
+                                    'label'    => __('code'),
+                                    'required' => true
                                 ],
                                 'name' => [
-                                    'type'      => 'input',
-                                    'label'     => __('name'),
-                                    'required'  => true
+                                    'type'     => 'input',
+                                    'label'    => __('name'),
+                                    'required' => true
                                 ],
-                                'department' => [
-                                    'type'        => 'select',
-                                    'label'       => __('department'),
-                                    'options'     => Options::forModels(ProductCategory::class, label: 'name', value: 'name'),
-                                    'placeholder' => __('Select a department'),
-                                    'mode'        => 'single',
-                                ]
+
                             ]
                         ]
 
                     ],
-                    'route'      => [
-                            'name'       => 'grp.models.job-position.store',
-                        'parameters'     => ['organisation' => $this->organisation->slug]
+                    'route'     => [
+                        'name'       => 'grp.models.org.job-position.store',
+                        'parameters' => [$this->organisation->id]
 
                     ]
 
                 ],
-
 
 
             ]
@@ -86,7 +79,7 @@ class CreateJobPosition extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        return $request->user()->hasPermissionTo("org-supervisor.{$this->organisation->id}.human-resources");
     }
 
 
@@ -97,19 +90,19 @@ class CreateJobPosition extends OrgAction
     {
         $this->initialisation($organisation, $request);
 
-        return $this->handle();
+        return $this->handle($request);
     }
 
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
         return array_merge(
-            IndexJobPositions::make()->getBreadcrumbs(),
+            IndexJobPositions::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating employee'),
+                        'label' => __('creating job position')
                     ]
                 ]
             ]
