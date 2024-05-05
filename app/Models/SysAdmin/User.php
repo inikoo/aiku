@@ -42,8 +42,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $contact_name no-normalised depends on parent
  * @property string|null $email mirror group_users.email
  * @property string|null $about
- * @property int|null $parent_id
  * @property string|null $parent_type
+ * @property int|null $parent_id
  * @property int $number_authorised_organisations
  * @property int $number_authorised_shops
  * @property int $number_authorised_fulfilments

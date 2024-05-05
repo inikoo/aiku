@@ -6,6 +6,7 @@
  *  Version 4.0
  */
 
+use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 
@@ -13,13 +14,12 @@ return [
 
 
     'positions' => [
-
-        'admin'    => [
+        'admin' => [
             'code'               => 'admin',
             'name'               => 'Administrator',
             'department'         => 'admin',
             'roles'              => [
-               RolesEnum::SUPER_ADMIN
+                RolesEnum::SUPER_ADMIN
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -27,13 +27,12 @@ return [
                 OrganisationTypeEnum::AGENT
             ]
         ],
-        'hr-m'     => [
+        'hr-m'  => [
             'code'               => 'hr-m',
-            'grade'              => 'manager',
             'department'         => 'admin',
             'name'               => 'Human resources supervisor',
             'roles'              => [
-              RolesEnum::HUMAN_RESOURCES_SUPERVISOR
+                RolesEnum::HUMAN_RESOURCES_SUPERVISOR
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -41,13 +40,12 @@ return [
                 OrganisationTypeEnum::AGENT
             ]
         ],
-        'hr-c'     => [
+        'hr-c'  => [
             'code'               => 'hr-c',
             'name'               => 'Human resources clerk',
             'department'         => 'admin',
-            'grade'              => 'clerk',
             'roles'              => [
-               RolesEnum::HUMAN_RESOURCES_CLERK
+                RolesEnum::HUMAN_RESOURCES_CLERK
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -55,12 +53,12 @@ return [
                 OrganisationTypeEnum::AGENT
             ]
         ],
-        'acc-m'    => [
+        'acc-m' => [
             'code'               => 'acc-m',
             'department'         => 'admin',
             'name'               => 'Accounting manager',
             'roles'              => [
-               RolesEnum::ACCOUNTING_SUPERVISOR
+                RolesEnum::ACCOUNTING_SUPERVISOR
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -68,12 +66,12 @@ return [
                 OrganisationTypeEnum::AGENT
             ]
         ],
-        'acc-c'    => [
+        'acc-c' => [
             'code'               => 'acc-c',
             'department'         => 'admin',
             'name'               => 'Accounts',
             'roles'              => [
-              RolesEnum::ACCOUNTING_CLERK
+                RolesEnum::ACCOUNTING_CLERK
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -81,55 +79,51 @@ return [
                 OrganisationTypeEnum::AGENT
             ],
         ],
-        'mrk-m'    => [
+        'mrk-m' => [
             'code'               => 'mrk-m',
-            'grade'              => 'manager',
             'name'               => 'Marketing supervisor',
             'roles'              => [
-
+                RolesEnum::MARKETING_SUPERVISOR
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'mrk-c'    => [
+        'mrk-c' => [
             'code'               => 'mrk-c',
-            'grade'              => 'clerk',
             'name'               => 'Marketing clerk',
             'roles'              => [
-
+                RolesEnum::MARKETING_CLERK
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'web-m'    => [
+        'shk-m' => [
             'code'               => 'web-m',
-            'grade'              => 'manager',
-            'name'               => 'Webmaster supervisor',
+            'name'               => 'Shopkeeper supervisor',
             'roles'              => [
-
+                RolesEnum::SHOPKEEPER_SUPERVISOR
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'web-c'    => [
+        'shk-c' => [
             'code'               => 'web-c',
-            'grade'              => 'clerk',
-            'name'               => 'Webmaster clerk',
+            'name'               => 'Shopkeeper clerk',
             'roles'              => [
-
+                RolesEnum::SHOPKEEPER_CLERK
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'buy'      => [
+        'buy'   => [
             'code'               => 'buy',
             'name'               => 'Buyer',
             'roles'              => [
@@ -140,13 +134,13 @@ return [
                 OrganisationTypeEnum::AGENT
             ],
         ],
-        'wah-m'    => [
+        'wah-m' => [
             'code'       => 'wah-m',
             'team'       => 'warehouse',
             'department' => 'procurement',
             'name'       => 'Warehouse supervisor',
             'roles'      => [
-              RolesEnum::WAREHOUSE_ADMIN
+                RolesEnum::WAREHOUSE_ADMIN
             ],
 
             'organisation_types' => [
@@ -154,14 +148,13 @@ return [
                 OrganisationTypeEnum::AGENT
             ],
         ],
-
         'wah-sc'   => [
             'code'               => 'wah-sc',
             'name'               => 'Stock Controller',
             'team'               => 'warehouse',
             'department'         => 'warehouse',
             'roles'              => [
-              RolesEnum::STOCK_CONTROLLER
+                RolesEnum::STOCK_CONTROLLER
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -207,11 +200,22 @@ return [
                 OrganisationTypeEnum::AGENT
             ],
         ],
+        'prod-d'   => [
+            'code'               => 'prod-d',
+            'team'               => 'production',
+            'department'         => 'production',
+            'name'               => 'Production dispatcher',
+            'roles'              => [
+            ],
+            'organisation_types' => [
+                OrganisationTypeEnum::SHOP,
+            ]
+        ],
         'prod-m'   => [
             'code'               => 'prod-m',
             'team'               => 'production',
             'department'         => 'production',
-            'name'               => 'Production supervisor',
+            'name'               => 'Production floor supervisor',
             'roles'              => [
             ],
             'organisation_types' => [
@@ -224,7 +228,7 @@ return [
             'department'         => 'production',
             'name'               => 'Production operative',
             'roles'              => [
-                'guest'
+
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -232,10 +236,9 @@ return [
         ],
         'cus-m'    => [
             'code'               => 'cus-m',
-            'grade'              => 'manager',
             'name'               => 'Customer service supervisor',
             'roles'              => [
-               RolesEnum::CUSTOMER_SERVICE_SUPERVISOR
+                RolesEnum::CUSTOMER_SERVICE_SUPERVISOR
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -244,7 +247,6 @@ return [
         ],
         'cus-c'    => [
             'code'               => 'cus-c',
-            'grade'              => 'clerk',
             'name'               => 'Customer service',
             'roles'              => [
                 RolesEnum::CUSTOMER_SERVICE_CLERK
@@ -254,100 +256,136 @@ return [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-
-        'seo-m'    => [
+        'seo-m' => [
             'code'               => 'seo-m',
-            'grade'              => 'manager',
             'name'               => 'Seo supervisor',
             'roles'              => [
-                'seo-supervisor'
+                RolesEnum::SEO_SUPERVISOR
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'seo-c'    => [
+        'seo-c' => [
             'code'               => 'seo-c',
-            'grade'              => 'clerk',
             'name'               => 'SEO',
             'roles'              => [
-                'seo'
+                RolesEnum::SEO_CLERK
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-
-        'ppc-m'    => [
+        'ppc-m' => [
             'code'               => 'ppc-m',
-            'grade'              => 'manager',
             'name'               => 'PPC supervisor',
             'roles'              => [
-                'ppc-supervisor'
+                RolesEnum::PPC_SUPERVISOR
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'ppc-c'    => [
+        'ppc-c' => [
             'code'               => 'ppc-c',
-            'grade'              => 'clerk',
             'name'               => 'PPC',
             'roles'              => [
-                'ppc'
+                RolesEnum::PPC_CLERK
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-
-        'social-m'    => [
+        'social-m' => [
             'code'               => 'social-m',
             'grade'              => 'manager',
             'name'               => 'Social media supervisor',
             'roles'              => [
-                'social-supervisor'
+                RolesEnum::SOCIAL_SUPERVISOR
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'social-c'    => [
+        'social-c' => [
             'code'               => 'social-c',
             'grade'              => 'clerk',
             'name'               => 'Social media',
             'roles'              => [
-                'social'
+                RolesEnum::SOCIAL_CLERK
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-
-        'saas-m'    => [
+        'saas-m' => [
             'code'               => 'saas-m',
             'grade'              => 'manager',
             'name'               => 'SaaS supervisor',
             'roles'              => [
-                'saas-supervisor'
+                RolesEnum::SAAS_SUPERVISOR
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'saas-c'    => [
+        'saas-c' => [
             'code'               => 'saas-c',
             'grade'              => 'clerk',
             'name'               => 'SaaS',
             'roles'              => [
-                'saas'
+                RolesEnum::SAAS_CLERK
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
+        'ful-m' => [
+            'code'               => 'ful-m',
+            'name'               => 'Fulfilment supervisor',
+            'department'         => 'fulfilment',
+            'roles'              => [
+                RolesEnum::FULFILMENT_SHOP_SUPERVISOR,
+                RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR
+            ],
+            'organisation_types' => [
+                OrganisationTypeEnum::SHOP,
+            ],
+            'has_shop_type'=> [
+                ShopTypeEnum::FULFILMENT
+            ]
 
+        ],
+        'ful-c' => [
+            'code'               => 'ful-c',
+            'name'               => 'Fulfilment shop clerk',
+            'department'         => 'fulfilment',
+            'roles'              => [
+                RolesEnum::FULFILMENT_SHOP_CLERK,
+            ],
+            'organisation_types' => [
+                OrganisationTypeEnum::SHOP,
+            ],
+            'extra_conditions'=> [
+                'has_shop_type' => 'fulfilment'
+            ]
 
+        ],
+        'ful-wc' => [
+            'code'               => 'ful-wc',
+            'name'               => 'Fulfilment warehouse clerk',
+            'department'         => 'fulfilment',
+            'roles'              => [
+                RolesEnum::FULFILMENT_WAREHOUSE_WORKER
+            ],
+            'organisation_types' => [
+                OrganisationTypeEnum::SHOP,
+            ],
+            'extra_conditions'=> [
+                'has_shop_type' => 'fulfilment'
+            ]
+
+        ],
     ],
     'wrappers'  => [
         'hr'  => ['hr-m', 'hr-c'],

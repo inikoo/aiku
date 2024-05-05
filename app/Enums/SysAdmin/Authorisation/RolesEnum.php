@@ -26,9 +26,9 @@ enum RolesEnum: string
     case ORGANISATIONS_MANAGER = 'organisations-manager';
 
 
-    case ORG_SHOP_ADMIN                        = 'org-shop-admin';
-    case ORG_DIGITAL_AGENCY_ADMIN              = 'org-digital-agency-admin';
-    case ORG_AGENT_ADMIN                       = 'org-agent-admin';
+    case ORG_SHOP_ADMIN           = 'org-shop-admin';
+    case ORG_DIGITAL_AGENCY_ADMIN = 'org-digital-agency-admin';
+    case ORG_AGENT_ADMIN          = 'org-agent-admin';
 
     case PROCUREMENT_CLERK      = 'procurement-clerk';
     case PROCUREMENT_SUPERVISOR = 'procurement-supervisor';
@@ -53,63 +53,75 @@ enum RolesEnum: string
 
     case WAREHOUSE_ADMIN = 'warehouse-admin';
 
-    case STOCK_CONTROLLER       = 'stock-controller';
-    case CUSTOMER_SERVICE_CLERK = 'customer-service-clerk';
+    case STOCK_CONTROLLER = 'stock-controller';
 
+    case CUSTOMER_SERVICE_CLERK      = 'customer-service-clerk';
     case CUSTOMER_SERVICE_SUPERVISOR = 'customer-service-supervisor';
+
+    case WEBMASTER_SUPERVISOR = 'webmaster-clerk-supervisor';
+    case WEBMASTER_CLERK      = 'webmaster-clerk';
+
+    case SHOPKEEPER_CLERK      = 'shopkeeper-clerk';
+    case SHOPKEEPER_SUPERVISOR = 'shopkeeper-supervisor';
+
+    case MARKETING_CLERK      = 'marketing-clerk';
+    case MARKETING_SUPERVISOR = 'marketing-supervisor';
+
 
     // Digital agency roles
 
-    case SEO_SUPERVISOR     = 'seo-supervisor';
-    case SEO_CLERK          = 'seo-clerk';
-    case PPC_SUPERVISOR     = 'ppc-supervisor';
-    case PPC_CLERK          = 'ppc-clerk';
-    case SOCIAL_SUPERVISOR  = 'social-supervisor';
-    case SOCIAL_CLERK       = 'social-clerk';
-    case SAAS_SUPERVISOR    = 'saas-supervisor';
-    case SAAS_CLERK         = 'saas-clerk';
-
+    case SEO_SUPERVISOR    = 'seo-supervisor';
+    case SEO_CLERK         = 'seo-clerk';
+    case PPC_SUPERVISOR    = 'ppc-supervisor';
+    case PPC_CLERK         = 'ppc-clerk';
+    case SOCIAL_SUPERVISOR = 'social-supervisor';
+    case SOCIAL_CLERK      = 'social-clerk';
+    case SAAS_SUPERVISOR   = 'saas-supervisor';
+    case SAAS_CLERK        = 'saas-clerk';
 
 
     public function label(): string
     {
         return match ($this) {
-            RolesEnum::SUPER_ADMIN                                    => __('Super admin'),
-            RolesEnum::SYSTEM_ADMIN                                   => __('System admin'),
-            RolesEnum::SUPPLY_CHAIN                                   => __('Supply chain'),
-            RolesEnum::PROCUREMENT_CLERK                              => __('Procurement clerk'),
-            RolesEnum::PROCUREMENT_SUPERVISOR                         => __('Procurement supervisor'),
-            RolesEnum::DISPATCH_CLERK                                 => __('Dispatch clerk'),
-            RolesEnum::DISPATCH_SUPERVISOR                            => __('Dispatch supervisor'),
-            RolesEnum::ORG_SHOP_ADMIN                                 => __('Organisation admin'),
-            RolesEnum::ORG_DIGITAL_AGENCY_ADMIN                       => __('Digital agency admin'),
-            RolesEnum::HUMAN_RESOURCES_CLERK                          => __('Human resources clerk'),
-            RolesEnum::HUMAN_RESOURCES_SUPERVISOR                     => __('Human resources supervisor'),
-            RolesEnum::STOCK_CONTROLLER                               => __('Stock controller'),
-            RolesEnum::ACCOUNTING_CLERK                               => __('Accounting clerk'),
-            RolesEnum::ACCOUNTING_SUPERVISOR                          => __('Accounting supervisor'),
-            RolesEnum::SHOP_ADMIN                                     => __('Shop admin'),
-            RolesEnum::FULFILMENT_SHOP_SUPERVISOR                     => __('Fulfilment supervisor'),
-            RolesEnum::FULFILMENT_SHOP_CLERK                          => __('Fulfilment clerk'),
-            RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR                => __('Fulfilment warehouse supervisor'),
-            RolesEnum::FULFILMENT_WAREHOUSE_WORKER                    => __('Fulfilment warehouse worker'),
-            RolesEnum::WAREHOUSE_ADMIN                                => __('Warehouse admin'),
-            RolesEnum::CUSTOMER_SERVICE_CLERK                         => __('Customer service clerk'),
-            RolesEnum::CUSTOMER_SERVICE_SUPERVISOR                    => __('Customer service supervisor'),
-            RolesEnum::ORGANISATIONS_MANAGER                          => __('Organisations manager'),
-            RolesEnum::GOODS_MANAGER                                  => __('Goods manager'),
-            RolesEnum::SEO_SUPERVISOR                                 => __('SEO supervisor'),
-            RolesEnum::SEO_CLERK                                      => __('SEO clerk'),
-            RolesEnum::PPC_SUPERVISOR                                 => __('PPC supervisor'),
-            RolesEnum::PPC_CLERK                                      => __('PPC clerk'),
-            RolesEnum::SOCIAL_SUPERVISOR                              => __('Social supervisor'),
-            RolesEnum::SOCIAL_CLERK                                   => __('Social clerk'),
-            RolesEnum::SAAS_SUPERVISOR                                => __('SAAS supervisor'),
-            RolesEnum::SAAS_CLERK                                     => __('SAAS clerk'),
-            RolesEnum::ORG_AGENT_ADMIN                                => __('Agent admin'),
-
-
-
+            RolesEnum::SUPER_ADMIN                     => __('Super admin'),
+            RolesEnum::SYSTEM_ADMIN                    => __('System admin'),
+            RolesEnum::SUPPLY_CHAIN                    => __('Supply chain'),
+            RolesEnum::PROCUREMENT_CLERK               => __('Procurement clerk'),
+            RolesEnum::PROCUREMENT_SUPERVISOR          => __('Procurement supervisor'),
+            RolesEnum::DISPATCH_CLERK                  => __('Dispatch clerk'),
+            RolesEnum::DISPATCH_SUPERVISOR             => __('Dispatch supervisor'),
+            RolesEnum::ORG_SHOP_ADMIN                  => __('Organisation admin'),
+            RolesEnum::ORG_DIGITAL_AGENCY_ADMIN        => __('Digital agency admin'),
+            RolesEnum::HUMAN_RESOURCES_CLERK           => __('Human resources clerk'),
+            RolesEnum::HUMAN_RESOURCES_SUPERVISOR      => __('Human resources supervisor'),
+            RolesEnum::STOCK_CONTROLLER                => __('Stock controller'),
+            RolesEnum::ACCOUNTING_CLERK                => __('Accounting clerk'),
+            RolesEnum::ACCOUNTING_SUPERVISOR           => __('Accounting supervisor'),
+            RolesEnum::SHOP_ADMIN                      => __('Shop admin'),
+            RolesEnum::FULFILMENT_SHOP_SUPERVISOR      => __('Fulfilment supervisor'),
+            RolesEnum::FULFILMENT_SHOP_CLERK           => __('Fulfilment clerk'),
+            RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR => __('Fulfilment warehouse supervisor'),
+            RolesEnum::FULFILMENT_WAREHOUSE_WORKER     => __('Fulfilment warehouse worker'),
+            RolesEnum::WAREHOUSE_ADMIN                 => __('Warehouse admin'),
+            RolesEnum::CUSTOMER_SERVICE_CLERK          => __('Customer service clerk'),
+            RolesEnum::CUSTOMER_SERVICE_SUPERVISOR     => __('Customer service supervisor'),
+            RolesEnum::ORGANISATIONS_MANAGER           => __('Organisations manager'),
+            RolesEnum::GOODS_MANAGER                   => __('Goods manager'),
+            RolesEnum::SEO_SUPERVISOR                  => __('SEO supervisor'),
+            RolesEnum::SEO_CLERK                       => __('SEO clerk'),
+            RolesEnum::PPC_SUPERVISOR                  => __('PPC supervisor'),
+            RolesEnum::PPC_CLERK                       => __('PPC clerk'),
+            RolesEnum::SOCIAL_SUPERVISOR               => __('Social supervisor'),
+            RolesEnum::SOCIAL_CLERK                    => __('Social clerk'),
+            RolesEnum::SAAS_SUPERVISOR                 => __('SAAS supervisor'),
+            RolesEnum::SAAS_CLERK                      => __('SAAS clerk'),
+            RolesEnum::ORG_AGENT_ADMIN                 => __('Agent admin'),
+            RolesEnum::WEBMASTER_CLERK                 => __('Webmaster clerk'),
+            RolesEnum::WEBMASTER_SUPERVISOR            => __('Webmaster supervisor'),
+            RolesEnum::SHOPKEEPER_CLERK                => __('Shopkeeper clerk'),
+            RolesEnum::SHOPKEEPER_SUPERVISOR           => __('Shopkeeper supervisor'),
+            RolesEnum::MARKETING_CLERK                 => __('Marketing clerk'),
+            RolesEnum::MARKETING_SUPERVISOR            => __('Marketing supervisor'),
         };
     }
 
@@ -178,8 +190,8 @@ enum RolesEnum: string
                 OrganisationPermissionsEnum::PROCUREMENT
             ],
             RolesEnum::DISPATCH_CLERK => [
-                 OrganisationPermissionsEnum::DISPATCHING
-             ],
+                OrganisationPermissionsEnum::DISPATCHING
+            ],
             RolesEnum::DISPATCH_SUPERVISOR => [
                 OrganisationPermissionsEnum::DISPATCHING,
                 OrganisationPermissionsEnum::SUPERVISOR_DISPATCHING
@@ -276,6 +288,26 @@ enum RolesEnum: string
             RolesEnum::SAAS_CLERK => [
                 OrganisationPermissionsEnum::SAAS
             ],
+            RolesEnum::WEBMASTER_CLERK => [
+                ShopPermissionsEnum::WEB
+            ],
+            RolesEnum::WEBMASTER_SUPERVISOR => [
+                ShopPermissionsEnum::SUPERVISOR_WEB
+            ],
+            RolesEnum::SHOPKEEPER_CLERK => [
+                ShopPermissionsEnum::PRODUCTS
+            ],
+            RolesEnum::SHOPKEEPER_SUPERVISOR => [
+                ShopPermissionsEnum::PRODUCTS,
+                ShopPermissionsEnum::SUPERVISOR_PRODUCTS
+            ],
+            RolesEnum::MARKETING_CLERK => [
+                ShopPermissionsEnum::MARKETING
+            ],
+            RolesEnum::MARKETING_SUPERVISOR => [
+                ShopPermissionsEnum::MARKETING,
+                ShopPermissionsEnum::SUPERVISOR_MARKETING
+            ],
         };
     }
 
@@ -286,10 +318,21 @@ enum RolesEnum: string
             RolesEnum::SYSTEM_ADMIN,
             RolesEnum::SUPPLY_CHAIN,
             RolesEnum::GOODS_MANAGER,
-            RolesEnum::ORGANISATIONS_MANAGER=> 'Group',
+            RolesEnum::ORGANISATIONS_MANAGER => 'Group',
+
             RolesEnum::SHOP_ADMIN,
             RolesEnum::CUSTOMER_SERVICE_CLERK,
             RolesEnum::CUSTOMER_SERVICE_SUPERVISOR,
+
+            RolesEnum::WEBMASTER_CLERK,
+            RolesEnum::WEBMASTER_SUPERVISOR,
+
+            RolesEnum::SHOPKEEPER_CLERK,
+            RolesEnum::SHOPKEEPER_SUPERVISOR,
+
+            RolesEnum::MARKETING_CLERK,
+            RolesEnum::MARKETING_SUPERVISOR,
+
             => 'Shop',
             RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR,
             RolesEnum::FULFILMENT_WAREHOUSE_WORKER,
@@ -301,7 +344,6 @@ enum RolesEnum: string
             default => 'Organisation'
         };
     }
-
 
 
     public function scopeTypes(): array
@@ -324,9 +366,9 @@ enum RolesEnum: string
             RolesEnum::SAAS_SUPERVISOR,
             RolesEnum::SAAS_CLERK,
 
-            => [ OrganisationTypeEnum::DIGITAL_AGENCY],
+            => [OrganisationTypeEnum::DIGITAL_AGENCY],
             RolesEnum::ORG_AGENT_ADMIN,
-            => [ OrganisationTypeEnum::AGENT],
+            => [OrganisationTypeEnum::AGENT],
             RolesEnum::PROCUREMENT_CLERK,
             RolesEnum::PROCUREMENT_SUPERVISOR,
             RolesEnum::DISPATCH_CLERK,
@@ -334,10 +376,10 @@ enum RolesEnum: string
             RolesEnum::WAREHOUSE_ADMIN,
             RolesEnum::STOCK_CONTROLLER,
 
-            => [ OrganisationTypeEnum::AGENT, OrganisationTypeEnum::SHOP],
+            => [OrganisationTypeEnum::AGENT, OrganisationTypeEnum::SHOP],
             RolesEnum::SHOP_ADMIN,
 
-            => [ OrganisationTypeEnum::DIGITAL_AGENCY, OrganisationTypeEnum::SHOP],
+            => [OrganisationTypeEnum::DIGITAL_AGENCY, OrganisationTypeEnum::SHOP],
             default => [OrganisationTypeEnum::DIGITAL_AGENCY, OrganisationTypeEnum::AGENT, OrganisationTypeEnum::SHOP]
         };
     }
@@ -349,22 +391,16 @@ enum RolesEnum: string
 
         $rolesNames = [];
         foreach ($roles as $case) {
-
-            $skip=false;
-            if($scope instanceof Organisation) {
-
-                if(!in_array($scope->type, $case->scopeTypes())) {
-
-                    $skip=true;
+            $skip = false;
+            if ($scope instanceof Organisation) {
+                if (!in_array($scope->type, $case->scopeTypes())) {
+                    $skip = true;
                 }
             }
-            if(!$skip) {
-
+            if (!$skip) {
                 $rolesNames[] = self::getRoleName($case->value, $scope);
-
             }
         }
-
 
 
         return $rolesNames;

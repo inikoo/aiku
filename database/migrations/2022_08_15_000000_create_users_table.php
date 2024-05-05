@@ -28,8 +28,8 @@ return new class () extends Migration {
             $table->string('contact_name')->nullable()->comment('no-normalised depends on parent');
             $table->string('email')->nullable()->comment('mirror group_users.email');
             $table->text('about')->nullable();
-            $table->unsignedInteger('parent_id')->nullable();
             $table->string('parent_type')->nullable();
+            $table->unsignedInteger('parent_id')->nullable();
             $table->unsignedSmallInteger('number_authorised_organisations')->default(0);
             $table->unsignedSmallInteger('number_authorised_shops')->default(0);
             $table->unsignedSmallInteger('number_authorised_fulfilments')->default(0);

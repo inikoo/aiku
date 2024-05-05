@@ -11,10 +11,8 @@ use App\Models\Market\Shop;
 
 enum ShopPermissionsEnum: string
 {
-    case PRODUCTS = 'products';
-
+    case PRODUCTS      = 'products';
     case PRODUCTS_EDIT = 'products.edit';
-
     case PRODUCTS_VIEW = 'products.view';
 
     case CRM      = 'crm';
@@ -25,7 +23,6 @@ enum ShopPermissionsEnum: string
     case CRM_PROSPECTS      = 'crm.prospects';
     case CRM_PROSPECTS_EDIT = 'crm.prospects.edit';
     case CRM_PROSPECTS_VIEW = 'crm.prospects.view';
-
 
     case WEB      = 'web';
     case WEB_EDIT = 'web.edit';
@@ -39,15 +36,11 @@ enum ShopPermissionsEnum: string
     case MARKETING_EDIT = 'marketing.edit';
     case MARKETING_VIEW = 'marketing.view';
 
-
-
     case SUPERVISOR_PRODUCTS       = 'supervisor-products';
     case SUPERVISOR_CRM            = 'supervisor-crm';
     case SUPERVISOR_WEB            = 'supervisor-web';
-
-    case SUPERVISOR_ORDERS = 'supervisor-orders';
-
-    case SUPERVISOR_MARKETING = 'supervisor-marketing';
+    case SUPERVISOR_ORDERS         = 'supervisor-orders';
+    case SUPERVISOR_MARKETING      = 'supervisor-marketing';
 
     public static function getAllValues(Shop $shop): array
     {

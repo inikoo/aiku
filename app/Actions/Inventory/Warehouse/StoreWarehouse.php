@@ -10,6 +10,7 @@ namespace App\Actions\Inventory\Warehouse;
 use App\Actions\OrgAction;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouse;
+use App\Actions\SysAdmin\Organisation\SeedOrganisationJobPositions;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
@@ -46,6 +47,8 @@ class StoreWarehouse extends OrgAction
 
         OrganisationHydrateWarehouse::run($organisation);
         WarehouseHydrateUniversalSearch::dispatch($warehouse);
+        SeedOrganisationJobPositions::run($organisation);
+
 
         return $warehouse;
     }
