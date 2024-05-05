@@ -87,6 +87,9 @@ return new class () extends Migration {
 
             $table->string('model_type');
             $table->unsignedInteger($columnNames['model_morph_key']);
+
+            $table->boolean('locked')->default(true)->comment('e.g. role inherited from job position');
+
             $table->index([$columnNames['model_morph_key'], 'model_type'], 'model_has_roles_model_id_model_type_index');
 
             $table->foreign($pivotRole)
