@@ -16,6 +16,7 @@ enum EmployeeStateEnum: string
 
     case HIRED   = 'hired';
     case WORKING = 'working';
+    case LEAVING = 'leaving';
     case LEFT    = 'left';
 
     public static function labels(): array
@@ -23,6 +24,7 @@ enum EmployeeStateEnum: string
         return [
             'hired'         => __('Hired'),
             'working'       => __('Working'),
+            'leaving'=>__('Leaving'),
             'left'          => __('Left'),
         ];
     }
@@ -33,6 +35,7 @@ enum EmployeeStateEnum: string
         return [
             'hired'         => $stats->number_employees_state_hired,
             'working'       => $stats->number_employees_state_working,
+            'leaving'       => $stats->number_employees_state_leaving,
             'left'          => $stats->number_employees_state_left,
         ];
     }
@@ -50,6 +53,12 @@ enum EmployeeStateEnum: string
             'working' => [
                 'tooltip' => __('working'),
                 'icon'    => 'fal fa-handshake',
+
+            ],
+            'leaving' => [
+                'tooltip' => __('leaving'),
+                'icon'    =>'fal fa-handshake-alt-slash',
+                'class'   => 'animate-pulse',
 
             ],
             'left'    => [
