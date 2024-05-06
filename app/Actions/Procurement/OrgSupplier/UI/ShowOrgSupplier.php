@@ -143,8 +143,8 @@ class ShowOrgSupplier extends OrgAction
                 ],
 
                 SupplierTabsEnum::SHOWCASE->value => $this->tab == SupplierTabsEnum::SHOWCASE->value ?
-                    fn () => GetSupplierShowcase::run($supplier)
-                    : Inertia::lazy(fn () => GetSupplierShowcase::run($supplier)),
+                    fn () => GetOrgSupplierShowcase::run($supplier)
+                    : Inertia::lazy(fn () => GetOrgSupplierShowcase::run($supplier)),
 
                 SupplierTabsEnum::PURCHASES_SALES->value => $this->tab == SupplierTabsEnum::PURCHASES_SALES->value ?
                     fn () => SupplierProductResource::collection(IndexSupplierProducts::run(

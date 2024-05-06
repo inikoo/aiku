@@ -5,23 +5,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Actions\Procurement\Agent\UI\CreateMarketplaceAgent;
-use App\Actions\Procurement\Marketplace\Agent\UI\IndexMarketAgents;
-use App\Actions\Procurement\Marketplace\Agent\UI\RemoveMarketplaceAgent;
-use App\Actions\Procurement\Marketplace\Supplier\UI\CreateMarketplaceSupplier;
-use App\Actions\Procurement\Marketplace\Supplier\UI\EditMarketplaceSupplier;
-use App\Actions\Procurement\Marketplace\Supplier\UI\RemoveMarketplaceSupplier;
-use App\Actions\Procurement\Marketplace\Supplier\UI\ShowMarketplaceSupplier;
-use App\Actions\Procurement\Marketplace\SupplierProduct\UI\IndexMarketplaceSupplierProducts;
-use App\Actions\Procurement\Marketplace\SupplierProduct\UI\ShowMarketplaceSupplierProduct;
-use App\Actions\ProcurementToDelete\Supplier\UI\IndexSuppliers;
-use App\Actions\SupplyChain\Agent\UI\EditAgent;
-use App\Actions\SupplyChain\Agent\UI\ShowAgent;
-use Illuminate\Support\Facades\Route;
+
 
 //todo: delete this
-Route::get('/agents', IndexMarketAgents::class)->name('agents.index');
-Route::get('/agents/create', CreateMarketplaceAgent::class)->name('agents.create');
+
+
+/*
+Route::get('/agents', IndexMarketplaceAgents::class)->name('agents.index');
 Route::get('/agents/{agent}', ShowAgent::class)->name('agents.show')->withTrashed();
 
 Route::get('/agents/{agent}/edit', EditAgent::class)->name('agents.edit');
@@ -49,3 +39,4 @@ Route::get('/suppliers/{supplier}/supplier-products/{supplierProduct}', [ShowMar
 
 Route::get('/supplier-products', [IndexMarketplaceSupplierProducts::class, 'inAgent'])->name('supplier-products.index');
 Route::get('/supplier-products/{supplierProduct}', [ShowMarketplaceSupplierProduct::class, 'inAgent'])->name('supplier-products.show');
+*/

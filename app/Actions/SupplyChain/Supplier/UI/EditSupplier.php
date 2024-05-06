@@ -11,7 +11,6 @@ use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\Assets\Country\UI\GetCountriesOptions;
 use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\InertiaAction;
-use App\Actions\ProcurementToDelete\Supplier\UI\ShowSupplier;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;

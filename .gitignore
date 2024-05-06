@@ -67,4 +67,3 @@ push.sh
 /database/seeders/datasets/currency-exchange/currency_exchanges.dump
 /restart_elasticsearch.sh
 /create_wowsbar_organisations.sh
-/app/Actions/ProcurementToDelete/

@@ -24,7 +24,7 @@ enum EmployeeStateEnum: string
         return [
             'hired'         => __('Hired'),
             'working'       => __('Working'),
-            'leaving'=>__('Leaving'),
+            'leaving'       => __('Leaving'),
             'left'          => __('Left'),
         ];
     }
@@ -57,7 +57,7 @@ enum EmployeeStateEnum: string
             ],
             'leaving' => [
                 'tooltip' => __('leaving'),
-                'icon'    =>'fal fa-handshake-alt-slash',
+                'icon'    => 'fal fa-handshake-alt-slash',
                 'class'   => 'animate-pulse',
 
             ],

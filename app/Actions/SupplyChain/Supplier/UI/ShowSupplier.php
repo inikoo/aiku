@@ -13,7 +13,6 @@ use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\SupplierDelivery\UI\IndexSupplierDeliveries;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
-use App\Actions\ProcurementToDelete\Supplier\UI\GetSupplierShowcase;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\SupplierTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -205,7 +204,7 @@ class ShowSupplier extends InertiaAction
         return match ($routeName) {
             'grp.procurement.suppliers.show' =>
             array_merge(
-                ProcurementDashboard::make()->getBreadcrumbs(),
+                ProcurementDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['supplier'],
                     [

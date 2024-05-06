@@ -9,7 +9,7 @@ namespace App\Actions\SupplyChain\Supplier;
 
 use App\Actions\GrpAction;
 use App\Actions\Helpers\Address\UpdateAddress;
-use App\Actions\ProcurementToDelete\Supplier\Hydrators\SupplierHydrateUniversalSearch;
+use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\SupplyChain\Supplier;

@@ -11,8 +11,8 @@ use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\GrpAction;
 use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplierFromSupplierInAgent;
-use App\Actions\ProcurementToDelete\Supplier\Hydrators\SupplierHydrateUniversalSearch;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSuppliers;
+use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateUniversalSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSuppliers;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
@@ -149,13 +149,13 @@ class StoreSupplier extends GrpAction
 
     public function htmlResponse(Supplier $supplier): RedirectResponse
     {
-        if ($supplier->owner_type == 'Agent') {
-            /** @var \App\Models\SupplyChain\Agent $agent */
-            $agent = $supplier->owner;
+        if ($supplier->agent_id) {
+            /** @var Agent $agent */
+            $agent = $supplier->agent;
 
-            return Redirect::route('grp.procurement.agents.show.suppliers.index', $agent->slug);
+            return Redirect::route('grp.supply-chain.agents.show.suppliers.index', $agent->slug);
         }
 
-        return Redirect::route('grp.procurement.suppliers.show', $supplier->slug);
+        return Redirect::route('grp.supply-chain.suppliers.show', $supplier->slug);
     }
 }

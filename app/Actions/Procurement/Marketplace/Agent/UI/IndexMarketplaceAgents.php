@@ -22,7 +22,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexMarketAgents extends OrgAction
+class IndexMarketplaceAgents extends OrgAction
 {
     private bool $canCreateAgent = false;
 
