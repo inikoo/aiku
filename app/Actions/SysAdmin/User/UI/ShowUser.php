@@ -16,6 +16,7 @@ use App\Enums\UI\UserTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\Http\Resources\SysAdmin\UserResource;
+use App\Http\Resources\SysAdmin\UserShowcaseResource;
 use App\Models\SysAdmin\User;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -74,6 +75,10 @@ class ShowUser extends GrpAction
                     'current'    => $this->tab,
                     'navigation' => UserTabsEnum::navigation()
                 ],
+
+                UserTabsEnum::SHOWCASE->value => $this->tab == UserTabsEnum::SHOWCASE->value ?
+                    fn () => UserShowcaseResource::make($user)
+                    : Inertia::lazy(fn () => UserShowcaseResource::make($user)),
 
                 UserTabsEnum::REQUEST_LOGS->value => $this->tab == UserTabsEnum::REQUEST_LOGS->value ?
                     fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))
