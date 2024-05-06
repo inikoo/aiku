@@ -26,7 +26,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProspects;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRecurringBills;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSales;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStocks;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouse;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouses;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWeb;
 use App\Actions\Traits\WithNormalise;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
@@ -41,7 +41,7 @@ class HydrateOrganisation extends HydrateModel
     public function handle(Organisation $organisation): void
     {
         OrganisationHydrateEmployees::run($organisation);
-        OrganisationHydrateWarehouse::run($organisation);
+        OrganisationHydrateWarehouses::run($organisation);
         OrganisationHydrateMarket::run($organisation);
         OrganisationHydratePayments::run($organisation);
         OrganisationHydratePaymentAccounts::run($organisation);

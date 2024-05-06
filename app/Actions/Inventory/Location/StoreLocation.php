@@ -11,7 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateUniversalSearch;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateLocations;
 use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateLocations;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouse;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouses;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
@@ -39,7 +39,7 @@ class StoreLocation extends OrgAction
         /** @var Location $location */
         $location = $parent->locations()->create($modelData);
         $location->stats()->create();
-        OrganisationHydrateWarehouse::dispatch($organisation);
+        OrganisationHydrateWarehouses::dispatch($organisation);
 
         if ($location->warehouse_area_id) {
             WarehouseAreaHydrateLocations::dispatch($location->warehouseArea);

@@ -12,7 +12,7 @@ use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrganisationHydrateWarehouse
+class OrganisationHydrateWarehouses
 {
     use AsAction;
 
