@@ -7,13 +7,13 @@
 
 namespace App\Actions\SupplyChain\Supplier\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\GrpAction;
 use App\Actions\SupplyChain\HasSupplyChainFields;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateSupplier extends InertiaAction
+class CreateSupplier extends GrpAction
 {
     use HasSupplyChainFields;
 
@@ -23,7 +23,7 @@ class CreateSupplier extends InertiaAction
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('new supplier'),
                 'pageHead'    => [
                     'title'        => __('new supplier'),
@@ -51,21 +51,20 @@ class CreateSupplier extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('procurement.edit');
+        return $request->user()->hasPermissionTo('supply-chain.edit');
     }
 
-
-    public function asController(ActionRequest $request): Response
+    public function asController(ActionRequest $request): ActionRequest
     {
-        $this->initialisation($request);
+        $this->initialisation(group(), $request);
 
-        return $this->handle();
+        return $request;
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
         return array_merge(
-            IndexSuppliers::make()->getBreadcrumbs(),
+            IndexSuppliers::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'          => 'creatingModel',
