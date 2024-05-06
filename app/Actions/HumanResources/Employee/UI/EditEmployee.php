@@ -48,7 +48,6 @@ class EditEmployee extends OrgAction
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
 
-
         $sections['properties'] = [
             'label'  => __('Properties'),
             'icon'   => 'fal fa-sliders-h',
@@ -112,7 +111,9 @@ class EditEmployee extends OrgAction
                         'fulfilments'         => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
                         'warehouses'          => WarehouseResource::collection($this->organisation->warehouses),
                     ],
-                    'value'    => [],
+                    'value'    => $employee->jobPositions->pluck('code')->map(function ($code) {
+                        return $code;
+                    }),
                     'full'     => true
                 ],
 
