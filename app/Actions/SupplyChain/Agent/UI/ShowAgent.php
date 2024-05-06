@@ -24,7 +24,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowAgent extends GrpAction
 {
-
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo('supply-chain.edit');

@@ -10,7 +10,7 @@ namespace App\Actions\HumanResources\Timesheet\UI;
 use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Http\Resources\HumanResources\EmployeeInertiaResource;
-use App\Http\Resources\HumanResources\EmployeeResource;
+use App\Http\Resources\HumanResources\TimesheetsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Timesheet;
@@ -27,7 +27,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexTimesheets extends OrgAction
 {
-    public function handle(Employee|Guest $subject, $prefix = null, $isTodayTimesheet = false): LengthAwarePaginator
+    public function handle(Organisation|Employee|Guest $parent, ?string $prefix = null, bool $isTodayTimesheet = false): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -37,15 +37,22 @@ class IndexTimesheets extends OrgAction
 
         $query = QueryBuilder::for(Timesheet::class);
 
+        if ($parent instanceof Organisation) {
+            $query->where('organisation_id', $parent->id);
+        } elseif ($parent instanceof Employee) {
+            $query->where('subject_type', 'App\Models\HumanResources\Employee')
+                  ->where('subject_id', $parent->id);
+        } elseif ($parent instanceof Guest) {
+            // Adjust this part according to your Guest model and its relationship with timesheets
+            $query->where('subject_type', 'App\Models\SysAdmin\Guest')
+                  ->where('subject_id', $parent->id);
+        }
+
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        if($subject instanceof Employee) {
-            $query->where([['subject_type', class_basename($subject)], ['subject_id', $subject->id]]);
-        }
-
-        if($isTodayTimesheet) {
+        if ($isTodayTimesheet) {
             $query->whereDate('date', now()->format('Y-m-d'));
         }
 
@@ -94,21 +101,21 @@ class IndexTimesheets extends OrgAction
     }
 
 
-    public function jsonResponse(LengthAwarePaginator $employees): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $timesheets): AnonymousResourceCollection
     {
-        return EmployeeResource::collection($employees);
+        return TimesheetsResource::collection($timesheets);
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $employees): Response
+    public function htmlResponse(LengthAwarePaginator $timesheets): Response
     {
         return Inertia::render(
             'HumanResources/Employees',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('employees'),
+                'title'       => __('timesheets'),
                 'pageHead'    => [
-                    'title'  => __('employees'),
+                    'title'  => __('timesheets'),
                     'create' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'grp.org.hr.employees.create',
@@ -116,10 +123,10 @@ class IndexTimesheets extends OrgAction
                                 'organisation' => $this->organisation->slug
                             ]
                         ],
-                        'label' => __('employee')
+                        'label' => __('timesheets')
                     ] : false,
                 ],
-                'data'        => EmployeeInertiaResource::collection($employees),
+                'data'        => EmployeeInertiaResource::collection($timesheets),
             ]
         )->table($this->tableStructure());
     }
@@ -129,7 +136,21 @@ class IndexTimesheets extends OrgAction
     {
         $this->initialisation($organisation, $request);
 
-        return $this->handle();
+        return $this->handle($organisation);
+    }
+
+    public function inEmployee(Organisation $organisation, Employee $employee, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($employee);
+    }
+
+    public function inGuest(Organisation $organisation, Guest $guest, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($guest);
     }
 
 
@@ -144,12 +165,12 @@ class IndexTimesheets extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.hr.employees.index',
+                            'name'       => 'grp.org.hr.time-sheets.index',
                             'parameters' => [
                                 'organisation' => $this->organisation->slug
                             ]
                         ],
-                        'label' => __('employees'),
+                        'label' => __('timesheets'),
                         'icon'  => 'fal fa-bars',
                     ],
                 ]

@@ -80,6 +80,7 @@ use App\Actions\Market\Product\DeleteProduct;
 use App\Actions\Market\Product\StorePhysicalGood;
 use App\Actions\Market\Product\UpdatePhysicalGood;
 use App\Actions\Market\Shop\StoreShop;
+use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
@@ -96,6 +97,7 @@ Route::get('/profile/app-login-qrcode', GetProfileAppLoginQRCode::class)->name('
 
 Route::patch('/user/{user:id}', UpdateUser::class)->name('user.update');
 
+Route::post('/agent/', StoreAgent::class)->name('agent.store');
 
 Route::patch('/employees/{employee:id}', UpdateEmployee::class)->name('employee.update');
 Route::delete('/employee/{employee:id}', DeleteEmployee::class)->name('employee.delete');
@@ -349,7 +351,7 @@ Route::patch('/agent/{agent:id}', UpdateAgent::class)->name('agent.update');
 Route::post('/agent/{agent:id}/purchase-order', [StorePurchaseOrder::class, 'inAgent'])->name('agent.purchase-order.store');
 Route::delete('/agent/{agent:id}', DeleteAgent::class)->name('agent.delete');
 
-Route::post('/agent/', StoreAgent::class)->name('agent.store');
+
 
 Route::patch('/supplier/{supplier:id}', UpdateSupplier::class)->name('supplier.update');
 Route::delete('/supplier/{supplier:id}', DeleteSupplier::class)->name('supplier.delete');

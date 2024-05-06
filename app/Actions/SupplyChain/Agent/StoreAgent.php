@@ -14,12 +14,10 @@ use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Group;
-use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreAgent extends GrpAction
@@ -35,21 +33,28 @@ class StoreAgent extends GrpAction
 
     public function handle(Group $group, array $modelData): Agent
     {
+
         data_set($modelData, 'group_id', $group->id);
+        data_set($modelData, 'country_id', $group->country_id);
+        data_set($modelData, 'language_id', $group->language_id);
+        data_set($modelData, 'timezone_id', $group->timezone_id);
+
 
         $organisationData = [
-            'type'        => OrganisationTypeEnum::AGENT,
-            'name'        => Arr::get($modelData, 'name'),
-            'code'        => Arr::get($modelData, 'code'),
-            'email'       => Arr::get($modelData, 'email'),
-            'phone'       => Arr::get($modelData, 'phone'),
-            'currency_id' => Arr::get($modelData, 'currency_id'),
-            'language_id' => Arr::get($modelData, 'language_id'),
-            'timezone_id' => Arr::get($modelData, 'timezone_id'),
-            'country_id'  => Arr::get($modelData, 'country_id'),
-            'address'     => Arr::get($modelData, 'address'),
-        ];
+            'type'           => OrganisationTypeEnum::AGENT,
+            'name'           => Arr::get($modelData, 'contact_name'),
+            'code'           => Arr::get($modelData, 'code'),
+            'email'          => Arr::get($modelData, 'email'),
+            'phone'          => Arr::get($modelData, 'phone'),
+            'address'        => Arr::get($modelData, 'address'),
+            'currency_id'    => Arr::get($modelData, 'currency_id'),
+            'group_id'       => Arr::get($modelData, 'group_id', $group->id),
+            'country_id'     => Arr::get($modelData, 'country_id', $group->country_id),
+            'timezone_id'    => Arr::get($modelData, 'timezone_id', $group->timezone_id),
+            'language_id'    => Arr::get($modelData, 'language_id', $group->language_id)
 
+        ];
+        // dd($organisationData);
         if(Arr::exists($modelData, 'created_at')) {
             $organisationData['created_at'] = Arr::get($modelData, 'created_at');
         }
@@ -70,35 +75,32 @@ class StoreAgent extends GrpAction
 
 
         return $agent;
+
     }
 
 
     public function rules(): array
     {
+        // Get the group from the initialisation data
+        $group = $this->initialisationData['group'] ?? null;
+
+        // Check if the group is set and if it has an id
+        $groupId = $group && $group->id ? $group->id : null;
+
         return [
-            'code'        => [
+            'code'         => [
                 'required',
                 'max:9',
                 'alpha_dash',
-                Rule::notIn(['export', 'create', 'upload']),
-                new IUnique(
-                    table: 'organisations',
-                    extraConditions: [
-                        ['column' => 'group_id', 'value' => $this->group->id],
-                    ]
-                ),
             ],
-            'name'        => ['required', 'string', 'max:255'],
-            'email'       => ['nullable', 'email'],
-            'phone'       => ['nullable', 'phone:AUTO'],
-            'address'     => ['required', new ValidAddress()],
-            'currency_id' => ['required', 'exists:currencies,id'],
-            'country_id'  => ['required', 'exists:countries,id'],
-            'language_id' => ['required', 'exists:languages,id'],
-            'timezone_id' => ['required', 'exists:timezones,id'],
-            'source_id'   => ['sometimes', 'nullable', 'string'],
-            'source_slug' => ['sometimes', 'nullable', 'string'],
-            'created_at'  => ['sometimes', 'date'],
+            'contact_name'         => ['nullable', 'string', 'max:255'],
+            'email'                => ['nullable', 'email'],
+            'phone'                => ['nullable', 'phone:AUTO'],
+            'address'              => ['required', new ValidAddress()],
+            'source_id'            => ['sometimes', 'nullable', 'string'],
+            'source_slug'          => ['sometimes', 'nullable', 'string'],
+            'currency_id'          => ['required'],
+            'deleted_at'           => ['sometimes', 'nullable', 'date'],
         ];
     }
 
@@ -118,7 +120,9 @@ class StoreAgent extends GrpAction
 
     public function asController(ActionRequest $request): Agent
     {
-        $this->initialisation(app('group'), $request);
+        // dd($request->all());
+        $this->initialisation(group(), $request);
+
 
         return $this->handle(
             group: group(),
@@ -128,6 +132,6 @@ class StoreAgent extends GrpAction
 
     public function htmlResponse(Agent $agent): RedirectResponse
     {
-        return Redirect::route('grp.procurement.agents.show', $agent->slug);
+        return Redirect::route('grp.supply-chain.agents.show', $agent->slug);
     }
 }

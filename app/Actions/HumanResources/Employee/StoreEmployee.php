@@ -184,14 +184,12 @@ class StoreEmployee extends OrgAction
         return $this->handle($parent, $this->validatedData);
     }
 
-    public function asController(Organisation|Workplace $parent, ActionRequest $request): Employee
+    public function asController(Organisation $organisation, ActionRequest $request): Employee
     {
-        if (class_basename($parent) === 'Workplace') {
-            $organisation = $parent->organisation;
-        } else {
-            $organisation = $parent;
-        }
 
+        $this->initialisation($organisation, $request);
+
+        // Call the handle method with the validated data and return the result
         return $this->handle($organisation, $this->validatedData);
     }
 
