@@ -62,6 +62,7 @@ const props = defineProps<{
     }
 }>()
 
+console.log(props.options)
 const optionsJob = reactive<{ [key: string]: optionsJob }>({
     admin: {
         department: "admin",
@@ -83,7 +84,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
             {
                 "slug": "hr-m",
                 "grade": "manager",
-                "label": "Manager",
+                "label": "Supervisor",
                 number_employees: props.options.positions.data.find(position => position.slug == 'hr-m')?.number_employees || 0,
             },
             {
@@ -103,7 +104,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
             {
                 "slug": "acc-m",
                 "grade": "manager",
-                "label": "Manager",
+                "label": "Supervisor",
                 number_employees: props.options.positions.data.find(position => position.slug == 'acc-m')?.number_employees || 0,
             },
             {
@@ -123,7 +124,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
             {
                 "slug": "mrk-m",
                 "grade": "manager",
-                "label": "Manager",
+                "label": "Supervisor",
                 number_employees: props.options.positions.data.find(position => position.slug == 'mrk-m')?.number_employees || 0,
             },
             {
@@ -147,7 +148,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
             {
                 "slug": "web-m",
                 "grade": "manager",
-                "label": "Manager",
+                "label": "Supervisor",
                 number_employees: props.options.positions.data.find(position => position.slug == 'web-m')?.number_employees || 0,
             },
             {
@@ -183,7 +184,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
             {
                 "slug": "wah-m",
                 "grade": "manager",
-                "label": "Manager",
+                "label": "Supervisor",
                 number_employees: props.options.positions.data.find(position => position.slug == 'wah-m')?.number_employees || 0,
             },
             {
@@ -210,7 +211,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
             {
                 "slug": "dist-m",
                 "grade": "manager",
-                "label": "Manager",
+                "label": "Supervisor",
                 number_employees: props.options.positions.data.find(position => position.slug == 'dist-m')?.number_employees || 0,
             },
             {
@@ -237,7 +238,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
             {
                 "slug": "prod-m",
                 "grade": "manager",
-                "label": "Manager",
+                "label": "Supervisor",
                 number_employees: props.options.positions.data.find(position => position.slug == 'prod-m')?.number_employees || 0,
             },
             {
@@ -256,7 +257,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
             {
                 "slug": "cus-m",
                 "grade": "manager",
-                "label": "Manager",
+                "label": "Supervisor",
                 number_employees: props.options.positions.data.find(position => position.slug == 'cus-m')?.number_employees || 0,
             },
             {
@@ -279,13 +280,13 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
             {
                 "slug": "ful-m",
                 "grade": "manager",
-                "label": "Manager",
+                "label": "Supervisor",
                 number_employees: props.options.positions.data.find(position => position.slug == 'cus-m')?.number_employees || 0,
             },
             {
                 "slug": "ful-wc",
                 "grade": "clerk",
-                "label": "Worker",
+                "label": "Warehouse Clerk",
                 number_employees: props.options.positions.data.find(position => position.slug == 'ful-wc')?.number_employees || 0,
             },
             {
@@ -315,11 +316,12 @@ const handleClickSubDepartment = (department: string, subDepartmentSlug: any, ty
         delete props.form[props.fieldName][subDepartmentSlug]
     } else {
         for (const key in props.form[props.fieldName]) {
-            // console.log('key', key, department, key.includes(department))
-            // Check if the key contains the substring 'wah'
+            // Check if the 'wah-m' contains the substring 'wah'
             if (key.includes(department)) {
-                // Delete the key if it contains 'wah'
-                delete props.form[props.fieldName][key]
+                // If the selected radio is not same group ('manager' group or 'clerk' group)
+                if (optionsJob[department].subDepartment.find(sub => sub.slug == key)?.grade != optionsJob[department].subDepartment.find(sub => sub.slug == subDepartmentSlug)?.grade) {
+                    delete props.form[props.fieldName][key]
+                }
             }
         }
 
@@ -381,31 +383,6 @@ const onClickJobFinetune = (departmentName: string, shopName: string, subDepartm
     props.form.errors[props.fieldName] = ''
 }
 
-// watch(optionsJob, () => {
-//     const tempObject = {...optionsJob}
-//     if(!tempObject.admin.value) {
-//         delete tempObject.admin
-//     }
-
-//     const resultObject = {}
-
-//     for (const key in tempObject) {
-//         if (Object.prototype.hasOwnProperty.call(tempObject, key)) {
-//             resultObject[key] = tempObject[key].value
-//         }
-//     }
-
-//     props.form[props.fieldName] = tempObject.admin ? [tempObject.admin.value] : resultObject
-// })
-
-// onMounted(() => {
-//     console.log('eee', props.form[props.fieldName], typeof props.form[props.fieldName])
-//     console.log(typeof [], typeof {})
-//     if (typeof props.form[props.fieldName] == 'string') {
-//         props.form[props.fieldName] = {}
-//     }
-// })
-
 </script>
 
 <template>
@@ -449,7 +426,7 @@ const onClickJobFinetune = (departmentName: string, shopName: string, subDepartm
                                     <span v-tooltip="subDepartment.number_employees + ' employees on this position'" :class="[
                                         Object.keys(form[fieldName]).includes('admin') && departmentName != 'admin' ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-800'
                                     ]">
-                                        {{ subDepartment.slug }}
+                                        {{ subDepartment.label }}
                                         <!-- {{ jobGroup.options?.filter(job => job.state == 'open').map(job => job.slug) }} -->
                                         <!-- {{ jobGroup.optionsSlug?.every(value => form[fieldName][subDepartment.slug]?.includes(value)) }} -->
                                         <!-- {{ (form[fieldName][subDepartment.slug] || []).every(value => jobGroup.options?.map(job => job.slug).includes(value)) }} -->
@@ -541,5 +518,5 @@ const onClickJobFinetune = (departmentName: string, shopName: string, subDepartm
     </div>
 
     <!-- <pre>{{ options }}</pre> -->
-    <!-- <pre>{{ props.form[props.fieldName] }}</pre> -->
+    <pre>{{ props.form[props.fieldName] }}</pre>
 </template>
