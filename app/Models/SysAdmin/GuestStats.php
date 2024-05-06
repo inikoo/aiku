@@ -15,7 +15,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property int|null $guest_id
  * @property int $number_timesheets
+ * @property string|null $last_clocking_at
  * @property int $number_clockings
+ * @property int $number_clockings_type_clocking_machine
+ * @property int $number_clockings_type_manual
+ * @property int $number_clockings_type_self_check
+ * @property int $number_clockings_type_system
  * @property int $number_time_trackers
  * @property int $number_time_trackers_status_open
  * @property int $number_time_trackers_status_closed
