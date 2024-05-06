@@ -80,6 +80,7 @@ use App\Actions\Market\Product\DeleteProduct;
 use App\Actions\Market\Product\StorePhysicalGood;
 use App\Actions\Market\Product\UpdatePhysicalGood;
 use App\Actions\Market\Shop\StoreShop;
+use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
@@ -261,6 +262,8 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
     Route::post('', [StoreWebUser::class,'inCustomer'])->name('web-user.store');
 });
 
+Route::post('/supplier', StoreSupplier::class)->name('supplier.store');
+
 /*
 
 
@@ -353,7 +356,7 @@ Route::post('/agent/', StoreAgent::class)->name('agent.store');
 
 Route::patch('/supplier/{supplier:id}', UpdateSupplier::class)->name('supplier.update');
 Route::delete('/supplier/{supplier:id}', DeleteSupplier::class)->name('supplier.delete');
-Route::post('/supplier/', StoreSupplier::class)->name('supplier.store');
+
 
 Route::post('/agent/{agent:id}/supplier', [StoreSupplier::class, 'inAgent'])->name('agent.supplier.store');
 Route::post('/agent/{supplier:id}/purchase-order', [StorePurchaseOrder::class, 'inSupplier'])->name('supplier.purchase-order.store');
