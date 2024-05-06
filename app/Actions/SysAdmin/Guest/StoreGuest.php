@@ -13,6 +13,7 @@ use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Group;
@@ -89,6 +90,9 @@ class StoreGuest
                         UserAddRoles::run($user, [
                             Role::where('name', RolesEnum::getRoleName(RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR->value, $shop->fulfilment))->first()
                         ]);
+                        UserAddRoles::run($user, [
+                            Role::where('name', RolesEnum::getRoleName(RolesEnum::FULFILMENT_SHOP_SUPERVISOR->value, $shop->fulfilment))->first()
+                        ]);
                     } else {
                         UserAddRoles::run($user, [
                             Role::where('name', RolesEnum::getRoleName(RolesEnum::SHOP_ADMIN->value, $shop))->first()
@@ -100,6 +104,8 @@ class StoreGuest
                         Role::where('name', RolesEnum::getRoleName(RolesEnum::WAREHOUSE_ADMIN->value, $warehouse))->first()
                     ]);
                 }
+
+
             }
         }
         UserAddRoles::run($user, $roles);
