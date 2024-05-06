@@ -108,7 +108,7 @@ class StoreProduction extends OrgAction
         return Redirect::route('grp.org.productions.index');
     }
 
-    public string $commandSignature = 'production:create {organisation : organisation slug} {code} {name}';
+    public string $commandSignature = 'production:create {organisation : organisation slug} {code} {name} {--source_id=} {--state=} {--created_at=}';
 
     public function asCommand(Command $command): int
     {
@@ -124,7 +124,8 @@ class StoreProduction extends OrgAction
         $this->organisation = $organisation;
         setPermissionsTeamId($organisation->group->id);
 
-        $this->setRawAttributes([
+
+        $modelData=[
             'code' => $command->argument('code'),
             'name' => $command->argument('name'),
         ]);
@@ -137,7 +138,7 @@ class StoreProduction extends OrgAction
             return 1;
         }
 
-        $production = $this->handle($organisation, $validatedData);
+        $production = $this->make()->action($organisation, $validatedData);
 
         $command->info("Production $production->code created successfully 🎉");
 
