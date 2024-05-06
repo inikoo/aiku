@@ -7,19 +7,22 @@
 
 namespace App\Actions\Inventory\Warehouse\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateWarehouse extends InertiaAction
+class CreateWarehouse extends OrgAction
 {
-    public function handle(): Response
+    public function handle(ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->originalParameters()
+                ),
                 'title'       => __('new warehouse'),
                 'pageHead'    => [
                     'title'        => __('new warehouse'),
@@ -34,7 +37,7 @@ class CreateWarehouse extends InertiaAction
                             'label' => __('cancel'),
                             'route' => [
                                 'name'       => 'grp.org.warehouses.index',
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'parameters' => $request->route()->originalParameters()
                             ],
                         ]
                     ]
@@ -72,21 +75,21 @@ class CreateWarehouse extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('inventory.warehouses.edit');
+        return $request->user()->hasPermissionTo("warehouses.{$this->organisation->id}.edit");
     }
 
 
-    public function asController(ActionRequest $request): Response
+    public function asController(Organisation $organisation, ActionRequest $request): Response
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
-        return $this->handle();
+        return $this->handle($request);
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
         return array_merge(
-            IndexWarehouses::make()->getBreadcrumbs(),
+            IndexWarehouses::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'         => 'creatingModel',

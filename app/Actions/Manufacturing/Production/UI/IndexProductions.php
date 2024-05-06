@@ -8,6 +8,7 @@
 namespace App\Actions\Manufacturing\Production\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\UI\Manufacturing\ManufacturingDashboard;
 use App\Http\Resources\Manufacturing\ProductionsResource;
 use App\Models\Manufacturing\Production;
 use App\Models\SysAdmin\Organisation;
@@ -55,7 +56,7 @@ class IndexProductions extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Production::class);
 
-        $queryBuilder->where('organisation_id', $organisation);
+        $queryBuilder->where('organisation_id', $organisation->id);
 
 
         return $queryBuilder
@@ -151,7 +152,7 @@ class IndexProductions extends OrgAction
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
         return array_merge(
-            (new ShowInventoryDashboard())->getBreadcrumbs($routeParameters),
+            (new ManufacturingDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',

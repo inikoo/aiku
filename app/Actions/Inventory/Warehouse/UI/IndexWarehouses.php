@@ -12,7 +12,6 @@ use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\Inventory\WarehousesResource;
 use App\Models\Inventory\Warehouse;
-use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -30,31 +29,25 @@ class IndexWarehouses extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('shops');
-        return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->hasPermissionTo("warehouses.{$this->organisation->id}.edit");
+
+        return $request->user()->hasPermissionTo("warehouses.{$this->organisation->id}.view");
     }
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $organisation;
         $this->initialisation($organisation, $request);
-        return $this->handle();
+
+        return $this->handle($organisation);
     }
 
-    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $organisation;
-        $this->initialisation($organisation, $request);
-        return $this->handle();
-    }
-
-
-    public function handle($prefix = null): LengthAwarePaginator
+    public function handle(Organisation $organisation, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('warehouses.name', 'LIKE', "%$value%")
-                    ->orWhere('warehouses.code', 'LIKE', "%$value%");
+                $query->whereAnyWordStartWith('warehouses.name', $value)
+                    ->orWhereStartWith('warehouses.code', $value);
             });
         });
 
@@ -64,11 +57,7 @@ class IndexWarehouses extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Warehouse::class);
 
-        if(class_basename($this->parent) == 'Organisation') {
-            $queryBuilder->where('organisation_id', $this->parent->id);
-        } else {
-            $queryBuilder->where('group_id', $this->parent->id);
-        }
+        $queryBuilder->where('organisation_id', $organisation->id);
 
 
         return $queryBuilder
@@ -88,13 +77,13 @@ class IndexWarehouses extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|Group $parent, $prefix = null): Closure
+    public function tableStructure(Organisation $parent, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $prefix) {
             if ($prefix) {
                 $table
                     ->name($prefix)
-                    ->pageName($prefix . 'Page');
+                    ->pageName($prefix.'Page');
             }
             $table
                 ->withGlobalSearch()
@@ -132,8 +121,6 @@ class IndexWarehouses extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $warehouses, ActionRequest $request): Response
     {
-
-
         return Inertia::render(
             'Org/Warehouse/Warehouses',
             [
@@ -145,7 +132,7 @@ class IndexWarehouses extends OrgAction
                         'title' => __('warehouses'),
                         'icon'  => 'fal fa-warehouse'
                     ],
-                    'actions'=> [
+                    'actions' => [
                         $this->canEdit && $request->route()->routeName == 'grp.org.warehouses.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -158,15 +145,13 @@ class IndexWarehouses extends OrgAction
                         ] : false,
                     ]
                 ],
-                'data' => WarehouseResource::collection($warehouses),
+                'data'        => WarehouseResource::collection($warehouses),
             ]
         )->table($this->tableStructure($this->parent));
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
-
-
         return array_merge(
             (new ShowInventoryDashboard())->getBreadcrumbs($routeParameters),
             [
