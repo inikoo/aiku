@@ -70,7 +70,7 @@ class StoreProduction extends OrgAction
         return [
             'code'       => [
                 'required',
-                'between:2,4',
+                'max:12',
                 'alpha_dash',
                 new IUnique(
                     table: 'productions',
@@ -105,7 +105,7 @@ class StoreProduction extends OrgAction
 
     public function htmlResponse(Production $production): RedirectResponse
     {
-        return Redirect::route('grp.org.productions.index');
+        return Redirect::route('grp.org.manufacturing.productions.index');
     }
 
     public string $commandSignature = 'production:create {organisation : organisation slug} {code} {name} {--source_id=} {--state=} {--created_at=}';
@@ -128,7 +128,21 @@ class StoreProduction extends OrgAction
         $modelData=[
             'code' => $command->argument('code'),
             'name' => $command->argument('name'),
-        ]);
+        ];
+
+        if($command->option('state')) {
+            $modelData['state']=$command->option('state');
+        }
+
+        if($command->option('source_id')) {
+            $modelData['source_id']=$command->option('source_id');
+        }
+
+        if($command->option('created_at')) {
+            $modelData['created_at']=$command->option('created_at');
+        }
+
+        $this->setRawAttributes($modelData);
 
         try {
             $validatedData = $this->validateAttributes();

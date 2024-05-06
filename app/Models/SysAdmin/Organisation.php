@@ -130,7 +130,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Payment> $payments
  * @property-read \App\Models\SysAdmin\OrganisationProcurementStats|null $procurementStats
  * @property-read LaravelCollection<int, ProductCategory> $productCategories
- * @property-read \App\Models\SysAdmin\OrganisationProductionStats|null $productionStats
  * @property-read LaravelCollection<int, Production> $productions
  * @property-read LaravelCollection<int, Product> $products
  * @property-read LaravelCollection<int, Prospect> $prospects
@@ -232,11 +231,6 @@ class Organisation extends Model implements HasMedia
     public function inventoryStats(): HasOne
     {
         return $this->hasOne(OrganisationInventoryStats::class);
-    }
-
-    public function productionStats(): HasOne
-    {
-        return $this->hasOne(OrganisationProductionStats::class);
     }
 
     public function fulfilmentStats(): HasOne

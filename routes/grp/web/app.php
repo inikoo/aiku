@@ -65,9 +65,7 @@ Route::middleware(["auth"])->group(function () {
     Route::prefix("dropshipping")
         ->name("dropshipping.")
         ->group(__DIR__."/dropshipping.php");
-    Route::prefix("production")
-        ->name("production.")
-        ->group(__DIR__."/production.php");
+
 
     Route::prefix("shops")
         ->name("shops.")

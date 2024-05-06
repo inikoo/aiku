@@ -108,7 +108,6 @@ class StoreOrganisation
             $organisation->ordersIntervals()->create();
             $organisation->mailshotsIntervals()->create();
             $organisation->fulfilmentStats()->create();
-            $organisation->productionStats()->create();
             $organisation->marketStats()->create();
             $organisation->manufactureStats()->create();
 
