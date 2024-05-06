@@ -8,7 +8,6 @@
 namespace App\Actions\SupplyChain\Agent\UI;
 
 use App\Actions\GrpAction;
-use App\Actions\Procurement\Marketplace\Agent\UI\DeletedMarketplaceAgentTrait;
 use App\Actions\Procurement\Marketplace\SupplierProduct\UI\IndexMarketplaceSupplierProducts;
 use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
@@ -25,7 +24,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowAgent extends GrpAction
 {
-    use DeletedMarketplaceAgentTrait;
 
     public function authorize(ActionRequest $request): bool
     {
