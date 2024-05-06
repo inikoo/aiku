@@ -7,7 +7,9 @@
 
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
-use App\Enums\Inventory\Location\LocationStatusEnum;
+use App\Actions\Traits\WithEnumStats;
+use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -15,6 +17,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class OrganisationHydrateWarehouses
 {
     use AsAction;
+    use WithEnumStats;
 
     private Organisation $organisation;
 
@@ -36,6 +39,19 @@ class OrganisationHydrateWarehouses
         $stats = [
             'number_warehouses'                  => $organisation->warehouses()->count(),
         ];
+
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'warehouses',
+                field: 'state',
+                enum: WarehouseStateEnum::class,
+                models: Warehouse::class,
+                where: function ($q) use ($organisation) {
+                    $q->where('organisation_id', $organisation->id);
+                }
+            )
+        );
 
         $organisation->inventoryStats()->update($stats);
     }

@@ -34,7 +34,7 @@ class ProductionDashboard extends OrgAction
     {
 
         return Inertia::render(
-            'Production/ProductionDashboard',
+            'Manufacturing/ProductionDashboard',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('production'),

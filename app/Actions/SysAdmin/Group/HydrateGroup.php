@@ -62,6 +62,7 @@ class HydrateGroup extends HydrateModel
         GroupHydrateWarehouses::run($group);
         GroupHydrateWarehouseAreas::run($group);
         GroupHydrateLocations::run($group);
+        GroupHydrateProductions::run($group);
 
     }
 

@@ -35,6 +35,7 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\Manufacturing\Production;
 use App\Models\Market\Collection;
 use App\Models\Market\CollectionCategory;
 use App\Models\Market\Product;
@@ -258,6 +259,11 @@ class Organisation extends Model implements HasMedia
         return $this->hasOne(OrganisationSalesStats::class);
     }
 
+    public function manufactureStats(): HasOne
+    {
+        return $this->hasOne(OrganisationManufactureStats::class);
+    }
+
     public function salesIntervals(): HasOne
     {
         return $this->hasOne(OrganisationSalesIntervals::class);
@@ -326,6 +332,11 @@ class Organisation extends Model implements HasMedia
     public function shops(): HasMany
     {
         return $this->hasMany(Shop::class);
+    }
+
+    public function productions(): HasMany
+    {
+        return $this->hasMany(Production::class);
     }
 
     public function warehouses(): HasMany

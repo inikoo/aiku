@@ -204,7 +204,7 @@ return [
             'code'               => 'prod-d',
             'team'               => 'production',
             'department'         => 'production',
-            'name'               => 'Production dispatcher',
+            'name'               => 'Manufacturing dispatcher',
             'roles'              => [
             ],
             'organisation_types' => [
@@ -215,7 +215,7 @@ return [
             'code'               => 'prod-m',
             'team'               => 'production',
             'department'         => 'production',
-            'name'               => 'Production floor supervisor',
+            'name'               => 'Manufacturing floor supervisor',
             'roles'              => [
             ],
             'organisation_types' => [
@@ -226,7 +226,7 @@ return [
             'code'               => 'prod-c',
             'team'               => 'production',
             'department'         => 'production',
-            'name'               => 'Production operative',
+            'name'               => 'Manufacturing operative',
             'roles'              => [
 
             ],

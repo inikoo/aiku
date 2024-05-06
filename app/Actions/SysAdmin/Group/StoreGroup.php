@@ -48,6 +48,7 @@ class StoreGroup
         $group->salesIntervals()->create();
         $group->ordersIntervals()->create();
         $group->mailshotsIntervals()->create();
+        $group->manufactureStats()->create();
 
         SetGroupLogo::dispatch($group);
 
@@ -93,8 +94,7 @@ class StoreGroup
 
     public function asCommand(Command $command): int
     {
-
-        if($command->option('language_code')) {
+        if ($command->option('language_code')) {
             try {
                 $language = Language::where('code', $command->option('language_code'))->firstOrFail();
             } catch (Exception $e) {

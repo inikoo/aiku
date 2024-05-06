@@ -13,6 +13,7 @@ use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\Assets\Language;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
+use App\Models\Manufacturing\Production;
 use App\Models\Market\Shop;
 use App\Models\Media\Media;
 use App\Models\Traits\HasRoles;
@@ -48,6 +49,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_authorised_shops
  * @property int $number_authorised_fulfilments
  * @property int $number_authorised_warehouses
+ * @property int $number_authorised_productions
  * @property string|null $remember_token
  * @property array $data
  * @property array $settings
@@ -65,6 +67,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $authorisedDigitalAgencyOrganisations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Fulfilment> $authorisedFulfilments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $authorisedOrganisations
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Production> $authorisedProductions
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $authorisedShopOrganisations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Shop> $authorisedShops
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $authorisedWarehouses
@@ -203,6 +206,11 @@ class User extends Authenticatable implements HasMedia, Auditable
     public function authorisedWarehouses(): MorphToMany
     {
         return $this->morphedByMany(Warehouse::class, 'model', 'user_has_authorised_models')->withTimestamps();
+    }
+
+    public function authorisedProductions(): MorphToMany
+    {
+        return $this->morphedByMany(Production::class, 'model', 'user_has_authorised_models')->withTimestamps();
     }
 
 }

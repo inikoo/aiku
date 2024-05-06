@@ -8,10 +8,9 @@
 namespace App\Actions\HumanResources\ClockingMachine;
 
 use App\Actions\HumanResources\ClockingMachine\Hydrators\ClockingMachineHydrateUniversalSearch;
-
 use App\Actions\HumanResources\Workplace\Hydrators\WorkplaceHydrateClockingMachines;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Organisation\OrganisationHydrateClockingMachines;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateClockingMachines;
 use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Models\HumanResources\ClockingMachine;

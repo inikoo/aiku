@@ -22,6 +22,7 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Mail\Mailroom;
+use App\Models\Manufacturing\Production;
 use App\Models\Market\CollectionCategory;
 use App\Models\Market\Collection;
 use App\Models\Market\Product;
@@ -92,6 +93,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentAccount> $paymentAccounts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Production> $productions
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PurchaseOrder> $purchaseOrders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, RecurringBill> $recurringBills
@@ -274,6 +276,11 @@ class Group extends Model implements HasMedia
         return $this->hasOne(GroupFulfilmentStats::class);
     }
 
+    public function manufactureStats(): HasOne
+    {
+        return $this->hasOne(GroupManufactureStats::class);
+    }
+
     public function purchaseOrders(): HasMany
     {
         return $this->hasMany(PurchaseOrder::class);
@@ -347,6 +354,11 @@ class Group extends Model implements HasMedia
     public function locations(): HasMany
     {
         return $this->hasMany(Location::class);
+    }
+
+    public function productions(): HasMany
+    {
+        return $this->hasMany(Production::class);
     }
 
 

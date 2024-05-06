@@ -233,7 +233,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
     },
 
     prod: {
-        department: "Production",
+        department: "Manufacturing",
         subDepartment: [
             {
                 "slug": "prod-m",
