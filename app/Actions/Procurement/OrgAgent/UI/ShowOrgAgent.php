@@ -69,7 +69,7 @@ class ShowOrgAgent extends InertiaAction
                             'icon'  => ['fal', 'people-arrows'],
                             'title' => __('agent')
                         ],
-                    'title'         => $orgAgent->name,
+                    'title'         => $orgAgent->organisation->name,
                     'create_direct' => $this->canEdit ? [
                         'route' => [
                             'name'       => 'grp.models.agent.purchase-order.store',
@@ -102,7 +102,7 @@ class ShowOrgAgent extends InertiaAction
                             'number'   => $orgAgent->stats->number_suppliers,
                             'href'     => [
                                 'grp.org.procurement.agents.show.suppliers.index',
-                                $orgAgent->slug
+                                $orgAgent->organisation->slug
                             ],
                             'leftIcon' => [
                                 'icon'    => 'fal fa-person-dolly',
@@ -114,7 +114,7 @@ class ShowOrgAgent extends InertiaAction
                             'number'   => $orgAgent->stats->number_supplier_products,
                             'href'     => [
                                 'grp.org.procurement.agents.show.suppliers.index',
-                                $orgAgent->slug
+                                $orgAgent->organisation->slug
                             ],
                             'leftIcon' => [
                                 'icon'    => 'fal fa-box-usd',
@@ -233,7 +233,7 @@ class ShowOrgAgent extends InertiaAction
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
         return array_merge(
-            (new ProcurementDashboard())->getBreadcrumbs(),
+            (new ProcurementDashboard())->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'           => 'modelWithIndex',
@@ -261,14 +261,14 @@ class ShowOrgAgent extends InertiaAction
 
     public function getPrevious(OrgAgent $orgAgent, ActionRequest $request): ?array
     {
-        $previous = Agent::where('code', '<', $orgAgent->code)->orderBy('code', 'desc')->first();
+        $previous = Agent::where('code', '<', $orgAgent->organisation->code)->orderBy('code', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(OrgAgent $orgAgent, ActionRequest $request): ?array
     {
-        $next = Agent::where('code', '>', $orgAgent->code)->orderBy('code')->first();
+        $next = Agent::where('code', '>', $orgAgent->organisation->code)->orderBy('code')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
@@ -281,7 +281,7 @@ class ShowOrgAgent extends InertiaAction
 
         return match ($routeName) {
             'grp.org.procurement.agents.show' => [
-                'label' => $orgAgent->name,
+                'label' => $orgAgent->organisation->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
