@@ -19,8 +19,6 @@ class CreateAgent extends GrpAction
     public function htmlResponse(ActionRequest $request): Response
     {
 
-
-
         return Inertia::render(
             'CreateModel',
             [

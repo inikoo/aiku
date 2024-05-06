@@ -422,7 +422,7 @@ const onClickJobFinetune = (departmentName: string, shopName: string, subDepartm
                                         </template>
                                         <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' />
                                     </div>
-                                    
+
                                     <span v-tooltip="subDepartment.number_employees + ' employees on this position'" :class="[
                                         Object.keys(form[fieldName]).includes('admin') && departmentName != 'admin' ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-800'
                                     ]">
@@ -463,7 +463,7 @@ const onClickJobFinetune = (departmentName: string, shopName: string, subDepartm
                                             :disabled="!!Object.keys(form[fieldName]).includes('admin')"
                                         >
                                             <div class="relative text-left">
-                                                <div class="absolute -left-0.5 -translate-x-full top-1/2 -translate-y-1/2">                                                    
+                                                <div class="absolute -left-0.5 -translate-x-full top-1/2 -translate-y-1/2">
                                                     <template v-if="Object.keys(form[fieldName]).includes('admin')">
                                                         <FontAwesomeIcon v-if="idxSubDepartment === 0" icon='fas fa-check-circle' class="" fixed-width aria-hidden='true' />
                                                         <FontAwesomeIcon v-else icon='fal fa-circle' class="" fixed-width aria-hidden='true' />

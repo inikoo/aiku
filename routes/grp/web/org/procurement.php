@@ -27,6 +27,7 @@ use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\Procurement\SupplierProduct\UI\ShowSupplierProduct;
 
 use App\Actions\SupplyChain\Agent\ExportAgents;
+use App\Actions\SupplyChain\Agent\UI\CreateAgent;
 use App\Actions\SupplyChain\Agent\UI\RemoveAgent;
 use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
 use App\Actions\UI\Procurement\ProcurementDashboard;
@@ -43,6 +44,7 @@ Route::get('/suppliers/{orgSupplier}/edit', EditOrgSupplier::class)->name('suppl
 Route::get('/agents/export', ExportAgents::class)->name('agents.export');
 
 Route::get('/agents', IndexOrgAgents::class)->name('agents.index');
+Route::get('/agents/create', CreateAgent::class)->name('agents.create');
 
 Route::get('/agents/{orgAgent}', ShowOrgAgent::class)->name('agents.show');
 Route::get('/agents/{orgAgent}/edit', EditOrgAgent::class)->name('agents.edit');

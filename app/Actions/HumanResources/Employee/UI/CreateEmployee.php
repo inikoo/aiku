@@ -158,7 +158,7 @@ class CreateEmployee extends OrgAction
                     'route'     => [
                         'name'       => 'grp.models.org.employee.store',
                         'parameters' => [
-                            'organisation' => $this->organisation->slug
+                            'organisation' => $this->organisation->id
                         ]
                     ]
                 ],
