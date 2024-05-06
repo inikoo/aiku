@@ -7,14 +7,16 @@
 
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
+use App\Actions\Traits\WithEnumStats;
 use App\Enums\Inventory\Location\LocationStatusEnum;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrganisationHydrateWarehouses
+class OrganisationHydrateLocations
 {
     use AsAction;
+    use WithEnumStats;
 
     private Organisation $organisation;
 
@@ -31,11 +33,17 @@ class OrganisationHydrateWarehouses
 
     public function handle(Organisation $organisation): void
     {
+        $locations            = $organisation->locations()->count();
+        $operationalLocations = $organisation->locations()->where('status', LocationStatusEnum::OPERATIONAL)->count();
 
 
         $stats = [
-            'number_warehouses'                  => $organisation->warehouses()->count(),
+            'number_locations'                    => $locations,
+            'number_locations_status_operational' => $operationalLocations,
+            'number_locations_status_broken'      => $locations - $operationalLocations
         ];
+
+
 
         $organisation->inventoryStats()->update($stats);
     }

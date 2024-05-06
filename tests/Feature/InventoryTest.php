@@ -56,6 +56,13 @@ test('create warehouse', function () {
 
     expect($warehouse)->toBeInstanceOf(Warehouse::class)
         ->and($this->organisation->inventoryStats->number_warehouses)->toBe(1)
+        ->and($this->organisation->inventoryStats->number_warehouses_state_in_process)->toBe(1)
+        ->and($this->organisation->inventoryStats->number_warehouses_state_open)->toBe(0)
+        ->and($this->organisation->inventoryStats->number_warehouses_state_closing_down)->toBe(0)
+        ->and($this->organisation->inventoryStats->number_warehouses_state_closed)->toBe(0)
+        ->and($this->organisation->group->inventoryStats->number_warehouses)->toBe(1)
+        ->and($this->organisation->group->inventoryStats->number_warehouses_state_in_process)->toBe(1)
+        ->and($this->organisation->group->inventoryStats->number_warehouses_state_open)->toBe(0)
         ->and($this->guest->user->authorisedWarehouses()->where('organisation_id', $this->organisation->id)->count())->toBe(1)
         ->and($this->guest->user->number_authorised_warehouses)->toBe(1)
         ->and($this->guest->user->hasPermissionTo("warehouses.$warehouse->id"))->toBeTrue();
@@ -103,6 +110,7 @@ test('create warehouse by command', function () {
 
 
     expect($organisation->inventoryStats->number_warehouses)->toBe(2)
+        ->and($organisation->group->inventoryStats->number_warehouses)->toBe(2)
         ->and($warehouse->roles()->count())->toBe(4);
 });
 
@@ -117,7 +125,8 @@ test('seed warehouse permissions', function () {
 test('create warehouse area', function ($warehouse) {
     $warehouseArea = StoreWarehouseArea::make()->action($warehouse, WarehouseArea::factory()->definition());
     expect($warehouseArea)->toBeInstanceOf($warehouseArea::class)
-        ->and($this->organisation->inventoryStats->number_warehouse_areas)->toBe(1);
+        ->and($this->organisation->inventoryStats->number_warehouse_areas)->toBe(1)
+        ->and($this->organisation->group->inventoryStats->number_warehouse_areas)->toBe(1);
 
     return $warehouseArea;
 })->depends('create warehouse');
@@ -145,11 +154,14 @@ test('create location in warehouse', function ($warehouse) {
     $warehouse->refresh();
     expect($location)->toBeInstanceOf(Location::class)
         ->and($this->organisation->inventoryStats->number_locations)->toBe(1)
-        ->and($this->organisation->inventoryStats->number_locations_state_operational)->toBe(1)
-        ->and($this->organisation->inventoryStats->number_locations_state_broken)->toBe(0)
+        ->and($this->organisation->inventoryStats->number_locations_status_operational)->toBe(1)
+        ->and($this->organisation->inventoryStats->number_locations_status_broken)->toBe(0)
+        ->and($this->organisation->group->inventoryStats->number_locations)->toBe(1)
+        ->and($this->organisation->group->inventoryStats->number_locations_status_operational)->toBe(1)
+        ->and($this->organisation->group->inventoryStats->number_locations_status_broken)->toBe(0)
         ->and($warehouse->stats->number_locations)->toBe(1)
-        ->and($warehouse->stats->number_locations_state_operational)->toBe(1)
-        ->and($warehouse->stats->number_locations_state_broken)->toBe(0);
+        ->and($warehouse->stats->number_locations_status_operational)->toBe(1)
+        ->and($warehouse->stats->number_locations_status_broken)->toBe(0);
 })->depends('create warehouse');
 
 test('create location in warehouse by command', function ($warehouse) {
@@ -160,8 +172,8 @@ test('create location in warehouse by command', function ($warehouse) {
 
     $warehouse->refresh();
     expect($warehouse->stats->number_locations)->toBe(2)
-        ->and($warehouse->stats->number_locations_state_operational)->toBe(2)
-        ->and($warehouse->stats->number_locations_state_broken)->toBe(0);
+        ->and($warehouse->stats->number_locations_status_operational)->toBe(2)
+        ->and($warehouse->stats->number_locations_status_broken)->toBe(0);
 })->depends('create warehouse');
 
 test('create location in warehouse area', function ($warehouseArea) {
@@ -171,14 +183,14 @@ test('create location in warehouse area', function ($warehouseArea) {
 
     expect($location)->toBeInstanceOf(Location::class)
         ->and($this->organisation->inventoryStats->number_locations)->toBe(3)
-        ->and($this->organisation->inventoryStats->number_locations_state_operational)->toBe(3)
-        ->and($this->organisation->inventoryStats->number_locations_state_broken)->toBe(0)
+        ->and($this->organisation->inventoryStats->number_locations_status_operational)->toBe(3)
+        ->and($this->organisation->inventoryStats->number_locations_status_broken)->toBe(0)
         ->and($warehouse->stats->number_locations)->toBe(3)
-        ->and($warehouse->stats->number_locations_state_operational)->toBe(3)
-        ->and($warehouse->stats->number_locations_state_broken)->toBe(0)
+        ->and($warehouse->stats->number_locations_status_operational)->toBe(3)
+        ->and($warehouse->stats->number_locations_status_broken)->toBe(0)
         ->and($warehouseArea->stats->number_locations)->toBe(1)
-        ->and($warehouseArea->stats->number_locations_state_operational)->toBe(1)
-        ->and($warehouseArea->stats->number_locations_state_broken)->toBe(0);
+        ->and($warehouseArea->stats->number_locations_status_operational)->toBe(1)
+        ->and($warehouseArea->stats->number_locations_status_broken)->toBe(0);
 
     return $location;
 })->depends('create warehouse area');
@@ -195,11 +207,11 @@ test('create location in warehouse area by command', function ($warehouseArea) {
     $warehouse = $warehouseArea->warehouse;
 
     expect($warehouse->stats->number_locations)->toBe(4)
-        ->and($warehouse->stats->number_locations_state_operational)->toBe(4)
-        ->and($warehouse->stats->number_locations_state_broken)->toBe(0)
+        ->and($warehouse->stats->number_locations_status_operational)->toBe(4)
+        ->and($warehouse->stats->number_locations_status_broken)->toBe(0)
         ->and($warehouseArea->stats->number_locations)->toBe(2)
-        ->and($warehouseArea->stats->number_locations_state_operational)->toBe(2)
-        ->and($warehouseArea->stats->number_locations_state_broken)->toBe(0);
+        ->and($warehouseArea->stats->number_locations_status_operational)->toBe(2)
+        ->and($warehouseArea->stats->number_locations_status_broken)->toBe(0);
 })->depends('create warehouse area');
 
 
@@ -234,8 +246,7 @@ test('create stock', function () {
 });
 
 test('create org stock', function (Stock $stock) {
-
-    $orgStock=StoreOrgStock::make()->action(
+    $orgStock = StoreOrgStock::make()->action(
         $this->organisation,
         $stock,
         []
@@ -244,7 +255,6 @@ test('create org stock', function (Stock $stock) {
     expect($orgStock)->toBeInstanceOf($orgStock::class);
 
     return $orgStock;
-
 })->depends('create stock');
 
 

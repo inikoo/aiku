@@ -114,6 +114,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Media|null $logo
  * @property-read \App\Models\SysAdmin\OrganisationMailStats|null $mailStats
  * @property-read \App\Models\SysAdmin\OrganisationMailshotsIntervals|null $mailshotsIntervals
+ * @property-read \App\Models\SysAdmin\OrganisationManufactureStats|null $manufactureStats
  * @property-read \App\Models\SysAdmin\OrganisationMarketStats|null $marketStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read LaravelCollection<int, Order> $orders
@@ -129,6 +130,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationProcurementStats|null $procurementStats
  * @property-read LaravelCollection<int, ProductCategory> $productCategories
  * @property-read \App\Models\SysAdmin\OrganisationProductionStats|null $productionStats
+ * @property-read LaravelCollection<int, Production> $productions
  * @property-read LaravelCollection<int, Product> $products
  * @property-read LaravelCollection<int, Prospect> $prospects
  * @property-read LaravelCollection<int, PurchaseOrder> $purchaseOrders

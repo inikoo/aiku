@@ -18,6 +18,9 @@ use App\Models\Fulfilment\RecurringBill;
 use App\Models\Goods\TradeUnit;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
+use App\Models\Inventory\Location;
+use App\Models\Inventory\Warehouse;
+use App\Models\Inventory\WarehouseArea;
 use App\Models\Mail\Mailroom;
 use App\Models\Market\CollectionCategory;
 use App\Models\Market\Collection;
@@ -75,9 +78,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupInventoryStats|null $inventoryStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $josPositions
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Location> $locations
  * @property-read \App\Models\Media\Media|null $logo
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Mailroom> $mailrooms
  * @property-read \App\Models\SysAdmin\GroupMailshotsIntervals|null $mailshotsIntervals
+ * @property-read \App\Models\SysAdmin\GroupManufactureStats|null $manufactureStats
  * @property-read \App\Models\SysAdmin\GroupMarketStats|null $marketStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
@@ -101,6 +106,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupSysAdminStats|null $sysadminStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\User> $users
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, WarehouseArea> $warehouseAreas
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
  * @property-read \Illuminate\Database\Eloquent\Collection<int, WebUser> $webUsers
  * @method static \Database\Factories\SysAdmin\GroupFactory factory($count = null, $state = [])
  * @method static Builder|Group newModelQuery()
@@ -325,6 +332,21 @@ class Group extends Model implements HasMedia
     public function recurringBills(): HasMany
     {
         return $this->hasMany(RecurringBill::class);
+    }
+
+    public function warehouses(): HasMany
+    {
+        return $this->hasMany(Warehouse::class);
+    }
+
+    public function warehouseAreas(): HasMany
+    {
+        return $this->hasMany(WarehouseArea::class);
+    }
+
+    public function locations(): HasMany
+    {
+        return $this->hasMany(Location::class);
     }
 
 

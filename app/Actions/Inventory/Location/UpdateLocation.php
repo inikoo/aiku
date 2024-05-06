@@ -9,6 +9,8 @@ namespace App\Actions\Inventory\Location;
 
 use App\Actions\OrgAction;
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateUniversalSearch;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateLocations;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateLocations;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Models\Inventory\Location;
@@ -24,6 +26,10 @@ class UpdateLocation extends OrgAction
     public function handle(Location $location, array $modelData): Location
     {
         $location = $this->update($location, $modelData, ['data']);
+        if ($location->wasChanged('status')) {
+            GroupHydrateLocations::run($location->group);
+            OrganisationHydrateLocations::dispatch($location->organisation);
+        }
 
         LocationHydrateUniversalSearch::dispatch($location);
         HydrateLocation::run($location);

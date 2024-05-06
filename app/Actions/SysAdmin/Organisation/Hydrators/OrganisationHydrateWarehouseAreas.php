@@ -7,14 +7,15 @@
 
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
-use App\Enums\Inventory\Location\LocationStatusEnum;
+use App\Actions\Traits\WithEnumStats;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrganisationHydrateWarehouses
+class OrganisationHydrateWarehouseAreas
 {
     use AsAction;
+    use WithEnumStats;
 
     private Organisation $organisation;
 
@@ -34,8 +35,9 @@ class OrganisationHydrateWarehouses
 
 
         $stats = [
-            'number_warehouses'                  => $organisation->warehouses()->count(),
+            'number_warehouse_areas'             => $organisation->warehouseAreas()->count(),
         ];
+
 
         $organisation->inventoryStats()->update($stats);
     }
