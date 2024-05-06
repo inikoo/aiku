@@ -10,11 +10,13 @@ namespace App\Actions\HumanResources\JobPosition;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateJobPositions;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateJobPositions;
+use App\Enums\HumanResources\JobPosition\JobPositionScopeEnum;
 use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreJobPosition extends OrgAction
@@ -44,7 +46,7 @@ class StoreJobPosition extends OrgAction
     public function rules(): array
     {
         return [
-            'code'   => [
+            'code'       => [
                 'required',
                 new IUnique(
                     table: 'job_positions',
@@ -55,8 +57,11 @@ class StoreJobPosition extends OrgAction
                 'max:8',
                 'alpha_dash'
             ],
-            'name'   => ['required', 'max:255'],
-            'locked' => ['sometimes', 'boolean']
+            'name'       => ['required', 'max:255'],
+            'locked'     => ['sometimes', 'boolean'],
+            'scope'      => ['required', Rule::enum(JobPositionScopeEnum::class)],
+            'department' => ['sometimes', 'nullable', 'string'],
+            'team'       => ['sometimes', 'nullable', 'string']
         ];
     }
 

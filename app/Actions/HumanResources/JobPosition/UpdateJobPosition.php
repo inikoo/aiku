@@ -9,9 +9,11 @@ namespace App\Actions\HumanResources\JobPosition;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\HumanResources\JobPosition\JobPositionScopeEnum;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateJobPosition extends OrgAction
@@ -26,14 +28,20 @@ class UpdateJobPosition extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->asAction) {
+            return true;
+        }
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
     }
 
     public function rules(): array
     {
         return [
-            'code'      => ['sometimes','required', 'max:8'],
-            'name'      => ['sometimes','required', 'max:255'],
+            'code'       => ['sometimes', 'required', 'max:8'],
+            'name'       => ['sometimes', 'required', 'max:255'],
+            'scope'      => ['required', Rule::enum(JobPositionScopeEnum::class)],
+            'department' => ['sometimes', 'nullable', 'string'],
+            'team'       => ['sometimes', 'nullable', 'string']
         ];
     }
 
@@ -44,6 +52,13 @@ class UpdateJobPosition extends OrgAction
         return $this->handle($jobPosition, $request->all());
     }
 
+    public function action(JobPosition $jobPosition, array $modelData): JobPosition
+    {
+        $this->asAction = true;
+        $this->initialisation($jobPosition->organisation, $modelData);
+
+        return $this->handle($jobPosition, $this->validatedData);
+    }
 
     public function jsonResponse(JobPosition $jobPosition): JobPositionResource
     {
