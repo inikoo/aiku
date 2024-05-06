@@ -10,6 +10,7 @@ namespace App\Actions;
 use App\Actions\Traits\WithTab;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
+use App\Models\Manufacturing\Production;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
@@ -84,6 +85,20 @@ class OrgAction
     {
         $this->warehouse    = $warehouse;
         $this->organisation = $warehouse->organisation;
+        if (is_array($request)) {
+            $this->setRawAttributes($request);
+        } else {
+            $this->fillFromRequest($request);
+        }
+        $this->validatedData = $this->validateAttributes();
+
+        return $this;
+    }
+
+    public function initialisationFromProduction(Production $production, ActionRequest|array $request): static
+    {
+        $this->production    = $production;
+        $this->organisation = $production->organisation;
         if (is_array($request)) {
             $this->setRawAttributes($request);
         } else {
