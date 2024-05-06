@@ -35,27 +35,22 @@ class StoreAgent extends GrpAction
     {
 
         data_set($modelData, 'group_id', $group->id);
-        data_set($modelData, 'country_id', $group->country_id);
-        data_set($modelData, 'language_id', $group->language_id);
-        data_set($modelData, 'timezone_id', $group->timezone_id);
-
 
         $organisationData = [
-            'type'           => OrganisationTypeEnum::AGENT,
-            'name'           => Arr::get($modelData, 'contact_name'),
-            'code'           => Arr::get($modelData, 'code'),
-            'email'          => Arr::get($modelData, 'email'),
-            'phone'          => Arr::get($modelData, 'phone'),
-            'address'        => Arr::get($modelData, 'address'),
-            'currency_id'    => Arr::get($modelData, 'currency_id'),
-            'group_id'       => Arr::get($modelData, 'group_id', $group->id),
-            'country_id'     => Arr::get($modelData, 'country_id', $group->country_id),
-            'timezone_id'    => Arr::get($modelData, 'timezone_id', $group->timezone_id),
-            'language_id'    => Arr::get($modelData, 'language_id', $group->language_id)
-
+            'type'        => OrganisationTypeEnum::AGENT,
+            'name'        => Arr::get($modelData, 'name'),
+            'code'        => Arr::get($modelData, 'code'),
+            'email'       => Arr::get($modelData, 'email'),
+            'phone'       => Arr::get($modelData, 'phone'),
+            'address'     => Arr::get($modelData, 'address'),
+            'currency_id' => Arr::get($modelData, 'currency_id'),
+            'group_id'    => Arr::get($modelData, 'group_id', $group->id),
+            'country_id'  => Arr::get($modelData, 'country_id', $group->country_id),
+            'timezone_id' => Arr::get($modelData, 'timezone_id', $group->timezone_id),
+            'language_id' => Arr::get($modelData, 'language_id', $group->language_id)
         ];
-        // dd($organisationData);
-        if(Arr::exists($modelData, 'created_at')) {
+
+        if (Arr::exists($modelData, 'created_at')) {
             $organisationData['created_at'] = Arr::get($modelData, 'created_at');
         }
 
@@ -75,7 +70,6 @@ class StoreAgent extends GrpAction
 
 
         return $agent;
-
     }
 
 
@@ -88,19 +82,19 @@ class StoreAgent extends GrpAction
         $groupId = $group && $group->id ? $group->id : null;
 
         return [
-            'code'         => [
+            'code'        => [
                 'required',
                 'max:9',
                 'alpha_dash',
             ],
-            'contact_name'         => ['nullable', 'string', 'max:255'],
-            'email'                => ['nullable', 'email'],
-            'phone'                => ['nullable', 'phone:AUTO'],
-            'address'              => ['required', new ValidAddress()],
-            'source_id'            => ['sometimes', 'nullable', 'string'],
-            'source_slug'          => ['sometimes', 'nullable', 'string'],
-            'currency_id'          => ['required'],
-            'deleted_at'           => ['sometimes', 'nullable', 'date'],
+            'name'        => ['nullable', 'string', 'max:255'],
+            'email'       => ['nullable', 'email'],
+            'phone'       => ['nullable', 'phone:AUTO'],
+            'address'     => ['required', new ValidAddress()],
+            'source_id'   => ['sometimes', 'nullable', 'string'],
+            'source_slug' => ['sometimes', 'nullable', 'string'],
+            'currency_id' => ['required'],
+            'deleted_at'  => ['sometimes', 'nullable', 'date'],
         ];
     }
 

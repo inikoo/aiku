@@ -44,10 +44,11 @@ beforeEach(function () {
         [resource_path('js/Pages/Grp')]
     );
     actingAs($this->adminGuest->user);
+    setPermissionsTeamId($this->organisation->group->id);
 });
 
 test('check seeded job positions', function () {
-    expect($this->organisation->group->humanResourcesStats->number_job_positions)->toBe(19);
+    expect($this->organisation->group->humanResourcesStats->number_job_positions)->toBe(22);
 });
 
 test('create working place successful', function () {

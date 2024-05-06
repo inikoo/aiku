@@ -18,7 +18,7 @@ trait HasRoles
     {
         foreach ($jobPosition->roles as $roleID) {
             $this->assignRole($roleID);
-            $this->roles()->updateExistingPivot($roleID, ['job_position_role' => true]);
+            $this->roles()->updateExistingPivot($roleID, ['locked' => true]);
         }
     }
 
@@ -28,7 +28,7 @@ trait HasRoles
             $currentRole=$this->roles()->wherePivot('role_id', $roleID)->first();
 
             if ($currentRole && $currentRole->pivot->direct_role) {
-                $this->roles()->updateExistingPivot($roleID, ['job_position_role' => false]);
+                $this->roles()->updateExistingPivot($roleID, ['locked' => false]);
             } else {
                 $this->removeRole($roleID);
             }
