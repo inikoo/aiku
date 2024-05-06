@@ -303,7 +303,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
     },
 })
 
-console.log('options Job', optionsJob)
+console.log('options Job', props.options.warehouses.data)
 // Temporary data
 const openFinetune = ref('')
 
@@ -327,8 +327,8 @@ const handleClickSubDepartment = (department: string, subDepartmentSlug: any, ty
 
         // If department have 'options' (i.e. web, wah, cus)
         if(optionsJob[department].options){
-            const abcdef = [...optionsJob[department].options?.filter(xxx => xxx.state == 'open')]
-            props.form[props.fieldName][subDepartmentSlug] = abcdef.map(xxx => xxx.slug)
+            // const abcdef = [...optionsJob[department].options]
+            props.form[props.fieldName][subDepartmentSlug] = optionsJob[department].options.map(xxx => xxx.slug)
         } else {
             // If department is simple department (have no shops/warehouses)
             props.form[props.fieldName][subDepartmentSlug] = []
