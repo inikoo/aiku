@@ -25,10 +25,7 @@ use App\Actions\Procurement\SupplierDelivery\UI\ShowSupplierDelivery;
 use App\Actions\Procurement\SupplierProduct\ExportSupplierProducts;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\Procurement\SupplierProduct\UI\ShowSupplierProduct;
-use App\Actions\Procurement\SupplierPurchaseOrder\UI\CreateSupplierPurchaseOrder;
-use App\Actions\Procurement\SupplierPurchaseOrder\UI\EditSupplierPurchaseOrder;
-use App\Actions\Procurement\SupplierPurchaseOrder\UI\IndexSupplierPurchaseOrders;
-use App\Actions\Procurement\SupplierPurchaseOrder\UI\ShowSupplierPurchaseOrder;
+
 use App\Actions\SupplyChain\Agent\ExportAgents;
 use App\Actions\SupplyChain\Agent\UI\RemoveAgent;
 use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
@@ -56,7 +53,6 @@ Route::get('/agents/{orgAgent}/suppliers', [IndexSuppliers::class, 'inOrgAgent']
 //Route::get('/agents/{orgAgent}/suppliers/{orgSupplier}/edit', [EditOrgSupplier::class, 'inOrgAgent'])->name('agents.show.suppliers.edit');
 Route::get('/agents/{orgAgent}/supplier-products', [IndexSupplierProducts::class, 'inOrgAgent'])->name('agents.show.supplier-products.index');
 Route::get('/agents/{orgAgent}/supplier-products/{supplierProduct}', [ShowSupplierProduct::class, 'inOrgAgent'])->name('agents.show.supplier-products.show');
-Route::get('/agents/{orgAgent}/supplier-purchase-orders/{supplierPurchaseOrder}', ShowSupplierPurchaseOrder::class)->name('agents.show.supplier-purchase-orders.show');
 
 Route::get('/supplier-products/export', ExportSupplierProducts::class)->name('supplier-products.export');
 
@@ -71,10 +67,6 @@ Route::get('/suppliers/{orgSupplier}/purchase-orders/create', [CreatePurchaseOrd
 Route::get('/purchase-orders/{purchaseOrder}', ShowPurchaseOrder::class)->name('purchase-orders.show');
 Route::get('/purchase-orders/{purchaseOrder}/edit', EditPurchaseOrder::class)->name('purchase-orders.edit');
 
-Route::get('/supplier-purchase-orders', IndexSupplierPurchaseOrders::class)->name('supplier-purchase-orders.index');
-Route::get('/supplier-purchase-orders/create', CreateSupplierPurchaseOrder::class)->name('supplier-purchase-orders.create');
-Route::get('/supplier-purchase-orders/{supplierPurchaseOrder}', ShowSupplierPurchaseOrder::class)->name('supplier-purchase-orders.show');
-Route::get('/supplier-purchase-orders/{supplierPurchaseOrder}/edit', EditSupplierPurchaseOrder::class)->name('supplier-purchase-orders.edit');
 
 Route::get('/supplier-deliveries/export', ExportSupplierDeliveries::class)->name('supplier-deliveries.export');
 
