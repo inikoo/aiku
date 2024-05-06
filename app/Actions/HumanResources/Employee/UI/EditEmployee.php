@@ -9,6 +9,7 @@ namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\OrgAction;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\Market\ShopResource;
@@ -106,9 +107,10 @@ class EditEmployee extends OrgAction
                     'required' => true,
                     'label'    => __('position'),
                     'options'  => [
-                        'positions'     => JobPositionResource::collection(JobPosition::all()),
-                        'shops'         => ShopResource::collection($this->organisation->shops),
-                        'warehouses'    => WarehouseResource::collection($this->organisation->warehouses),
+                        'positions'           => JobPositionResource::collection(JobPosition::all()),
+                        'shops'               => ShopResource::collection($this->organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
+                        'fulfilments'         => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
+                        'warehouses'          => WarehouseResource::collection($this->organisation->warehouses),
                     ],
                     'value'    => [],
                     'full'     => true
