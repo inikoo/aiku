@@ -34,6 +34,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('number_authorised_shops')->default(0);
             $table->unsignedSmallInteger('number_authorised_fulfilments')->default(0);
             $table->unsignedSmallInteger('number_authorised_warehouses')->default(0);
+            $table->unsignedSmallInteger('number_authorised_productions')->default(0);
             $table->rememberToken();
             $table->jsonb('data');
             $table->jsonb('settings');

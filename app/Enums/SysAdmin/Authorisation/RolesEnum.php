@@ -80,6 +80,9 @@ enum RolesEnum: string
     case SAAS_SUPERVISOR   = 'saas-supervisor';
     case SAAS_CLERK        = 'saas-clerk';
 
+    case PRODUCTION_ADMIN = 'production-admin';
+
+
 
     public function label(): string
     {
@@ -123,6 +126,7 @@ enum RolesEnum: string
             RolesEnum::SHOPKEEPER_SUPERVISOR           => __('Shopkeeper supervisor'),
             RolesEnum::MARKETING_CLERK                 => __('Marketing clerk'),
             RolesEnum::MARKETING_SUPERVISOR            => __('Marketing supervisor'),
+            RolesEnum::PRODUCTION_ADMIN                => __('Production admin'),
         };
     }
 
@@ -309,6 +313,9 @@ enum RolesEnum: string
                 ShopPermissionsEnum::MARKETING,
                 ShopPermissionsEnum::SUPERVISOR_MARKETING
             ],
+            RolesEnum::PRODUCTION_ADMIN => [
+                ProductionPermissionsEnum::PRODUCTION
+            ],
         };
     }
 
@@ -339,6 +346,7 @@ enum RolesEnum: string
             RolesEnum::FULFILMENT_WAREHOUSE_WORKER,
             RolesEnum::WAREHOUSE_ADMIN,
             RolesEnum::STOCK_CONTROLLER => 'Warehouse',
+            RolesEnum::PRODUCTION_ADMIN => 'Production',
             RolesEnum::FULFILMENT_SHOP_SUPERVISOR,
             RolesEnum::FULFILMENT_SHOP_CLERK,
             => 'Fulfilment',
@@ -355,6 +363,7 @@ enum RolesEnum: string
             RolesEnum::FULFILMENT_SHOP_CLERK,
             RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR,
             RolesEnum::FULFILMENT_WAREHOUSE_WORKER,
+            RolesEnum::PRODUCTION_ADMIN,
 
             => [OrganisationTypeEnum::SHOP],
             RolesEnum::ORG_DIGITAL_AGENCY_ADMIN,
@@ -385,7 +394,7 @@ enum RolesEnum: string
         };
     }
 
-    public static function getRolesWithScope(Group|Organisation|Shop|Warehouse|Fulfilment $scope): array
+    public static function getRolesWithScope(Group|Organisation|Shop|Warehouse|Fulfilment|Production $scope): array
     {
         $roles = array_filter(RolesEnum::cases(), fn ($role) => $role->scope() == class_basename($scope));
 
@@ -408,10 +417,10 @@ enum RolesEnum: string
     }
 
 
-    public static function getRoleName(string $rawName, Group|Organisation|Shop|Warehouse|Fulfilment $scope): string
+    public static function getRoleName(string $rawName, Group|Organisation|Shop|Warehouse|Fulfilment|Production $scope): string
     {
         return match (class_basename($scope)) {
-            'Organisation', 'Shop', 'Warehouse', 'Fulfilment' => $rawName.'-'.$scope->id,
+            'Organisation', 'Shop', 'Warehouse', 'Fulfilment','Production' => $rawName.'-'.$scope->id,
             default => $rawName
         };
     }
