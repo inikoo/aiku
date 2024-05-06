@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faCheckCircle as falCheckCircle } from '@fal'
 import { faExclamationCircle, faCheckCircle as fasCheckCircle } from '@fas'
@@ -22,20 +22,21 @@ interface TypeWarehouse {
 }
 
 interface optionsJob {
-    [key: string]: {
-        department: string
-        icon?: string
-        subDepartment: {
-            slug: string
-            label: string
-            grade?: string
-            number_employees: number
-        }[]
-        options?: TypeShop[] | TypeWarehouse[]
-        optionsType?: string
-        value: any
-    }
+    department: string
+    icon?: string
+    subDepartment: {
+        slug: string
+        label: string
+        grade?: string
+        number_employees: number
+    }[]
+    options?: TypeShop[] | TypeWarehouse[]
+    optionsSlug?: string[]
+    optionsClosed?: TypeShop[] | TypeWarehouse[]
+    optionsType?: string
+    value?: any
 }
+
 
 const props = defineProps<{
     form?: any
@@ -61,7 +62,7 @@ const props = defineProps<{
     }
 }>()
 
-const optionsJob = reactive<optionsJob>({
+const optionsJob = reactive<{ [key: string]: optionsJob }>({
     admin: {
         department: "admin",
         icon: 'fal fa-crown',
@@ -69,10 +70,10 @@ const optionsJob = reactive<optionsJob>({
             {
                 "slug": "admin",
                 "label": "Administrator",
-                number_employees: props.options.positions.data.find(position => position.slug == 'admin')?.number_employees ?? 0,
+                number_employees: props.options.positions.data.find(position => position.slug == 'admin')?.number_employees || 0,
             }
         ],
-        value: null
+        // value: null
     },
 
     hr: {
@@ -83,15 +84,16 @@ const optionsJob = reactive<optionsJob>({
                 "slug": "hr-m",
                 "grade": "manager",
                 "label": "Manager",
-                number_employees: props.options.positions.data.find(position => position.slug == 'hr-m')?.number_employees ?? 0,
-            }, {
+                number_employees: props.options.positions.data.find(position => position.slug == 'hr-m')?.number_employees || 0,
+            },
+            {
                 "slug": "hr-c",
                 "grade": "clerk",
                 "label": "Worker",
-                number_employees: props.options.positions.data.find(position => position.slug == 'hr-c')?.number_employees ?? 0,
+                number_employees: props.options.positions.data.find(position => position.slug == 'hr-c')?.number_employees || 0,
             }
         ],
-        value: null
+        // value: null
     },
 
     acc: {
@@ -102,15 +104,16 @@ const optionsJob = reactive<optionsJob>({
                 "slug": "acc-m",
                 "grade": "manager",
                 "label": "Manager",
-                number_employees: props.options.positions.data.find(position => position.slug == 'acc-m')?.number_employees ?? 0,
-            }, {
+                number_employees: props.options.positions.data.find(position => position.slug == 'acc-m')?.number_employees || 0,
+            },
+            {
                 "slug": "acc-c",
                 "grade": "clerk",
                 "label": "Worker",
-                number_employees: props.options.positions.data.find(position => position.slug == 'acc-c')?.number_employees ?? 0,
+                number_employees: props.options.positions.data.find(position => position.slug == 'acc-c')?.number_employees || 0,
             }
         ],
-        value: null
+        // value: null
     },
 
     mrk: {
@@ -121,17 +124,20 @@ const optionsJob = reactive<optionsJob>({
                 "slug": "mrk-m",
                 "grade": "manager",
                 "label": "Manager",
-                number_employees: props.options.positions.data.find(position => position.slug == 'mrk-m')?.number_employees ?? 0,
-            }, {
+                number_employees: props.options.positions.data.find(position => position.slug == 'mrk-m')?.number_employees || 0,
+            },
+            {
                 "slug": "mrk-c",
                 "grade": "clerk",
                 "label": "Worker",
-                number_employees: props.options.positions.data.find(position => position.slug == 'mrk-c')?.number_employees ?? 0,
+                number_employees: props.options.positions.data.find(position => position.slug == 'mrk-c')?.number_employees || 0,
             }
         ],
-        options: props.options.shops.data,
+        options: props.options.shops.data?.filter(job => job.state == 'open'),
+        optionsClosed: props.options.shops.data?.filter(job => job.state != 'open'),
+        optionsSlug: props.options.shops.data?.filter(job => job.state == 'open').map(job => job.slug),
         optionsType: 'shops',
-        value: null
+        // value: null
     },
 
     web: {
@@ -142,17 +148,20 @@ const optionsJob = reactive<optionsJob>({
                 "slug": "web-m",
                 "grade": "manager",
                 "label": "Manager",
-                number_employees: props.options.positions.data.find(position => position.slug == 'web-m')?.number_employees ?? 0,
-            }, {
+                number_employees: props.options.positions.data.find(position => position.slug == 'web-m')?.number_employees || 0,
+            },
+            {
                 "slug": "web-c",
                 "grade": "clerk",
                 "label": "Worker",
-                number_employees: props.options.positions.data.find(position => position.slug == 'web-c')?.number_employees ?? 0,
+                number_employees: props.options.positions.data.find(position => position.slug == 'web-c')?.number_employees || 0,
             }
         ],
-        options: props.options.shops.data,
+        options: props.options.shops.data?.filter(job => job.state == 'open'),
+        optionsClosed: props.options.shops.data?.filter(job => job.state != 'open'),
+        optionsSlug: props.options.shops.data?.filter(job => job.state == 'open').map(job => job.slug),
         optionsType: 'shops',
-        value: null
+        // value: null
     },
 
     buy: {
@@ -162,10 +171,10 @@ const optionsJob = reactive<optionsJob>({
                 "slug": "buy",
                 "grade": "buyer",
                 "label": "Buyer",
-                number_employees: props.options.positions.data.find(position => position.slug == 'buy')?.number_employees ?? 0,
+                number_employees: props.options.positions.data.find(position => position.slug == 'buy')?.number_employees || 0,
             }
         ],
-        value: null
+        // value: null
     },
 
     wah: {
@@ -175,22 +184,24 @@ const optionsJob = reactive<optionsJob>({
                 "slug": "wah-m",
                 "grade": "manager",
                 "label": "Manager",
-                number_employees: props.options.positions.data.find(position => position.slug == 'wah-m')?.number_employees ?? 0,
-            }, {
+                number_employees: props.options.positions.data.find(position => position.slug == 'wah-m')?.number_employees || 0,
+            },
+            {
                 "slug": "wah-sk",
                 "grade": "clerk",
                 "label": "Stock Keeper",
-                number_employees: props.options.positions.data.find(position => position.slug == 'wah-sk')?.number_employees ?? 0,
-            }, {
+                number_employees: props.options.positions.data.find(position => position.slug == 'wah-sk')?.number_employees || 0,
+            },
+            {
                 "slug": "wah-sc",
                 "grade": "clerk",
                 "label": "Stock Controller",
-                number_employees: props.options.positions.data.find(position => position.slug == 'wah-sc')?.number_employees ?? 0,
+                number_employees: props.options.positions.data.find(position => position.slug == 'wah-sc')?.number_employees || 0,
             }
         ],
         options: props.options.warehouses.data,
         optionsType: 'warehouses',
-        value: null
+        // value: null
     },
 
     dist: {
@@ -200,22 +211,24 @@ const optionsJob = reactive<optionsJob>({
                 "slug": "dist-m",
                 "grade": "manager",
                 "label": "Manager",
-                number_employees: props.options.positions.data.find(position => position.slug == 'dist-m')?.number_employees ?? 0,
-            }, {
+                number_employees: props.options.positions.data.find(position => position.slug == 'dist-m')?.number_employees || 0,
+            },
+            {
                 "slug": "dist-pik",
                 "grade": "clerk",
                 "label": "Picker",
-                number_employees: props.options.positions.data.find(position => position.slug == 'dist-pik')?.number_employees ?? 0,
-            }, {
+                number_employees: props.options.positions.data.find(position => position.slug == 'dist-pik')?.number_employees || 0,
+            },
+            {
                 "slug": "dist-pak",
                 "grade": "clerk",
                 "label": "Packer",
-                number_employees: props.options.positions.data.find(position => position.slug == 'dist-pak')?.number_employees ?? 0,
+                number_employees: props.options.positions.data.find(position => position.slug == 'dist-pak')?.number_employees || 0,
             }
         ],
         options: props.options.warehouses.data,
         optionsType: 'warehouses',
-        value: null
+        // value: null
     },
 
     prod: {
@@ -225,15 +238,16 @@ const optionsJob = reactive<optionsJob>({
                 "slug": "prod-m",
                 "grade": "manager",
                 "label": "Manager",
-                number_employees: props.options.positions.data.find(position => position.slug == 'prod-m')?.number_employees ?? 0,
-            }, {
+                number_employees: props.options.positions.data.find(position => position.slug == 'prod-m')?.number_employees || 0,
+            },
+            {
                 "slug": "prod-w",
                 "grade": "clerk",
                 "label": "Worker",
-                number_employees: props.options.positions.data.find(position => position.slug == 'prod-w')?.number_employees ?? 0,
+                number_employees: props.options.positions.data.find(position => position.slug == 'prod-w')?.number_employees || 0,
             }
         ],
-        value: null
+        // value: null
     },
 
     cus: {
@@ -243,76 +257,154 @@ const optionsJob = reactive<optionsJob>({
                 "slug": "cus-m",
                 "grade": "manager",
                 "label": "Manager",
-                number_employees: props.options.positions.data.find(position => position.slug == 'cus-m')?.number_employees ?? 0,
-            }, {
+                number_employees: props.options.positions.data.find(position => position.slug == 'cus-m')?.number_employees || 0,
+            },
+            {
                 "slug": "cus-c",
                 "grade": "clerk",
                 "label": "Worker",
-                number_employees: props.options.positions.data.find(position => position.slug == 'cus-c')?.number_employees ?? 0,
+                number_employees: props.options.positions.data.find(position => position.slug == 'cus-c')?.number_employees || 0,
             }
         ],
-        options: props.options.shops.data,
+        options: props.options.shops.data?.filter(job => job.state == 'open'),
+        optionsClosed: props.options.shops.data?.filter(job => job.state != 'open'),
+        optionsSlug: props.options.shops.data?.filter(job => job.state == 'open').map(job => job.slug),
         optionsType: 'shops',
-        value: null
+        // value: null
+    },
+
+    ful: {
+        department: "Fulfilment",
+        subDepartment: [
+            {
+                "slug": "ful-m",
+                "grade": "manager",
+                "label": "Manager",
+                number_employees: props.options.positions.data.find(position => position.slug == 'cus-m')?.number_employees || 0,
+            },
+            {
+                "slug": "ful-wc",
+                "grade": "clerk",
+                "label": "Worker",
+                number_employees: props.options.positions.data.find(position => position.slug == 'ful-wc')?.number_employees || 0,
+            },
+            {
+                "slug": "ful-c",
+                "grade": "clerk",
+                "label": "Worker",
+                number_employees: props.options.positions.data.find(position => position.slug == 'ful-c')?.number_employees || 0,
+            }
+        ],
+        options: props.options.warehouses.data,
+        optionsSlug: props.options.warehouses.data.map(job => job.slug),
+        optionsType: 'shops',
+        // value: null
     },
 })
 
+console.log('options Job', optionsJob)
 // Temporary data
 const openFinetune = ref('')
 
 // When the radio is clicked
 const handleClickSubDepartment = (department: string, subDepartmentSlug: any, typeOptions: 'warehouses' | 'shops') => {
-    if(department == 'admin'){  // If the radio clicked is on department 'admin'
-        optionsJob[department].value = optionsJob[department].value == subDepartmentSlug ? null : subDepartmentSlug
-    } else { // If the box clicked is not 'admin'
-        if(optionsJob[department].options){  // If department have options shops/warehouses
-            if(optionsJob[department].value && Object.values(optionsJob[department].value ?? {}).every(value => value === subDepartmentSlug)){
-                // If in department, all the shops is have value then set to all null
-                optionsJob[department].value = props.options[typeOptions].data.reduce((accumulator :any, shop) => {
-                    accumulator[shop.slug] = null
-                    return accumulator
-                }, {})
-            } else {
-                // If all shops is null then set to value
-                optionsJob[department].value = props.options[typeOptions].data.reduce((accumulator: any, shop) => {
-                    if(shop.state == 'open'){
-                        accumulator[shop.slug] = subDepartmentSlug
-                    }
-                    return accumulator
-                }, {})
+    // console.log('wewewe', department)
+
+    // If click on the active subDepartment, then delete it
+    if (props.form[props.fieldName][subDepartmentSlug]) {
+        delete props.form[props.fieldName][subDepartmentSlug]
+    } else {
+        for (const key in props.form[props.fieldName]) {
+            // console.log('key', key, department, key.includes(department))
+            // Check if the key contains the substring 'wah'
+            if (key.includes(department)) {
+                // Delete the key if it contains 'wah'
+                delete props.form[props.fieldName][key]
             }
+        }
+
+        // If department have 'options' (i.e. web, wah, cus)
+        if(optionsJob[department].options){
+            const abcdef = [...optionsJob[department].options?.filter(xxx => xxx.state == 'open')]
+            props.form[props.fieldName][subDepartmentSlug] = abcdef.map(xxx => xxx.slug)
         } else {
             // If department is simple department (have no shops/warehouses)
-            optionsJob[department].value = optionsJob[department].value == subDepartmentSlug ? null : subDepartmentSlug
+            props.form[props.fieldName][subDepartmentSlug] = []
         }
     }
 
-    // console.log(optionsJob[department].value)
     props.form.errors[props.fieldName] = ''
 }
 
 // When the box warehouses/shops is clicked
 const onClickJobFinetune = (departmentName: string, shopName: string, subDepartmentName: any) => {
-    optionsJob[departmentName].value[shopName] = optionsJob[departmentName].value[shopName] == subDepartmentName ? null : subDepartmentName
-    props.form.errors[props.fieldName] = ''
-}
+    // If 'uk' is exist in mrk-m then delete it
+    if (props.form[props.fieldName][subDepartmentName]?.includes(shopName)) {
+        // if mrk-m: ['uk'] (only 1 length), then delete mrk-m
+        if (props.form[props.fieldName][subDepartmentName].length === 1) {
+            delete props.form[props.fieldName][subDepartmentName]
+        } else {
+            const indexShopName = props.form[props.fieldName][subDepartmentName].indexOf(shopName)
+            if (indexShopName !== -1) {
+                props.form[props.fieldName][subDepartmentName].splice(indexShopName, 1)
+            }
+        }
+    } else {
+        for (const key in props.form[props.fieldName]) {
+            // Check if the key contains the substring 'wah'
+            if (key.includes(departmentName)) {
+                // Delete the key if it contains 'wah'
+                const indexShopName = props.form[props.fieldName][key].indexOf(shopName)
+                if (indexShopName !== -1) {
+                    // if wah-c: ['uk'] then delete 'uk'
+                    props.form[props.fieldName][key].splice(indexShopName, 1)
 
-watch(optionsJob, () => {
-    const tempObject = {...optionsJob}
-    if(!tempObject.admin.value) {
-        delete tempObject.admin
-    }
+                    // if wah-c: [] then delete it
+                    if (!props.form[props.fieldName][key].length) {
+                        delete props.form[props.fieldName][key]
+                    }
+                }
+            }
+        }
 
-    const resultObject = {}
+        // if mrk-m already exist
+        if (props.form[props.fieldName][subDepartmentName]) {
+            props.form[props.fieldName][subDepartmentName].push(shopName)
+        }
 
-    for (const key in tempObject) {
-        if (Object.prototype.hasOwnProperty.call(tempObject, key)) {
-            resultObject[key] = tempObject[key].value
+        // if mrk-m not exist then create array ['uk']
+        else {
+            props.form[props.fieldName][subDepartmentName] = [shopName]
         }
     }
 
-    props.form[props.fieldName] = tempObject.admin ? [tempObject.admin.value] : resultObject
-})
+    props.form.errors[props.fieldName] = ''
+}
+
+// watch(optionsJob, () => {
+//     const tempObject = {...optionsJob}
+//     if(!tempObject.admin.value) {
+//         delete tempObject.admin
+//     }
+
+//     const resultObject = {}
+
+//     for (const key in tempObject) {
+//         if (Object.prototype.hasOwnProperty.call(tempObject, key)) {
+//             resultObject[key] = tempObject[key].value
+//         }
+//     }
+
+//     props.form[props.fieldName] = tempObject.admin ? [tempObject.admin.value] : resultObject
+// })
+
+// onMounted(() => {
+//     console.log('eee', props.form[props.fieldName], typeof props.form[props.fieldName])
+//     console.log(typeof [], typeof {})
+//     if (typeof props.form[props.fieldName] == 'string') {
+//         props.form[props.fieldName] = {}
+//     }
+// })
 
 </script>
 
@@ -336,34 +428,45 @@ watch(optionsJob, () => {
                             <button v-for="subDepartment, idxSubDepartment in jobGroup.subDepartment"
                                 @click.prevent="handleClickSubDepartment(departmentName, subDepartment.slug, jobGroup.optionsType)"
                                 class="group h-full cursor-pointer flex items-center justify-start rounded-md py-3 px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
-                                :class="optionsJob.admin.value && subDepartment.slug == 'admin' ? 'text-lime-500' : ''"
-                                :disabled="optionsJob.admin.value && subDepartment.slug != 'admin' ? true : false"
+                                :class="Object.keys(form[fieldName]).includes('admin') && subDepartment.slug == 'admin' ? 'text-green-500' : ''"
+                                :disabled="Object.keys(form[fieldName]).includes('admin') && subDepartment.slug != 'admin' ? true : false"
                             >
                                 <span class="relative text-left">
                                     <div class="absolute -left-1 -translate-x-full top-1/2 -translate-y-1/2">
-                                        <FontAwesomeIcon v-if="optionsJob.admin.value && idxSubDepartment === 0" icon='fas fa-check-circle' fixed-width aria-hidden='true' />
-                                        <FontAwesomeIcon v-else-if="(optionsJob[departmentName].options ? optionsJob[departmentName].value : optionsJob[departmentName].value == subDepartment.slug) && (optionsJob[departmentName].options ? Object.values(optionsJob[departmentName].value ?? {}).every(value => value === subDepartment.slug) : true) && !optionsJob.admin.value" icon='fas fa-check-circle' class="text-lime-500" fixed-width aria-hidden='true' />
-                                        <FontAwesomeIcon v-else-if="(optionsJob[departmentName].options ? optionsJob[departmentName].value : optionsJob[departmentName].value == subDepartment.slug) && (optionsJob[departmentName].options ? Object.values(optionsJob[departmentName].value ?? {}).some(value => value === subDepartment.slug) : true) && !optionsJob.admin.value" icon='fal fa-check-circle' class="text-lime-600" fixed-width aria-hidden='true' />
+                                        <template v-if="Object.keys(form[fieldName]).includes('admin')">
+                                            <FontAwesomeIcon v-if="idxSubDepartment === 0" icon='fas fa-check-circle' class="" fixed-width aria-hidden='true' />
+                                            <FontAwesomeIcon v-else icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
+                                        </template>
+                                        <template v-else-if="Object.keys(form[fieldName]).includes(subDepartment.slug)">
+                                        <!-- a{{ jobGroup.optionsSlug?.some(value => form[fieldName][subDepartment.slug]?.includes(value)) }}d -->
+                                            <FontAwesomeIcon v-if="jobGroup.optionsSlug?.every(value => form[fieldName][subDepartment.slug]?.includes(value))" icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
+                                            <FontAwesomeIcon v-else-if="jobGroup.optionsSlug?.some(value => form[fieldName][subDepartment.slug]?.includes(value))" icon='fal fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
+                                            <FontAwesomeIcon v-else icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
+                                        </template>
                                         <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' />
                                     </div>
+                                    
                                     <span v-tooltip="subDepartment.number_employees + ' employees on this position'" :class="[
-                                        optionsJob.admin.value && departmentName != 'admin' ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-800'
+                                        Object.keys(form[fieldName]).includes('admin') && departmentName != 'admin' ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-800'
                                     ]">
-                                        {{ subDepartment.label }}
+                                        {{ subDepartment.slug }}
+                                        <!-- {{ jobGroup.options?.filter(job => job.state == 'open').map(job => job.slug) }} -->
+                                        <!-- {{ jobGroup.optionsSlug?.every(value => form[fieldName][subDepartment.slug]?.includes(value)) }} -->
+                                        <!-- {{ (form[fieldName][subDepartment.slug] || []).every(value => jobGroup.options?.map(job => job.slug).includes(value)) }} -->
                                     </span>
                                 </span>
                             </button>
                         </div>
 
                         <!-- Section: All shops & Fine tunes -->
-                        <div v-if="jobGroup.options && jobGroup.options.length > 1 && (jobGroup.department == 'Customer Service' || jobGroup.department == 'Marketing' || jobGroup.department == 'Webmaster' || jobGroup.department == 'Dispatch' || jobGroup.department == 'Warehouse')" class="flex gap-x-2 px-3">
+                        <div v-if="jobGroup.options && jobGroup.options.length > 1" class="flex gap-x-2 px-3">
                             <!-- <div class="flex gap-x-1 items-center">
                                 <input type="checkbox" :name="jobGroup.department + 'allshops'" :id="jobGroup.department + 'allshops'" class="h-3 w-3 appearance-none">
                                 <label :for="jobGroup.department + 'allshops'" class="cursor-pointer">{{ jobGroup.department == 'Dispatch' || jobGroup.department == 'Warehouse' ? 'All warehouses' : 'All shops'}}</label>
                             </div> -->
                             <button @click.prevent="() => openFinetune = openFinetune == jobGroup.department ? '' : jobGroup.department"
                                 class="underline disabled:no-underline whitespace-nowrap cursor-pointer disabled:cursor-auto disabled:text-gray-400"
-                                :disabled="!Object.values(jobGroup.value || {}).some((item) => item)"
+                                :disabledsdsdsd="!Object.values(jobGroup.value || {}).some((item) => item)"
                             >
                                 Advanced selection
                             </button>
@@ -371,25 +474,32 @@ watch(optionsJob, () => {
                     </div>
 
                     <!-- Fine tune content -->
-                    <transition mode="in-out">
+                    <Transition mode="in-out">
                         <div v-if="openFinetune == jobGroup.department" class="relative bg-slate-400/10 border border-gray-300 rounded-md py-2 px-2 mb-3">
                             <div class="space-y-0.5 mb-3">
-                                <div v-for="option in jobGroup.options?.filter(option => option.state == 'open')" class="grid grid-cols-3 hover:bg-gray-700/10 py-[2px] pl-2 rounded">
+                                <div v-for="option in jobGroup.options" class="grid grid-cols-3 hover:bg-gray-700/10 py-[2px] pl-2 rounded">
                                     <div class="font-semibold">{{ option.name }} </div>
                                     <div class="col-span-2 flex gap-x-2">
                                         <button v-for="(subDepartment, idxSubDepartment) in jobGroup.subDepartment"
                                             @click.prevent="onClickJobFinetune(departmentName, option.slug, subDepartment.slug)"
                                             class="group h-full cursor-pointer flex items-center justify-start rounded-md px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
-                                            :disabled="!!optionsJob.admin.value"
+                                            :disabled="!!Object.keys(form[fieldName]).includes('admin')"
                                         >
                                             <div class="relative text-left">
-                                                <div class="absolute -left-0.5 -translate-x-full top-1/2 -translate-y-1/2">
-                                                    <FontAwesomeIcon v-if="optionsJob.admin.value && idxSubDepartment === 0 " icon='fas fa-check-circle' fixed-width aria-hidden='true' />
-                                                    <FontAwesomeIcon v-else-if="!optionsJob.admin.value && optionsJob[departmentName].value?.[option.slug] == subDepartment.slug" icon='fas fa-check-circle' class="text-lime-500" fixed-width aria-hidden='true' />
+                                                <div class="absolute -left-0.5 -translate-x-full top-1/2 -translate-y-1/2">                                                    
+                                                    <template v-if="Object.keys(form[fieldName]).includes('admin')">
+                                                        <FontAwesomeIcon v-if="idxSubDepartment === 0" icon='fas fa-check-circle' class="" fixed-width aria-hidden='true' />
+                                                        <FontAwesomeIcon v-else icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
+                                                    </template>
+                                                    <template v-else-if="form[fieldName][subDepartment.slug]?.includes(option.slug)">
+                                                    <!-- a{{ jobGroup.optionsSlug?.some(value => form[fieldName][subDepartment.slug]?.includes(value)) }}d -->
+                                                        <FontAwesomeIcon v-if="Object.keys(form[fieldName]).includes('admin')" icon='fal fa-circle' class="" fixed-width aria-hidden='true' />
+                                                        <FontAwesomeIcon v-else icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
+                                                    </template>
                                                     <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' />
                                                 </div>
                                                 <span v-tooltip="subDepartment.number_employees + ' employees on this position'" :class="[
-                                                    optionsJob.admin.value && departmentName != 'admin'? 'text-gray-300' : ' text-gray-500 group-hover:text-gray-700'
+                                                    Object.keys(form[fieldName]).includes('admin') && departmentName != 'admin'? 'text-gray-300' : ' text-gray-500 group-hover:text-gray-700'
                                                 ]">
                                                     {{ subDepartment.label }}
                                                 </span>
@@ -399,12 +509,12 @@ watch(optionsJob, () => {
                                 </div>
                             </div>
 
-                            <div class="px-2 bg-gray-400/20 py-2 rounded">
+                            <div v-if="jobGroup.optionsClosed?.length" class="px-2 bg-gray-400/20 py-2 rounded">
                                 <div class="flex items-center gap-x-1">
                                     <FontAwesomeIcon icon='fal fa-info-circle' class='h-3' fixed-width aria-hidden='true' />
                                     These {{jobGroup.optionsType}} can't be selected due closed:
                                 </div>
-                                <div v-for="option, idxOption in jobGroup.options?.filter(option => option.state == 'closed')" class="inline opacity-70">
+                                <div v-for="option, idxOption in jobGroup.optionsClosed" class="inline opacity-70">
                                     <template v-if="idxOption != 0">, </template>
                                     {{ option.name }}
                                 </div>
@@ -414,7 +524,7 @@ watch(optionsJob, () => {
                                 <FontAwesomeIcon icon='fal fa-times' class='' aria-hidden='true' />
                             </div>
                         </div>
-                    </transition>
+                    </Transition>
 
                 </div>
             </div>
@@ -429,4 +539,7 @@ watch(optionsJob, () => {
         </div>
 
     </div>
+
+    <!-- <pre>{{ options }}</pre> -->
+    <!-- <pre>{{ props.form[props.fieldName] }}</pre> -->
 </template>

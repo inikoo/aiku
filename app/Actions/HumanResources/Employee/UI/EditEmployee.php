@@ -112,7 +112,7 @@ class EditEmployee extends OrgAction
                         'fulfilments'         => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
                         'warehouses'          => WarehouseResource::collection($this->organisation->warehouses),
                     ],
-                    'value'    => [],
+                    'value'    => (object) [],
                     'full'     => true
                 ],
 
