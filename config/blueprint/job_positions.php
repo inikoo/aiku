@@ -391,7 +391,7 @@ return [
         'ful-m'    => [
             'code'       => 'ful-m',
             'name'       => 'Fulfilment supervisor',
-            'scope'      => JobPositionScopeEnum::FULFILMENTS,
+            'scope'      => JobPositionScopeEnum::FULFILMENTS_WAREHOUSES,
             'department' => 'fulfilment',
 
             'roles'              => [
@@ -425,7 +425,7 @@ return [
         'ful-wc'   => [
             'code'               => 'ful-wc',
             'name'               => 'Fulfilment warehouse clerk',
-            'scope'              => JobPositionScopeEnum::FULFILMENTS,
+            'scope'              => JobPositionScopeEnum::WAREHOUSES,
             'department'         => 'fulfilment',
             'roles'              => [
                 RolesEnum::FULFILMENT_WAREHOUSE_WORKER
