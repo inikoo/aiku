@@ -120,9 +120,11 @@ test('can store a raw material', function (Production $production) {
         $production,
         $data
     );
+    $production->refresh();
 
     expect($rawMaterial)->toBeInstanceOf(RawMaterial::class)
         ->and($rawMaterial->group_id)->toBe($this->organisation->group_id)
+        ->and($production->stats->number_raw_materials)->toBe(1)
         ->and($rawMaterial->organisation->manufactureStats->number_raw_materials)->toBe(1)
         ->and($rawMaterial->group->manufactureStats->number_raw_materials)->toBe(1);
 

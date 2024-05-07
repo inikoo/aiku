@@ -7,6 +7,7 @@
 
 namespace App\Actions\Manufacturing\RawMaterial;
 
+use App\Actions\Manufacturing\Production\Hydrators\ProductionHydrateRawMaterials;
 use App\Actions\Manufacturing\RawMaterial\Hydrators\RawMaterialHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRawMaterials;
@@ -37,6 +38,7 @@ class StoreRawMaterial extends OrgAction
         RawMaterialHydrateUniversalSearch::dispatch($rawMaterial);
         GroupHydrateRawMaterials::dispatch($production->group);
         OrganisationHydrateRawMaterials::dispatch($production->organisation);
+        ProductionHydrateRawMaterials::dispatch($production);
         return $rawMaterial;
     }
 

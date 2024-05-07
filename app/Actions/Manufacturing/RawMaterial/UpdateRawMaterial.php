@@ -2,6 +2,7 @@
 
 namespace App\Actions\Manufacturing\RawMaterial;
 
+use App\Actions\Manufacturing\Production\Hydrators\ProductionHydrateRawMaterials;
 use App\Actions\Manufacturing\RawMaterial\Hydrators\RawMaterialHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRawMaterials;
@@ -26,12 +27,14 @@ class UpdateRawMaterial extends OrgAction
 
     public function handle(RawMaterial $rawMaterial, array $modelData): RawMaterial
     {
-        $rawMaterial= $this->update($rawMaterial, $modelData);
-        if($rawMaterial->wasChanged('state')) {
+        $rawMaterial = $this->update($rawMaterial, $modelData);
+        if ($rawMaterial->wasChanged('state')) {
             GroupHydrateRawMaterials::dispatch($rawMaterial->group);
             OrganisationHydrateRawMaterials::dispatch($rawMaterial->organisation);
+            ProductionHydrateRawMaterials::dispatch($rawMaterial->production);
         }
         RawMaterialHydrateUniversalSearch::dispatch($rawMaterial);
+
         return $rawMaterial;
     }
 
@@ -48,9 +51,9 @@ class UpdateRawMaterial extends OrgAction
     public function rules(): array
     {
         return [
-            'type'                          => ['sometimes',Rule::enum(RawMaterialTypeEnum::class)],
-            'state'                         => ['sometimes',Rule::enum(RawMaterialStateEnum::class)],
-            'code'                          => [
+            'type'        => ['sometimes', Rule::enum(RawMaterialTypeEnum::class)],
+            'state'       => ['sometimes', Rule::enum(RawMaterialStateEnum::class)],
+            'code'        => [
                 'sometimes',
                 'alpha_dash',
                 'max:64',
@@ -58,18 +61,21 @@ class UpdateRawMaterial extends OrgAction
                     table: 'raw_materials',
                     extraConditions: [
                         [
-                            'column' => 'organisation_id', 'value' => $this->organisation->id,
+                            'column' => 'organisation_id',
+                            'value'  => $this->organisation->id,
                         ],
                         [
-                            'column' => 'id', 'value' => $this->rawMaterial->id, 'operation' => '!='
+                            'column'    => 'id',
+                            'value'     => $this->rawMaterial->id,
+                            'operation' => '!='
                         ]
 
                     ]
                 ),
             ],
-            'description'                   => ['sometimes','string', 'max:255'],
-            'unit'                          => ['sometimes',Rule::enum(RawMaterialUnitEnum::class)],
-            'unit_cost'                     => ['sometimes','numeric', 'min:0'],
+            'description' => ['sometimes', 'string', 'max:255'],
+            'unit'        => ['sometimes', Rule::enum(RawMaterialUnitEnum::class)],
+            'unit_cost'   => ['sometimes', 'numeric', 'min:0'],
         ];
     }
 
