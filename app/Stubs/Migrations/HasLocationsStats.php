@@ -14,8 +14,8 @@ trait HasLocationsStats
     public function locationsStats(Blueprint $table): Blueprint
     {
         $table->unsignedSmallInteger('number_locations')->default(0);
-        $table->unsignedSmallInteger('number_locations_state_operational')->default(0);
-        $table->unsignedSmallInteger('number_locations_state_broken')->default(0);
+        $table->unsignedSmallInteger('number_locations_status_operational')->default(0);
+        $table->unsignedSmallInteger('number_locations_status_broken')->default(0);
         $table->unsignedSmallInteger('number_empty_locations')->default(0);
         $table->unsignedSmallInteger('number_locations_no_stock_slots')->default(0);
         $table->decimal('stock_value', 16)->default(0);

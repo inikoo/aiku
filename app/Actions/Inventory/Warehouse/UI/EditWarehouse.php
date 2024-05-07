@@ -24,7 +24,7 @@ class EditWarehouse extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
+        return $request->user()->hasPermissionTo("supervisor.warehouses.{$this->warehouse->id}");
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): Warehouse

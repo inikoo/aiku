@@ -7,7 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Enums\SysAdmin\Authorisation\RolesEnum;
+use App\Enums\HumanResources\JobPosition\JobPositionScopeEnum;
 use App\Models\HumanResources\JobPosition;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -27,12 +27,45 @@ class FetchAuroraEmployee extends FetchAurora
             $this->parseModel();
             $this->parseUser();
             $this->parsePhoto();
-
+            $this->parsePositions();
         }
 
 
         return $this->parsedData;
     }
+
+    protected function parsePositions(): void
+    {
+        $rawJobPositions = $this->parseJobPositions();
+
+        $shops=[];
+        if (Arr::has($this->parsedData, 'user')) {
+            $userSourceData = explode(':', $this->parsedData['user']['source_id']);
+            $shops          = $this->getAuroraUserShopScopes($userSourceData[1]);
+        }
+
+        $positions=[];
+        foreach ($rawJobPositions as $jobPositionSlug) {
+            $jobPosition = JobPosition::where('slug', $jobPositionSlug)->firstOrFail();
+            $scopes      =[];
+            if($jobPosition->scope==JobPositionScopeEnum::SHOPS) {
+                $scopes=$shops;
+            }if($jobPosition->scope==JobPositionScopeEnum::WAREHOUSES) {
+                $scopes=$this->organisation->warehouses()->pluck('id')->all();
+            }
+
+            $positions[]=[
+                'slug'  => $jobPosition->slug,
+                'scopes'=> $scopes
+            ];
+
+
+        }
+
+
+        $this->parsedData['employee']['positions'] = $positions;
+    }
+
 
     protected function parseModel(): void
     {
@@ -71,15 +104,13 @@ class FetchAuroraEmployee extends FetchAurora
         $this->parsedData['working_hours'] = $working_hours ?? [];
 
 
-        $positions =    $this->parseJobPositions();
-
-
         if ($this->auroraModelData->{'Staff ID'}) {
             $workerNumber = preg_replace('/[()]/', '', $this->auroraModelData->{'Staff ID'});
             $workerNumber = preg_replace('/\s+/', '-', $workerNumber);
         } else {
             $workerNumber = $this->auroraModelData->{'Staff Key'};
         }
+
 
         $this->parsedData['employee'] = [
             'alias'                    => $this->auroraModelData->{'Staff Alias'},
@@ -103,7 +134,7 @@ class FetchAuroraEmployee extends FetchAurora
             'data'                     => $data,
             'errors'                   => $errors,
             'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Staff Key'},
-            'positions'                => $positions,
+
 
         ];
     }
@@ -124,12 +155,11 @@ class FetchAuroraEmployee extends FetchAurora
                 $legacyPassword = hash('sha256', 'hello');
             }
 
-            if($auroraUserData->aiku_alt_username) {
-                $username=$auroraUserData->aiku_alt_username;
+            if ($auroraUserData->aiku_alt_username) {
+                $username = $auroraUserData->aiku_alt_username;
             } else {
-                $username=$auroraUserData->{'User Handle'};
+                $username = $auroraUserData->{'User Handle'};
             }
-
 
 
             $this->parsedData['user'] = [
@@ -142,62 +172,6 @@ class FetchAuroraEmployee extends FetchAurora
             ];
         }
     }
-
-    // todo re do this function using Roles from the enum
-    private function parseUserRoles(): void
-    {
-        $roles = RolesEnum::cases();
-
-
-        foreach (DB::connection('aurora')->table('User Group User Bridge')->where('User Key', $this->auroraModelData->{'User Key'})->select('User Group Key')->get() as $auRole) {
-            $role = match ($auRole->{'User Group Key'}) {
-                1, 15 => 'system-admin',
-                6  => 'human-resources-clerk',
-                20 => 'human-resources-manager',
-                8  => 'procurement-clerk',
-                21, 28 => 'procurement-manager',
-                4 => 'production-operative',
-                27, 7 => 'production-manager',
-                3  => 'distribution-clerk',
-                22 => 'distribution-manager',
-
-                23 => 'accountant-manager',
-
-                17 => 'distribution-dispatcher-manager',
-                24 => 'distribution-dispatcher-picker',
-                25 => 'distribution-dispatcher-packer',
-
-
-                16 => 'customer-services-manager',
-                2  => 'customer-services-clerk',
-                18 => 'shop-manager',
-                9  => 'shop-clerk',
-
-                14, 5 => 'reports-analyst',
-                29 => 'marketing-broadcaster-clerk',
-                30 => 'marketing-broadcaster-manager',
-                32 => 'fulfilment-manager',
-                31 => 'fulfilment-clerk',
-
-                default => $auRole->{'User Group Key'},
-            };
-
-            if (Arr::has($roles, $role)) {
-                $roles[$role] = true;
-            }
-            //else{
-            //    print "$role\n";
-            //}
-        }
-
-
-        $this->parsedData['roles'] = array_keys(
-            collect($roles)->filter(function ($value) {
-                return $value;
-            })->all()
-        );
-    }
-
 
 
     private function parsePhoto(): void
@@ -236,6 +210,7 @@ class FetchAuroraEmployee extends FetchAurora
             }
         }
 
+
         return $jobPositionIds;
     }
 
@@ -266,4 +241,30 @@ class FetchAuroraEmployee extends FetchAurora
             default => strtolower($sourceCode)
         };
     }
+
+    protected function getAuroraUserShopScopes($userID): array
+    {
+        $shops = [];
+
+
+        foreach (
+            DB::connection('aurora')
+                ->table('User Right Scope Bridge')
+                ->where('User Key', $userID)->get() as $rawScope
+        ) {
+            if ($rawScope->{'Scope'} == 'Store') {
+                $shop             = $this->parseShop($this->organisation->id.':'.$rawScope->{'Scope Key'});
+                $shops[$shop->id] = $shop->id;
+            }
+            if ($rawScope->{'Scope'} == 'Website') {
+                $website = $this->parseWebsite($this->organisation->id.':'.$rawScope->{'Scope Key'});
+
+                $shops[$website->shop_id] = $website->shop_id;
+            }
+        }
+
+
+        return array_keys($shops);
+    }
+
 }

@@ -23,7 +23,6 @@ Route::prefix("fulfilments")
     ->name("fulfilments.")
     ->group(__DIR__."/fulfilments/root.php");
 
-
 Route::prefix("inventory")
     ->name("inventory.")
     ->group(__DIR__."/inventory/inventory.php");
@@ -48,6 +47,10 @@ Route::prefix("dispatch")
     ->name("dispatch.")
     ->group(__DIR__ . "/dispatch.php");
 
+Route::prefix("manufacturing")
+    ->name("manufacturing.")
+    ->group(__DIR__."/manufacturing/manufacturing.php");
+
 /*
 
 Route::prefix("crm")
@@ -63,9 +66,7 @@ Route::prefix("account")
 Route::prefix("dropshipping")
     ->name("dropshipping.")
     ->group(__DIR__."/dropshipping.php");
-Route::prefix("production")
-    ->name("production.")
-    ->group(__DIR__."/production.php");
+
 
 Route::prefix("shops")
     ->name("shops.")

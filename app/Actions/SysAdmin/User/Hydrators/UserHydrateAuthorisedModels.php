@@ -9,6 +9,7 @@ namespace App\Actions\SysAdmin\User\Hydrators;
 
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
+use App\Models\Manufacturing\Production;
 use App\Models\Market\Shop;
 use App\Models\SysAdmin\User;
 use Exception;
@@ -27,6 +28,7 @@ class UserHydrateAuthorisedModels
         $authorisedShops         = [];
         $authorisedFulfilments   = [];
         $authorisedWarehouses    = [];
+        $authorisedProductions   = [];
 
         foreach ($user->getAllPermissions() as $permission) {
             if ($permission->scope_type === 'Organisation') {
@@ -40,6 +42,9 @@ class UserHydrateAuthorisedModels
             } elseif ($permission->scope_type === 'Warehouse') {
                 $warehouse                                   = Warehouse::find($permission->scope_id);
                 $authorisedWarehouses[$permission->scope_id] = ['org_id' => $warehouse->organisation_id];
+            } elseif ($permission->scope_type === 'Production') {
+                $production                                   = Production::find($permission->scope_id);
+                $authorisedProductions[$permission->scope_id] = ['org_id' => $production->organisation_id];
             }
         }
 
@@ -48,12 +53,14 @@ class UserHydrateAuthorisedModels
         $user->authorisedShops()->sync($authorisedShops);
         $user->authorisedFulfilments()->sync($authorisedFulfilments);
         $user->authorisedWarehouses()->sync($authorisedWarehouses);
+        $user->authorisedProductions()->sync($authorisedProductions);
 
         $stats = [
             'number_authorised_organisations' => count($authorisedOrganisations),
             'number_authorised_shops'         => count($authorisedShops),
             'number_authorised_fulfilments'   => count($authorisedFulfilments),
             'number_authorised_warehouses'    => count($authorisedWarehouses),
+            'number_authorised_productions'   => count($authorisedProductions),
         ];
 
         $user->update($stats);

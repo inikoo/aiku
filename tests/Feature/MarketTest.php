@@ -75,7 +75,7 @@ test('create shop', function () {
     expect($shop)->toBeInstanceOf(Shop::class)
         ->and($organisation->marketStats->number_shops)->toBe(1)
         ->and($organisation->marketStats->number_shops_type_b2b)->toBe(1)
-        ->and($shopRoles->count())->toBe(3)
+        ->and($shopRoles->count())->toBe(9)
         ->and($shopPermissions->count())->toBe(23);
 
 

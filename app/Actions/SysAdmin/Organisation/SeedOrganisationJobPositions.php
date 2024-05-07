@@ -11,6 +11,7 @@ use App\Actions\HumanResources\JobPosition\StoreJobPosition;
 use App\Actions\HumanResources\JobPosition\UpdateJobPosition;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
+use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
 use Illuminate\Console\Command;
@@ -33,14 +34,9 @@ class SeedOrganisationJobPositions extends Seeder
 
                 if (Arr::has($jobPositionData, 'has_shop_type')) {
                     foreach ($jobPositionData['has_shop_type'] as $shopType) {
-                        $numberOfShops = $organisation->shops()->where('type', $shopType)->count();
-
-
                         if ($organisation->shops()->where('type', $shopType)->count() == 0) {
                             $process = false;
                         }
-                        //  print  "***  {$organisation->name}  $shopType->value $numberOfShops $process  \n";
-
                     }
                 }
 
@@ -54,14 +50,16 @@ class SeedOrganisationJobPositions extends Seeder
 
     private function processJobPosition(Organisation $organisation, array $jobPositionData): void
     {
+        /** @var JobPosition $jobPosition */
         $jobPosition = $organisation->josPositions()->where('code', $jobPositionData['code'])->first();
         if ($jobPosition) {
-            UpdateJobPosition::run(
+            UpdateJobPosition::make()->action(
                 $jobPosition,
                 [
                     'name'       => $jobPositionData['name'],
                     'department' => Arr::get($jobPositionData, 'department'),
                     'team'       => Arr::get($jobPositionData, 'team'),
+                    'scope'      => Arr::get($jobPositionData, 'scope')
                 ]
             );
         } else {
@@ -72,6 +70,7 @@ class SeedOrganisationJobPositions extends Seeder
                     'name'       => $jobPositionData['name'],
                     'department' => Arr::get($jobPositionData, 'department'),
                     'team'       => Arr::get($jobPositionData, 'team'),
+                    'scope'      => Arr::get($jobPositionData, 'scope')
                 ],
             );
         }

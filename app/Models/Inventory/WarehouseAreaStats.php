@@ -19,8 +19,8 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $warehouse_area_id
  * @property int $number_locations
- * @property int $number_locations_state_operational
- * @property int $number_locations_state_broken
+ * @property int $number_locations_status_operational
+ * @property int $number_locations_status_broken
  * @property int $number_empty_locations
  * @property int $number_locations_no_stock_slots
  * @property string $stock_value

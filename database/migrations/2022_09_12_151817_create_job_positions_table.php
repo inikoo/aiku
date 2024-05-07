@@ -20,6 +20,7 @@ return new class () extends Migration {
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index()->collation('und_ns');
             $table->string('name')->index()->collation('und_ci');
+            $table->string('scope')->index();
             $table->string('department')->nullable();
             $table->string('team')->nullable();
             $table->jsonb('data');

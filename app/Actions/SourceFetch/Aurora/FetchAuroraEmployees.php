@@ -40,7 +40,6 @@ class FetchAuroraEmployees extends FetchAuroraAction
                 /* @var $workplace Workplace */
                 $workplace = $organisationSource->getOrganisation()->workplaces()->first();
 
-
                 $employee = StoreEmployee::make()->action(
                     parent: $workplace,
                     modelData: $employeeData['employee'],

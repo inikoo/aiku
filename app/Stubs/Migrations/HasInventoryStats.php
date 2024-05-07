@@ -11,6 +11,7 @@ use App\Enums\Dispatch\DeliveryNoteItem\DeliveryNoteItemStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Inventory\OrgStockFamily\OrgStockFamilyStateEnum;
+use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
 use Illuminate\Database\Schema\Blueprint;
@@ -22,6 +23,9 @@ trait HasInventoryStats
     public function warehousesStats(Blueprint $table): Blueprint
     {
         $table->unsignedSmallInteger('number_warehouses')->default(0);
+        foreach (WarehouseStateEnum::cases() as $case) {
+            $table->unsignedInteger('number_warehouses_state_'.$case->snake())->default(0);
+        }
         $table->unsignedSmallInteger('number_warehouse_areas')->default(0);
 
         return $this->locationsStats($table);
@@ -30,8 +34,6 @@ trait HasInventoryStats
 
     public function stocksStats(Blueprint $table): Blueprint
     {
-
-
         $table->unsignedInteger('number_stock_families')->default(0);
 
         foreach (StockFamilyStateEnum::cases() as $stockFamilyState) {
@@ -48,8 +50,6 @@ trait HasInventoryStats
 
     public function orgStocksStats(Blueprint $table): Blueprint
     {
-
-
         $table->unsignedInteger('number_stock_families')->default(0);
 
         foreach (OrgStockFamilyStateEnum::cases() as $stockFamilyState) {
@@ -72,7 +72,6 @@ trait HasInventoryStats
         $table->unsignedInteger('number_deliveries')->default(0);
         $table->unsignedInteger('number_deliveries_type_order')->default(0);
         $table->unsignedInteger('number_deliveries_type_replacement')->default(0);
-
 
 
         foreach (DeliveryNoteItemStateEnum::cases() as $case) {

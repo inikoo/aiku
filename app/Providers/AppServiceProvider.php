@@ -213,6 +213,9 @@ class AppServiceProvider extends ServiceProvider
                 'ContentBlock'                => 'App\Models\Web\ContentBlock',
                 'WebBlock'                    => 'App\Models\Web\WebBlock',
                 'WebBlockType'                => 'App\Models\Web\WebBlockType',
+
+                //Manufacturing
+                'Production'                  => 'App\Models\Manufacturing\Production',
             ]
         );
     }

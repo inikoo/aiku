@@ -19,10 +19,14 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $organisation_id
  * @property int $number_warehouses
+ * @property int $number_warehouses_state_in_process
+ * @property int $number_warehouses_state_open
+ * @property int $number_warehouses_state_closing_down
+ * @property int $number_warehouses_state_closed
  * @property int $number_warehouse_areas
  * @property int $number_locations
- * @property int $number_locations_state_operational
- * @property int $number_locations_state_broken
+ * @property int $number_locations_status_operational
+ * @property int $number_locations_status_broken
  * @property int $number_empty_locations
  * @property int $number_locations_no_stock_slots
  * @property string $stock_value

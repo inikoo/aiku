@@ -108,8 +108,8 @@ class StoreOrganisation
             $organisation->ordersIntervals()->create();
             $organisation->mailshotsIntervals()->create();
             $organisation->fulfilmentStats()->create();
-            $organisation->productionStats()->create();
             $organisation->marketStats()->create();
+            $organisation->manufactureStats()->create();
 
             $paymentServiceProvider = PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::ACCOUNT)->first();
 
@@ -136,7 +136,7 @@ class StoreOrganisation
     {
         return [
             'code'        => ['required', 'unique:organisations', 'max:12', 'alpha'],
-            'name'        => ['required', 'max:64'],
+            'name'        => ['required', 'max:255'],
             'email'       => ['required', 'nullable', 'email', 'unique:organisations'],
             'phone'       => ['sometimes', 'nullable', 'phone:AUTO'],
             'currency_id' => ['required', 'exists:currencies,id'],

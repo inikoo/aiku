@@ -10,6 +10,8 @@ namespace App\Actions\Inventory\Warehouse;
 
 use App\Actions\OrgAction;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouses;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouses;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Http\Resources\Inventory\WarehouseResource;
@@ -26,6 +28,10 @@ class UpdateWarehouse extends OrgAction
     public function handle(Warehouse $warehouse, array $modelData): Warehouse
     {
         $warehouse = $this->update($warehouse, $modelData, ['data', 'settings']);
+        if ($warehouse->wasChanged('state')) {
+            GroupHydrateWarehouses::run($warehouse->group);
+            OrganisationHydrateWarehouses::dispatch($warehouse->organisation);
+        }
         WarehouseHydrateUniversalSearch::dispatch($warehouse);
 
         return $warehouse;
@@ -43,14 +49,19 @@ class UpdateWarehouse extends OrgAction
     public function rules(): array
     {
         return [
-            'code' => ['sometimes', 'required', 'max:16', 'alpha_dash',
-                       new IUnique(
-                           table: 'warehouses',
-                           extraConditions: [
-                               ['column' => 'group_id', 'value' => $this->organisation->group_id],
-                               ['column' => 'id', 'value' => $this->warehouse->id, 'operation' => '!=']
-                           ]
-                       ),],
+            'code'               => [
+                'sometimes',
+                'required',
+                'max:16',
+                'alpha_dash',
+                new IUnique(
+                    table: 'warehouses',
+                    extraConditions: [
+                        ['column' => 'group_id', 'value' => $this->organisation->group_id],
+                        ['column' => 'id', 'value' => $this->warehouse->id, 'operation' => '!=']
+                    ]
+                ),
+            ],
             'name'               => ['sometimes', 'required', 'max:250', 'string'],
             'state'              => ['sometimes', Rule::enum(WarehouseStateEnum::class)],
             'allow_stock'        => ['sometimes', 'required', 'boolean'],

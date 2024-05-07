@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Production;
+namespace App\Actions\UI\Manufacturing;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
@@ -14,46 +14,48 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ProductionDashboard extends OrgAction
+class ManufacturingDashboard extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("production.view");
+        return $request->user()->hasPermissionTo("productions.{$this->organisation->id}.view");
     }
 
 
     public function asController(Organisation $organisation, ActionRequest $request): Organisation
     {
         $this->initialisation($organisation, $request);
+
         return $organisation;
     }
 
 
-
     public function htmlResponse(): Response
     {
-
         return Inertia::render(
-            'Production/ProductionDashboard',
+            'Manufacturing/ManufacturingDashboard',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('production'),
-                'pageHead'    => [
-                    'title' => __('production'),
+                'breadcrumbs'  => $this->getBreadcrumbs(),
+                'title'        => __('manufacturing'),
+                'pageHead'     => [
+                    'title' => __('manufacturing'),
                 ],
-                'flatTreeMaps'    => [
+                //todo
+                /*
+                'flatTreeMaps' => [
 
                     [
                         [
-                            'name'  => __('Products'),
+                            'name'  => __('Stocks'),
                             'icon'  => ['fal', 'fa-flask'],
                             'href'  => ['grp.production.products.index'],
                             'index' => [
-                                'number' => $this->organisation->productionStats->number_products
+                                'number' => $this->organisation->manufactureStats->number_manufactured_stocks
                             ]
                         ]
                     ]
                 ]
+                */
 
             ]
         );
@@ -69,9 +71,9 @@ class ProductionDashboard extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'grp.production.dashboard'
+                                'name' => 'grp.org.manufacturing.dashboard'
                             ],
-                            'label' => __('production'),
+                            'label' => __('manufacturing'),
                         ]
                     ]
                 ]

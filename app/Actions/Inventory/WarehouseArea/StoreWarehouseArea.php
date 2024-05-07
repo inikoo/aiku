@@ -11,7 +11,8 @@ namespace App\Actions\Inventory\WarehouseArea;
 use App\Actions\OrgAction;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateWarehouseAreas;
 use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateUniversalSearch;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouse;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouseAreas;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouseAreas;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Rules\IUnique;
@@ -31,7 +32,8 @@ class StoreWarehouseArea extends OrgAction
         $warehouseArea = $warehouse->warehouseAreas()->create($modelData);
         $warehouseArea->stats()->create();
         WarehouseAreaHydrateUniversalSearch::dispatch($warehouseArea);
-        OrganisationHydrateWarehouse::dispatch($warehouse->organisation);
+        GroupHydrateWarehouseAreas::dispatch($warehouse->group);
+        OrganisationHydrateWarehouseAreas::dispatch($warehouse->organisation);
         WarehouseHydrateWarehouseAreas::dispatch($warehouse);
 
         return $warehouseArea;

@@ -89,6 +89,9 @@ class StoreGuest
                         UserAddRoles::run($user, [
                             Role::where('name', RolesEnum::getRoleName(RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR->value, $shop->fulfilment))->first()
                         ]);
+                        UserAddRoles::run($user, [
+                            Role::where('name', RolesEnum::getRoleName(RolesEnum::FULFILMENT_SHOP_SUPERVISOR->value, $shop->fulfilment))->first()
+                        ]);
                     } else {
                         UserAddRoles::run($user, [
                             Role::where('name', RolesEnum::getRoleName(RolesEnum::SHOP_ADMIN->value, $shop))->first()
@@ -100,6 +103,8 @@ class StoreGuest
                         Role::where('name', RolesEnum::getRoleName(RolesEnum::WAREHOUSE_ADMIN->value, $warehouse))->first()
                     ]);
                 }
+
+
             }
         }
         UserAddRoles::run($user, $roles);

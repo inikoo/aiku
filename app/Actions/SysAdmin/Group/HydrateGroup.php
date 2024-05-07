@@ -15,16 +15,20 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateGuests;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInventory;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInvoices;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateJobPositions;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateLocations;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrganisations;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePaymentAccounts;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePayments;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePaymentServiceProviders;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProductions;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRecurringBills;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSales;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProductSuppliers;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSuppliers;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateTradeUnits;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateUsers;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouseAreas;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouses;
 use App\Actions\Traits\WithNormalise;
 use App\Models\SysAdmin\Group;
 use Exception;
@@ -56,6 +60,10 @@ class HydrateGroup extends HydrateModel
         GroupHydrateCollectionCategories::run($group);
         GroupHydrateCollections::run($group);
         GroupHydrateRecurringBills::run($group);
+        GroupHydrateWarehouses::run($group);
+        GroupHydrateWarehouseAreas::run($group);
+        GroupHydrateLocations::run($group);
+        GroupHydrateProductions::run($group);
 
     }
 

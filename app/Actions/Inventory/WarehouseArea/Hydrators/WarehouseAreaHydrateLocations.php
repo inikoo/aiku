@@ -21,9 +21,9 @@ class WarehouseAreaHydrateLocations
         $numberOperationalLocations = $warehouseArea->locations()->where('status', 'operational')->count();
         $warehouseArea->stats()->update(
             [
-                'number_locations'                   => $numberLocations,
-                'number_locations_state_operational' => $numberOperationalLocations,
-                'number_locations_state_broken'      => $numberLocations - $numberOperationalLocations
+                'number_locations'                    => $numberLocations,
+                'number_locations_status_operational' => $numberOperationalLocations,
+                'number_locations_status_broken'      => $numberLocations - $numberOperationalLocations
 
             ]
         );

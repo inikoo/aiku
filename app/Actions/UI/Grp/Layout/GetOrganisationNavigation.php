@@ -22,11 +22,11 @@ class GetOrganisationNavigation
 
         if ($user->hasPermissionTo("shops.$organisation->id.view")) {
             $navigation['shops_index'] = [
-                'label' => __('Shops'),
-                'scope' => 'shops',
-                'icon'  => ['fal', 'fa-store-alt'],
-                'root'  => 'grp.org.shops.index',
-                'route' => [
+                'label'   => __('Shops'),
+                'scope'   => 'shops',
+                'icon'    => ['fal', 'fa-store-alt'],
+                'root'    => 'grp.org.shops.index',
+                'route'   => [
                     'name'       => 'grp.org.shops.index',
                     'parameters' => [$organisation->slug],
                 ],
@@ -44,8 +44,7 @@ class GetOrganisationNavigation
 
         $navigation['shops_navigation'] = [];
         foreach (
-            $organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Shop')->get(
-            ) as $authorisedModel
+            $organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Shop')->get() as $authorisedModel
         ) {
             $shop                                        = $authorisedModel->model;
             $navigation['shops_navigation'][$shop->slug] = GetShopNavigation::run($shop, $user);
@@ -54,10 +53,10 @@ class GetOrganisationNavigation
 
         if ($user->hasPermissionTo("fulfilments.$organisation->id.view")) {
             $navigation['fulfilments_index'] = [
-                'label' => __('Fulfilment shops'),
-                'root'  => 'grp.org.fulfilments.index',
-                'icon'  => ['fal', 'fa-store-alt'],
-                'route' => [
+                'label'   => __('Fulfilment shops'),
+                'root'    => 'grp.org.fulfilments.index',
+                'icon'    => ['fal', 'fa-store-alt'],
+                'route'   => [
                     'name'       => 'grp.org.fulfilments.index',
                     'parameters' => [$organisation->slug],
                 ],
@@ -75,19 +74,19 @@ class GetOrganisationNavigation
 
         $navigation['fulfilments_navigation'] = [];
         foreach (
-            $organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Fulfilment')->get(
-            ) as $authorisedModel
+            $organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Fulfilment')->get() as $authorisedModel
         ) {
-            $fulfilment                                              = $authorisedModel->model;
-            $navigation['fulfilments_navigation'][$fulfilment->slug] = GetFulfilmentNavigation::run($fulfilment, $user);
+            $fulfilment         = $authorisedModel->model;
+            $navigation['fulfilments_navigation']
+            [$fulfilment->slug] = GetFulfilmentNavigation::run($fulfilment, $user);
         }
 
         if ($user->hasPermissionTo("dispatching.$organisation->id.view")) {
             $navigation["dispatching"] = [
-                "root"  => "grp.org.dispatch.",
-                "label" => __("dispatching"),
-                "icon"  => ["fal", "fa-conveyor-belt-alt"],
-                "route" => [
+                "root"    => "grp.org.dispatch.",
+                "label"   => __("dispatching"),
+                "icon"    => ["fal", "fa-conveyor-belt-alt"],
+                "route"   => [
                     "name"       => "grp.org.dispatch.backlog",
                     "parameters" => [$organisation->slug],
                 ],
@@ -100,14 +99,14 @@ class GetOrganisationNavigation
                                 "parameters" => [$organisation->slug],
                             ]
                         ],
-                         [
-                             'label' => __('delivery notes'),
-                             'icon'  => ['fal', 'fa-truck'],
-                             'route' => [
-                                 "name"       => "grp.org.dispatch.delivery-notes",
-                                 "parameters" => [$organisation->slug],
-                             ]
-                         ],
+                        [
+                            'label' => __('delivery notes'),
+                            'icon'  => ['fal', 'fa-truck'],
+                            'route' => [
+                                "name"       => "grp.org.dispatch.delivery-notes",
+                                "parameters" => [$organisation->slug],
+                            ]
+                        ],
                     ]
                 ],
             ];
@@ -116,10 +115,10 @@ class GetOrganisationNavigation
 
         if ($user->hasPermissionTo("inventory.$organisation->id.view")) {
             $navigation["inventory"] = [
-                "root"  => "grp.org.inventory.",
-                "label" => __("inventory"),
-                "icon"  => ["fal", "fa-pallet-alt"],
-                "route" => [
+                "root"    => "grp.org.inventory.",
+                "label"   => __("inventory"),
+                "icon"    => ["fal", "fa-pallet-alt"],
+                "route"   => [
                     "name"       => "grp.org.inventory.dashboard",
                     "parameters" => [$organisation->slug],
                 ],
@@ -157,11 +156,11 @@ class GetOrganisationNavigation
 
         if ($user->hasPermissionTo("warehouses.$organisation->id.view")) {
             $navigation['warehouses_index'] = [
-                'label' => __('Warehouses'),
-                'scope' => 'warehouses',
-                'icon'  => ['fal', 'fa-warehouse-alt'],
-                'root'  => 'grp.org.warehouses.index',
-                'route' => [
+                'label'   => __('Warehouses'),
+                'scope'   => 'warehouses',
+                'icon'    => ['fal', 'fa-warehouse-alt'],
+                'root'    => 'grp.org.warehouses.index',
+                'route'   => [
                     'name'       => 'grp.org.warehouses.index',
                     'parameters' => [$organisation->slug],
                 ],
@@ -179,8 +178,9 @@ class GetOrganisationNavigation
 
         $navigation['warehouses_navigation'] = [];
         foreach (
-            $organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Warehouse')->get(
-            ) as $authorisedModel
+            $organisation->authorisedModels()->where('user_id', $user->id)
+                ->where('model_type', 'Warehouse')
+                ->get() as $authorisedModel
         ) {
             $warehouse                                             = $authorisedModel->model;
             $navigation['warehouses_navigation'][$warehouse->slug] = GetWarehouseNavigation::run($warehouse, $user);
@@ -238,70 +238,45 @@ class GetOrganisationNavigation
             ];
         }
 
-        if ($user->hasPermissionTo("production.$organisation->id.view")) {
-            $navigation['production'] = [
-                'label'   => __('production'),
+
+        if ($user->hasPermissionTo("productions.$organisation->id.view")) {
+            $navigation['productions_index'] = [
+                'label'   => __('Productions'),
+                'scope'   => 'productions',
                 'icon'    => ['fal', 'fa-industry'],
-                'route'   => 'grp.production.dashboard',
+                'root'    => 'grp.org.manufacturing.productions.index',
+                'route'   => [
+                    'name'       => 'grp.org.manufacturing.productions.index',
+                    'parameters' => [$organisation->slug],
+                ],
                 'topMenu' => [
-                    'subSections' => [
+                    'links' => [
                         [
-                            'label' => __('raw materials'),
-                            'icon'  => ['fal', 'fa-network-wired'],
-                            'root'  => 'grp.org.hr.job-positions.',
-                            'route' => [
-                                'name' => 'grp.org.hr.job-positions.index',
-
-                            ]
-                        ],
-                        [
-                            'label' => __('employees'),
-                            'icon'  => ['fal', 'fa-terminal'],
-                            'root'  => 'grp.org.hr.employees.',
-                            'route' => [
-                                'name' => 'grp.org.hr.employees.index',
-
-                            ]
-                        ],
-                        [
-                            'label' => __('calendar'),
-                            'icon'  => ['fal', 'fa-calendar'],
-                            'root'  => 'grp.org.hr.calendars.',
-                            'route' => [
-                                'name' => 'grp.org.hr.calendars.index',
-
-                            ]
-                        ],
-                        [
-                            'label' => __('time sheets'),
-                            'icon'  => ['fal', 'fa-stopwatch'],
-                            'root'  => 'grp.org.hr.time-sheets.',
-                            'route' => [
-                                'name' => 'grp.org.hr.time-sheets.index',
-
-                            ]
-                        ],
-                        [
-                            'label' => __('clocking machines'),
-                            'icon'  => ['fal', 'fa-chess-clock'],
-                            'root'  => 'grp.org.hr.clocking-machines.',
-                            'route' => [
-                                'name' => 'grp.org.hr.clocking-machines.index',
-
-                            ]
+                            'label'   => __('dashboard'),
+                            'tooltip' => __('Dashboard'),
                         ]
                     ]
                 ]
-
             ];
+        }
+
+        $navigation['productions_navigation'] = [];
+        foreach (
+            $organisation->authorisedModels()->where('user_id', $user->id)
+                ->where('model_type', 'Production')
+                ->get() as $authorisedModel
+        ) {
+            $production         = $authorisedModel->model;
+            $navigation['productions_navigation']
+            [$production->slug] = GetManufacturingNavigation::run($production, $user);
         }
 
         if ($user->hasPermissionTo("procurement.$organisation->id.view")) {
             $navigation['procurement'] = [
-                'root'  => 'grp.org.procurement',
-                'label' => __('procurement'),
-                'icon'  => ['fal', 'fa-box-usd'],
-                'route' => [
+                'root'    => 'grp.org.procurement',
+                'label'   => __('procurement'),
+                'icon'    => ['fal', 'fa-box-usd'],
+                'route'   => [
                     'name'       => 'grp.org.procurement.dashboard',
                     'parameters' => [$organisation->slug],
                 ],
@@ -402,10 +377,10 @@ class GetOrganisationNavigation
 
         if ($user->hasPermissionTo("human-resources.$organisation->id.view")) {
             $navigation['hr'] = [
-                'label' => __('human resources'),
-                'icon'  => ['fal', 'fa-user-hard-hat'],
-                'root'  => 'grp.org.hr',
-                'route' => [
+                'label'   => __('human resources'),
+                'icon'    => ['fal', 'fa-user-hard-hat'],
+                'root'    => 'grp.org.hr',
+                'route'   => [
                     'name'       => 'grp.org.hr.dashboard',
                     'parameters' => [$organisation->slug],
                 ],
@@ -467,7 +442,7 @@ class GetOrganisationNavigation
         }
 
 
-        if ($user->hasPermissionTo('org-reports.' . $organisation->id)) {
+        if ($user->hasPermissionTo('org-reports.'.$organisation->id)) {
             $navigation['reports'] = [
                 'label'   => __('Reports'),
                 'tooltip' => __('Reports'),
