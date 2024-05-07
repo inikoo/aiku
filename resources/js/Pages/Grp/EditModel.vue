@@ -74,7 +74,7 @@ const props = defineProps<{
 // const layout = useLayoutStore()
 const layout: any = inject('layout')
 const currentTab = ref<string|number>(props.formData?.current || parseInt(Object.keys(props.formData?.blueprint)[0]))  // if formData.current not exist, take first navigation
-const buttonRefs = ref([])  // For click linked to Navigation
+const _buttonRefs = ref([])  // For click linked to Navigation
 const isMobile = ref(false)
 const tabActive: any = ref({})
 const fieldGroupAnimateSection = ref()
@@ -104,7 +104,7 @@ onMounted(() => {
     ) : ''
 
     // To indicate active state that on viewport
-    buttonRefs.value.forEach((element: any, index: number) => {
+    _buttonRefs.value.forEach((element: any, index: number) => {
         const observer = new IntersectionObserver(handleIntersection(element, index));
         observer.observe(element);
 
@@ -116,7 +116,7 @@ onMounted(() => {
 
     // Clean up all the observers when the component is unmounted
     return () => {
-        buttonRefs.value.forEach((button: any) => button.cleanupObserver());
+        _buttonRefs.value.forEach((button: any) => button.cleanupObserver());
     };
 })
 
@@ -173,10 +173,10 @@ onBeforeUnmount(() => {
                 <template v-for="(sectionData, sectionIdx ) in formData.blueprint" :key="sectionIdx">
                     <!-- If Section: all fields is not hidden -->
                     <template v-if="!(Object.values(sectionData.fields).every((field: any) => field.hidden))">
-                        <div v-show="sectionIdx == currentTab" >
+                        <div v-show="sectionIdx == currentTab" class="pt-4" >
                             <div class="sr-only absolute -top-16" :id="`field${sectionIdx}`"/>
                             <!-- Title -->
-                            <div class="flex items-center gap-x-2" ref="buttonRefs">
+                            <div class="flex items-center gap-x-2" ref="_buttonRefs">
                                 <h3 v-if="sectionData.title" class="text-lg leading-6 font-medium text-gray-700 capitalize">
                                     {{ sectionData.title }}
                                 </h3>
@@ -184,6 +184,7 @@ onBeforeUnmount(() => {
                                     {{ sectionData.subtitle }}
                                 </p>
                             </div>
+                            
                             <!-- Looping Field -->
                             <div class="my-2 pt-4 space-y-5 transition-all duration-1000 ease-in-out" :class="fieldGroupAnimateSection">
                                 <template v-for="(fieldData, fieldName, index) in sectionData.fields" :key="index">
