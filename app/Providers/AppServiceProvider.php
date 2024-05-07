@@ -216,6 +216,7 @@ class AppServiceProvider extends ServiceProvider
 
                 //Manufacturing
                 'Production'                  => 'App\Models\Manufacturing\Production',
+                'RawMaterial'                 => 'App\Models\Manufacturing\RawMaterial',
             ]
         );
     }
