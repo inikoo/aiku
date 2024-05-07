@@ -23,6 +23,7 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Mail\Mailroom;
 use App\Models\Manufacturing\Production;
+use App\Models\Manufacturing\RawMaterial;
 use App\Models\Market\CollectionCategory;
 use App\Models\Market\Collection;
 use App\Models\Market\Product;
@@ -359,6 +360,11 @@ class Group extends Model implements HasMedia
     public function productions(): HasMany
     {
         return $this->hasMany(Production::class);
+    }
+
+    public function rawMaterials(): HasMany
+    {
+        return $this->hasMany(RawMaterial::class);
     }
 
 
