@@ -78,7 +78,7 @@ class ConfirmPalletDelivery extends OrgAction
             return false;
         }
 
-        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
     public function jsonResponse(PalletDelivery $palletDelivery): JsonResource

@@ -78,7 +78,7 @@ class SeedWebsiteFixedWebpages extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("shops.{$this->shop->id}.edit");
+        return $request->user()->hasPermissionTo("web.{$this->shop->website->id}.edit");
     }
 
 

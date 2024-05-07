@@ -67,7 +67,7 @@ class StoreWebUser extends OrgAction
         }
 
         if ($this->parent instanceof FulfilmentCustomer) {
-            return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
         }
         return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
     }

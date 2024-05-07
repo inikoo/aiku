@@ -25,6 +25,11 @@ class CreateFulfilment extends OrgAction
     {
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
+    }
+
     /**
      * @throws \Exception
      */
@@ -164,10 +169,6 @@ class CreateFulfilment extends OrgAction
         );
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        return $request->user()->hasPermissionTo("fulfilments.{$this->organisation->id}.edit");
-    }
 
 
     public function asController(Organisation $organisation, ActionRequest $request): ActionRequest

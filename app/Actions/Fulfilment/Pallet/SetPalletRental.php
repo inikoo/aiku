@@ -44,7 +44,7 @@ class SetPalletRental extends OrgAction
         if ($this->asAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
     public function asController(Pallet $pallet, ActionRequest $request): Pallet

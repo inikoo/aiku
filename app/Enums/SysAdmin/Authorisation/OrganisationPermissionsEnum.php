@@ -31,20 +31,10 @@ enum OrganisationPermissionsEnum: string
     case INVENTORY_EDIT = 'inventory.edit';
     case INVENTORY_VIEW = 'inventory.view';
 
-    /*
-        case SHOPS      = 'shops';
-        case SHOPS_EDIT = 'shops.edit';
-        case SHOPS_VIEW = 'shops.view';
-
-        case FULFILMENTS      = 'fulfilments';
-        case FULFILMENTS_EDIT = 'fulfilments.edit';
-        case FULFILMENTS_VIEW = 'fulfilments.view';
-
-        case WAREHOUSES      = 'warehouses';
-        case WAREHOUSES_EDIT = 'warehouses.edit';
-        case WAREHOUSES_VIEW = 'warehouses.view';
-    */
-
+    case SHOPS_VIEW       = 'shops-view';
+    case FULFILMENTS_VIEW = 'fulfilments-view';
+    case WAREHOUSES_VIEW  = 'warehouses-view';
+    case PRODUCTIONS_VIEW = 'productions-view';
 
     case SEO      = 'seo';
     case SEO_EDIT = 'seo.edit';
