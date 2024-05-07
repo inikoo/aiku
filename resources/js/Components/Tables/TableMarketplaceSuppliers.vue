@@ -17,7 +17,7 @@ const props = defineProps<{
 }>()
 
 
-function marketplaceSupplierRoute(marketplaceSupplier: MarketplaceSupplier) {
+/*function marketplaceSupplierRoute(marketplaceSupplier: MarketplaceSupplier) {
     switch (route().current()) {
         case 'grp.org.procurement.marketplace.agents.show':
             return route(
@@ -32,7 +32,7 @@ function marketplaceSupplierRoute(marketplaceSupplier: MarketplaceSupplier) {
                 'grp.org.procurement.marketplace.suppliers.show',
                 [marketplaceSupplier.slug]);
     }
-}
+}*/
 
 </script>
 
@@ -42,11 +42,11 @@ function marketplaceSupplierRoute(marketplaceSupplier: MarketplaceSupplier) {
         <template #cell(adoption)="{ item: supplier }">
             <ProcurementMarketplaceAdoption :value="supplier['adoption']"/>
         </template>
-        <template #cell(code)="{ item: supplier }">
+<!--        <template #cell(code)="{ item: supplier }">
             <Link :href="marketplaceSupplierRoute(supplier)">
                 {{ supplier['code'] }}
             </Link>
-        </template>
+        </template>-->
         <template #cell(location)="{ item: supplier }">
             <AddressLocation :data="supplier['location']"/>
         </template>
