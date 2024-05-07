@@ -29,8 +29,7 @@ class CreateJobPosition extends OrgAction
                 ),
                 'title'       => __('new job position'),
                 'pageHead'    => [
-                    'title' => __('new job position'),
-
+                    'title'   => __('new job position'),
                     'actions' => [
                         [
                             'type'  => 'button',
@@ -50,14 +49,21 @@ class CreateJobPosition extends OrgAction
                             'title'  => __('creating job positions'),
                             'fields' => [
                                 'code' => [
-                                    'type'     => 'input',
-                                    'label'    => __('code'),
-                                    'required' => true
+                                    'type'     => 'inputWithAddOn',
+                                    'leftAddOn'=> [
+                                        'label' => 'C-'
+                                    ],
+                                    'label'       => __('code'),
+                                    'required'    => true,
+                                    'placeholder' => __('Enter job code'),
+                                    'value'       => ''
                                 ],
                                 'name' => [
-                                    'type'     => 'input',
-                                    'label'    => __('name'),
-                                    'required' => true
+                                    'type'        => 'input',
+                                    'label'       => __('name'),
+                                    'required'    => true,
+                                    'placeholder' => __('Enter job name'),
+                                    'value'       => ''
                                 ],
 
                             ]
