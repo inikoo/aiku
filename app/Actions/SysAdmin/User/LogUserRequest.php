@@ -22,21 +22,21 @@ class LogUserRequest
 
     public function handle(Carbon $datetime, array $routeData, string $ip, string $userAgent, string $type, User $user): void
     {
-        $organisation    = app('currentTenant');
+        $group           = group();
         $indexType       = 'user_requests_';
 
         if ($type == ElasticsearchUserRequestTypeEnum::ACTION->value) {
             $indexType = 'history_';
         }
 
-        $index =  config('elasticsearch.index_prefix') . $indexType.$organisation->group->slug;
+        $index =  config('elasticsearch.index_prefix') . $indexType.$group->slug;
 
         $parsedUserAgent = (new Browser())->parse($userAgent);
 
         $body = [
             'type'        => $type,
             'datetime'    => $datetime,
-            'tenant'      => $organisation->slug,
+            'group'       => $group->slug,
             'username'    => $user->username,
             'route'       => $routeData,
             'module'      => explode('.', $routeData['name'])[0],
