@@ -7,6 +7,7 @@
 
 namespace App\Stubs\Migrations;
 
+use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
 use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
@@ -66,10 +67,11 @@ trait HasHumanResourcesStats
 
     public function getClockingsFieldStats(Blueprint $table): Blueprint
     {
-
-        $table->unsignedSmallInteger('number_clockings')->default(0);
         $table->dateTimeTz('last_clocking_at')->nullable();
-
+        $table->unsignedSmallInteger('number_clockings')->default(0);
+        foreach (ClockingTypeEnum::cases() as $case) {
+            $table->unsignedSmallInteger('number_clockings_type_'.$case->snake())->default(0);
+        }
 
         return $table;
     }

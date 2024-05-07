@@ -41,8 +41,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_clocking_machines_type_static_nfc
  * @property int $number_clocking_machines_type_mobile_app
  * @property int $number_clocking_machines_type_legacy
- * @property int $number_clockings
  * @property string|null $last_clocking_at
+ * @property int $number_clockings
+ * @property int $number_clockings_type_clocking_machine
+ * @property int $number_clockings_type_manual
+ * @property int $number_clockings_type_self_check
+ * @property int $number_clockings_type_system
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group

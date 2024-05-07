@@ -10,7 +10,6 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
-use App\Actions\HumanResources\SyncJobPosition;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\Utils\StoreImage;
@@ -29,6 +28,9 @@ class FetchAuroraEmployees extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Employee
     {
+        setPermissionsTeamId($organisationSource->getOrganisation()->group_id);
+
+
         if ($employeeData = $organisationSource->fetchEmployee($organisationSourceId)) {
 
             if ($employee = Employee::where('source_id', $employeeData['employee']['source_id'])->first()) {
@@ -40,7 +42,6 @@ class FetchAuroraEmployees extends FetchAuroraAction
                 /* @var $workplace Workplace */
                 $workplace = $organisationSource->getOrganisation()->workplaces()->first();
 
-
                 $employee = StoreEmployee::make()->action(
                     parent: $workplace,
                     modelData: $employeeData['employee'],
@@ -48,8 +49,6 @@ class FetchAuroraEmployees extends FetchAuroraAction
             }
 
             UpdateEmployeeWorkingHours::run($employee, $employeeData['working_hours']);
-
-            //  SyncJobPosition::run($employee, $employeeData['job-positions']);
 
 
             foreach ($employeeData['photo'] ?? [] as $profileImage) {

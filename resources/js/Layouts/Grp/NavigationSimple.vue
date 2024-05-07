@@ -59,8 +59,6 @@ onUnmounted(() => {
                 {{ nav.label }}
             </span>
         </Transition>
-    </Link>
-
     <!-- If this Navigation is active, then teleport the SubSections to #TopBarSubsections in <AppTopBar> -->
     <template v-if="isTopMenuActive && isNavigationActive(layout.currentRoute, props.nav.root || 'xx.xx.xx.xx')">
         <Teleport to="#TopBarSubsections" :disabled="!isNavigationActive(layout.currentRoute, props.nav.root || 'xx.xx.xx.xx')">
@@ -70,4 +68,6 @@ onUnmounted(() => {
             />
         </Teleport>
     </template>
+    </Link>
+
 </template>

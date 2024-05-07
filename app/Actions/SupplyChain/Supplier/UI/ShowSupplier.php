@@ -7,13 +7,13 @@
 
 namespace App\Actions\SupplyChain\Supplier\UI;
 
+use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaAction;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\SupplierDelivery\UI\IndexSupplierDeliveries;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
-use App\Actions\UI\Procurement\ProcurementDashboard;
+use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
 use App\Enums\UI\SupplierTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
@@ -29,7 +29,7 @@ use Lorisleiva\Actions\ActionRequest;
 /**
  * @property Supplier $supplier
  */
-class ShowSupplier extends InertiaAction
+class ShowSupplier extends GrpAction
 {
     public function handle(Supplier $supplier): Supplier
     {
@@ -39,15 +39,15 @@ class ShowSupplier extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('procurement.suppliers.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('procurement.suppliers.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo('supply-chain.edit');
+        $this->canDelete = $request->user()->hasPermissionTo('supply-chain.edit');
 
-        return $request->user()->hasPermissionTo("procurement.view");
+        return $request->user()->hasPermissionTo("supply-chain.view");
     }
 
     public function asController(Supplier $supplier, ActionRequest $request): Supplier
     {
-        $this->initialisation($request)->withTab(SupplierTabsEnum::values());
+        $this->initialisation($supplier->group, $request)->withTab(SupplierTabsEnum::values());
 
         return $this->handle($supplier);
     }
@@ -64,7 +64,7 @@ class ShowSupplier extends InertiaAction
     {
 
         return Inertia::render(
-            'Procurement/Supplier',
+            'SupplyChain/Supplier',
             [
                 'title'       => __('supplier'),
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -179,6 +179,8 @@ class ShowSupplier extends InertiaAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
+        $supplier = Supplier::where('slug', $routeParameters['supplier'])->first();
+
         $headCrumb = function (Supplier $supplier, array $routeParameters, string $suffix) {
             return [
                 [
@@ -202,19 +204,19 @@ class ShowSupplier extends InertiaAction
         };
 
         return match ($routeName) {
-            'grp.procurement.suppliers.show' =>
+            'grp.supply-chain.suppliers.show' =>
             array_merge(
-                ProcurementDashboard::make()->getBreadcrumbs($routeParameters),
+                ShowSupplyChainDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
-                    $routeParameters['supplier'],
+                    $supplier,
                     [
                         'index' => [
-                            'name'       => 'grp.procurement.suppliers.index',
+                            'name'       => 'grp.supply-chain.suppliers.index',
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'grp.procurement.suppliers.show',
-                            'parameters' => [$routeParameters['supplier']->slug]
+                            'name'       => 'grp.supply-chain.suppliers.show',
+                            'parameters' => [$supplier->slug]
                         ]
                     ],
                     $suffix
@@ -287,7 +289,7 @@ class ShowSupplier extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.procurement.suppliers.show'=> [
+            'grp.procurement.suppliers.show', 'grp.supply-chain.suppliers.show' => [
                 'label'=> $supplier->code,
                 'route'=> [
                     'name'      => $routeName,

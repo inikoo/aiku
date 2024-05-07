@@ -15,8 +15,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int|null $clocking_machine_id
- * @property int $number_clockings
  * @property string|null $last_clocking_at
+ * @property int $number_clockings
+ * @property int $number_clockings_type_clocking_machine
+ * @property int $number_clockings_type_manual
+ * @property int $number_clockings_type_self_check
+ * @property int $number_clockings_type_system
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\HumanResources\ClockingMachine|null $clockingMachine
