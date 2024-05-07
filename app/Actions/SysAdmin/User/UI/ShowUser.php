@@ -45,7 +45,6 @@ class ShowUser extends GrpAction
 
     public function htmlResponse(User $user, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'SysAdmin/User',
             [
