@@ -18,21 +18,21 @@ return new class extends Migration
         Schema::create('raw_materials', function (Blueprint $table) {
             $table->id();
             $table=$this->groupOrgRelationship($table);
-            $table->unsignedMediumInteger('raw_material_key');
-            $table->string('raw_material_type')->default(RawMaterialTypeEnum::PART->value);
-            $table->unsignedMediumInteger('raw_material_type_key');
-            $table->string('raw_material_state')->default(RawMaterialStateEnum::IN_PROCESS->value);
-            $table->unsignedMediumInteger('raw_material_production_supplier_key');
-            $table->dateTime('raw_material_creation_date');
-            $table->string('raw_material_code', 64);
-            $table->string('raw_material_description', 255);
-            $table->decimal('raw_material_part_raw_material_unit_ratio', 20, 6);
-            $table->string('raw_material_unit')->default(RawMaterialUnitEnum::UNIT->value);
-            $table->string('raw_material_unit_label', 64);
-            $table->decimal('raw_material_unit_cost', 18, 3);
-            $table->decimal('raw_material_stock', 18, 3);
-            $table->string('raw_material_stock_status')->default(RawMaterialStockStatusEnum::UNLIMITED->value);
-            $table->unsignedMediumInteger('raw_material_production_parts_number');
+            $table->unsignedMediumInteger('key');
+            $table->string('type')->default(RawMaterialTypeEnum::PART->value);
+            $table->unsignedMediumInteger('type_key');
+            $table->string('state')->default(RawMaterialStateEnum::IN_PROCESS->value);
+            $table->unsignedMediumInteger('production_supplier_key');
+            $table->dateTime('creation_date');
+            $table->string('code', 64);
+            $table->string('description', 255);
+            $table->decimal('part_unit_ratio', 20, 6);
+            $table->string('unit')->default(RawMaterialUnitEnum::UNIT->value);
+            $table->string('unit_label', 64);
+            $table->decimal('unit_cost', 18, 3);
+            $table->decimal('stock', 18, 3);
+            $table->string('stock_status')->default(RawMaterialStockStatusEnum::UNLIMITED->value);
+            $table->unsignedMediumInteger('production_parts_number');
             $table->timestampsTz();
         });
     }
