@@ -24,7 +24,8 @@ class JobPositionResource extends JsonResource
             'id'               => $jobPosition->id,
             'slug'             => $jobPosition->slug,
             'name'             => $jobPosition->name,
-            'number_employees' => $jobPosition->number_employees
+            'number_employees' => $jobPosition->number_employees,
+            'scope'            => $jobPosition->scope,
 
         ];
     }
