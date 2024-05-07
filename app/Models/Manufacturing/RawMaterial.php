@@ -6,6 +6,7 @@ use App\Enums\Manufacturing\RawMaterial\RawMaterialStateEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialStockStatusEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialTypeEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
+use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
@@ -35,6 +36,7 @@ use Spatie\Sluggable\HasSlug;
 class RawMaterial extends Model 
 {
     use SoftDeletes;
+    use InOrganisation;
 
     protected $guarded = [];
     protected $casts   = [
@@ -44,4 +46,6 @@ class RawMaterial extends Model
         'raw_material_unit'             => RawMaterialUnitEnum::class,
         'raw_material_stock_status'     => RawMaterialStockStatusEnum::class,
     ];
+
+
 }
