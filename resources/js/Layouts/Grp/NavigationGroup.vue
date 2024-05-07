@@ -47,13 +47,13 @@ const isPanelOpen = ref(isCurrentRouteActive.value || props.itemKey == layout.or
                 <div class="flex gap-x-1.5 items-center">
                     <FontAwesomeIcon v-if="icon" :icon='icon' class='text-xxs' fixed-width aria-hidden='true' />
                     <template v-if="layout.leftSidebar.show">
-                        <span class="text-[9px] leading-none uppercase">
+                        <span class="text-sm leading-none uppercase">
                             {{ layout.organisationsState?.[layout.currentParams.organisation]?.[generateCurrentString(itemKey)] || Object.keys(orgNav)[0] }}
                         </span>
                         <span class="text-[7px] capitalize leading-none">({{ itemKey }})</span>
                     </template>
                 </div>
-                <FontAwesomeIcon icon='fal fa-chevron-down' class='transition-all duration-200 ease-in-out'
+                <FontAwesomeIcon icon='fal fa-chevron-down' class='transition'
                     :class="[isPanelOpen ? 'rotate-180' : '',
                         layout.leftSidebar.show ? 'justify-self-end text-xs' : 'h-[4px] aspect-square p-[2px] text-white bg-indigo-700 rounded border border-gray-100/50 absolute bottom-0 translate-y-1/2 left-1/2 -translate-x-1/2 text-[4px]'
                     ]" aria-hidden='true' />
