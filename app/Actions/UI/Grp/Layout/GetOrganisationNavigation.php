@@ -42,12 +42,15 @@ class GetOrganisationNavigation
             ];
         }
 
-        $navigation['shops_navigation'] = [];
+
+
+        // shops_navigations
+        $shops_navigation = [];
         foreach (
             $organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Shop')->get() as $authorisedModel
         ) {
             $shop                                        = $authorisedModel->model;
-            $navigation['shops_navigation'][$shop->slug] = GetShopNavigation::run($shop, $user);
+            $shops_navigation[$shop->slug]               = GetShopNavigation::run($shop, $user);
         }
 
 
@@ -69,17 +72,30 @@ class GetOrganisationNavigation
                     ]
                 ]
             ];
-        }
+        };
 
-
-        $navigation['fulfilments_navigation'] = [];
+        // fulfilment_navigation
+        $fulfilments_navigation = [];
         foreach (
             $organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Fulfilment')->get() as $authorisedModel
         ) {
-            $fulfilment         = $authorisedModel->model;
-            $navigation['fulfilments_navigation']
-            [$fulfilment->slug] = GetFulfilmentNavigation::run($fulfilment, $user);
+            $fulfilment                                = $authorisedModel->model;
+            $fulfilments_navigation[$fulfilment->slug] = GetFulfilmentNavigation::run($fulfilment, $user);
         }
+
+        // shops_fulfilments_navigation
+        $navigation['shops_fulfilments_navigation'] = [
+            'shops_navigation'  => [
+                'label'         => __('shop'),
+                'icon'          => "fal fa-store-alt",
+                'navigation'    => $shops_navigation
+            ],
+            'fulfilments_navigation'    => [
+                'label'         => __('fulfilment'),
+                'icon'          => "fal fa-hand-holding-box",
+                'navigation'    => $fulfilments_navigation
+            ]
+        ];
 
         if ($user->hasPermissionTo("dispatching.$organisation->id.view")) {
             $navigation["dispatching"] = [
