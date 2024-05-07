@@ -23,7 +23,7 @@ return new class extends Migration
             $table->unsignedMediumInteger('type_key');
             $table->string('state')->default(RawMaterialStateEnum::IN_PROCESS->value);
             $table->unsignedMediumInteger('production_supplier_key');
-            $table->dateTime('creation_date');
+            $table->dateTimeTz('creation_date');
             $table->string('code', 64);
             $table->string('description', 255);
             $table->decimal('part_unit_ratio', 20, 6);
