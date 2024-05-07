@@ -154,9 +154,9 @@ class ShowSupplier extends GrpAction
                     : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplier))),
 
                 SupplierTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == SupplierTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplier->agent))
-                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplier->agent))),
-/*
+                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplier))
+                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplier))),
+
                 SupplierTabsEnum::PURCHASE_ORDERS->value => $this->tab == SupplierTabsEnum::PURCHASE_ORDERS->value ?
                     fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($supplier))
                     : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($supplier))),
@@ -167,7 +167,7 @@ class ShowSupplier extends GrpAction
 
                 SupplierTabsEnum::HISTORY->value => $this->tab == SupplierTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($supplier))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($supplier)))*/
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($supplier)))
             ]
         )->table(IndexSupplierProducts::make()->tableStructure())
         ->table(IndexSupplierProducts::make()->tableStructure())
@@ -206,7 +206,7 @@ class ShowSupplier extends GrpAction
         return match ($routeName) {
             'grp.supply-chain.suppliers.show' =>
             array_merge(
-                ShowSupplyChainDashboard::make()->getBreadcrumbs(),
+                ShowSupplyChainDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $supplier,
                     [
