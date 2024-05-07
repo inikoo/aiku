@@ -38,7 +38,7 @@ trait HasManufactureStats
             $table->unsignedInteger('number_raw_materials_unit_'.$case->snake())->default(0);
         }
         foreach (RawMaterialStockStatusEnum::cases() as $case) {
-            $table->unsignedInteger('number_raw_materials_stocks_status_'.$case->snake())->default(0);
+            $table->unsignedInteger('number_raw_materials_stock_status_'.$case->snake())->default(0);
         }
 
         return $table;
