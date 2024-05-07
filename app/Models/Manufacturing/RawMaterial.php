@@ -35,7 +35,6 @@ use Spatie\Sluggable\HasSlug;
 
 class RawMaterial extends Model 
 {
-    use SoftDeletes;
     use InOrganisation;
 
     protected $guarded = [];
