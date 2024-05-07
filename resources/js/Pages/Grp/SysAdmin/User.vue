@@ -5,64 +5,58 @@
   -->
 
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3'
 
-import PageHeading from '@/Components/Headings/PageHeading.vue';
-import { computed, defineAsyncComponent, ref } from "vue";
-import { useTabChange } from "@/Composables/tab-change";
-import ModelDetails from "@/Components/ModelDetails.vue";
-import TableUserRequestLogs from "@/Components/Tables/TableUserRequestLogs.vue";
-import TableHistories from "@/Components/Tables/TableHistories.vue";
-import Tabs from "@/Components/Navigation/Tabs.vue";
-import { faIdCard, faUser, faClock, faDatabase, faEnvelope, faHexagon, faFile } from '@fal';
-import { library } from "@fortawesome/fontawesome-svg-core";
+import PageHeading from '@/Components/Headings/PageHeading.vue'
+import { computed, defineAsyncComponent, ref } from "vue"
+import { useTabChange } from "@/Composables/tab-change"
+import ModelDetails from "@/Components/ModelDetails.vue"
+import TableUserRequestLogs from "@/Components/Tables/TableUserRequestLogs.vue"
+import TableHistories from "@/Components/Tables/TableHistories.vue"
+import Tabs from "@/Components/Navigation/Tabs.vue"
+import { faIdCard, faUser, faClock, faDatabase, faEnvelope, faHexagon, faFile } from '@fal'
+import { library } from "@fortawesome/fontawesome-svg-core"
 import { capitalize } from "@/Composables/capitalize"
-import {faRoad} from "@fas";
+import { faRoad } from "@fas"
+import SysadminUserShowcase from '@/Components/Showcases/Grp/SysadminUserShowcase.vue'
 
-library.add(
-    faIdCard,
-    faUser,
-    faClock,
-    faDatabase,
-    faEnvelope,
-    faHexagon,
-    faFile,
-    faRoad
-
-)
+library.add(faIdCard, faUser, faClock, faDatabase, faEnvelope, faHexagon, faFile, faRoad)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
     title: string,
-    pageHead: object,
+    pageHead: {}
     tabs: {
-        current: string;
-        navigation: object;
-    },
-    request_logs: object;
-    history: object;
+        current: string
+        navigation: {}
+    }
+    showcase: {}
+    request_logs: {}
+    history: {}
 
 }>()
 
-let currentTab = ref(props.tabs.current);
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+let currentTab = ref(props.tabs.current)
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
-
     const components = {
+        showcase: SysadminUserShowcase,
         details: ModelDetails,
         request_logs: TableUserRequestLogs,
         history: TableHistories
-    };
-    return components[currentTab.value];
+    }
+    return components[currentTab.value]
 
-});
+})
+
+
 </script>
 
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
-    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
 </template>
