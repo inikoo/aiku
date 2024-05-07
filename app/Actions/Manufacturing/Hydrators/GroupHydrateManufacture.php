@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
- namespace App\Actions\Manufacturing\Hydrators;
+namespace App\Actions\Manufacturing\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Manufacturing\Production\ProductionStateEnum;
@@ -13,7 +13,6 @@ use App\Enums\Manufacturing\RawMaterial\RawMaterialStateEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialStockStatusEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialTypeEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
-use App\Models\SysAdmin\Organisation;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
 use App\Models\SysAdmin\Group;
@@ -41,7 +40,7 @@ class GroupHydrateManufacture
     public function handle(Group $group): void
     {
         $stats = [
-            'number_productions' => $group->productions()->count(),
+            'number_productions'   => $group->productions()->count(),
             'number_raw_materials' => $group->rawMaterials()->count()
         ];
 

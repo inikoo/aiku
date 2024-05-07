@@ -107,58 +107,39 @@ test('seed production permissions', function () {
     expect($production->roles()->count())->toBe(1);
 });
 
-test('can store a raw material', function () {
-    $data = [
-        'key'                          => 1,
-        'type'                         => RawMaterialTypeEnum::PART,
-        'type_key'                     => 2,
-        'state'                        => RawMaterialStateEnum::IN_PROCESS,
-        'production_supplier_key'      => 3,
-        'creation_date'                => now()->toDateString(),
-        'code'                         => 'RM001',
-        'description'                  => 'Test Raw Material',
-        'part_unit_ratio'              => 1.5,
-        'unit'                         => RawMaterialUnitEnum::KILOGRAM,
-        'unit_label'                   => 'Kilogram',
-        'unit_cost'                    => 10.5,
-        'stock'                        => 100,
-        'stock_status'                 => RawMaterialStockStatusEnum::UNLIMITED,
-        'production_parts_number'      => 20,
+test('can store a raw material', function (Production $production) {
+    $data        = [
+        'type'             => RawMaterialTypeEnum::STOCK,
+        'state'            => RawMaterialStateEnum::IN_PROCESS,
+        'code'             => 'RM001',
+        'description'      => 'Test Raw Material',
+        'unit'             => RawMaterialUnitEnum::KILOGRAM,
+        'unit_cost'        => 10.5,
+        'stock'            => 100,
+        'stock_status'     => RawMaterialStockStatusEnum::UNLIMITED,
     ];
     $rawMaterial = StoreRawMaterial::make()->action(
-        $this->organisation,
+        $production,
         $data
     );
 
-    // Assertions
-    expect($rawMaterial)->toBeInstanceOf(RawMaterial::class);
-    expect($rawMaterial->group_id)->toBe($this->organisation->group_id);
-    expect($rawMaterial->key)->toBe($data['key']);
-    // Add more assertions for other attributes
+    expect($rawMaterial)->toBeInstanceOf(RawMaterial::class)
+        ->and($rawMaterial->group_id)->toBe($this->organisation->group_id);
+
 
     return $rawMaterial;
-});
+})->depends('create production');
 
 test('can update a raw material', function ($rawMaterial) {
-    // Create a raw material
 
-    // Prepare data for update
     $data = [
-        'key'                          => 2,
-        'type'                         => RawMaterialTypeEnum::INTERMEDIATE,
-        'type_key'                     => 3,
-        'state'                        => RawMaterialStateEnum::DISCONTINUED,
-        'production_supplier_key'      => 4,
-        'creation_date'                => now()->toDateString(),
-        'code'                         => 'RM002',
-        'description'                  => 'Updated Raw Material',
-        'part_unit_ratio'              => 2.5,
-        'unit'                         => RawMaterialUnitEnum::LITER,
-        'unit_label'                   => 'Liter',
-        'unit_cost'                    => 15.5,
-        'stock'                        => 200,
-        'stock_status'                 => RawMaterialStockStatusEnum::CRITICAL,
-        'production_parts_number'      => 30,
+        'type'                    => RawMaterialTypeEnum::INTERMEDIATE,
+        'state'                   => RawMaterialStateEnum::DISCONTINUED,
+        'code'                    => 'RM002',
+        'description'             => 'Updated Raw Material',
+        'unit'                    => RawMaterialUnitEnum::LITER,
+        'unit_cost'               => 15.5,
+        'stock'                   => 200,
     ];
 
 
@@ -167,38 +148,24 @@ test('can update a raw material', function ($rawMaterial) {
         $data
     );
 
-    // Assertions
-    expect($updatedRawMaterial)->toBeInstanceOf(RawMaterial::class);
-    expect($updatedRawMaterial->id)->toBe($rawMaterial->id);
-    expect($updatedRawMaterial->key)->toBe($data['key']);
-    expect($updatedRawMaterial->type)->toBe($data['type']);
-    expect($updatedRawMaterial->state)->toBe($data['state']);
-    expect($updatedRawMaterial->unit)->toBe($data['unit']);
-    expect($updatedRawMaterial->stock_status)->toBe($data['stock_status']);
-    
+    expect($updatedRawMaterial)->toBeInstanceOf(RawMaterial::class)
+        ->and($updatedRawMaterial->id)->toBe($rawMaterial->id)
+        ->and($updatedRawMaterial->type)->toBe($data['type'])
+        ->and($updatedRawMaterial->state)->toBe($data['state'])
+        ->and($updatedRawMaterial->unit)->toBe($data['unit']);
+
 })->depends('can store a raw material');
 
-test('test group hydrate manufacture', function($production, $rawMaterial) {
-    // Create a group
-   
-    // Hydrate manufacture stats for the group
+test('test group that hydrate manufacture works', function ($production, $rawMaterial) {
     GroupHydrateManufacture::make()->handle($production->group);
+    expect($production->group->manufactureStats->number_productions)->toBe(2)
+        ->and($rawMaterial->group->manufactureStats->number_raw_materials)->toBe(1);
 
-    // Assertions for manufacture stats
-    expect($production->group->manufactureStats->number_productions)->toBe(2);
-    expect($rawMaterial->group->manufactureStats->number_raw_materials)->toBe(1);
 })->depends('create production', 'can store a raw material');
 
-test('test organisation hydrate manufacture', function($production, $rawMaterial) {
-    // Create a group
-   
-    // Hydrate manufacture stats for the group
+test('test organisation hydrate manufacture', function ($production, $rawMaterial) {
     OrganisationHydrateManufacture::make()->handle($production->organisation);
+    expect($production->organisation->manufactureStats->number_productions)->toBe(2)
+        ->and($rawMaterial->organisation->manufactureStats->number_raw_materials)->toBe(1);
 
-    // Assertions for manufacture stats
-    expect($production->organisation->manufactureStats->number_productions)->toBe(2);
-    expect($rawMaterial->organisation->manufactureStats->number_raw_materials)->toBe(1);
-})->depends('create production', 'can store a raw material');;
-
-
-
+})->depends('create production', 'can store a raw material');

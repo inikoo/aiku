@@ -13,5 +13,5 @@ enum RawMaterialUnitEnum: string
     case CARTON     = 'carton';
     case LITER      = 'liter';
     case KILOGRAM   = 'kilogram';
-    
+
 }

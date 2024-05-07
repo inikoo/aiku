@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
- namespace App\Actions\Manufacturing\Hydrators;
+namespace App\Actions\Manufacturing\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Manufacturing\Production\ProductionStateEnum;
@@ -40,7 +40,7 @@ class OrganisationHydrateManufacture
     public function handle(Organisation $organisation): void
     {
         $stats = [
-            'number_productions' => $organisation->productions()->count(),
+            'number_productions'   => $organisation->productions()->count(),
             'number_raw_materials' => $organisation->rawMaterials()->count()
         ];
 

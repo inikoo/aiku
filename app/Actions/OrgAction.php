@@ -98,7 +98,7 @@ class OrgAction
     public function initialisationFromProduction(Production $production, ActionRequest|array $request): static
     {
         $this->production    = $production;
-        $this->organisation = $production->organisation;
+        $this->organisation  = $production->organisation;
         if (is_array($request)) {
             $this->setRawAttributes($request);
         } else {

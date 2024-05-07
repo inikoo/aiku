@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int|null $employee_id
  * @property int $number_timesheets
  * @property int $number_clockings
+ * @property string|null $last_clocking_at
  * @property int $number_time_trackers
  * @property int $number_time_trackers_status_open
  * @property int $number_time_trackers_status_closed
