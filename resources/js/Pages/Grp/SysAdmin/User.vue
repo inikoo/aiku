@@ -17,6 +17,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import { faIdCard, faUser, faClock, faDatabase, faEnvelope, faHexagon, faFile } from '@fal';
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { capitalize } from "@/Composables/capitalize"
+import {faRoad} from "@fas";
 
 library.add(
     faIdCard,
@@ -26,6 +27,7 @@ library.add(
     faEnvelope,
     faHexagon,
     faFile,
+    faRoad
 
 )
 
