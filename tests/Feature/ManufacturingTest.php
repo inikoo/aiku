@@ -7,8 +7,6 @@
 
 namespace Tests\Feature;
 
-use App\Actions\Manufacturing\Hydrators\GroupHydrateManufacture;
-use App\Actions\Manufacturing\Hydrators\OrganisationHydrateManufacture;
 use App\Actions\Manufacturing\Production\StoreProduction;
 use App\Actions\Manufacturing\Production\UpdateProduction;
 use App\Actions\Manufacturing\RawMaterial\StoreRawMaterial;
@@ -124,7 +122,9 @@ test('can store a raw material', function (Production $production) {
     );
 
     expect($rawMaterial)->toBeInstanceOf(RawMaterial::class)
-        ->and($rawMaterial->group_id)->toBe($this->organisation->group_id);
+        ->and($rawMaterial->group_id)->toBe($this->organisation->group_id)
+        ->and($rawMaterial->organisation->manufactureStats->number_raw_materials)->toBe(1)
+        ->and($rawMaterial->group->manufactureStats->number_raw_materials)->toBe(1);
 
 
     return $rawMaterial;
@@ -155,17 +155,3 @@ test('can update a raw material', function ($rawMaterial) {
         ->and($updatedRawMaterial->unit)->toBe($data['unit']);
 
 })->depends('can store a raw material');
-
-test('test group that hydrate manufacture works', function ($production, $rawMaterial) {
-    GroupHydrateManufacture::make()->handle($production->group);
-    expect($production->group->manufactureStats->number_productions)->toBe(2)
-        ->and($rawMaterial->group->manufactureStats->number_raw_materials)->toBe(1);
-
-})->depends('create production', 'can store a raw material');
-
-test('test organisation hydrate manufacture', function ($production, $rawMaterial) {
-    OrganisationHydrateManufacture::make()->handle($production->organisation);
-    expect($production->organisation->manufactureStats->number_productions)->toBe(2)
-        ->and($rawMaterial->organisation->manufactureStats->number_raw_materials)->toBe(1);
-
-})->depends('create production', 'can store a raw material');

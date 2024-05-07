@@ -21,6 +21,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePaymentAccounts;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePayments;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePaymentServiceProviders;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProductions;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRawMaterials;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRecurringBills;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSales;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProductSuppliers;
@@ -64,6 +65,7 @@ class HydrateGroup extends HydrateModel
         GroupHydrateWarehouseAreas::run($group);
         GroupHydrateLocations::run($group);
         GroupHydrateProductions::run($group);
+        GroupHydrateRawMaterials::run($group);
 
     }
 

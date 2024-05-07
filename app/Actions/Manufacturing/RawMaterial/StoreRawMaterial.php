@@ -8,6 +8,8 @@
 namespace App\Actions\Manufacturing\RawMaterial;
 
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRawMaterials;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRawMaterials;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialStateEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialTypeEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
@@ -30,7 +32,8 @@ class StoreRawMaterial extends OrgAction
 
         /** @var RawMaterial $rawMaterial */
         $rawMaterial = $production->rawMaterials()->create($modelData);
-
+        GroupHydrateRawMaterials::dispatch($production->group);
+        OrganisationHydrateRawMaterials::dispatch($production->organisation);
         return $rawMaterial;
     }
 

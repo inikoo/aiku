@@ -3,6 +3,8 @@
 namespace App\Actions\Manufacturing\RawMaterial;
 
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRawMaterials;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRawMaterials;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialStateEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialTypeEnum;
@@ -24,6 +26,10 @@ class UpdateRawMaterial extends OrgAction
     public function handle(RawMaterial $rawMaterial, array $modelData): RawMaterial
     {
         $rawMaterial= $this->update($rawMaterial, $modelData);
+        if($rawMaterial->wasChanged('state')) {
+            GroupHydrateRawMaterials::dispatch($rawMaterial->group);
+            OrganisationHydrateRawMaterials::dispatch($rawMaterial->organisation);
+        }
         return $rawMaterial;
     }
 
