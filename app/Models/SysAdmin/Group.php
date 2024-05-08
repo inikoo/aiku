@@ -22,6 +22,7 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Mail\Mailroom;
+use App\Models\Manufacturing\Artifact;
 use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
@@ -375,5 +376,9 @@ class Group extends Model implements HasMedia
         return $this->hasMany(ManufactureTask::class);
     }
 
+    public function artifacts(): HasMany
+    {
+        return $this->hasMany(Artifact::class);
+    }
 
 }

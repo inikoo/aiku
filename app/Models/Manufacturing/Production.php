@@ -108,4 +108,9 @@ class Production extends Model implements Auditable
         return $this->hasMany(ManufactureTask::class);
     }
 
+    public function artifacts(): HasMany
+    {
+        return $this->hasMany(Artifact::class);
+    }
+
 }

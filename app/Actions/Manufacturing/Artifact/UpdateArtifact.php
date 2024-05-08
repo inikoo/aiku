@@ -5,14 +5,13 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
- namespace App\Actions\Manufacturing\Artifact;
+namespace App\Actions\Manufacturing\Artifact;
 
- use App\Actions\GrpAction;
+use App\Actions\GrpAction;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Inventory\OrgStockResource;
 use App\Models\Manufacturing\Artifact;
-use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
