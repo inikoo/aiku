@@ -48,7 +48,7 @@ trait HasManufactureStats
 
     public function manufactureTaskStats(Blueprint $table): Blueprint
     {
-        $table->unsignedSmallInteger('number_tasks')->default(0);
+        $table->unsignedSmallInteger('number_manufacture_tasks')->default(0);
         foreach (ManufactureTaskOperativeRewardTermsEnum::cases() as $case) {
             $table->unsignedInteger('number_manufacture_tasks_operative_reward_terms_'.$case->snake())->default(0);
         }
