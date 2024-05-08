@@ -35,6 +35,7 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
 use App\Models\Market\Collection;
@@ -337,6 +338,11 @@ class Organisation extends Model implements HasMedia
     public function rawMaterials(): HasMany
     {
         return $this->hasMany(RawMaterial::class);
+    }
+
+    public function manufactureTasks(): HasMany
+    {
+        return $this->hasMany(ManufactureTask::class);
     }
 
     public function warehouses(): HasMany
