@@ -9,6 +9,7 @@ namespace App\Enums\Market\Product;
 
 use App\Enums\EnumHelperTrait;
 use App\Models\Market\Shop;
+use App\Models\SysAdmin\Organisation;
 
 enum ProductStateEnum: string
 {
@@ -74,7 +75,7 @@ enum ProductStateEnum: string
         ];
     }
 
-    public static function count(Shop $parent): array
+    public static function count(Shop|Organisation $parent): array
     {
         $stats=$parent->stats;
         return [

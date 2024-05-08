@@ -10,6 +10,7 @@ namespace App\Enums\Market\Product;
 use App\Enums\EnumHelperTrait;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Models\Market\Shop;
+use App\Models\SysAdmin\Organisation;
 
 enum ProductTypeEnum: string
 {
@@ -20,7 +21,7 @@ enum ProductTypeEnum: string
     case SUBSCRIPTION          = 'subscription';
     case RENTAL                = 'rental';
 
-    public static function labels(?Shop $parent=null): array
+    public static function labels(Shop|Organisation $parent=null): array
     {
 
         $labels= [
@@ -93,7 +94,7 @@ enum ProductTypeEnum: string
         ];
     }
 
-    public static function count(Shop $parent): array
+    public static function count(Shop|Organisation $parent): array
     {
         $stats =$parent->stats;
         $counts= [
