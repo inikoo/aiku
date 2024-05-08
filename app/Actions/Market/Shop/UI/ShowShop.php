@@ -338,14 +338,14 @@ class ShowShop extends OrgAction
 
     public function getPrevious(Shop $shop, ActionRequest $request): ?array
     {
-        $previous = Shop::where('code', '<', $shop->code)->orderBy('code', 'desc')->first();
+        $previous = Shop::where('code', '<', $shop->code)->where('organisation_id',$this->organisation->id)->orderBy('code', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(Shop $shop, ActionRequest $request): ?array
     {
-        $next = Shop::where('code', '>', $shop->code)->orderBy('code')->first();
+        $next = Shop::where('code', '>', $shop->code)->where('organisation_id',$this->organisation->id)->orderBy('code')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
