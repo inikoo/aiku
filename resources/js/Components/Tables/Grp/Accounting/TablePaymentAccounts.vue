@@ -75,7 +75,7 @@ function paymentsRoute(paymentAccount: PaymentAccount) {
 const isEditShop = ref(false)
 const setUpdateShop = async (paymentId: string, shopId: number) => {
     try {
-        const response = await axios.patch(route('grp.models.shop.payment-accounts.attach', {
+        const response = await axios.patch(route('grp.models.shop.payment-accounts.sync', {
             paymentAccount: paymentId,
             shop: shopId,
         }))
@@ -153,7 +153,7 @@ onUnmounted(() => {
                         <FontAwesomeIcon icon='fal fa-pencil' class='text-gray-400 text-sm cursor-pointer hover:text-gray-500' fixed-width aria-hidden='true' />
                     </div>
                 </div>
-                
+
                 <div v-else>
                     <Multiselect v-model="paymentAccount.shop_code"
                         :key="paymentAccount.slug"
