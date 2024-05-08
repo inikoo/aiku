@@ -50,10 +50,10 @@ trait HasManufactureStats
     {
         $table->unsignedSmallInteger('number_tasks')->default(0);
         foreach (ManufactureTaskOperativeRewardTermsEnum::cases() as $case) {
-            $table->unsignedInteger('number_manufacture_task_operative_reward_terms_'.$case->snake())->default(0);
+            $table->unsignedInteger('number_manufacture_tasks_operative_reward_terms_'.$case->snake())->default(0);
         }
         foreach (ManufactureTaskOperativeRewardAllowanceTypeEnum::cases() as $case) {
-            $table->unsignedInteger('number_manufacture_task_operative_reward_allowance_type_'.$case->snake())->default(0);
+            $table->unsignedInteger('number_manufacture_tasks_operative_reward_allowance_type_'.$case->snake())->default(0);
         }
         return $table;
     }
