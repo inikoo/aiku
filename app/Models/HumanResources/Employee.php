@@ -142,7 +142,7 @@ class Employee extends Model implements HasMedia, Auditable
 
     public function jobPositions(): MorphToMany
     {
-        return $this->morphToMany(JobPosition::class, 'job_positionable')->withPivot('share')->withTimestamps();
+        return $this->morphToMany(JobPosition::class, 'job_positionable')->using(JobPositionable::class)->withPivot(['share','scopes'])->withTimestamps();
     }
 
     public function user(): MorphOne

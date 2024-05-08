@@ -128,7 +128,7 @@ class IndexInvoices extends OrgAction
             //todo think about it
             return false;
         } elseif ($this->parent instanceof Fulfilment) {
-            return $request->user()->hasPermissionTo("fulfilments.{$this->organisation->id}.view");
+            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
         }
 
         return false;

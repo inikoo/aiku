@@ -78,6 +78,8 @@ const isSomeSubnavActive = () => {
 const activeNav = () => {
     if (layout.currentRoute.includes('grp.org.fulfilments')) return 'fulfilment'
     if (layout.currentRoute.includes('grp.org.shops')) return 'shop'
+
+    return layout.organisationsState[layout.currentParams.organisation].currentType
 }
 
 // Route for arrow chevron
@@ -118,9 +120,9 @@ const routeArrow = (nav?: MergeNavigation) => {
     <div class="relative isolate ring-1 ring-white/20 rounded transition-all duration-200 ease-in-out mb-1"
         :class="layout.leftSidebar.show ? 'px-1' : 'px-0'"
         :style="{ 'box-shadow': `0 0 0 1px ${layout.app.theme[1]}55` }">
-        <!-- <span class="text-white">
-            Horizontal
-        </span> -->
+        <span class="text-white">
+            <!-- {{ currentNavigation() }} -->
+        </span>
         
         <!-- Label: Icon shops/warehouses and slug -->
         <div class="w-full flex justify-between items-end pt-2 pl-2.5 pr-0.5 pb-2"
@@ -142,8 +144,8 @@ const routeArrow = (nav?: MergeNavigation) => {
             </div>
             
             <!-- Section: Arrow left-right -->
-            <div class="flex text-white" :class="[
-                layout.leftSidebar.show ? 'justify-self-end text-xs' : ''
+            <div v-if="isSomeSubnavActive()" class="flex text-white" :class="[
+                layout.leftSidebar.show ? 'justify-self-end text-xxs' : ''
             ]">
                 <component :is="previousNavigation() ? Link : 'div'" :href="routeArrow(previousNavigation())" class="py-0.5 px-[1px] flex justify-center items-center rounded"
                     :class="previousNavigation() ? 'hover:bg-black/10' : 'text-white/40'"

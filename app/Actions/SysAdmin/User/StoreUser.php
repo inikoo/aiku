@@ -47,6 +47,11 @@ class StoreUser extends GrpAction
         UserHydrateUniversalSearch::dispatch($user);
         GroupHydrateUsers::dispatch($user->group);
 
+        if($parent instanceof Employee or  $parent instanceof Guest) {
+            SyncRolesFromJobPositions::run($user);
+        }
+
+
 
         return $user;
     }
@@ -63,7 +68,12 @@ class StoreUser extends GrpAction
     public function rules(): array
     {
         return [
-            'username'        => ['required', new AlphaDashDot(), 'iunique:users,username', Rule::notIn(['export', 'create'])],
+            'username'        => ['required', new AlphaDashDot(),
+                                  new IUnique(
+                                      table: 'users',
+                                      column: 'username',
+                                  ),
+                                  Rule::notIn(['export', 'create'])],
             'password'        => ['required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
             'legacy_password' => ['sometimes', 'string'],
             'email'           => ['sometimes', 'nullable', 'email',
