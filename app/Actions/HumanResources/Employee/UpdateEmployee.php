@@ -145,41 +145,43 @@ class UpdateEmployee extends OrgAction
 
     public function prepareForValidation(): void
     {
-        $newData = [];
-        foreach ($this->get('positions') as $key => $position) {
-            $newData[] = match (Arr::get(explode('-', $key), 0)) {
-                'wah', 'dist', 'ful' => [
-                    'slug'   => $key,
-                    'scopes' => [
-                        'warehouses' => array_map(function ($scope) {
-                            return [
-                                'slug' => $scope
-                            ];
-                        }, $position)
+        if($this->get('positions')) {
+            $newData = [];
+            foreach ($this->get('positions') as $key => $position) {
+                $newData[] = match (Arr::get(explode('-', $key), 0)) {
+                    'wah', 'dist', 'ful' => [
+                        'slug'   => $key,
+                        'scopes' => [
+                            'warehouses' => array_map(function ($scope) {
+                                return [
+                                    'slug' => $scope
+                                ];
+                            }, $position)
+                        ]
+                    ],
+                    'web', 'mrk', 'cus' => [
+                        'slug'   => $key,
+                        'scopes' => [
+                            'shops' => array_map(function ($scope) {
+                                return [
+                                    'slug' => $scope
+                                ];
+                            }, $position)
+                        ]
+                    ],
+                    default => [
+                        'slug'   => $key,
+                        'scopes' => []
                     ]
-                ],
-                'web', 'mrk', 'cus' => [
-                    'slug'   => $key,
-                    'scopes' => [
-                        'shops' => array_map(function ($scope) {
-                            return [
-                                'slug' => $scope
-                            ];
-                        }, $position)
-                    ]
-                ],
-                default => [
-                    'slug'   => $key,
-                    'scopes' => []
-                ]
-            };
+                };
+            }
+
+            $positions = [
+                'positions' => $newData
+            ];
+
+            $this->fill($positions);
         }
-
-        $positions = [
-            'positions' => $newData
-        ];
-
-        $this->fill($positions);
     }
 
     public function asController(Employee $employee, ActionRequest $request): Employee
