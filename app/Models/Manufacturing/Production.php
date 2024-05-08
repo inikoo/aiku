@@ -39,6 +39,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\ManufactureTask> $manufactureTasks
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\RawMaterial> $rawMaterials
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Role> $roles
@@ -100,6 +101,11 @@ class Production extends Model implements Auditable
     public function rawMaterials(): HasMany
     {
         return $this->hasMany(RawMaterial::class);
+    }
+
+    public function manufactureTasks(): HasMany
+    {
+        return $this->hasMany(ManufactureTask::class);
     }
 
 }

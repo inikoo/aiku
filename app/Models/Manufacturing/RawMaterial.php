@@ -11,11 +11,10 @@ use App\Enums\Manufacturing\RawMaterial\RawMaterialStateEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialStockStatusEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialTypeEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
-use App\Models\Traits\InOrganisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InProduction;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
@@ -57,7 +56,7 @@ use Spatie\Sluggable\SlugOptions;
  */
 class RawMaterial extends Model implements Auditable
 {
-    use InOrganisation;
+    use InProduction;
     use SoftDeletes;
     use HasSlug;
     use HasUniversalSearch;
@@ -83,11 +82,6 @@ class RawMaterial extends Model implements Auditable
             ->generateSlugsFrom('code')
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
-    }
-
-    public function production(): BelongsTo
-    {
-        return $this->belongsTo(Production::class);
     }
 
     public function getRouteKeyName(): string

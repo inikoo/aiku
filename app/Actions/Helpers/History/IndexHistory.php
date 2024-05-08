@@ -32,7 +32,7 @@ class IndexHistory
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('user_type', $value)
-                    ->orWhereWith('user_type',$value)
+                    ->orWhereWith('user_type', $value)
                     ->orWhereWith('url', $value);
             });
         });

@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 08 May 2024 10:36:02 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 namespace App\Actions\Manufacturing\ManufactureTask;
 
@@ -22,17 +27,18 @@ class StoreManufactureTask extends OrgAction
 {
     use AsAction;
 
-    public function handle(Organisation $organisation, $modelData): ManufactureTask
+    public function handle(Production $production, $modelData): ManufactureTask
     {
-        data_set($modelData, 'group_id', $organisation->group_id);
-        data_set($modelData, 'organisation_id', $organisation->organisation_id);
+        data_set($modelData, 'group_id', $production->group_id);
+        data_set($modelData, 'organisation_id', $production->organisation_id);
 
         /** @var ManufactureTask $manufactureTask */
-        $manufactureTask = $organisation->manufactureTasks()->create($modelData);
+        $manufactureTask = $production->manufactureTasks()->create($modelData);
 
         ManufactureTaskHydrateUniversalSearch::dispatch($manufactureTask);
         GroupHydrateManufactureTasks::dispatch($manufactureTask->group);
         OrganisationHydrateManufactureTasks::dispatch($manufactureTask->organisation);
+        ProductionHydrateManufactureTasks::dispatch($production);
 
         return $manufactureTask;
     }
@@ -65,9 +71,6 @@ class StoreManufactureTask extends OrgAction
             'task_energy_cost'                  => ['required', 'numeric', 'min:0'],
             'task_other_cost'                   => ['required', 'numeric', 'min:0'],
             'task_work_cost'                    => ['required', 'numeric', 'min:0'],
-            'task_from'                         => ['required', 'date'],
-            'task_to'                           => ['required', 'date'],
-            'task_active'                       => ['required', 'boolean'],
             'task_lower_target'                 => ['required', 'numeric', 'min:0'],
             'task_upper_target'                 => ['required', 'numeric', 'min:0'],
             'operative_reward_terms'            => ['required', Rule::enum(ManufactureTaskOperativeRewardTermsEnum::class)],
@@ -76,18 +79,18 @@ class StoreManufactureTask extends OrgAction
         ];
     }
 
-    public function action(Organisation $organisation, array $modelData): ManufactureTask
+    public function action(Production $production, array $modelData): ManufactureTask
     {
-        $this->asAction = true;
-        $this->initialisation($organisation, $modelData);
+        $this->asAction       = true;
+        $this->initialisationFromProduction($production, $modelData);
 
-        return $this->handle($organisation, $this->validatedData);
+        return $this->handle($production, $this->validatedData);
     }
 
-    public function asController(Organisation $organisation, ActionRequest $request): ManufactureTask
+    public function asController(Organisation $organisation, Production $production, ActionRequest $request): ManufactureTask
     {
-        $this->initialisation($organisation, $request);
+        $this->initialisationFromProduction($production, $request);
 
-        return $this->handle($organisation, $this->validatedData);
+        return $this->handle($production, $this->validatedData);
     }
 }

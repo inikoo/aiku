@@ -3,7 +3,6 @@
 namespace App\Actions\Manufacturing\ManufactureTask\Hydrators;
 
 use App\Models\Manufacturing\ManufactureTask;
-use App\Models\Manufacturing\RawMaterial;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class ManufactureTaskHydrateUniversalSearch

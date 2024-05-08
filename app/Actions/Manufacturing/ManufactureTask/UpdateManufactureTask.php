@@ -14,16 +14,11 @@ use App\Models\Manufacturing\ManufactureTask;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdateManufactureTask extends OrgAction
 {
     use WithActionUpdate;
-    use AsAction;
 
-    /**
-     * @var \App\Models\Manufacturing\ManufactureTask
-     */
     private ManufactureTask $manufactureTask;
 
     public function handle(ManufactureTask $manufactureTask, array $modelData): ManufactureTask
@@ -32,6 +27,7 @@ class UpdateManufactureTask extends OrgAction
         if ($manufactureTask->wasChanged('operative_reward_terms') || $manufactureTask->wasChanged('operative_reward_allowance_type')) {
             GroupHydrateManufactureTasks::dispatch($manufactureTask->group);
             OrganisationHydrateManufactureTasks::dispatch($manufactureTask->organisation);
+            ProductionHydrateManufactureTasks::dispatch($manufactureTask->production);
         }
         ManufactureTaskHydrateUniversalSearch::dispatch($manufactureTask);
         return $manufactureTask;
@@ -74,9 +70,6 @@ class UpdateManufactureTask extends OrgAction
             'task_energy_cost'                  => ['sometimes', 'numeric', 'min:0'],
             'task_other_cost'                   => ['sometimes', 'numeric', 'min:0'],
             'task_work_cost'                    => ['sometimes', 'numeric', 'min:0'],
-            'task_from'                         => ['sometimes', 'date'],
-            'task_to'                           => ['sometimes', 'date'],
-            'task_active'                       => ['sometimes', 'boolean'],
             'task_lower_target'                 => ['sometimes', 'numeric', 'min:0'],
             'task_upper_target'                 => ['sometimes', 'numeric', 'min:0'],
             'operative_reward_terms'            => ['sometimes', Rule::enum(ManufactureTaskOperativeRewardTermsEnum::class)],

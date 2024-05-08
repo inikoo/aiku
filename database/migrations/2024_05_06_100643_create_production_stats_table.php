@@ -19,6 +19,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('production_id')->index();
             $table->foreign('production_id')->references('id')->on('productions');
             $table = $this->rawMaterialStats($table);
+            $table = $this->manufactureTaskStats($table);
             $table->timestampsTz();
 
         });

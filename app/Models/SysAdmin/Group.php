@@ -86,6 +86,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Mailroom> $mailrooms
  * @property-read \App\Models\SysAdmin\GroupMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\GroupManufactureStats|null $manufactureStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ManufactureTask> $manufactureTasks
  * @property-read \App\Models\SysAdmin\GroupMarketStats|null $marketStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
@@ -369,9 +370,9 @@ class Group extends Model implements HasMedia
         return $this->hasMany(RawMaterial::class);
     }
 
-    public function manufactureTasks() : HasMany 
+    public function manufactureTasks(): HasMany
     {
-       return $this->hasMany(ManufactureTask::class); 
+        return $this->hasMany(ManufactureTask::class);
     }
 
 

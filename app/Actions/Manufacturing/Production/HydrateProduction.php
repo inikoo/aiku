@@ -8,6 +8,7 @@
 namespace App\Actions\Manufacturing\Production;
 
 use App\Actions\HydrateModel;
+use App\Actions\Manufacturing\Production\Hydrators\ProductionHydrateManufactureTasks;
 use App\Actions\Manufacturing\Production\Hydrators\ProductionHydrateRawMaterials;
 use App\Models\Manufacturing\Production;
 use Illuminate\Support\Collection;
@@ -19,6 +20,7 @@ class HydrateProduction extends HydrateModel
     public function handle(Production $production): void
     {
         ProductionHydrateRawMaterials::run($production);
+        ProductionHydrateManufactureTasks::run($production);
     }
 
     protected function getModel(string $slug): Production
