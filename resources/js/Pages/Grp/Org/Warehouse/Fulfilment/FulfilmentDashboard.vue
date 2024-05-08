@@ -189,11 +189,13 @@ const options = {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
 
-    <div v-if="data?.flatTreeMaps" class="mt-2">
-        <FlatTreeMap class="mx-4" v-for="(treeMap, idx) in data.flatTreeMaps" :key="idx" :nodes="treeMap" mode="compact" />
+    <div class="p-6">No data to be shown</div>
+
+    <div v-if="flatTreeMaps" class="mt-2">
+        <FlatTreeMap class="mx-4" v-for="(treeMap, idx) in flatTreeMaps" :key="idx" :nodes="treeMap" mode="compact" />
     </div>
 
-    <div class="px-4 py-4 space-y-8">
+    <div v-if="false" class="px-4 py-4 space-y-8">
         <div class="px-10 space-y-1">
             <div class="text-xl text-state-700 font-bold">
                 Fulfilment Stats
