@@ -11,6 +11,7 @@ use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServicePro
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
+use App\Http\Resources\Market\ShopResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\OrgPaymentServiceProvider;
@@ -208,7 +209,8 @@ class IndexPaymentAccounts extends OrgAction
 
 
                 ],
-                'data'        => PaymentAccountsResource::collection($paymentAccounts),
+                'shops'       => ShopResource::collection($this->organisation->shops),
+                'data'        => PaymentAccountsResource::collection($paymentAccounts)
 
 
             ]
