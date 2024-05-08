@@ -14,8 +14,8 @@ use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
 use App\Models\Traits\InOrganisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
-use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
@@ -83,6 +83,11 @@ class RawMaterial extends Model implements Auditable
             ->generateSlugsFrom('code')
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
+    }
+
+    public function production(): BelongsTo
+    {
+        return $this->belongsTo(Production::class);
     }
 
     public function getRouteKeyName(): string
