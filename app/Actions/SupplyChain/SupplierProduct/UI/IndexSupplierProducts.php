@@ -7,13 +7,16 @@
 
 namespace App\Actions\SupplyChain\SupplierProduct\UI;
 
+use App\Actions\GrpAction;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
+use App\Models\SysAdmin\Group;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -23,21 +26,21 @@ use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
-class IndexSupplierProducts extends InertiaAction
+class IndexSupplierProducts extends GrpAction
 {
-    public function handle($parent, $prefix=null): LengthAwarePaginator
+    public function handle(Group|Agent|Supplier $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('supplier_products.code', 'ILIKE', "%$value%")
-                    ->orWhere('supplier_products.name', 'ILIKE', "%$value%");
+                $query->whereStartWith('supplier_products.code',$value)
+                    ->orWhereANyWordStartWith('supplier_products.name', $value);
             });
         });
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(SupplierProduct::class);
+        $queryBuilder = QueryBuilder::for(SupplierProduct::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
@@ -46,6 +49,7 @@ class IndexSupplierProducts extends InertiaAction
                 prefix: $prefix
             );
         }
+
         return $queryBuilder
             ->defaultSort('supplier_products.code')
             ->select([
@@ -54,19 +58,15 @@ class IndexSupplierProducts extends InertiaAction
                 'supplier_products.name'
             ])
             ->leftJoin('supplier_product_stats', 'supplier_product_stats.supplier_product_id', 'supplier_products.id')
-
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Agent') {
                     $query->leftJoin('agents', 'agents.id', 'supplier_products.agent_id');
                     $query->where('supplier_products.agent_id', $parent->id);
                     $query->addSelect('agents.slug as agent_slug');
-                } elseif (class_basename($parent) == 'Organisation') {
-
-                    $query->leftJoin('supplier_product_tenant', 'supplier_product_tenant.supplier_product_id', 'supplier_products.id');
-                    $query->where('supplier_product_tenant.organisation_id', $parent->id);
                 } elseif (class_basename($parent) == 'Supplier') {
-
                     $query->where('supplier_products.supplier_id', $parent->id);
+                } else {
+                    $query->where('supplier_products.group_id', $this->group->if);
                 }
             })
             ->allowedSorts(['code', 'name'])
@@ -75,7 +75,7 @@ class IndexSupplierProducts extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(array $modelOperations=null, $prefix=null): Closure
+    public function tableStructure(array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix) {
             if ($prefix) {
@@ -101,15 +101,31 @@ class IndexSupplierProducts extends InertiaAction
             );
     }
 
-    public function asController(): LengthAwarePaginator
+    public function inGroup(ActionRequest $request): LengthAwarePaginator
     {
-        return $this->handle(app('currentTenant'));
+        $this->initialisation(app('group'), $request);
+        return $this->handle($this->group);
     }
 
-    public function inAgent(Agent $agent): LengthAwarePaginator
+    public function inAgent(Agent $agent, ActionRequest $request): LengthAwarePaginator
     {
-        $this->validateAttributes();
+        $this->initialisation(app('group'), $request);
+
         return $this->handle($agent);
+    }
+
+    public function inSupplier(Supplier $supplier, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation(app('group'), $request);
+
+        return $this->handle($supplier);
+    }
+
+    public function asController(Agent $agent, Supplier $supplier, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisation(app('group'), $request);
+
+        return $this->handle($supplier);
     }
 
 
@@ -121,7 +137,6 @@ class IndexSupplierProducts extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $supplier_products, ActionRequest $request): Response
     {
-        //        $parent = $request->route()->originalParameters()() == [] ? app('currentTenant') : last($request->route()->originalParameters()());
         return Inertia::render(
             'Procurement/SupplierProducts',
             [
@@ -133,13 +148,12 @@ class IndexSupplierProducts extends InertiaAction
                 'pageHead'    => [
                     'title' => __('supplier products'),
                 ],
-                'data'   => SupplierProductResource::collection($supplier_products),
+                'data'        => SupplierProductResource::collection($supplier_products),
 
 
             ]
         )->table($this->tableStructure());
     }
-
 
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
@@ -158,12 +172,12 @@ class IndexSupplierProducts extends InertiaAction
         };
 
         return match ($routeName) {
-            'grp.procurement.supplier-products.index'            =>
+            'grp.procurement.supplier-products.index' =>
             array_merge(
                 ProcurementDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name'=> 'grp.procurement.supplier-products.index',
+                        'name' => 'grp.procurement.supplier-products.index',
                         null
                     ]
                 ),
@@ -175,8 +189,8 @@ class IndexSupplierProducts extends InertiaAction
                 (new ShowOrgAgent())->getBreadcrumbs($routeParameters['supplierProduct']),
                 $headCrumb(
                     [
-                        'name'      => 'grp.procurement.agents.show.supplier-products.index',
-                        'parameters'=>
+                        'name'       => 'grp.procurement.agents.show.supplier-products.index',
+                        'parameters' =>
                             [
                                 $routeParameters['supplierProduct']->slug
                             ]
