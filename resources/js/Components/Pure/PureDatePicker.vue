@@ -5,10 +5,9 @@ import DatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 
 const props = defineProps<{
-    modelValue: Date
+    modelValue: Date | string
     format?: string  // 'dd MMMM yyyy'
     timePicker?: boolean
-    required?: boolean
 }>()
 
 const emits = defineEmits<{
@@ -17,28 +16,37 @@ const emits = defineEmits<{
 
 const _dp = ref()  // Element of DatePicker
 
+defineOptions({
+    inheritAttrs: false
+})
 </script>
 
 <template>
     <div class="relative">
         <DatePicker
+            v-bind="$attrs"
             ref="_dp"
             :modelValue="modelValue"
-            :enable-time-picker="true"
+            :enableTimePicker="false"
             :format="format ?? undefined"
             auto-apply
-            :clearable="!required ?? false"
+            :clearable="!$attrs.required ?? false"
             @update:modelValue="(newVal: Date) => emits('update:modelValue', newVal)"
         >
             <!-- Button: 'Today' -->
             <template #action-extra="{ selectCurrentDate }">
-                <Button @click="selectCurrentDate()" size="xs" label="Today" :style="'tertiary'" />
+                <div class="mb-2">
+                    <Button @click="selectCurrentDate()" size="xs" label="Today" :style="'tertiary'" />
+                </div>
             </template>
 
             <!-- Button: Select -->
-            <template #action-buttons>
-                <Button size="xs" label="Select" @click="_dp.selectDate()"/>
-            </template>
+            <!-- <template #action-buttons>
+                <div class="pb-2 asdzxc">
+                ssssssssssssssss
+                    <Button size="xs" label="Select" @click="_dp.selectDate()"/>
+                </div>
+            </template> -->
         </DatePicker>
     </div>
 </template>
