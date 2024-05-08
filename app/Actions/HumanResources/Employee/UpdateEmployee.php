@@ -16,6 +16,8 @@ use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
+use App\Models\Inventory\Warehouse;
+use App\Models\Market\Shop;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rules\Enum;
@@ -36,8 +38,17 @@ class UpdateEmployee extends OrgAction
             $jobPositions = [];
             foreach (Arr::get($modelData, 'positions', []) as $positionData) {
                 $jobPosition                    = JobPosition::firstWhere('slug', $positionData['slug']);
-                $jobPositions[$jobPosition->id] = $positionData['scopes'];
+                $jobPositions[$jobPosition->id] = match (key($positionData['scopes'])) {
+                    'shops' => [
+                        'Shop' => Shop::whereIn('slug', $positionData['scopes']['shops'])->pluck('id')->toArray()
+                    ],
+                    'warehouses' => [
+                        'Warehouse' => Warehouse::whereIn('slug', $positionData['scopes']['warehouses'])->pluck('id')->toArray()
+                    ],
+                    default => []
+                };
             }
+
             SyncEmployableJobPositions::run($employee, $jobPositions);
             Arr::forget($modelData, 'positions');
         }
@@ -137,7 +148,7 @@ class UpdateEmployee extends OrgAction
         $newData = [];
         foreach ($this->get('positions') as $key => $position) {
             $newData[] = match (Arr::get(explode('-', $key), 0)) {
-                'wah', 'dist' => [
+                'wah', 'dist', 'ful' => [
                     'slug'   => $key,
                     'scopes' => [
                         'warehouses' => array_map(function ($scope) {
@@ -147,7 +158,7 @@ class UpdateEmployee extends OrgAction
                         }, $position)
                     ]
                 ],
-                'web', 'mrk' => [
+                'web', 'mrk', 'cus' => [
                     'slug'   => $key,
                     'scopes' => [
                         'shops' => array_map(function ($scope) {
