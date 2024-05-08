@@ -36,11 +36,11 @@ console.log(props.data);
 </script>
 
 <template>
-
+<!-- <pre>{{ data }}</pre> -->
 
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(username)="{ item: user }">
-            <Link :href="userRoute(user)">
+            <Link :href="userRoute(user)" class="specialUnderline">
                 <template v-if="user['username']">{{ user["username"] }}</template>
                 <span v-else class="italic">{{ trans("Not set") }}</span>
             </Link>
@@ -52,9 +52,11 @@ console.log(props.data);
             </div>
         </template>
 
-        <template #cell(name)="{ item: user }">
-            {{ user["parent"]["name"] }}
-        </template>
+        <!-- <template #cell(name)="{ item: user }">
+            <div class="asdzxc">
+                {{ user["parent"]["name"] }}
+            </div>
+        </template> -->
 
         <template #cell(parent_type)="{ item: user }">
             <Link v-if="user['parent_type'] === 'Employee'" :href="route(

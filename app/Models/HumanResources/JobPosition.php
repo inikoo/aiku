@@ -89,7 +89,7 @@ class JobPosition extends Model implements Auditable
         ];
     }
 
-    protected $auditExclude = [
+    protected array $auditExclude = [
         'share_work_time',
         'number_employees'
     ];

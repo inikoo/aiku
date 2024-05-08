@@ -38,28 +38,36 @@ class FetchAuroraEmployee extends FetchAurora
     {
         $rawJobPositions = $this->parseJobPositions();
 
-        $shops=[];
+        $shops = [];
         if (Arr::has($this->parsedData, 'user')) {
             $userSourceData = explode(':', $this->parsedData['user']['source_id']);
             $shops          = $this->getAuroraUserShopScopes($userSourceData[1]);
         }
 
-        $positions=[];
+        $positions = [];
         foreach ($rawJobPositions as $jobPositionSlug) {
             $jobPosition = JobPosition::where('slug', $jobPositionSlug)->firstOrFail();
-            $scopes      =[];
-            if($jobPosition->scope==JobPositionScopeEnum::SHOPS) {
-                $scopes=$shops;
-            }if($jobPosition->scope==JobPositionScopeEnum::WAREHOUSES) {
-                $scopes=$this->organisation->warehouses()->pluck('id')->all();
+            $scopes      = [];
+            $add         = true;
+            if ($jobPosition->scope == JobPositionScopeEnum::SHOPS) {
+                $scopes = ['Shop' => $shops];
+                if (count($shops) == 0) {
+                    $add = false;
+                }
+            } elseif ($jobPosition->scope == JobPositionScopeEnum::WAREHOUSES) {
+                $scopes = ['Warehouse' => $this->organisation->warehouses()->pluck('id')->all()];
+            } elseif ($jobPosition->scope == JobPositionScopeEnum::PRODUCTIONS) {
+                $scopes = ['Production' => $this->organisation->productions()->pluck('id')->all()];
+            } elseif ($jobPosition->scope == JobPositionScopeEnum::ORGANISATION) {
+                $scopes = ['Organisation' => [$this->organisation->id]];
             }
 
-            $positions[]=[
-                'slug'  => $jobPosition->slug,
-                'scopes'=> $scopes
-            ];
-
-
+            if ($add) {
+                $positions[] = [
+                    'slug'   => $jobPosition->slug,
+                    'scopes' => $scopes
+                ];
+            }
         }
 
 

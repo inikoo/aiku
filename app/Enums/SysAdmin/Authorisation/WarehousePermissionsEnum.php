@@ -38,8 +38,7 @@ enum WarehousePermissionsEnum: string
     case SUPERVISOR_WAREHOUSES        = 'supervisor-warehouses';
     case SUPERVISOR_STOCKS            = 'supervisor-stocks';
     case SUPERVISOR_DISPATCHING       = 'supervisor-dispatching';
-
-    case SUPERVISOR_FULFILMENT       = 'supervisor-fulfilment';
+    case SUPERVISOR_FULFILMENT        = 'supervisor-fulfilment';
 
     public static function getAllValues(Warehouse $warehouse): array
     {

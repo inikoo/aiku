@@ -23,7 +23,7 @@ class GetSupplierShowcase
                 'contact'  => $supplier->contact_name,
                 'email'    => $supplier->email,
                 'phone'    => $supplier->phone,
-                'address'  => AddressResource::make($supplier->getAddress())->getArray(),
+                // 'address'  => AddressResource::make($supplier->getAddress('supplier'))->getArray(), Todo: Need Fix
                 'image_id' => $supplier->image_id
             ],
             'stats'       => [

@@ -8,7 +8,7 @@
 namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch;
-use App\Actions\HumanResources\SyncJobPosition;
+use App\Actions\HumanResources\JobPosition\SyncEmployableJobPositions;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\Traits\WithActionUpdate;
@@ -38,7 +38,7 @@ class UpdateEmployee extends OrgAction
                 $jobPosition                    = JobPosition::firstWhere('slug', $positionData['slug']);
                 $jobPositions[$jobPosition->id] = $positionData['scopes'];
             }
-            SyncJobPosition::run($employee, $jobPositions);
+            SyncEmployableJobPositions::run($employee, $jobPositions);
             Arr::forget($modelData, 'positions');
         }
         $employee = $this->update($employee, $modelData, ['data', 'salary']);

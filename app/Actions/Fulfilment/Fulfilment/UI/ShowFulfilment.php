@@ -34,15 +34,15 @@ class ShowFulfilment extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("fulfilments.{$this->organisation->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("fulfilments.{$this->organisation->id}.edit");
+        $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-        return $request->user()->hasPermissionTo("fulfilments.{$this->organisation->id}.view");
+        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): Fulfilment
     {
-        $this->initialisation($organisation, $request)->withTab(FulfilmentTabsEnum::values());
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(FulfilmentTabsEnum::values());
 
         return $this->handle($fulfilment);
     }
@@ -98,7 +98,7 @@ class ShowFulfilment extends OrgAction
                             'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                         ],
                         'index' => [
-                            'number' => $fulfilment->shop->stats->number_invoices
+                            'number' => $fulfilment->shop->salesStats->number_invoices
                         ],
                     ],
 
@@ -241,7 +241,6 @@ class ShowFulfilment extends OrgAction
     {
         return new FulfilmentResource($fulfilment);
     }
-
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {

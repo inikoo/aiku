@@ -9,15 +9,15 @@ namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch;
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
-use App\Actions\HumanResources\SyncJobPosition;
+use App\Actions\HumanResources\JobPosition\SyncEmployableJobPositions;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
-use App\Models\HumanResources\Workplace;
-use App\Models\SysAdmin\Organisation;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
+use App\Models\HumanResources\Workplace;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
@@ -78,7 +78,7 @@ class StoreEmployee extends OrgAction
             $jobPosition                    = JobPosition::firstWhere('slug', $positionData['slug']);
             $jobPositions[$jobPosition->id] = $positionData['scopes'];
         }
-        SyncJobPosition::run($employee, $jobPositions);
+        SyncEmployableJobPositions::run($employee, $jobPositions);
         EmployeeHydrateWeekWorkingHours::dispatch($employee);
         OrganisationHydrateEmployees::dispatch($organisation);
         EmployeeHydrateUniversalSearch::dispatch($employee);

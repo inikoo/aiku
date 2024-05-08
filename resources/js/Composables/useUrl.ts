@@ -14,7 +14,7 @@ export const isRouteSameAsCurrentUrl = (expectedRoute: string) => {
     return usePage().url.includes(removeDomain(expectedRoute, route().v().route.domain))
 }
 
-// routeRoot: the route.of.root to indicates a group of Navigation ('grp.org.fulfilments.show.operations.pallets.index' is exist in 'grp.org.fulfilments.show.operations.')
+// routeRoot: the route.root to indicates a group of Navigation ('grp.org.fulfilments.show.operations.pallets.index' is exist in 'grp.org.fulfilments.show.operations.')
 export const isNavigationActive = (layoutRoute: string, routeRoot: string | undefined) => {
     if(!routeRoot) return false
 

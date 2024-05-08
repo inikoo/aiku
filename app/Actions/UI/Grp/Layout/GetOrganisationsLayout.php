@@ -16,12 +16,11 @@ class GetOrganisationsLayout
 
     public function handle(User $user): array
     {
-        $navigation=[];
-        foreach($user->authorisedOrganisations as $organisation) {
-            $navigation[$organisation->slug]=GetOrganisationNavigation::run($user, $organisation);
+        $navigation = [];
+        foreach ($user->authorisedOrganisations as $organisation) {
+            $navigation[$organisation->slug] = GetOrganisationNavigation::run($user, $organisation);
         }
+
         return $navigation;
-
-
     }
 }

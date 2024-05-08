@@ -31,22 +31,10 @@ enum OrganisationPermissionsEnum: string
     case INVENTORY_EDIT = 'inventory.edit';
     case INVENTORY_VIEW = 'inventory.view';
 
-
-    case SHOPS      = 'shops';
-    case SHOPS_EDIT = 'shops.edit';
-    case SHOPS_VIEW = 'shops.view';
-
-    case FULFILMENTS      = 'fulfilments';
-    case FULFILMENTS_EDIT = 'fulfilments.edit';
-    case FULFILMENTS_VIEW = 'fulfilments.view';
-
-    case WAREHOUSES      = 'warehouses';
-    case WAREHOUSES_EDIT = 'warehouses.edit';
-    case WAREHOUSES_VIEW = 'warehouses.view';
-
-    case DISPATCHING      = 'dispatching';
-    case DISPATCHING_EDIT = 'dispatching.edit';
-    case DISPATCHING_VIEW = 'dispatching.view';
+    case SHOPS_VIEW       = 'shops-view';
+    case FULFILMENTS_VIEW = 'fulfilments-view';
+    case WAREHOUSES_VIEW  = 'warehouses-view';
+    case PRODUCTIONS_VIEW = 'productions-view';
 
     case SEO      = 'seo';
     case SEO_EDIT = 'seo.edit';
@@ -66,11 +54,11 @@ enum OrganisationPermissionsEnum: string
 
 
     case SUPERVISOR                 = 'org-supervisor';
+
+
     case SUPERVISOR_HUMAN_RESOURCES = 'org-supervisor.human-resources';
     case SUPERVISOR_ACCOUNTING      = 'org-supervisor.accounting';
     case SUPERVISOR_PROCUREMENT     = 'org-supervisor.procurement';
-
-    case SUPERVISOR_DISPATCHING     = 'org-supervisor.dispatching';
     case SUPERVISOR_SEO             = 'org-supervisor.seo';
     case SUPERVISOR_PPC             = 'org-supervisor.ppc';
     case SUPERVISOR_SOCIAL          = 'org-supervisor.social';
@@ -87,20 +75,11 @@ enum OrganisationPermissionsEnum: string
             OrganisationPermissionsEnum::INVENTORY_EDIT,
             OrganisationPermissionsEnum::INVENTORY_VIEW,
 
-            OrganisationPermissionsEnum::WAREHOUSES,
-            OrganisationPermissionsEnum::WAREHOUSES_EDIT,
-            OrganisationPermissionsEnum::WAREHOUSES_VIEW,
 
-            OrganisationPermissionsEnum::DISPATCHING,
-            OrganisationPermissionsEnum::DISPATCHING_EDIT,
-            OrganisationPermissionsEnum::DISPATCHING_VIEW,
 
             => [OrganisationTypeEnum::AGENT, OrganisationTypeEnum::SHOP],
-            OrganisationPermissionsEnum::FULFILMENTS,
-            OrganisationPermissionsEnum::FULFILMENTS_EDIT,
-            OrganisationPermissionsEnum::FULFILMENTS_VIEW,
 
-            => [ OrganisationTypeEnum::SHOP],
+
             OrganisationPermissionsEnum::SEO,
             OrganisationPermissionsEnum::SEO_EDIT,
             OrganisationPermissionsEnum::SEO_VIEW,

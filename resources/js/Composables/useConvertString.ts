@@ -4,6 +4,8 @@ export const generateNavigationName = (navKey: string) => {
 }
 
 // Generate string 'shop' to 'currentShop'
-export const generateCurrentString = (str: string) => {
+export const generateCurrentString = (str: string | undefined) => {
+    if (!str) return ''
+    
     return 'current' + str.charAt(0).toUpperCase() + str.slice(1)
 }
