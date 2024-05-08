@@ -15,6 +15,8 @@ use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\Market\ShopResource;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
+use App\Models\Inventory\Warehouse;
+use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use Exception;
 use Illuminate\Support\Arr;
@@ -47,6 +49,17 @@ class EditEmployee extends OrgAction
      */
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
+        $jobPositionsData = (object) $employee->jobPositions->map(function ($jobPosition) {
+            return [
+                $jobPosition->code => match (key($jobPosition->pivot->scopes)) {
+                    'Shop'      => Shop::whereIn('id', $jobPosition->pivot->scopes['Shop'])->pluck('slug')->toArray(),
+                    'Warehouse' => Warehouse::whereIn('id', $jobPosition->pivot->scopes['Warehouse'])->pluck('slug')->toArray(),
+                    default     => []
+                }
+            ];
+        })->reduce(function ($carry, $item) {
+            return array_merge($carry, $item);
+        }, []);
 
         $sections['properties'] = [
             'label'  => __('Properties'),
@@ -70,9 +83,10 @@ class EditEmployee extends OrgAction
                     'value' => $employee->work_email ?? ''
                 ],
                 'state'               => [
-                    'type'    => 'radio',
+                    'type'    => 'employeeState',
                     'mode'    => 'card',
-                    'label'   => '',
+                    'label'   => 'Employee status',
+                    'required'=> true,
                     'options' => [
                         [
                             'title'       => __('Hired'),
@@ -84,14 +98,22 @@ class EditEmployee extends OrgAction
                             'description' => __('Employee already working'),
                             'value'       => EmployeeStateEnum::WORKING->value
                         ],
+                        [
+                            'title'       => __('Leaving'),
+                            'description' => __('Employee will leave'),
+                            'value'       => EmployeeStateEnum::LEAVING->value
+                        ],
+                        [
+                            'title'       => __('Left'),
+                            'description' => __('Employee already left the office'),
+                            'value'       => EmployeeStateEnum::LEFT->value
+                        ],
                     ],
-                    'value'   => $employee->state,
-                ],
-                'employment_start_at' => [
-                    'type'     => 'date',
-                    'label'    => __('employment start at'),
-                    'value'    => $employee->employment_start_at,
-                    'required' => true
+                    'value'   => [
+                        'state'                 => $employee->state,
+                        'employment_start_at'   => $employee->employment_start_at ?? '',
+                        'employment_end_at'     => $employee->employment_end_at   ?? '',
+                    ]
                 ],
                 'job_title'           => [
                     'type'        => 'input',
@@ -111,7 +133,7 @@ class EditEmployee extends OrgAction
                         'fulfilments'         => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
                         'warehouses'          => WarehouseResource::collection($this->organisation->warehouses),
                     ],
-                    'value'    => (object) [],  // Should return an object
+                    'value'    => $jobPositionsData,  // Should return an object
                     'full'     => true
                 ],
 

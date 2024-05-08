@@ -11,6 +11,7 @@ use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServicePro
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
+use App\Http\Resources\Market\ShopResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\OrgPaymentServiceProvider;
@@ -67,6 +68,7 @@ class IndexPaymentAccounts extends OrgAction
         return $queryBuilder
             ->defaultSort('payment_accounts.code')
             ->select([
+                'payment_accounts.id as id',
                 'payment_accounts.code as code',
                 'payment_accounts.name',
                 'number_payments',
@@ -75,7 +77,8 @@ class IndexPaymentAccounts extends OrgAction
                 'payment_service_providers.name as payment_service_provider_name',
                 'payment_service_providers.code as payment_service_provider_code',
                 'shops.code as shop_code',
-                'shops.name as shop_name'
+                'shops.name as shop_name',
+                'shops.id as shop_id'
             ])
             ->leftJoin('payment_account_shop', 'payment_account_shop.payment_account_id', 'payment_accounts.id')
             ->leftJoin('shops', 'payment_account_shop.shop_id', 'shops.id')
@@ -124,7 +127,7 @@ class IndexPaymentAccounts extends OrgAction
                 $table->column(key: 'payment_service_provider_code', label: __('provider'), canBeHidden: false, sortable: true, searchable: true);
             }
 
-            $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: false, searchable: true);
 
             $table->column(key: 'number_payments', label: __('payments'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
@@ -207,7 +210,8 @@ class IndexPaymentAccounts extends OrgAction
 
 
                 ],
-                'data'        => PaymentAccountsResource::collection($paymentAccounts),
+                'shops_list'       => ShopResource::collection($this->organisation->shops),
+                'data'             => PaymentAccountsResource::collection($paymentAccounts)
 
 
             ]

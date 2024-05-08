@@ -15,9 +15,9 @@ import { capitalize } from "@/Composables/capitalize"
 import { isNavigationActive } from '@/Composables/useUrl'
 import { onMounted, ref, onUnmounted, inject } from 'vue'
 import TopBarSubsections from '@/Layouts/Grp/TopBarSubsections.vue'
-import { faHandHoldingBox } from '@fal'
+import { faHandHoldingBox, faIndustry } from '@fal'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
-library.add(faRoute, faHandHoldingBox)
+library.add(faRoute, faHandHoldingBox, faIndustry)
 
 const props = defineProps<{
     navKey: string | number  // shops_navigation | warehouses_navigation

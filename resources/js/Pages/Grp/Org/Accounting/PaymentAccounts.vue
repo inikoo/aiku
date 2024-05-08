@@ -4,19 +4,29 @@
   - Copyright (c) 2023, Inikoo LTD
   -->
 
-<script setup>
-import { Head } from "@inertiajs/vue3";
-import PageHeading from "@/Components/Headings/PageHeading.vue";
-import TablePaymentAccounts from '@/Components/Tables/Grp/Accounting/TablePaymentAccounts.vue';
+<script setup lang="ts">
+import { Head } from "@inertiajs/vue3"
+import PageHeading from "@/Components/Headings/PageHeading.vue"
+import TablePaymentAccounts from '@/Components/Tables/Grp/Accounting/TablePaymentAccounts.vue'
 import { capitalize } from "@/Composables/capitalize"
+import { PageHeading as TSPageHeading } from '@/types/PageHeading'
+import { Shop } from "@/types/shop"
 
-defineProps(["data", "title", "pageHead"]);
+const props = defineProps<{
+    title: string
+    pageHead: TSPageHeading
+    data: {
+        data: {}
+    }
+    shops_list: {
+        data: Shop[]
+    }
+}>()
 
 </script>
 
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
-    <TablePaymentAccounts :data="data" />
+    <TablePaymentAccounts :data="data" :shopsList="shops_list.data" />
 </template>
-

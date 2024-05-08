@@ -45,6 +45,7 @@ class SyncRolesFromJobPositions
 
     private function getRoles(JobPosition $jobPosition): array
     {
+        $jobPosition->refresh();
         $roles = [];
         foreach ($jobPosition->roles as $role) {
             if (in_array($role->scope_id, $jobPosition->pivot->scopes[$role->scope_type])) {

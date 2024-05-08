@@ -5,13 +5,13 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { useFormatTime } from '@/Composables/useFormatTime'
 
 const props = defineProps<{
-    messages: any
+    messages: []
 }>()
 
 library.add(faEnvelope, faEnvelopeOpenText);
 
 const messages = props.messages.data
-
+// console.log('rrr', props.messages)
 </script>
 
 <template>
