@@ -5,7 +5,6 @@ namespace App\Enums\Manufacturing\RawMaterial;
 use App\Enums\EnumHelperTrait;
 
 enum RawMaterialStockStatusEnum: string
-
 {
     use EnumHelperTrait;
 

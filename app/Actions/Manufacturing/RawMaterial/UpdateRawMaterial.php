@@ -2,24 +2,39 @@
 
 namespace App\Actions\Manufacturing\RawMaterial;
 
+use App\Actions\Manufacturing\Production\Hydrators\ProductionHydrateRawMaterials;
+use App\Actions\Manufacturing\RawMaterial\Hydrators\RawMaterialHydrateUniversalSearch;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRawMaterials;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRawMaterials;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialStateEnum;
-use App\Enums\Manufacturing\RawMaterial\RawMaterialStockStatusEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialTypeEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
 use App\Models\Manufacturing\RawMaterial;
+use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdateRawMaterial extends OrgAction
 {
     use WithActionUpdate;
 
+    /**
+     * @var \App\Models\Manufacturing\RawMaterial
+     */
+    private RawMaterial $rawMaterial;
+
     public function handle(RawMaterial $rawMaterial, array $modelData): RawMaterial
     {
-        $rawMaterial= $this->update($rawMaterial, $modelData);
+        $rawMaterial = $this->update($rawMaterial, $modelData);
+        if ($rawMaterial->wasChanged('state')) {
+            GroupHydrateRawMaterials::dispatch($rawMaterial->group);
+            OrganisationHydrateRawMaterials::dispatch($rawMaterial->organisation);
+            ProductionHydrateRawMaterials::dispatch($rawMaterial->production);
+        }
+        RawMaterialHydrateUniversalSearch::dispatch($rawMaterial);
+
         return $rawMaterial;
     }
 
@@ -36,21 +51,31 @@ class UpdateRawMaterial extends OrgAction
     public function rules(): array
     {
         return [
-            'key'                          => ['integer', 'min:0'],
-            'type'                         => [Rule::enum(RawMaterialTypeEnum::class)],
-            'type_key'                     => ['integer', 'min:0'],
-            'state'                        => [Rule::enum(RawMaterialStateEnum::class)],
-            'production_supplier_key'      => ['integer', 'min:0'],
-            'creation_date'                => ['date'],
-            'code'                         => ['string', 'max:64'],
-            'description'                  => ['string', 'max:255'],
-            'part_unit_ratio'               => ['numeric', 'min:0'],
-            'unit'                         => [Rule::enum(RawMaterialUnitEnum::class)],
-            'unit_label'                   => ['string', 'max:64'],
-            'unit_cost'                    => ['numeric', 'min:0'],
-            'stock'                        => ['numeric', 'min:0'],
-            'stock_status'                 => [Rule::enum(RawMaterialStockStatusEnum::class)],
-            'production_parts_number'      => ['integer', 'min:0'],
+            'type'        => ['sometimes', Rule::enum(RawMaterialTypeEnum::class)],
+            'state'       => ['sometimes', Rule::enum(RawMaterialStateEnum::class)],
+            'code'        => [
+                'sometimes',
+                'alpha_dash',
+                'max:64',
+                new IUnique(
+                    table: 'raw_materials',
+                    extraConditions: [
+                        [
+                            'column' => 'organisation_id',
+                            'value'  => $this->organisation->id,
+                        ],
+                        [
+                            'column'    => 'id',
+                            'value'     => $this->rawMaterial->id,
+                            'operation' => '!='
+                        ]
+
+                    ]
+                ),
+            ],
+            'description' => ['sometimes', 'string', 'max:255'],
+            'unit'        => ['sometimes', Rule::enum(RawMaterialUnitEnum::class)],
+            'unit_cost'   => ['sometimes', 'numeric', 'min:0'],
         ];
     }
 
@@ -68,7 +93,7 @@ class UpdateRawMaterial extends OrgAction
 
     public function action(RawMaterial $rawMaterial, $modelData): RawMaterial
     {
-        $this->asAction   = true;
+        $this->asAction    = true;
         $this->rawMaterial = $rawMaterial;
         $this->initialisation($rawMaterial->organisation, $modelData);
 

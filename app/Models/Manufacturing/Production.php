@@ -13,6 +13,7 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -39,6 +40,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\RawMaterial> $rawMaterials
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Role> $roles
  * @property-read \App\Models\Manufacturing\ProductionStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
@@ -94,4 +96,10 @@ class Production extends Model implements Auditable
     {
         return $this->morphMany(Role::class, 'scope');
     }
+
+    public function rawMaterials(): HasMany
+    {
+        return $this->hasMany(RawMaterial::class);
+    }
+
 }

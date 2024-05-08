@@ -98,6 +98,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Production> $productions
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PurchaseOrder> $purchaseOrders
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, RawMaterial> $rawMaterials
  * @property-read \Illuminate\Database\Eloquent\Collection<int, RecurringBill> $recurringBills
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \App\Models\SysAdmin\GroupSalesIntervals|null $salesIntervals

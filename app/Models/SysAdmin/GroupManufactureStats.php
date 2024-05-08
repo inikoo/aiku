@@ -20,6 +20,26 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_productions_state_open
  * @property int $number_productions_state_closing_down
  * @property int $number_productions_state_closed
+ * @property int $number_raw_materials
+ * @property int $number_raw_materials_type_stock
+ * @property int $number_raw_materials_type_consumable
+ * @property int $number_raw_materials_type_intermediate
+ * @property int $number_raw_materials_state_in_process
+ * @property int $number_raw_materials_state_in_use
+ * @property int $number_raw_materials_state_orphan
+ * @property int $number_raw_materials_state_discontinued
+ * @property int $number_raw_materials_unit_unit
+ * @property int $number_raw_materials_unit_pack
+ * @property int $number_raw_materials_unit_carton
+ * @property int $number_raw_materials_unit_liter
+ * @property int $number_raw_materials_unit_kilogram
+ * @property int $number_raw_materials_stock_status_unlimited
+ * @property int $number_raw_materials_stock_status_surplus
+ * @property int $number_raw_materials_stock_status_optimal
+ * @property int $number_raw_materials_stock_status_low
+ * @property int $number_raw_materials_stock_status_critical
+ * @property int $number_raw_materials_stock_status_out_of_stock
+ * @property int $number_raw_materials_stock_status_error
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
