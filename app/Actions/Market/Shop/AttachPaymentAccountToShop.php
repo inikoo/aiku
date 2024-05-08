@@ -36,4 +36,9 @@ class AttachPaymentAccountToShop
 
         return $shop;
     }
+
+    public function asController(Shop $shop, PaymentAccount $paymentAccount): Shop
+    {
+        return $this->handle($shop, $paymentAccount);
+    }
 }

@@ -79,8 +79,8 @@ use App\Actions\Inventory\WarehouseArea\ImportWarehouseArea;
 use App\Actions\Market\Product\DeleteProduct;
 use App\Actions\Market\Product\StorePhysicalGood;
 use App\Actions\Market\Product\UpdatePhysicalGood;
+use App\Actions\Market\Shop\AttachPaymentAccountToShop;
 use App\Actions\Market\Shop\StoreShop;
-use App\Actions\Market\Shop\SyncPaymentAccountToShop;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
@@ -266,7 +266,7 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
 });
 
 Route::post('/supplier', StoreSupplier::class)->name('supplier.store');
-Route::patch('/shop/{shop:id}/payment-accounts/{paymentAccount}', SyncPaymentAccountToShop::class)->name('shop.payment-accounts.sync');
+Route::patch('/shop/{shop:id}/payment-accounts/{paymentAccount}', AttachPaymentAccountToShop::class)->name('shop.payment-accounts.attach');
 
 /*
 

@@ -68,6 +68,7 @@ class IndexPaymentAccounts extends OrgAction
         return $queryBuilder
             ->defaultSort('payment_accounts.code')
             ->select([
+                'payment_accounts.id as id',
                 'payment_accounts.code as code',
                 'payment_accounts.name',
                 'number_payments',

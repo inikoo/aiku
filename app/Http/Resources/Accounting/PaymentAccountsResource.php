@@ -15,6 +15,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $payment_service_provider_slug
  * @property string $payment_service_provider_code
  * @property string $payment_service_provider_name
+ * @property string $id
  * @property string $slug
  * @property string $name
  * @property string $code
@@ -27,6 +28,7 @@ class PaymentAccountsResource extends JsonResource
     public function toArray($request): array
     {
         return [
+            'id'                            => $this->id,
             'slug'                          => $this->slug,
             'name'                          => $this->name,
             'payment_service_provider_slug' => $this->payment_service_provider_slug,
