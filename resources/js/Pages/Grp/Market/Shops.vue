@@ -13,20 +13,21 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import { computed, ref } from "vue";
 import { library } from "@fortawesome/fontawesome-svg-core";
 
-import TableDepartments from "@/Components/Tables/TableDepartments.vue";
+import TableDepartments from "@/Components/Tables/Grp/Org/Market/TableDepartments.vue";
 import TableFamilies from "@/Components/Tables/TableFamilies.vue";
 import TableProducts from "@/Components/Tables/TableProducts.vue";
 import { useTabChange } from "@/Composables/tab-change";
 import {
     faCube,faFolder,faFolderTree
 } from '@fal';
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
 library.add(
     faCube,faFolder,faFolderTree
 );
 
 const props = defineProps <{
-    pageHead: object
+    pageHead: PageHeadingTypes
     tabs: {
         current: string;
         navigation: object;

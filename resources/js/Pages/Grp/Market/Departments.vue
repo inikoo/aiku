@@ -7,14 +7,17 @@
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableDepartments from "@/Components/Tables/TableDepartments.vue";
+import TableDepartments from "@/Components/Tables/Grp/Org/Market/TableDepartments.vue";
 import { capitalize } from "@/Composables/capitalize"
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
-const props = defineProps <{
-  pageHead: object
+
+defineProps <{
+  pageHead: PageHeadingTypes
   title: string
   data: object
 }>()
+
 </script>
 
 <template>
