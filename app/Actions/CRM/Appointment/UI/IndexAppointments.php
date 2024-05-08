@@ -50,7 +50,7 @@ class IndexAppointments extends InertiaAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->where('customers.name', '~*', "\y$value\y")
-                    ->orWhere('customers.email', 'ILIKE', "%$value")
+                    ->orWhereStartWith('customers.email', $value)
                     ->orWhere('customers.reference', '=', $value);
             });
         });
