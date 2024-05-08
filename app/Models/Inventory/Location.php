@@ -13,7 +13,7 @@ use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
-use App\Models\Traits\InOrganisation;
+use App\Models\Traits\InWarehouse;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -91,7 +91,7 @@ class Location extends Model implements Auditable
     use HasFactory;
     use HasHistory;
     use HasTags;
-    use InOrganisation;
+    use InWarehouse;
 
     protected $casts = [
         'data'       => 'array',
@@ -118,10 +118,7 @@ class Location extends Model implements Auditable
         return 'slug';
     }
 
-    public function warehouse(): BelongsTo
-    {
-        return $this->belongsTo(Warehouse::class);
-    }
+
 
     public function warehouseArea(): BelongsTo
     {
