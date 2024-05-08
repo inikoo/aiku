@@ -10,8 +10,8 @@ namespace App\Actions\Market\ProductCategory\UI;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Mail\Mailshot\IndexMailshots;
+use App\Actions\Market\HasMarketAuthorisation;
 use App\Actions\Market\Product\UI\IndexProducts;
-use App\Actions\Market\Shop\UI\IndexShops;
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 use App\Enums\UI\DepartmentTabsEnum;
@@ -30,21 +30,19 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowDepartment extends OrgAction
 {
+    use HasMarketAuthorisation;
+
+
+    private Organisation|Shop $parent;
+
     public function handle(ProductCategory $department): ProductCategory
     {
         return $department;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit   = $request->user()->hasPermissionTo('shops.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('shops.edit');
-
-        return $request->user()->hasPermissionTo("shops.products.view");
-    }
-
     public function inOrganisation(Organisation $organisation, ProductCategory $department, ActionRequest $request): ProductCategory
     {
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(DepartmentTabsEnum::values());
 
         return $this->handle($department);
@@ -52,6 +50,7 @@ class ShowDepartment extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, ProductCategory $department, ActionRequest $request): ProductCategory
     {
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(DepartmentTabsEnum::values());
 
         return $this->handle($department);
@@ -252,7 +251,10 @@ class ShowDepartment extends OrgAction
             ];
         };
 
+        $department=ProductCategory::where('slug', $routeParameters['department'])->first();
+
         return match ($routeName) {
+            /*
             'shops.departments.show' =>
             array_merge(
                 IndexShops::make()->getBreadcrumbs(),
@@ -273,22 +275,20 @@ class ShowDepartment extends OrgAction
                     $suffix
                 )
             ),
-            'shops.show.departments.show' =>
+            */
+            'grp.org.shops.show.catalogue.departments.show' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
-                    $routeParameters['department'],
+                    $department,
                     [
                         'index' => [
-                            'name'       => 'shops.show.departments.index',
-                            'parameters' => [$routeParameters['shop']->slug]
+                            'name'       => 'grp.org.shops.show.catalogue.departments.index',
+                            'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'shops.show.departments.show',
-                            'parameters' => [
-                                $routeParameters['shop']->slug,
-                                $routeParameters['department']->slug
-                            ]
+                            'name'       => 'grp.org.shops.show.catalogue.departments.show',
+                            'parameters' => $routeParameters
                         ]
                     ],
                     $suffix
@@ -300,14 +300,14 @@ class ShowDepartment extends OrgAction
 
     public function getPrevious(ProductCategory $department, ActionRequest $request): ?array
     {
-        $previous = ProductCategory::where('code', '<', $department->code)->orderBy('code', 'desc')->first();
+        $previous = ProductCategory::where('code', '<', $department->code)->where('shop_id', $this->shop->id)->orderBy('code', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(ProductCategory $department, ActionRequest $request): ?array
     {
-        $next = ProductCategory::where('code', '>', $department->code)->orderBy('code')->first();
+        $next = ProductCategory::where('code', '>', $department->code)->where('shop_id', $this->shop->id)->orderBy('code')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
@@ -319,6 +319,7 @@ class ShowDepartment extends OrgAction
         }
 
         return match ($routeName) {
+            /*
             'shops.departments.show' => [
                 'label' => $department->name,
                 'route' => [
@@ -328,13 +329,15 @@ class ShowDepartment extends OrgAction
                     ]
                 ]
             ],
-            'shops.show.departments.show' => [
+            */
+            'grp.org.shops.show.catalogue.departments.show' => [
                 'label' => $department->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'shop'       => $department->shop->slug,
-                        'department' => $department->slug
+                        'organisation' => $department->organisation->slug,
+                        'shop'         => $department->shop->slug,
+                        'department'   => $department->slug
                     ]
                 ]
             ],

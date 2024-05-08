@@ -35,8 +35,8 @@ Route::get('products/{product}/edit', EditProduct::class)->name('products.edit')
 Route::get('departments/create', CreateDepartment::class)->name('departments.create');
 Route::get('departments/create-multi', CreateDepartments::class)->name('departments.create-multi');
 Route::get('departments', IndexDepartments::class)->name('departments.index');
-Route::get('departments/{productCatalogue}', ShowDepartment::class)->name('departments.show');
-Route::get('departments/{productCatalogue}/edit', EditDepartment::class)->name('departments.edit');
+Route::get('departments/{department}', ShowDepartment::class)->name('departments.show');
+Route::get('departments/{department}/edit', EditDepartment::class)->name('departments.edit');
 
 
 Route::get('families/create', CreateFamily::class)->name('families.create');
