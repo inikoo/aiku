@@ -127,7 +127,7 @@ class IndexPaymentAccounts extends OrgAction
                 $table->column(key: 'payment_service_provider_code', label: __('provider'), canBeHidden: false, sortable: true, searchable: true);
             }
 
-            $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'shop_name', label: __('shop'), canBeHidden: false, sortable: false, searchable: true);
 
             $table->column(key: 'number_payments', label: __('payments'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
@@ -210,8 +210,8 @@ class IndexPaymentAccounts extends OrgAction
 
 
                 ],
-                'shops'       => ShopResource::collection($this->organisation->shops),
-                'data'        => PaymentAccountsResource::collection($paymentAccounts)
+                'shops_list'       => ShopResource::collection($this->organisation->shops),
+                'data'             => PaymentAccountsResource::collection($paymentAccounts)
 
 
             ]
