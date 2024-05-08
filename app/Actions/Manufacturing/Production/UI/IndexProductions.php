@@ -117,7 +117,7 @@ class IndexProductions extends OrgAction
     public function htmlResponse(LengthAwarePaginator $productions, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Production/Productions',
+            'Org/Manufacturing/Productions',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('productions'),

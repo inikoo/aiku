@@ -42,10 +42,10 @@ class ShowLocation extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
+        $this->canEdit   = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
 
-        return $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.view");
+        return $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.view");
     }
 
 

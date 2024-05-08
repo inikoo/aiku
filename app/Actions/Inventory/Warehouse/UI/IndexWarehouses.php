@@ -29,9 +29,13 @@ class IndexWarehouses extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("warehouses.{$this->organisation->id}.edit");
+        $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
 
-        return $request->user()->hasPermissionTo("warehouses.{$this->organisation->id}.view");
+        return $request->user()->hasAnyPermission(
+            [
+                'org-supervisor.'.$this->organisation->id,
+                'warehouses-view.'.$this->organisation->id]
+        );
     }
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator

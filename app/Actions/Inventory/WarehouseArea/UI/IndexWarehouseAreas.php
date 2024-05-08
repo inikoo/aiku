@@ -28,37 +28,41 @@ use App\Services\QueryBuilder;
 
 class IndexWarehouseAreas extends OrgAction
 {
-    private Warehouse|Organisation $parent;
+    protected Warehouse|Organisation $parent;
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
+        if ($this->parent instanceof Organisation) {
+            $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.view")
+            return $request->user()->hasAnyPermission(
+                [
+                    'warehouses-view.'.$this->organisation->id,
+                    'org-supervisor.'.$this->organisation->id
+                ]
             );
-    }
+        }
 
+        $this->canEdit = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
+
+        return $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
+    }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($organisation, $request);
         $this->parent = $organisation;
+        $this->initialisation($organisation, $request)->withTab(WarehouseTabsEnum::values());
 
         return $this->handle($organisation);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromWarehouse($warehouse, $request)->withTab(WarehouseTabsEnum::values());
         $this->parent = $warehouse;
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(WarehouseTabsEnum::values());
 
         return $this->handle($warehouse);
     }
-
 
     public function handle(Warehouse|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
@@ -159,12 +163,10 @@ class IndexWarehouseAreas extends OrgAction
         };
     }
 
-
     public function jsonResponse(LengthAwarePaginator $warehouseAreas): AnonymousResourceCollection
     {
         return WarehouseAreaResource::collection($warehouseAreas);
     }
-
 
     public function htmlResponse(LengthAwarePaginator $warehouseAreas, ActionRequest $request): Response
     {
@@ -229,7 +231,6 @@ class IndexWarehouseAreas extends OrgAction
             ]
         )->table($this->tableStructure($this->parent));
     }
-
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {

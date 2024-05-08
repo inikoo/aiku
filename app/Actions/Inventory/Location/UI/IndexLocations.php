@@ -40,9 +40,15 @@ class IndexLocations extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.view");
+        if($this->parent instanceof Organisation) {
+            $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->warehouse->id);
+            return  $request->user()->hasPermissionTo("warehouses-view.{$this->organisation->id}");
+        }
+
+        $this->canEdit = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
+        return  $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
+
     }
 
 

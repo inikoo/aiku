@@ -21,7 +21,10 @@ class GetWarehouseNavigation
 
 
 
+
         if ($user->hasPermissionTo("inventory.$warehouse->id.view")) {
+
+
             $navigation["warehouse"] = [
                 "root"  => "grp.org.warehouses.show.infrastructure.",
                 "label" => __("locations"),
@@ -79,7 +82,7 @@ class GetWarehouseNavigation
         //     ];
         // }
 
-        if ($user->hasPermissionTo("fulfilment.$warehouse->id..view")) {
+        if ($user->hasPermissionTo("fulfilment.$warehouse->id.view")) {
             $navigation["fulfilment"] = [
                 "root"  => "grp.org.warehouses.show.fulfilment.",
                 "icon"  => ["fal", "fa-hand-holding-box"],

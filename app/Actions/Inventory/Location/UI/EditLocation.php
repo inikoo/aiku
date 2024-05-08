@@ -25,8 +25,8 @@ class EditLocation extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
-        return $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.view");
+        $this->canEdit = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
+        return $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.view");
     }
 
     public function inOrganisation(Organisation $organisation, Location $location, ActionRequest $request): Location
