@@ -74,13 +74,20 @@ function paymentsRoute(paymentAccount: PaymentAccount) {
 // On update data Tags (add tag or delete tag)
 const isEditShop = ref(false)
 const setUpdateShop = async (paymentId: string, shopId: number) => {
+    // if (!shopId) return
+    
     try {
+        // console.log('===', paymentId, shopId)
+        // console.log('xjjj', route('grp.models.shop.payment-accounts.sync', {
+        //     paymentAccount: paymentId,
+        // }))
+
         const response = await axios.patch(route('grp.models.shop.payment-accounts.sync', {
             paymentAccount: paymentId,
+        }), {
             shop: shopId,
-        }))
+        })
 
-        console.log('zzz', response.data)
         // Refetch the data of Table to update the item.tags (v-model doesn't work)
         router.reload({
             only: ['data']
@@ -155,14 +162,15 @@ onUnmounted(() => {
                 </div>
 
                 <div v-else>
-                    <Multiselect v-model="paymentAccount.shop_code"
+                <!-- <pre>{{ paymentAccount }}</pre> -->
+                    <Multiselect v-model="paymentAccount.shop_id"
                         :key="paymentAccount.slug"
                         mode="single"
                         placeholder="Select shop"
                         valueProp="id"
                         trackBy="id"
                         label="name"
-                        @change="(shopId: number) => (console.log('jjj', shopId), setUpdateShop(paymentAccount.id, shopId))"
+                        @change="(shopId: number) => (setUpdateShop(paymentAccount.id, shopId))"
                         :close-on-select="true"
                         :searchable="true"
                         :caret="true"
