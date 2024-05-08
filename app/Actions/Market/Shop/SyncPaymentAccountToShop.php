@@ -19,28 +19,30 @@ class SyncPaymentAccountToShop extends OrgAction
 {
     use WithActionUpdate;
 
-    public function handle(PaymentAccount $paymentAccount, $modelData): Shop
+    public function handle(PaymentAccount $paymentAccount, $modelData): void
     {
         /** @var Shop $shop */
-        $shop = Shop::findOrFail(Arr::get($modelData, 'shop_id'));
+        $shop = Shop::find(Arr::get($modelData, 'shop_id'));
 
-        $paymentAccount->shops()->syncWithPivotValues(
-            $shop,
-            [
-                'currency_id' => $shop->currency_id
-            ]
-        );
+        if($shop) {
+            $paymentAccount->shops()->syncWithPivotValues(
+                $shop,
+                [
+                    'currency_id' => $shop->currency_id
+                ]
+            );
 
-        $shop->orgPaymentServiceProviders()->syncWithPivotValues(
-            $paymentAccount->paymentServiceProvider,
-            [
-                'currency_id' => $shop->currency_id
-            ]
-        );
+            $shop->orgPaymentServiceProviders()->syncWithPivotValues(
+                $paymentAccount->paymentServiceProvider,
+                [
+                    'currency_id' => $shop->currency_id
+                ]
+            );
 
-        ShopHydratePaymentAccounts::run($shop);
-
-        return $shop;
+            ShopHydratePaymentAccounts::run($shop);
+        } else {
+            $paymentAccount->shops()->detach();
+        }
     }
 
     public function rules(): array
@@ -50,10 +52,10 @@ class SyncPaymentAccountToShop extends OrgAction
         ];
     }
 
-    public function asController(PaymentAccount $paymentAccount, ActionRequest $request): Shop
+    public function asController(PaymentAccount $paymentAccount, ActionRequest $request): void
     {
         $this->initialisation($paymentAccount->organisation, $request);
 
-        return $this->handle($paymentAccount, $this->validatedData);
+        $this->handle($paymentAccount, $this->validatedData);
     }
 }
