@@ -107,13 +107,15 @@ class UpdateEmployee extends OrgAction
                     ]
                 ),
             ],
-            'contact_name'            => ['sometimes', 'string', 'max:256'],
-            'date_of_birth'           => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
-            'job_title'               => ['sometimes', 'nullable', 'string', 'max:256'],
-            'state'                   => ['sometimes', 'required', new Enum(EmployeeStateEnum::class)],
-            'positions'               => ['sometimes', 'array'],
-            'positions.*.slug'        => ['sometimes','string'],
-            'positions.*.scopes'      => ['sometimes', 'array'],
+            'contact_name'                         => ['sometimes', 'string', 'max:256'],
+            'date_of_birth'                        => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
+            'job_title'                            => ['sometimes', 'nullable', 'string', 'max:256'],
+            'state'                                => ['sometimes', 'required', new Enum(EmployeeStateEnum::class)],
+            'positions'                            => ['sometimes', 'array'],
+            'positions.*.slug'                     => ['sometimes','string'],
+            'positions.*.scopes'                   => ['sometimes', 'array'],
+            'positions.*.scopes.warehouses.*.slug' => ['sometimes', 'exists:warehouses,slug'],
+            'positions.*.scopes.shops.*.slug'      => ['sometimes', 'exists:shops,slug'],
 
             'email'     => ['sometimes', 'nullable', 'email'],
             'source_id' => ['sometimes', 'string', 'max:64'],
@@ -132,8 +134,41 @@ class UpdateEmployee extends OrgAction
 
     public function prepareForValidation(): void
     {
-        // dd($this->get('positions'));
+        $newData = [];
+        foreach ($this->get('positions') as $key => $position) {
+            $newData[] = match (Arr::get(explode('-', $key), 0)) {
+                'wah', 'dist' => [
+                    'slug'   => $key,
+                    'scopes' => [
+                        'warehouses' => array_map(function ($scope) {
+                            return [
+                                'slug' => $scope
+                            ];
+                        }, $position)
+                    ]
+                ],
+                'web', 'mrk' => [
+                    'slug'   => $key,
+                    'scopes' => [
+                        'shops' => array_map(function ($scope) {
+                            return [
+                                'slug' => $scope
+                            ];
+                        }, $position)
+                    ]
+                ],
+                default => [
+                    'slug'   => $key,
+                    'scopes' => []
+                ]
+            };
+        }
 
+        $positions = [
+            'positions' => $newData
+        ];
+
+        $this->fill($positions);
     }
 
     public function asController(Employee $employee, ActionRequest $request): Employee
