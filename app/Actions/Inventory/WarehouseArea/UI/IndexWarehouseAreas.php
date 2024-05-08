@@ -10,11 +10,13 @@ namespace App\Actions\Inventory\WarehouseArea\UI;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\UI\Inventory\ShowInventoryDashboard;
-use App\Enums\UI\WarehouseTabsEnum;
+use App\Enums\UI\Inventory\WarehouseTabsEnum;
 use App\Http\Resources\Inventory\WarehouseAreaResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -22,9 +24,7 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexWarehouseAreas extends OrgAction
 {

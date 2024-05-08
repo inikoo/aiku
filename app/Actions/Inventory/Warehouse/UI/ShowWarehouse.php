@@ -8,24 +8,24 @@
 namespace App\Actions\Inventory\Warehouse\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\OrgAction;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
+use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Actions\Traits\Actions\WithActionButtons;
-use App\Enums\UI\WarehouseTabsEnum;
+use App\Enums\UI\Inventory\WarehouseTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Http\Resources\Inventory\WarehouseAreaResource;
 use App\Http\Resources\Inventory\WarehouseResource;
+use App\Http\Resources\Tag\TagResource;
+use App\Models\Helpers\Tag;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\Http\Resources\Tag\TagResource;
-use App\Models\Helpers\Tag;
 
 class ShowWarehouse extends OrgAction
 {

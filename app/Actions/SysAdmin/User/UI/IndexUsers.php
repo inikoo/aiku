@@ -12,7 +12,7 @@ use App\Actions\InertiaAction;
 use App\Actions\SysAdmin\UserRequest\IndexUserRequestLogs;
 use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
 use App\Enums\SysAdmin\User\UserTypeEnum;
-use App\Enums\UI\UsersTabsEnum;
+use App\Enums\UI\SysAdmin\UsersTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\Http\Resources\SysAdmin\UserResource;

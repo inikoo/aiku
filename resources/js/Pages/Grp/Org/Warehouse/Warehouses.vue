@@ -11,22 +11,45 @@ import TableWarehouses from "@/Components/Tables/TableWarehouses.vue";
 import { capitalize } from "@/Composables/capitalize";
 import { faBars, faWarehouse } from "@fal";
 import { library } from "@fortawesome/fontawesome-svg-core";
+import { computed, ref } from "vue";
+import { useTabChange } from "@/Composables/tab-change";
+import Tabs from "@/Components/Navigation/Tabs.vue";
+
 
 library.add(faBars, faWarehouse);
 
 
 const props = defineProps<{
-    pageHead: object
-    title: string
-    data: object
+  pageHead: object
+  tabs: {
+    current: string;
+    navigation: object;
+  },
+  title: string
+  warehouses?: object
 }>();
+
+let currentTab = ref(props.tabs.current);
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+
+const component = computed(() => {
+
+  const components = {
+    warehouses: TableWarehouses
+
+  };
+  return components[currentTab.value];
+
+});
+
 </script>
 
 <!--suppress HtmlUnknownAttribute -->
 <template>
-    <!--suppress HtmlRequiredTitleElement -->
-    <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
-    <TableWarehouses :data="data" />
+  <!--suppress HtmlRequiredTitleElement -->
+  <Head :title="capitalize(title)" />
+  <PageHeading :data="pageHead"></PageHeading>
+  <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
+  <component :is="component" :tab="currentTab" :data="props[currentTab]"></component>
 </template>
 

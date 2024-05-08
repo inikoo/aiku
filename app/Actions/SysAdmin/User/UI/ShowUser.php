@@ -12,7 +12,7 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\SysAdmin\UserRequest\ShowUserRequestLogs;
 use App\Actions\Traits\WithElasticsearch;
 use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
-use App\Enums\UI\UserTabsEnum;
+use App\Enums\UI\SysAdmin\UserTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\Http\Resources\SysAdmin\UserResource;

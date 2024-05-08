@@ -8,7 +8,7 @@
 namespace App\Actions\HumanResources\Clocking\UI;
 
 use App\Actions\OrgAction;
-use App\Enums\UI\LocationTabsEnum;
+use App\Enums\UI\Inventory\LocationTabsEnum;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;

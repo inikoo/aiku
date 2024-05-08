@@ -222,7 +222,6 @@ class IndexEmployees extends OrgAction
     {
         $this->parent = $organisation;
         $this->initialisation($organisation, $request);
-
         return $this->handle($organisation);
     }
 

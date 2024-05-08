@@ -7,25 +7,26 @@
 
 namespace App\Actions\Inventory\Warehouse\UI;
 
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
-use App\Actions\UI\Inventory\ShowInventoryDashboard;
-use App\Http\Resources\Inventory\WarehouseResource;
+use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Enums\UI\Inventory\WarehousesTabsEnum;
+use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\WarehousesResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexWarehouses extends OrgAction
 {
-    private Organisation $parent;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -40,9 +41,7 @@ class IndexWarehouses extends OrgAction
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent = $organisation;
-        $this->initialisation($organisation, $request);
-
+        $this->initialisation($organisation, $request)->withTab(WarehousesTabsEnum::values());
         return $this->handle($organisation);
     }
 
@@ -81,9 +80,9 @@ class IndexWarehouses extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation $parent, $prefix = null): Closure
+    public function tableStructure(Organisation $organisation, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $prefix) {
+        return function (InertiaTable $table) use ($organisation, $prefix) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -95,7 +94,7 @@ class IndexWarehouses extends OrgAction
                     [
                         'title'       => __('no warehouses'),
                         'description' => $this->canEdit ? __('Get started by creating a new warehouse.') : null,
-                        'count'       => $parent->inventoryStats->number_warehouses,
+                        'count'       => $organisation->inventoryStats->number_warehouses,
                         'action'      => $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -103,7 +102,7 @@ class IndexWarehouses extends OrgAction
                             'label'   => __('warehouse'),
                             'route'   => [
                                 'name'       => 'grp.org.warehouses.create',
-                                'parameters' => $parent->slug
+                                'parameters' => $organisation->slug
                             ]
                         ] : null
                     ]
@@ -149,15 +148,33 @@ class IndexWarehouses extends OrgAction
                         ] : false,
                     ]
                 ],
-                'data'        => WarehouseResource::collection($warehouses),
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => WarehousesTabsEnum::navigation(),
+                ],
+
+                WarehousesTabsEnum::WAREHOUSES->value => $this->tab == WarehousesTabsEnum::WAREHOUSES->value ?
+                    fn () => WarehousesResource::collection($warehouses)
+                    : Inertia::lazy(fn () => WarehousesResource::collection($warehouses)),
+
+
+                WarehousesTabsEnum::WAREHOUSES_HISTORIES->value => $this->tab == WarehousesTabsEnum::WAREHOUSES_HISTORIES->value ?
+                    fn () => HistoryResource::collection(IndexHistory::run(Warehouse::class))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run(Warehouse::class)))
+
+
+
             ]
-        )->table($this->tableStructure($this->parent));
+        )->table($this->tableStructure(
+            organisation:$this->organisation,
+            prefix:WarehousesTabsEnum::WAREHOUSES->value
+        ));
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
         return array_merge(
-            (new ShowInventoryDashboard())->getBreadcrumbs($routeParameters),
+            ShowDashboard::make()->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',
