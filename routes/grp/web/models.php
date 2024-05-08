@@ -80,6 +80,7 @@ use App\Actions\Market\Product\DeleteProduct;
 use App\Actions\Market\Product\StorePhysicalGood;
 use App\Actions\Market\Product\UpdatePhysicalGood;
 use App\Actions\Market\Shop\StoreShop;
+use App\Actions\Market\Shop\UpdateShop;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
@@ -265,12 +266,13 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
 });
 
 Route::post('/supplier', StoreSupplier::class)->name('supplier.store');
+Route::patch('/shop/{shop:id}', UpdateShop::class)->name('shop.update');
 
 /*
 
 
 
-Route::patch('/shop/{shop:id}', UpdateShop::class)->name('shop.update');
+
 Route::delete('/shop/{shop:id}', DeleteShop::class)->name('shop.delete');
 
 Route::post('/shop/{shop:id}/customer/', StoreCustomer::class)->name('shop.customer.store');
