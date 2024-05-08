@@ -75,7 +75,7 @@ function paymentsRoute(paymentAccount: PaymentAccount) {
 const isEditShop = ref(false)
 const setUpdateShop = async (paymentId: string, shopId: number) => {
     // if (!shopId) return
-    
+
     try {
         // console.log('===', paymentId, shopId)
         // console.log('xjjj', route('grp.models.shop.payment-accounts.sync', {
@@ -85,7 +85,7 @@ const setUpdateShop = async (paymentId: string, shopId: number) => {
         const response = await axios.patch(route('grp.models.shop.payment-accounts.sync', {
             paymentAccount: paymentId,
         }), {
-            shop: shopId,
+            shop_id: shopId,
         })
 
         // Refetch the data of Table to update the item.tags (v-model doesn't work)

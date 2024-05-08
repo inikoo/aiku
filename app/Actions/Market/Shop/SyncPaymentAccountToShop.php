@@ -8,17 +8,22 @@
 namespace App\Actions\Market\Shop;
 
 use App\Actions\Market\Shop\Hydrators\ShopHydratePaymentAccounts;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Market\Shop;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
-class SyncPaymentAccountToShop
+class SyncPaymentAccountToShop extends OrgAction
 {
     use WithActionUpdate;
 
-    public function handle(Shop $shop, PaymentAccount $paymentAccount): Shop
+    public function handle(PaymentAccount $paymentAccount, $modelData): Shop
     {
+        /** @var Shop $shop */
+        $shop = Shop::findOrFail(Arr::get($modelData, 'shop_id'));
+
         $paymentAccount->shops()->syncWithPivotValues(
             $shop,
             [
@@ -38,8 +43,17 @@ class SyncPaymentAccountToShop
         return $shop;
     }
 
-    public function asController(Shop $shop, PaymentAccount $paymentAccount, ActionRequest $request): Shop
+    public function rules(): array
     {
-        return $this->handle($shop, $paymentAccount);
+        return [
+            'shop_id' => ['required', 'exists:shops,id']
+        ];
+    }
+
+    public function asController(PaymentAccount $paymentAccount, ActionRequest $request): Shop
+    {
+        $this->initialisation($paymentAccount->organisation, $request);
+
+        return $this->handle($paymentAccount, $this->validatedData);
     }
 }
