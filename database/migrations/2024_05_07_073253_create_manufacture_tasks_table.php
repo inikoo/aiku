@@ -2,6 +2,7 @@
 
 use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
 use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Google\Service\ManufacturerCenter\ManufacturersEmpty;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -9,11 +10,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-
+    use HasGroupOrganisationRelationship;
     public function up()
     {
         Schema::create('manufacture_tasks', function (Blueprint $table) {
             $table->id();
+            $table=$this->groupOrgRelationship($table);
             $table->unsignedMediumInteger('key');
             $table->string('code', 16);
             $table->string('name', 255);
