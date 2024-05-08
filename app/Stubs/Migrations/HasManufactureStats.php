@@ -7,6 +7,8 @@
 
 namespace App\Stubs\Migrations;
 
+use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
+use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
 use App\Enums\Manufacturing\Production\ProductionStateEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialStateEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialStockStatusEnum;
@@ -41,6 +43,18 @@ trait HasManufactureStats
             $table->unsignedInteger('number_raw_materials_stock_status_'.$case->snake())->default(0);
         }
 
+        return $table;
+    }
+
+    public function manufactureTaskStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedSmallInteger('number_tasks')->default(0);
+        foreach (ManufactureTaskOperativeRewardTermsEnum::cases() as $case) {
+            $table->unsignedInteger('number_manufacture_task_operative_reward_terms_'.$case->snake())->default(0);
+        }
+        foreach (ManufactureTaskOperativeRewardAllowanceTypeEnum::cases() as $case) {
+            $table->unsignedInteger('number_manufacture_task_operative_reward_allowance_type_'.$case->snake())->default(0);
+        }
         return $table;
     }
 
