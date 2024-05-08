@@ -15,7 +15,7 @@ use Spatie\Sluggable\SlugOptions;
 /**
  * Class ManufactureTask
  * @property int $id
- *  * @property int $group_id
+ * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
  * @property string $code
@@ -46,7 +46,6 @@ class ManufactureTask extends Model
     use SoftDeletes;
     use HasSlug;
     use HasUniversalSearch;
-    use HasHistory;
 
     protected $guarded = [];
 
