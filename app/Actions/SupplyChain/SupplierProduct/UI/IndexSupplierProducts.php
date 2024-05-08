@@ -8,7 +8,6 @@
 namespace App\Actions\SupplyChain\SupplierProduct\UI;
 
 use App\Actions\GrpAction;
-use App\Actions\InertiaAction;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Http\Resources\Procurement\SupplierProductResource;
@@ -32,7 +31,7 @@ class IndexSupplierProducts extends GrpAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('supplier_products.code',$value)
+                $query->whereStartWith('supplier_products.code', $value)
                     ->orWhereANyWordStartWith('supplier_products.name', $value);
             });
         });
