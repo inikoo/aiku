@@ -9,6 +9,7 @@
 
 const props = defineProps<{
     data: {}
+    tab: string
 }>()
 
 

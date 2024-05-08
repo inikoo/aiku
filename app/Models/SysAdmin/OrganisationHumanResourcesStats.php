@@ -25,12 +25,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_workplaces_type_road
  * @property int $number_workplaces_type_other
  * @property int $number_clocking_machines
+ * @property int $number_clocking_machines_type_biometric
  * @property int $number_clocking_machines_type_static_nfc
  * @property int $number_clocking_machines_type_mobile_app
+ * @property int $number_clocking_machines_type_legacy
+ * @property string|null $last_clocking_at
  * @property int $number_clockings
+ * @property int $number_clockings_type_clocking_machine
+ * @property int $number_clockings_type_manual
+ * @property int $number_clockings_type_self_check
+ * @property int $number_clockings_type_system
  * @property int $number_employees
  * @property int $number_employees_state_hired
  * @property int $number_employees_state_working
+ * @property int $number_employees_state_leaving
  * @property int $number_employees_state_left
  * @property int $number_employees_type_employee
  * @property int $number_employees_type_volunteer

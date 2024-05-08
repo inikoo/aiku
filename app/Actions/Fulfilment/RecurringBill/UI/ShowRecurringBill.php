@@ -34,13 +34,9 @@ class ShowRecurringBill extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo("fulfilments.{$this->organisation->id}.view")
-            );
+        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, StoredItem $storedItem, ActionRequest $request): StoredItem

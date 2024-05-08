@@ -86,7 +86,7 @@ class IndexBookedInStoredItems extends OrgAction
             return true;
         }
 
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
         return
             (

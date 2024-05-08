@@ -73,7 +73,6 @@ class EditEmployee extends OrgAction
                     'type'    => 'radio',
                     'mode'    => 'card',
                     'label'   => '',
-                    'value'   => $employee->state,
                     'options' => [
                         [
                             'title'       => __('Hired'),
@@ -85,7 +84,8 @@ class EditEmployee extends OrgAction
                             'description' => __('Employee already working'),
                             'value'       => EmployeeStateEnum::WORKING->value
                         ],
-                    ]
+                    ],
+                    'value'   => $employee->state,
                 ],
                 'employment_start_at' => [
                     'type'     => 'date',

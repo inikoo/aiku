@@ -54,7 +54,7 @@ class DispatchedPalletReturn extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
     public function jsonResponse(PalletReturn $palletReturn): JsonResource

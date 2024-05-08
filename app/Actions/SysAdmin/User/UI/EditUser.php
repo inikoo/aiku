@@ -32,97 +32,87 @@ class EditUser extends InertiaAction
         return $this->handle($user);
     }
 
-
-
     public function htmlResponse(User $user, ActionRequest $request): Response
     {
-        return Inertia::render(
-            'EditModel',
-            [
-                'title'       => __('user'),
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->originalParameters()
-                ),
-                'pageHead'    => [
-                    'title'     => $user->username,
-                    'actions'   => [
-                      [
-                          'type'  => 'button',
-                          'style' => 'exitEdit',
-                          'route' => [
-                              'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
-                              'parameters' => array_values($request->route()->originalParameters())
-                          ]
-                      ]
+        return Inertia::render("EditModel", [
+            "title"       => __("user"),
+            "breadcrumbs" => $this->getBreadcrumbs(
+                $request->route()->getName(),
+                $request->route()->originalParameters()
+            ),
+            "pageHead" => [
+                "title"   => $user->username,
+                "actions" => [
+                    [
+                        "type"  => "button",
+                        "style" => "exitEdit",
+                        "route" => [
+                            "name"       => preg_replace('/edit$/', "show", $request->route()->getName()),
+                            "parameters" => array_values($request->route()->originalParameters()),
+                        ],
                     ],
                 ],
+            ],
 
-                'formData' => [
-                    'blueprint' => [
-                        [
-                            'title'    => __('id'),
-                             'icon'    => 'fa-light fa-user',
-                             'current' => true,
-                            'fields'   => [
-                                'username' => [
-                                    'type'  => 'input',
-                                    'label' => __('username'),
-                                    'value' => $user->username
-                                ],
-                                'email' => [
-                                    'type'  => 'input',
-                                    'label' => __('email'),
-                                    'value' => $user->email
-                                ],
-
-                            ]
+            "formData" => [
+                "blueprint" => [
+                    [
+                        "label"   => __("Profile Information"),
+                        "title"   => __("id"),
+                        "icon"    => "fa-light fa-user",
+                        "current" => true,
+                        "fields"  => [
+                            "username" => [
+                                "type"        => "input",
+                                "label"       => __("username"),
+                                "placeholder" => __("johndoe"),
+                                "value"       => $user->username ?? '',
+                            ],
+                            "email" => [
+                                "type"        => "input",
+                                "label"       => __("email"),
+                                "placeholder" => __("example@mail.com"),
+                                "value"       => $user->email ?? '',
+                            ],
+                            "password" => [
+                                "type"        => "password",
+                                "label"       => __("password"),
+                                "placeholder" => __("********"),
+                                "value"       => '',
+                            ],
                         ],
-                        'password'   => [
-                            'title'   => __('Password'),
-                            'icon'    => 'fa-light fa-key',
-                            'current' => false,
-                            'fields'  => [
-                                'password' => [
-                                    'type'  => 'password',
-                                    'label' => __('password'),
-                                    'value' => ''
-                                ],
-                            ]
-                        ],
-                        'permissions'   => [
-                            'title'   => __('Permissions'),
-                            'icon'    => 'fa-light fa-user-lock',
-                            'current' => false,
-                            'fields'  => [
-                                'permissions' => [
-                                    'type'              => 'permissions',
-                                    'label'             => __('permissions'),
-                                    'value'             => [],
-                                    'fullComponentArea' => true,
-                                ],
-                            ]
-                        ],
-
                     ],
-                    'args' => [
-                        'updateRoute' => [
-                            'name'      => 'grp.models.user.update',
-                            'parameters'=> [$user->id]
-
+                    "permissions" => [
+                        "label"   => __("Permissions"),
+                        "title"   => __("Permissions"),
+                        "icon"    => "fa-light fa-user-lock",
+                        "current" => false,
+                        "fields"  => [
+                            "permissions" => [
+                                "type"              => "permissions",
+                                "label"             => __("permissions"),
+                                "value"             => [],
+                                "fullComponentArea" => true,
+                            ],
                         ],
-                    ]
-                ]
-            ]
-        );
+                    ],
+                ],
+                "args" => [
+                    "updateRoute" => [
+                        "name"       => "grp.models.user.update",
+                        "parameters" => [$user->id],
+                    ],
+                ],
+            ],
+        ]);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return ShowUser::make()->getBreadcrumbs(
-            routeName: preg_replace('/edit$/', 'show', $routeName),
+            routeName: preg_replace('/edit$/', "show", $routeName),
             routeParameters: $routeParameters,
-            suffix: '('.__('editing').')'
+            suffix: "(" . __("editing") . ")"
         );
     }
 }

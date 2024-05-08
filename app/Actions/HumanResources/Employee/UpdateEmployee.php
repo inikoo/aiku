@@ -8,7 +8,7 @@
 namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch;
-use App\Actions\HumanResources\SyncJobPosition;
+use App\Actions\HumanResources\JobPosition\SyncEmployableJobPositions;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\Traits\WithActionUpdate;
@@ -18,7 +18,6 @@ use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -33,18 +32,16 @@ class UpdateEmployee extends OrgAction
 
     public function handle(Employee $employee, array $modelData): Employee
     {
-
         if (Arr::exists($modelData, 'positions')) {
             $jobPositions = [];
-            foreach (Arr::get($modelData, 'positions', []) as $position) {
-                $jobPosition    = JobPosition::firstWhere('slug', $position);
-                $jobPositions[] = $jobPosition->id;
+            foreach (Arr::get($modelData, 'positions', []) as $positionData) {
+                $jobPosition                    = JobPosition::firstWhere('slug', $positionData['slug']);
+                $jobPositions[$jobPosition->id] = $positionData['scopes'];
             }
-            SyncJobPosition::run($employee, $jobPositions);
+            SyncEmployableJobPositions::run($employee, $jobPositions);
             Arr::forget($modelData, 'positions');
         }
         $employee = $this->update($employee, $modelData, ['data', 'salary']);
-
 
 
         if ($employee->wasChanged(['worker_number', 'worker_number', 'contact_name', 'work_email', 'job_title', 'email'])) {
@@ -54,7 +51,6 @@ class UpdateEmployee extends OrgAction
         if ($employee->wasChanged(['state'])) {
             OrganisationHydrateEmployees::dispatch($employee->organisation);
         }
-
 
 
         return $employee;
@@ -73,7 +69,7 @@ class UpdateEmployee extends OrgAction
     public function rules(): array
     {
         return [
-            'worker_number'       => [
+            'worker_number'           => [
                 'sometimes',
                 'max:64',
                 'alpha_dash',
@@ -93,9 +89,9 @@ class UpdateEmployee extends OrgAction
                 ),
 
             ],
-            'employment_start_at' => ['sometimes', 'nullable', 'date'],
-            'work_email'          => ['sometimes', 'nullable', 'email', 'iunique:employees'],
-            'alias'               => [
+            'employment_start_at'     => ['sometimes', 'nullable', 'date'],
+            'work_email'              => ['sometimes', 'nullable', 'email', 'iunique:employees'],
+            'alias'                   => [
                 'sometimes',
                 'string',
                 'max:16',
@@ -111,17 +107,16 @@ class UpdateEmployee extends OrgAction
                     ]
                 ),
             ],
-            'contact_name'        => ['sometimes', 'string', 'max:256'],
-            'date_of_birth'       => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
-            'job_title'           => ['sometimes', 'nullable', 'string', 'max:256'],
-            'state'               => ['sometimes','required', new Enum(EmployeeStateEnum::class)],
-            'positions'           => ['sometimes', 'array'],
-            'positions.*'         => ['sometimes',
-                Rule::exists('job_positions', 'code')
-                    ->where('organisation_id', $this->organisation->id),
-            ],
-            'email'               => ['sometimes', 'nullable', 'email'],
-            'source_id'           => ['sometimes', 'string', 'max:64'],
+            'contact_name'            => ['sometimes', 'string', 'max:256'],
+            'date_of_birth'           => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
+            'job_title'               => ['sometimes', 'nullable', 'string', 'max:256'],
+            'state'                   => ['sometimes', 'required', new Enum(EmployeeStateEnum::class)],
+            'positions'               => ['sometimes', 'array'],
+            'positions.*.slug'        => ['sometimes','string'],
+            'positions.*.scopes'      => ['sometimes', 'array'],
+
+            'email'     => ['sometimes', 'nullable', 'email'],
+            'source_id' => ['sometimes', 'string', 'max:64'],
         ];
     }
 
@@ -133,6 +128,12 @@ class UpdateEmployee extends OrgAction
         $this->initialisation($employee->organisation, $modelData);
 
         return $this->handle($employee, $this->validatedData);
+    }
+
+    public function prepareForValidation(): void
+    {
+        // dd($this->get('positions'));
+
     }
 
     public function asController(Employee $employee, ActionRequest $request): Employee

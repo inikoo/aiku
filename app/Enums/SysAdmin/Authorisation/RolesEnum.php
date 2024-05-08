@@ -159,11 +159,10 @@ enum RolesEnum: string
                 OrganisationPermissionsEnum::PROCUREMENT,
                 OrganisationPermissionsEnum::HUMAN_RESOURCES,
                 OrganisationPermissionsEnum::SUPERVISOR,
-                OrganisationPermissionsEnum::SHOPS,
-                OrganisationPermissionsEnum::FULFILMENTS,
-                OrganisationPermissionsEnum::WAREHOUSES,
-                OrganisationPermissionsEnum::INVENTORY,
-                OrganisationPermissionsEnum::DISPATCHING,
+              //  OrganisationPermissionsEnum::SHOPS,
+              //  OrganisationPermissionsEnum::FULFILMENTS,
+              //  OrganisationPermissionsEnum::WAREHOUSES,
+              //  OrganisationPermissionsEnum::INVENTORY,
                 OrganisationPermissionsEnum::ACCOUNTING,
                 OrganisationPermissionsEnum::SUPERVISOR_ACCOUNTING
             ],
@@ -171,7 +170,7 @@ enum RolesEnum: string
                 OrganisationPermissionsEnum::ORG_REPORTS,
                 OrganisationPermissionsEnum::HUMAN_RESOURCES,
                 OrganisationPermissionsEnum::SUPERVISOR,
-                OrganisationPermissionsEnum::SHOPS,
+                //OrganisationPermissionsEnum::SHOPS,
                 OrganisationPermissionsEnum::ACCOUNTING,
                 OrganisationPermissionsEnum::SUPERVISOR_ACCOUNTING,
                 OrganisationPermissionsEnum::SEO,
@@ -185,9 +184,8 @@ enum RolesEnum: string
                 OrganisationPermissionsEnum::PROCUREMENT,
                 OrganisationPermissionsEnum::HUMAN_RESOURCES,
                 OrganisationPermissionsEnum::SUPERVISOR,
-                OrganisationPermissionsEnum::WAREHOUSES,
+              //  OrganisationPermissionsEnum::WAREHOUSES,
                 OrganisationPermissionsEnum::INVENTORY,
-                OrganisationPermissionsEnum::DISPATCHING,
                 OrganisationPermissionsEnum::ACCOUNTING,
                 OrganisationPermissionsEnum::SUPERVISOR_ACCOUNTING
             ],
@@ -195,11 +193,11 @@ enum RolesEnum: string
                 OrganisationPermissionsEnum::PROCUREMENT
             ],
             RolesEnum::DISPATCH_CLERK => [
-                OrganisationPermissionsEnum::DISPATCHING
+                WarehousePermissionsEnum::DISPATCHING
             ],
             RolesEnum::DISPATCH_SUPERVISOR => [
-                OrganisationPermissionsEnum::DISPATCHING,
-                OrganisationPermissionsEnum::SUPERVISOR_DISPATCHING
+                WarehousePermissionsEnum::DISPATCHING,
+                WarehousePermissionsEnum::SUPERVISOR_DISPATCHING
             ],
             RolesEnum::HUMAN_RESOURCES_CLERK => [
                 OrganisationPermissionsEnum::HUMAN_RESOURCES
@@ -251,7 +249,7 @@ enum RolesEnum: string
                 ShopPermissionsEnum::SUPERVISOR_CRM
             ],
             RolesEnum::WAREHOUSE_ADMIN => [
-                OrganisationPermissionsEnum::WAREHOUSES,
+            //    OrganisationPermissionsEnum::WAREHOUSES,
                 WarehousePermissionsEnum::WAREHOUSE,
                 WarehousePermissionsEnum::STOCKS,
                 WarehousePermissionsEnum::DISPATCHING,
@@ -261,7 +259,7 @@ enum RolesEnum: string
 
             ],
             RolesEnum::STOCK_CONTROLLER => [
-                OrganisationPermissionsEnum::WAREHOUSES,
+       //         OrganisationPermissionsEnum::WAREHOUSES,
                 WarehousePermissionsEnum::STOCKS,
                 WarehousePermissionsEnum::DISPATCHING,
             ],
@@ -345,6 +343,8 @@ enum RolesEnum: string
             RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR,
             RolesEnum::FULFILMENT_WAREHOUSE_WORKER,
             RolesEnum::WAREHOUSE_ADMIN,
+            RolesEnum::DISPATCH_CLERK,
+            RolesEnum::DISPATCH_SUPERVISOR,
             RolesEnum::STOCK_CONTROLLER => 'Warehouse',
             RolesEnum::PRODUCTION_ADMIN => 'Production',
             RolesEnum::FULFILMENT_SHOP_SUPERVISOR,

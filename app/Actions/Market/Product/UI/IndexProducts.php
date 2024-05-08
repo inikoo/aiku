@@ -36,7 +36,7 @@ class IndexProducts extends OrgAction
 
 
 
-    protected function getElementGroups(Shop $shop): array
+    protected function getElementGroups(Shop|ProductCategory|Organisation $parent): array
     {
         return [
 
@@ -44,7 +44,7 @@ class IndexProducts extends OrgAction
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
                     ProductStateEnum::labels(),
-                    ProductStateEnum::count($shop)
+                    ProductStateEnum::count($parent)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -55,8 +55,8 @@ class IndexProducts extends OrgAction
             'type'  => [
                 'label'    => __('Type'),
                 'elements' => array_merge_recursive(
-                    ProductTypeEnum::labels($shop),
-                    ProductTypeEnum::count($shop)
+                    ProductTypeEnum::labels($parent),
+                    ProductTypeEnum::count($parent)
                 ),
 
                 'engine' => function ($query, $elements) {

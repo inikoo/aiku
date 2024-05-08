@@ -9,6 +9,7 @@ namespace App\Actions\SysAdmin\UserRequest;
 
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
 use App\Actions\SysAdmin\UserRequest\Traits\WithFormattedRequestLogs;
+use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
 use App\InertiaTable\InertiaTable;
 use Closure;
 use Elastic\Elasticsearch\Client;
@@ -25,14 +26,14 @@ class ShowUserRequestLogs
     use AsObject;
     use WithFormattedRequestLogs;
 
-    public function handle(string $query = null, $filter = 'VISIT'): LengthAwarePaginator|array|bool
+    public function handle(string $query = null, $filter = ElasticsearchUserRequestTypeEnum::VISIT->value): LengthAwarePaginator|array|bool
     {
         $client = BuildElasticsearchClient::run();
 
         if ($client instanceof Client) {
             try {
                 $params  = [
-                    'index' => config('elasticsearch.index_prefix') . 'user_requests_' . app('currentTenant')->group->slug,
+                    'index' => 'aiku_local_user_requests_awg',
                     'size'  => 10000,
                     'body'  => [
                         'query' => [
@@ -72,6 +73,7 @@ class ShowUserRequestLogs
         return function (InertiaTable $table) {
             $table
                 ->withGlobalSearch()
+                ->name('hst')
                 ->column(key: 'ip_address', label: __('IP Address'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'url', label: __('URL'), canBeHidden: false, sortable: true)
                 ->column(key: 'module', label: __('Module'), canBeHidden: false, sortable: true)
@@ -79,7 +81,6 @@ class ShowUserRequestLogs
                 ->column(key: 'location', label: __('location'), canBeHidden: false)
                 ->column(key: 'datetime', label: __('Date & Time'), canBeHidden: false, sortable: true)
                 ->defaultSort('datetime');
-            ;
         };
     }
 }

@@ -27,6 +27,10 @@ function marketplaceSupplierRoute(marketplaceSupplier: MarketplaceSupplier) {
             return route(
                 'grp.org.procurement.marketplace.suppliers.show',
                 [marketplaceSupplier.slug]);
+        case 'grp.supply-chain.suppliers.index':
+            return route(
+                'grp.supply-chain.suppliers.show',
+                [marketplaceSupplier.slug]);
         default:
             return route(
                 'grp.org.procurement.marketplace.suppliers.show',
@@ -43,7 +47,7 @@ function marketplaceSupplierRoute(marketplaceSupplier: MarketplaceSupplier) {
             <ProcurementMarketplaceAdoption :value="supplier['adoption']"/>
         </template>
         <template #cell(code)="{ item: supplier }">
-            <Link :href="marketplaceSupplierRoute(supplier)">
+            <Link :href="marketplaceSupplierRoute(supplier)" class="specialUnderline">
                 {{ supplier['code'] }}
             </Link>
         </template>

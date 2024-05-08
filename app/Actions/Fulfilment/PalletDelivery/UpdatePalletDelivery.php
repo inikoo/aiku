@@ -46,7 +46,7 @@ class UpdatePalletDelivery extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("fulfilments.{$this->fulfilment->id}.edit");
+        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
     public function rules(): array

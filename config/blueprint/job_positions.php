@@ -6,6 +6,7 @@
  *  Version 4.0
  */
 
+use App\Enums\HumanResources\JobPosition\JobPositionScopeEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
@@ -14,9 +15,10 @@ return [
 
 
     'positions' => [
-        'admin' => [
+        'admin'    => [
             'code'               => 'admin',
             'name'               => 'Administrator',
+            'scope'              => JobPositionScopeEnum::ORGANISATION,
             'department'         => 'admin',
             'roles'              => [
                 RolesEnum::SUPER_ADMIN
@@ -27,10 +29,12 @@ return [
                 OrganisationTypeEnum::AGENT
             ]
         ],
-        'hr-m'  => [
-            'code'               => 'hr-m',
-            'department'         => 'admin',
-            'name'               => 'Human resources supervisor',
+        'hr-m'     => [
+            'code'       => 'hr-m',
+            'name'       => 'Human resources supervisor',
+            'scope'      => JobPositionScopeEnum::ORGANISATION,
+            'department' => 'admin',
+
             'roles'              => [
                 RolesEnum::HUMAN_RESOURCES_SUPERVISOR
             ],
@@ -40,9 +44,10 @@ return [
                 OrganisationTypeEnum::AGENT
             ]
         ],
-        'hr-c'  => [
+        'hr-c'     => [
             'code'               => 'hr-c',
             'name'               => 'Human resources clerk',
+            'scope'              => JobPositionScopeEnum::ORGANISATION,
             'department'         => 'admin',
             'roles'              => [
                 RolesEnum::HUMAN_RESOURCES_CLERK
@@ -53,9 +58,10 @@ return [
                 OrganisationTypeEnum::AGENT
             ]
         ],
-        'acc-m' => [
+        'acc-m'    => [
             'code'               => 'acc-m',
             'department'         => 'admin',
+            'scope'              => JobPositionScopeEnum::ORGANISATION,
             'name'               => 'Accounting manager',
             'roles'              => [
                 RolesEnum::ACCOUNTING_SUPERVISOR
@@ -66,9 +72,10 @@ return [
                 OrganisationTypeEnum::AGENT
             ]
         ],
-        'acc-c' => [
+        'acc-c'    => [
             'code'               => 'acc-c',
             'department'         => 'admin',
+            'scope'              => JobPositionScopeEnum::ORGANISATION,
             'name'               => 'Accounts',
             'roles'              => [
                 RolesEnum::ACCOUNTING_CLERK
@@ -79,9 +86,11 @@ return [
                 OrganisationTypeEnum::AGENT
             ],
         ],
-        'mrk-m' => [
+        'mrk-m'    => [
             'code'               => 'mrk-m',
             'name'               => 'Marketing supervisor',
+            'scope'              => JobPositionScopeEnum::SHOPS,
+            'department'         => 'products',
             'roles'              => [
                 RolesEnum::MARKETING_SUPERVISOR
             ],
@@ -90,9 +99,11 @@ return [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'mrk-c' => [
+        'mrk-c'    => [
             'code'               => 'mrk-c',
             'name'               => 'Marketing clerk',
+            'scope'              => JobPositionScopeEnum::SHOPS,
+            'department'         => 'products',
             'roles'              => [
                 RolesEnum::MARKETING_CLERK
             ],
@@ -101,9 +112,11 @@ return [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'shk-m' => [
+        'shk-m'    => [
             'code'               => 'web-m',
             'name'               => 'Shopkeeper supervisor',
+            'department'         => 'products',
+            'scope'              => JobPositionScopeEnum::SHOPS,
             'roles'              => [
                 RolesEnum::SHOPKEEPER_SUPERVISOR
             ],
@@ -112,9 +125,11 @@ return [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'shk-c' => [
+        'shk-c'    => [
             'code'               => 'web-c',
             'name'               => 'Shopkeeper clerk',
+            'scope'              => JobPositionScopeEnum::SHOPS,
+            'department'         => 'products',
             'roles'              => [
                 RolesEnum::SHOPKEEPER_CLERK
             ],
@@ -123,9 +138,11 @@ return [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'buy'   => [
+        'buy'      => [
             'code'               => 'buy',
             'name'               => 'Buyer',
+            'scope'              => JobPositionScopeEnum::ORGANISATION,
+            'department'         => 'products',
             'roles'              => [
                 RolesEnum::PROCUREMENT_CLERK
             ],
@@ -134,12 +151,14 @@ return [
                 OrganisationTypeEnum::AGENT
             ],
         ],
-        'wah-m' => [
+        'wah-m'    => [
             'code'       => 'wah-m',
-            'team'       => 'warehouse',
-            'department' => 'procurement',
             'name'       => 'Warehouse supervisor',
-            'roles'      => [
+            'scope'      => JobPositionScopeEnum::WAREHOUSES,
+            'team'       => 'warehouse',
+            'department' => 'warehouse',
+
+            'roles' => [
                 RolesEnum::WAREHOUSE_ADMIN
             ],
 
@@ -151,6 +170,7 @@ return [
         'wah-sc'   => [
             'code'               => 'wah-sc',
             'name'               => 'Stock Controller',
+            'scope'              => JobPositionScopeEnum::WAREHOUSES,
             'team'               => 'warehouse',
             'department'         => 'warehouse',
             'roles'              => [
@@ -164,6 +184,7 @@ return [
         'dist-m'   => [
             'code'               => 'dist-m',
             'name'               => 'Dispatch supervisor',
+            'scope'              => JobPositionScopeEnum::ORGANISATION,
             'team'               => 'warehouse',
             'department'         => 'warehouse',
             'roles'              => [
@@ -175,10 +196,12 @@ return [
             ],
         ],
         'dist-pik' => [
-            'code'               => 'dist-pik',
-            'team'               => 'warehouse',
-            'department'         => 'warehouse',
-            'name'               => 'Picker',
+            'code'       => 'dist-pik',
+            'name'       => 'Picker',
+            'scope'      => JobPositionScopeEnum::WAREHOUSES,
+            'team'       => 'warehouse',
+            'department' => 'warehouse',
+
             'roles'              => [
                 RolesEnum::DISPATCH_CLERK
             ],
@@ -188,10 +211,12 @@ return [
             ],
         ],
         'dist-pak' => [
-            'code'               => 'dist-pak',
-            'team'               => 'warehouse',
-            'department'         => 'warehouse',
-            'name'               => 'Packer',
+            'code'       => 'dist-pak',
+            'name'       => 'Packer',
+            'scope'      => JobPositionScopeEnum::WAREHOUSES,
+            'team'       => 'warehouse',
+            'department' => 'warehouse',
+
             'roles'              => [
                 RolesEnum::DISPATCH_CLERK
             ],
@@ -202,9 +227,10 @@ return [
         ],
         'prod-d'   => [
             'code'               => 'prod-d',
+            'name'               => 'Manufacturing dispatcher',
+            'scope'              => JobPositionScopeEnum::PRODUCTIONS,
             'team'               => 'production',
             'department'         => 'production',
-            'name'               => 'Manufacturing dispatcher',
             'roles'              => [
             ],
             'organisation_types' => [
@@ -213,9 +239,10 @@ return [
         ],
         'prod-m'   => [
             'code'               => 'prod-m',
+            'name'               => 'Manufacturing floor supervisor',
+            'scope'              => JobPositionScopeEnum::PRODUCTIONS,
             'team'               => 'production',
             'department'         => 'production',
-            'name'               => 'Manufacturing floor supervisor',
             'roles'              => [
             ],
             'organisation_types' => [
@@ -223,10 +250,12 @@ return [
             ]
         ],
         'prod-c'   => [
-            'code'               => 'prod-c',
-            'team'               => 'production',
-            'department'         => 'production',
-            'name'               => 'Manufacturing operative',
+            'code'       => 'prod-c',
+            'name'       => 'Manufacturing operative',
+            'scope'      => JobPositionScopeEnum::PRODUCTIONS,
+            'team'       => 'production',
+            'department' => 'production',
+
             'roles'              => [
 
             ],
@@ -237,6 +266,8 @@ return [
         'cus-m'    => [
             'code'               => 'cus-m',
             'name'               => 'Customer service supervisor',
+            'scope'              => JobPositionScopeEnum::SHOPS,
+            'department'         => 'customer-services',
             'roles'              => [
                 RolesEnum::CUSTOMER_SERVICE_SUPERVISOR
             ],
@@ -248,6 +279,8 @@ return [
         'cus-c'    => [
             'code'               => 'cus-c',
             'name'               => 'Customer service',
+            'department'         => 'customer-services',
+            'scope'              => JobPositionScopeEnum::SHOPS,
             'roles'              => [
                 RolesEnum::CUSTOMER_SERVICE_CLERK
             ],
@@ -256,9 +289,10 @@ return [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'seo-m' => [
+        'seo-m'    => [
             'code'               => 'seo-m',
             'name'               => 'Seo supervisor',
+            'scope'              => JobPositionScopeEnum::ORGANISATION,
             'roles'              => [
                 RolesEnum::SEO_SUPERVISOR
             ],
@@ -266,9 +300,11 @@ return [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'seo-c' => [
-            'code'               => 'seo-c',
-            'name'               => 'SEO',
+        'seo-c'    => [
+            'code'  => 'seo-c',
+            'name'  => 'SEO',
+            'scope' => JobPositionScopeEnum::ORGANISATION,
+
             'roles'              => [
                 RolesEnum::SEO_CLERK
             ],
@@ -276,9 +312,11 @@ return [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'ppc-m' => [
-            'code'               => 'ppc-m',
-            'name'               => 'PPC supervisor',
+        'ppc-m'    => [
+            'code'  => 'ppc-m',
+            'name'  => 'PPC supervisor',
+            'scope' => JobPositionScopeEnum::ORGANISATION,
+
             'roles'              => [
                 RolesEnum::PPC_SUPERVISOR
             ],
@@ -286,9 +324,11 @@ return [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'ppc-c' => [
-            'code'               => 'ppc-c',
-            'name'               => 'PPC',
+        'ppc-c'    => [
+            'code'  => 'ppc-c',
+            'name'  => 'PPC',
+            'scope' => JobPositionScopeEnum::ORGANISATION,
+
             'roles'              => [
                 RolesEnum::PPC_CLERK
             ],
@@ -297,8 +337,10 @@ return [
             ]
         ],
         'social-m' => [
-            'code'               => 'social-m',
-            'grade'              => 'manager',
+            'code'  => 'social-m',
+            'grade' => 'manager',
+            'scope' => JobPositionScopeEnum::ORGANISATION,
+
             'name'               => 'Social media supervisor',
             'roles'              => [
                 RolesEnum::SOCIAL_SUPERVISOR
@@ -308,9 +350,11 @@ return [
             ]
         ],
         'social-c' => [
-            'code'               => 'social-c',
-            'grade'              => 'clerk',
-            'name'               => 'Social media',
+            'code'  => 'social-c',
+            'grade' => 'clerk',
+            'name'  => 'Social media',
+            'scope' => JobPositionScopeEnum::ORGANISATION,
+
             'roles'              => [
                 RolesEnum::SOCIAL_CLERK
             ],
@@ -318,10 +362,12 @@ return [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'saas-m' => [
-            'code'               => 'saas-m',
-            'grade'              => 'manager',
-            'name'               => 'SaaS supervisor',
+        'saas-m'   => [
+            'code'  => 'saas-m',
+            'grade' => 'manager',
+            'name'  => 'SaaS supervisor',
+            'scope' => JobPositionScopeEnum::ORGANISATION,
+
             'roles'              => [
                 RolesEnum::SAAS_SUPERVISOR
             ],
@@ -329,10 +375,12 @@ return [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'saas-c' => [
-            'code'               => 'saas-c',
-            'grade'              => 'clerk',
-            'name'               => 'SaaS',
+        'saas-c'   => [
+            'code'  => 'saas-c',
+            'grade' => 'clerk',
+            'name'  => 'SaaS',
+            'scope' => JobPositionScopeEnum::ORGANISATION,
+
             'roles'              => [
                 RolesEnum::SAAS_CLERK
             ],
@@ -340,10 +388,12 @@ return [
                 OrganisationTypeEnum::DIGITAL_AGENCY,
             ]
         ],
-        'ful-m' => [
-            'code'               => 'ful-m',
-            'name'               => 'Fulfilment supervisor',
-            'department'         => 'fulfilment',
+        'ful-m'    => [
+            'code'       => 'ful-m',
+            'name'       => 'Fulfilment supervisor',
+            'scope'      => JobPositionScopeEnum::FULFILMENTS_WAREHOUSES,
+            'department' => 'fulfilment',
+
             'roles'              => [
                 RolesEnum::FULFILMENT_SHOP_SUPERVISOR,
                 RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR
@@ -351,14 +401,15 @@ return [
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
             ],
-            'has_shop_type'=> [
+            'has_shop_type'      => [
                 ShopTypeEnum::FULFILMENT
             ]
 
         ],
-        'ful-c' => [
+        'ful-c'    => [
             'code'               => 'ful-c',
             'name'               => 'Fulfilment shop clerk',
+            'scope'              => JobPositionScopeEnum::FULFILMENTS,
             'department'         => 'fulfilment',
             'roles'              => [
                 RolesEnum::FULFILMENT_SHOP_CLERK,
@@ -366,14 +417,15 @@ return [
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
             ],
-            'extra_conditions'=> [
+            'extra_conditions'   => [
                 'has_shop_type' => 'fulfilment'
             ]
 
         ],
-        'ful-wc' => [
+        'ful-wc'   => [
             'code'               => 'ful-wc',
             'name'               => 'Fulfilment warehouse clerk',
+            'scope'              => JobPositionScopeEnum::WAREHOUSES,
             'department'         => 'fulfilment',
             'roles'              => [
                 RolesEnum::FULFILMENT_WAREHOUSE_WORKER
@@ -381,7 +433,7 @@ return [
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
             ],
-            'extra_conditions'=> [
+            'extra_conditions'   => [
                 'has_shop_type' => 'fulfilment'
             ]
 

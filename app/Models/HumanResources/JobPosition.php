@@ -7,8 +7,10 @@
 
 namespace App\Models\HumanResources;
 
+use App\Enums\HumanResources\JobPosition\JobPositionScopeEnum;
 use App\Models\SysAdmin\Role;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -27,6 +29,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property string $code
  * @property string $name
+ * @property JobPositionScopeEnum $scope
  * @property string|null $department
  * @property string|null $team
  * @property array $data
@@ -39,6 +42,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Role> $roles
  * @method static Builder|JobPosition newModelQuery()
  * @method static Builder|JobPosition newQuery()
@@ -49,14 +54,16 @@ class JobPosition extends Model implements Auditable
 {
     use HasSlug;
     use HasHistory;
+    use inOrganisation;
 
 
     protected $casts = [
         'data'  => 'array',
+        'scope' => JobPositionScopeEnum::class
     ];
 
     protected $attributes = [
-        'data'  => '{}',
+        'data' => '{}',
     ];
 
     protected $guarded = [];
@@ -74,6 +81,7 @@ class JobPosition extends Model implements Auditable
     {
         return 'slug';
     }
+
     public function generateTags(): array
     {
         return [
@@ -81,7 +89,7 @@ class JobPosition extends Model implements Auditable
         ];
     }
 
-    protected $auditExclude = [
+    protected array $auditExclude = [
         'share_work_time',
         'number_employees'
     ];

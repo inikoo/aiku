@@ -16,11 +16,10 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('job_position_id')->index();
             $table->foreign('job_position_id')->references('id')->on('job_positions');
-
             $table->string('job_positionable_type')->index();
             $table->unsignedSmallInteger('job_positionable_id')->index();
-
             $table->double('share')->nullable();
+            $table->jsonb('scopes')->default('{}');
             $table->timestampsTz();
             $table->index(['job_positionable_type','job_positionable_id']);
             $table->unique(['job_position_id', 'job_positionable_id','job_positionable_type']);

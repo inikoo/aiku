@@ -33,6 +33,8 @@ class EmployeeHydrateClockings
     {
         $stats = [
             'number_clockings' => $employee->clockings()->count(),
+            'last_clocking_at' => $employee->clockings()->max('clocked_at') ?? null
+
         ];
 
 

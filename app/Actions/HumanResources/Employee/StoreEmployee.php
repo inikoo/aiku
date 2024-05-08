@@ -9,22 +9,21 @@ namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch;
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
-use App\Actions\HumanResources\SyncJobPosition;
+use App\Actions\HumanResources\JobPosition\SyncEmployableJobPositions;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
-use App\Models\HumanResources\Workplace;
-use App\Models\SysAdmin\Organisation;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
+use App\Models\HumanResources\Workplace;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
@@ -73,12 +72,13 @@ class StoreEmployee extends OrgAction
         }
 
 
+
         $jobPositions = [];
-        foreach ($positions as $position) {
-            $jobPosition    = JobPosition::firstWhere('slug', $position);
-            $jobPositions[] = $jobPosition->id;
+        foreach ($positions as $positionData) {
+            $jobPosition                    = JobPosition::firstWhere('slug', $positionData['slug']);
+            $jobPositions[$jobPosition->id] = $positionData['scopes'];
         }
-        SyncJobPosition::run($employee, $jobPositions);
+        SyncEmployableJobPositions::run($employee, $jobPositions);
         EmployeeHydrateWeekWorkingHours::dispatch($employee);
         OrganisationHydrateEmployees::dispatch($organisation);
         EmployeeHydrateUniversalSearch::dispatch($employee);
@@ -101,9 +101,6 @@ class StoreEmployee extends OrgAction
         if (!$this->get('username')) {
             $this->set('username', null);
         }
-
-
-
     }
 
     public function rules(): array
@@ -122,14 +119,17 @@ class StoreEmployee extends OrgAction
 
             ],
             'employment_start_at' => ['sometimes', 'nullable', 'date'],
-            'work_email'          => ['sometimes', 'nullable', 'email',
+            'work_email'          => [
+                'sometimes',
+                'nullable',
+                'email',
                 new IUnique(
                     table: 'employees',
                     extraConditions: [
                         ['column' => 'organisation_id', 'value' => $this->organisation->id],
                     ]
                 )
-                ],
+            ],
             'alias'               => [
                 'required',
                 'string',
@@ -146,27 +146,25 @@ class StoreEmployee extends OrgAction
             'job_title'           => ['sometimes', 'nullable', 'string', 'max:256'],
             'state'               => ['required', new Enum(EmployeeStateEnum::class)],
             'positions'           => ['sometimes', 'array'],
-            'positions.*'         => ['sometimes',
-                Rule::exists('job_positions', 'code')
-                    ->where('organisation_id', $this->organisation->id),
-            ],
+            'positions.*.slug'    => ['sometimes', 'string'],
+            'positions.*.scopes'  => ['sometimes', 'array'],
             'email'               => ['sometimes', 'nullable', 'email'],
-            'username'            => ['nullable', new AlphaDashDot(),
+            'username'            => [
+                'nullable',
+                new AlphaDashDot(),
                 new IUnique(
                     table: 'users',
                     extraConditions: [
                         ['column' => 'group_id', 'value' => $this->organisation->group_id],
                     ]
                 )
-                ],
+            ],
             'password'            => ['exclude_if:username,null', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-            'reset_password'      => ['exclude_if:username,null','sometimes', 'boolean'],
+            'reset_password'      => ['exclude_if:username,null', 'sometimes', 'boolean'],
             'source_id'           => ['sometimes', 'string', 'max:64'],
             'deleted_at'          => ['sometimes', 'nullable', 'date'],
         ];
     }
-
-
 
 
     public function action(Organisation|Workplace $parent, $modelData): Employee
@@ -186,7 +184,6 @@ class StoreEmployee extends OrgAction
 
     public function asController(Organisation $organisation, ActionRequest $request): Employee
     {
-
         $this->initialisation($organisation, $request);
 
         // Call the handle method with the validated data and return the result
