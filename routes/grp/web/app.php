@@ -62,20 +62,12 @@ Route::middleware(["auth"])->group(function () {
     Route::prefix("fulfilment")
         ->name("fulfilment.")
         ->group(__DIR__."/fulfilment.php");
-    Route::prefix("dropshipping")
-        ->name("dropshipping.")
-        ->group(__DIR__."/dropshipping.php");
 
 
-    Route::prefix("shops")
-        ->name("shops.")
-        ->group(__DIR__."/shops.php");
     Route::prefix("web")
         ->name("web.")
         ->group(__DIR__."/web.php");
-    Route::prefix("products")
-        ->name("products.")
-        ->group(__DIR__."/products.php");
+
 
     Route::prefix("oms")
         ->name("oms.")
@@ -90,9 +82,7 @@ Route::middleware(["auth"])->group(function () {
     Route::prefix("marketing")
         ->name("marketing.")
         ->group(__DIR__."/marketing.php");
-    Route::prefix("sessions")
-        ->name("sessions.")
-        ->group(__DIR__."/sessions.php");
+
 
     Route::prefix("media")
         ->name("media.")

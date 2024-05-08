@@ -12,14 +12,13 @@ use App\Http\Resources\HasSelfCall;
 use App\Models\SysAdmin\Group;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-
 class GroupResource extends JsonResource
 {
     use HasSelfCall;
 
     public function toArray($request): array
     {
-       /** @var Group $group */
+        /** @var Group $group */
         $group = $this;
 
         return [

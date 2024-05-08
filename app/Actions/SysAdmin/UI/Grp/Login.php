@@ -40,11 +40,11 @@ class Login
 
 
         $authorised=false;
-        $processed=false;
+        $processed =false;
         if(config('app.with_user_legacy_passwords')) {
             $user=User::where('username', Arr::get($request->validated(), 'username'))->first();
             if($user and $user->auth_type==UserAuthTypeEnum::AURORA) {
-                $processed=true;
+                $processed =true;
                 $authorised=AuthoriseUserWithLegacyPassword::run($user, $request->validated());
                 if($authorised) {
                     Auth::login($user, $request->boolean('remember'));
