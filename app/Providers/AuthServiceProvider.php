@@ -7,12 +7,10 @@
 
 namespace App\Providers;
 
-use App\Extensions\UserWithLegacyPasswordProvider;
 use App\Models\CRM\WebUser;
 use App\Models\SysAdmin\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Facades\Session;
 
 class AuthServiceProvider extends ServiceProvider
@@ -42,8 +40,5 @@ class AuthServiceProvider extends ServiceProvider
             return false;
         });
 
-        Auth::provider('user-with-legacy-password', function (Application $app, array $config) {
-            return new UserWithLegacyPasswordProvider($app['hash'], $config['model']);
-        });
     }
 }
