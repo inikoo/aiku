@@ -78,7 +78,7 @@ class ShowProduct extends OrgAction
     public function htmlResponse(Product $product, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Market/Product',
+            'Org/Market/Product',
             [
                 'title'       => __('product'),
                 'breadcrumbs' => $this->getBreadcrumbs(

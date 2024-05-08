@@ -213,7 +213,7 @@ class IndexDepartments extends OrgAction
         }
 
         return Inertia::render(
-            'Market/Departments',
+            'Org/Market/Departments',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

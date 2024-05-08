@@ -56,7 +56,7 @@ class ShowShop extends OrgAction
     public function htmlResponse(Shop $shop, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Market/Shop',
+            'Org/Market/Shop',
             [
                 'title'        => __('shop'),
                 'breadcrumbs'  => $this->getBreadcrumbs(

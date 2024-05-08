@@ -9,11 +9,11 @@ namespace App\Actions\Market\ProductCategory\UI;
 
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Market\Product\UI\IndexProducts;
 use App\Actions\Market\Shop\UI\IndexShops;
 use App\Actions\Market\Shop\UI\ShowShop;
+use App\Actions\OrgAction;
 use App\Enums\UI\DepartmentTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\History\HistoryResource;
@@ -23,11 +23,12 @@ use App\Http\Resources\Market\FamiliesResource;
 use App\Http\Resources\Market\ProductsResource;
 use App\Models\Market\ProductCategory;
 use App\Models\Market\Shop;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowDepartment extends InertiaAction
+class ShowDepartment extends OrgAction
 {
     public function handle(ProductCategory $department): ProductCategory
     {
@@ -38,20 +39,20 @@ class ShowDepartment extends InertiaAction
     {
         $this->canEdit   = $request->user()->hasPermissionTo('shops.edit');
         $this->canDelete = $request->user()->hasPermissionTo('shops.edit');
+
         return $request->user()->hasPermissionTo("shops.products.view");
     }
 
-    public function inOrganisation(ProductCategory $department, ActionRequest $request): ProductCategory
+    public function inOrganisation(Organisation $organisation, ProductCategory $department, ActionRequest $request): ProductCategory
     {
-        $this->initialisation($request)->withTab(DepartmentTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(DepartmentTabsEnum::values());
 
         return $this->handle($department);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, ProductCategory $department, ActionRequest $request): ProductCategory
+    public function asController(Organisation $organisation, Shop $shop, ProductCategory $department, ActionRequest $request): ProductCategory
     {
-        $this->initialisation($request)->withTab(DepartmentTabsEnum::values());
+        $this->initialisationFromShop($shop, $request)->withTab(DepartmentTabsEnum::values());
 
         return $this->handle($department);
     }
@@ -59,20 +60,20 @@ class ShowDepartment extends InertiaAction
     public function htmlResponse(ProductCategory $department, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Market/Department',
+            'Org/Market/Department',
             [
-                'title'                              => __('department'),
-                'breadcrumbs'                        => $this->getBreadcrumbs(
+                'title'       => __('department'),
+                'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'                            => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($department, $request),
                     'next'     => $this->getNext($department, $request),
                 ],
-                'pageHead'                           => [
-                    'title' => $department->name,
-                    'icon'  => [
+                'pageHead'    => [
+                    'title'   => $department->name,
+                    'icon'    => [
                         'icon'  => ['fal', 'fa-folder-tree'],
                         'title' => __('department')
                     ],
@@ -95,7 +96,7 @@ class ShowDepartment extends InertiaAction
                         ] : false
                     ]
                 ],
-                'tabs'                               => [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => DepartmentTabsEnum::navigation()
                 ],
@@ -104,7 +105,8 @@ class ShowDepartment extends InertiaAction
                     fn () => GetProductCategoryShowcase::run($department)
                     : Inertia::lazy(fn () => GetProductCategoryShowcase::run($department)),
 
-                DepartmentTabsEnum::CUSTOMERS->value => $this->tab == DepartmentTabsEnum::CUSTOMERS->value ?
+                DepartmentTabsEnum::CUSTOMERS->value => $this->tab == DepartmentTabsEnum::CUSTOMERS->value
+                    ?
                     fn () => CustomersResource::collection(
                         IndexCustomers::run(
                             parent: $department->shop,
@@ -117,7 +119,8 @@ class ShowDepartment extends InertiaAction
                             prefix: 'customers'
                         )
                     )),
-                DepartmentTabsEnum::MAILSHOTS->value => $this->tab == DepartmentTabsEnum::MAILSHOTS->value ?
+                DepartmentTabsEnum::MAILSHOTS->value => $this->tab == DepartmentTabsEnum::MAILSHOTS->value
+                    ?
                     fn () => MailshotResource::collection(
                         IndexMailshots::run(
                             parent: $department,
@@ -130,7 +133,8 @@ class ShowDepartment extends InertiaAction
                             prefix: 'mailshots'
                         )
                     )),
-                DepartmentTabsEnum::PRODUCTS->value  => $this->tab == DepartmentTabsEnum::PRODUCTS->value ?
+                DepartmentTabsEnum::PRODUCTS->value  => $this->tab == DepartmentTabsEnum::PRODUCTS->value
+                    ?
                     fn () => ProductsResource::collection(
                         IndexProducts::run(
                             parent: $department,
@@ -149,7 +153,8 @@ class ShowDepartment extends InertiaAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($department))),
 
 
-                DepartmentTabsEnum::FAMILIES->value  => $this->tab == DepartmentTabsEnum::FAMILIES->value ?
+                DepartmentTabsEnum::FAMILIES->value => $this->tab == DepartmentTabsEnum::FAMILIES->value
+                    ?
                     fn () => [
                         'table'             => FamiliesResource::collection(
                             IndexFamilies::run(
@@ -186,7 +191,6 @@ class ShowDepartment extends InertiaAction
                     ),
 
 
-
             ]
         )->table(
             IndexCustomers::make()->tableStructure(
@@ -199,7 +203,7 @@ class ShowDepartment extends InertiaAction
                 prefix: 'mailshots'
             )
         )
-//            ->table(IndexFamilies::make()->tableStructure($department))
+            //            ->table(IndexFamilies::make()->tableStructure($department))
             ->table(
                 IndexProducts::make()->tableStructure(
                     parent: $department->shop,
@@ -297,38 +301,40 @@ class ShowDepartment extends InertiaAction
     public function getPrevious(ProductCategory $department, ActionRequest $request): ?array
     {
         $previous = ProductCategory::where('code', '<', $department->code)->orderBy('code', 'desc')->first();
-        return $this->getNavigation($previous, $request->route()->getName());
 
+        return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(ProductCategory $department, ActionRequest $request): ?array
     {
         $next = ProductCategory::where('code', '>', $department->code)->orderBy('code')->first();
+
         return $this->getNavigation($next, $request->route()->getName());
     }
 
     private function getNavigation(?ProductCategory $department, string $routeName): ?array
     {
-        if(!$department) {
+        if (!$department) {
             return null;
         }
+
         return match ($routeName) {
-            'shops.departments.show'=> [
-                'label'=> $department->name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'department'=> $department->slug
+            'shops.departments.show' => [
+                'label' => $department->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'department' => $department->slug
                     ]
                 ]
             ],
-            'shops.show.departments.show'=> [
-                'label'=> $department->name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'shop'      => $department->shop->slug,
-                        'department'=> $department->slug
+            'shops.show.departments.show' => [
+                'label' => $department->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'shop'       => $department->shop->slug,
+                        'department' => $department->slug
                     ]
                 ]
             ],

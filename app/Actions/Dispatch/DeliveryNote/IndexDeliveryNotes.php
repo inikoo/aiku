@@ -98,7 +98,7 @@ class IndexDeliveryNotes extends InertiaAction
     {
         $parent = $request->route()->originalParameters()() == [] ? app('currentTenant') : last($request->route()->originalParameters()());
         return Inertia::render(
-            'Market/DeliveryNotes',
+            'Org/Dispatching/DeliveryNotes',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

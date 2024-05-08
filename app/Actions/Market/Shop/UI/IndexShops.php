@@ -123,7 +123,7 @@ class IndexShops extends OrgAction
     public function htmlResponse(LengthAwarePaginator $shops, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Market/Shops',
+            'Org/Market/Shops',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
                 'title'       => __('shops'),

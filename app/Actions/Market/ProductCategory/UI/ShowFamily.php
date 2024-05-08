@@ -58,7 +58,7 @@ class ShowFamily extends InertiaAction
     {
 
         return Inertia::render(
-            'Market/Department',
+            'Org/Market/Department',
             [
                 'title'                              => __('department'),
                 'breadcrumbs'                        => $this->getBreadcrumbs(
