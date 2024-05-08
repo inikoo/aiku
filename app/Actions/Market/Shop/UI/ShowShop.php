@@ -40,10 +40,10 @@ class ShowShop extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
+        $this->canEdit   = $request->user()->hasPermissionTo("products.{$this->organisation->id}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("products.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.view");
+        return $request->user()->hasPermissionTo("products.{$this->organisation->id}.view");
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Shop

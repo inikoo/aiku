@@ -15,13 +15,20 @@ trait HasMarketAuthorisation
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Organisation) {
+            $this->canEdit = $request->user()->hasAnyPermission(
+                [
+                    'org-supervisor.'.$this->organisation->id,
+                ]
+            );
 
-
-            $this->canEdit = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
-            return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.view");
+            return $request->user()->hasAnyPermission(
+                [
+                    'org-supervisor.'.$this->organisation->id,
+                    'shops-view'.$this->organisation->id,
+                ]
+            );
         } else {
             $this->canEdit = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
-
             return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");
         }
     }
