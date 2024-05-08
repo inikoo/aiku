@@ -75,7 +75,8 @@ class IndexPaymentAccounts extends OrgAction
                 'payment_service_providers.name as payment_service_provider_name',
                 'payment_service_providers.code as payment_service_provider_code',
                 'shops.code as shop_code',
-                'shops.name as shop_name'
+                'shops.name as shop_name',
+                'shops.id as shop_id'
             ])
             ->leftJoin('payment_account_shop', 'payment_account_shop.payment_account_id', 'payment_accounts.id')
             ->leftJoin('shops', 'payment_account_shop.shop_id', 'shops.id')
