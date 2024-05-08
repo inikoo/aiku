@@ -49,7 +49,7 @@ class StoreRawMaterial extends OrgAction
         }
 
         //todo create/find correct permissions
-        return $request->user()->hasPermissionTo("inventory.productions.edit");
+        return $request->user()->hasPermissionTo("productions-view.{$this->organisation->id}");
     }
 
     public function rules(): array

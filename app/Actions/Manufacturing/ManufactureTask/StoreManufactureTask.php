@@ -43,7 +43,7 @@ class StoreManufactureTask extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("inventory.productions.edit");
+        return $request->user()->hasPermissionTo("productions-view.{$this->organisation->id}");
     }
 
     public function rules(): array
