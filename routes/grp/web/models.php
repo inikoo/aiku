@@ -266,7 +266,7 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
 });
 
 Route::post('/supplier', StoreSupplier::class)->name('supplier.store');
-Route::patch('/shop/{shop:id}/payment-accounts/{paymentAccount}', AttachPaymentAccountToShop::class)->name('shop.payment-accounts.attach');
+Route::patch('/shop/{shop:id}/payment-accounts/{paymentAccount:id}', AttachPaymentAccountToShop::class)->name('shop.payment-accounts.attach');
 
 /*
 
