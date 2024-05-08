@@ -45,6 +45,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \App\Models\Manufacturing\Production $production
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|RawMaterial newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RawMaterial newQuery()

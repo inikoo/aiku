@@ -1,14 +1,11 @@
 <?php
 
-use App\Enums\Inventory\LocationStock\LocationStockTypeEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialTypeEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-
+return new class () extends Migration {
     public function up()
     {
         Schema::create('location_raw_materials', function (Blueprint $table) {

@@ -30,8 +30,8 @@ class IndexMarketplaceAgents extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('agents.code',$value)
-                    ->orWhereAnyWordStartWith('agents.name',$value);
+                $query->whereStartWith('agents.code', $value)
+                    ->orWhereAnyWordStartWith('agents.name', $value);
             });
         });
 

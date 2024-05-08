@@ -65,12 +65,10 @@ class IndexProductions extends OrgAction
                 'productions.code as code',
                 'productions.id',
                 'productions.name',
-                'production_stats.number_production_areas',
-                'production_stats.number_locations',
                 'productions.slug as slug'
             ])
             ->leftJoin('production_stats', 'production_stats.production_id', 'productions.id')
-            ->allowedSorts(['code', 'name', 'number_production_areas', 'number_locations'])
+            ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -88,14 +86,14 @@ class IndexProductions extends OrgAction
                 ->withGlobalSearch()
                 ->withEmptyState(
                     [
-                        'title'       => __('no productions'),
-                        'description' => $this->canEdit ? __('Get started by creating a new production.') : null,
+                        'title'       => __('no manufacturing plant'),
+                        'description' => $this->canEdit ? __('Get started set up your new production plant.') : null,
                         'count'       => $parent->manufactureStats->number_productions,
                         'action'      => $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('new production'),
-                            'label'   => __('production'),
+                            'tooltip' => __('new production plant'),
+                            'label'   => __('manufacturing plant'),
                             'route'   => [
                                 'name'       => 'grp.org.productions.create',
                                 'parameters' => $parent->slug
@@ -105,8 +103,6 @@ class IndexProductions extends OrgAction
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_production_areas', label: __('production areas'), canBeHidden: false, sortable: true)
-                ->column(key: 'number_locations', label: __('locations'), canBeHidden: false, sortable: true)
                 ->defaultSort('code');
         };
     }

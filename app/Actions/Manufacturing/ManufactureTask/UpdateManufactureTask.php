@@ -91,7 +91,7 @@ class UpdateManufactureTask extends OrgAction
 
     public function action(ManufactureTask $manufactureTask, $modelData): ManufactureTask
     {
-        $this->asAction = true;
+        $this->asAction        = true;
         $this->manufactureTask = $manufactureTask;
         $this->initialisation($manufactureTask->organisation, $modelData);
 

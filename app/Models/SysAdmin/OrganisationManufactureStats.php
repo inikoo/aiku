@@ -40,6 +40,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_raw_materials_stock_status_critical
  * @property int $number_raw_materials_stock_status_out_of_stock
  * @property int $number_raw_materials_stock_status_error
+ * @property int $number_manufacture_tasks
+ * @property int $number_manufacture_tasks_operative_reward_terms_above_upper_lim
+ * @property int $number_manufacture_tasks_operative_reward_terms_above_lower_lim
+ * @property int $number_manufacture_tasks_operative_reward_terms_always
+ * @property int $number_manufacture_tasks_operative_reward_terms_never
+ * @property int $number_manufacture_tasks_operative_reward_allowance_type_on_top
+ * @property int $number_manufacture_tasks_operative_reward_allowance_type_offset
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation
