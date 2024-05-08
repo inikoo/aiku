@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('manufacture_tasks', function (Blueprint $table) {
             $table->id();
             $table=$this->groupOrgRelationship($table);
-            $table->unsignedMediumInteger('key');
+            $table->string('slug')->unique()->collation('und_ns');
             $table->string('code', 16);
             $table->string('name', 255);
             $table->float('task_materials_cost');
@@ -32,6 +32,8 @@ return new class extends Migration
             $table->string('operative_reward_allowance_type')->default(ManufactureTaskOperativeRewardAllowanceTypeEnum::OFFSET_SALARY->value);
             $table->double('operative_reward_amount')->unsigned();
             $table->timestampsTz();
+            $table->softDeletesTz();
+            $table->string('source_id')->nullable()->unique();
         });
     }
 
