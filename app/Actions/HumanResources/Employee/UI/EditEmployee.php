@@ -83,9 +83,10 @@ class EditEmployee extends OrgAction
                     'value' => $employee->work_email ?? ''
                 ],
                 'state'               => [
-                    'type'    => 'radio',
+                    'type'    => 'employeeState',
                     'mode'    => 'card',
-                    'label'   => '',
+                    'label'   => 'Employee status',
+                    'required'=> true,
                     'options' => [
                         [
                             'title'       => __('Hired'),
@@ -97,14 +98,22 @@ class EditEmployee extends OrgAction
                             'description' => __('Employee already working'),
                             'value'       => EmployeeStateEnum::WORKING->value
                         ],
+                        [
+                            'title'       => __('Leaving'),
+                            'description' => __('Employee will leave'),
+                            'value'       => EmployeeStateEnum::LEAVING->value
+                        ],
+                        [
+                            'title'       => __('Left'),
+                            'description' => __('Employee already left the office'),
+                            'value'       => EmployeeStateEnum::LEFT->value
+                        ],
                     ],
-                    'value'   => $employee->state,
-                ],
-                'employment_start_at' => [
-                    'type'     => 'date',
-                    'label'    => __('employment start at'),
-                    'value'    => $employee->employment_start_at,
-                    'required' => true
+                    'value'   => [
+                        'state'                 => $employee->state,
+                        'employment_start_at'   => $employee->employment_start_at ?? '',
+                        'employment_end_at'     => $employee->employment_end_at   ?? '',
+                    ]
                 ],
                 'job_title'           => [
                     'type'        => 'input',

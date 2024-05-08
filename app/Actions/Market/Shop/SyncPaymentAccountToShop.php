@@ -46,7 +46,7 @@ class SyncPaymentAccountToShop extends OrgAction
     public function rules(): array
     {
         return [
-            'shop_id' => ['required', 'exists:shops,id']
+            'shop_id' => ['nullable', 'exists:shops,id']
         ];
     }
 
