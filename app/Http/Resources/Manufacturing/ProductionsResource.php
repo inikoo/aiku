@@ -7,20 +7,27 @@
 
 namespace App\Http\Resources\Manufacturing;
 
-use App\Models\Manufacturing\Production;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property string $slug
+ * @property string $code
+ * @property string $name
+ * @property int $number_raw_materials
+ * @property int $number_artifacts
+ * @property int $number_manufacture_tasks
+ */
 class ProductionsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        /** @var Production $production */
-        $production=$this;
         return [
-            'id'                     => $production->id,
-            'slug'                   => $production->slug,
-            'code'                   => $production->code,
-            'name'                   => $production->name,
+            'slug'                     => $this->slug,
+            'code'                     => $this->code,
+            'name'                     => $this->name,
+            'number_raw_materials'     => $this->number_raw_materials,
+            'number_artifacts'         => $this->number_artifacts,
+            'number_manufacture_tasks' => $this->number_manufacture_tasks,
         ];
     }
 }

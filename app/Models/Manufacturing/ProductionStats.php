@@ -42,6 +42,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_manufacture_tasks_operative_reward_terms_never
  * @property int $number_manufacture_tasks_operative_reward_allowance_type_on_top
  * @property int $number_manufacture_tasks_operative_reward_allowance_type_offset
+ * @property int $number_artifacts
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Manufacturing\Production $production

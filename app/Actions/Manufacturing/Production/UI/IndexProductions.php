@@ -7,8 +7,11 @@
 
 namespace App\Actions\Manufacturing\Production\UI;
 
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
-use App\Actions\UI\Manufacturing\ManufacturingDashboard;
+use App\Actions\UI\Manufacturing\ShowManufacturingDashboard;
+use App\Enums\UI\Manufacturing\ProductionsTabsEnum;
+use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Manufacturing\ProductionsResource;
 use App\Models\Manufacturing\Production;
 use App\Models\SysAdmin\Organisation;
@@ -24,8 +27,6 @@ use App\Services\QueryBuilder;
 
 class IndexProductions extends OrgAction
 {
-    private Organisation $parent;
-
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo("productions.{$this->organisation->id}.edit");
@@ -35,8 +36,7 @@ class IndexProductions extends OrgAction
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent = $organisation;
-        $this->initialisation($organisation, $request);
+        $this->initialisation($organisation, $request)->withTab(ProductionsTabsEnum::values());
 
         return $this->handle($organisation);
     }
@@ -65,18 +65,22 @@ class IndexProductions extends OrgAction
                 'productions.code as code',
                 'productions.id',
                 'productions.name',
-                'productions.slug as slug'
+                'productions.slug as slug',
+                'number_raw_materials',
+                'number_artifacts',
+                'number_manufacture_tasks',
+
             ])
             ->leftJoin('production_stats', 'production_stats.production_id', 'productions.id')
-            ->allowedSorts(['code', 'name'])
+            ->allowedSorts(['code', 'name', 'number_raw_materials', 'number_artifacts','number_manufacture_tasks'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation $parent, $prefix = null): Closure
+    public function tableStructure(Organisation $organisation, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $prefix) {
+        return function (InertiaTable $table) use ($organisation, $prefix) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -88,7 +92,7 @@ class IndexProductions extends OrgAction
                     [
                         'title'       => __('no manufacturing plant'),
                         'description' => $this->canEdit ? __('Get started set up your new production plant.') : null,
-                        'count'       => $parent->manufactureStats->number_productions,
+                        'count'       => $organisation->manufactureStats->number_productions,
                         'action'      => $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -96,13 +100,16 @@ class IndexProductions extends OrgAction
                             'label'   => __('manufacturing plant'),
                             'route'   => [
                                 'name'       => 'grp.org.productions.create',
-                                'parameters' => $parent->slug
+                                'parameters' => $organisation->slug
                             ]
                         ] : null
                     ]
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_raw_materials', label: __('materials'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_manufacture_tasks', label: __('tasks'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_artifacts', label: __('artifacts'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }
@@ -120,12 +127,12 @@ class IndexProductions extends OrgAction
             'Org/Manufacturing/Productions',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
-                'title'       => __('productions'),
+                'title'       => __('factories'),
                 'pageHead'    => [
-                    'title'   => __('productions'),
+                    'title'   => __('Manufacturing plants'),
                     'icon'    => [
-                        'title' => __('productions'),
-                        'icon'  => 'fal fa-production'
+                        'title' => __('factories'),
+                        'icon'  => 'fal fa-industry'
                     ],
                     'actions' => [
                         $this->canEdit && $request->route()->routeName == 'grp.org.manufacturing.productions.index' ? [
@@ -140,15 +147,35 @@ class IndexProductions extends OrgAction
                         ] : false,
                     ]
                 ],
-                'data'        => ProductionsResource::collection($productions),
+
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => ProductionsTabsEnum::navigation(),
+                ],
+
+                ProductionsTabsEnum::PRODUCTIONS->value => $this->tab == ProductionsTabsEnum::PRODUCTIONS->value ?
+                    fn () => ProductionsResource::collection($productions)
+                    : Inertia::lazy(fn () => ProductionsResource::collection($productions)),
+
+
+                ProductionsTabsEnum::PRODUCTIONS_HISTORIES->value => $this->tab == ProductionsTabsEnum::PRODUCTIONS_HISTORIES->value ?
+                    fn () => HistoryResource::collection(IndexHistory::run(Production::class))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run(Production::class)))
+
+
             ]
-        )->table($this->tableStructure($this->parent));
+        )->table(
+            $this->tableStructure(
+                organisation: $this->organisation,
+                prefix: ProductionsTabsEnum::PRODUCTIONS->value
+            )
+        );
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
         return array_merge(
-            (new ManufacturingDashboard())->getBreadcrumbs(),
+            (new ShowManufacturingDashboard())->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'   => 'simple',
@@ -157,7 +184,7 @@ class IndexProductions extends OrgAction
                             'name'       => 'grp.org.manufacturing.productions.index',
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('productions'),
+                        'label' => __('factories'),
                         'icon'  => 'fal fa-bars',
                     ],
                     'suffix' => $suffix

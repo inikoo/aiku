@@ -14,7 +14,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ManufacturingDashboard extends OrgAction
+class ShowManufacturingDashboard extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
@@ -22,20 +22,20 @@ class ManufacturingDashboard extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, ActionRequest $request): Organisation
+    public function asController(Organisation $organisation, ActionRequest $request): ActionRequest
     {
         $this->initialisation($organisation, $request);
 
-        return $organisation;
+        return $request;
     }
 
 
-    public function htmlResponse(): Response
+    public function htmlResponse(ActionRequest $request): Response
     {
         return Inertia::render(
-            'Manufacturing/ManufacturingDashboard',
+            'Org/Manufacturing/ManufacturingDashboard',
             [
-                'breadcrumbs'  => $this->getBreadcrumbs(),
+                'breadcrumbs'  => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'        => __('manufacturing'),
                 'pageHead'     => [
                     'title' => __('manufacturing'),
@@ -61,7 +61,7 @@ class ManufacturingDashboard extends OrgAction
         );
     }
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
         return
             array_merge(
@@ -71,7 +71,8 @@ class ManufacturingDashboard extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'grp.org.manufacturing.dashboard'
+                                'name'      => 'grp.org.manufacturing.dashboard',
+                                'parameters'=> $routeParameters
                             ],
                             'label' => __('manufacturing'),
                         ]

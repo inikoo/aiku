@@ -6,10 +6,10 @@
  */
 
 
-use App\Actions\UI\Manufacturing\ManufacturingDashboard;
+use App\Actions\UI\Manufacturing\ShowManufacturingDashboard;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', ManufacturingDashboard::class)->name('dashboard');
+Route::get('/', ShowManufacturingDashboard::class)->name('dashboard');
 
 Route::name('productions.')->prefix('factories')
     ->group(__DIR__."/productions.php");

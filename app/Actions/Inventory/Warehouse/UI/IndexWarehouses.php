@@ -27,7 +27,6 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexWarehouses extends OrgAction
 {
-
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
