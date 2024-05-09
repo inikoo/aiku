@@ -104,9 +104,10 @@ class FetchAuroraOrders extends FetchAuroraAction
 
 
         } elseif ($orderData['parent']) {
-            $order = StoreOrder::make()->asFetch(
+            $order = StoreOrder::make()->action(
                 parent: $orderData['parent'],
                 modelData: $orderData['order'],
+                strict: false,
                 hydratorsDelay: $this->hydrateDelay
             );
 
@@ -162,6 +163,7 @@ class FetchAuroraOrders extends FetchAuroraAction
     private function fetchTransactions($organisationSource, Order $order): void
     {
         $transactionsToDelete = $order->transactions()->where('type', TransactionTypeEnum::ORDER)->pluck('source_id', 'id')->all();
+
 
 
         $sourceData= explode(':', $order->source_id);

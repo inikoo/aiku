@@ -112,7 +112,7 @@ class FetchAuroraOrder extends FetchAurora
 
 
             "number"          => $this->auroraModelData->{'Order Public ID'},
-            'customer_number' => $this->auroraModelData->{'Order Customer Purchase Order ID'},
+            'customer_number' => (string) $this->auroraModelData->{'Order Customer Purchase Order ID'},
             "state"           => $state,
             "status"          => $status,
             "source_id"       => $this->organisation->id.':'.$this->auroraModelData->{'Order Key'},
