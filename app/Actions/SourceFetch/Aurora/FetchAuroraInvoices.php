@@ -21,7 +21,7 @@ class FetchAuroraInvoices extends FetchAuroraAction
 {
     public string $commandSignature = 'fetch:invoices {organisations?*} {--s|source_id=} {--S|shop= : Shop slug}  {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset}';
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Invoice
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions = false): ?Invoice
     {
         if ($invoiceData = $organisationSource->fetchInvoice($organisationSourceId)) {
             if ($invoice = Invoice::withTrashed()->where('source_id', $invoiceData['invoice']['source_id'])
@@ -44,7 +44,7 @@ class FetchAuroraInvoices extends FetchAuroraAction
                     UpdateHistoricAddressToModel::run($invoice, $currentBillingAddress, $billingAddress, ['scope' => 'billing']);
                 }
 
-                if (in_array('transactions', $this->with)) {
+                if (in_array('transactions', $this->with) or $forceWithTransactions) {
                     $this->fetchInvoiceTransactions($organisationSource, $invoice);
                 }
 
@@ -68,7 +68,7 @@ class FetchAuroraInvoices extends FetchAuroraAction
 
                         return null;
                     }
-                    if (in_array('transactions', $this->with)) {
+                    if (in_array('transactions', $this->with) or $forceWithTransactions) {
                         $this->fetchInvoiceTransactions($organisationSource, $invoice);
                     }
 
@@ -97,7 +97,7 @@ class FetchAuroraInvoices extends FetchAuroraAction
         $transactionsToDelete = $invoice->invoiceTransactions()->pluck('source_id', 'id')->all();
         $this->allowLegacy    = true;
 
-        $sourceData= explode(':', $invoice->source_id);
+        $sourceData = explode(':', $invoice->source_id);
 
         foreach (
             DB::connection('aurora')

@@ -26,7 +26,7 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
 {
     public string $commandSignature = 'fetch:delivery-notes {organisations?*} {--s|source_id=} {--S|shop= : Shop slug}  {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset}';
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?DeliveryNote
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions=false): ?DeliveryNote
     {
         if ($deliveryNoteData = $organisationSource->fetchDeliveryNote($organisationSourceId)) {
             if (!empty($deliveryNoteData['delivery_note']['source_id']) and $deliveryNote = DeliveryNote::withTrashed()->where('source_id', $deliveryNoteData['delivery_note']['source_id'])
@@ -43,7 +43,7 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
                 }
 
 
-                if (in_array('transactions', $this->with)) {
+                if (in_array('transactions', $this->with) or $forceWithTransactions) {
                     $this->fetchDeliveryNoteTransactions($organisationSource, $deliveryNote);
                 }
 
@@ -63,7 +63,7 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
                         return null;
                     }
 
-                    if (in_array('transactions', $this->with)) {
+                    if (in_array('transactions', $this->with) or $forceWithTransactions) {
                         $this->fetchDeliveryNoteTransactions($organisationSource, $deliveryNote);
                     }
 

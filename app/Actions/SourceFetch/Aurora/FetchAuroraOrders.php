@@ -20,67 +20,103 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraOrders extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:orders {organisations?*} {--S|shop= : Shop slug}  {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:orders {organisations?*} {--S|shop= : Shop slug}  {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions=false): ?Order
     {
         if ($orderData = $organisationSource->fetchOrder($organisationSourceId)) {
-            if (!empty($orderData['order']['source_id']) and $order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])
-                    ->first()) {
-                $order = UpdateOrder::make()->action(order: $order, modelData: ['order'], strict: false);
-
-                $currentBillingAddress = $order->getAddress('billing');
-
-                if ($currentBillingAddress->checksum != $orderData['order']['billing_address']->getChecksum()) {
-                    $billingAddress = StoreHistoricAddress::run($orderData['order']['billing_address']);
-                    UpdateHistoricAddressToModel::run($order, $currentBillingAddress, $billingAddress, ['scope' => 'billing']);
-                }
-
-                $currentDeliveryAddress = $order->getAddress('delivery');
-                if ($currentDeliveryAddress->checksum != $orderData['order']['delivery_address']->getChecksum()) {
-                    $deliveryAddress = StoreHistoricAddress::run($orderData['order']['delivery_address']);
-                    UpdateHistoricAddressToModel::run($order, $currentDeliveryAddress, $deliveryAddress, ['scope' => 'delivery']);
-                }
 
 
+            $order=$this->processFetchOrder($orderData);
 
-                if (in_array('transactions', $this->with)  or $forceWithTransactions) {
-                    $this->fetchTransactions($organisationSource, $order);
-                }
-                if (in_array('payments', $this->with)) {
-                    $this->fetchPayments($organisationSource, $order);
-                }
-                $this->updateAurora($order);
-
-
-                return $order;
-            } else {
-                if ($orderData['parent']) {
-                    $order = StoreOrder::make()->asFetch(
-                        parent: $orderData['parent'],
-                        modelData: $orderData['order'],
-                        hydratorsDelay: $this->hydrateDelay
-                    );
-
-                    if (in_array('transactions', $this->with)   or $forceWithTransactions) {
-                        $this->fetchTransactions($organisationSource, $order);
-                    }
-                    if (in_array('payments', $this->with)) {
-                        $this->fetchPayments($organisationSource, $order);
-                    }
-                    $this->updateAurora($order);
-
-
-                    return $order;
-                }
-                print "Warning order $organisationSourceId do not have customer\n";
+            if(!$order) {
+                print "Error order could not process $organisationSourceId\n";
+                return null;
             }
+
+            if (in_array('transactions', $this->with) or in_array('full', $this->with)  or $forceWithTransactions) {
+                $this->fetchTransactions($organisationSource, $order);
+            }
+            if (in_array('payments', $this->with) or in_array('full_todo', $this->with)) {
+                $this->fetchPayments($organisationSource, $order);
+            }
+            $this->updateAurora($order);
+
+            $sourceData= explode(':', $order->source_id);
+
+
+            if (in_array('full', $this->with)) {
+                foreach (
+                    DB::connection('aurora')
+                        ->table('Delivery Note Dimension')
+                        ->where('Delivery Note Order Key', $sourceData[1])
+                        ->select('Delivery Note Key as source_id')
+                        ->orderBy('source_id')->get() as $deliveryNote
+                ) {
+                    FetchAuroraDeliveryNotes::run($organisationSource, $deliveryNote->source_id, true);
+                }
+            }
+
+            if (in_array('full', $this->with)) {
+                foreach (
+                    DB::connection('aurora')
+                        ->table('Invoice Dimension')
+                        ->where('Invoice Order Key', $sourceData[1])
+                        ->select('Invoice Key as source_id')
+                        ->orderBy('source_id')->get() as $invoice
+                ) {
+                    FetchAuroraInvoices::run($organisationSource, $invoice->source_id, true);
+                }
+            }
+
+
+
         } else {
             print "Warning error fetching order $organisationSourceId\n";
         }
 
         return null;
     }
+
+    private function processFetchOrder($orderData): ?Order
+    {
+
+        $order=null;
+        if (!empty($orderData['order']['source_id']) and $order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])->first()) {
+            $order = UpdateOrder::make()->action(order: $order, modelData: ['order'], strict: false);
+
+            $currentBillingAddress = $order->getAddress('billing');
+
+            if ($currentBillingAddress->checksum != $orderData['order']['billing_address']->getChecksum()) {
+                $billingAddress = StoreHistoricAddress::run($orderData['order']['billing_address']);
+                UpdateHistoricAddressToModel::run($order, $currentBillingAddress, $billingAddress, ['scope' => 'billing']);
+            }
+
+            $currentDeliveryAddress = $order->getAddress('delivery');
+            if ($currentDeliveryAddress->checksum != $orderData['order']['delivery_address']->getChecksum()) {
+                $deliveryAddress = StoreHistoricAddress::run($orderData['order']['delivery_address']);
+                UpdateHistoricAddressToModel::run($order, $currentDeliveryAddress, $deliveryAddress, ['scope' => 'delivery']);
+            }
+
+
+
+
+
+
+        } elseif ($orderData['parent']) {
+            $order = StoreOrder::make()->asFetch(
+                parent: $orderData['parent'],
+                modelData: $orderData['order'],
+                hydratorsDelay: $this->hydrateDelay
+            );
+
+        }
+
+
+        return $order;
+
+    }
+
 
     private function fetchPayments($organisationSource, Order $order): void
     {

@@ -22,9 +22,9 @@ use Illuminate\Support\Carbon;
  * @property int $group_id
  * @property int $organisation_id
  * @property int $delivery_note_id
- * @property int $stock_family_id
+ * @property int|null $stock_family_id
  * @property int $stock_id
- * @property int $org_stock_family_id
+ * @property int|null $org_stock_family_id
  * @property int $org_stock_id
  * @property int|null $transaction_id
  * @property int|null $picking_id
