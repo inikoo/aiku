@@ -22,13 +22,13 @@ return new class () extends Migration {
             $table->unsignedInteger('delivery_note_id')->index();
             $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
 
-            $table->unsignedInteger('stock_family_id')->index();
+            $table->unsignedInteger('stock_family_id')->index()->nullable();
             $table->foreign('stock_family_id')->references('id')->on('stock_families');
 
             $table->unsignedInteger('stock_id')->index();
             $table->foreign('stock_id')->references('id')->on('stocks');
 
-            $table->unsignedInteger('org_stock_family_id')->index();
+            $table->unsignedInteger('org_stock_family_id')->index()->nullable();
             $table->foreign('org_stock_family_id')->references('id')->on('org_stock_families');
 
             $table->unsignedInteger('org_stock_id')->index();
