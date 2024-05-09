@@ -422,6 +422,8 @@ trait WithAuroraParsers
         return $orgStock;
     }
 
+
+
     public function parseStock($sourceId): ?Stock
     {
         $stock      = Stock::withTrashed()->where('source_id', $sourceId)->first();

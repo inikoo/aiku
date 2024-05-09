@@ -18,7 +18,7 @@ class FetchAuroraDeliveryNoteTransaction extends FetchAurora
     protected function parseDeliveryNoteTransaction(DeliveryNote $deliveryNote): void
     {
         if ($this->auroraModelData->{'Part SKU'}) {
-            if ($stock = $this->parseStock($this->auroraModelData->{'Part SKU'})) {
+            if ($orgStock = $this->parseOrgStock($this->organisation->id.':'.$this->auroraModelData->{'Part SKU'})) {
                 $transaction = $this->parseTransaction($this->auroraModelData->{'Map To Order Transaction Fact Key'});
 
 
@@ -55,7 +55,7 @@ class FetchAuroraDeliveryNoteTransaction extends FetchAurora
 
 
                 if (!$transaction) {
-                    print "Warning Transaction ID  ".$this->auroraModelData->{'Map To Order Transaction Fact Key'}." not found while creating DN item >".$this->auroraModelData->{'Inventory Transaction Key'}."\n";
+                    //  print "Warning Transaction ID  ".$this->auroraModelData->{'Map To Order Transaction Fact Key'}." not found while creating DN item >".$this->auroraModelData->{'Inventory Transaction Key'}."\n";
                     $transactionID = null;
                 } else {
                     $transactionID = $transaction->id;
@@ -70,7 +70,7 @@ class FetchAuroraDeliveryNoteTransaction extends FetchAurora
                     'quantity_picked'     => $this->auroraModelData->{'Picked'},
                     'quantity_packed'     => $this->auroraModelData->{'Packed'},
                     'quantity_dispatched' => $quantity_dispatched,
-                    'stock_id'            => $stock->id,
+                    'org_stock_id'        => $orgStock->id,
                     'source_id'           => $this->organisation->id.':'.$this->auroraModelData->{'Inventory Transaction Key'},
                     'created_at'          => $this->auroraModelData->{'Date Created'},
 

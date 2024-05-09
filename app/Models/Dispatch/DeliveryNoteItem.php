@@ -26,7 +26,7 @@ use Illuminate\Support\Carbon;
  * @property int $stock_id
  * @property int $org_stock_family_id
  * @property int $org_stock_id
- * @property int $transaction_id
+ * @property int|null $transaction_id
  * @property int|null $picking_id
  * @property DeliveryNoteItemStateEnum $state
  * @property DeliveryNoteItemStatusEnum $status
