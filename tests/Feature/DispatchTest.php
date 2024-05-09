@@ -87,12 +87,14 @@ test('create customer', function ($shop) {
 
 test('create order', function ($createdCustomer) {
     $arrayData = [
-        'number'      => '123456',
-        'date'        => date('Y-m-d'),
-        'customer_id' => $createdCustomer->id
+        'number'           => '123456',
+        'date'             => date('Y-m-d'),
+        'customer_id'      => $createdCustomer->id,
+        'delivery_address' => new Address(Address::factory()->definition()),
+        'billing_address'  => new Address(Address::factory()->definition())
     ];
 
-    $createdOrder = StoreOrder::make()->action($createdCustomer, $arrayData, Address::make(), Address::make());
+    $createdOrder = StoreOrder::make()->action($createdCustomer, $arrayData);
 
     expect($createdOrder->number)->toBe($arrayData['number']);
 
@@ -101,15 +103,16 @@ test('create order', function ($createdCustomer) {
 
 test('create delivery note', function ($createdOrder) {
     $arrayData = [
-        'number' => 123456,
-        'state'  => DeliveryNoteStateEnum::SUBMITTED,
-        'status' => DeliveryNoteStatusEnum::HANDLING,
-        'email'  => 'test@email.com',
-        'phone'  => '+62081353890000',
-        'date'   => date('Y-m-d')
+        'number'           => 'A123456',
+        'state'            => DeliveryNoteStateEnum::SUBMITTED,
+        'status'           => DeliveryNoteStatusEnum::HANDLING,
+        'email'            => 'test@email.com',
+        'phone'            => '+62081353890000',
+        'date'             => date('Y-m-d'),
+        'delivery_address' => new Address(Address::factory()->definition())
     ];
 
-    $deliveryNote = StoreDeliveryNote::make()->action($createdOrder, $arrayData, Address::make());
+    $deliveryNote = StoreDeliveryNote::make()->action($createdOrder, $arrayData);
     expect($deliveryNote)->toBeInstanceOf(DeliveryNote::class)
         ->and($deliveryNote->number)->toBe($arrayData['number']);
 
@@ -119,7 +122,7 @@ test('create delivery note', function ($createdOrder) {
 
 test('update delivery note', function ($lastDeliveryNote) {
     $arrayData = [
-        'number' => 2321321,
+        'number' => 'A2321321',
         'state'  => DeliveryNoteStateEnum::PICKING,
         'status' => DeliveryNoteStatusEnum::DISPATCHED,
         'email'  => 'test@email.com',
@@ -165,7 +168,6 @@ test('remove delivery note', function ($deliveryNote) {
 
 
 test('create shipment', function ($deliveryNote, $shipper) {
-
     $arrayData              = [
         'reference' => 'AAA'
     ];
