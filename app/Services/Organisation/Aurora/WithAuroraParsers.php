@@ -319,9 +319,11 @@ trait WithAuroraParsers
 
     public function parseProduct(string $sourceId): Product
     {
+
         $product = Product::where('source_id', $sourceId)->first();
         if (!$product) {
             $sourceData = explode(':', $sourceId);
+
             $product    = FetchAuroraProducts::run($this->organisationSource, $sourceData[1]);
         }
 
@@ -623,6 +625,7 @@ trait WithAuroraParsers
         $reference = str_replace("'", '', $reference);
         $reference = str_replace(",", '', $reference);
         $reference = str_replace("/", '-', $reference);
+        $reference = str_replace("*", '_', $reference);
 
         /** @noinspection PhpDuplicateArrayKeysInspection */
         /** @noinspection DuplicatedCode */

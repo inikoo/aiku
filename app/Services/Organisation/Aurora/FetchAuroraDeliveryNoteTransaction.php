@@ -77,8 +77,7 @@ class FetchAuroraDeliveryNoteTransaction extends FetchAurora
                     'created_at'          => $this->auroraModelData->{'Date Created'},
 
                 ];
-            }
-            else {
+            } else {
                 print "Warning Part SKU  ".$this->auroraModelData->{'Part SKU'}." not found while creating DN item >".$this->auroraModelData->{'Inventory Transaction Key'}."\n";
             }
         } else {

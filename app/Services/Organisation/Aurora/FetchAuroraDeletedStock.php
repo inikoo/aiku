@@ -7,7 +7,9 @@
 
 namespace App\Services\Organisation\Aurora;
 
+use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class FetchAuroraDeletedStock extends FetchAurora
 {
@@ -30,15 +32,29 @@ class FetchAuroraDeletedStock extends FetchAurora
             $code = strtolower($this->auroraModelData->{'Part Deleted Reference'});
         }
 
+        $code = $this->cleanTradeUnitReference($code);
+        $code.= '-deleted';
+        $sourceSlug = Str::kebab(strtolower($code));
+
+
         $this->parsedData['stock'] =
             [
-                'description' => $auroraDeletedData->{'Part Recommended Product Unit Name'} ?? null,
+                'name'        => $auroraDeletedData->{'Part Recommended Product Unit Name'} ?? $code,
                 'code'        => $code,
-                'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Part Deleted Key'},
                 'deleted_at'  => $deleted_at,
-
-                'created_at' => $auroraDeletedData->{'Part Valid From'} ?? null,
+                'created_at'  => $auroraDeletedData->{'Part Valid From'} ?? null,
+                'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Part Deleted Key'},
+                'source_slug' => $sourceSlug
             ];
+
+
+
+        $this->parsedData['org_stock'] = [
+            'state'           => OrgStockStateEnum::DISCONTINUED,
+            'quantity_status' => 'out-of-stock',
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Part Deleted Key'},
+            'source_slug'     => $sourceSlug
+        ];
     }
 
 
