@@ -35,6 +35,7 @@ class FetchTransactions
                 $transactionData['transaction']['group_net_amount']= $transactionData['transaction']['net']*$transactionData['transaction']['group_exchange'];
 
 
+
                 $transaction= StoreTransaction::make()->action(
                     order:     $order,
                     item:     $transactionData['item'],

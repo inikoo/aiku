@@ -95,11 +95,12 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
         $transactionsToDelete = $deliveryNote->deliveryNoteItems()->pluck('source_id', 'id')->all();
 
 
+        $sourceData=explode(':', $deliveryNote->source_id);
         foreach (
             DB::connection('aurora')
                 ->table('Inventory Transaction Fact')
                 ->select('Inventory Transaction Key')
-                ->where('Delivery Note Key', $deliveryNote->source_id)
+                ->where('Delivery Note Key', $sourceData[1])
                 ->get() as $auroraData
         ) {
             $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Inventory Transaction Key'}]);

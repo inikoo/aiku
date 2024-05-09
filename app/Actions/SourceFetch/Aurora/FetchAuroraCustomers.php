@@ -129,7 +129,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
                         ->select('Order Key as source_id')
                         ->orderBy('source_id')->get() as $order
                 ) {
-                    FetchAuroraOrders::run($organisationSource, $order->source_id);
+                    FetchAuroraOrders::run($organisationSource, $order->source_id, true);
                 }
             }
 

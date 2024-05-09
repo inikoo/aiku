@@ -22,7 +22,7 @@ class FetchAuroraOrders extends FetchAuroraAction
 {
     public string $commandSignature = 'fetch:orders {organisations?*} {--S|shop= : Shop slug}  {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Order
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions=false): ?Order
     {
         if ($orderData = $organisationSource->fetchOrder($organisationSourceId)) {
             if (!empty($orderData['order']['source_id']) and $order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])
@@ -42,7 +42,9 @@ class FetchAuroraOrders extends FetchAuroraAction
                     UpdateHistoricAddressToModel::run($order, $currentDeliveryAddress, $deliveryAddress, ['scope' => 'delivery']);
                 }
 
-                if (in_array('transactions', $this->with)) {
+
+
+                if (in_array('transactions', $this->with)  or $forceWithTransactions) {
                     $this->fetchTransactions($organisationSource, $order);
                 }
                 if (in_array('payments', $this->with)) {
@@ -60,7 +62,7 @@ class FetchAuroraOrders extends FetchAuroraAction
                         hydratorsDelay: $this->hydrateDelay
                     );
 
-                    if (in_array('transactions', $this->with)) {
+                    if (in_array('transactions', $this->with)   or $forceWithTransactions) {
                         $this->fetchTransactions($organisationSource, $order);
                     }
                     if (in_array('payments', $this->with)) {
