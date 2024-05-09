@@ -19,6 +19,7 @@ use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
 use App\Models\OMS\Order;
+use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -35,9 +36,13 @@ class StoreOrder extends OrgAction
     public function handle(
         Shop|Customer|CustomerClient $parent,
         array $modelData,
-        Address $seedBillingAddress,
-        Address $seedDeliveryAddress
     ): Order {
+
+        $billingAddress = $modelData['billing_address'];
+        data_forget($modelData, 'billing_address');
+        $delivery_address = $modelData['delivery_address'];
+        data_forget($modelData, 'delivery_address');
+
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
             $modelData['currency_id'] = $parent->shop->currency_id;
@@ -60,8 +65,8 @@ class StoreOrder extends OrgAction
         $order = Order::create($modelData);
         $order->stats()->create();
 
-        $billingAddress  = StoreHistoricAddress::run($seedBillingAddress);
-        $deliveryAddress = StoreHistoricAddress::run($seedDeliveryAddress);
+        $billingAddress  = StoreHistoricAddress::run($billingAddress);
+        $deliveryAddress = StoreHistoricAddress::run($delivery_address);
 
         AttachHistoricAddressToModel::run($order, $billingAddress, ['scope' => 'billing']);
         AttachHistoricAddressToModel::run($order, $deliveryAddress, ['scope' => 'delivery']);
@@ -84,9 +89,10 @@ class StoreOrder extends OrgAction
     public function rules(): array
     {
         return [
-            'number'      => ['required', 'unique:orders', 'numeric'],
-            'date'        => ['required'],
-            'customer_id' => ['required', 'numeric']
+            'number'           => ['required', 'unique:orders', 'numeric'],
+            'date'             => ['required'],
+            'delivery_address' => ['required', new ValidAddress()],
+            'billing_address'  => ['required', new ValidAddress()],
         ];
     }
 
@@ -105,25 +111,25 @@ class StoreOrder extends OrgAction
     public function action(
         Shop|Customer|CustomerClient $parent,
         array $modelData,
-        Address $seedBillingAddress,
-        Address $seedDeliveryAddress,
+        bool $strict=true,
+        int $hydratorsDelay = 60
     ): Order {
-        $this->asAction = true;
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->strict         =$strict;
 
         $this->initialisation($parent->organisation, $modelData);
 
-        return $this->handle($parent, $this->validatedData, $seedBillingAddress, $seedDeliveryAddress);
+        return $this->handle($parent, $this->validatedData, );
     }
 
     public function asFetch(
         Shop|Customer|CustomerClient $parent,
         array $modelData,
-        Address $seedBillingAddress,
-        Address $seedDeliveryAddress,
         int $hydratorsDelay = 60
     ): Order {
         $this->hydratorsDelay = $hydratorsDelay;
 
-        return $this->handle($parent, $modelData, $seedBillingAddress, $seedDeliveryAddress);
+        return $this->handle($parent, $modelData);
     }
 }

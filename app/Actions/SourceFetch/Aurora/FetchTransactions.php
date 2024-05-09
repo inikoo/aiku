@@ -7,12 +7,12 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Actions\OMS\Transaction\StoreTransaction;
 use App\Models\OMS\Order;
 use App\Models\OMS\Transaction;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class FetchTransactions
@@ -20,18 +20,30 @@ class FetchTransactions
     use AsAction;
 
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $source_id, Order $order): ?Transaction
+    public function handle(SourceOrganisationService $organisationSource, int $source_id, Order $order): ?Transaction
     {
         if ($transactionData = $organisationSource->fetchTransaction(id: $source_id)) {
-            if (!Transaction::where('source_id', $transactionData['transaction']['source_id'])
-                ->first()) {
-                $transaction= StoreTransaction::run(
+
+            if (!Transaction::where('source_id', $transactionData['transaction']['source_id'])->first()) {
+
+
+                $transactionData['transaction']['org_exchange']=
+                    GetHistoricCurrencyExchange::run($order->shop->currency, $order->organisation->currency, $transactionData['transaction']['date']);
+                $transactionData['transaction']['group_exchange']=
+                    GetHistoricCurrencyExchange::run($order->shop->currency, $order->group->currency, $transactionData['transaction']['date']);
+                $transactionData['transaction']['org_net_amount']  = $transactionData['transaction']['net']*$transactionData['transaction']['org_exchange'];
+                $transactionData['transaction']['group_net_amount']= $transactionData['transaction']['net']*$transactionData['transaction']['group_exchange'];
+
+
+                $transaction= StoreTransaction::make()->action(
                     order:     $order,
+                    item:     $transactionData['item'],
                     modelData: $transactionData['transaction']
                 );
 
+                $sourceData=explode(':', $transaction->source_id);
                 DB::connection('aurora')->table('Order Transaction Fact')
-                    ->where('Order Transaction Fact Key', $transaction->source_id)
+                    ->where('Order Transaction Fact Key', $sourceData[1])
                     ->update(['aiku_id' => $transaction->id]);
 
                 return $transaction;

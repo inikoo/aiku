@@ -7,43 +7,66 @@
 
 namespace App\Actions\OMS\Transaction;
 
+use App\Actions\OrgAction;
+use App\Enums\OMS\Transaction\TransactionStateEnum;
+use App\Enums\OMS\Transaction\TransactionStatusEnum;
+use App\Enums\OMS\Transaction\TransactionTypeEnum;
+use App\Models\Market\HistoricOuterable;
 use App\Models\OMS\Order;
 use App\Models\OMS\Transaction;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreTransaction
+class StoreTransaction extends OrgAction
 {
-    use AsAction;
     use WithAttributes;
 
-    public function handle(Order $order, array $modelData): Transaction
+    public function handle(Order $order, HistoricOuterable $item, array $modelData): Transaction
     {
-
         data_set($modelData, 'shop_id', $order->shop_id);
         data_set($modelData, 'customer_id', $order->customer_id);
         data_set($modelData, 'group_id', $order->group_id);
         data_set($modelData, 'organisation_id', $order->organisation_id);
 
+        data_set($modelData, 'item_type', class_basename($item));
+        data_set($modelData, 'item_id', $item->id);
+
+
         /** @var Transaction $transaction */
         $transaction = $order->transactions()->create($modelData);
+
         return $transaction;
     }
 
     public function rules(): array
     {
         return [
-            'type'             => ['required'],
-            'quantity_bonus'   => ['required', 'numeric'],
-            'quantity_ordered' => ['required', 'numeric'],
+            'date'                => ['required', 'date'],
+            'type'                => ['required', Rule::enum(TransactionTypeEnum::class)],
+            'quantity_bonus'      => ['required', 'numeric', 'min:0'],
+            'quantity_ordered'    => ['required', 'numeric', 'min:0'],
+            'quantity_dispatched' => ['required', 'numeric', 'min:0'],
+            'quantity_fail'       => ['required', 'numeric', 'min:0'],
+            'quantity_cancelled'  => ['sometimes', 'numeric', 'min:0'],
+
+            'source_id'        => ['sometimes', 'string'],
+            'state'            => ['sometimes', Rule::enum(TransactionStateEnum::class)],
+            'status'           => ['sometimes', Rule::enum(TransactionStatusEnum::class)],
+            'org_exchange'     => ['sometimes', 'numeric'],
+            'group_exchange'   => ['sometimes', 'numeric'],
+            'org_net_amount'   => ['sometimes', 'numeric'],
+            'group_net_amount' => ['sometimes', 'numeric'],
+            'tax_rate'         => ['required', 'numeric', 'min:0'],
+            'created_at'       => ['sometimes', 'required', 'date'],
+
+
         ];
     }
 
-    public function action(Order $order, array $modelData): Transaction
+    public function action(Order $order, $item, array $modelData): Transaction
     {
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->initialisationFromShop($order->shop, $modelData);
 
-        return $this->handle($order, $validatedData);
+        return $this->handle($order, $item, $this->validatedData);
     }
 }
