@@ -1,6 +1,11 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 10 May 2024 12:09:58 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
- namespace App\Actions\Manufacturing\JobOrderItem;
+namespace App\Actions\Manufacturing\JobOrderItem;
 
 use App\Actions\OrgAction;
 use App\Enums\Manufacturing\JobOrderItem\JobOrderItemStateEnum;
@@ -13,8 +18,8 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
- class StoreJobOrderItem extends OrgAction
- {
+class StoreJobOrderItem extends OrgAction
+{
     public function handle(JobOrder $jobOrder, array $modelData): JobOrderItem
     {
         if (Arr::get($modelData, 'notes') === null) {
@@ -34,7 +39,7 @@ use Lorisleiva\Actions\ActionRequest;
         data_set($modelData, 'group_id', $jobOrder->group_id);
         data_set($modelData, 'organisation_id', $jobOrder->organisation_id);
 
-        /** @var Pallet $pallet */
+       /** @var JobOrderItem $jobOrderItem */
         $jobOrderItem = $jobOrder->jobOrderItems()->create($modelData);
 
         if ($jobOrderItem->reference) {
@@ -71,7 +76,7 @@ use Lorisleiva\Actions\ActionRequest;
     public function rules(): array
     {
         return [
-            'artifact_id'       => ['required', 'integer', 'exists:artifacts,id'],
+            'artifact_id'        => ['required', 'integer', 'exists:artifacts,id'],
             'status'             => [
                 'sometimes',
                 Rule::enum(JobOrderItemStatusEnum::class)
@@ -81,7 +86,7 @@ use Lorisleiva\Actions\ActionRequest;
                 Rule::enum(JobOrderItemStateEnum::class)
             ],
             'notes'              => ['sometimes', 'nullable', 'string', 'max:1024'],
-            'quantity'          => ['required', 'integer', 'min:1'],
+            'quantity'           => ['required', 'integer', 'min:1'],
             'created_at'         => ['sometimes', 'date'],
             'received_at'        => ['sometimes', 'nullable', 'date'],
         ];
@@ -126,4 +131,4 @@ use Lorisleiva\Actions\ActionRequest;
     //         ]
     //     );
     // }
- }
+}

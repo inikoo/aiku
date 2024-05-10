@@ -242,7 +242,7 @@ test('update manufacture task', function ($manufactureTask) {
 test('create job order', function ($production) {
 
     $data = [
-        'public_notes' => 'This is a public note for the job order.',
+        'public_notes'   => 'This is a public note for the job order.',
         'internal_notes' => 'These are internal notes for the job order.',
         'customer_notes' => 'These are internal notes for the job order.'
     ];
@@ -265,7 +265,7 @@ test('create job order', function ($production) {
 test('update job order', function ($jobOrder) {
 
     $data = [
-        'public_notes' => 'This is an updated public note for the job order.',
+        'public_notes'   => 'This is an updated public note for the job order.',
         'internal_notes' => 'These are updated internal notes for the job order.',
         'customer_notes' => 'These are updated internal notes for the job order.'
     ];
@@ -283,4 +283,3 @@ test('update job order', function ($jobOrder) {
     ->and($updatedJobOrder->internal_notes)->toBe($data['internal_notes'])
     ->and($updatedJobOrder->customer_notes)->toBe($data['customer_notes']);
 })->depends('create job order');
-

@@ -7,8 +7,6 @@
 
 namespace App\Actions\Manufacturing\JobOrder\Hydrators;
 
-
-use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Manufacturing\JobOrder;
 use Lorisleiva\Actions\Concerns\AsAction;
 

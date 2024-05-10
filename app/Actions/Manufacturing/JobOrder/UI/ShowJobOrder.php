@@ -1,18 +1,21 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 10 May 2024 12:07:41 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
- namespace App\Actions\Manufacturing\JobOrder\UI;
+namespace App\Actions\Manufacturing\JobOrder\UI;
 
 use App\Actions\OrgAction;
-use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Http\Resources\Manufacturing\JobOrderResource;
 use App\Models\Manufacturing\JobOrder;
-use App\Models\Manufacturing\JobOrderItem;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Inertia\Response;
 
- class ShowJobOrder extends OrgAction
+class ShowJobOrder extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
@@ -37,9 +40,7 @@ use Inertia\Response;
 
     public function htmlResponse(JobOrder $jobOrder, ActionRequest $request): Response
     {
-        if ($jobOrder->trashed()) {
-            return $this->deletedHtmlResponse($jobOrder, $request);
-        }
+
 
         return Inertia::render(
             'SupplyChain/Agent',

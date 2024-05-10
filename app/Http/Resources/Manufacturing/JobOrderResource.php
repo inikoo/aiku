@@ -1,30 +1,29 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 10 May 2024 12:06:21 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 namespace App\Http\Resources\Manufacturing;
 
+use App\Models\Manufacturing\JobOrder;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class JobOrderResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
-     */
 
-    //  Test Resource for JobOrder
-    public function toArray($request)
+    public function toArray($request): array
     {
-         /** @var JobOrder $jobOrder */
+        /** @var JobOrder $jobOrder */
         $jobOrder = $this;
         return [
             'reference' => $jobOrder->reference,
-            'state' => $jobOrder->state,
-            'date' => $jobOrder->date,
-            'notes' => [
+            'state'     => $jobOrder->state,
+            'date'      => $jobOrder->date,
+            'notes'     => [
                 'customer' => $jobOrder->customer_notes,
-                'public' => $jobOrder->public_notes,
+                'public'   => $jobOrder->public_notes,
                 'internal' => $jobOrder->internal_notes,
             ],
         ];

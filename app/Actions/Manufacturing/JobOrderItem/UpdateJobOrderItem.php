@@ -1,6 +1,6 @@
 <?php
 
- namespace App\Actions\Manufacturing\JobOrderItem;
+namespace App\Actions\Manufacturing\JobOrderItem;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -11,7 +11,7 @@ use App\Models\Manufacturing\JobOrderItem;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
- class UpdateJobOrderItem extends OrgAction
+class UpdateJobOrderItem extends OrgAction
 {
     use WithActionUpdate;
 
@@ -66,7 +66,7 @@ use Lorisleiva\Actions\ActionRequest;
                 Rule::enum(JobOrderItemStateEnum::class)
             ],
             'notes'              => ['sometimes', 'nullable', 'string', 'max:1024'],
-            'quantity'          =>  ['sometimes', 'integer', 'min:1'],
+            'quantity'           => ['sometimes', 'integer', 'min:1'],
             'received_at'        => ['sometimes', 'nullable', 'date'],
         ];
     }
@@ -101,8 +101,8 @@ use Lorisleiva\Actions\ActionRequest;
     public function action(JobOrderItem $jobOrderItem, array $modelData, int $hydratorsDelay = 0): JobOrderItem
     {
         $this->jobOrderItem         = $jobOrderItem;
-        $this->asAction       = true;
-        $this->hydratorsDelay = $hydratorsDelay;
+        $this->asAction             = true;
+        $this->hydratorsDelay       = $hydratorsDelay;
         $this->initialisation($jobOrderItem->organisation, $modelData);
 
         return $this->handle($jobOrderItem, $this->validatedData);

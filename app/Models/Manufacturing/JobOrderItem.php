@@ -9,7 +9,6 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -27,6 +26,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property JobOrderItemStatusEnum $status
  * @property JobOrderItemStateEnum $state
  * @property string|null $notes
+ * @property int $quantity
  * @property \Illuminate\Support\Carbon|null $received_at
  * @property \Illuminate\Support\Carbon|null $booking_in_at
  * @property \Illuminate\Support\Carbon|null $set_as_not_received_at
@@ -41,10 +41,18 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read Organisation $organisation
+ * @property string|null $delete_comment
+ * @property-read \App\Models\Manufacturing\Artifact $artifact
  * @property-read Group $group
- * @property-read JobOrder $jobOrder
- * @property-read Artifact $artifact
+ * @property-read \App\Models\Manufacturing\JobOrder $jobOrder
+ * @property-read Organisation $organisation
+ * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @method static \Illuminate\Database\Eloquent\Builder|JobOrderItem newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|JobOrderItem newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|JobOrderItem onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|JobOrderItem query()
+ * @method static \Illuminate\Database\Eloquent\Builder|JobOrderItem withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|JobOrderItem withoutTrashed()
  * @mixin \Eloquent
  */
 
@@ -106,9 +114,9 @@ class JobOrderItem extends Model
         return $this->belongsTo(JobOrder::class);
     }
 
-    public function artifact() : BelongsTo 
+    public function artifact(): BelongsTo
     {
         return $this->belongsTo(Artifact::class);
-        
+
     }
 }

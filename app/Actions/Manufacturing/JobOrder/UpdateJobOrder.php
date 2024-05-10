@@ -1,18 +1,14 @@
 <?php
 
-
- namespace App\Actions\Manufacturing\JobOrder;
+namespace App\Actions\Manufacturing\JobOrder;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Manufacturing\JobOrder;
 use App\Models\SysAdmin\Organisation;
 use Exception;
-use Google\Service\Batch\Job;
 use Illuminate\Console\Command;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;

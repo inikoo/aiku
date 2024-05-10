@@ -1,15 +1,13 @@
 <?php
 
 use App\Enums\Manufacturing\JobOrder\JobOrderStateEnum;
-use App\Enums\Manufacturing\JobOrder\JobOrderStatusEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     use HasGroupOrganisationRelationship;
     use HasSoftDeletes;
 
@@ -35,7 +33,7 @@ return new class extends Migration
             $table = $this->softDeletes($table);
         });
     }
-// pls review
+    // pls review
 
     public function down()
     {

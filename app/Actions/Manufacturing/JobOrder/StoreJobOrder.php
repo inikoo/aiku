@@ -1,21 +1,18 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 10 May 2024 12:09:22 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
- namespace App\Actions\Manufacturing\JobOrder;
+namespace App\Actions\Manufacturing\JobOrder;
 
-use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletDeliveries;
-use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletDeliveries;
-use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateUniversalSearch;
-use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Manufacturing\JobOrder\Hydrators\JobOrderHydrateUniversalSearch;
 use App\Actions\Manufacturing\Production\Hydrators\ProductionHydrateJobOrders;
-use App\Actions\Market\HasRentalAgreement;
 use App\Actions\OrgAction;
-use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Http\Resources\Manufacturing\JobOrderResource;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Manufacturing\JobOrder;
 use App\Models\Manufacturing\Production;
 use App\Models\SysAdmin\Organisation;
@@ -50,6 +47,7 @@ class StoreJobOrder extends OrgAction
             );
         }
 
+        /** @var JobOrder $jobOrder */
         $jobOrder = $production->jobOrders()->create($modelData);
         JobOrderHydrateUniversalSearch::dispatch($jobOrder);
         ProductionHydrateJobOrders::dispatch($jobOrder->production);
@@ -105,8 +103,8 @@ class StoreJobOrder extends OrgAction
 
     public function jsonResponse(JobOrder $jobOrder): JobOrderResource
     {
-        return JobOrderResource::make($jobOrder) ; 
-        
+        return JobOrderResource::make($jobOrder) ;
+
     }
 
     public function htmlResponse(JobOrder $jobOrder, ActionRequest $request): Response
@@ -129,14 +127,6 @@ class StoreJobOrder extends OrgAction
     {
         $this->asAction = true;
 
-
-        // dummy
-        // $data = [
-        //     'public_notes' => 'This is a public note for the job order.',
-        //     'internal_notes' => 'These are internal notes for the job order.',
-        //     'customer_notes' => 'These are internal notes for the job order.'
-        // ];
-
         try {
             $production = Production::where('slug', $command->argument('production'))->firstOrFail();
         } catch (Exception $e) {
@@ -146,7 +136,7 @@ class StoreJobOrder extends OrgAction
 
         $jobOrder = $this->handle($production, modelData: $this->validatedData);
 
-        $command->info("Job Order $production->reference created successfully 🎉");
+        $command->info("Job Order $jobOrder->reference created successfully 🎉");
 
         return 0;
     }
