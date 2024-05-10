@@ -43,7 +43,7 @@ class IndexShops extends OrgAction
         $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(ShopsTabsEnum::values());
 
-        return $this->handle();
+        return $this->handle('shops');
     }
 
 
