@@ -291,21 +291,21 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 slug: "ful-m",
                 grade: "manager",
                 label: "Supervisor",
-                optionsType: ['fulfilment', 'warehouse'],
+                optionsType: ['fulfilments', 'warehouses'],
                 number_employees: props.options.positions.data.find(position => position.slug == 'cus-m')?.number_employees || 0,
             },
             {
                 slug: "ful-wc",
                 grade: "clerk",
                 label: "Warehouse Clerk",
-                optionsType: ['warehouse'],
+                optionsType: ['warehouses'],
                 number_employees: props.options.positions.data.find(position => position.slug == 'ful-wc')?.number_employees || 0,
             },
             {
                 slug: "ful-c",
                 grade: "clerk",
                 label: "Worker",
-                optionsType: ['warehouse'],
+                optionsType: ['warehouses'],
                 number_employees: props.options.positions.data.find(position => position.slug == 'ful-c')?.number_employees || 0,
             }
         ],
@@ -322,7 +322,7 @@ const openFinetune = ref('')
 // When the radio is clicked
 const handleClickSubDepartment = (department: string, subDepartmentSlug: any, optionType: string[]) => {
     // ('mrk', 'mrk-c', ['shops', 'fulfilment'])
-    
+
     // If click on the active subDepartment, then unselect it
     if (props.form[props.fieldName][subDepartmentSlug]) {
         delete props.form[props.fieldName][subDepartmentSlug]
@@ -358,7 +358,7 @@ const handleClickSubDepartment = (department: string, subDepartmentSlug: any, op
 // Method: on clicked radio inside 'Advanced selection'
 const onClickJobFinetune = (departmentName: string, shopName: string, subDepartmentSlug: any, optionType: string) => {
     // ('mrk', 'mrk-c', ['shops', 'fulfilment'])
-    
+
     // If 'uk' is exist in mrk-m then delete it
     if (get(props.form[props.fieldName], [subDepartmentSlug, optionType], []).includes(shopName)) {
         if (props.form[props.fieldName][subDepartmentSlug].length === 1) {

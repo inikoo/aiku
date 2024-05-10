@@ -14,6 +14,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Warehouse;
@@ -36,14 +37,18 @@ class UpdateEmployee extends OrgAction
     {
         if (Arr::exists($modelData, 'positions')) {
             $jobPositions = [];
+
             foreach (Arr::get($modelData, 'positions', []) as $positionData) {
                 $jobPosition                    = JobPosition::firstWhere('slug', $positionData['slug']);
-                $jobPositions[$jobPosition->id] = match (key($positionData['scopes'])) {
+                $jobPositions[$jobPosition->id] = match (key(Arr::get($positionData, 'scopes', []))) {
                     'shops' => [
-                        'Shop' => Shop::whereIn('slug', $positionData['scopes']['shops'])->pluck('id')->toArray()
+                        'Shop' => Shop::whereIn('slug', $positionData['scopes']['shops']['slug'])->pluck('id')->toArray()
                     ],
                     'warehouses' => [
-                        'Warehouse' => Warehouse::whereIn('slug', $positionData['scopes']['warehouses'])->pluck('id')->toArray()
+                        'Warehouse' => Warehouse::whereIn('slug', $positionData['scopes']['warehouses']['slug'])->pluck('id')->toArray()
+                    ],
+                    'fulfilments' => [
+                        'Fulfilment' => Fulfilment::whereIn('slug', $positionData['scopes']['fulfilments']['slug'])->pluck('id')->toArray()
                     ],
                     default => []
                 };
@@ -80,7 +85,7 @@ class UpdateEmployee extends OrgAction
     public function rules(): array
     {
         return [
-            'worker_number'           => [
+            'worker_number' => [
                 'sometimes',
                 'max:64',
                 'alpha_dash',
@@ -100,9 +105,9 @@ class UpdateEmployee extends OrgAction
                 ),
 
             ],
-            'employment_start_at'     => ['sometimes', 'nullable', 'date'],
-            'work_email'              => ['sometimes', 'nullable', 'email', 'iunique:employees'],
-            'alias'                   => [
+            'employment_start_at' => ['sometimes', 'nullable', 'date'],
+            'work_email'          => ['sometimes', 'nullable', 'email', 'iunique:employees'],
+            'alias'               => [
                 'sometimes',
                 'string',
                 'max:16',
@@ -118,15 +123,16 @@ class UpdateEmployee extends OrgAction
                     ]
                 ),
             ],
-            'contact_name'                         => ['sometimes', 'string', 'max:256'],
-            'date_of_birth'                        => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
-            'job_title'                            => ['sometimes', 'nullable', 'string', 'max:256'],
-            'state'                                => ['sometimes', 'required', new Enum(EmployeeStateEnum::class)],
-            'positions'                            => ['sometimes', 'array'],
-            'positions.*.slug'                     => ['sometimes','string'],
-            'positions.*.scopes'                   => ['sometimes', 'array'],
-            'positions.*.scopes.warehouses.*.slug' => ['sometimes', 'exists:warehouses,slug'],
-            'positions.*.scopes.shops.*.slug'      => ['sometimes', 'exists:shops,slug'],
+            'contact_name'                          => ['sometimes', 'string', 'max:256'],
+            'date_of_birth'                         => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
+            'job_title'                             => ['sometimes', 'nullable', 'string', 'max:256'],
+            'state'                                 => ['sometimes', 'required', new Enum(EmployeeStateEnum::class)],
+            'positions'                             => ['sometimes', 'array'],
+            'positions.*.slug'                      => ['sometimes', 'string'],
+            'positions.*.scopes'                    => ['sometimes', 'array'],
+            'positions.*.scopes.warehouses.slug.*'  => ['sometimes', 'exists:warehouses,slug'],
+            'positions.*.scopes.fulfilments.slug.*' => ['sometimes', 'exists:fulfilments,slug'],
+            'positions.*.scopes.shops.slug.*'       => ['sometimes', 'exists:shops,slug'],
 
             'email'     => ['sometimes', 'nullable', 'email'],
             'source_id' => ['sometimes', 'string', 'max:64'],
@@ -145,29 +151,25 @@ class UpdateEmployee extends OrgAction
 
     public function prepareForValidation(): void
     {
-        if($this->get('positions')) {
+        if ($this->get('positions')) {
             $newData = [];
             foreach ($this->get('positions') as $key => $position) {
                 $newData[] = match (Arr::get(explode('-', $key), 0)) {
                     'wah', 'dist', 'ful' => [
                         'slug'   => $key,
-                        'scopes' => [
-                            'warehouses' => array_map(function ($scope) {
-                                return [
-                                    'slug' => $scope
-                                ];
-                            }, $position)
-                        ]
+                        'scopes' => array_map(function ($scope) {
+                            return [
+                                'slug' => $scope
+                            ];
+                        }, $position)
                     ],
                     'web', 'mrk', 'cus' => [
                         'slug'   => $key,
-                        'scopes' => [
-                            'shops' => array_map(function ($scope) {
-                                return [
-                                    'slug' => $scope
-                                ];
-                            }, $position)
-                        ]
+                        'scopes' => array_map(function ($scope) {
+                            return [
+                                'slug' => $scope
+                            ];
+                        }, $position)
                     ],
                     default => [
                         'slug'   => $key,
