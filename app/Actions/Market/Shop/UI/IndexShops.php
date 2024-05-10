@@ -71,8 +71,8 @@ class IndexShops extends OrgAction
 
         return $queryBuilder
             ->defaultSort('shops.code')
-            ->select(['code', 'id', 'name', 'slug', 'type'])
-            ->allowedSorts(['code', 'name', 'type'])
+            ->select(['code', 'id', 'name', 'slug', 'type', 'state'])
+            ->allowedSorts(['code', 'name', 'type', 'state'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
