@@ -114,7 +114,7 @@ class UpdateJobOrder extends OrgAction
             return 1;
         }
 
-        $jobOrder = $this->handle($jobOrder, modelData: $this->validatedData);
+        $jobOrder = $this->handle($jobOrder, modelData: $data);
 
         $command->info("Job Order $jobOrder->reference updated successfully 🎉");
 
