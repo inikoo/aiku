@@ -36,7 +36,7 @@ class CreateProduction extends OrgAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.org.manufacturing.productions.index',
+                                'name'       => 'grp.org.productions.index',
                                 'parameters' => $request->route()->originalParameters()
                             ],
                         ]

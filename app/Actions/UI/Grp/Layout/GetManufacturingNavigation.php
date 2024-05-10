@@ -19,52 +19,125 @@ class GetManufacturingNavigation
     {
         $navigation = [];
 
-        // if ($user->hasPermissionTo("manufacturing.$production->id.view")) {
-        $navigation["raw_materials"] = [
-            "root"  => "grp.org.productions.show.infrastructure.",
-            "label" => __("Raw Materials"),
-            "icon"  => "fal fa-drone",
-            // "route" => [
-            //     "name"       => "grp.org.productions.show.infrastructure.dashboard",
-            //     "parameters" => [$production->organisation->slug, $production->slug],
-            // ],
-            // "topMenu" => [
-            //     "subSections" => [
+        if ($user->hasAnyPermission(
+            [
+                'org-supervisor.'.$production->organisation->id,
+                'productions-view.'.$production->organisation->id,
+                "productions_operations.$production->id.view",
+                "productions_operations.$production->id.orchestrate",
+                "productions_rd.$production->id.view",
+                "productions_procurement.$production->id.view",
+            ]
+        )) {
+            $navigation["crafts"] = [
+                "root"  => "grp.org.productions.show.crafts.",
+                "label" => __("crafts"),
+                "icon"  => ['fal', 'fa-flask-potion'],
+                "route" => [
+                    "name"       => "grp.org.productions.show.crafts.dashboard",
+                    "parameters" => [$production->organisation->slug, $production->slug],
+                ],
 
-            //     ],
-            // ],
-        ];
-        $navigation["job_orders"] = [
-            "root"  => "grp.org.productions.show.infrastructure.",
-            "label" => __("Job Orders"),
-            "icon"  => "fal fa-sort-shapes-up",
-            // "route" => [
-            //     "name"       => "grp.org.productions.show.infrastructure.dashboard",
-            //     "parameters" => [$production->organisation->slug, $production->slug],
-            // ],
+                'topMenu' => [
+                    'subSections' => [
+                        [
+                            "tooltip" => __("Dashboard"),
+                            "icon"    => ["fal", "fa-chart-network"],
+                            "root"    => "grp.org.productions.show.crafts.dashboard",
+                            "route"   => [
+                                "name"       => "grp.org.productions.show.crafts.dashboard",
+                                "parameters" => [$production->organisation->slug, $production->slug]
+                            ],
+                        ],
 
-        ];
-        $navigation["artifacts"] = [
-            "root"  => "grp.org.productions.show.infrastructure.",
-            "label" => __("artifacts"),
-            "icon"  => "fal fa-window-frame-open",
-            // "route" => [
-            //     "name"       => "grp.org.productions.show.infrastructure.dashboard",
-            //     "parameters" => [$production->organisation->slug, $production->slug],
-            // ],
+                        [
+                            'label'   => __('raw materials'),
+                            'tooltip' => __('artifacts raw materials'),
+                            'icon'    => ['fal', 'fa-drone'],
+                            'root'    => 'grp.org.productions.show.crafts.raw_materials.',
+                            'route'   => [
+                                'name'       => 'grp.org.productions.show.crafts.raw_materials.index',
+                                'parameters' => [$production->organisation->slug, $production->slug]
+                            ],
+                        ],
 
-        ];
-        $navigation["manufacture_tasks"] = [
-            "root"  => "grp.org.productions.show.infrastructure.",
-            "label" => __("Manufacture Tasks"),
-            "icon"  => "fal fa-tasks",
-            // "route" => [
-            //     "name"       => "grp.org.productions.show.infrastructure.dashboard",
-            //     "parameters" => [$production->organisation->slug, $production->slug],
-            // ],
+                        [
+                            'label'   => __('artifacts'),
+                            'tooltip' => __('manufactured products'),
+                            'icon'    => ['fal', 'fa-hamsa'],
+                            'root'    => 'grp.org.productions.show.crafts.artifacts.',
+                            'route'   => [
+                                'name'       => 'grp.org.productions.show.crafts.artifacts.index',
+                                'parameters' => [$production->organisation->slug, $production->slug]
+                            ],
+                        ],
 
-        ];
-        // }
+                        [
+                            'label'   => __('tasks'),
+                            'tooltip' => __('manufacture tasks'),
+                            'icon'    => ['fal', 'fa-code-merge'],
+                            'root'    => 'grp.org.productions.show.crafts.raw_materials.',
+                            'route'   => [
+                                'name'       => 'grp.org.productions.show.crafts.raw_materials.index',
+                                'parameters' => [$production->organisation->slug, $production->slug]
+                            ],
+                        ],
+
+
+                    ]
+                ]
+
+            ];
+
+
+            $navigation['operations'] = [
+                'root'  => 'grp.org.productions.show.operations.',
+                'label' => __('Production'),
+                'icon'  => ['fal', 'fa-fill-drip'],
+
+                'route' => [
+                    'name'       => 'grp.org.productions.show.operations.dashboard',
+                    'parameters' => [$production->organisation->slug, $production->slug]
+                ],
+
+                'topMenu' => [
+                    'subSections' => [
+                        [
+                            "tooltip" => __("Dashboard"),
+                            "icon"    => ["fal", "fa-chart-network"],
+                            "root"    => "grp.org.productions.show.operations.dashboard",
+                            "route"   => [
+                                "name"       => "grp.org.productions.show.operations.dashboard",
+                                "parameters" => [$production->organisation->slug, $production->slug]
+                            ],
+                        ],
+
+                        [
+                            'label'   => __('job orders'),
+                            'tooltip' => __('Job Orders'),
+                            'icon'    => ['fal', 'fa-sort-shapes-down-alt'],
+                            'root'    => 'grp.org.productions.show.operations.job-orders.',
+                            'route'   => [
+                                'name'       => 'grp.org.productions.show.operations.job-orders.index',
+                                'parameters' => [$production->organisation->slug, $production->slug]
+                            ],
+                        ],
+
+                        [
+                            'label'   => __('artisans'),
+                            'tooltip' => __('Production workers'),
+                            'icon'    => ['fal', 'fa-hat-chef'],
+                            'root'    => 'grp.org.productions.show.operations.artisans.',
+                            'route'   => [
+                                'name'       => 'grp.org.productions.show.operations.artisans.index',
+                                'parameters' => [$production->organisation->slug, $production->slug]
+                            ],
+                        ],
+                    ]
+                ]
+
+            ];
+        }
 
         return $navigation;
     }

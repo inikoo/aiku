@@ -228,7 +228,7 @@ class ShowJobOrder extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.manufacturing.productions.show.job-order.show' => [
+            'grp.org.productions.show.job-order.show' => [
                 'label' => $jobOrder->organisation->name,
                 'route' => [
                     'name'       => $routeName,

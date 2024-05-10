@@ -39,7 +39,7 @@ class StoreJobOrderItem extends OrgAction
         data_set($modelData, 'group_id', $jobOrder->group_id);
         data_set($modelData, 'organisation_id', $jobOrder->organisation_id);
 
-       /** @var JobOrderItem $jobOrderItem */
+        /** @var JobOrderItem $jobOrderItem */
         $jobOrderItem = $jobOrder->jobOrderItems()->create($modelData);
 
         if ($jobOrderItem->reference) {

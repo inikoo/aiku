@@ -43,7 +43,7 @@ class StoreProduction extends OrgAction
         );
         foreach ($orgAdmins as $orgAdmin) {
             UserAddRoles::run($orgAdmin, [
-                Role::where('name', RolesEnum::getRoleName(RolesEnum::PRODUCTION_ADMIN->value, $production))->first()
+                Role::where('name', RolesEnum::getRoleName(RolesEnum::MANUFACTURING_ADMIN->value, $production))->first()
             ]);
         }
 
@@ -105,7 +105,7 @@ class StoreProduction extends OrgAction
 
     public function htmlResponse(Production $production): RedirectResponse
     {
-        return Redirect::route('grp.org.manufacturing.productions.index');
+        return Redirect::route('grp.org.productions.index');
     }
 
     public string $commandSignature = 'production:create {organisation : organisation slug} {code} {name} {--source_id=} {--state=} {--created_at=}';

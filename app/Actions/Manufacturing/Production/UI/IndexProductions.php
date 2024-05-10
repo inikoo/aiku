@@ -29,9 +29,8 @@ class IndexProductions extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("productions.{$this->organisation->id}.edit");
-
-        return $request->user()->hasPermissionTo("productions.{$this->organisation->id}.view");
+        $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
+        return $request->user()->hasAnyPermission(['org-supervisor.'.$this->organisation->id,'productions-view.'.$this->organisation->id]);
     }
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator

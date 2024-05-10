@@ -12,7 +12,6 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class JobOrderResource extends JsonResource
 {
-
     public function toArray($request): array
     {
         /** @var JobOrder $jobOrder */

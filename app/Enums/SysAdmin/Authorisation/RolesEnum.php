@@ -80,8 +80,11 @@ enum RolesEnum: string
     case SAAS_SUPERVISOR   = 'saas-supervisor';
     case SAAS_CLERK        = 'saas-clerk';
 
-    case PRODUCTION_ADMIN = 'production-admin';
-
+    case MANUFACTURING_ADMIN             = 'manufacturing-admin';
+    case MANUFACTURING_ORCHESTRATOR      = 'manufacturing-orchestrator';
+    case MANUFACTURING_LINE_MANAGER      = 'manufacturing-line-manager';
+    case MANUFACTURING_OPERATOR          = 'manufacturing-operator';
+    case MANUFACTURING_PRODUCT_DEVELOPER = 'manufacturing-product-developer';
 
 
     public function label(): string
@@ -126,7 +129,11 @@ enum RolesEnum: string
             RolesEnum::SHOPKEEPER_SUPERVISOR           => __('Shopkeeper supervisor'),
             RolesEnum::MARKETING_CLERK                 => __('Marketing clerk'),
             RolesEnum::MARKETING_SUPERVISOR            => __('Marketing supervisor'),
-            RolesEnum::PRODUCTION_ADMIN                => __('Production admin'),
+            RolesEnum::MANUFACTURING_ADMIN             => __('Manufacturing admin'),
+            RolesEnum::MANUFACTURING_ORCHESTRATOR      => __('Manufacturing orchestrator'),
+            RolesEnum::MANUFACTURING_LINE_MANAGER      => __('Manufacturing line manager'),
+            RolesEnum::MANUFACTURING_OPERATOR          => __('Manufacturing operator'),
+            RolesEnum::MANUFACTURING_PRODUCT_DEVELOPER => __('Manufacturing product developer'),
         };
     }
 
@@ -308,8 +315,25 @@ enum RolesEnum: string
                 ShopPermissionsEnum::MARKETING,
                 ShopPermissionsEnum::SUPERVISOR_MARKETING
             ],
-            RolesEnum::PRODUCTION_ADMIN => [
-                ProductionPermissionsEnum::PRODUCTION
+            RolesEnum::MANUFACTURING_ADMIN => [
+                ProductionPermissionsEnum::PRODUCTION_OPERATIONS,
+                ProductionPermissionsEnum::PRODUCTION_RD,
+                ProductionPermissionsEnum::PRODUCTION_PROCUREMENT,
+            ],
+            RolesEnum::MANUFACTURING_PRODUCT_DEVELOPER => [
+                ProductionPermissionsEnum::PRODUCTION_RD,
+            ],
+            RolesEnum::MANUFACTURING_ORCHESTRATOR => [
+                ProductionPermissionsEnum::PRODUCTION_OPERATIONS,
+                ProductionPermissionsEnum::PRODUCTION_PROCUREMENT_VIEW,
+            ],
+            RolesEnum::MANUFACTURING_LINE_MANAGER => [
+                ProductionPermissionsEnum::PRODUCTION_OPERATIONS_EDIT,
+                ProductionPermissionsEnum::PRODUCTION_OPERATIONS_VIEW,
+                ProductionPermissionsEnum::PRODUCTION_PROCUREMENT_VIEW,
+            ],
+            RolesEnum::MANUFACTURING_OPERATOR => [
+                ProductionPermissionsEnum::PRODUCTION_OPERATIONS_VIEW,
             ],
         };
     }
@@ -343,7 +367,15 @@ enum RolesEnum: string
             RolesEnum::DISPATCH_CLERK,
             RolesEnum::DISPATCH_SUPERVISOR,
             RolesEnum::STOCK_CONTROLLER => 'Warehouse',
-            RolesEnum::PRODUCTION_ADMIN => 'Production',
+
+            RolesEnum::MANUFACTURING_ADMIN,
+            RolesEnum::MANUFACTURING_ORCHESTRATOR,
+            RolesEnum::MANUFACTURING_LINE_MANAGER,
+            RolesEnum::MANUFACTURING_OPERATOR,
+            RolesEnum::MANUFACTURING_PRODUCT_DEVELOPER,
+
+
+            => 'Production',
             RolesEnum::FULFILMENT_SHOP_SUPERVISOR,
             RolesEnum::FULFILMENT_SHOP_CLERK,
             => 'Fulfilment',
@@ -360,7 +392,12 @@ enum RolesEnum: string
             RolesEnum::FULFILMENT_SHOP_CLERK,
             RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR,
             RolesEnum::FULFILMENT_WAREHOUSE_WORKER,
-            RolesEnum::PRODUCTION_ADMIN,
+            RolesEnum::MANUFACTURING_ADMIN,
+            RolesEnum::MANUFACTURING_ORCHESTRATOR,
+            RolesEnum::MANUFACTURING_LINE_MANAGER,
+            RolesEnum::MANUFACTURING_OPERATOR,
+            RolesEnum::MANUFACTURING_PRODUCT_DEVELOPER,
+
 
             => [OrganisationTypeEnum::SHOP],
             RolesEnum::ORG_DIGITAL_AGENCY_ADMIN,
@@ -417,7 +454,7 @@ enum RolesEnum: string
     public static function getRoleName(string $rawName, Group|Organisation|Shop|Warehouse|Fulfilment|Production $scope): string
     {
         return match (class_basename($scope)) {
-            'Organisation', 'Shop', 'Warehouse', 'Fulfilment','Production' => $rawName.'-'.$scope->id,
+            'Organisation', 'Shop', 'Warehouse', 'Fulfilment', 'Production' => $rawName.'-'.$scope->id,
             default => $rawName
         };
     }

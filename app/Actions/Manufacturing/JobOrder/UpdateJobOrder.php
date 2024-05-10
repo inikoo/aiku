@@ -84,7 +84,7 @@ class UpdateJobOrder extends OrgAction
         $routeName = $request->route()->getName();
 
         return match ($routeName) {
-            'grp.models.production.job-order.update' => Inertia::location(route('grp.org.manufacturing.productions.show.job-order.show', [
+            'grp.models.production.job-order.update' => Inertia::location(route('grp.org.productions.show.job-order.show', [
                 'organisation'           => $jobOrder->organisation->slug,
             ])),
         };

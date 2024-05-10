@@ -11,7 +11,6 @@ use App\Actions\Manufacturing\JobOrder\Hydrators\JobOrderHydrateUniversalSearch;
 use App\Actions\Manufacturing\Production\Hydrators\ProductionHydrateJobOrders;
 use App\Actions\OrgAction;
 use App\Http\Resources\Manufacturing\JobOrderResource;
-use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Manufacturing\JobOrder;
 use App\Models\Manufacturing\Production;
@@ -112,7 +111,7 @@ class StoreJobOrder extends OrgAction
         $routeName = $request->route()->getName();
 
         return match ($routeName) {
-            'grp.models.production.job-order.store' => Inertia::location(route('grp.org.manufacturing.productions.show.job-order.show', [
+            'grp.models.production.job-order.store' => Inertia::location(route('grp.org.productions.show.job-order.show', [
                 'organisation'           => $jobOrder->organisation->slug,
             ])),
             default => Inertia::location(route('retina.storage.pallet-deliveries.show', [
