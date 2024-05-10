@@ -18,9 +18,9 @@ const props = defineProps<{
 console.log(route().current())
 function productionRoute(production: Production) {
     switch (route().current()) {
-        case 'grp.org.manufacturing.productions.index':
+        case 'grp.org.productions.index':
             return route(
-                'grp.org.manufacturing.productions.show',
+                'grp.org.productions.show',
                 [route().params['organisation'], production.slug]);
     }
 }

@@ -31,6 +31,10 @@ Route::prefix("warehouses")
     ->name("warehouses.")
     ->group(__DIR__."/warehouses/warehouses.php");
 
+Route::prefix("factory")
+    ->name("productions.")
+    ->group(__DIR__."/manufacturing/productions.php");
+
 Route::prefix("procurement")
     ->name("procurement.")
     ->group(__DIR__."/procurement.php");
@@ -47,9 +51,6 @@ Route::prefix("dispatch")
     ->name("dispatch.")
     ->group(__DIR__ . "/dispatch.php");
 
-Route::prefix("manufacturing")
-    ->name("manufacturing.")
-    ->group(__DIR__."/manufacturing/manufacturing.php");
 
 /*
 

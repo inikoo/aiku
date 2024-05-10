@@ -9,7 +9,7 @@ namespace App\Actions\Manufacturing\Production\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
-use App\Actions\UI\Manufacturing\ShowManufacturingDashboard;
+use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Enums\UI\Manufacturing\ProductionsTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Manufacturing\ProductionsResource;
@@ -135,7 +135,7 @@ class IndexProductions extends OrgAction
                         'icon'  => 'fal fa-industry'
                     ],
                     'actions' => [
-                        $this->canEdit && $request->route()->routeName == 'grp.org.manufacturing.productions.index' ? [
+                        $this->canEdit && $request->route()->routeName == 'grp.org.productions.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new production'),
@@ -175,13 +175,13 @@ class IndexProductions extends OrgAction
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
         return array_merge(
-            (new ShowManufacturingDashboard())->getBreadcrumbs($routeParameters),
+            ShowOrganisationDashboard::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.manufacturing.productions.index',
+                            'name'       => 'grp.org.productions.index',
                             'parameters' => $routeParameters
                         ],
                         'label' => __('factories'),

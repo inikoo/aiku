@@ -8,20 +8,17 @@
 namespace App\Actions\Manufacturing\Production\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\Inventory\Location\UI\IndexLocations;
-use App\Actions\Inventory\Warehouse\UI\GetWarehouseShowcase;
-use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Actions\Traits\Actions\WithActionButtons;
-use App\Enums\UI\Inventory\WarehouseTabsEnum;
+use App\Enums\UI\Manufacturing\ProductionTabsEnum;
 use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\Inventory\LocationResource;
-use App\Http\Resources\Inventory\WarehouseAreaResource;
-use App\Http\Resources\Inventory\WarehouseResource;
+
+use App\Http\Resources\Manufacturing\ProductionResource;
 use App\Http\Resources\Tag\TagResource;
 use App\Models\Helpers\Tag;
-use App\Models\Inventory\Warehouse;
+
+use App\Models\Manufacturing\Production;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -32,182 +29,106 @@ class ShowProduction extends OrgAction
 {
     use WithActionButtons;
 
-    public function handle(Warehouse $warehouse): Warehouse
+    public function handle(Production $production): Production
     {
-        return $warehouse;
+        return $production;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("supervisor-warehouses.{$this->warehouse->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
+        $this->canEdit   = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
+        $this->canDelete = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
 
-        return $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.view");
+
+        return $request->user()->hasAnyPermission([
+            'org-supervisor.'.$this->organisation->id,
+            'productions-view.'.$this->organisation->id,
+            "productions_operations.{$this->production->id}.view",
+            "productions_operations.{$this->production->id}.orchestrate",
+            "productions_rd.{$this->production->id}.view",
+            "productions_procurement.{$this->production->id}.view",
+
+        ]);
     }
 
-    public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): Warehouse
+    public function asController(Organisation $organisation, Production $production, ActionRequest $request): Production
     {
-        $this->initialisationFromWarehouse($warehouse, $request)->withTab(WarehouseTabsEnum::values());
+        $this->initialisationFromProduction($production, $request)->withTab(ProductionTabsEnum::values());
 
-        return $this->handle($warehouse);
+        return $this->handle($production);
     }
 
 
-    public function htmlResponse(Warehouse $warehouse, ActionRequest $request): Response
+    public function htmlResponse(Production $production, ActionRequest $request): Response
     {
-        $routeParameters = $request->route()->originalParameters();
 
         return Inertia::render(
-            'Org/Warehouse/Warehouse',
+            'Org/Manufacturing/Production',
             [
-                'title'                            => __('warehouse'),
+                'title'                            => __('production'),
                 'breadcrumbs'                      => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'navigation'                       => [
-                    'previous' => $this->getPrevious($warehouse, $request),
-                    'next'     => $this->getNext($warehouse, $request),
+                    'previous' => $this->getPrevious($production, $request),
+                    'next'     => $this->getNext($production, $request),
                 ],
                 'pageHead'                         => [
                     'icon'    =>
                         [
-                            'icon'  => ['fal', 'warehouse'],
-                            'title' => __('warehouse')
+                            'icon'  => ['fal', 'industry'],
+                            'title' => __('production')
                         ],
-                    'title'   => $warehouse->name,
+                    'title'   => $production->name,
                     'actions' => [
                         $this->canEdit ?
                             [
                                 'type'    => 'button',
                                 'style'   => 'create',
-                                'tooltip' => __('new location'),
-                                'label'   => __('new location'),
+                                'tooltip' => __('new job order'),
+                                'label'   => __('job order'),
                                 'route'   => [
-                                    'name'       => 'grp.org.warehouses.show.infrastructure.locations.create',
+                                    'name'       => 'grp.org.productions.show.job-orders.create',
                                     'parameters' => $request->route()->originalParameters()
                                 ]
                             ]
                             : null,
-                        $this->canDelete ? $this->getDeleteActionIcon($request) : null,
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
 
                     ],
-                    'meta'    => [
-                        [
-                            'name'     => trans_choice('warehouse area|warehouse areas', $warehouse->stats->number_warehouse_areas),
-                            'number'   => $warehouse->stats->number_warehouse_areas,
-                            'href'     => [
-                                'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.index',
-                                'parameters' => array_merge($routeParameters, [$warehouse->slug])
-                            ],
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-map-signs',
-                                'tooltip' => __('warehouse areas')
-                            ]
-                        ],
-                        [
-                            'name'     => trans_choice('location|locations', $warehouse->stats->number_locations),
-                            'number'   => $warehouse->stats->number_locations,
-                            'href'     => [
-                                'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
-                                'parameters' => array_merge($routeParameters, [$warehouse->slug])
-                            ],
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-inventory',
-                                'tooltip' => __('locations')
-                            ]
-                        ]
-                    ]
+
 
                 ],
                 'tabs'                             => [
 
                     'current'    => $this->tab,
-                    'navigation' => WarehouseTabsEnum::navigation(),
+                    'navigation' => ProductionTabsEnum::navigation(),
                 ],
                 'tagsList'      => TagResource::collection(Tag::all()),
 
-                WarehouseTabsEnum::SHOWCASE->value => $this->tab == WarehouseTabsEnum::SHOWCASE->value ?
-                    fn () => GetWarehouseShowcase::run($warehouse)
-                    : Inertia::lazy(fn () => GetWarehouseShowcase::run($warehouse)),
+                ProductionTabsEnum::SHOWCASE->value => $this->tab == ProductionTabsEnum::SHOWCASE->value ?
+                    fn () => GetProductionShowcase::run($production)
+                    : Inertia::lazy(fn () => GetProductionShowcase::run($production)),
 
-                WarehouseTabsEnum::WAREHOUSE_AREAS->value => $this->tab == WarehouseTabsEnum::WAREHOUSE_AREAS->value
-                    ?
-                    fn () => WarehouseAreaResource::collection(
-                        IndexWarehouseAreas::run(
-                            parent: $warehouse,
-                            prefix: WarehouseTabsEnum::WAREHOUSE_AREAS->value
-                        )
-                    )
-                    : Inertia::lazy(fn () => WarehouseAreaResource::collection(
-                        IndexWarehouseAreas::run(
-                            parent: $warehouse,
-                            prefix: WarehouseTabsEnum::WAREHOUSE_AREAS->value
-                        )
-                    )),
 
-                WarehouseTabsEnum::LOCATIONS->value => $this->tab == WarehouseTabsEnum::LOCATIONS->value
-                    ?
-                    fn () => LocationResource::collection(
-                        IndexLocations::run(
-                            parent: $warehouse,
-                            prefix:  WarehouseTabsEnum::LOCATIONS->value
-                        )
-                    )
-                    : Inertia::lazy(fn () => LocationResource::collection(
-                        IndexLocations::run(
-                            parent: $warehouse,
-                            prefix:  WarehouseTabsEnum::LOCATIONS->value
-                        )
-                    )),
 
-                WarehouseTabsEnum::HISTORY->value => $this->tab == WarehouseTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistory::run($warehouse))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($warehouse)))
+
+
+                ProductionTabsEnum::HISTORY->value => $this->tab == ProductionTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistory::run($production))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($production)))
 
             ]
-        )->table(
-            IndexWarehouseAreas::make()->tableStructure(
-                parent: $warehouse,
-                prefix: WarehouseTabsEnum::WAREHOUSE_AREAS->value
-                /* modelOperations: [
-                      'createLink' => $this->canEdit ? [
-                          'route' => [
-                              'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.create',
-                              'parameters' => array_values([$warehouse->slug])
-                          ],
-                          'label' => __('area'),
-                          'style' => 'create'
-                      ] : false,
-                  ],
-                  prefix: 'warehouse_areas' */
-            )
-        )->table(
-            IndexLocations::make()->tableStructure(
-                parent: $warehouse,
-
-                /* modelOperations: [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'grp.org.warehouses.show.infrastructure.locations.create',
-                            'parameters' => array_values([$warehouse->slug])
-                        ],
-                        'label' => __('location'),
-                        'style' => 'create'
-                    ] : false
-                ], */
-                prefix: WarehouseTabsEnum::LOCATIONS->value
-            )
         )->table(IndexHistory::make()->tableStructure());
     }
 
 
-    public function jsonResponse(Warehouse $warehouse): WarehouseResource
+    public function jsonResponse(Production $production): ProductionResource
     {
-        return new WarehouseResource($warehouse);
+        return new ProductionResource($production);
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
-        $warehouse = Warehouse::where('slug', $routeParameters['warehouse'])->first();
+        $production = Production::where('slug', $routeParameters['production'])->first();
 
         return array_merge(
             (new ShowOrganisationDashboard())->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
@@ -217,18 +138,18 @@ class ShowProduction extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name'       => 'grp.org.warehouses.index',
+                                'name'       => 'grp.org.productions.index',
                                 'parameters' => $routeParameters['organisation']
                             ],
-                            'label' => __('warehouse'),
+                            'label' => __('production'),
                             'icon'  => 'fal fa-bars'
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.org.warehouses.show.infrastructure.dashboard',
+                                'name'       => 'grp.org.productions.index',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => $warehouse?->code,
+                            'label' => $production?->code,
                             'icon'  => 'fal fa-bars'
                         ],
                     ],
@@ -239,34 +160,34 @@ class ShowProduction extends OrgAction
         );
     }
 
-    public function getPrevious(Warehouse $warehouse, ActionRequest $request): ?array
+    public function getPrevious(Production $production, ActionRequest $request): ?array
     {
-        $previous = Warehouse::where('code', '<', $warehouse->code)->where('organisation_id', $warehouse->organisation_id)->orderBy('code', 'desc')->first();
+        $previous = Production::where('code', '<', $production->code)->where('organisation_id', $production->organisation_id)->orderBy('code', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
-    public function getNext(Warehouse $warehouse, ActionRequest $request): ?array
+    public function getNext(Production $production, ActionRequest $request): ?array
     {
-        $next = Warehouse::where('code', '>', $warehouse->code)->where('organisation_id', $warehouse->organisation_id)->orderBy('code')->first();
+        $next = Production::where('code', '>', $production->code)->where('organisation_id', $production->organisation_id)->orderBy('code')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
 
-    private function getNavigation(?Warehouse $warehouse, string $routeName): ?array
+    private function getNavigation(?Production $production, string $routeName): ?array
     {
-        if (!$warehouse) {
+        if (!$production) {
             return null;
         }
 
         return match ($routeName) {
-            'grp.org.warehouses.show.infrastructure.dashboard' => [
-                'label' => $warehouse->name,
+            'grp.org.productions.show.infrastructure.dashboard' => [
+                'label' => $production->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation' => $this->organisation->slug,
-                        'warehouse'    => $warehouse->slug
+                        'organisation'  => $this->organisation->slug,
+                        'production'    => $production->slug
                     ]
 
                 ]
