@@ -47,20 +47,23 @@ enum WarehouseStateEnum: string
         return [
             'in-process'   => [
                 'tooltip' => __('In Process'),
-                'icon'    => 'fal fa-seedling'
+                'icon'    => 'fal fa-seedling',
+                'class'   => 'text-green-500 animate-pulse'
             ],
             'open' => [
                 'tooltip' => __('Open'),
-                'icon'    => 'fal fa-check'
+                'icon'    => 'fal fa-check',
+                'class'   => ''
             ],
             'closing-down' => [
                 'tooltip' => __('Closing Down'),
                 'icon'    => 'fal fa-do-not-enter',
-                'class'   => 'animate-pulse'
+                'class'   => ''
             ],
             'closed'    => [
                 'tooltip' => __('Closed'),
-                'icon'    => 'fal fa-times-hexagon'
+                'icon'    => 'fal fa-times-hexagon',
+                'class'   => 'text-red-500'
             ]
         ];
     }
