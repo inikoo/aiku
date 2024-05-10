@@ -69,10 +69,9 @@ class FetchAuroraStock extends FetchAurora
         $this->parsedData['org_stock'] = [
 
             'state' => match ($this->auroraModelData->{'Part Status'}) {
-                'In Use'        => OrgStockStateEnum::ACTIVE,
                 'Discontinuing' => OrgStockStateEnum::DISCONTINUING,
                 'Not In Use'    => OrgStockStateEnum::DISCONTINUED,
-                default         => null
+                default         => OrgStockStateEnum::ACTIVE,
             },
 
 

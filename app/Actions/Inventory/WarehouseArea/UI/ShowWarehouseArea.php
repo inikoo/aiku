@@ -12,7 +12,7 @@ use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
-use App\Enums\UI\WarehouseAreaTabsEnum;
+use App\Enums\UI\Inventory\WarehouseAreaTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Http\Resources\Inventory\WarehouseAreaResource;

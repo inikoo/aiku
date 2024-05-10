@@ -1,0 +1,50 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 08 May 2024 11:26:37 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+use App\Enums\SupplyChain\Stock\StockStateEnum;
+use App\Stubs\Migrations\HasAssetCodeDescription;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+return new class () extends Migration {
+    use HasAssetCodeDescription;
+    use HasGroupOrganisationRelationship;
+    public function up(): void
+    {
+        Schema::create('artifacts', function (Blueprint $table) {
+            $table->increments('id');
+            $table = $this->groupOrgRelationship($table);
+            $table->unsignedSmallInteger('stock_id');
+            $table->foreign('stock_id')->references('id')->on('stocks')->onUpdate('cascade')->onDelete('cascade');
+            $table->string('slug')->unique()->collation('und_ns');
+            $table = $this->assertCodeDescription($table);
+            $table->unsignedSmallInteger('stock_family_id')->index()->nullable();
+
+            $table->string('state')->default(StockStateEnum::IN_PROCESS->value)->index();
+
+
+
+            $table->jsonb('settings');
+            $table->jsonb('data');
+            $table->timestampsTz();
+
+            $table->softDeletesTz();
+
+        });
+        DB::statement('CREATE INDEX ON stocks USING gin (name gin_trgm_ops) ');
+
+    }
+
+
+    public function down(): void
+    {
+        Schema::dropIfExists('artifacts');
+    }
+};

@@ -59,7 +59,7 @@ class StoreLocation extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
+        return $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
     }
 
     public function rules(): array
@@ -86,7 +86,7 @@ class StoreLocation extends OrgAction
     public function inWarehouse(Warehouse $warehouse, ActionRequest $request): Location
     {
         $this->warehouse = $warehouse;
-        $this->initialisation($warehouse->organisation, $request);
+        $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($warehouse, $this->validatedData);
     }
@@ -95,7 +95,7 @@ class StoreLocation extends OrgAction
     public function inWarehouseArea(WarehouseArea $warehouseArea, ActionRequest $request): Location
     {
         $this->warehouse = $warehouseArea->warehouse;
-        $this->initialisation($warehouseArea->organisation, $request);
+        $this->initialisationFromWarehouse($warehouseArea->warehouse, $request);
 
         return $this->handle($warehouseArea, $this->validatedData);
     }
@@ -110,7 +110,7 @@ class StoreLocation extends OrgAction
             $this->warehouse = $parent;
         }
 
-        $this->initialisation($parent->organisation, $modelData);
+        $this->initialisationFromWarehouse($this->warehouse, $modelData);
 
         return $this->handle($parent, $this->validatedData);
     }

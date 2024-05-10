@@ -10,6 +10,7 @@ namespace App\Services\Organisation\Aurora;
 use App\Enums\OMS\Transaction\TransactionStateEnum;
 use App\Enums\OMS\Transaction\TransactionStatusEnum;
 use App\Enums\OMS\Transaction\TransactionTypeEnum;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraTransaction extends FetchAurora
@@ -60,23 +61,38 @@ class FetchAuroraTransaction extends FetchAurora
                 $status = TransactionStatusEnum::DISPATCHED_WITH_MISSING;
             }
 
+            $date = $this->parseDate($this->auroraModelData->{'Order Date'});
+            $date = new Carbon($date);
+
+            $this->parsedData['item'] = $historicItem;
+
+            $quantityFail = round($this->auroraModelData->{'No Shipped Due Out of Stock'}, 4);
+            if ($quantityFail < 0.001) {
+                $quantityFail=0;
+            }
+
+            $quantityBonus = round($this->auroraModelData->{'Order Bonus Quantity'}, 4);
+            if ($quantityBonus < 0.001) {
+                $quantityBonus=0;
+            }
+
+
 
             $this->parsedData['transaction'] = [
+                'tax_rate'            => $this->auroraModelData->{'Transaction Tax Rate'},
+                'date'                => $date,
+                'created_at'          => $date,
                 'type'                => TransactionTypeEnum::ORDER,
-                'item_type'           => class_basename($historicItem),
-                'item_id'             => $historicItem->id,
                 'tax_band_id'         => $taxBand->id ?? null,
                 'state'               => $state,
                 'status'              => $status,
                 'quantity_ordered'    => $this->auroraModelData->{'Order Quantity'},
-                'quantity_bonus'      => $this->auroraModelData->{'Order Bonus Quantity'},
+                'quantity_bonus'      => $quantityBonus,
                 'quantity_dispatched' => $this->auroraModelData->{'Delivery Note Quantity'},
-                'quantity_fail'       => $this->auroraModelData->{'No Shipped Due Out of Stock'},
-
-
-                'discounts'                => $this->auroraModelData->{'Order Transaction Total Discount Amount'},
-                'net'                      => $this->auroraModelData->{'Order Transaction Amount'},
-                'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Fact Key'},
+                'quantity_fail'       => $quantityFail,
+                'discounts'           => $this->auroraModelData->{'Order Transaction Total Discount Amount'},
+                'net'                 => $this->auroraModelData->{'Order Transaction Amount'},
+                'source_id'           => $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Fact Key'},
 
             ];
         } else {

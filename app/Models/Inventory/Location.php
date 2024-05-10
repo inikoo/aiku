@@ -13,6 +13,7 @@ use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InWarehouse;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -57,6 +58,7 @@ use Spatie\Tags\HasTags;
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Collection<int, \App\Models\Inventory\LostAndFoundStock> $lostAndFoundStocks
  * @property-read Collection<int, \App\Models\Inventory\OrgStock> $orgStocks
  * @property-read Organisation $organisation
@@ -89,6 +91,7 @@ class Location extends Model implements Auditable
     use HasFactory;
     use HasHistory;
     use HasTags;
+    use InWarehouse;
 
     protected $casts = [
         'data'       => 'array',
@@ -110,22 +113,17 @@ class Location extends Model implements Auditable
             ->saveSlugsTo('slug');
     }
 
-
-    public function organisation(): BelongsTo
+    public function getRouteKeyName(): string
     {
-        return $this->belongsTo(Organisation::class);
+        return 'slug';
     }
 
-    public function warehouse(): BelongsTo
-    {
-        return $this->belongsTo(Warehouse::class);
-    }
+
 
     public function warehouseArea(): BelongsTo
     {
         return $this->belongsTo(WarehouseArea::class);
     }
-
 
     public function orgStocks(): BelongsToMany
     {
@@ -147,8 +145,5 @@ class Location extends Model implements Auditable
         return $this->hasMany(Pallet::class);
     }
 
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
+
 }

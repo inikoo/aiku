@@ -25,9 +25,10 @@ class FetchDeliveryNoteTransactions
         if ($transactionData = $organisationSource->fetchDeliveryNoteTransaction(id: $source_id, deliveryNote: $deliveryNote)) {
             if (!DeliveryNoteItem::where('source_id', $transactionData['delivery_note_item']['source_id'])
                 ->first()) {
-                $transaction = StoreDeliveryNoteItem::run(
+                $transaction = StoreDeliveryNoteItem::make()->action(
                     deliveryNote: $deliveryNote,
-                    modelData:    $transactionData['delivery_note_item']
+                    modelData:    $transactionData['delivery_note_item'],
+                    strict: false
                 );
 
                 DB::connection('aurora')->table('Inventory Transaction Fact')

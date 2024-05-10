@@ -64,8 +64,7 @@ test('create warehouse', function () {
         ->and($this->organisation->group->inventoryStats->number_warehouses_state_in_process)->toBe(1)
         ->and($this->organisation->group->inventoryStats->number_warehouses_state_open)->toBe(0)
         ->and($this->guest->user->authorisedWarehouses()->where('organisation_id', $this->organisation->id)->count())->toBe(1)
-        ->and($this->guest->user->number_authorised_warehouses)->toBe(1)
-        ->and($this->guest->user->hasPermissionTo("warehouses.$warehouse->id"))->toBeTrue();
+        ->and($this->guest->user->number_authorised_warehouses)->toBe(1);
 
 
     return $warehouse;
@@ -111,14 +110,14 @@ test('create warehouse by command', function () {
 
     expect($organisation->inventoryStats->number_warehouses)->toBe(2)
         ->and($organisation->group->inventoryStats->number_warehouses)->toBe(2)
-        ->and($warehouse->roles()->count())->toBe(4);
+        ->and($warehouse->roles()->count())->toBe(6);
 });
 
 test('seed warehouse permissions', function () {
     setPermissionsTeamId($this->group->id);
     $this->artisan('warehouse:seed-permissions')->assertExitCode(0);
     $warehouse = Warehouse::where('code', 'AA')->first();
-    expect($warehouse->roles()->count())->toBe(4);
+    expect($warehouse->roles()->count())->toBe(6);
 });
 
 

@@ -11,11 +11,11 @@ use App\Models\Inventory\Warehouse;
 
 enum WarehousePermissionsEnum: string
 {
-    case WAREHOUSE = 'warehouses';
+    case LOCATIONS = 'locations';
 
-    case WAREHOUSE_EDIT = 'warehouses.edit';
+    case LOCATIONS_EDIT = 'locations.edit';
 
-    case WAREHOUSE_VIEW = 'warehouses.view';
+    case LOCATIONS_VIEW = 'locations.view';
 
     case STOCKS      = 'stocks';
     case STOCKS_EDIT = 'stocks.edit';
@@ -35,7 +35,7 @@ enum WarehousePermissionsEnum: string
 
 
 
-    case SUPERVISOR_WAREHOUSES        = 'supervisor-warehouses';
+    case SUPERVISOR_LOCATIONS         = 'supervisor-locations';
     case SUPERVISOR_STOCKS            = 'supervisor-stocks';
     case SUPERVISOR_DISPATCHING       = 'supervisor-dispatching';
     case SUPERVISOR_FULFILMENT        = 'supervisor-fulfilment';

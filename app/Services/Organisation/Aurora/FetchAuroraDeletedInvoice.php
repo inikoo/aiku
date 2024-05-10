@@ -20,7 +20,7 @@ class FetchAuroraDeletedInvoice extends FetchAurora
             return;
         }
 
-        if ($order = $this->parseOrder($this->auroraModelData->{'Invoice Deleted Order Key'})) {
+        if ($order = $this->parseOrder($this->organisation->id.':'.$this->auroraModelData->{'Invoice Deleted Order Key'})) {
             $this->parsedData['order'] = $order;
         } else {
             print "Deleted invoice order not found\n";

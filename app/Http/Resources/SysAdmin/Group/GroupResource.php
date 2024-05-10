@@ -7,21 +7,18 @@
 
 namespace App\Http\Resources\SysAdmin\Group;
 
+use App\Http\Resources\Assets\CurrencyResource;
 use App\Http\Resources\HasSelfCall;
 use App\Models\SysAdmin\Group;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/**
- * @property $slug
- * @property $name
- * */
 class GroupResource extends JsonResource
 {
     use HasSelfCall;
 
     public function toArray($request): array
     {
-        /** @var Group $user */
+        /** @var Group $group */
         $group = $this;
 
         return [
@@ -29,7 +26,7 @@ class GroupResource extends JsonResource
             'slug'     => $group->slug,
             'label'    => $group->name,
             'logo'     => $group->logoImageSources(48, 48),
-            'currency' => $group->currency
+            'currency' => CurrencyResource::make($group->currency)->getArray()
         ];
     }
 }

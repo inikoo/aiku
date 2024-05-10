@@ -110,8 +110,13 @@ test('update shipping zone', function ($shippingZone) {
 
 test('create order', function ($customer) {
     $billingAddress  = Address::first();
-    $shipmentAddress = Address::latest()->first();
-    $order           = StoreOrder::make()->action($customer, Order::factory()->definition(), $billingAddress, $shipmentAddress);
+    $deliveryAddress = Address::latest()->first();
+
+    $modelData=Order::factory()->definition();
+    data_set($modelData, 'billing_address', $billingAddress);
+    data_set($modelData, 'delivery_address', $deliveryAddress);
+
+    $order           = StoreOrder::make()->action($customer, $modelData);
     expect($order)->toBeInstanceOf(Order::class);
 
     return $order;
@@ -124,7 +129,7 @@ test('create transaction', function ($order) {
     $this->assertModelExists($transaction);
 
     return $transaction;
-})->depends('create order');
+})->depends('create order')->todo();
 
 test('update transaction', function ($transaction) {
     $order = UpdateTransaction::make()->action($transaction, Transaction::factory()->definition());

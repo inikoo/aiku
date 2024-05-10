@@ -47,9 +47,9 @@ class UpdatePalletLocation extends OrgAction
         }
 
         if ($this->scope instanceof Warehouse) {
-            $this->canEdit = $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
+            $this->canEdit = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
 
-            return  $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
+            return  $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
         }
 
         $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");

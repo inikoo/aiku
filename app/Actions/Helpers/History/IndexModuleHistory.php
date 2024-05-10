@@ -31,8 +31,8 @@ class IndexModuleHistory
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('user_type', $value)
-                    ->orWhere('user_type', 'ILIKE', "$value%")
-                    ->orWhere('url', 'ILIKE', "$value%");
+                    ->orWhereStartWith('user_type', $value)
+                    ->orWhereStartWith('url', $value);
             });
         });
 

@@ -14,16 +14,17 @@ use App\Actions\OMS\Order\Hydrators\OrderHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrders;
+use App\Enums\OMS\Order\OrderStateEnum;
+use App\Enums\OMS\Order\OrderStatusEnum;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
-use App\Models\Helpers\Address;
 use App\Models\Market\Shop;
 use App\Models\OMS\Order;
-use Illuminate\Http\RedirectResponse;
-use Lorisleiva\Actions\ActionRequest;
+use App\Rules\IUnique;
+use App\Rules\ValidAddress;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
-use Redirect;
 
 class StoreOrder extends OrgAction
 {
@@ -35,9 +36,12 @@ class StoreOrder extends OrgAction
     public function handle(
         Shop|Customer|CustomerClient $parent,
         array $modelData,
-        Address $seedBillingAddress,
-        Address $seedDeliveryAddress
     ): Order {
+        $billingAddress = $modelData['billing_address'];
+        data_forget($modelData, 'billing_address');
+        $delivery_address = $modelData['delivery_address'];
+        data_forget($modelData, 'delivery_address');
+
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
             $modelData['currency_id'] = $parent->shop->currency_id;
@@ -60,8 +64,8 @@ class StoreOrder extends OrgAction
         $order = Order::create($modelData);
         $order->stats()->create();
 
-        $billingAddress  = StoreHistoricAddress::run($seedBillingAddress);
-        $deliveryAddress = StoreHistoricAddress::run($seedDeliveryAddress);
+        $billingAddress  = StoreHistoricAddress::run($billingAddress);
+        $deliveryAddress = StoreHistoricAddress::run($delivery_address);
 
         AttachHistoricAddressToModel::run($order, $billingAddress, ['scope' => 'billing']);
         AttachHistoricAddressToModel::run($order, $deliveryAddress, ['scope' => 'delivery']);
@@ -83,47 +87,64 @@ class StoreOrder extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'number'      => ['required', 'unique:orders', 'numeric'],
-            'date'        => ['required'],
-            'customer_id' => ['required', 'numeric']
+        $rules = [
+            'number'          => [
+                'required',
+                'max:64',
+                'string',
+                new IUnique(
+                    table: 'orders',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                    ]
+                ),
+            ],
+            'date'            => ['required', 'date'],
+            'submitted_at'    => ['sometimes', 'nullable', 'date'],
+            'in_warehouse_at' => ['sometimes', 'nullable', 'date'],
+            'packed_at'       => ['sometimes', 'nullable', 'date'],
+            'finalised_at'    => ['sometimes', 'nullable', 'date'],
+            'dispatched_at'   => ['sometimes', 'nullable', 'date'],
+            'customer_number' => ['sometimes', 'string', 'max:64'],
+            'state'           => ['sometimes', Rule::enum(OrderStateEnum::class)],
+            'status'          => ['sometimes', Rule::enum(OrderStatusEnum::class)],
+
+            'created_at'   => ['sometimes', 'required', 'date'],
+            'cancelled_at' => ['sometimes', 'nullable', 'date'],
+
+            'delivery_address' => ['required', new ValidAddress()],
+            'billing_address'  => ['required', new ValidAddress()],
+            'source_id'        => ['sometimes', 'string', 'max:64']
         ];
+
+        if (!$this->strict) {
+            $rules['number'] = ['sometimes', 'string', 'max:64'];
+        }
+
+        return $rules;
     }
 
-    public function inShop(Shop $shop, ActionRequest $request): RedirectResponse
-    {
-        $request->validate();
-        $seedBillingAddress = new Address();
-        $seedBillingAddress::hydrate($request->get('billing_address'));
-        $seedDeliveryAddress = new Address();
-        $seedBillingAddress::hydrate($request->get('delivery_address'));
-        $this->handle($shop, $request->validated(), $seedBillingAddress, $seedDeliveryAddress);
-
-        return Redirect::route('grp.org.shops.show.orders.index', $shop);
-    }
 
     public function action(
         Shop|Customer|CustomerClient $parent,
         array $modelData,
-        Address $seedBillingAddress,
-        Address $seedDeliveryAddress,
-    ): Order {
-        $this->asAction = true;
-
-        $this->initialisation($parent->organisation, $modelData);
-
-        return $this->handle($parent, $this->validatedData, $seedBillingAddress, $seedDeliveryAddress);
-    }
-
-    public function asFetch(
-        Shop|Customer|CustomerClient $parent,
-        array $modelData,
-        Address $seedBillingAddress,
-        Address $seedDeliveryAddress,
+        bool $strict = true,
         int $hydratorsDelay = 60
     ): Order {
+        $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
+        $this->strict         = $strict;
 
-        return $this->handle($parent, $modelData, $seedBillingAddress, $seedDeliveryAddress);
+
+        $shop = match (class_basename($parent)) {
+            'Shop' => $parent,
+            'Customer', 'CustomerClient' => $parent->shop,
+        };
+
+        $this->initialisationFromShop($shop, $modelData);
+
+        return $this->handle($parent, $this->validatedData, );
     }
+
+
 }

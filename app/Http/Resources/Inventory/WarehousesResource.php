@@ -9,19 +9,23 @@ namespace App\Http\Resources\Inventory;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property string $slug
+ * @property string $code
+ * @property string $name
+ * @property int $number_locations
+ * @property int $number_warehouse_areas
+ */
 class WarehousesResource extends JsonResource
 {
     public function toArray($request): array
     {
-        /** @var \App\Models\Inventory\Warehouse $warehouse */
-        $warehouse=$this;
         return [
-            'id'                     => $warehouse->id,
-            'slug'                   => $warehouse->slug,
-            'code'                   => $warehouse->code,
-            'name'                   => $warehouse->name,
-            'number_locations'       => $warehouse->locations()->count(),
-            'number_warehouse_areas' => $warehouse->warehouseAreas()->count(),
+            'slug'                   => $this->slug,
+            'code'                   => $this->code,
+            'name'                   => $this->name,
+            'number_locations'       => $this->number_locations,
+            'number_warehouse_areas' => $this->number_warehouse_areas,
         ];
     }
 }

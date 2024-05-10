@@ -31,9 +31,6 @@ class IndexDepartments extends OrgAction
     use HasMarketAuthorisation;
     private Shop|ProductCategory|Organisation $parent;
 
-
-
-
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $organisation;
@@ -64,7 +61,7 @@ class IndexDepartments extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('product_categories.name', $value)
-                    ->orWhere('product_categories.slug', 'ilike', "$value%");
+                    ->orWhereStartWith('product_categories.slug', $value);
             });
         });
         if ($prefix) {
@@ -213,7 +210,7 @@ class IndexDepartments extends OrgAction
         }
 
         return Inertia::render(
-            'Market/Departments',
+            'Org/Market/Departments',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

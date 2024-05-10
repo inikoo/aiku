@@ -7,18 +7,20 @@
 
 namespace App\Http\Resources\Inventory;
 
+use App\Models\Inventory\Warehouse;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class WarehouseResource extends JsonResource
 {
     public function toArray($request): array
     {
-        /** @var \App\Models\Inventory\Warehouse $warehouse */
+        /** @var Warehouse $warehouse */
         $warehouse=$this;
         return [
-            'id'      => $warehouse->id,
-            'slug'    => $warehouse->slug,
-            'stats'   => [
+            'id'                     => $warehouse->id,
+            'slug'                   => $warehouse->slug,
+            'name'                   => $warehouse->name,
+            'stats'                  => [
                 'locations' => [
                     'label' => 'Location',
                     'count' => $warehouse->locations()->count()

@@ -182,7 +182,7 @@ class IndexFamilies extends OrgAction
         }
 
         return Inertia::render(
-            'Market/Families',
+            'Org/Market/Families',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

@@ -34,7 +34,7 @@ class IndexClockings extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('clockings.slug', 'ILIKE', "%$value%");
+                $query->whereStartWith('clockings.slug', $value);
             });
         });
 

@@ -7,6 +7,7 @@
 
 namespace App\Actions\SysAdmin\User;
 
+use App\Actions\SysAdmin\User\Hydrators\UserHydrateAuthorisedModels;
 use App\Enums\HumanResources\JobPosition\JobPositionScopeEnum;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
@@ -38,6 +39,7 @@ class SyncRolesFromJobPositions
 
 
         $user->syncRoles($roles);
+        UserHydrateAuthorisedModels::run($user);
 
 
         $user->refresh();

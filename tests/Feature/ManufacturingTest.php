@@ -7,9 +7,21 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Manufacturing\ManufactureTask\StoreManufactureTask;
+use App\Actions\Manufacturing\ManufactureTask\UpdateManufactureTask;
 use App\Actions\Manufacturing\Production\StoreProduction;
 use App\Actions\Manufacturing\Production\UpdateProduction;
+use App\Actions\Manufacturing\RawMaterial\StoreRawMaterial;
+use App\Actions\Manufacturing\RawMaterial\UpdateRawMaterial;
+use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
+use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
+use App\Enums\Manufacturing\RawMaterial\RawMaterialStateEnum;
+use App\Enums\Manufacturing\RawMaterial\RawMaterialStockStatusEnum;
+use App\Enums\Manufacturing\RawMaterial\RawMaterialTypeEnum;
+use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
+use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
+use App\Models\Manufacturing\RawMaterial;
 use Illuminate\Validation\ValidationException;
 
 beforeAll(function () {
@@ -97,3 +109,129 @@ test('seed production permissions', function () {
     $production = Production::where('code', 'AA')->first();
     expect($production->roles()->count())->toBe(1);
 });
+
+test('can store a raw material', function (Production $production) {
+    $data        = [
+        'type'             => RawMaterialTypeEnum::STOCK,
+        'state'            => RawMaterialStateEnum::IN_PROCESS,
+        'code'             => 'RM001',
+        'description'      => 'Test Raw Material',
+        'unit'             => RawMaterialUnitEnum::KILOGRAM,
+        'unit_cost'        => 10.5,
+        'stock'            => 100,
+        'stock_status'     => RawMaterialStockStatusEnum::UNLIMITED,
+    ];
+    $rawMaterial = StoreRawMaterial::make()->action(
+        $production,
+        $data
+    );
+    $production->refresh();
+
+    expect($rawMaterial)->toBeInstanceOf(RawMaterial::class)
+        ->and($rawMaterial->group_id)->toBe($this->organisation->group_id)
+        ->and($production->stats->number_raw_materials)->toBe(1)
+        ->and($rawMaterial->organisation->manufactureStats->number_raw_materials)->toBe(1)
+        ->and($rawMaterial->group->manufactureStats->number_raw_materials)->toBe(1);
+
+
+    return $rawMaterial;
+})->depends('create production');
+
+test('can update a raw material', function ($rawMaterial) {
+
+    $data = [
+        'type'                    => RawMaterialTypeEnum::INTERMEDIATE,
+        'state'                   => RawMaterialStateEnum::DISCONTINUED,
+        'code'                    => 'RM002',
+        'description'             => 'Updated Raw Material',
+        'unit'                    => RawMaterialUnitEnum::LITER,
+        'unit_cost'               => 15.5,
+        'stock'                   => 200,
+    ];
+
+
+    $updatedRawMaterial = UpdateRawMaterial::make()->action(
+        $rawMaterial,
+        $data
+    );
+
+    expect($updatedRawMaterial)->toBeInstanceOf(RawMaterial::class)
+        ->and($updatedRawMaterial->id)->toBe($rawMaterial->id)
+        ->and($updatedRawMaterial->type)->toBe($data['type'])
+        ->and($updatedRawMaterial->state)->toBe($data['state'])
+        ->and($updatedRawMaterial->unit)->toBe($data['unit']);
+
+})->depends('can store a raw material');
+
+test('create manufacture task', function (Production $production) {
+    $data = [
+        'code'                            => 'MT001',
+        'name'                            => 'Test Manufacture Task',
+        'task_materials_cost'             => 100.0,
+        'task_energy_cost'                => 50.0,
+        'task_other_cost'                 => 20.0,
+        'task_work_cost'                  => 150.0,
+        'task_lower_target'               => 200,
+        'task_upper_target'               => 400,
+        'operative_reward_terms'          => ManufactureTaskOperativeRewardTermsEnum::ABOVE_LOWER_LIMIT,
+        'operative_reward_allowance_type' => ManufactureTaskOperativeRewardAllowanceTypeEnum::OFFSET_SALARY,
+        'operative_reward_amount'         => 20.0,
+    ];
+
+    $manufactureTask = StoreManufactureTask::make()->action(
+        $production,
+        $data
+    );
+
+    expect($manufactureTask)->toBeInstanceOf(ManufactureTask::class)
+    ->and($manufactureTask->code)->toBe($data['code'])
+    ->and($manufactureTask->name)->toBe($data['name'])
+    ->and($manufactureTask->task_materials_cost)->toBe($data['task_materials_cost'])
+    ->and($manufactureTask->task_energy_cost)->toBe($data['task_energy_cost'])
+    ->and($manufactureTask->task_other_cost)->toBe($data['task_other_cost'])
+    ->and($manufactureTask->task_work_cost)->toBe($data['task_work_cost'])
+    ->and($manufactureTask->task_lower_target)->toBe($data['task_lower_target'])
+    ->and($manufactureTask->task_upper_target)->toBe($data['task_upper_target'])
+    ->and($manufactureTask->operative_reward_terms)->toBe($data['operative_reward_terms'])
+    ->and($manufactureTask->operative_reward_allowance_type)->toBe($data['operative_reward_allowance_type'])
+    ->and($manufactureTask->operative_reward_amount)->toBe($data['operative_reward_amount']);
+
+    return $manufactureTask;
+})->depends('create production');
+
+test('update manufacture task', function ($manufactureTask) {
+
+    $data = [
+        'code'                            => 'MT002',
+        'name'                            => 'Updated Manufacture Task',
+        'task_materials_cost'             => 150.0,
+        'task_energy_cost'                => 70.0,
+        'task_other_cost'                 => 30.0,
+        'task_work_cost'                  => 180.0,
+        'task_lower_target'               => 250,
+        'task_upper_target'               => 450,
+        'operative_reward_terms'          => ManufactureTaskOperativeRewardTermsEnum::ABOVE_UPPER_LIMIT,
+        'operative_reward_allowance_type' => ManufactureTaskOperativeRewardAllowanceTypeEnum::ON_TOP_SALARY,
+        'operative_reward_amount'         => 30.0,
+    ];
+
+    // Update the manufacture task
+    $updatedManufactureTask = UpdateManufactureTask::make()->action(
+        $manufactureTask,
+        $data
+    );
+
+    // Assertions
+    expect($updatedManufactureTask)->toBeInstanceOf(ManufactureTask::class)
+    ->and($updatedManufactureTask->code)->toBe($data['code'])
+    ->and($updatedManufactureTask->name)->toBe($data['name'])
+    ->and($updatedManufactureTask->task_materials_cost)->toBe($data['task_materials_cost'])
+    ->and($updatedManufactureTask->task_energy_cost)->toBe($data['task_energy_cost'])
+    ->and($updatedManufactureTask->task_other_cost)->toBe($data['task_other_cost'])
+    ->and($updatedManufactureTask->task_work_cost)->toBe($data['task_work_cost'])
+    ->and($updatedManufactureTask->task_lower_target)->toBe($data['task_lower_target'])
+    ->and($updatedManufactureTask->task_upper_target)->toBe($data['task_upper_target'])
+    ->and($updatedManufactureTask->operative_reward_terms)->toBe($data['operative_reward_terms'])
+    ->and($updatedManufactureTask->operative_reward_allowance_type)->toBe($data['operative_reward_allowance_type'])
+    ->and($updatedManufactureTask->operative_reward_amount)->toBe($data['operative_reward_amount']);
+})->depends('create manufacture task');

@@ -40,10 +40,10 @@ class ShowShop extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
+        $this->canEdit   = $request->user()->hasPermissionTo("products.{$this->organisation->id}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("products.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.view");
+        return $request->user()->hasPermissionTo("products.{$this->organisation->id}.view");
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Shop
@@ -56,7 +56,7 @@ class ShowShop extends OrgAction
     public function htmlResponse(Shop $shop, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Market/Shop',
+            'Org/Market/Shop',
             [
                 'title'        => __('shop'),
                 'breadcrumbs'  => $this->getBreadcrumbs(
@@ -338,14 +338,14 @@ class ShowShop extends OrgAction
 
     public function getPrevious(Shop $shop, ActionRequest $request): ?array
     {
-        $previous = Shop::where('code', '<', $shop->code)->orderBy('code', 'desc')->first();
+        $previous = Shop::where('code', '<', $shop->code)->where('organisation_id', $this->organisation->id)->orderBy('code', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(Shop $shop, ActionRequest $request): ?array
     {
-        $next = Shop::where('code', '>', $shop->code)->orderBy('code')->first();
+        $next = Shop::where('code', '>', $shop->code)->where('organisation_id', $this->organisation->id)->orderBy('code')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }

@@ -16,6 +16,7 @@ use App\Enums\Market\Outer\OuterStateEnum;
 use App\Enums\Market\Product\ProductStateEnum;
 use App\Models\Market\Outer;
 use App\Models\Market\Product;
+use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 
@@ -65,7 +66,7 @@ class StoreOuter extends OrgAction
             'code'        => [
                 'required',
                 'max:32',
-                'alpha_dash',
+                new AlphaDashDot(),
                 new IUnique(
                     table: 'outers',
                     extraConditions: [

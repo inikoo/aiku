@@ -14,15 +14,10 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class OrderFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition()
+    public function definition(): array
     {
         return [
-            'number'      => fake()->numberBetween(100, 999),
+            'number'      => fake()->lexify(),
             'date'        => fake()->date,
             'customer_id' => fake()->numberBetween(1, 100)
         ];

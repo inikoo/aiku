@@ -217,7 +217,7 @@ class IndexProducts extends OrgAction
 
 
         return Inertia::render(
-            'Market/Products',
+            'Org/Market/Products',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

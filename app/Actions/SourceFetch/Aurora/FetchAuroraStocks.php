@@ -13,7 +13,6 @@ use App\Actions\Goods\Stock\UpdateStock;
 use App\Actions\Inventory\OrgStock\StoreOrgStock;
 use App\Actions\Inventory\OrgStock\SyncOrgStockLocations;
 use App\Actions\Inventory\OrgStock\UpdateOrgStock;
-use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\Stock;
 use App\Services\Organisation\SourceOrganisationService;
@@ -31,7 +30,6 @@ class FetchAuroraStocks extends FetchAuroraAction
         $orgStock=null;
 
         if ($stockData = $organisationSource->fetchStock($organisationSourceId)) {
-            //print_r($stockData['stock']);
 
 
             if ($baseStock = Stock::withTrashed()->where('source_slug', $stockData['stock']['source_slug'])->first()) {
@@ -42,13 +40,13 @@ class FetchAuroraStocks extends FetchAuroraAction
                     );
                 }
             } else {
+
                 $stock = StoreStock::make()->action(
                     group: $organisationSource->getOrganisation()->group,
                     modelData: $stockData['stock'],
                     hydratorDelay: 30
                 );
             }
-
 
             if ($stock) {
                 $tradeUnit = $stockData['trade_unit'];
@@ -69,9 +67,9 @@ class FetchAuroraStocks extends FetchAuroraAction
 
             $effectiveStock = $stock ?? $baseStock;
 
+            $organisation = $organisationSource->getOrganisation();
 
-            if($stock && $stock->state != StockStateEnum::IN_PROCESS) {
-                $organisation = $organisationSource->getOrganisation();
+            if($effectiveStock) {
 
                 /** @var OrgStock $orgStock */
                 if ($orgStock = $organisation->orgStocks()->where('source_id', $stockData['stock']['source_id'])->first()) {
@@ -81,6 +79,7 @@ class FetchAuroraStocks extends FetchAuroraAction
                         hydratorDelay: 30
                     );
                 } else {
+
                     $orgStock = StoreOrgStock::make()->action(
                         organisation: $organisationSource->getOrganisation(),
                         stock: $effectiveStock,
@@ -89,12 +88,11 @@ class FetchAuroraStocks extends FetchAuroraAction
                     );
                 }
 
-                $sourceData = explode(':', $stockData['stock']['source_id']);
-
-
-
-
+                $sourceData    = explode(':', $stockData['stock']['source_id']);
                 $locationsData = $organisationSource->fetchLocationStocks($sourceData[1]);
+
+
+
                 SyncOrgStockLocations::run($orgStock, $locationsData['stock_locations']);
             }
 

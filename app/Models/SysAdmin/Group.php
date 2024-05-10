@@ -22,7 +22,10 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Mail\Mailroom;
+use App\Models\Manufacturing\Artifact;
+use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
+use App\Models\Manufacturing\RawMaterial;
 use App\Models\Market\CollectionCategory;
 use App\Models\Market\Collection;
 use App\Models\Market\Product;
@@ -68,6 +71,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\GroupAccountingStats|null $accountingStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Artifact> $artifacts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, CollectionCategory> $collectionCategories
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Collection> $collections
  * @property-read \App\Models\SysAdmin\GroupCRMStats|null $crmStats
@@ -84,6 +88,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Mailroom> $mailrooms
  * @property-read \App\Models\SysAdmin\GroupMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\GroupManufactureStats|null $manufactureStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ManufactureTask> $manufactureTasks
  * @property-read \App\Models\SysAdmin\GroupMarketStats|null $marketStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
@@ -96,6 +101,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Production> $productions
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PurchaseOrder> $purchaseOrders
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, RawMaterial> $rawMaterials
  * @property-read \Illuminate\Database\Eloquent\Collection<int, RecurringBill> $recurringBills
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \App\Models\SysAdmin\GroupSalesIntervals|null $salesIntervals
@@ -361,5 +367,19 @@ class Group extends Model implements HasMedia
         return $this->hasMany(Production::class);
     }
 
+    public function rawMaterials(): HasMany
+    {
+        return $this->hasMany(RawMaterial::class);
+    }
+
+    public function manufactureTasks(): HasMany
+    {
+        return $this->hasMany(ManufactureTask::class);
+    }
+
+    public function artifacts(): HasMany
+    {
+        return $this->hasMany(Artifact::class);
+    }
 
 }

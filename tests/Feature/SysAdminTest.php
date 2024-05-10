@@ -115,8 +115,8 @@ test('create organisation type shop', function (Group $group) {
     $organisation = StoreOrganisation::make()->action($group, $modelData);
 
     expect($organisation)->toBeInstanceOf(Organisation::class)
-        ->and($organisation->roles()->count())->toBe(9)
-        ->and($group->roles()->count())->toBe(14)
+        ->and($organisation->roles()->count())->toBe(7)
+        ->and($group->roles()->count())->toBe(12)
         ->and($organisation->accountingStats->number_org_payment_service_providers)->toBe(1)
         ->and($organisation->accountingStats->number_org_payment_service_providers_type_account)->toBe(1);
 
@@ -164,7 +164,7 @@ test('set organisation google key', function (Organisation $organisation) {
 
 
 test('roles are seeded', function () {
-    expect(Role::count())->toBe(23);
+    expect(Role::count())->toBe(19);
 });
 
 test('create guest', function (Group $group, Organisation $organisation) {

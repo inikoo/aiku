@@ -19,6 +19,8 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('organisation_id');
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->productionsStats($table);
+            $table = $this->rawMaterialStats($table);
+            $table = $this->manufactureTaskStats($table);
             $table->timestampsTz();
         });
     }

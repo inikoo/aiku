@@ -20,9 +20,10 @@ class StoreInvoiceTransaction
     {
         $modelData['shop_id']            = $invoice->shop_id;
         $modelData['customer_id']        = $invoice->customer_id;
-        $modelData['order_id']           = $invoice->order_id;
         $modelData['group_id']           = $invoice->group_id;
         $modelData['organisation_id']    = $invoice->organisation_id;
+
+
 
         $modelData['product_id']    = $historicOuterable->product_id;
         $modelData['item_type']     = class_basename($historicOuterable);

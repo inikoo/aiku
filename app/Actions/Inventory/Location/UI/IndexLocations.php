@@ -10,10 +10,11 @@ namespace App\Actions\Inventory\Location\UI;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
 use App\Actions\OrgAction;
-use App\Enums\UI\WarehouseAreaTabsEnum;
-use App\Enums\UI\WarehouseTabsEnum;
+use App\Enums\UI\Inventory\WarehouseAreaTabsEnum;
+use App\Enums\UI\Inventory\WarehouseTabsEnum;
 use App\Http\Resources\Inventory\LocationsResource;
 use App\Http\Resources\Tag\TagResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
@@ -21,6 +22,7 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -29,9 +31,7 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 use Spatie\Tags\Tag;
 
 class IndexLocations extends OrgAction
@@ -40,9 +40,15 @@ class IndexLocations extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.view");
+        if($this->parent instanceof Organisation) {
+            $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->warehouse->id);
+            return  $request->user()->hasPermissionTo("warehouses-view.{$this->organisation->id}");
+        }
+
+        $this->canEdit = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
+        return  $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
+
     }
 
 

@@ -63,9 +63,7 @@ Route::prefix("account")
 
 
 
-Route::prefix("dropshipping")
-    ->name("dropshipping.")
-    ->group(__DIR__."/dropshipping.php");
+
 
 
 Route::prefix("shops")
@@ -74,9 +72,7 @@ Route::prefix("shops")
 Route::prefix("web")
     ->name("web.")
     ->group(__DIR__."/web.php");
-Route::prefix("products")
-    ->name("products.")
-    ->group(__DIR__."/products.php");
+
 Route::prefix("search")
     ->name("search.")
     ->group(__DIR__."/search.php");
@@ -89,9 +85,7 @@ Route::prefix("oms")
 Route::prefix("marketing")
     ->name("marketing.")
     ->group(__DIR__."/marketing.php");
-Route::prefix("sessions")
-    ->name("sessions.")
-    ->group(__DIR__."/sessions.php");
+
 
 Route::prefix("media")
     ->name("media.")

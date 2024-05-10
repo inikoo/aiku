@@ -13,6 +13,7 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -36,9 +37,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\Artifact> $artifacts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\ManufactureTask> $manufactureTasks
  * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\RawMaterial> $rawMaterials
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Role> $roles
  * @property-read \App\Models\Manufacturing\ProductionStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
@@ -94,4 +98,20 @@ class Production extends Model implements Auditable
     {
         return $this->morphMany(Role::class, 'scope');
     }
+
+    public function rawMaterials(): HasMany
+    {
+        return $this->hasMany(RawMaterial::class);
+    }
+
+    public function manufactureTasks(): HasMany
+    {
+        return $this->hasMany(ManufactureTask::class);
+    }
+
+    public function artifacts(): HasMany
+    {
+        return $this->hasMany(Artifact::class);
+    }
+
 }

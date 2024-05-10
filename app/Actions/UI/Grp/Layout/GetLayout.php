@@ -21,7 +21,6 @@ class GetLayout
         if (!$user) {
             return [];
         }
-        // dd(GetOrganisationsLayout::run($user));
         return [
 
             'group'          => GroupResource::make(app('group'))->getArray(),
