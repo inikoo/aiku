@@ -14,10 +14,10 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { computed, ref } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 import Tabs from "@/Components/Navigation/Tabs.vue"
+import TableHistories from "@/Components/Tables/TableHistories.vue"
 
 
 library.add(faBars, faWarehouse)
-
 
 const props = defineProps<{
     pageHead: {}
@@ -27,6 +27,7 @@ const props = defineProps<{
     },
     title: string
     warehouses?: {}
+    warehouses_histories: {}
 }>()
 
 const currentTab = ref(props.tabs.current)
@@ -35,7 +36,8 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
 
     const components = {
-        warehouses: TableWarehouses
+        warehouses: TableWarehouses,
+        warehouses_histories: TableHistories
 
     }
     return components[currentTab.value]
@@ -44,10 +46,8 @@ const component = computed(() => {
 
 </script>
 
-<!--suppress HtmlUnknownAttribute -->
 <template>
-    <!--suppress HtmlRequiredTitleElement -->
-
+<!-- <pre>{{ warehouses_histories }}</pre> -->
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />

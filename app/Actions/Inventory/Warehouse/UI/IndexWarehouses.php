@@ -197,8 +197,8 @@ class IndexWarehouses extends OrgAction
 
 
                 WarehousesTabsEnum::WAREHOUSES_HISTORIES->value => $this->tab == WarehousesTabsEnum::WAREHOUSES_HISTORIES->value ?
-                    fn () => HistoryResource::collection(IndexHistory::run(Warehouse::class))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run(Warehouse::class)))
+                    fn () => HistoryResource::collection(IndexHistory::run(Warehouse::class, 'hst'))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run(Warehouse::class, 'hst')))
 
 
 
@@ -206,7 +206,8 @@ class IndexWarehouses extends OrgAction
         )->table($this->tableStructure(
             organisation:$this->organisation,
             prefix:WarehousesTabsEnum::WAREHOUSES->value
-        ));
+        ))
+        ->table(IndexHistory::make()->tableStructure('hst'));
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
