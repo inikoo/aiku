@@ -85,4 +85,9 @@ class ManufactureTask extends Model
     {
         return 'slug';
     }
+
+    public function artifacts()
+    {
+        return $this->belongsToMany(Artifact::class)->using(ArtifactManufactureTask::class);
+    }
 }

@@ -95,6 +95,10 @@ class Artifact extends Model
         return $this->hasOne(ArtifactStats::class);
     }
 
+    public function manufactureTasks()
+    {
+        return $this->belongsToMany(ManufactureTask::class)->using(ArtifactManufactureTask::class);
+    }
 
 
 }
