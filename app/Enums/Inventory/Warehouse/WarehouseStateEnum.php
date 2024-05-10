@@ -35,7 +35,7 @@ enum WarehouseStateEnum: string
         $stats = $parent->inventoryStats;
 
         return [
-            'in-process'      => $stats->number_warehouses,
+            'in-process'      => $stats->number_warehouses_state_in_process,
             'open'            => $stats->number_warehouses_state_open,
             'closing-down'    => $stats->number_warehouses_state_closing_down,
             'closed'          => $stats->number_warehouses_state_closed

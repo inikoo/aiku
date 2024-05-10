@@ -37,7 +37,7 @@ enum ShopStateEnum: string
         $stats = $parent->marketStats;
 
         return [
-            'in-process'      => $stats->number_shops,
+            'in-process'      => $stats->number_shops_state_in_process,
             'open'            => $stats->number_shops_state_open,
             'closing-down'    => $stats->number_shops_state_closing_down,
             'closed'          => $stats->number_shops_state_closed
