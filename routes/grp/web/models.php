@@ -76,6 +76,7 @@ use App\Actions\Inventory\Location\Tags\SyncTagsLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\ImportWarehouseArea;
+use App\Actions\Manufacturing\JobOrder\StoreJobOrder;
 use App\Actions\Market\Product\DeleteProduct;
 use App\Actions\Market\Product\StorePhysicalGood;
 use App\Actions\Market\Product\UpdatePhysicalGood;
@@ -268,6 +269,10 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
 Route::post('/supplier', StoreSupplier::class)->name('supplier.store');
 Route::patch('/shop/payment-accounts/{paymentAccount:id}', SyncPaymentAccountToShop::class)->name('shop.payment-accounts.sync')->withoutScopedBindings();
 
+Route::name('production.')->prefix('production/{production}')->group(function () {
+    Route::post('/job-order/store', StoreJobOrder::class)->name('job-order.store');
+
+});
 /*
 
 

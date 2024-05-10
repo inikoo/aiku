@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-
+use App\Actions\Manufacturing\JobOrder\UI\ShowJobOrder;
 use App\Actions\Manufacturing\Production\UI\CreateProduction;
 use App\Actions\Manufacturing\Production\UI\EditProduction;
 use App\Actions\Manufacturing\Production\UI\IndexProductions;
@@ -19,6 +19,7 @@ Route::prefix('{production}')
         Route::get('edit', EditProduction::class)->name('edit');
         Route::name('show')
             ->group(function () {
+                Route::get('job-order', ShowJobOrder::class)->name('.job-order.show');
 
 
 

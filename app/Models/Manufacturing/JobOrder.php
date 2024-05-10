@@ -76,7 +76,6 @@ class JobOrder extends Model
         return SlugOptions::create()
             ->generateSlugsFrom('reference')
             ->doNotGenerateSlugsOnUpdate()
-            ->doNotGenerateSlugsOnCreate()
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
     }
 

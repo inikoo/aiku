@@ -9,6 +9,7 @@ use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Market\HasRentalAgreement;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
+use App\Http\Resources\Manufacturing\JobOrderResource;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -43,13 +44,8 @@ class StoreJobOrder extends OrgAction
             data_set(
                 $modelData,
                 'reference',
-                GetSerialReference::run(
-                    container: $production,
-                    // todo : add Job Order Enum
-                    modelType: SerialReferenceModelEnum::PALLET_DELIVERY
-                )
+                Str::random(10) //Dummy
             );
-
         }
 
         $jobOrder = $production->jobOrders()->create($modelData);
@@ -103,16 +99,10 @@ class StoreJobOrder extends OrgAction
         return $this->handle($production, $this->validatedData);
     }
 
-    public function jsonResponse(JobOrder $jobOrder): array
+    public function jsonResponse(JobOrder $jobOrder): JobOrderResource
     {
-        return [
-            'route' => [
-                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show',
-                'parameters' => [
-                    'organisation'           => $jobOrder->organisation->slug,
-                ]
-            ]
-        ];
+        return JobOrderResource::make($jobOrder) ; 
+        
     }
 
     public function htmlResponse(JobOrder $jobOrder, ActionRequest $request): Response
@@ -120,7 +110,7 @@ class StoreJobOrder extends OrgAction
         $routeName = $request->route()->getName();
 
         return match ($routeName) {
-            'grp.models.fulfilment-customer.pallet-delivery.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
+            'grp.models.production.job-order.store' => Inertia::location(route('grp.org.manufacturing.productions.show.job-order.show', [
                 'organisation'           => $jobOrder->organisation->slug,
             ])),
             default => Inertia::location(route('retina.storage.pallet-deliveries.show', [
@@ -135,6 +125,14 @@ class StoreJobOrder extends OrgAction
     {
         $this->asAction = true;
 
+
+        // dummy
+        $data = [
+            'public_notes' => 'This is a public note for the job order.',
+            'internal_notes' => 'These are internal notes for the job order.',
+            'customer_notes' => 'These are internal notes for the job order.'
+        ];
+
         try {
             $production = Production::where('slug', $command->argument('production'))->firstOrFail();
         } catch (Exception $e) {
@@ -142,9 +140,9 @@ class StoreJobOrder extends OrgAction
             return 1;
         }
 
-        $jobOrder = $this->handle($production, modelData: $this->validatedData);
+        $jobOrder = $this->handle($production, modelData: $data);
 
-        $command->info("Pallet delivery $production->reference created successfully 🎉");
+        $command->info("Job Order $production->reference created successfully 🎉");
 
         return 0;
     }
