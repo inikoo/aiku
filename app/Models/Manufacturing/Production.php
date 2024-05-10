@@ -114,4 +114,9 @@ class Production extends Model implements Auditable
         return $this->hasMany(Artifact::class);
     }
 
+    public function jobOrders() : HasMany 
+    {
+        return $this->hasMany(JobOrder::class);
+    }
+
 }
