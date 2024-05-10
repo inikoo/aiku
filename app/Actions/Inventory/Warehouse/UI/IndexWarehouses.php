@@ -206,8 +206,7 @@ class IndexWarehouses extends OrgAction
         )->table($this->tableStructure(
             organisation:$this->organisation,
             prefix:WarehousesTabsEnum::WAREHOUSES->value
-        ))
-        ->table(IndexHistory::make()->tableStructure('hst'));
+        ))->table(IndexHistory::make()->tableStructure('hst'));
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array

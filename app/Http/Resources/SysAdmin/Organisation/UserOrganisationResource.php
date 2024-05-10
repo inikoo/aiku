@@ -52,7 +52,7 @@ class UserOrganisationResource extends JsonResource
             ),
             'authorised_warehouses' => WarehousesNavigationResource::collection(
                 $user->authorisedWarehouses()->where('organisation_id', $organisation->id)->get()
-            ),
+            )
         ];
     }
 
