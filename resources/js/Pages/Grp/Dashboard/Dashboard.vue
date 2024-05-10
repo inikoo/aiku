@@ -22,7 +22,7 @@ const props = defineProps<{
 }>()
 
 const layout = inject('layout', layoutStructure)
-// console.log('asdsadsa', layout.organisations)
+console.log('asdsadsa', layout.organisations)
 
 const isShowLastYear = ref(true)
 
@@ -154,6 +154,8 @@ const calcPercentage = (orgData, keyName: string | null) => {
     <Head :title="trans('Dashboard')" />
 
     <div class="px-4 sm:px-6 lg:px-8 py-6">
+        <pre>{{ layout.organisations.data }}</pre>
+
         <!-- Section: Table -->
         <div class="mt-8">
 
