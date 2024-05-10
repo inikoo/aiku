@@ -10,11 +10,13 @@ namespace App\Actions\Inventory\Warehouse\UI;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Enums\UI\Inventory\WarehousesTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\WarehousesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -41,7 +43,24 @@ class IndexWarehouses extends OrgAction
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($organisation, $request)->withTab(WarehousesTabsEnum::values());
-        return $this->handle($organisation);
+        return $this->handle($organisation, 'warehouses');
+    }
+
+    protected function getElementGroups(Organisation|Group $parent): array
+    {
+        return [
+            'state' => [
+                'label'    => __('State'),
+                'elements' => array_merge_recursive(
+                    WarehouseStateEnum::labels(),
+                    WarehouseStateEnum::count($parent)
+                ),
+
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('warehouses.state', $elements);
+                }
+            ],
+        ];
     }
 
     public function handle(Organisation $organisation, $prefix = null): LengthAwarePaginator
@@ -62,6 +81,15 @@ class IndexWarehouses extends OrgAction
         $queryBuilder->where('organisation_id', $organisation->id);
 
 
+        foreach ($this->getElementGroups($organisation) as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine'],
+                prefix: $prefix
+            );
+        }
+
         return $queryBuilder
             ->defaultSort('warehouses.code')
             ->select([
@@ -70,7 +98,8 @@ class IndexWarehouses extends OrgAction
                 'warehouses.name',
                 'warehouse_stats.number_warehouse_areas',
                 'warehouse_stats.number_locations',
-                'warehouses.slug as slug'
+                'warehouses.slug as slug',
+                'warehouses.state as state'
             ])
             ->leftJoin('warehouse_stats', 'warehouse_stats.warehouse_id', 'warehouses.id')
             ->allowedSorts(['code', 'name', 'number_warehouse_areas', 'number_locations'])
@@ -87,6 +116,15 @@ class IndexWarehouses extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
+
+            foreach ($this->getElementGroups($organisation) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
+
             $table
                 ->withGlobalSearch()
                 ->withEmptyState(
