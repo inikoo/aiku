@@ -52,13 +52,17 @@ class EditEmployee extends OrgAction
         $jobPositionsData = (object) $employee->jobPositions->map(function ($jobPosition) {
             return [
                 $jobPosition->code => match (key($jobPosition->pivot->scopes)) {
-                    'Shop'      => Shop::whereIn('id', $jobPosition->pivot->scopes['Shop'])->pluck('slug')->toArray(),
-                    'Warehouse' => Warehouse::whereIn('id', $jobPosition->pivot->scopes['Warehouse'])->pluck('slug')->toArray(),
-                    default     => []
+                    'Warehouse' => [
+                        'warehouses' => Warehouse::whereIn('id', $jobPosition->pivot->scopes['Warehouse'])->pluck('slug')->toArray()
+                    ],
+                    'Shop' => [
+                        'shops' => Shop::whereIn('id', $jobPosition->pivot->scopes['Shop'])->pluck('slug')->toArray()
+                    ],
+                    default => []
                 }
             ];
         })->reduce(function ($carry, $item) {
-            return array_merge($carry, $item);
+            return array_merge_recursive($carry, $item);
         }, []);
 
         $sections['properties'] = [
