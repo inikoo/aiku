@@ -4,6 +4,8 @@ namespace App\Enums\Manufacturing\JobOrder;
 
 use App\Enums\EnumHelperTrait;
 
+// pls review
+
 enum JobOrderStateEnum: string
 {
     use EnumHelperTrait;

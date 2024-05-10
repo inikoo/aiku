@@ -35,7 +35,7 @@ return new class extends Migration
             $table = $this->softDeletes($table);
         });
     }
-
+// pls review
 
     public function down()
     {

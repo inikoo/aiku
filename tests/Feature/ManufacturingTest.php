@@ -7,6 +7,8 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Manufacturing\JobOrder\StoreJobOrder;
+use App\Actions\Manufacturing\JobOrder\UpdateJobOrder;
 use App\Actions\Manufacturing\ManufactureTask\StoreManufactureTask;
 use App\Actions\Manufacturing\ManufactureTask\UpdateManufactureTask;
 use App\Actions\Manufacturing\Production\StoreProduction;
@@ -19,6 +21,7 @@ use App\Enums\Manufacturing\RawMaterial\RawMaterialStateEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialStockStatusEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialTypeEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
+use App\Models\Manufacturing\JobOrder;
 use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
@@ -235,3 +238,49 @@ test('update manufacture task', function ($manufactureTask) {
     ->and($updatedManufactureTask->operative_reward_allowance_type)->toBe($data['operative_reward_allowance_type'])
     ->and($updatedManufactureTask->operative_reward_amount)->toBe($data['operative_reward_amount']);
 })->depends('create manufacture task');
+
+test('create job order', function ($production) {
+
+    $data = [
+        'public_notes' => 'This is a public note for the job order.',
+        'internal_notes' => 'These are internal notes for the job order.',
+        'customer_notes' => 'These are internal notes for the job order.'
+    ];
+
+    // store job order
+    $jobOrder = StoreJobOrder::make()->action(
+        $production,
+        $data
+    );
+
+    // Assertions
+    expect($jobOrder)->toBeInstanceOf(JobOrder::class)
+    ->and($jobOrder->public_notes)->toBe($data['public_notes'])
+    ->and($jobOrder->internal_notes)->toBe($data['internal_notes'])
+    ->and($jobOrder->customer_notes)->toBe($data['customer_notes']);
+
+    return $jobOrder;
+})->depends('create production');
+
+test('update job order', function ($jobOrder) {
+
+    $data = [
+        'public_notes' => 'This is an updated public note for the job order.',
+        'internal_notes' => 'These are updated internal notes for the job order.',
+        'customer_notes' => 'These are updated internal notes for the job order.'
+    ];
+
+    // Update the job order
+    $updatedJobOrder = UpdateJobOrder::make()->action(
+        $jobOrder->organisation,
+        $jobOrder,
+        $data
+    );
+
+    // Assertions
+    expect($updatedJobOrder)->toBeInstanceOf(JobOrder::class)
+    ->and($updatedJobOrder->public_notes)->toBe($data['public_notes'])
+    ->and($updatedJobOrder->internal_notes)->toBe($data['internal_notes'])
+    ->and($updatedJobOrder->customer_notes)->toBe($data['customer_notes']);
+})->depends('create job order');
+

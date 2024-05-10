@@ -44,7 +44,7 @@ class StoreJobOrder extends OrgAction
             data_set(
                 $modelData,
                 'reference',
-                Str::random(10) //Dummy
+                Str::random(10) //TODO: make a reference generator for Job Order
             );
         }
 
@@ -86,7 +86,7 @@ class StoreJobOrder extends OrgAction
 
     public function action(Production $production, array $modelData): JobOrder
     {
-        $this->action = true;
+        $this->asAction = true;
         $this->initialisation($production->organisation, $modelData);
 
         return $this->handle($production, $this->validatedData);
@@ -127,11 +127,11 @@ class StoreJobOrder extends OrgAction
 
 
         // dummy
-        $data = [
-            'public_notes' => 'This is a public note for the job order.',
-            'internal_notes' => 'These are internal notes for the job order.',
-            'customer_notes' => 'These are internal notes for the job order.'
-        ];
+        // $data = [
+        //     'public_notes' => 'This is a public note for the job order.',
+        //     'internal_notes' => 'These are internal notes for the job order.',
+        //     'customer_notes' => 'These are internal notes for the job order.'
+        // ];
 
         try {
             $production = Production::where('slug', $command->argument('production'))->firstOrFail();
@@ -140,7 +140,7 @@ class StoreJobOrder extends OrgAction
             return 1;
         }
 
-        $jobOrder = $this->handle($production, modelData: $data);
+        $jobOrder = $this->handle($production, modelData: $this->validatedData);
 
         $command->info("Job Order $production->reference created successfully 🎉");
 

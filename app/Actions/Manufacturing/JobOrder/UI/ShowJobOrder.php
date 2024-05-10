@@ -3,8 +3,14 @@
  namespace App\Actions\Manufacturing\JobOrder\UI;
 
 use App\Actions\OrgAction;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+use App\Http\Resources\Manufacturing\JobOrderResource;
 use App\Models\Manufacturing\JobOrder;
+use App\Models\Manufacturing\JobOrderItem;
+use App\Models\SysAdmin\Organisation;
+use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
+use Inertia\Response;
 
  class ShowJobOrder extends OrgAction
 {
@@ -29,22 +35,22 @@ use Lorisleiva\Actions\ActionRequest;
     }
 
 
-    public function htmlResponse(Agent $agent, ActionRequest $request): Response
+    public function htmlResponse(JobOrder $jobOrder, ActionRequest $request): Response
     {
-        if ($agent->trashed()) {
-            return $this->deletedHtmlResponse($agent, $request);
+        if ($jobOrder->trashed()) {
+            return $this->deletedHtmlResponse($jobOrder, $request);
         }
 
         return Inertia::render(
             'SupplyChain/Agent',
             [
-                'title'                                   => __("agent"),
+                'title'                                   => __("Job Order"),
                 'breadcrumbs'                             => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
                 'navigation'                              => [
-                    'previous' => $this->getPrevious($agent, $request),
-                    'next'     => $this->getNext($agent, $request),
+                    'previous' => $this->getPrevious($jobOrder, $request),
+                    'next'     => $this->getNext($jobOrder, $request),
                 ],
                 'pageHead'                                => [
                     'icon'   =>
@@ -52,7 +58,7 @@ use Lorisleiva\Actions\ActionRequest;
                             'icon'  => ['fal', 'people-arrows'],
                             'title' => __('agent')
                         ],
-                    'title'   => $agent->organisation->name,
+                    'title'   => $jobOrder->organisation->name,
                     'actions' => [
                         $this->canEdit ? [
                             'type'  => 'button',
@@ -164,9 +170,9 @@ use Lorisleiva\Actions\ActionRequest;
     }
 
 
-    public function jsonResponse(Agent $agent): AgentResource
+    public function jsonResponse(JobOrder $jobOrder): JobOrderResource
     {
-        return new AgentResource($agent);
+        return new JobOrderResource($jobOrder);
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
@@ -200,33 +206,33 @@ use Lorisleiva\Actions\ActionRequest;
         );
     }
 
-    public function getPrevious(Agent $agent, ActionRequest $request): ?array
+    public function getPrevious(JobOrder $jobOrder, ActionRequest $request): ?array
     {
-        $previous = Organisation::where('group_id', $agent->group_id)->where('type', OrganisationTypeEnum::AGENT)->where('code', '<', $agent->organisation->code)->orderBy('code', 'desc')->first();
+        $previous = Organisation::where('group_id', $jobOrder->group_id)->where('code', '<', $jobOrder->organisation->code)->orderBy('code', 'desc')->first();
 
         return $this->getNavigation($previous?->agent, $request->route()->getName());
     }
 
-    public function getNext(Agent $agent, ActionRequest $request): ?array
+    public function getNext(JobOrder $jobOrder, ActionRequest $request): ?array
     {
-        $next = Organisation::where('group_id', $agent->group_id)->where('type', OrganisationTypeEnum::AGENT)->where('code', '>', $agent->organisation->code)->orderBy('code')->first();
+        $next = Organisation::where('group_id', $jobOrder->group_id)->where('code', '>', $jobOrder->organisation->code)->orderBy('code')->first();
 
         return $this->getNavigation($next?->agent, $request->route()->getName());
     }
 
-    private function getNavigation(?Agent $agent, string $routeName): ?array
+    private function getNavigation(?JobOrder $jobOrder, string $routeName): ?array
     {
-        if (!$agent) {
+        if (!$jobOrder) {
             return null;
         }
 
         return match ($routeName) {
-            'grp.supply-chain.agents.show' => [
-                'label' => $agent->organisation->name,
+            'grp.org.manufacturing.productions.show.job-order.show' => [
+                'label' => $jobOrder->organisation->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'agent' => $agent->slug
+                        'job-order' => $jobOrder->slug
                     ]
 
                 ]

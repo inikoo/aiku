@@ -37,7 +37,7 @@ class UpdateJobOrder extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->action) {
+        if($this->asAction) {
             return true;
         }
 
@@ -75,7 +75,7 @@ class UpdateJobOrder extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function action(Organisation $organisation, JobOrder $jobOrder, $modelData): JobOrder
     {
-        $this->action = true;
+        $this->asAction = true;
         $this->jobOrder = $jobOrder;
         $this->initialisation($jobOrder->organisation, $modelData);
         $this->setRawAttributes($modelData);
@@ -101,11 +101,11 @@ class UpdateJobOrder extends OrgAction
         $this->asAction = true;
 
         // Dummy test Data
-        $data = [
-            'public_notes' => 'Update.',
-            'internal_notes' => 'Update. ',
-            'customer_notes' => 'Update.'
-        ];
+        // $data = [
+        //     'public_notes' => 'Update.',
+        //     'internal_notes' => 'Update. ',
+        //     'customer_notes' => 'Update.'
+        // ];
 
         try {
             $jobOrder = JobOrder::where('slug', $command->argument('job-order'))->firstOrFail();
@@ -114,7 +114,7 @@ class UpdateJobOrder extends OrgAction
             return 1;
         }
 
-        $jobOrder = $this->handle($jobOrder, modelData: $data);
+        $jobOrder = $this->handle($jobOrder, modelData: $this->validatedData);
 
         $command->info("Job Order $jobOrder->reference updated successfully 🎉");
 
