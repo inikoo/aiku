@@ -17,8 +17,7 @@ class HistoryResource extends JsonResource
     {
         return [
             'ip_address'           => $this['ip_address'],
-            'datetime'             => $this['datetime'],
-            'created_at'           => $this['created_at'],
+            'datetime'             => $this['created_at'],
             'url'                  => $this['url'],
             'type'                 => $this['type'],
             'organisation'         => $this['organisation_slug'],
