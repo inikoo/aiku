@@ -6,6 +6,8 @@ use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletDeliverie
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateUniversalSearch;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
+use App\Actions\Manufacturing\JobOrder\Hydrators\JobOrderHydrateUniversalSearch;
+use App\Actions\Manufacturing\Production\Hydrators\ProductionHydrateJobOrders;
 use App\Actions\Market\HasRentalAgreement;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
@@ -49,6 +51,8 @@ class StoreJobOrder extends OrgAction
         }
 
         $jobOrder = $production->jobOrders()->create($modelData);
+        JobOrderHydrateUniversalSearch::dispatch($jobOrder);
+        ProductionHydrateJobOrders::dispatch($jobOrder->production);
 
         return $jobOrder;
     }

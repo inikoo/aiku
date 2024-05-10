@@ -98,6 +98,11 @@ class JobOrder extends Model
         return $this->hasMany(JobOrderItem::class);
     }
 
+    public function production(): BelongsTo
+    {
+        return $this->belongsTo(Production::class);
+    }
+
     // pls review
 }
 
