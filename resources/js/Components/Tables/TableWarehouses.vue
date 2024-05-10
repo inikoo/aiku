@@ -5,21 +5,24 @@
   -->
 
 <script setup lang="ts">
-import {Link} from '@inertiajs/vue3';
-import Table from '@/Components/Table/Table.vue';
-import {Warehouse} from "@/types/warehouse";
+import { Link } from '@inertiajs/vue3'
+import Table from '@/Components/Table/Table.vue'
+import { Warehouse } from "@/types/warehouse"
+import { useLocaleStore } from '@/Stores/locale'
 
 const props = defineProps<{
-    data: object,
+    data: {}
     tab?: string
 }>()
+
+const locale = useLocaleStore()
 
 function warehouseRoute(warehouse: Warehouse) {
     switch (route().current()) {
         case 'grp.org.warehouses.index':
             return route(
                 'grp.org.warehouses.show.infrastructure.dashboard',
-                [route().params['organisation'], warehouse.slug]);
+                [route().params['organisation'], warehouse.slug])
     }
 }
 
@@ -28,7 +31,7 @@ function warehouseAreasRoute(warehouse: Warehouse) {
         case 'grp.org.warehouses.index':
             return route(
                 'grp.org.warehouses.show.infrastructure.warehouse-areas.index',
-                [route().params['organisation'], warehouse.slug]);
+                [route().params['organisation'], warehouse.slug])
     }
 }
 
@@ -37,7 +40,7 @@ function locationsRoute(warehouse: Warehouse) {
         case 'grp.org.warehouses.index':
             return route(
                 'grp.org.warehouses.show.infrastructure.locations.index',
-                [route().params['organisation'], warehouse.slug]);
+                [route().params['organisation'], warehouse.slug])
     }
 }
 
@@ -53,12 +56,12 @@ function locationsRoute(warehouse: Warehouse) {
         </template>
         <template #cell(number_warehouse_areas)="{ item: warehouse }">
             <Link :href="warehouseAreasRoute(warehouse)" class="specialUnderline">
-                {{ warehouse['number_warehouse_areas'] }}
+                {{ locale.number(warehouse['number_warehouse_areas'] || 0) }}
             </Link>
         </template>
         <template #cell(number_locations)="{ item: warehouse }">
             <Link :href="locationsRoute(warehouse)" class="specialUnderline">
-                {{ warehouse['number_locations'] }}
+                {{ locale.number(warehouse['number_locations'] || 0) }}
             </Link>
         </template>
     </Table>
