@@ -88,7 +88,7 @@ class UpdateJobOrder extends OrgAction
         $routeName = $request->route()->getName();
 
         return match ($routeName) {
-            'grp.models.fulfilment-customer.pallet-delivery.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
+            'grp.models.production.job-order.update' => Inertia::location(route('grp.org.manufacturing.productions.show.job-order.show', [
                 'organisation'           => $jobOrder->organisation->slug,
             ])),
         };
@@ -99,6 +99,13 @@ class UpdateJobOrder extends OrgAction
     public function asCommand(Command $command): int
     {
         $this->asAction = true;
+
+        // Dummy test Data
+        $data = [
+            'public_notes' => 'Update.',
+            'internal_notes' => 'Update. ',
+            'customer_notes' => 'Update.'
+        ];
 
         try {
             $jobOrder = JobOrder::where('slug', $command->argument('job-order'))->firstOrFail();
