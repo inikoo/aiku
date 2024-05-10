@@ -17,7 +17,7 @@ class HistoryResource extends JsonResource
     {
         return [
             'ip_address'           => $this['ip_address'],
-            'datetime'             => $this['datetime'],
+            'datetime'             => $this['created_at'],
             'url'                  => $this['url'],
             'type'                 => $this['type'],
             'organisation'         => $this['organisation_slug'],
@@ -29,7 +29,8 @@ class HistoryResource extends JsonResource
             'user_id'              => $this['user_id'],
             'user_type'            => $this['user_type'],
             'slug'                 => $this['slug'],
-            'user_name'            => $this['user_name'],
+            'user_agent'           => $this['user_agent'],
+            'user_name'            => $this['user_name'] ?? 'Command Line',
             'tags'                 => $this['tags']
         ];
     }

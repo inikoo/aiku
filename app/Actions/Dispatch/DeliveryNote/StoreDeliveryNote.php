@@ -10,16 +10,18 @@ namespace App\Actions\Dispatch\DeliveryNote;
 use App\Actions\Dispatch\DeliveryNote\Hydrators\DeliveryNoteHydrateUniversalSearch;
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
+use App\Actions\OrgAction;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Models\Dispatch\DeliveryNote;
-use App\Models\Helpers\Address;
 use App\Models\OMS\Order;
+use App\Rules\IUnique;
+use App\Rules\ValidAddress;
 use Illuminate\Validation\Rules\Enum;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreDeliveryNote
+class StoreDeliveryNote extends OrgAction
 {
     use AsAction;
     use WithAttributes;
@@ -27,10 +29,12 @@ class StoreDeliveryNote
     public function handle(
         Order $order,
         array $modelData,
-        Address $seedDeliveryAddress,
     ): DeliveryNote {
-        $modelData['shop_id']     = $order->shop_id;
-        $modelData['customer_id'] = $order->customer_id;
+        $delivery_address = $modelData['delivery_address'];
+        data_forget($modelData, 'delivery_address');
+
+        data_set($modelData, 'shop_id', $order->shop_id);
+        data_set($modelData, 'customer_id', $order->customer_id);
         data_set($modelData, 'group_id', $order->group_id);
         data_set($modelData, 'organisation_id', $order->organisation_id);
 
@@ -38,30 +42,62 @@ class StoreDeliveryNote
         $deliveryNote = $order->deliveryNotes()->create($modelData);
         $deliveryNote->stats()->create();
 
-        $deliveryAddress = StoreHistoricAddress::run($seedDeliveryAddress);
-        AttachHistoricAddressToModel::run($deliveryNote, $deliveryAddress, ['scope'=>'delivery']);
+
+        $deliveryAddress = StoreHistoricAddress::run($delivery_address);
+        AttachHistoricAddressToModel::run($deliveryNote, $deliveryAddress, ['scope' => 'delivery']);
 
         DeliveryNoteHydrateUniversalSearch::dispatch($deliveryNote);
+
         return $deliveryNote;
     }
 
     public function rules(): array
     {
-        return [
-            'number' => ['required', 'unique:delivery_notes', 'numeric'],
-            'state'  => ['sometimes', 'required', new Enum(DeliveryNoteStateEnum::class)],
-            'status' => ['sometimes', 'required', new Enum(DeliveryNoteStatusEnum::class)],
-            'email'  => ['required', 'string', 'email'],
-            'phone'  => ['required', 'string'],
-            'date'   => ['required', 'date']
+        $rules = [
+            'number'           => [
+                'required',
+                'max:64',
+                'string',
+                new IUnique(
+                    table: 'delivery_notes',
+                    extraConditions: [
+                        ['column' => 'organisation_id', 'value' => $this->organisation->id],
+                    ]
+                ),
+            ],
+            'state'            => [
+                'sometimes',
+                'required',
+                new Enum(DeliveryNoteStateEnum::class)
+            ],
+            'status'           => [
+                'sometimes',
+                'required',
+                new Enum(DeliveryNoteStatusEnum::class)
+            ],
+            'delivery_address' => ['required', new ValidAddress()],
+            'email'            => ['sometimes', 'nullable', 'email'],
+            'phone'            => ['sometimes', 'nullable', 'string'],
+            'date'             => ['required', 'date'],
+            'created_at'       => ['sometimes', 'date'],
+            'cancelled_at'     => ['sometimes', 'date'],
+            'source_id'        => ['sometimes', 'string'],
         ];
+
+        if (!$this->strict) {
+            $rules['number'] = ['required', 'max:64', 'string'];
+        }
+
+        return $rules;
     }
 
-    public function action(Order $order, array $modelData, Address $address): DeliveryNote
+    public function action(Order $order, array $modelData, int $hydratorsDelay = 0, bool $strict = true): DeliveryNote
     {
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisationFromShop($order->shop, $modelData);
 
-        return $this->handle($order, $validatedData, $address);
+        return $this->handle($order, $this->validatedData);
     }
 }

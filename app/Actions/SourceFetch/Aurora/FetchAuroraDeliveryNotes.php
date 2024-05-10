@@ -17,29 +17,34 @@ use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dispatch\Shipment;
 use App\Services\Organisation\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
 
 class FetchAuroraDeliveryNotes extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:delivery-notes {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:delivery-notes {organisations?*} {--s|source_id=} {--S|shop= : Shop slug}  {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset}';
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?DeliveryNote
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions=false): ?DeliveryNote
     {
         if ($deliveryNoteData = $organisationSource->fetchDeliveryNote($organisationSourceId)) {
             if (!empty($deliveryNoteData['delivery_note']['source_id']) and $deliveryNote = DeliveryNote::withTrashed()->where('source_id', $deliveryNoteData['delivery_note']['source_id'])
                     ->first()) {
-                UpdateDeliveryNote::run($deliveryNote, $deliveryNoteData['delivery_note']);
+                UpdateDeliveryNote::make()->action($deliveryNote, $deliveryNoteData['delivery_note']);
                 if ($currentDeliveryAddress = $deliveryNote->getAddress('delivery')) {
-                    if ($currentDeliveryAddress->checksum != $deliveryNoteData['delivery_address']->getChecksum()) {
-                        $deliveryAddress = StoreHistoricAddress::run($deliveryNoteData['delivery_address']);
+                    if ($currentDeliveryAddress->checksum != $deliveryNoteData['delivery_note']['delivery_address']->getChecksum()) {
+                        $deliveryAddress = StoreHistoricAddress::run($deliveryNoteData['delivery_note']['delivery_address']);
                         UpdateHistoricAddressToModel::run($deliveryNote, $currentDeliveryAddress, $deliveryAddress, ['scope' => 'delivery']);
                     }
                 } else {
-                    $deliveryAddress = StoreHistoricAddress::run($deliveryNoteData['delivery_address']);
+                    $deliveryAddress = StoreHistoricAddress::run($deliveryNoteData['delivery_note']['delivery_address']);
                     AttachHistoricAddressToModel::run($deliveryNote, $deliveryAddress, ['scope' => 'delivery']);
+                }
+
+
+                if (in_array('transactions', $this->with) or $forceWithTransactions) {
+                    $this->fetchDeliveryNoteTransactions($organisationSource, $deliveryNote);
                 }
 
                 $this->updateAurora($deliveryNote);
@@ -47,13 +52,18 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
                 return $deliveryNote;
             } else {
                 if ($deliveryNoteData['order']) {
-                    $deliveryNote = StoreDeliveryNote::run(
-                        $deliveryNoteData['order'],
-                        $deliveryNoteData['delivery_note'],
-                        $deliveryNoteData['delivery_address']
-                    );
 
-                    if (in_array('transactions', $this->with)) {
+                    try {
+                        $deliveryNote = StoreDeliveryNote::make()->action(
+                            $deliveryNoteData['order'],
+                            $deliveryNoteData['delivery_note'],
+                        );
+                    } catch (Exception $e) {
+                        $this->recordError($organisationSource, $e, $deliveryNoteData['delivery_note'], 'DeliveryNote', 'store');
+                        return null;
+                    }
+
+                    if (in_array('transactions', $this->with) or $forceWithTransactions) {
                         $this->fetchDeliveryNoteTransactions($organisationSource, $deliveryNote);
                     }
 
@@ -85,11 +95,12 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
         $transactionsToDelete = $deliveryNote->deliveryNoteItems()->pluck('source_id', 'id')->all();
 
 
+        $sourceData=explode(':', $deliveryNote->source_id);
         foreach (
             DB::connection('aurora')
                 ->table('Inventory Transaction Fact')
                 ->select('Inventory Transaction Key')
-                ->where('Delivery Note Key', $deliveryNote->source_id)
+                ->where('Delivery Note Key', $sourceData[1])
                 ->get() as $auroraData
         ) {
             $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Inventory Transaction Key'}]);
@@ -98,10 +109,11 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
         $deliveryNote->deliveryNoteItems()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }
 
-    public function updateAurora(DeliveryNote $deliveryNote)
+    public function updateAurora(DeliveryNote $deliveryNote): void
     {
+        $sourceData = explode(':', $deliveryNote->source_id);
         DB::connection('aurora')->table('Delivery Note Dimension')
-            ->where('Delivery Note Key', $deliveryNote->source_id)
+            ->where('Delivery Note Key', $sourceData[1])
             ->update(['aiku_id' => $deliveryNote->id]);
     }
 

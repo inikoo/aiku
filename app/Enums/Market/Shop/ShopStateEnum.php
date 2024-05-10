@@ -8,6 +8,8 @@
 namespace App\Enums\Market\Shop;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 
 enum ShopStateEnum: string
 {
@@ -17,4 +19,28 @@ enum ShopStateEnum: string
     case OPEN         = 'open';
     case CLOSING_DOWN = 'closing-down';
     case CLOSED       = 'closed';
+
+    public static function labels($forElements = false): array
+    {
+        return [
+            'in-process'      => __('In Process'),
+            'open'            => __('Open'),
+            'closing-down'    => __('Closing Down'),
+            'closed'          => __('Closed')
+        ];
+    }
+
+    public static function count(
+        Organisation|Group $parent,
+        $forElements = false
+    ): array {
+        $stats = $parent->marketStats;
+
+        return [
+            'in-process'      => $stats->number_shops_state_in_process,
+            'open'            => $stats->number_shops_state_open,
+            'closing-down'    => $stats->number_shops_state_closing_down,
+            'closed'          => $stats->number_shops_state_closed
+        ];
+    }
 }

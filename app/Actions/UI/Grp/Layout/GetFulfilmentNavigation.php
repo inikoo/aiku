@@ -81,6 +81,15 @@ class GetFulfilmentNavigation
 
                 'topMenu' => [
                     'subSections' => [
+                        [
+                            "tooltip" => __("Dashboard"),
+                            "icon"    => ["fal", "fa-chart-network"],
+                            "root"    => "grp.org.fulfilments.show.operations.dashboard",
+                            "route"   => [
+                                "name"       => "grp.org.fulfilments.show.operations.dashboard",
+                                "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug]
+                            ],
+                        ],
 
                         [
                             'label'   => __('pallets'),

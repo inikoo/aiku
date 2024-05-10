@@ -72,7 +72,7 @@ return [
 
     'providers' => [
         'users'      => [
-            'driver' => 'user-with-legacy-password',
+            'driver' => 'eloquent',
             'model'  => User::class,
         ],
         'web-users'   => [

@@ -7,6 +7,7 @@
 
 namespace App\Actions\SysAdmin\User;
 
+use App\Actions\SysAdmin\User\Hydrators\UserHydrateAuthorisedModels;
 use App\Enums\HumanResources\JobPosition\JobPositionScopeEnum;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
@@ -26,6 +27,7 @@ class SyncRolesFromJobPositions
         $parent = $user->parent;
 
         foreach ($parent->jobPositions as $jobPosition) {
+            $jobPosition->refresh();
             if ($jobPosition->scope == JobPositionScopeEnum::ORGANISATION) {
                 $roles = array_merge($roles, $jobPosition->roles()->pluck('id')->all());
             } else {
@@ -38,6 +40,7 @@ class SyncRolesFromJobPositions
 
 
         $user->syncRoles($roles);
+        UserHydrateAuthorisedModels::run($user);
 
 
         $user->refresh();
@@ -45,8 +48,8 @@ class SyncRolesFromJobPositions
 
     private function getRoles(JobPosition $jobPosition): array
     {
-        $jobPosition->refresh();
         $roles = [];
+        $jobPosition->refresh();
         foreach ($jobPosition->roles as $role) {
             if (in_array($role->scope_id, $jobPosition->pivot->scopes[$role->scope_type])) {
                 $roles[] = $role->id;

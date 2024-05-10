@@ -26,6 +26,7 @@ import TableProducts from "@/Components/Tables/TableProducts.vue";
 import TableFamilies from "@/Components/Tables/TableFamilies.vue";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
 import { capitalize } from "@/Composables/capitalize"
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 library.add(
     faFolder,
     faCube,
@@ -45,7 +46,7 @@ const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChan
 
 const props = defineProps<{
     title: string,
-    pageHead: object,
+    pageHead: PageHeadingTypes,
     tabs: {
         current: string;
         navigation: object;

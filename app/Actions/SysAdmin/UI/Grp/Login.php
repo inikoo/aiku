@@ -7,12 +7,15 @@
 
 namespace App\Actions\SysAdmin\UI\Grp;
 
+use App\Actions\SysAdmin\User\AuthoriseUserWithLegacyPassword;
 use App\Actions\SysAdmin\User\LogUserFailLogin;
 use App\Actions\SysAdmin\User\LogUserLogin;
+use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\RateLimiter;
@@ -35,10 +38,31 @@ class Login
     {
         $this->ensureIsNotRateLimited($request);
 
-        if (!Auth::guard($this->gate)->attempt(
-            array_merge($request->validated(), ['status' => true]),
-            $request->boolean('remember')
-        )) {
+
+        $authorised=false;
+        $processed =false;
+        if(config('app.with_user_legacy_passwords')) {
+            $user=User::where('username', Arr::get($request->validated(), 'username'))->first();
+            if($user and $user->auth_type==UserAuthTypeEnum::AURORA) {
+                $processed =true;
+                $authorised=AuthoriseUserWithLegacyPassword::run($user, $request->validated());
+                if($authorised) {
+                    Auth::login($user, $request->boolean('remember'));
+                }
+
+
+            }
+        }
+
+
+        if(!$processed) {
+            $authorised=Auth::guard($this->gate)->attempt(array_merge($request->validated(), ['status' => true]), $request->boolean('remember'));
+        }
+
+
+
+
+        if (!$authorised) {
             RateLimiter::hit($this->throttleKey($request));
 
             LogUserFailLogin::dispatch(

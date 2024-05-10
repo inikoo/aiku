@@ -46,13 +46,16 @@ interface MergeNavigation {
 
 const layout = useLayoutStore()
 
+// (layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments`]
+
+// console.log('haha', Object.entries(props.orgNav.fulfilments_navigation.navigation))
 
 // Navigation Fulfilment, Shop, and Merged
-const fulfilmentsNav: MergeNavigation[] = Object.entries(props.orgNav.fulfilments_navigation.navigation).map(([key, value]) => {
-    return { key: key, value: value, type: 'fulfilment', root: 'grp.org.fulfilments.show.' }
+const fulfilmentsNav: MergeNavigation[] = Object.entries(props.orgNav.fulfilments_navigation.navigation).map(([key, subNavList]) => {
+    return { key: key, value: subNavList, type: 'fulfilment', root: 'grp.org.fulfilments.show.' }
 })
-const shopsNav: MergeNavigation[] = Object.entries(props.orgNav.shops_navigation.navigation).map(([key, value]) => {
-    return { key: key, value: value, type: 'shop', root: 'grp.org.shops.show.' }
+const shopsNav: MergeNavigation[] = Object.entries(props.orgNav.shops_navigation.navigation).map(([key, subNavList]) => {
+    return { key: key, value: subNavList, type: 'shop', root: 'grp.org.shops.show.' }
 })
 const mergeNavigations = [...shopsNav, ...fulfilmentsNav]
 

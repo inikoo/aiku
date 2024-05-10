@@ -22,7 +22,7 @@ import { capitalize } from "@/Composables/capitalize";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { computed, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
-import TableDepartments from "@/Components/Tables/TableDepartments.vue";
+import TableDepartments from "@/Components/Tables/Grp/Org/Market/TableDepartments.vue";
 import TableFamilies from "@/Components/Tables/TableFamilies.vue";
 import TableProducts from "@/Components/Tables/TableProducts.vue";
 import ModelDetails from "@/Components/ModelDetails.vue";

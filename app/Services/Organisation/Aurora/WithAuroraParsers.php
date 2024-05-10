@@ -319,9 +319,11 @@ trait WithAuroraParsers
 
     public function parseProduct(string $sourceId): Product
     {
+
         $product = Product::where('source_id', $sourceId)->first();
         if (!$product) {
             $sourceData = explode(':', $sourceId);
+
             $product    = FetchAuroraProducts::run($this->organisationSource, $sourceData[1]);
         }
 
@@ -422,6 +424,8 @@ trait WithAuroraParsers
         return $orgStock;
     }
 
+
+
     public function parseStock($sourceId): ?Stock
     {
         $stock      = Stock::withTrashed()->where('source_id', $sourceId)->first();
@@ -449,7 +453,7 @@ trait WithAuroraParsers
         return $location;
     }
 
-    public function parseOrder(?int $sourceId): ?Order
+    public function parseOrder($sourceId): ?Order
     {
         if (!$sourceId) {
             return null;
@@ -457,7 +461,9 @@ trait WithAuroraParsers
 
         $order = Order::where('source_id', $sourceId)->first();
         if (!$order) {
-            $order = FetchAuroraOrders::run($this->organisationSource, $sourceId);
+
+            $sourceData= explode(':', $sourceId);
+            $order     = FetchAuroraOrders::run($this->organisationSource, $sourceData[1], forceWithTransactions: true);
         }
 
         return $order;
@@ -619,6 +625,7 @@ trait WithAuroraParsers
         $reference = str_replace("'", '', $reference);
         $reference = str_replace(",", '', $reference);
         $reference = str_replace("/", '-', $reference);
+        $reference = str_replace("*", '_', $reference);
 
         /** @noinspection PhpDuplicateArrayKeysInspection */
         /** @noinspection DuplicatedCode */

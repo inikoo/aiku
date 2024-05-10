@@ -8,12 +8,16 @@
 namespace App\Actions\OMS\Order;
 
 use App\Actions\OMS\Order\Hydrators\OrderHydrateUniversalSearch;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\OMS\Order;
+use App\Rules\IUnique;
 
-class UpdateOrder
+class UpdateOrder extends OrgAction
 {
     use WithActionUpdate;
+
+    private Order $order;
 
     public function handle(Order $order, array $modelData): Order
     {
@@ -25,17 +29,40 @@ class UpdateOrder
 
     public function rules(): array
     {
-        return [
-            'number' => ['required', 'unique:orders'],
-            'date'   => ['required', 'date']
+        $rules= [
+            'number'           => [
+                'sometimes',
+                'string',
+                'max:64',
+                new IUnique(
+                    table: 'orders',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'id', 'value' => $this->order->id, 'operator' => '!=']
+                    ]
+                ),
+            ],
+            'date'   => ['sometimes','required', 'date']
         ];
+
+        if(!$this->strict) {
+
+            $rules['number']= ['sometimes', 'string', 'max:64'];
+        }
+
+        return $rules;
+
     }
 
-    public function action(Order $order, array $modelData): Order
+    public function action(Order $order, array $modelData, bool $strict=true, int $hydratorsDelay = 0): Order
     {
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->order          = $order;
 
-        return $this->handle($order, $validatedData);
+        $this->initialisationFromShop($order->shop, $modelData);
+
+        return $this->handle($order, $this->validatedData);
     }
 }

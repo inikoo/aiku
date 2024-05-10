@@ -252,5 +252,8 @@ return [
         ]
     ],
 
+    'with_user_legacy_passwords'    => env('WITH_USER_LEGACY_PASSWORDS', false),
+    'with_web_user_legacy_passwords'=> env('WITH_WEB_USER_LEGACY_PASSWORDS', false),
+
 
 ];

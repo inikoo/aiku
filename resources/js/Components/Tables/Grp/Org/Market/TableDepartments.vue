@@ -1,7 +1,7 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Mon, 20 Mar 2023 23:18:59 Malaysia Time, Kuala Lumpur, Malaysia
-  - Copyright (c) 2023, Raul A Perusquia Flores
+  - Created: Wed, 08 May 2024 23:30:18 British Summer Time, Sheffield, UK
+  - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
@@ -15,10 +15,11 @@ const props = defineProps<{
     tab?:string
 }>();
 
-
+console.log(route().current())
 function departmentRoute(department: Department) {
     switch (route().current()) {
       case "grp.org.shops.show.catalogue.departments.index":
+      case 'grp.org.shops.show.catalogue.dashboard':
         return route(
           'grp.org.shops.show.catalogue.departments.show',
           [route().params['organisation'],route().params['shop'], department.slug]);
@@ -26,6 +27,8 @@ function departmentRoute(department: Department) {
             return route(
                 'grp.org.shops.show.catalogue.departments.show',
                 [route().params['organisation'],department.shop_slug, department.slug]);
+
+
         default:
             return null;
     }

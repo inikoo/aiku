@@ -34,9 +34,9 @@ class StoreInvoice extends OrgAction
         Customer|Order $parent,
         array $modelData,
     ): Invoice {
-        $billingAddress = $modelData['billing_address'];
-        unset($modelData['billing_address']);
 
+        $billingAddress = $modelData['billing_address'];
+        data_forget($modelData, 'billing_address');
 
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
@@ -105,7 +105,6 @@ class StoreInvoice extends OrgAction
             'type'                    => ['required', Rule::enum(InvoiceTypeEnum::class)],
             'net_amount'              => ['required', 'numeric'],
             'total_amount'            => ['required', 'numeric'],
-            'source_id'               => ['sometimes', 'string'],
             'date'                    => ['sometimes', 'date'],
             'tax_liability_at'        => ['sometimes', 'date'],
             'created_at'              => ['sometimes', 'date'],
@@ -114,6 +113,7 @@ class StoreInvoice extends OrgAction
             'group_exchange'          => ['sometimes', 'numeric'],
             'org_net_amount'          => ['sometimes', 'numeric'],
             'group_net_amount'        => ['sometimes', 'numeric'],
+            'source_id'               => ['sometimes', 'string'],
         ];
 
         if (!$this->strict) {
@@ -130,8 +130,6 @@ class StoreInvoice extends OrgAction
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($parent->shop, $modelData);
-
-
         return $this->handle($parent, $this->validatedData);
     }
 }

@@ -63,7 +63,7 @@ class ShowDeliveryNote extends InertiaAction
     public function htmlResponse(DeliveryNote $deliveryNote, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Market/DeliveryNote',
+            'Org/Dispatching/DeliveryNote',
             [
                 'title'                                 => __('delivery_note'),
                 'breadcrumbs'                           => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()(), $deliveryNote),

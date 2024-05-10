@@ -14,6 +14,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Market\OuterResource;
 use App\Models\Market\Outer;
+use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
@@ -69,7 +70,7 @@ class UpdateOuter extends OrgAction
                 'sometimes',
                 'required',
                 'max:32',
-                'alpha_dash',
+                new AlphaDashDot(),
                 new IUnique(
                     table: 'outers',
                     extraConditions: [

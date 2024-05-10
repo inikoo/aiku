@@ -71,7 +71,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
                         if($palletsCount>0) {
 
 
-                            StoreRentalAgreement::make()->action(
+                            $rentalAgreement=StoreRentalAgreement::make()->action(
                                 $customer->fulfilmentCustomer,
                                 [
                                     'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
@@ -79,6 +79,11 @@ class FetchAuroraCustomers extends FetchAuroraAction
                                     'created_at'    => $customer->created_at,
                                 ]
                             );
+
+                            $palletsCount= DB::connection('aurora')
+                                ->table('Fulfilment Asset Dimension')
+                                ->where('Fulfilment Asset Customer Key', $sourceData[1])->count();
+
 
 
                         }
@@ -129,7 +134,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
                         ->select('Order Key as source_id')
                         ->orderBy('source_id')->get() as $order
                 ) {
-                    FetchAuroraOrders::run($organisationSource, $order->source_id);
+                    FetchAuroraOrders::run($organisationSource, $order->source_id, true);
                 }
             }
 

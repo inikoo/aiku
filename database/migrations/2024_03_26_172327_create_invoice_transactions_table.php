@@ -42,14 +42,16 @@ return new class () extends Migration {
 
             $table->nullableMorphs('item');
 
-
             $table->decimal('quantity', 16, 3);
+
             $table->decimal('net_amount', 16)->default(0);
             $table->decimal('group_net_amount', 16)->default(0);
             $table->decimal('org_net_amount', 16)->default(0);
 
 
             $table->decimal('discounts_amount', 16)->default(0);
+
+
             $table->decimal('tax_amount', 16)->default(0);
             $table->decimal('group_exchange', 16, 4)->default(1);
             $table->decimal('org_exchange', 16, 4)->default(1);

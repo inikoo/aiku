@@ -27,7 +27,7 @@ class SyncEmployableJobPositions
         $newJobPositionsIds = array_diff($jobPositionsIds, $currentJobPositions);
         $removeJobPositions = array_diff($currentJobPositions, $jobPositionsIds);
 
-        $model->jobPositions()->detach($removeJobPositions);
+        $model->jobPositions()->detach($newJobPositionsIds);
 
         foreach ($newJobPositionsIds as $jobPositionId) {
             $model->jobPositions()->attach(

@@ -13,6 +13,7 @@ use App\Actions\Market\ProductCategory\UI\IndexDepartments;
 use App\Actions\Market\ProductCategory\UI\IndexFamilies;
 use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Enums\Market\Shop\ShopStateEnum;
 use App\Enums\Market\Shop\ShopTypeEnum;
 use App\Enums\UI\ShopsTabsEnum;
 use App\Http\Resources\Market\DepartmentsResource;
@@ -43,9 +44,25 @@ class IndexShops extends OrgAction
         $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(ShopsTabsEnum::values());
 
-        return $this->handle();
+        return $this->handle('shops');
     }
 
+    protected function getElementGroups(Organisation|Group $parent): array
+    {
+        return [
+            'state' => [
+                'label'    => __('State'),
+                'elements' => array_merge_recursive(
+                    ShopStateEnum::labels(forElements: true),
+                    ShopStateEnum::count($parent, forElements: true)
+                ),
+
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('shops.state', $elements);
+                }
+            ],
+        ];
+    }
 
     public function handle($prefix = null): LengthAwarePaginator
     {
@@ -69,10 +86,19 @@ class IndexShops extends OrgAction
             $queryBuilder->where('group_id', $this->parent->id);
         }
 
+        foreach ($this->getElementGroups($this->parent) as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine'],
+                prefix: $prefix
+            );
+        }
+
         return $queryBuilder
             ->defaultSort('shops.code')
-            ->select(['code', 'id', 'name', 'slug', 'type'])
-            ->allowedSorts(['code', 'name', 'type'])
+            ->select(['code', 'id', 'name', 'slug', 'type', 'state'])
+            ->allowedSorts(['code', 'name', 'type', 'state'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -85,6 +111,14 @@ class IndexShops extends OrgAction
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
+            }
+
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
             }
 
             $table
@@ -108,6 +142,7 @@ class IndexShops extends OrgAction
                             ] : null
                         ] : null
                 )
+                ->column(key: 'state', label: __(''), canBeHidden: false, sortable: false, searchable: false, type: 'avatar')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)
@@ -123,7 +158,7 @@ class IndexShops extends OrgAction
     public function htmlResponse(LengthAwarePaginator $shops, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Market/Shops',
+            'Org/Market/Shops',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
                 'title'       => __('shops'),

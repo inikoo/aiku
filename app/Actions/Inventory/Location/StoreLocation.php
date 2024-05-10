@@ -110,7 +110,7 @@ class StoreLocation extends OrgAction
             $this->warehouse = $parent;
         }
 
-        $this->initialisationFromWarehouse($parent->warehouse, $modelData);
+        $this->initialisationFromWarehouse($this->warehouse, $modelData);
 
         return $this->handle($parent, $this->validatedData);
     }

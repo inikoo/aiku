@@ -21,11 +21,12 @@ return new class () extends Migration {
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->increments('id');
-            $table=$this->groupOrgRelationship($table);
-            $table=$this->salesTransactionParents($table);
+            $table = $this->groupOrgRelationship($table);
+            $table = $this->salesTransactionParents($table);
             $table->unsignedInteger('invoice_id')->nullable()->index();
             $table->foreign('invoice_id')->references('id')->on('invoices');
             $table->string('type');
+            $table->datetimeTz('date');
             $table->string('state')->default(TransactionStateEnum::CREATING->value)->index();
             $table->string('status')->default(TransactionStatusEnum::PROCESSING->value)->index();
 
@@ -38,10 +39,21 @@ return new class () extends Migration {
 
 
             $table->decimal('discounts', 16)->default(0);
+
             $table->decimal('net', 16)->default(0);
+            $table->decimal('group_net_amount', 16)->default(0);
+            $table->decimal('org_net_amount', 16)->default(0);
+
+
+            $table->decimal('tax_rate', 16)->default(0);
+
+
+            //$table->unsignedSmallInteger('tax_band_id')->nullable()->index();
+            //$table->foreign('tax_band_id')->references('id')->on('tax_bands');
+
+
             $table->decimal('group_exchange', 16, 4)->default(1);
             $table->decimal('org_exchange', 16, 4)->default(1);
-            $table->unsignedSmallInteger('tax_band_id')->nullable()->index();
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();

@@ -12,6 +12,7 @@ import { faBoxUsd, faUsersCog, faChartLine, faUserHardHat, faUser, faInventory, 
 import { useLayoutStore } from "@/Stores/layout.js"
 import NavigationSimple from '@/Layouts/Grp/NavigationSimple.vue'
 import { generateNavigationName, generateCurrentString } from '@/Composables/useConvertString'
+import '@/Composables/Icon/ProductionsStateIcon'
 
 import { get } from "lodash"
 import NavigationGroup from "@/Layouts/Grp/NavigationGroup.vue"
@@ -21,6 +22,8 @@ faAbacus, faCloudRainbow,faShoppingCart,faMountains, faTasksAlt, faTruck
 )
 
 const layout = useLayoutStore()
+// console.log('ttt', layout.navigation.org.aw)
+// console.log('xxx', layout.organisations)
 
 onMounted(() => {
     if (localStorage.getItem('leftSideBar')) {
@@ -70,7 +73,7 @@ const iconList: { [key: string]: string } = {
                 </template>
 
                 <!-- shops_navigation or warehouses_navigation or fulfilments_navigation -->
-                <template v-else-if="itemKey == 'shops_fulfilments_navigation' || itemKey == 'warehouses_navigation'">
+                <template v-else-if="itemKey == 'shops_fulfilments_navigation' || itemKey == 'warehouses_navigation' || itemKey == 'productions_navigation'">
                     <template v-if="itemKey == 'shops_fulfilments_navigation'">
                         <NavigationHorizontal
                             :orgNav="orgNav"
@@ -135,6 +138,31 @@ const iconList: { [key: string]: string } = {
                         </template>
 
                         <!-- Else: Warehouses length more than 1 -->
+                        <template v-else-if="layout.organisationsState?.[layout.currentParams.organisation]?.[generateNavigationName(generateCurrentString(itemKey))]">
+                            <NavigationGroup
+                                :orgNav="orgNav"
+                                :itemKey="generateNavigationName(itemKey)"
+                                :icon="iconList[generateNavigationName(itemKey)]"
+                            />
+                        </template>
+                    </template>
+                    
+                    <template v-if="itemKey == 'productions_navigation' && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_productions.length">
+                        <!-- If: Productions length is 1 -->
+                        <template v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_productions.length === 1">
+                            <!-- <NavigationGroup
+                                :orgNav="orgNav"
+                                :itemKey="generateNavigationName(itemKey)"
+                                :icon="iconList[generateNavigationName(itemKey)] || ''"
+                            /> -->
+                                {{ console.log('fff', Object.values(orgNav)[0]) }}
+                            <NavigationSimple v-for="(nav, navKey) in Object.values(orgNav)[0]"
+                                :nav="nav"
+                                :navKey="navKey"
+                            />
+                        </template>
+
+                        <!-- Else: Productions length more than 1 -->
                         <template v-else-if="layout.organisationsState?.[layout.currentParams.organisation]?.[generateNavigationName(generateCurrentString(itemKey))]">
                             <NavigationGroup
                                 :orgNav="orgNav"

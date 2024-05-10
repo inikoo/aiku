@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\Inventory;
 
+use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -15,6 +16,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $name
  * @property int $number_locations
  * @property int $number_warehouse_areas
+ * @property WarehouseStateEnum $state
  */
 class WarehousesResource extends JsonResource
 {
@@ -26,6 +28,7 @@ class WarehousesResource extends JsonResource
             'name'                   => $this->name,
             'number_locations'       => $this->number_locations,
             'number_warehouse_areas' => $this->number_warehouse_areas,
+            'state_icon'             => $this->state->stateIcon()[$this->state->value]
         ];
     }
 }

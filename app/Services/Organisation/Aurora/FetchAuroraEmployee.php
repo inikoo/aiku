@@ -177,6 +177,7 @@ class FetchAuroraEmployee extends FetchAurora
                 'created_at'      => $auroraUserData->{'User Created'},
                 'legacy_password' => $legacyPassword,
                 'language_id'     => $this->parseLanguageID($auroraUserData->{'User Preferred Locale'}),
+                'reset_password'  => false
             ];
         }
     }

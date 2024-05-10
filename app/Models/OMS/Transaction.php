@@ -36,6 +36,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $order_id
  * @property int|null $invoice_id
  * @property TransactionTypeEnum $type
+ * @property string $date
  * @property TransactionStateEnum $state
  * @property TransactionStatusEnum $status
  * @property string|null $item_type
@@ -47,9 +48,11 @@ use Illuminate\Support\Carbon;
  * @property string $quantity_cancelled
  * @property string $discounts
  * @property string $net
+ * @property string $group_net_amount
+ * @property string $org_net_amount
+ * @property string $tax_rate
  * @property string $group_exchange
  * @property string $org_exchange
- * @property int|null $tax_band_id
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
