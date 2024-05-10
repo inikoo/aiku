@@ -36,6 +36,12 @@ export interface OrganisationsData {
         type: string
         route: routeType
     }[]
+    authorised_productions: {
+        id: number
+        slug: string
+        code: string
+        label: string
+    }[]
 }
 
 export interface Group {

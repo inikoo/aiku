@@ -20,14 +20,14 @@ class GetManufacturingNavigation
         $navigation = [];
 
         if ($user->hasPermissionTo("manufacturing.$production->id.view")) {
-            $navigation["warehouse"] = [
+            $navigation["infrastructure"] = [
                 "root"  => "grp.org.productions.show.infrastructure.",
                 "label" => __("locations"),
-                "icon"  => ["fal", "fa-industry"],
-                "route" => [
-                    "name"       => "grp.org.productions.show.infrastructure.dashboard",
-                    "parameters" => [$production->organisation->slug, $production->slug],
-                ],
+                "icon"  => ["far", "fa-bell"],
+                // "route" => [
+                //     "name"       => "grp.org.productions.show.infrastructure.dashboard",
+                //     "parameters" => [$production->organisation->slug, $production->slug],
+                // ],
                 "topMenu" => [
                     "subSections" => [
 
