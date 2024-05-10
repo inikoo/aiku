@@ -66,6 +66,10 @@ class JobOrder extends Model
         'data'                => 'array'
     ];
 
+    protected $attributes = [
+        'data'  => '{}',
+    ];
+
     public function getRouteKeyName(): string
     {
         return 'slug';

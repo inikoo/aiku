@@ -23,7 +23,7 @@ use Lorisleiva\Actions\ActionRequest;
 
     public function asController(JobOrder $jobOrder, ActionRequest $request): JobOrder
     {
-        $this->initialisation(app('group'), $request)->withTab(AgentTabsEnum::values());
+        $this->initialisation(app('group'), $request);
 
         return $this->handle($jobOrder);
     }
