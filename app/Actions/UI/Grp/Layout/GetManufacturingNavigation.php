@@ -19,22 +19,52 @@ class GetManufacturingNavigation
     {
         $navigation = [];
 
-        if ($user->hasPermissionTo("manufacturing.$production->id.view")) {
-            $navigation["infrastructure"] = [
-                "root"  => "grp.org.productions.show.infrastructure.",
-                "label" => __("locations"),
-                "icon"  => ["far", "fa-bell"],
-                // "route" => [
-                //     "name"       => "grp.org.productions.show.infrastructure.dashboard",
-                //     "parameters" => [$production->organisation->slug, $production->slug],
-                // ],
-                "topMenu" => [
-                    "subSections" => [
+        // if ($user->hasPermissionTo("manufacturing.$production->id.view")) {
+        $navigation["raw_materials"] = [
+            "root"  => "grp.org.productions.show.infrastructure.",
+            "label" => __("Raw Materials"),
+            "icon"  => "fal fa-drone",
+            // "route" => [
+            //     "name"       => "grp.org.productions.show.infrastructure.dashboard",
+            //     "parameters" => [$production->organisation->slug, $production->slug],
+            // ],
+            // "topMenu" => [
+            //     "subSections" => [
 
-                    ],
-                ],
-            ];
-        }
+            //     ],
+            // ],
+        ];
+        $navigation["job_orders"] = [
+            "root"  => "grp.org.productions.show.infrastructure.",
+            "label" => __("Job Orders"),
+            "icon"  => "fal fa-sort-shapes-up",
+            // "route" => [
+            //     "name"       => "grp.org.productions.show.infrastructure.dashboard",
+            //     "parameters" => [$production->organisation->slug, $production->slug],
+            // ],
+
+        ];
+        $navigation["artifacts"] = [
+            "root"  => "grp.org.productions.show.infrastructure.",
+            "label" => __("artifacts"),
+            "icon"  => "fal fa-window-frame-open",
+            // "route" => [
+            //     "name"       => "grp.org.productions.show.infrastructure.dashboard",
+            //     "parameters" => [$production->organisation->slug, $production->slug],
+            // ],
+
+        ];
+        $navigation["manufacture_tasks"] = [
+            "root"  => "grp.org.productions.show.infrastructure.",
+            "label" => __("Manufacture Tasks"),
+            "icon"  => "fal fa-tasks",
+            // "route" => [
+            //     "name"       => "grp.org.productions.show.infrastructure.dashboard",
+            //     "parameters" => [$production->organisation->slug, $production->slug],
+            // ],
+
+        ];
+        // }
 
         return $navigation;
     }

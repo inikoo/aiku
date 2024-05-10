@@ -12,6 +12,7 @@ import { faBoxUsd, faUsersCog, faChartLine, faUserHardHat, faUser, faInventory, 
 import { useLayoutStore } from "@/Stores/layout.js"
 import NavigationSimple from '@/Layouts/Grp/NavigationSimple.vue'
 import { generateNavigationName, generateCurrentString } from '@/Composables/useConvertString'
+import '@/Composables/Icon/ProductionsStateIcon'
 
 import { get } from "lodash"
 import NavigationGroup from "@/Layouts/Grp/NavigationGroup.vue"
@@ -21,8 +22,8 @@ faAbacus, faCloudRainbow,faShoppingCart,faMountains, faTasksAlt, faTruck
 )
 
 const layout = useLayoutStore()
-console.log('ttt', layout.navigation.org.aw)
-console.log('xxx', layout.organisations)
+// console.log('ttt', layout.navigation.org.aw)
+// console.log('xxx', layout.organisations)
 
 onMounted(() => {
     if (localStorage.getItem('leftSideBar')) {
