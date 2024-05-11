@@ -7,8 +7,8 @@
 
 namespace App\Actions\OMS\Order\UI;
 
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Enums\UI\OMS\OrdersTabsEnum;
 use App\Http\Resources\OMS\OrdersResource;
 use App\Http\Resources\Sales\OrderResource;
@@ -22,7 +22,6 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -71,7 +70,7 @@ class IndexOrders extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|Shop|Customer|Product $parent, $prefix=null): Closure
+    public function tableStructure(Organisation|Shop|Customer|Product $parent, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $prefix) {
             if ($prefix) {
@@ -96,7 +95,8 @@ class IndexOrders extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit =$request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+        $this->canEdit = $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+
         return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
     }
 
@@ -118,7 +118,7 @@ class IndexOrders extends OrgAction
                 ),
                 'title'       => __('orders'),
                 'pageHead'    => [
-                    'title'   => __('orders'),
+                    'title' => __('orders'),
                 ],
                 'data'        => OrderResource::collection($orders),
                 'tabs'        => [
@@ -138,7 +138,7 @@ class IndexOrders extends OrgAction
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$organisation;
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(OrdersTabsEnum::values());
 
         return $this->handle(parent: $organisation);
@@ -146,7 +146,7 @@ class IndexOrders extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$shop;
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(OrdersTabsEnum::values());
 
         return $this->handle(parent: $shop);
@@ -168,16 +168,13 @@ class IndexOrders extends OrgAction
         };
 
         return match ($routeName) {
-
-
-
             'grp.org.shops.show.ordering.orders.index' =>
             array_merge(
-                ShowOrganisationDashboard::make()->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
+                ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name'      => 'grp.org.shops.show.ordering.orders.index',
-                        'parameters'=> $routeParameters
+                        'name'       => 'grp.org.shops.show.ordering.orders.index',
+                        'parameters' => $routeParameters
                     ]
                 )
             ),

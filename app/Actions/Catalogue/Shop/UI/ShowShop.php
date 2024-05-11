@@ -246,7 +246,7 @@ class ShowShop extends OrgAction
                             ],
                             'model' => [
                                 'route' => [
-                                    'name'       => 'grp.org.shops.show.catalogue.dashboard',
+                                    'name'       => 'grp.org.shops.show',
                                     'parameters' => Arr::only($routeParameters, ['organisation','shop'])
                                 ],
                                 'label' => $shop->code,

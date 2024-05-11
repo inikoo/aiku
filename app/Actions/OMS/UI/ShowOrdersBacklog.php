@@ -7,6 +7,7 @@
 
 namespace App\Actions\OMS\UI;
 
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Models\Catalogue\Shop;
@@ -65,7 +66,7 @@ class ShowOrdersBacklog extends OrgAction
         return match (class_basename($parent)) {
             'Shop' =>
             array_merge(
-                ShowOrganisationDashboard::make()->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
+                ShowShop::make()->getBreadcrumbs($routeParameters),
                 [
                     [
                         'type'   => 'simple',
@@ -74,7 +75,7 @@ class ShowOrdersBacklog extends OrgAction
                                 'name'       => 'grp.org.shops.show.ordering.backlog',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('Orders backlog').' ('.$parent->code.')',
+                            'label' => __('Orders backlog')
                         ]
                     ]
                 ]
