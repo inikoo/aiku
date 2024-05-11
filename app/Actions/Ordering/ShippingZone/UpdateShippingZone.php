@@ -5,11 +5,11 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Catalogue\ShippingZone;
+namespace App\Actions\Ordering\ShippingZone;
 
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Ordering\ShippingZoneResource;
-use App\Models\Catalogue\ShippingZone;
+use App\Models\Ordering\ShippingZone;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateShippingZone

@@ -1,11 +1,11 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Tue, 18 Apr 2023 14:55:08 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 11 May 2024 23:34:49 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Catalogue;
+namespace App\Models\Ordering;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,7 +17,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Catalogue\ShippingZone
+ * App\Models\Ordering\ShippingZone
  *
  * @property int $id
  * @property int $shop_id

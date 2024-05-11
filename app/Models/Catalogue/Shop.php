@@ -13,16 +13,19 @@ use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\OrgPaymentServiceProvider;
+use App\Models\Accounting\OrgPaymentServiceProviderShop;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentAccountShop;
-use App\Models\Accounting\OrgPaymentServiceProviderShop;
 use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Timezone;
+use App\Models\Catalogue\Shop\ShopMailshotsIntervals;
+use App\Models\Catalogue\Shop\ShopOrdersIntervals;
 use App\Models\CRM\Appointment;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
+use App\Models\Deals\OfferCampaign;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
@@ -30,10 +33,8 @@ use App\Models\Helpers\SerialReference;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Mail\Outbox;
 use App\Models\Mail\SenderEmail;
-use App\Models\Catalogue\Shop\ShopMailshotsIntervals;
-use App\Models\Catalogue\Shop\ShopOrdersIntervals;
-use App\Models\Deals\OfferCampaign;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -124,7 +125,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopSalesStats|null $salesStats
  * @property-read SenderEmail|null $senderEmail
  * @property-read LaravelCollection<int, SerialReference> $serialReferences
- * @property-read LaravelCollection<int, \App\Models\Catalogue\ShippingZoneSchema> $shippingZoneSchemas
+ * @property-read LaravelCollection<int, \App\Models\Ordering\ShippingZoneSchema> $shippingZoneSchemas
  * @property-read \App\Models\Catalogue\ShopStats|null $stats
  * @property-read TaxNumber|null $taxNumber
  * @property-read Timezone $timezone

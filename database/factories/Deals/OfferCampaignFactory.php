@@ -5,21 +5,15 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace Database\Factories\Marketing;
+namespace Database\Factories\Deals;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Deals\OfferCampaign>
- */
+
 class OfferCampaignFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition()
+
+    public function definition(): array
     {
         return [
             'code' => fake()->lexify,

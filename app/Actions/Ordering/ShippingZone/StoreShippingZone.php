@@ -5,10 +5,10 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Catalogue\ShippingZone;
+namespace App\Actions\Ordering\ShippingZone;
 
-use App\Models\Catalogue\ShippingZone;
-use App\Models\Catalogue\ShippingZoneSchema;
+use App\Models\Ordering\ShippingZone;
+use App\Models\Ordering\ShippingZoneSchema;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 

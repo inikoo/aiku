@@ -1,11 +1,11 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Tue, 18 Apr 2023 14:54:14 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 11 May 2024 23:34:49 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Catalogue;
+namespace App\Models\Ordering;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -19,7 +19,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Catalogue\ShippingZoneSchema
+ * App\Models\Ordering\ShippingZoneSchema
  *
  * @property int $id
  * @property int $shop_id
@@ -29,7 +29,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Collection<int, \App\Models\Catalogue\ShippingZone> $shippingZone
+ * @property-read Collection<int, \App\Models\Ordering\ShippingZone> $shippingZone
  * @method static \Database\Factories\Ordering\ShippingZoneSchemaFactory factory($count = null, $state = [])
  * @method static Builder|ShippingZoneSchema newModelQuery()
  * @method static Builder|ShippingZoneSchema newQuery()

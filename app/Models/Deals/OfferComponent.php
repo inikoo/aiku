@@ -29,7 +29,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @method static \Database\Factories\Marketing\OfferComponentFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Deals\OfferComponentFactory factory($count = null, $state = [])
  * @method static Builder|OfferComponent newModelQuery()
  * @method static Builder|OfferComponent newQuery()
  * @method static Builder|OfferComponent onlyTrashed()

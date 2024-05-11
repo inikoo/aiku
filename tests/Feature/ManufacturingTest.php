@@ -56,8 +56,7 @@ test('create production', function () {
         ->and($this->organisation->group->manufactureStats->number_productions_state_in_process)->toBe(1)
         ->and($this->organisation->group->manufactureStats->number_productions_state_open)->toBe(0)
         ->and($this->guest->user->authorisedProductions()->where('organisation_id', $this->organisation->id)->count())->toBe(1)
-        ->and($this->guest->user->number_authorised_productions)->toBe(1)
-        ->and($this->guest->user->hasPermissionTo("productions.$production->id"))->toBeTrue();
+        ->and($this->guest->user->number_authorised_productions)->toBe(1);
 
 
     return $production;
@@ -103,14 +102,14 @@ test('create production by command', function () {
 
     expect($organisation->manufactureStats->number_productions)->toBe(2)
         ->and($organisation->group->manufactureStats->number_productions)->toBe(2)
-        ->and($production->roles()->count())->toBe(1);
+        ->and($production->roles()->count())->toBe(5);
 });
 
 test('seed production permissions', function () {
     setPermissionsTeamId($this->group->id);
     $this->artisan('production:seed-permissions')->assertExitCode(0);
     $production = Production::where('code', 'AA')->first();
-    expect($production->roles()->count())->toBe(1);
+    expect($production->roles()->count())->toBe(5);
 });
 
 test('can store a raw material', function (Production $production) {

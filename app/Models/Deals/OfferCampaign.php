@@ -29,7 +29,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Deals\OfferComponent> $offerComponent
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Deals\Offer> $offers
- * @method static \Database\Factories\Marketing\OfferCampaignFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Deals\OfferCampaignFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign onlyTrashed()
