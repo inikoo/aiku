@@ -8,7 +8,7 @@
 namespace App\Enums\Fulfilment\Rental;
 
 use App\Enums\EnumHelperTrait;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 
 enum RentalStateEnum: string
 {

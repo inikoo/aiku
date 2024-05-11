@@ -18,7 +18,7 @@ use App\Http\Resources\Accounting\PaymentsResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentAccount;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;

@@ -14,7 +14,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Appointment;
 use App\Models\CRM\Customer;
 use App\Models\HumanResources\Employee;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 
 use App\Models\SysAdmin\Guest;
 use Closure;

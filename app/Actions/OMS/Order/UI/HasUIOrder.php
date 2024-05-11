@@ -8,7 +8,7 @@
 namespace App\Actions\OMS\Order\UI;
 
 use App\Actions\CRM\Customer\UI\ShowCustomer;
-use App\Actions\Market\Shop\UI\ShowShop;
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 
 trait HasUIOrder
 {

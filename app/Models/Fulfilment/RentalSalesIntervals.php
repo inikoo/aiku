@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\Market\RentalSalesIntervals
+ * App\Models\Catalogue\RentalSalesIntervals
  *
  * @property int $id
  * @property int $rental_id

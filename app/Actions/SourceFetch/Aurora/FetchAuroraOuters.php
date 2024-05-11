@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Market\Outer\StoreOuter;
-use App\Actions\Market\Outer\UpdateOuter;
-use App\Models\Market\Outer;
+use App\Actions\Catalogue\Outer\StoreOuter;
+use App\Actions\Catalogue\Outer\UpdateOuter;
+use App\Models\Catalogue\Outer;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;

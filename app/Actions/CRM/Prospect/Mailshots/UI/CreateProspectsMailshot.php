@@ -9,7 +9,7 @@ namespace App\Actions\CRM\Prospect\Mailshots\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\CRM\Prospect\Queries\UI\IndexProspectQueries;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;

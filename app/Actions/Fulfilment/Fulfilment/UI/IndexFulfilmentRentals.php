@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\Fulfilment\UI;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Rental\RentalStateEnum;
 use App\Enums\UI\Fulfilment\RentalsTabsEnum;
-use App\Http\Resources\Market\RentalsResource;
+use App\Http\Resources\Catalogue\RentalsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Rental;

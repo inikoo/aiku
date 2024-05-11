@@ -12,7 +12,7 @@ use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\OMS\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;

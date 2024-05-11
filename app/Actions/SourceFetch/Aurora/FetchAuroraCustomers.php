@@ -15,7 +15,7 @@ use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
-use App\Enums\Market\Shop\ShopTypeEnum;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\CRM\Customer;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;

@@ -8,7 +8,7 @@
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentProducts;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentRentals;
 use App\Actions\Fulfilment\Rental\UI\CreateRental;
-use App\Actions\Market\Product\UI\ShowProduct;
+use App\Actions\Catalogue\Product\UI\ShowProduct;
 
 Route::get('products', IndexFulfilmentProducts::class)->name('index');
 Route::get('products/{product}', [ShowProduct::class, 'inFulfilment'])->name('show');

@@ -10,7 +10,7 @@ namespace App\Imports\CRM;
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Imports\WithImport;
 use App\Models\Helpers\Upload;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Rules\Phone;
 use Exception;
 use Illuminate\Support\Arr;

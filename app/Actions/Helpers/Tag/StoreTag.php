@@ -13,7 +13,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCrmTags;
 use App\Http\Resources\Tag\TagResource;
 use App\Models\Helpers\Tag;
 use App\Models\Inventory\Location;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Illuminate\Http\RedirectResponse;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;

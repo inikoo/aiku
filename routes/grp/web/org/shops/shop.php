@@ -6,16 +6,20 @@
  */
 
 use App\Actions\Devel\UI\ShowDummyDashboard;
-use App\Actions\Market\Shop\UI\CreateShop;
-use App\Actions\Market\Shop\UI\IndexShops;
+use App\Actions\Catalogue\Shop\UI\CreateShop;
+use App\Actions\Catalogue\Shop\UI\IndexShops;
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 use Illuminate\Support\Facades\Route;
 
 Route::get('', IndexShops::class)->name('index');
 Route::get('create', CreateShop::class)->name('create');
 
+Route::get('{shop}', ShowShop::class)->name('show');
+
 Route::prefix('{shop}')->name('show.')
     ->group(function () {
-        Route::name("catalogue.")
+
+        Route::name("catalogue.")->prefix('catalogue')
             ->group(__DIR__."/catalogue.php");
 
 
@@ -32,8 +36,8 @@ Route::prefix('{shop}')->name('show.')
         );
 
 
-        Route::name("orders.")
-            ->group(__DIR__."/orders.php");
+        Route::name("ordering.")->prefix('ordering')
+            ->group(__DIR__."/ordering.php");
 
         Route::name("offers.")->prefix('offers')
             ->group(__DIR__."/offers.php");

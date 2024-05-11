@@ -7,15 +7,15 @@
 
 use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
-use App\Actions\Market\Shop\StoreShop;
+use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\SysAdmin\Group\StoreGroup;
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
-use App\Enums\Market\Shop\ShopTypeEnum;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;

@@ -7,13 +7,13 @@
 
 namespace App\Actions\Fulfilment\Rental;
 
-use App\Actions\Market\HistoricOuterable\StoreHistoricOuterable;
-use App\Actions\Market\Product\Hydrators\ProductHydrateHistoricOuterables;
-use App\Actions\Market\Shop\Hydrators\ShopHydrateRentals;
+use App\Actions\Catalogue\HistoricOuterable\StoreHistoricOuterable;
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateHistoricOuterables;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateRentals;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Rental\RentalStateEnum;
 use App\Models\Fulfilment\Rental;
-use App\Models\Market\Product;
+use App\Models\Catalogue\Product;
 use Illuminate\Validation\Rule;
 
 class StoreRental extends OrgAction

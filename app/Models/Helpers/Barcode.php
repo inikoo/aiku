@@ -7,7 +7,7 @@
 
 namespace App\Models\Helpers;
 
-use App\Models\Market\Product;
+use App\Models\Catalogue\Product;
 use App\Models\SupplyChain\Stock;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;

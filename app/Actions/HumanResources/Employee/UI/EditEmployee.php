@@ -9,14 +9,14 @@ namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\OrgAction;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
-use App\Enums\Market\Shop\ShopTypeEnum;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
-use App\Http\Resources\Market\ShopResource;
+use App\Http\Resources\Catalogue\ShopResource;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Warehouse;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Exception;
 use Illuminate\Support\Arr;

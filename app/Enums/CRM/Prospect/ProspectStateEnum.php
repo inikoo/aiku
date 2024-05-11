@@ -8,7 +8,7 @@
 namespace App\Enums\CRM\Prospect;
 
 use App\Enums\EnumHelperTrait;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 
 enum ProspectStateEnum: string

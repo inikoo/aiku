@@ -18,7 +18,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Warehouse;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rules\Enum;

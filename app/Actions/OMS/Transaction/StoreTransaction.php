@@ -11,7 +11,7 @@ use App\Actions\OrgAction;
 use App\Enums\OMS\Transaction\TransactionStateEnum;
 use App\Enums\OMS\Transaction\TransactionStatusEnum;
 use App\Enums\OMS\Transaction\TransactionTypeEnum;
-use App\Models\Market\HistoricOuterable;
+use App\Models\Catalogue\HistoricOuterable;
 use App\Models\OMS\Order;
 use App\Models\OMS\Transaction;
 use Illuminate\Validation\Rule;

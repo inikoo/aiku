@@ -11,7 +11,7 @@ use App\Models\CRM\Customer;
 use App\Models\Dispatch\Shipper;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Warehouse;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SupplyChain\Supplier;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;

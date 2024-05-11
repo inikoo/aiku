@@ -7,9 +7,9 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Enums\Market\Product\ProductStateEnum;
-use App\Enums\Market\Product\ProductUnitRelationshipType;
-use App\Enums\Market\Product\ProductTypeEnum;
+use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
+use App\Enums\Catalogue\Product\ProductTypeEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraProduct extends FetchAurora

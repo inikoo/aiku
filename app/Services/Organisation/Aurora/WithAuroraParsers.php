@@ -8,7 +8,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Actions\Market\HistoricOuterable\StoreHistoricOuterable;
+use App\Actions\Catalogue\HistoricOuterable\StoreHistoricOuterable;
 use App\Actions\SourceFetch\Aurora\FetchAuroraAgents;
 use App\Actions\SourceFetch\Aurora\FetchAuroraClockingMachines;
 use App\Actions\SourceFetch\Aurora\FetchAuroraCustomers;
@@ -38,7 +38,7 @@ use App\Actions\SourceFetch\Aurora\FetchAuroraTradeUnits;
 use App\Actions\SourceFetch\Aurora\FetchAuroraWarehouses;
 use App\Actions\SourceFetch\Aurora\FetchAuroraWebsites;
 use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
-use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
+use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
@@ -58,10 +58,10 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
-use App\Models\Market\HistoricOuterable;
-use App\Models\Market\Product;
-use App\Models\Market\ProductCategory;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\HistoricOuterable;
+use App\Models\Catalogue\Product;
+use App\Models\Catalogue\ProductCategory;
+use App\Models\Catalogue\Shop;
 use App\Models\OMS\Order;
 use App\Models\OMS\Transaction;
 use App\Models\SupplyChain\Agent;

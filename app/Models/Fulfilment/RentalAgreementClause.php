@@ -7,7 +7,7 @@
 
 namespace App\Models\Fulfilment;
 
-use App\Models\Market\Product;
+use App\Models\Catalogue\Product;
 use App\Models\Traits\InFulfilmentCustomer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

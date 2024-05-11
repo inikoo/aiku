@@ -9,7 +9,7 @@ namespace App\Services\Organisation\Aurora;
 
 use App\Actions\Utils\Abbreviate;
 use App\Models\Inventory\Warehouse;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 

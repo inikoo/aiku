@@ -8,7 +8,7 @@
 namespace App\Actions\Marketing\OfferComponent;
 
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Market\OfferComponentResource;
+use App\Http\Resources\Catalogue\OfferComponentResource;
 use App\Models\Marketing\OfferComponent;
 use Lorisleiva\Actions\ActionRequest;
 

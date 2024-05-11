@@ -7,17 +7,15 @@
 
 namespace App\Actions\OMS\Order\UI;
 
-use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\UI\OMS\OrdersTabsEnum;
 use App\Http\Resources\OMS\OrdersResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
-use App\Models\Market\Product;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Shop;
 use App\Models\OMS\Order;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;

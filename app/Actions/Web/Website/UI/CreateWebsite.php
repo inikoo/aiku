@@ -9,7 +9,7 @@ namespace App\Actions\Web\Website\UI;
 
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;

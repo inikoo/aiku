@@ -7,12 +7,12 @@
 
 namespace App\Actions\Fulfilment\Rental;
 
-use App\Actions\Market\HistoricOuterable\StoreHistoricOuterable;
-use App\Actions\Market\Shop\Hydrators\ShopHydrateRentals;
+use App\Actions\Catalogue\HistoricOuterable\StoreHistoricOuterable;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateRentals;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Rental\RentalStateEnum;
-use App\Enums\Market\Product\ProductStateEnum;
+use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Models\Fulfilment\Rental;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;

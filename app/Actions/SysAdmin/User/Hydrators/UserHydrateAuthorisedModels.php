@@ -10,7 +10,7 @@ namespace App\Actions\SysAdmin\User\Hydrators;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Manufacturing\Production;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\User;
 use Exception;
 use Illuminate\Console\Command;

@@ -13,7 +13,7 @@ use App\Actions\Utils\Abbreviate;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 
 class StoreFulfilmentCustomerFromCustomer extends OrgAction
 {

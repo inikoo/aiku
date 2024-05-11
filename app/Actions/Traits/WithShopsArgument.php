@@ -7,7 +7,7 @@
 
 namespace App\Actions\Traits;
 
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Illuminate\Console\Command;
 
 trait WithShopsArgument

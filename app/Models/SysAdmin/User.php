@@ -14,7 +14,7 @@ use App\Models\Assets\Language;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Manufacturing\Production;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\Media\Media;
 use App\Models\Traits\HasRoles;
 use App\Models\Traits\IsUserable;

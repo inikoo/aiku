@@ -8,7 +8,7 @@
 namespace App\Models\SysAdmin;
 
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
-use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
+use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\OrgPaymentServiceProvider;
@@ -39,11 +39,11 @@ use App\Models\Manufacturing\Artifact;
 use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
-use App\Models\Market\Collection;
-use App\Models\Market\CollectionCategory;
-use App\Models\Market\Product;
-use App\Models\Market\ProductCategory;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Collection;
+use App\Models\Catalogue\CollectionCategory;
+use App\Models\Catalogue\Product;
+use App\Models\Catalogue\ProductCategory;
+use App\Models\Catalogue\Shop;
 use App\Models\Media\Media;
 use App\Models\OMS\Order;
 use App\Models\Procurement\OrgAgent;

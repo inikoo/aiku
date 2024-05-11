@@ -9,7 +9,7 @@ namespace App\Actions\OMS\Order;
 
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
 use App\Actions\Helpers\Address\StoreHistoricAddress;
-use App\Actions\Market\Shop\Hydrators\ShopHydrateOrders;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOrders;
 use App\Actions\OMS\Order\Hydrators\OrderHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrders;
@@ -18,7 +18,7 @@ use App\Enums\OMS\Order\OrderStateEnum;
 use App\Enums\OMS\Order\OrderStatusEnum;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\OMS\Order;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;

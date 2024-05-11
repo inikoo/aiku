@@ -17,7 +17,7 @@ use App\Http\Resources\CRM\ProspectsResource;
 use App\Http\Resources\Tag\TagResource;
 use App\Models\Helpers\Query;
 use App\Models\Helpers\Tag;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;

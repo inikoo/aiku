@@ -7,7 +7,7 @@
 
 namespace App\Enums\SysAdmin\Authorisation;
 
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 
 enum ShopPermissionsEnum: string
 {

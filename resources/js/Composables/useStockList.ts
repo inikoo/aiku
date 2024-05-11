@@ -33,13 +33,13 @@ export const useHeadlineText = () => {
     return [
         'Hello World!',
         'The Industry Standard.',
-        'Market Dynamics Overview.',
+        'Catalogue Dynamics Overview.',
         'A Business Simulation.',
         'Economic Trends.',
         'Corporate Review.',
         'Industry Analysis.',
         'Case Study.',
-        'Market Trends Review.',
+        'Catalogue Trends Review.',
     ]
 }
 

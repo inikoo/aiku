@@ -11,7 +11,7 @@ use App\Models\Accounting\PaymentAccount;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Helpers\SerialReference;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Illuminate\Support\Facades\DB;
 

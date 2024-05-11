@@ -12,7 +12,7 @@ use App\Enums\OMS\Transaction\TransactionStatusEnum;
 use App\Enums\OMS\Transaction\TransactionTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Dispatch\DeliveryNoteItem;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\Traits\InCustomer;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;

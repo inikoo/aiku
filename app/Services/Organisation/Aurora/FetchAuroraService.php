@@ -10,9 +10,9 @@ namespace App\Services\Organisation\Aurora;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\Rental\RentalStateEnum;
 use App\Enums\Fulfilment\Rental\RentalUnitEnum;
-use App\Enums\Market\Product\ProductStateEnum;
-use App\Enums\Market\Product\ProductTypeEnum;
-use App\Enums\Market\Service\ServiceStateEnum;
+use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\Product\ProductTypeEnum;
+use App\Enums\Catalogue\Service\ServiceStateEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraService extends FetchAurora

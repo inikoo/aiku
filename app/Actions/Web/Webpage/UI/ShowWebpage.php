@@ -19,7 +19,7 @@ use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Http\Resources\Helpers\SnapshotResource;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;

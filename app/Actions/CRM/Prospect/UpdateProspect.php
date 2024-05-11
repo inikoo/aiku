@@ -17,7 +17,7 @@ use App\Enums\CRM\Prospect\ProspectSuccessStatusEnum;
 use App\Http\Resources\Lead\ProspectResource;
 use App\Models\CRM\Prospect;
 use App\Models\Helpers\Address;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;

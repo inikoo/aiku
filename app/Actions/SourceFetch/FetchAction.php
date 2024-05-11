@@ -12,7 +12,7 @@ use App\Actions\Helpers\Fetch\UpdateFetch;
 use App\Actions\Traits\WithOrganisationSource;
 use App\Enums\Helpers\Fetch\FetchTypeEnum;
 use App\Enums\Helpers\FetchRecord\FetchRecordTypeEnum;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Services\Organisation\AuroraOrganisationService;
 use App\Services\Organisation\SourceOrganisationService;

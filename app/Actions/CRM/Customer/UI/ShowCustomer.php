@@ -9,7 +9,7 @@ namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
-use App\Actions\Market\Shop\UI\ShowShop;
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OMS\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
@@ -21,7 +21,7 @@ use App\Http\Resources\CRM\WebUsersResource;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\CRM\Customer;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Arr;
 use Inertia\Inertia;

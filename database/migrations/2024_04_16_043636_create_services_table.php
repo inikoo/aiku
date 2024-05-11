@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\Market\Service\ServiceStateEnum;
+use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

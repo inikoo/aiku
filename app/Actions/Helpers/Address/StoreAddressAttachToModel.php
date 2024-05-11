@@ -12,7 +12,7 @@ use App\Models\CRM\Prospect;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\Workplace;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use Lorisleiva\Actions\Concerns\AsAction;

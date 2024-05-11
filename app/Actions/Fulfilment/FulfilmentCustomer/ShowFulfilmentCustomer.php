@@ -18,7 +18,7 @@ use App\Actions\Fulfilment\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItemReturn\UI\IndexStoredItemReturns;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
-use App\Actions\Market\HasRentalAgreement;
+use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithWebUserMeta;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;

@@ -10,7 +10,7 @@ namespace App\Actions\Helpers\Tag;
 use App\Actions\CRM\Prospect\Tags\Hydrators\TagHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Helpers\Tag;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;

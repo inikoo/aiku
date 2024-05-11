@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\Grp\Layout;
 
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -22,7 +22,7 @@ class GetShopNavigation
         if ($user->hasPermissionTo("products.$shop->id.view")) {
             $navigation["catalogue"] = [
                 "root"  => "grp.org.shops.show.catalogue.",
-                "icon"  => ["fal", "fa-store-alt"],
+                "icon"  => ["fal", "fa-cube"],
                 "label" => __("catalogue"),
                 "route" => [
                     "name"       => 'grp.org.shops.show.catalogue.dashboard',

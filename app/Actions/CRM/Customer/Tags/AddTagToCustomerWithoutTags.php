@@ -13,7 +13,7 @@ use App\Actions\Helpers\Tag\StoreTag;
 use App\Actions\CRM\Prospect\Tags\Hydrators\TagHydrateUniversalSearch;
 use App\Actions\Traits\WithImportModel;
 use App\Models\CRM\Prospect;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Exception;
 
 class AddTagToCustomerWithoutTags

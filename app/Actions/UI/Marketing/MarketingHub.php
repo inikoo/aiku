@@ -10,7 +10,7 @@ namespace App\Actions\UI\Marketing;
 use App\Actions\InertiaAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Models\Mail\Outbox;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

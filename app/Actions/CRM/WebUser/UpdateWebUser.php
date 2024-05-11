@@ -11,7 +11,7 @@ use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
-use App\Enums\Market\Shop\ShopTypeEnum;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\CRM\WebUser;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;

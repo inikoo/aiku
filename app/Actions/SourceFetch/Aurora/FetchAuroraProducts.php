@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Market\Product\StorePhysicalGood;
-use App\Actions\Market\Product\UpdatePhysicalGood;
-use App\Models\Market\Product;
+use App\Actions\Catalogue\Product\StorePhysicalGood;
+use App\Actions\Catalogue\Product\UpdatePhysicalGood;
+use App\Models\Catalogue\Product;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;

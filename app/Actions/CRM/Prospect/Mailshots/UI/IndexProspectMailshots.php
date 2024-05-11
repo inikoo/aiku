@@ -18,7 +18,7 @@ use App\Http\Resources\Mail\MailshotsResource;
 use App\Http\Resources\Mail\SenderEmailResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Mail\Mailshot;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;

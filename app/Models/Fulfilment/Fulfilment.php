@@ -9,7 +9,7 @@ namespace App\Models\Fulfilment;
 
 use App\Models\Helpers\SerialReference;
 use App\Models\Inventory\Warehouse;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\InShop;

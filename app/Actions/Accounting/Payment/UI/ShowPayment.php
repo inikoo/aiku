@@ -14,7 +14,7 @@ use App\Http\Resources\Accounting\PaymentsResource;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\OMS\Order;
 use Inertia\Inertia;
 use Inertia\Response;

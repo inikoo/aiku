@@ -13,7 +13,7 @@ use App\Actions\Helpers\Query\UpdateQuery;
 use App\Actions\Traits\WithShopsArgument;
 use App\Models\CRM\Prospect;
 use App\Models\Helpers\Query;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 

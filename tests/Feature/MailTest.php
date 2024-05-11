@@ -11,9 +11,9 @@ use App\Actions\Mail\DispatchedEmail\StoreDispatchEmail;
 use App\Actions\Mail\DispatchedEmail\UpdateDispatchedEmail;
 use App\Actions\Mail\Mailshot\StoreMailshot;
 use App\Actions\Mail\Mailshot\UpdateMailshot;
-use App\Actions\Market\Shop\StoreShop;
+use App\Actions\Catalogue\Shop\StoreShop;
 use App\Models\Mail\Mailshot;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 
 beforeAll(function () {
     loadDB('test_base_database.dump');

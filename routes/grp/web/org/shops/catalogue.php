@@ -5,21 +5,21 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Market\Product\UI\CreateProduct;
-use App\Actions\Market\Product\UI\EditProduct;
-use App\Actions\Market\Product\UI\IndexProducts;
-use App\Actions\Market\Product\UI\ShowProduct;
-use App\Actions\Market\ProductCategory\UI\CreateDepartment;
-use App\Actions\Market\ProductCategory\UI\CreateDepartments;
-use App\Actions\Market\ProductCategory\UI\CreateFamily;
-use App\Actions\Market\ProductCategory\UI\EditDepartment;
-use App\Actions\Market\ProductCategory\UI\EditFamily;
-use App\Actions\Market\ProductCategory\UI\IndexDepartments;
-use App\Actions\Market\ProductCategory\UI\IndexFamilies;
-use App\Actions\Market\ProductCategory\UI\ShowDepartment;
-use App\Actions\Market\ProductCategory\UI\ShowFamily;
-use App\Actions\Market\Shop\UI\EditShop;
-use App\Actions\Market\Shop\UI\ShowShop;
+use App\Actions\Catalogue\Product\UI\CreateProduct;
+use App\Actions\Catalogue\Product\UI\EditProduct;
+use App\Actions\Catalogue\Product\UI\IndexProducts;
+use App\Actions\Catalogue\Product\UI\ShowProduct;
+use App\Actions\Catalogue\ProductCategory\UI\CreateDepartment;
+use App\Actions\Catalogue\ProductCategory\UI\CreateDepartments;
+use App\Actions\Catalogue\ProductCategory\UI\CreateFamily;
+use App\Actions\Catalogue\ProductCategory\UI\EditDepartment;
+use App\Actions\Catalogue\ProductCategory\UI\EditFamily;
+use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
+use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
+use App\Actions\Catalogue\ProductCategory\UI\ShowDepartment;
+use App\Actions\Catalogue\ProductCategory\UI\ShowFamily;
+use App\Actions\Catalogue\Shop\UI\EditShop;
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 
 Route::get('', ShowShop::class)->name('dashboard');
 Route::get('edit', EditShop::class)->name('edit');

@@ -10,7 +10,7 @@ namespace App\Actions\Mail\Outbox;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Mail\Mailroom;
 use App\Models\Mail\Outbox;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;

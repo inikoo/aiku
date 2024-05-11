@@ -8,13 +8,13 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Fulfilment\Rental\UpdateRental;
-use App\Actions\Market\Product\StoreRentalProduct;
-use App\Actions\Market\Product\StoreServiceProduct;
-use App\Actions\Market\Service\UpdateService;
-use App\Enums\Market\Product\ProductTypeEnum;
+use App\Actions\Catalogue\Product\StoreRentalProduct;
+use App\Actions\Catalogue\Product\StoreServiceProduct;
+use App\Actions\Catalogue\Service\UpdateService;
+use App\Enums\Catalogue\Product\ProductTypeEnum;
 use App\Models\Fulfilment\Rental;
-use App\Models\Market\Product;
-use App\Models\Market\Service;
+use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Service;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;

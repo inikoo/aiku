@@ -11,7 +11,7 @@ use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletDeliverie
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateUniversalSearch;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
-use App\Actions\Market\HasRentalAgreement;
+use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\CRM\Customer;

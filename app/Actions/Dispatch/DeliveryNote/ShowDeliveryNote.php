@@ -13,7 +13,7 @@ use App\Actions\UI\WithInertia;
 use App\Enums\UI\DeliveryNoteTabsEnum;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\Models\Dispatch\DeliveryNote;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\OMS\Order;
 use Inertia\Inertia;
 use Inertia\Response;

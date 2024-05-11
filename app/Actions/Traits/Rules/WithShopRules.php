@@ -7,8 +7,8 @@
 
 namespace App\Actions\Traits\Rules;
 
-use App\Enums\Market\Shop\ShopStateEnum;
-use App\Enums\Market\Shop\ShopTypeEnum;
+use App\Enums\Catalogue\Shop\ShopStateEnum;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 

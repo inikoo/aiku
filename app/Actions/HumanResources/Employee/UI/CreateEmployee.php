@@ -11,7 +11,7 @@ use App\Actions\OrgAction;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
-use App\Http\Resources\Market\ShopResource;
+use App\Http\Resources\Catalogue\ShopResource;
 use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Organisation;
 use Exception;
