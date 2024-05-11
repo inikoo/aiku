@@ -7,17 +7,19 @@
 
 
 use App\Actions\OMS\Order\UI\IndexOrders;
+use App\Actions\OMS\Order\UI\ShowOrder;
+use App\Actions\OMS\UI\ShowOrdersBacklog;
+
+Route::get('/backlog', ShowOrdersBacklog::class)->name('backlog');
 
 Route::get('/orders/', IndexOrders::class)->name('orders.index');
+Route::get('/orders/{order}', ShowOrder::class)->name('orders.show');
 
 
 
 /*
-Route::get('/', OMSDashboard::class)->name('dashboard');
 
-Route::get('/create', CreateOrder::class)->name('orders/create');
 
-Route::get('/orders/{order}', [ShowOrder::class, 'inOrganisation'])->name('orders.show');
 Route::get('/orders/{order}/delivery-notes/{deliveryNote}', [ShowDeliveryNote::class, 'inOrder'])->name('orders.show.delivery-notes.show');
 Route::get('/orders/{order}/payments/{payment}', [ShowPayment::class,'inOrder'])->name('orders.show.orders.show.payments.show');
 Route::get('/orders/{order}/payments/{payment}/edit', [EditPayment::class, 'inOrder'])->name('orders.show.orders.show.payments.edit');
@@ -28,7 +30,7 @@ Route::get('/delivery-notes/{deliveryNote}', [ShowDeliveryNote::class, 'inOrgani
 Route::get('/invoices/', [IndexInvoices::class, 'inOrganisation'])->name('invoices.index');
 Route::get('/invoices/{invoice}', [ShowInvoice::class, 'inOrganisation'])->name('invoices.show');
 
-Route::get('/shops/{shop}', [OMSDashboard::class,'inShop'])->name('shops.show.dashboard');
+Route::get('/shops/{shop}', [ShowOrdersBacklog::class,'inShop'])->name('shops.show.dashboard');
 Route::get('/shops/{shop}/orders/', [IndexOrders::class, 'InShop'])->name('shops.show.orders.index');
 Route::get('/shops/{shop}/orders/{order}', [ShowOrder::class, 'InShop'])->name('shops.show.orders.show');
 Route::get('/shops/{shop}/orders/{order}/delivery-notes/{deliveryNote}', [ShowDeliveryNote::class, 'InOrderInShop'])->name('shops.show.orders.show.delivery-notes.show');

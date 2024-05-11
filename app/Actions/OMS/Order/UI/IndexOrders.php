@@ -9,6 +9,8 @@ namespace App\Actions\OMS\Order\UI;
 
 use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
+use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\UI\OMS\OrdersTabsEnum;
 use App\Http\Resources\OMS\OrdersResource;
 use App\Http\Resources\Sales\OrderResource;
@@ -22,6 +24,7 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -109,7 +112,7 @@ class IndexOrders extends OrgAction
     public function htmlResponse(LengthAwarePaginator $orders, ActionRequest $request): Response
     {
         return Inertia::render(
-            'OMS/Orders',
+            'Ordering/Orders',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -124,9 +127,7 @@ class IndexOrders extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => OrdersTabsEnum::navigation(),
                 ],
-                OrdersTabsEnum::BACKLOG->value => $this->tab == OrdersTabsEnum::BACKLOG->value ?
-                    fn () => GetOrdersBackLog::run($this->parent, $request)
-                    : Inertia::lazy(fn () => GetOrdersBackLog::run($this->parent, $request)),
+
                 OrdersTabsEnum::ORDERS->value => $this->tab == OrdersTabsEnum::ORDERS->value ?
                     fn () => OrdersResource::collection($orders)
                     : Inertia::lazy(fn () => OrdersResource::collection($orders)),
@@ -172,12 +173,12 @@ class IndexOrders extends OrgAction
 
 
 
-            'grp.org.shops.show.orders.orders.index' =>
+            'grp.org.shops.show.ordering.orders.index' =>
             array_merge(
-                (new ShowShop())->getBreadcrumbs($routeParameters),
+                ShowOrganisationDashboard::make()->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
                 $headCrumb(
                     [
-                        'name'      => 'grp.org.shops.show.orders.orders.index',
+                        'name'      => 'grp.org.shops.show.ordering.orders.index',
                         'parameters'=> $routeParameters
                     ]
                 )

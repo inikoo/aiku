@@ -76,7 +76,7 @@ class ShowOrder extends InertiaAction
 
 
         return Inertia::render(
-            'OMS/Order',
+            'Ordering/Order',
             [
                 'title'       => __('order'),
                 'breadcrumbs' => $this->getBreadcrumbs(

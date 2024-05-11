@@ -37,7 +37,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\OMS\Order
+ * App\Models\Ordering\Order
  *
  * @property int $id
  * @property int $group_id

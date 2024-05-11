@@ -277,22 +277,24 @@ class GetShopNavigation
         }
 
         if ($user->hasPermissionTo("orders.$shop->id.view")) {
-            $navigation["oms"] = [
+            $navigation["ordering"] = [
+                "root"  => "grp.org.shops.show.ordering.",
                 "scope" => "shops",
-                "label" => __("Orders"),
+                "label" => __("orders"),
                 "icon"  => ["fal", "fa-shopping-cart"],
                 "route" => [
-                    "name"       => 'grp.org.shops.show.orders.orders.index',
+                    "name"       => 'grp.org.shops.show.ordering.backlog',
                     "parameters" => [$shop->organisation->slug, $shop->slug],
                 ],
                 "topMenu" => [
-                    "subSectionsx" => [
+                    "subSections" => [
                         [
-                            "label"   => "OMS",
-                            "tooltip" => "OMS",
+                            "label"   => __('Backlog'),
+                            "tooltip" => __('Pending orders'),
                             "icon"    => ["fal", "fa-tasks-alt"],
+                            'root'    => 'grp.org.shops.show.ordering.backlog',
                             "route"   => [
-                                "name"       => "grp.oms.dashboard",
+                                "name"       => "grp.org.shops.show.ordering.backlog",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -300,11 +302,13 @@ class GetShopNavigation
                             "label"   => __("orders"),
                             "tooltip" => __("Orders"),
                             "icon"    => ["fal", "fa-shopping-cart"],
+                            'root'    => 'grp.org.shops.show.ordering.orders.',
                             "route"   => [
-                                "name"       => "grp.oms.orders.index",
+                                "name"       => "grp.org.shops.show.ordering.orders.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
+                        /*
                         [
                             "label"   => __("delivery notes"),
                             "tooltip" => __("Delivery notes"),
@@ -323,6 +327,7 @@ class GetShopNavigation
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
+                        */
                     ],
                 ],
             ];

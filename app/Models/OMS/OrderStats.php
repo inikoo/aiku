@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * App\Models\OMS\OrderStats
+ * App\Models\Ordering\OrderStats
  *
  * @property int $id
  * @property int $order_id

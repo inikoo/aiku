@@ -26,7 +26,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
 /**
- * App\Models\OMS\Transaction
+ * App\Models\Ordering\Transaction
  *
  * @property int $id
  * @property int $group_id

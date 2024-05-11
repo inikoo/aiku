@@ -15,9 +15,8 @@ enum OrdersTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case BACKLOG   = 'backlog';
-    case ORDERS    = 'orders';
     case STATS     = 'stats';
+    case ORDERS    = 'orders';
     case HISTORY   = 'history';
     case TAGS      = 'tags';
 
@@ -25,16 +24,11 @@ enum OrdersTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            OrdersTabsEnum::BACKLOG => [
-                'title' => __('backlog'),
-                'icon'  => 'fal fa-tasks-alt',
-            ],
 
             OrdersTabsEnum::ORDERS => [
                 'title' => __('orders'),
                 'icon'  => 'fal fa-shopping-cart',
             ],
-
             OrdersTabsEnum::STATS => [
                 'title' => __('stats'),
                 'icon'  => 'fal fa-chart-pie',
@@ -45,9 +39,6 @@ enum OrdersTabsEnum: string
                 'type'  => 'icon',
                 'align' => 'right'
             ],
-
-
-
             OrdersTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',

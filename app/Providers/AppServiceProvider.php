@@ -172,7 +172,7 @@ class AppServiceProvider extends ServiceProvider
                 // Notifications
                 'FcmToken'                  => 'App\Models\Notifications\FcmToken',
 
-                // OMS
+                // Ordering
                 'Order'                        => 'App\Models\OMS\Order',
                 'Transaction'                  => 'App\Models\OMS\Transaction',
 
