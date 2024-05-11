@@ -92,7 +92,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ProductStats|null $stats
  * @property-read Collection<int, TradeUnit> $tradeUnits
  * @property-read UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Market\ProductFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Catalogue\ProductFactory factory($count = null, $state = [])
  * @method static Builder|Product newModelQuery()
  * @method static Builder|Product newQuery()
  * @method static Builder|Product onlyTrashed()

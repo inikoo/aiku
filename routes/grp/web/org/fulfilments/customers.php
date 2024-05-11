@@ -34,7 +34,7 @@ use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
 use App\Actions\Fulfilment\StoredItemReturn\UI\ShowStoredItemReturn;
 use App\Actions\Helpers\Uploads\HistoryUploads;
 use App\Actions\Inventory\Location\UI\IndexLocations;
-use App\Actions\OMS\Order\UI\ShowOrder;
+use App\Actions\Ordering\Order\UI\ShowOrder;
 
 //Route::get('', ShowFulfilmentCRMDashboard::class)->name('dashboard');
 

@@ -12,7 +12,7 @@ use App\Actions\Dropshipping\CustomerClient\DeleteCustomerClient;
 use App\Actions\Goods\Stock\DeleteStock;
 use App\Actions\Catalogue\Product\DeleteProduct;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCustomers;
-use App\Actions\OMS\Order\DeleteOrder;
+use App\Actions\Ordering\Order\DeleteOrder;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithOrganisationArgument;
 use App\Models\CRM\Customer;

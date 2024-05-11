@@ -12,7 +12,7 @@ use App\Models\Assets\Currency;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
 use App\Models\Catalogue\Shop;
-use App\Models\OMS\Order;
+use App\Models\Ordering\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;

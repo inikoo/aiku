@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -32,7 +31,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @method static \Database\Factories\Market\ShippingZoneFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Ordering\ShippingZoneFactory factory($count = null, $state = [])
  * @method static Builder|ShippingZone newModelQuery()
  * @method static Builder|ShippingZone newQuery()
  * @method static Builder|ShippingZone onlyTrashed()

@@ -7,9 +7,9 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Enums\OMS\Transaction\TransactionStateEnum;
-use App\Enums\OMS\Transaction\TransactionStatusEnum;
-use App\Enums\OMS\Transaction\TransactionTypeEnum;
+use App\Enums\Ordering\Transaction\TransactionStateEnum;
+use App\Enums\Ordering\Transaction\TransactionStatusEnum;
+use App\Enums\Ordering\Transaction\TransactionTypeEnum;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 

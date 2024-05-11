@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -31,7 +30,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Collection<int, \App\Models\Catalogue\ShippingZone> $shippingZone
- * @method static \Database\Factories\Market\ShippingZoneSchemaFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Ordering\ShippingZoneSchemaFactory factory($count = null, $state = [])
  * @method static Builder|ShippingZoneSchema newModelQuery()
  * @method static Builder|ShippingZoneSchema newQuery()
  * @method static Builder|ShippingZoneSchema onlyTrashed()

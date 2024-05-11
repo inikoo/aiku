@@ -173,8 +173,8 @@ class AppServiceProvider extends ServiceProvider
                 'FcmToken'                  => 'App\Models\Notifications\FcmToken',
 
                 // Ordering
-                'Order'                        => 'App\Models\OMS\Order',
-                'Transaction'                  => 'App\Models\OMS\Transaction',
+                'Order'                        => 'App\Models\Ordering\Order',
+                'Transaction'                  => 'App\Models\Ordering\Transaction',
 
                 // Procurement
                 'HistoricSupplierProduct'                   => 'App\Models\Procurement\HistoricSupplierProduct',

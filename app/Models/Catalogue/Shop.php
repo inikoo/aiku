@@ -33,7 +33,7 @@ use App\Models\Mail\SenderEmail;
 use App\Models\Catalogue\Shop\ShopMailshotsIntervals;
 use App\Models\Catalogue\Shop\ShopOrdersIntervals;
 use App\Models\Marketing\OfferCampaign;
-use App\Models\OMS\Order;
+use App\Models\Ordering\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -130,7 +130,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Timezone $timezone
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Website|null $website
- * @method static \Database\Factories\Market\ShopFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Catalogue\ShopFactory factory($count = null, $state = [])
  * @method static Builder|Shop newModelQuery()
  * @method static Builder|Shop newQuery()
  * @method static Builder|Shop onlyTrashed()

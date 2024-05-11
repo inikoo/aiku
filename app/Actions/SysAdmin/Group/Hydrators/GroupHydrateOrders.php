@@ -8,9 +8,9 @@
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\OMS\Order\OrderStateEnum;
+use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Models\SysAdmin\Group;
-use App\Models\OMS\Order;
+use App\Models\Ordering\Order;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 

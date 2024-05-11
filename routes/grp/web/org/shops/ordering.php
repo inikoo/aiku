@@ -6,9 +6,9 @@
  */
 
 
-use App\Actions\OMS\Order\UI\IndexOrders;
-use App\Actions\OMS\Order\UI\ShowOrder;
-use App\Actions\OMS\UI\ShowOrdersBacklog;
+use App\Actions\Ordering\Order\UI\IndexOrders;
+use App\Actions\Ordering\Order\UI\ShowOrder;
+use App\Actions\Ordering\UI\ShowOrdersBacklog;
 
 Route::get('/backlog', ShowOrdersBacklog::class)->name('backlog');
 

@@ -63,7 +63,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\ProductCategoryStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Market\ProductCategoryFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Catalogue\ProductCategoryFactory factory($count = null, $state = [])
  * @method static Builder|ProductCategory newModelQuery()
  * @method static Builder|ProductCategory newQuery()
  * @method static Builder|ProductCategory onlyTrashed()

@@ -29,7 +29,7 @@ use App\Models\Manufacturing\RawMaterial;
 use App\Models\Catalogue\CollectionCategory;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Product;
-use App\Models\OMS\Order;
+use App\Models\Ordering\Order;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Stock;

@@ -8,7 +8,7 @@
 namespace App\Stubs\Migrations;
 
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\OMS\Order\OrderStateEnum;
+use App\Enums\Ordering\Order\OrderStateEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasSalesStats

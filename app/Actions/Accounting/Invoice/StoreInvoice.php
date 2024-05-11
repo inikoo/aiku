@@ -22,7 +22,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSales;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\CRM\Customer;
-use App\Models\OMS\Order;
+use App\Models\Ordering\Order;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;

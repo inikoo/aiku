@@ -10,7 +10,7 @@ namespace App\Actions\Helpers\Address;
 use App\Models\Accounting\Invoice;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Helpers\Address;
-use App\Models\OMS\Order;
+use App\Models\Ordering\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class AttachHistoricAddressToModel

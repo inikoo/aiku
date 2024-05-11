@@ -8,8 +8,8 @@
 namespace App\Services\Organisation\Aurora;
 
 use App\Actions\SourceFetch\Aurora\FetchAuroraCustomerClients;
-use App\Enums\OMS\Order\OrderStateEnum;
-use App\Enums\OMS\Order\OrderStatusEnum;
+use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Facades\DB;
 
