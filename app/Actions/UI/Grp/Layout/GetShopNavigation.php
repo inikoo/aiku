@@ -121,7 +121,7 @@ class GetShopNavigation
             $navigation["marketing"] = [
                 "root"  => "grp.org.shops.show.marketing.",
                 "icon"  => ["fal", "fa-bullhorn"],
-                "label" => __("Marketing"),
+                "label" => __("Deals"),
                 "route" => [
                     "name"       => 'grp.org.shops.show.marketing.dashboard',
                     "parameters" => [$shop->organisation->slug, $shop->slug],
@@ -230,7 +230,7 @@ class GetShopNavigation
         if ($user->hasPermissionTo("marketing.view")) {
             $navigation["marketing"] = [
                 "root"    => "grp.org.shops.show.marketing.",
-                "label"   => __("Marketing"),
+                "label"   => __("Deals"),
                 "icon"    => ["fal", "fa-bullhorn"],
                 "route"   => "grp.marketing.hub",
                 "topMenu" => [

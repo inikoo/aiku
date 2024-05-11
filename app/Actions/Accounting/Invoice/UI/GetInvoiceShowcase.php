@@ -8,9 +8,8 @@
 namespace App\Actions\Accounting\Invoice\UI;
 
 use App\Actions\Accounting\InvoiceTransaction\UI\IndexInvoiceTransactions;
-use App\Enums\UI\InvoiceTabsEnum;
+use App\Enums\UI\Accounting\InvoiceTabsEnum;
 use App\Http\Resources\Accounting\InvoiceTransactionsResource;
-use App\Http\Resources\Helpers\AddressResource;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceTransaction;
 use Lorisleiva\Actions\Concerns\AsObject;

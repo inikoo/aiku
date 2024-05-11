@@ -12,7 +12,7 @@ use App\Actions\HumanResources\Clocking\UI\IndexClockings;
 use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
 use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
-use App\Enums\UI\ClockingMachineTabsEnum;
+use App\Enums\UI\HumanResources\ClockingMachineTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Http\Resources\HumanResources\ClockingResource;

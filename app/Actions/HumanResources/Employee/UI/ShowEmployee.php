@@ -12,7 +12,7 @@ use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
-use App\Enums\UI\EmployeeTabsEnum;
+use App\Enums\UI\HumanResources\EmployeeTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Http\Resources\HumanResources\TimesheetsResource;

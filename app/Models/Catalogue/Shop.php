@@ -32,7 +32,7 @@ use App\Models\Mail\Outbox;
 use App\Models\Mail\SenderEmail;
 use App\Models\Catalogue\Shop\ShopMailshotsIntervals;
 use App\Models\Catalogue\Shop\ShopOrdersIntervals;
-use App\Models\Marketing\OfferCampaign;
+use App\Models\Deals\OfferCampaign;
 use App\Models\Ordering\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;

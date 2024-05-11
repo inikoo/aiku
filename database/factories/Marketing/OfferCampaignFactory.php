@@ -10,7 +10,7 @@ namespace Database\Factories\Marketing;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Marketing\OfferCampaign>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Deals\OfferCampaign>
  */
 class OfferCampaignFactory extends Factory
 {

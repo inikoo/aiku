@@ -161,7 +161,7 @@ class AppServiceProvider extends ServiceProvider
                 'Rental'                            => 'App\Models\Fulfilment\Rental',
                 'Service'                           => 'App\Models\Catalogue\Service',
 
-                // Marketing
+                // Deals
                 'Offer'                           => 'App\Models\Marketing\Offer',
                 'OfferCampaign'                   => 'App\Models\Marketing\OfferCampaign',
                 'OfferComponent'                  => 'App\Models\Marketing\OfferComponent',

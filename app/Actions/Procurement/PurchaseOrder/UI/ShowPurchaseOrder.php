@@ -11,7 +11,7 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\PurchaseOrderItem\UI\IndexPurchaseOrderItems;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\PurchaseOrderTabsEnum;
+use App\Enums\UI\Procurement\PurchaseOrderTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\PurchaseOrderItemResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;

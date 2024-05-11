@@ -11,21 +11,21 @@ use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Traits\WithProspectsSubNavigation;
-use App\Enums\UI\ProspectsQueriesTabsEnum;
+use App\Enums\UI\CRM\ProspectsQueriesTabsEnum;
 use App\Http\Resources\CRM\ProspectQueriesResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Tag\TagResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\CRM\Prospect;
 use App\Models\Catalogue\Shop;
+use App\Models\CRM\Prospect;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 use Spatie\Tags\Tag;
 
 class IndexProspectQueries extends InertiaAction

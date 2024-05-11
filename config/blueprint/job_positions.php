@@ -88,7 +88,7 @@ return [
         ],
         'mrk-m'    => [
             'code'               => 'mrk-m',
-            'name'               => 'Marketing supervisor',
+            'name'               => 'Deals supervisor',
             'scope'              => JobPositionScopeEnum::SHOPS,
             'department'         => 'products',
             'roles'              => [
@@ -101,7 +101,7 @@ return [
         ],
         'mrk-c'    => [
             'code'               => 'mrk-c',
-            'name'               => 'Marketing clerk',
+            'name'               => 'Deals clerk',
             'scope'              => JobPositionScopeEnum::SHOPS,
             'department'         => 'products',
             'roles'              => [

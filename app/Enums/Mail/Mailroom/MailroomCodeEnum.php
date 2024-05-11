@@ -22,7 +22,7 @@ enum MailroomCodeEnum: string
     public function label(): string
     {
         return match ($this) {
-            MailroomCodeEnum::MARKETING             => 'Marketing',
+            MailroomCodeEnum::MARKETING             => 'Deals',
             MailroomCodeEnum::LEADS                 => 'Leads',
             MailroomCodeEnum::CUSTOMER_NOTIFICATION => 'Customer notifications',
             MailroomCodeEnum::USER_NOTIFICATION     => 'User notifications',

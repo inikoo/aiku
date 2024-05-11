@@ -9,7 +9,7 @@ namespace App\Actions\HumanResources\Timesheet\UI;
 
 use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\OrgAction;
-use App\Enums\UI\EmployeeTabsEnum;
+use App\Enums\UI\HumanResources\EmployeeTabsEnum;
 use App\Http\Resources\HumanResources\TimesheetsResource;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Timesheet;

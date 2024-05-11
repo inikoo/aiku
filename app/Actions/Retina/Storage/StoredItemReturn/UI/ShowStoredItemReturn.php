@@ -13,7 +13,7 @@ use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\RetinaAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\StoredItemReturn\StoredItemReturnStateEnum;
-use App\Enums\UI\StoredItemReturnTabsEnum;
+use App\Enums\UI\Fulfilment\StoredItemReturnTabsEnum;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\Fulfilment\StoredItemReturnResource;
 use App\Http\Resources\Fulfilment\StoredItemReturnsResource;

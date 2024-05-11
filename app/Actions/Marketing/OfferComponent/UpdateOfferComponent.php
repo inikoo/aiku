@@ -9,7 +9,7 @@ namespace App\Actions\Marketing\OfferComponent;
 
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Catalogue\OfferComponentResource;
-use App\Models\Marketing\OfferComponent;
+use App\Models\Deals\OfferComponent;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOfferComponent

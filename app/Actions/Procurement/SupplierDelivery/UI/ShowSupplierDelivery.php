@@ -9,7 +9,7 @@ namespace App\Actions\Procurement\SupplierDelivery\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\SupplierDeliveryTabsEnum;
+use App\Enums\UI\SupplyChain\SupplierDeliveryTabsEnum;
 use App\Http\Resources\Procurement\SupplierDeliveryResource;
 use App\Models\Procurement\SupplierDelivery;
 use Inertia\Inertia;

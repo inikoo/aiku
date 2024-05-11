@@ -11,7 +11,7 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\HumanResources\Employee\UI\IndexEmployees;
 use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
-use App\Enums\UI\JobPositionTabsEnum;
+use App\Enums\UI\HumanResources\JobPositionTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Http\Resources\HumanResources\JobPositionResource;

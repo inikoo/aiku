@@ -122,7 +122,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
 
     mrk: {
         icon: "fal fa-comments-dollar",
-        department: "Marketing",
+        department: "Deals",
         subDepartment: [
             {
                 slug: "mrk-m",

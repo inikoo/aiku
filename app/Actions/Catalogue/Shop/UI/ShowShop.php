@@ -152,7 +152,7 @@ class ShowShop extends OrgAction
                             'icon'  => ['fal', 'fa-file-invoice'],
                             'href'  => ['grp.crm.shops.show.invoices.index', $shop->slug],
                             'index' => [
-                                'number' => $shop->stats->number_invoices
+                                'number' => $shop->salesStats->number_invoices
                             ]
                         ],
                         [
@@ -160,7 +160,7 @@ class ShowShop extends OrgAction
                             'icon'  => ['fal', 'fa-sticky-note'],
                             'href'  => ['grp.crm.shops.show.delivery-notes.index', $shop->slug],
                             'index' => [
-                                'number' => $shop->stats->number_deliveries
+                                'number' => $shop->salesStats->number_deliveries
                             ]
                         ]
                     ]

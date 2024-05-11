@@ -14,9 +14,9 @@ use App\Actions\Marketing\OfferCampaign\UpdateOfferCampaign;
 use App\Actions\Marketing\OfferComponent\StoreOfferComponent;
 use App\Actions\Marketing\OfferComponent\UpdateOfferComponent;
 use App\Models\Catalogue\Shop;
-use App\Models\Marketing\Offer;
-use App\Models\Marketing\OfferCampaign;
-use App\Models\Marketing\OfferComponent;
+use App\Models\Deals\Offer;
+use App\Models\Deals\OfferCampaign;
+use App\Models\Deals\OfferComponent;
 
 beforeAll(function () {
     loadDB('test_base_database.dump');

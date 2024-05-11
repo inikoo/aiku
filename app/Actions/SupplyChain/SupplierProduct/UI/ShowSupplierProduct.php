@@ -13,7 +13,7 @@ use App\Actions\Procurement\OrgAgent\UI\GetAgentShowcase;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\SupplierProductTabsEnum;
+use App\Enums\UI\SupplyChain\SupplierProductTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Http\Resources\Procurement\SupplierProductResource;
