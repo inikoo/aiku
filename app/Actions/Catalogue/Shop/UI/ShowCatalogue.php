@@ -7,20 +7,18 @@
 
 namespace App\Actions\Catalogue\Shop\UI;
 
-use App\Actions\OrgAction;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
 use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
-use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
+use App\Actions\OrgAction;
 use App\Actions\UI\WithInertia;
-use App\Enums\UI\ShopTabsEnum;
+use App\Enums\UI\Catalogue\CatalogueTabsEnum;
 use App\Http\Resources\Catalogue\DepartmentsResource;
 use App\Http\Resources\Catalogue\FamiliesResource;
 use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\Catalogue\ShopResource;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -40,16 +38,15 @@ class ShowCatalogue extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("products.{$this->organisation->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("products.{$this->organisation->id}.edit");
+        $this->canEdit   = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
 
-        return $request->user()->hasPermissionTo("products.{$this->organisation->id}.view");
+        return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Shop
     {
-
-        $this->initialisation($organisation, $request)->withTab(ShopTabsEnum::values());
+        $this->initialisationFromShop($shop, $request)->withTab(CatalogueTabsEnum::values());
         return $this->handle($shop);
     }
 
@@ -72,122 +69,15 @@ class ShowCatalogue extends OrgAction
                         'title' => __('Shop'),
                         'icon'  => 'fal fa-store-alt'
                     ],
-                    'actions' => [
-                        [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('website'),
-                            'route' => [
-                                'name'       => 'grp.org.shops.show.web.websites.create',
-                                'parameters' => $request->route()->originalParameters()
-                            ]
 
-                        ],
-                        $this->canEdit ? [
-                            'type'  => 'button',
-                            'style' => 'edit',
-                            'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-                        ] : false,
-                        /*
-                        $this->canDelete ? [
-                            'type'  => 'button',
-                            'style' => 'delete',
-                            'route' => [
-                                'name'       => 'shops.remove',
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-                        ] : false
-                        */
-                    ]
-                ],
-                'flatTreeMaps' => [
-                    [
-                        [
-                            'name'  => __('customers'),
-                            'icon'  => ['fal', 'fa-user'],
-                            'href'  => ['grp.org.shops.show.crm.customers.index', $shop->slug],
-                            'index' => [
-                                'number' => $shop->crmStats->number_customers
-                            ]
-                        ],
-                        [
-                            'name'  => __('prospects'),
-                            'icon'  => ['fal', 'fa-user'],
-                            'href'  => ['grp.crm.shops.show.prospects.index', $shop->slug],
-                            'index' => [
-                                'number' => 'TBD'// $shop->stats->number_customers
-                            ]
-                        ],
-                    ],
-                    [
-                        [
-                            'name'  => __('departments'),
-                            'icon'  => ['fal', 'fa-folder-tree'],
-                            'href'  => ['shops.show.departments.index', $shop->slug],
-                            'index' => [
-                                'number' => $shop->stats->number_departments
-                            ]
-                        ],
-
-                        [
-                            'name'  => __('families'),
-                            'icon'  => ['fal', 'fa-folder'],
-                            'href'  => ['shops.show.families.index', $shop->slug],
-                            'index' => [
-                                'number' => $shop->stats->number_families
-                            ]
-                        ],
-
-                        [
-                            'name'  => __('products'),
-                            'icon'  => ['fal', 'fa-cube'],
-                            'href'  => ['shops.show.products.index', $shop->slug],
-                            'index' => [
-                                'number' => $shop->stats->number_products
-                            ]
-                        ],
-                    ],
-                    [
-                        [
-                            'name'  => __('orders'),
-                            'icon'  => ['fal', 'fa-shopping-cart'],
-                            'href'  => ['grp.crm.shops.show.orders.index', $shop->slug],
-                            'index' => [
-                                'number' => $shop->salesStats->number_orders
-                            ]
-                        ],
-                        [
-                            'name'  => __('invoices'),
-                            'icon'  => ['fal', 'fa-file-invoice'],
-                            'href'  => ['grp.crm.shops.show.invoices.index', $shop->slug],
-                            'index' => [
-                                'number' => $shop->stats->number_invoices
-                            ]
-                        ],
-                        [
-                            'name'  => __('delivery-notes'),
-                            'icon'  => ['fal', 'fa-sticky-note'],
-                            'href'  => ['grp.crm.shops.show.delivery-notes.index', $shop->slug],
-                            'index' => [
-                                'number' => $shop->stats->number_deliveries
-                            ]
-                        ]
-                    ]
                 ],
                 'tabs'         => [
                     'current'    => $this->tab,
-                    'navigation' => ShopTabsEnum::navigation()
+                    'navigation' => CatalogueTabsEnum::navigation()
                 ],
 
-                ShopTabsEnum::SHOWCASE->value => $this->tab == ShopTabsEnum::SHOWCASE->value
-                    ?
-                    fn () => ShopResource::make($shop)
-                    : Inertia::lazy(fn () => ShopResource::make($shop)),
 
-                ShopTabsEnum::DEPARTMENTS->value => $this->tab == ShopTabsEnum::DEPARTMENTS->value
+                CatalogueTabsEnum::DEPARTMENTS->value => $this->tab == CatalogueTabsEnum::DEPARTMENTS->value
                     ?
                     fn () => DepartmentsResource::collection(
                         IndexDepartments::run(
@@ -202,7 +92,7 @@ class ShowCatalogue extends OrgAction
                         )
                     )),
 
-                ShopTabsEnum::FAMILIES->value => $this->tab == ShopTabsEnum::FAMILIES->value
+                CatalogueTabsEnum::FAMILIES->value => $this->tab == CatalogueTabsEnum::FAMILIES->value
                     ?
                     fn () => FamiliesResource::collection(
                         IndexFamilies::run(
@@ -217,7 +107,7 @@ class ShowCatalogue extends OrgAction
                         )
                     )),
 
-                ShopTabsEnum::PRODUCTS->value => $this->tab == ShopTabsEnum::PRODUCTS->value
+                CatalogueTabsEnum::PRODUCTS->value => $this->tab == CatalogueTabsEnum::PRODUCTS->value
                     ?
                     fn () => ProductsResource::collection(
                         IndexProducts::run(
@@ -281,55 +171,13 @@ class ShowCatalogue extends OrgAction
         );
     }
 
-    public function prepareForValidation(ActionRequest $request): void
-    {
-        $this->fillFromRequest($request);
 
-        $this->set('canEdit', $request->user()->hasPermissionTo('hr.edit'));
-        $this->set('canViewUsers', $request->user()->hasPermissionTo('users.view'));
-    }
 
     public function jsonResponse(Shop $shop): ShopResource
     {
         return new ShopResource($shop);
     }
 
-
-    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
-    {
-
-        $shop=Shop::where('slug', $routeParameters['shop'])->first();
-        return
-            array_merge(
-                ShowOrganisationDashboard::make()->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
-                [
-                    [
-                        'type'           => 'modelWithIndex',
-                        'modelWithIndex' => [
-                            'index' => [
-                                'route' => [
-                                    'name'       => 'grp.org.shops.index',
-                                    'parameters' => Arr::only($routeParameters, 'organisation')
-                                ],
-                                'label' => __('shops'),
-                                'icon'  => 'fal fa-bars'
-                            ],
-                            'model' => [
-                                'route' => [
-                                    'name'       => 'grp.org.shops.show.catalogue.dashboard',
-                                    'parameters' => Arr::only($routeParameters, ['organisation','shop'])
-                                ],
-                                'label' => $shop->code,
-                                'icon'  => 'fal fa-bars'
-                            ]
-
-
-                        ],
-                        'suffix'         => $suffix,
-                    ]
-                ]
-            );
-    }
 
     public function getPrevious(Shop $shop, ActionRequest $request): ?array
     {
@@ -364,5 +212,29 @@ class ShowCatalogue extends OrgAction
                 ]
             ]
         };
+    }
+
+    public function getBreadcrumbs(array $routeParameters): array
+    {
+
+
+        return
+            array_merge(
+                ShowShop::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.shops.show.catalogue.dashboard',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('catalogue'),
+                        ]
+                    ]
+                ]
+            );
+
+
     }
 }

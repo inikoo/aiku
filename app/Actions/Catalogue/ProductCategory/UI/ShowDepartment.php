@@ -7,20 +7,20 @@
 
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
-use App\Actions\CRM\Customer\UI\IndexCustomers;
-use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Catalogue\HasMarketAuthorisation;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\CRM\Customer\UI\IndexCustomers;
+use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\OrgAction;
-use App\Enums\UI\DepartmentTabsEnum;
-use App\Http\Resources\CRM\CustomersResource;
-use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\Mail\MailshotResource;
+use App\Enums\UI\Catalogue\DepartmentTabsEnum;
 use App\Http\Resources\Catalogue\DepartmentsResource;
 use App\Http\Resources\Catalogue\FamiliesResource;
 use App\Http\Resources\Catalogue\ProductsResource;
+use App\Http\Resources\CRM\CustomersResource;
+use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\Mail\MailshotResource;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;

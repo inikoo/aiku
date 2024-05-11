@@ -1,16 +1,16 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Mon, 20 Mar 2023 14:46:07 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 11 May 2024 20:45:35 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Enums\UI;
+namespace App\Enums\UI\Catalogue;
 
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum DepartmentTabsEnum: string
+enum FamilyTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
@@ -18,69 +18,60 @@ enum DepartmentTabsEnum: string
 
 
     case SHOWCASE            = 'showcase';
-
-    case FAMILIES            = 'families';
     case PRODUCTS            = 'products';
-
     case SALES               = 'sales';
     case CUSTOMERS           = 'customers';
     case OFFERS              = 'offers';
     case MAILSHOTS           = 'mailshots';
-    case RELATED_CATEGORIES  = 'related_categories';
 
     case HISTORY             = 'history';
 
     case DATA                = 'data';
+
     case IMAGES              = 'images';
+
 
 
 
     public function blueprint(): array
     {
         return match ($this) {
-            DepartmentTabsEnum::DATA => [
-                'title' => __('database'),
+            FamilyTabsEnum::DATA => [
+                'title' => __('data'),
                 'icon'  => 'fal fa-database',
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            DepartmentTabsEnum::PRODUCTS => [
+            FamilyTabsEnum::PRODUCTS => [
                 'title' => __('products'),
-                'icon'  => 'fal fa-cube',
+                'icon'  => 'fal fa-cube'
             ],
-            DepartmentTabsEnum::FAMILIES => [
-                'title' => __('families'),
-                'icon'  => 'fal fa-cubes',
-            ],
-            DepartmentTabsEnum::SALES => [
+            FamilyTabsEnum::SALES => [
                 'title' => __('sales'),
                 'icon'  => 'fal fa-money-bill-wave',
             ],
-            DepartmentTabsEnum::CUSTOMERS => [
+            FamilyTabsEnum::CUSTOMERS => [
                 'title' => __('customers'),
                 'icon'  => 'fal fa-user',
-            ],DepartmentTabsEnum::OFFERS => [
+            ],FamilyTabsEnum::OFFERS => [
                 'title' => __('offers'),
                 'icon'  => 'fal fa-tags',
-            ],DepartmentTabsEnum::MAILSHOTS => [
+            ],FamilyTabsEnum::MAILSHOTS => [
                 'title' => __('mailshots'),
                 'icon'  => 'fal fa-bullhorn',
-            ],DepartmentTabsEnum::RELATED_CATEGORIES => [
-                'title' => __('related categories'),
-                'icon'  => 'fal fa-project-diagram',
-            ],DepartmentTabsEnum::IMAGES=> [
+            ],FamilyTabsEnum::IMAGES=> [
                 'title' => __('images'),
                 'icon'  => 'fal fa-camera-retro',
                 'type'  => 'icon',
                 'align' => 'right',
-            ],DepartmentTabsEnum::HISTORY => [
+            ],FamilyTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            DepartmentTabsEnum::SHOWCASE => [
-                'title' => __('department'),
+            FamilyTabsEnum::SHOWCASE => [
+                'title' => __('family'),
                 'icon'  => 'fas fa-info-circle',
             ],
         };

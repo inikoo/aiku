@@ -8,15 +8,9 @@
 namespace App\Actions\Catalogue\Shop\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Catalogue\Product\UI\IndexProducts;
-use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
-use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Actions\UI\WithInertia;
-use App\Enums\UI\ShopTabsEnum;
-use App\Http\Resources\Catalogue\DepartmentsResource;
-use App\Http\Resources\Catalogue\FamiliesResource;
-use App\Http\Resources\Catalogue\ProductsResource;
+use App\Enums\UI\Catalogue\ShopTabsEnum;
 use App\Http\Resources\Catalogue\ShopResource;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -40,21 +34,22 @@ class ShowShop extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo("products.{$this->organisation->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("products.{$this->organisation->id}.edit");
+        $this->canEdit   = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
 
-        return $request->user()->hasPermissionTo("products.{$this->organisation->id}.view");
+        return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Shop
     {
 
-        $this->initialisation($organisation, $request)->withTab(ShopTabsEnum::values());
+        $this->initialisationFromShop($shop, $request)->withTab(ShopTabsEnum::values());
         return $this->handle($shop);
     }
 
     public function htmlResponse(Shop $shop, ActionRequest $request): Response
     {
+
         return Inertia::render(
             'Org/Catalogue/Shop',
             [
@@ -66,6 +61,7 @@ class ShowShop extends OrgAction
                     'previous' => $this->getPrevious($shop, $request),
                     'next'     => $this->getNext($shop, $request),
                 ],
+
                 'pageHead'     => [
                     'title'   => $shop->name,
                     'icon'    => [
@@ -91,18 +87,10 @@ class ShowShop extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
-                        /*
-                        $this->canDelete ? [
-                            'type'  => 'button',
-                            'style' => 'delete',
-                            'route' => [
-                                'name'       => 'shops.remove',
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-                        ] : false
-                        */
+
                     ]
                 ],
+
                 'flatTreeMaps' => [
                     [
                         [
@@ -187,118 +175,60 @@ class ShowShop extends OrgAction
                     fn () => ShopResource::make($shop)
                     : Inertia::lazy(fn () => ShopResource::make($shop)),
 
-                ShopTabsEnum::DEPARTMENTS->value => $this->tab == ShopTabsEnum::DEPARTMENTS->value
-                    ?
-                    fn () => DepartmentsResource::collection(
-                        IndexDepartments::run(
-                            parent: $shop,
-                            prefix: 'departments'
-                        )
-                    )
-                    : Inertia::lazy(fn () => DepartmentsResource::collection(
-                        IndexDepartments::run(
-                            parent: $shop,
-                            prefix: 'departments'
-                        )
-                    )),
 
-                ShopTabsEnum::FAMILIES->value => $this->tab == ShopTabsEnum::FAMILIES->value
-                    ?
-                    fn () => FamiliesResource::collection(
-                        IndexFamilies::run(
-                            parent: $shop,
-                            prefix: 'families'
-                        )
-                    )
-                    : Inertia::lazy(fn () => FamiliesResource::collection(
-                        IndexFamilies::run(
-                            parent: $shop,
-                            prefix: 'families'
-                        )
-                    )),
 
-                ShopTabsEnum::PRODUCTS->value => $this->tab == ShopTabsEnum::PRODUCTS->value
-                    ?
-                    fn () => ProductsResource::collection(
-                        IndexProducts::run(
-                            parent: $shop,
-                            prefix: 'products'
-                        )
-                    )
-                    : Inertia::lazy(fn () => ProductsResource::collection(
-                        IndexProducts::run(
-                            parent: $shop,
-                            prefix: 'products'
-                        )
-                    )),
 
             ]
-        )->table(
-            IndexDepartments::make()->tableStructure(
-                parent: $shop,
-                modelOperations: [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'shops.show.departments.create',
-                            'parameters' => array_values([$shop->slug])
-                        ],
-                        'label' => __('department'),
-                        'style' => 'create'
-                    ] : false
-                ],
-                prefix: 'departments'
-            )
-        )->table(
-            IndexFamilies::make()->tableStructure(
-                parent: $shop,
-                modelOperations: [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'shops.show.families.create',
-                            'parameters' => array_values([$shop->slug])
-                        ],
-                        'label' => __('family'),
-                        'style' => 'create'
-                    ] : false
-                ],
-                prefix: 'families'
-            )
-        )->table(
-            IndexProducts::make()->tableStructure(
-                parent: $shop,
-                modelOperations: [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'shops.show.products.create',
-                            'parameters' => array_values([$shop->slug])
-                        ],
-                        'label' => __('product'),
-                        'style' => 'create'
-                    ] : false
-                ],
-                prefix: 'products'
-            )
         );
     }
 
-    public function prepareForValidation(ActionRequest $request): void
-    {
-        $this->fillFromRequest($request);
 
-        $this->set('canEdit', $request->user()->hasPermissionTo('hr.edit'));
-        $this->set('canViewUsers', $request->user()->hasPermissionTo('users.view'));
-    }
 
     public function jsonResponse(Shop $shop): ShopResource
     {
         return new ShopResource($shop);
     }
 
+    public function getPrevious(Shop $shop, ActionRequest $request): ?array
+    {
+        $previous = Shop::where('code', '<', $shop->code)->where('organisation_id', $this->organisation->id)->orderBy('code', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+    }
+
+    public function getNext(Shop $shop, ActionRequest $request): ?array
+    {
+        $next = Shop::where('code', '>', $shop->code)->where('organisation_id', $this->organisation->id)->orderBy('code')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Shop $shop, string $routeName): ?array
+    {
+        if (!$shop) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'grp.org.shops.show' => [
+                'label' => $shop->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation'=> $this->organisation->slug,
+                        'shop'        => $shop->slug
+                    ]
+
+                ]
+            ]
+        };
+    }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
 
         $shop=Shop::where('slug', $routeParameters['shop'])->first();
+
         return
             array_merge(
                 ShowOrganisationDashboard::make()->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
@@ -329,40 +259,6 @@ class ShowShop extends OrgAction
                     ]
                 ]
             );
-    }
 
-    public function getPrevious(Shop $shop, ActionRequest $request): ?array
-    {
-        $previous = Shop::where('code', '<', $shop->code)->where('organisation_id', $this->organisation->id)->orderBy('code', 'desc')->first();
-
-        return $this->getNavigation($previous, $request->route()->getName());
-    }
-
-    public function getNext(Shop $shop, ActionRequest $request): ?array
-    {
-        $next = Shop::where('code', '>', $shop->code)->where('organisation_id', $this->organisation->id)->orderBy('code')->first();
-
-        return $this->getNavigation($next, $request->route()->getName());
-    }
-
-    private function getNavigation(?Shop $shop, string $routeName): ?array
-    {
-        if (!$shop) {
-            return null;
-        }
-
-        return match ($routeName) {
-            'grp.org.shops.show.catalogue.dashboard' => [
-                'label' => $shop->name,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
-                        'organisation'=> $this->organisation->slug,
-                        'shop'        => $shop->slug
-                    ]
-
-                ]
-            ]
-        };
     }
 }

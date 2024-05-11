@@ -18,11 +18,9 @@ use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
 use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
 use App\Actions\Catalogue\ProductCategory\UI\ShowDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\ShowFamily;
-use App\Actions\Catalogue\Shop\UI\EditShop;
-use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 
-Route::get('', ShowShop::class)->name('dashboard');
-Route::get('edit', EditShop::class)->name('edit');
+Route::get('', ShowCatalogue::class)->name('dashboard');
 
 Route::get('products', IndexProducts::class)->name('products.index');
 Route::get('products/create', CreateProduct::class)->name('products.create');

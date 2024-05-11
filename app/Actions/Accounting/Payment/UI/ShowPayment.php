@@ -9,7 +9,7 @@ namespace App\Actions\Accounting\Payment\UI;
 
 use App\Actions\InertiaAction;
 use App\Enums\UI\Accounting\PaymentTabsEnum;
-use App\Enums\UI\DepartmentTabsEnum;
+use App\Enums\UI\Catalogue\DepartmentTabsEnum;
 use App\Http\Resources\Accounting\PaymentsResource;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;

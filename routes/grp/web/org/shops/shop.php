@@ -5,6 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\Catalogue\Shop\UI\EditShop;
 use App\Actions\Devel\UI\ShowDummyDashboard;
 use App\Actions\Catalogue\Shop\UI\CreateShop;
 use App\Actions\Catalogue\Shop\UI\IndexShops;
@@ -15,6 +16,7 @@ Route::get('', IndexShops::class)->name('index');
 Route::get('create', CreateShop::class)->name('create');
 
 Route::get('{shop}', ShowShop::class)->name('show');
+Route::get('{shop}/edit', EditShop::class)->name('edit');
 
 Route::prefix('{shop}')->name('show.')
     ->group(function () {

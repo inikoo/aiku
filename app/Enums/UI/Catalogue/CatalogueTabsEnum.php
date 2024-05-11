@@ -1,65 +1,55 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 19 Jun 2023 16:02:26 Malaysia Time, Pantai Lembeng, Bali, Id
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sat, 11 May 2024 20:45:45 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Enums\UI;
+namespace App\Enums\UI\Catalogue;
 
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum ShopTabsEnum: string
+enum CatalogueTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE        = 'showcase';
     case DASHBOARD       = 'dashboard';
 
     case DEPARTMENTS      = 'departments';
     case FAMILIES         = 'families';
     case PRODUCTS         = 'products';
     case HISTORY          = 'history';
-    case DATA             = 'data';
 
     public function blueprint(): array
     {
         return match ($this) {
 
-            ShopTabsEnum::DASHBOARD => [
+            CatalogueTabsEnum::DASHBOARD => [
                 'title' => __('stats'),
                 'icon'  => 'fal fa-chart-line',
             ],
-            ShopTabsEnum::DEPARTMENTS => [
+            CatalogueTabsEnum::DEPARTMENTS => [
                 'title' => __('departments'),
                 'icon'  => 'fal fa-folder-tree',
             ],
-            ShopTabsEnum::FAMILIES => [
+            CatalogueTabsEnum::FAMILIES => [
                 'title' => __('families'),
                 'icon'  => 'fal fa-folder',
             ],
-            ShopTabsEnum::PRODUCTS => [
+            CatalogueTabsEnum::PRODUCTS => [
                 'title' => __('products'),
                 'icon'  => 'fal fa-cube',
             ],
-            ShopTabsEnum::DATA => [
-                'align' => 'right',
-                'type'  => 'icon',
-                'title' => __('data'),
-                'icon'  => 'fal fa-database',
-            ],
-            ShopTabsEnum::HISTORY => [
+
+            CatalogueTabsEnum::HISTORY => [
                 'align' => 'right',
                 'type'  => 'icon',
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
             ],
-            ShopTabsEnum::SHOWCASE => [
-                'title' => __('shop'),
-                'icon'  => 'fas fa-info-circle',
-            ],
+
 
         };
     }

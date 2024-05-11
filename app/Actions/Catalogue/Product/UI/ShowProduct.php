@@ -7,20 +7,20 @@
 
 namespace App\Actions\Catalogue\Product\UI;
 
-use App\Actions\CRM\Customer\UI\IndexCustomers;
-use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\CRM\Customer\UI\IndexCustomers;
+use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\OMS\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
-use App\Enums\UI\ProductTabsEnum;
+use App\Enums\UI\Catalogue\ProductTabsEnum;
+use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Mail\MailshotResource;
-use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\Sales\OrderResource;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
