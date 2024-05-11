@@ -298,12 +298,7 @@ class ShowShop extends OrgAction
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
 
-
-
         $shop=Shop::where('slug', $routeParameters['shop'])->first();
-
-
-
         return
             array_merge(
                 ShowOrganisationDashboard::make()->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),

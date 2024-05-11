@@ -9,7 +9,7 @@ import { onMounted } from "vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faBoxUsd, faUsersCog, faChartLine, faUserHardHat, faUser, faInventory, faConveyorBeltAlt,
     faChevronDown, faPalletAlt, faAbacus,faCloudRainbow,faShoppingCart,faMountains, faTasksAlt, faTruck,
-  faFlaskPotion,faFillDrip
+  faFlaskPotion,faFillDrip,faBullhorn,faBadgePercent
 } from "@fal"
 import { useLayoutStore } from "@/Stores/layout.js"
 import NavigationSimple from '@/Layouts/Grp/NavigationSimple.vue'
@@ -20,7 +20,7 @@ import { get } from "lodash"
 import NavigationGroup from "@/Layouts/Grp/NavigationGroup.vue"
 import NavigationHorizontal from "@/Layouts/Grp/NavigationHorizontal.vue"
 library.add(faBoxUsd, faUsersCog, faChartLine, faUserHardHat, faUser, faUsersCog, faInventory, faConveyorBeltAlt, faChevronDown, faPalletAlt,
-faAbacus, faCloudRainbow,faShoppingCart,faMountains, faTasksAlt, faTruck, faFlaskPotion, faFillDrip
+faAbacus, faCloudRainbow,faShoppingCart,faMountains, faTasksAlt, faTruck, faFlaskPotion, faFillDrip, faBullhorn,faBadgePercent
 )
 
 const layout = useLayoutStore()

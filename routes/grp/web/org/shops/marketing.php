@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 11 Jan 2024 03:24:21 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sat, 11 May 2024 11:23:04 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -18,10 +18,7 @@ use App\Actions\Mail\Outbox\UI\EditOutbox;
 use App\Actions\UI\Marketing\MarketingHub;
 use Illuminate\Support\Facades\Route;
 
-//if (empty($parent)) {
-$parent = 'tenant';
-//}
-
+/*
 Route::get('/mailshots/create', CreateMailshot::class)->name('mailshots.create');
 
 Route::get('/', [MarketingHub::class, $parent == 'tenant' ? 'inOrganisation' : 'inShop'])->name('hub');
@@ -64,3 +61,5 @@ Route::get('/mailshots/{mailshot}/dispatched-emails/{dispatchedEmail}', [ShowDis
 
 Route::get('/dispatched-emails', [IndexDispatchedEmails::class, $parent == 'tenant' ? 'inOrganisation' : 'inShop'])->name('dispatched-emails.index');
 Route::get('/dispatched-emails/{dispatchedEmail}', [ShowDispatchedEmail::class, $parent == 'tenant' ? 'inOrganisation' : 'inShop'])->name('dispatched-emails.show');
+
+*/

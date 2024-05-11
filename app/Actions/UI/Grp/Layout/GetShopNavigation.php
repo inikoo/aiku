@@ -20,10 +20,10 @@ class GetShopNavigation
         $navigation = [];
 
         if ($user->hasPermissionTo("products.$shop->id.view")) {
-            $navigation["shop"] = [
+            $navigation["catalogue"] = [
                 "root"  => "grp.org.shops.show.catalogue.",
                 "icon"  => ["fal", "fa-store-alt"],
-                "label" => __("Products"),
+                "label" => __("catalogue"),
                 "route" => [
                     "name"       => 'grp.org.shops.show.catalogue.dashboard',
                     "parameters" => [$shop->organisation->slug, $shop->slug],
@@ -73,7 +73,74 @@ class GetShopNavigation
                 ],
             ];
         }
+        if ($user->hasPermissionTo("products.$shop->id.view")) {
+            $navigation["offers"] = [
+                "root"  => "grp.org.shops.show.offers.",
+                "icon"  => ["fal", "fa-badge-percent"],
+                "label" => __("Offers"),
+                "route" => [
+                    "name"       => 'grp.org.shops.show.offers.dashboard',
+                    "parameters" => [$shop->organisation->slug, $shop->slug],
+                ],
+                "topMenu" => [
+                    "subSections" => [
+                        [
+                            "tooltip" => __("offers dashboard"),
+                            "icon"    => ["fal", "fa-chart-network"],
+                            'root'    => 'grp.org.shops.show.offers.dashboard',
+                            "route"   => [
+                                "name"       => 'grp.org.shops.show.offers.dashboard',
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                        [
+                            "label"   => __("campaigns"),
+                            "tooltip" => __("campaigns"),
+                            "icon"    => ["fal", "fa-comment-dollar"],
+                            'root'    => 'grp.org.shops.show.offers.campaigns.',
+                            "route"   => [
+                                "name"       => "grp.org.shops.show.offers.campaigns.index",
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                        [
+                            "label"   => __("offers"),
+                            "tooltip" => __("offers"),
+                            "icon"    => ["fal", "fa-badge-percent"],
+                            'root'    => 'grp.org.shops.show.offers.offers.',
+                            "route"   => [
+                                "name"       => "grp.org.shops.show.offers.offers.index",
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+        }
 
+
+        /*
+
+
+        if ($user->hasPermissionTo("products.$shop->id.view")) {
+            $navigation["marketing"] = [
+                "root"  => "grp.org.shops.show.catalogue.",
+                "icon"  => ["fal", "fa-bullhorn"],
+                "label" => __("Marketing"),
+                "route" => [
+                    "name"       => 'grp.org.shops.show.marketing.dashboard',
+                    "parameters" => [$shop->organisation->slug, $shop->slug],
+                ],
+                "topMenu" => [
+                    "subSections" => [
+
+
+
+                    ],
+                ],
+            ];
+        }
+*/
         if ($user->hasPermissionTo("web.$shop->id.view")) {
 
             if($shop->website) {

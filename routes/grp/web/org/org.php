@@ -17,7 +17,7 @@ Route::prefix("hr")
 
 Route::prefix("shops")
     ->name("shops.")
-    ->group(__DIR__."/shops/root.php");
+    ->group(__DIR__."/shops/shop.php");
 
 Route::prefix("fulfilments")
     ->name("fulfilments.")
@@ -54,9 +54,6 @@ Route::prefix("dispatch")
 
 /*
 
-Route::prefix("crm")
-    ->name("crm.")
-    ->group(__DIR__."/crm.php");
 
 Route::prefix("account")
     ->name("account.")
@@ -66,26 +63,11 @@ Route::prefix("account")
 
 
 
-
-Route::prefix("shops")
-    ->name("shops.")
-    ->group(__DIR__."/shops.php");
-Route::prefix("web")
-    ->name("web.")
-    ->group(__DIR__."/web.php");
-
 Route::prefix("search")
     ->name("search.")
     ->group(__DIR__."/search.php");
-Route::prefix("oms")
-    ->name("oms.")
-    ->group(__DIR__."/orders.php");
 
 
-
-Route::prefix("marketing")
-    ->name("marketing.")
-    ->group(__DIR__."/marketing.php");
 
 
 Route::prefix("media")
