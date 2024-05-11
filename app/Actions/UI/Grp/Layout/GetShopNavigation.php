@@ -117,14 +117,9 @@ class GetShopNavigation
                 ],
             ];
         }
-
-
-        /*
-
-
         if ($user->hasPermissionTo("products.$shop->id.view")) {
             $navigation["marketing"] = [
-                "root"  => "grp.org.shops.show.catalogue.",
+                "root"  => "grp.org.shops.show.marketing.",
                 "icon"  => ["fal", "fa-bullhorn"],
                 "label" => __("Marketing"),
                 "route" => [
@@ -133,14 +128,49 @@ class GetShopNavigation
                 ],
                 "topMenu" => [
                     "subSections" => [
-
+                        [
+                            "tooltip" => __("marketing dashboard"),
+                            "icon"    => ["fal", "fa-chart-network"],
+                            'root'    => 'grp.org.shops.show.marketing.dashboard',
+                            "route"   => [
+                                "name"       => 'grp.org.shops.show.marketing.dashboard',
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                        [
+                            "label"   => __("newsletters"),
+                            "tooltip" => __("newsletters"),
+                            "icon"    => ["fal", "fa-newspaper"],
+                            "route"   => [
+                                "name"       => "grp.org.shops.show.marketing.newsletters.index",
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                        [
+                            "label"   => __("mailshots"),
+                            "tooltip" => __("marketing mailshots"),
+                            "icon"    => ["fal", "fa-mail-bulk"],
+                            "route"   => [
+                                "name"       => "grp.org.shops.show.marketing.mailshots.index",
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                        [
+                            "label"   => __("notifications"),
+                            "tooltip" => __("notifications"),
+                            "icon"    => ["fal", "fa-bell"],
+                            "route"   => [
+                                "name"       => "grp.org.shops.show.marketing.notifications.index",
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
 
 
                     ],
                 ],
             ];
         }
-*/
+
         if ($user->hasPermissionTo("web.$shop->id.view")) {
 
             if($shop->website) {

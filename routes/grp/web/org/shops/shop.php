@@ -38,11 +38,9 @@ Route::prefix('{shop}')->name('show.')
         Route::name("offers.")->prefix('offers')
             ->group(__DIR__."/offers.php");
 
-        /*
-        Route::name("marketing.")
+        Route::name("marketing.")->prefix('marketing')
             ->group(__DIR__."/marketing.php");
 
-*/
         Route::prefix("websites")
             ->name("web.websites.")
             ->group(__DIR__."/websites.php");

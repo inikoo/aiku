@@ -70,21 +70,3 @@ Route::get('/invoices/{invoice}/export', PdfInvoice::class)->name('invoices.down
 Route::get('/invoices/export', ExportInvoices::class)->name('invoices.export');
 Route::get('/invoices', [IndexInvoices::class, 'inOrganisation'])->name('invoices.index');
 Route::get('/invoices/{invoice}', [ShowInvoice::class, 'inOrganisation'])->name('invoices.show');
-/*
-Route::get('/shops/{shop}', ShowAccountingDashboard::class)->name('shops.show.dashboard');
-Route::get('/shops/{shop}/accounts/export', [ExportPaymentAccounts::class,'inShop'])->name('shops.show.payment-accounts.export');
-Route::get('/shops/{shop}/accounts/{paymentAccount}/payments/create', [CreatePayment::class, 'inPaymentAccountInShop'])->name('shops.show.payment-accounts.show.payments.create');
-Route::get('/shops/{shop}/accounts', [IndexPaymentAccounts::class, 'inShop'])->name('shops.show.payment-accounts.index');
-Route::get('/shops/{shop}/accounts/{paymentAccount}', [ShowPaymentAccount::class, 'inShop'])->name('shops.show.payment-accounts.show');
-Route::get('/shops/{shop}/accounts/{paymentAccount}/payments', [IndexPayments::class, 'inPaymentAccountInShop'])->name('shops.show.payment-accounts.show.payments.index');
-Route::get('/shops/{shop}/accounts/{paymentAccount}/payments/{payment}', [ShowPayment::class, 'inPaymentAccountInShop'])->name('shops.show.payment-accounts.show.payments.show');
-Route::get('/shops/{shop}/accounts/{paymentAccount}/payments/{payment}/edit', [EditPayment::class, 'inPaymentAccountInShop'])->name('shops.show.payment-accounts.show.payments.edit');
-Route::get('/shops/{shop}/payments/export', ExportPayments::class)->name('shops.show.payments.export');
-Route::get('/shops/{shop}/payments', [IndexPayments::class, 'inShop'])->name('shops.show.payments.index');
-Route::get('/shops/{shop}/payments/{payment}', [ShowPayment::class, 'inShop'])->name('shops.show.payments.show');
-Route::get('/shops/{shop}/payments/{payment}/edit', [EditPayment::class, 'inShop'])->name('shops.show.payments.edit');
-Route::get('/shops/{shop}/invoices/{invoice}/export', PdfInvoice::class)->name('shops.show.invoices.download');
-Route::get('/shops/{shop}/invoices/export', ExportInvoices::class)->name('shops.show.invoices.export');
-Route::get('/shops/{shop}/invoices', [IndexInvoices::class, 'inShop'])->name('shops.show.invoices.index');
-Route::get('/shops/{shop}/invoices/{invoice}', [ShowInvoice::class, 'inShop'])->name('shops.show.invoices.show');
-*/
