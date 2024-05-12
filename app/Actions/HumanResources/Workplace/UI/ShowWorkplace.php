@@ -41,15 +41,11 @@ class ShowWorkplace extends OrgAction
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
     }
 
-
-
-
     public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): Workplace
     {
         $this->initialisation($organisation, $request)->withTab(WorkplaceTabsEnum::values());
         return $this->handle($workplace);
     }
-
 
     public function htmlResponse(Workplace $workplace, ActionRequest $request): Response
     {
@@ -177,7 +173,6 @@ class ShowWorkplace extends OrgAction
         )->table(IndexHistory::make()->tableStructure());
     }
 
-
     public function jsonResponse(Workplace $workplace): WorkplaceResource
     {
         return new WorkplaceResource($workplace);
@@ -219,14 +214,18 @@ class ShowWorkplace extends OrgAction
 
     public function getPrevious(Workplace $workplace, ActionRequest $request): ?array
     {
-        $previous = Workplace::where('slug', '<', $workplace->slug)->orderBy('slug', 'desc')->first();
+        $previous = Workplace::where('slug', '<', $workplace->slug)
+            ->where('organisation_id', $this->organisation->id)
+            ->orderBy('slug', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(Workplace $workplace, ActionRequest $request): ?array
     {
-        $next = Workplace::where('slug', '>', $workplace->slug)->orderBy('slug')->first();
+        $next = Workplace::where('slug', '>', $workplace->slug)
+            ->where('organisation_id', $this->organisation->id)
+            ->orderBy('slug')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }

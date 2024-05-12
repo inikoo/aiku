@@ -39,7 +39,6 @@ class ShowJobPosition extends OrgAction
     public function asController(Organisation $organisation, JobPosition $jobPosition, ActionRequest $request): JobPosition
     {
         $this->initialisation($organisation, $request)->withTab(JobPositionTabsEnum::values());
-
         return $this->handle($jobPosition);
     }
 
@@ -169,14 +168,18 @@ class ShowJobPosition extends OrgAction
 
     public function getPrevious(JobPosition $jobPosition, ActionRequest $request): ?array
     {
-        $previous = JobPosition::where('slug', '<', $jobPosition->slug)->orderBy('slug', 'desc')->first();
+        $previous = JobPosition::where('slug', '<', $jobPosition->slug)
+            ->where('organisation_id', $this->organisation->id)
+            ->orderBy('slug', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(JobPosition $jobPosition, ActionRequest $request): ?array
     {
-        $next = JobPosition::where('slug', '>', $jobPosition->slug)->orderBy('slug')->first();
+        $next = JobPosition::where('slug', '>', $jobPosition->slug)
+            ->where('organisation_id', $this->organisation->id)
+            ->orderBy('slug')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
