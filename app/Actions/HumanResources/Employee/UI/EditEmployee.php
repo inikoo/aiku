@@ -14,7 +14,6 @@ use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\Catalogue\ShopResource;
 use App\Models\HumanResources\Employee;
-use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Warehouse;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -132,7 +131,7 @@ class EditEmployee extends OrgAction
                     'required' => true,
                     'label'    => __('position'),
                     'options'  => [
-                        'positions'           => JobPositionResource::collection(JobPosition::all()),
+                        'positions'           => JobPositionResource::collection($this->organisation->jobPositions),
                         'shops'               => ShopResource::collection($this->organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
                         'fulfilments'         => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
                         'warehouses'          => WarehouseResource::collection($this->organisation->warehouses),

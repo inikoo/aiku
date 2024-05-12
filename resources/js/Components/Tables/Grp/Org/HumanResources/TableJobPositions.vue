@@ -1,7 +1,7 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Thu, 15 Jun 2023 15:19:26 Malaysia Time, Pantai Lembeng, Bali, Id
-  - Copyright (c) 2023, Raul A Perusquia Flores
+  - Created: Sun, 12 May 2024 15:26:39 British Summer Time, Sheffield, UK
+  - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
@@ -32,9 +32,9 @@ function jobPositionRoute(jobPosition: JobPosition) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5"   >
-        <template #cell(slug)="{ item: jobPosition }">
-            <Link :href="jobPositionRoute(jobPosition)">
-                {{ jobPosition['slug'] }}
+        <template #cell(code)="{ item: jobPosition }">
+            <Link :href="jobPositionRoute(jobPosition)" class="specialUnderline">
+                {{ jobPosition['code'] }}
             </Link>
         </template>
 

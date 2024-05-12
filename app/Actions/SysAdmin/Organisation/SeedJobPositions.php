@@ -19,7 +19,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SeedOrganisationJobPositions extends Seeder
+class SeedJobPositions extends Seeder
 {
     use AsAction;
 
@@ -50,8 +50,11 @@ class SeedOrganisationJobPositions extends Seeder
 
     private function processJobPosition(Organisation $organisation, array $jobPositionData): void
     {
+
+
+
         /** @var JobPosition $jobPosition */
-        $jobPosition = $organisation->josPositions()->where('code', $jobPositionData['code'])->first();
+        $jobPosition = $organisation->jobPositions()->where('code', $jobPositionData['code'])->first();
         if ($jobPosition) {
             UpdateJobPosition::make()->action(
                 $jobPosition,
@@ -63,14 +66,16 @@ class SeedOrganisationJobPositions extends Seeder
                 ]
             );
         } else {
-            $jobPosition = StoreJobPosition::make()->action(
+            $groupJobPosition= $organisation->group->groupJobPositions()->where('code', $jobPositionData['code'])->first();
+            $jobPosition     = StoreJobPosition::make()->action(
                 $organisation,
                 [
-                    'code'       => $jobPositionData['code'],
-                    'name'       => $jobPositionData['name'],
-                    'department' => Arr::get($jobPositionData, 'department'),
-                    'team'       => Arr::get($jobPositionData, 'team'),
-                    'scope'      => Arr::get($jobPositionData, 'scope')
+                    'group_job_position_id'=> $groupJobPosition->id,
+                    'code'                 => $jobPositionData['code'],
+                    'name'                 => $jobPositionData['name'],
+                    'department'           => Arr::get($jobPositionData, 'department'),
+                    'team'                 => Arr::get($jobPositionData, 'team'),
+                    'scope'                => Arr::get($jobPositionData, 'scope')
                 ],
             );
         }

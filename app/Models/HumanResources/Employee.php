@@ -55,7 +55,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property GenderEnum|null $gender
  * @property string|null $worker_number
  * @property string|null $job_title
- * @property string|null $job_position
  * @property EmployeeTypeEnum $type
  * @property EmployeeStateEnum $state
  * @property string|null $employment_start_at
@@ -65,7 +64,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property array|null $working_hours
  * @property string $week_working_hours
  * @property array $data
- * @property array $job_position_scopes
  * @property array $errors
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -109,7 +107,6 @@ class Employee extends Model implements HasMedia, Auditable
         'errors'              => 'array',
         'salary'              => 'array',
         'working_hours'       => 'array',
-        'job_position_scopes' => 'array',
         'date_of_birth'       => 'datetime:Y-m-d',
         'gender'              => GenderEnum::class,
         'state'               => EmployeeStateEnum::class,
@@ -122,7 +119,6 @@ class Employee extends Model implements HasMedia, Auditable
         'errors'              => '{}',
         'salary'              => '{}',
         'working_hours'       => '{}',
-        'job_position_scopes' => '{}',
     ];
 
 

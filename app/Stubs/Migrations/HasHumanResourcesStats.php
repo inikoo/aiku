@@ -29,6 +29,9 @@ trait HasHumanResourcesStats
     public function getEmployeeFieldStats(Blueprint $table): Blueprint
     {
         $table->unsignedSmallInteger('number_employees')->default(0);
+        $table->unsignedSmallInteger('number_employees_currently_working')->default(0);
+
+
         foreach (EmployeeStateEnum::cases() as $case) {
             $table->unsignedSmallInteger('number_employees_state_'.$case->snake())->default(0);
         }

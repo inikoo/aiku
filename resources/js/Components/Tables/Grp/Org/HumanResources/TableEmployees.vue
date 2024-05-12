@@ -1,14 +1,13 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Mon, 20 Mar 2023 23:18:59 Malaysia Time, Kuala Lumpur, Malaysia
-  - Copyright (c) 2023, Raul A Perusquia Flores
+  - Created: Sun, 12 May 2024 21:59:20 British Summer Time, Sheffield, UK
+  - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Employee} from "@/types/employee";
-import JobPositionBadges from "@/Components/Elements/Badges/JobPositionBadges.vue";
 import Icon from "@/Components/Icon.vue"
 import Tag from '@/Components/Tag.vue'
 

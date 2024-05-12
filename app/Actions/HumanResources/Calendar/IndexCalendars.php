@@ -9,7 +9,7 @@ namespace App\Actions\HumanResources\Calendar;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
-use App\Http\Resources\HumanResources\EmployeeInertiaResource;
+use App\Http\Resources\HumanResources\EmployeesResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
@@ -102,7 +102,7 @@ class IndexCalendars extends OrgAction
                         'label' => __('employee')
                     ] : false,
                 ],
-                'data'        => EmployeeInertiaResource::collection($employees),
+                'data'        => EmployeesResource::collection($employees),
             ]
         )->table($this->tableStructure());
     }

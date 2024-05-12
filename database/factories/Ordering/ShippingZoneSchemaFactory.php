@@ -9,10 +9,8 @@ namespace Database\Factories\Ordering;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-
 class ShippingZoneSchemaFactory extends Factory
 {
-
     public function definition(): array
     {
         return [

@@ -22,6 +22,7 @@ enum EmployeeTabsEnum: string
     case TIMESHEETS                     = 'timesheets';
     case ATTACHMENTS                    = 'attachments';
     case IMAGES                         = 'images';
+    case JOB_POSITIONS                  = 'job_positions';
 
 
     public function blueprint(): array
@@ -46,6 +47,12 @@ enum EmployeeTabsEnum: string
             EmployeeTabsEnum::TIMESHEETS => [
                 'title' => __('time sheets'),
                 'icon'  => 'fal fa-database',
+            ],
+            EmployeeTabsEnum::JOB_POSITIONS => [
+                'title' => __('job positions'),
+                'icon'  => 'fal fa-network-wired',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
             EmployeeTabsEnum::DATA => [
                 'title' => __('database'),

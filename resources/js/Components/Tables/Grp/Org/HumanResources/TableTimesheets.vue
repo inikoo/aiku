@@ -1,20 +1,14 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Mon, 20 Mar 2023 23:18:59 Malaysia Time, Kuala Lumpur, Malaysia
-  - Copyright (c) 2023, Raul A Perusquia Flores
+  - Created: Sun, 12 May 2024 21:59:08 British Summer Time, Sheffield, UK
+  - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
-import { User } from "@/types/user"
-import { trans } from "laravel-vue-i18n"
-import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue"
-import UserAgent from "@/Components/Elements/Info/UserAgent.vue"
 import { useFormatTime, useSecondsToMS } from '@/Composables/useFormatTime'
-// import {ref,computed} from 'vue'
-
-// import TableElements from '@/Components/Table/TableElements.vue'
+import customer from "@/Pages/Grp/Org/Fulfilment/Customer.vue";
 
 const props = defineProps<{
     data: {}

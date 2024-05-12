@@ -130,7 +130,7 @@ class ShowEmployee extends OrgAction
 
     public function getData(Employee $employee): array
     {
-        return Arr::except($employee->toArray(), ['id', 'source_id','working_hours','errors','salary','data','job_position_scopes']);
+        return Arr::except($employee->toArray(), ['id', 'source_id','working_hours','errors','salary','data']);
     }
 
     public function jsonResponse(Employee $employee): EmployeeResource

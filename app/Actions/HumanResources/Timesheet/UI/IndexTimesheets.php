@@ -9,7 +9,7 @@ namespace App\Actions\HumanResources\Timesheet\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
-use App\Http\Resources\HumanResources\EmployeeInertiaResource;
+use App\Http\Resources\HumanResources\EmployeesResource;
 use App\Http\Resources\HumanResources\TimesheetsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\HumanResources\Employee;
@@ -126,7 +126,7 @@ class IndexTimesheets extends OrgAction
                         'label' => __('timesheets')
                     ] : false,
                 ],
-                'data'        => EmployeeInertiaResource::collection($timesheets),
+                'data'        => EmployeesResource::collection($timesheets),
             ]
         )->table($this->tableStructure());
     }

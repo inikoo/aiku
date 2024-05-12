@@ -15,9 +15,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $group_id
- * @property int $number_guests
- * @property int $number_guests_status_active
- * @property int $number_guests_status_inactive
  * @property int $number_users
  * @property int $number_users_status_active
  * @property int $number_users_status_inactive
@@ -25,6 +22,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_users_type_guest
  * @property int $number_users_type_supplier
  * @property int $number_users_type_agent
+ * @property int $number_guests
+ * @property int $number_guests_status_active
+ * @property int $number_guests_status_inactive
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group

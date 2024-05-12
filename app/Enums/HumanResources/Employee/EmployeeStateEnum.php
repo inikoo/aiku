@@ -8,6 +8,8 @@
 namespace App\Enums\HumanResources\Employee;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\HumanResources\JobPosition;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 
 enum EmployeeStateEnum: string
@@ -29,9 +31,16 @@ enum EmployeeStateEnum: string
         ];
     }
 
-    public static function count(Organisation $organisation): array
+    public static function count(Organisation|Group|JobPosition $parent): array
     {
-        $stats=$organisation->humanResourcesStats;
+
+        if($parent instanceof JobPosition) {
+            $stats=$parent->stats;
+        } else {
+            $stats=$parent->humanResourcesStats;
+        }
+
+
         return [
             'hired'         => $stats->number_employees_state_hired,
             'working'       => $stats->number_employees_state_working,

@@ -22,7 +22,7 @@ import DataModel from "@/Components/DataModel.vue";
 
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
-import TableTimesheets from "@/Components/Tables/TableTimesheets.vue";
+import TableTimesheets from "@/Components/Tables/Grp/Org/HumanResources/TableTimesheets.vue";
 
 library.add(
     faIdCard,

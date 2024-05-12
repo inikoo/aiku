@@ -9,10 +9,8 @@ namespace Database\Factories\Deals;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-
 class OfferCampaignFactory extends Factory
 {
-
     public function definition(): array
     {
         return [

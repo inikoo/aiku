@@ -14,7 +14,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
 import { capitalize } from "@/Composables/capitalize"
-import TableGuests from "@/Components/Tables/TableGuests.vue";
+import TableGuests from "@/Components/Tables/Grp/SysAdmin/TableGuests.vue";
 
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))

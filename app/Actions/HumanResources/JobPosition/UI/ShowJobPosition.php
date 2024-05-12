@@ -13,7 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\HumanResources\JobPositionTabsEnum;
 use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\HumanResources\EmployeeResource;
+use App\Http\Resources\HumanResources\EmployeesResource;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Organisation;
@@ -86,14 +86,16 @@ class ShowJobPosition extends OrgAction
                 : Inertia::lazy(fn () => GetJobPositionShowcase::run($jobPosition)),
 
                 JobPositionTabsEnum::EMPLOYEES->value       => $this->tab == JobPositionTabsEnum::EMPLOYEES->value ?
-                fn () => EmployeeResource::collection(
+                fn () => EmployeesResource::collection(
                     IndexEmployees::run(
-                        prefix: 'employees'
+                        parent: $jobPosition,
+                        prefix: JobPositionTabsEnum::EMPLOYEES->value
                     )
                 )
-                : Inertia::lazy(fn () => EmployeeResource::collection(
+                : Inertia::lazy(fn () => EmployeesResource::collection(
                     IndexEmployees::run(
-                        prefix: 'employees'
+                        parent: $jobPosition,
+                        prefix: JobPositionTabsEnum::EMPLOYEES->value
                     )
                 )),
 
@@ -117,6 +119,11 @@ class ShowJobPosition extends OrgAction
                 fn () => HistoryResource::collection(IndexHistory::run($jobPosition))
                 : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($jobPosition)))
             ]
+        )->table(
+            IndexEmployees::make()->tableStructure(
+                parent: $jobPosition,
+                prefix: JobPositionTabsEnum::EMPLOYEES->value
+            )
         );
     }
 

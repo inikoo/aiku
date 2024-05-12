@@ -12,7 +12,7 @@ use App\Actions\OrgAction;
 
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProductions;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProductions;
-use App\Actions\SysAdmin\Organisation\SeedOrganisationJobPositions;
+use App\Actions\SysAdmin\Organisation\SeedJobPositions;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Enums\Manufacturing\Production\ProductionStateEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
@@ -50,7 +50,7 @@ class StoreProduction extends OrgAction
         GroupHydrateProductions::dispatch($organisation->group);
         OrganisationHydrateProductions::run($organisation);
         ProductionHydrateUniversalSearch::dispatch($production);
-        SeedOrganisationJobPositions::run($organisation);
+        SeedJobPositions::run($organisation);
 
 
         return $production;

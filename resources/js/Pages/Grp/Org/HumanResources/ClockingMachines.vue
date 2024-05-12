@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableClockingMachines from "@/Components/Tables/TableClockingMachines.vue";
+import TableClockingMachines from "@/Components/Tables/Grp/Org/HumanResources/TableClockingMachines.vue";
 import { capitalize } from "@/Composables/capitalize"
 
 const props = defineProps <{

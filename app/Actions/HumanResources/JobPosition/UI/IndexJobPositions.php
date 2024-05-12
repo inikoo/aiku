@@ -9,7 +9,7 @@ namespace App\Actions\HumanResources\JobPosition\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
-use App\Http\Resources\HumanResources\JobPositionResource;
+use App\Http\Resources\HumanResources\JobPositionsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Organisation;
@@ -39,6 +39,7 @@ class IndexJobPositions extends OrgAction
         });
 
         $queryBuilder = QueryBuilder::for(JobPosition::class);
+        $queryBuilder->leftJoin('job_position_stats', 'job_positions.id', 'job_position_stats.job_position_id');
 
         if(class_basename($parent) === 'Organisation') {
             $queryBuilder->where('organisation_id', $parent->id);
@@ -47,9 +48,9 @@ class IndexJobPositions extends OrgAction
         }
 
         return $queryBuilder
-            ->defaultSort('job_positions.slug')
-            ->select(['slug', 'id', 'name', 'number_employees'])
-            ->allowedSorts(['slug', 'name', 'number_employees'])
+            ->defaultSort('job_positions.code')
+            ->select(['code', 'job_positions.slug', 'name', 'number_employees_currently_working'])
+            ->allowedSorts(['slug', 'name', 'number_employees_currently_working'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -64,7 +65,7 @@ class IndexJobPositions extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $jobPositions): AnonymousResourceCollection
     {
-        return JobPositionResource::collection($jobPositions);
+        return JobPositionsResource::collection($jobPositions);
     }
 
     public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
@@ -80,9 +81,9 @@ class IndexJobPositions extends OrgAction
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
-                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_employees', label: __('employees'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_employees_currently_working', label: __('employees'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('slug');
         };
     }
@@ -110,7 +111,7 @@ class IndexJobPositions extends OrgAction
                         ] : false
                     ]
                 ],
-                'data'        => JobPositionResource::collection($jobPositions),
+                'data'        => JobPositionsResource::collection($jobPositions),
 
 
             ]

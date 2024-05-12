@@ -19,6 +19,9 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('employee_id')->nullable()->index();
             $table->foreign('employee_id')->references('id')->on('employees');
+
+            $table->unsignedSmallInteger('number_job_positions')->default(0);
+
             $table = $this->getTimesheetsStats($table);
             $table = $this->getClockingsFieldStats($table);
             $table = $this->getTimeTrackersStats($table);

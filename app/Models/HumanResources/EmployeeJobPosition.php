@@ -7,8 +7,6 @@
 
 namespace App\Models\HumanResources;
 
-use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateJobPositionsShare;
-use App\Actions\HumanResources\JobPosition\HydrateJobPosition;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -30,25 +28,6 @@ class EmployeeJobPosition extends Pivot
 
     protected $guarded = [];
 
-    protected static function booted(): void
-    {
-        static::created(
-            function (EmployeeJobPosition $employeeJobPosition) {
-                EmployeeHydrateJobPositionsShare::run($employeeJobPosition->employee);
-                HydrateJobPosition::run(
-                    $employeeJobPosition->jobPosition
-                );
-            }
-        );
-        static::deleted(
-            function (EmployeeJobPosition $employeeJobPosition) {
-                EmployeeHydrateJobPositionsShare::run($employeeJobPosition->employee);
-                HydrateJobPosition::run(
-                    $employeeJobPosition->jobPosition
-                );
-            }
-        );
-    }
 
     public function employee(): BelongsTo
     {

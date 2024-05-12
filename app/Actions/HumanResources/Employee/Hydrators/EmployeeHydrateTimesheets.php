@@ -36,7 +36,6 @@ class EmployeeHydrateTimesheets
         ];
 
 
-
         $employee->stats()->update($stats);
     }
 

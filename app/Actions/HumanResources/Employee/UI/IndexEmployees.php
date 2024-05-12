@@ -11,9 +11,9 @@ use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
-use App\Http\Resources\HumanResources\EmployeeInertiaResource;
-use App\Http\Resources\HumanResources\EmployeeResource;
+use App\Http\Resources\HumanResources\EmployeesResource;
 use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Closure;
@@ -30,16 +30,16 @@ use App\Services\QueryBuilder;
 
 class IndexEmployees extends OrgAction
 {
-    private Organisation $parent;
+    private Organisation|JobPosition|Group $parent;
 
-    protected function getElementGroups(): array
+    protected function getElementGroups(Organisation|JobPosition|Group $parent): array
     {
         return [
             'state' => [
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
                     EmployeeStateEnum::labels(),
-                    EmployeeStateEnum::count($this->organisation)
+                    EmployeeStateEnum::count($parent)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -57,7 +57,7 @@ class IndexEmployees extends OrgAction
         ];
     }
 
-    public function handle(Organisation|Group $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|JobPosition $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -74,13 +74,17 @@ class IndexEmployees extends OrgAction
 
         if (class_basename($parent) == 'Organisation') {
             $queryBuilder->where('organisation_id', $parent->id);
-        } elseif (class_basename($parent) == 'Group') {
-            $queryBuilder->where('group_id', $parent->id);
+        } elseif (class_basename($parent) == 'JobPosition') {
+            $queryBuilder->leftJoin('job_positionables', 'job_positionable_id', 'employees.id');
+            $queryBuilder->where('job_positionable_type', 'Employee');
+            $queryBuilder->where('job_position_id', $parent->id);
+            $queryBuilder->where('organisation_id', $parent->organisation_id);
+        } else {
+            $queryBuilder->where('job_positions.group_id', $parent->id);
         }
 
 
-        foreach ($this->getElementGroups() as $key => $elementGroup) {
-
+        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
@@ -104,7 +108,7 @@ class IndexEmployees extends OrgAction
                 $join->on('employees.id', '=', 'job_positions.job_positionable_id');
             });
             $queryBuilder->addSelect('job_positions');
-        } else {
+        } elseif (class_basename($parent) == 'Group') {
             $queryBuilder->leftJoin('job_positionables', 'job_positionables.job_positionable_id', 'employees.id')
                 ->where('job_positionables.job_positionable_type', 'Employee')
                 ->where('job_position_id', $parent->id);
@@ -118,7 +122,7 @@ class IndexEmployees extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|Group $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Organisation|JobPosition|Group $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
@@ -127,7 +131,7 @@ class IndexEmployees extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->getElementGroups() as $key => $elementGroup) {
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $table->elementGroup(
                     key: $key,
                     label: $elementGroup['label'],
@@ -140,7 +144,7 @@ class IndexEmployees extends OrgAction
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch();
 
-            if(class_basename($parent)=='Organisation') {
+            if (class_basename($parent) == 'Organisation') {
                 $table->withEmptyState(
                     [
                         'title'       => __('no employees'),
@@ -175,7 +179,7 @@ class IndexEmployees extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if(class_basename($this->parent)=='Organisation') {
+        if (class_basename($this->parent) == 'Organisation') {
             $this->canEdit = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
 
             return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
@@ -187,7 +191,7 @@ class IndexEmployees extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $employees): AnonymousResourceCollection
     {
-        return EmployeeResource::collection($employees);
+        return EmployeesResource::collection($employees);
     }
 
 
@@ -212,7 +216,7 @@ class IndexEmployees extends OrgAction
                         ] : false
                     ]
                 ],
-                'data'        => EmployeeInertiaResource::collection($employees),
+                'data'        => EmployeesResource::collection($employees),
             ]
         )->table($this->tableStructure($this->parent));
     }
@@ -222,6 +226,7 @@ class IndexEmployees extends OrgAction
     {
         $this->parent = $organisation;
         $this->initialisation($organisation, $request);
+
         return $this->handle($organisation);
     }
 

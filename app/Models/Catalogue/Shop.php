@@ -125,7 +125,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopSalesStats|null $salesStats
  * @property-read SenderEmail|null $senderEmail
  * @property-read LaravelCollection<int, SerialReference> $serialReferences
- * @property-read LaravelCollection<int, \App\Models\Ordering\ShippingZoneSchema> $shippingZoneSchemas
+ * @property-read LaravelCollection<int, ShippingZoneSchema> $shippingZoneSchemas
  * @property-read \App\Models\Catalogue\ShopStats|null $stats
  * @property-read TaxNumber|null $taxNumber
  * @property-read Timezone $timezone

@@ -113,7 +113,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\SysAdmin\OrganisationInventoryStats|null $inventoryStats
  * @property-read LaravelCollection<int, Invoice> $invoices
- * @property-read LaravelCollection<int, JobPosition> $josPositions
+ * @property-read LaravelCollection<int, JobPosition> $jobPositions
  * @property-read Language $language
  * @property-read LaravelCollection<int, Location> $locations
  * @property-read Media|null $logo
@@ -209,7 +209,7 @@ class Organisation extends Model implements HasMedia
         return $this->hasMany(Employee::class);
     }
 
-    public function josPositions(): HasMany
+    public function jobPositions(): HasMany
     {
         return $this->hasMany(JobPosition::class);
     }

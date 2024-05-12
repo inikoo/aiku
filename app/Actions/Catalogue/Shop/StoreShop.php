@@ -15,7 +15,7 @@ use App\Actions\Mail\Outbox\SeedShopOutboxes;
 use App\Actions\OrgAction;
 use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
-use App\Actions\SysAdmin\Organisation\SeedOrganisationJobPositions;
+use App\Actions\SysAdmin\Organisation\SeedJobPositions;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\Traits\Rules\WithShopRules;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
@@ -128,7 +128,7 @@ class StoreShop extends OrgAction
         OrganisationHydrateMarket::dispatch($organisation);
         ProspectQuerySeeder::run($shop);
         SeedShopOutboxes::run($shop);
-        SeedOrganisationJobPositions::run($organisation);
+        SeedJobPositions::run($organisation);
 
 
         return $shop;

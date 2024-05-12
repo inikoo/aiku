@@ -10,6 +10,7 @@ namespace App\Actions\HumanResources\Employee;
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch;
 use App\Actions\HumanResources\JobPosition\SyncEmployableJobPositions;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
@@ -65,6 +66,7 @@ class UpdateEmployee extends OrgAction
         }
 
         if ($employee->wasChanged(['state'])) {
+            GroupHydrateEmployees::dispatch($employee->group);
             OrganisationHydrateEmployees::dispatch($employee->organisation);
         }
 

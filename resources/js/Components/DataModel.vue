@@ -23,7 +23,6 @@ const props = defineProps<{
         gender: string;
         identity_document_number: string;
         identity_document_type: string;
-        job_position_scopes: string[];
         job_title: string;
         phone: string;
         salary: string;

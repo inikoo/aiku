@@ -39,8 +39,8 @@ import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Components/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableClockingMachine from "@/Components/Tables/TableClockingMachines.vue";
-import TableClockings from "@/Components/Tables/TableClockings.vue";
+import TableClockingMachine from "@/Components/Tables/Grp/Org/HumanResources/TableClockingMachines.vue";
+import TableClockings from "@/Components/Tables/Grp/Org/HumanResources/TableClockings.vue";
 
 
 const ModelChangelog = defineAsyncComponent(() => import("@/Components/ModelChangelog.vue"));

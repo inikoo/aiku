@@ -11,6 +11,7 @@ use App\Actions\HydrateModel;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAgents;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateCollectionCategories;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateCollections;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateGuests;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInventory;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInvoices;
@@ -66,6 +67,7 @@ class HydrateGroup extends HydrateModel
         GroupHydrateLocations::run($group);
         GroupHydrateProductions::run($group);
         GroupHydrateRawMaterials::run($group);
+        GroupHydrateEmployees::run($group);
 
     }
 

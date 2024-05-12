@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @property int $id
  * @property int|null $employee_id
+ * @property int $number_job_positions
  * @property int $number_timesheets
  * @property string|null $last_clocking_at
  * @property int $number_clockings

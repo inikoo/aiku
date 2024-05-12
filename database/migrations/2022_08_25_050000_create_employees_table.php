@@ -30,7 +30,6 @@ return new class () extends Migration {
             $table = $this->contactFields(table: $table, withCompany: false, withPersonalDetails: true);
             $table->string('worker_number')->nullable()->collation('und_ns');
             $table->string('job_title')->nullable();
-            $table->string('job_position')->nullable();
             $table->string('type')->default(EmployeeTypeEnum::EMPLOYEE->value);
             $table->string('state')->default(EmployeeStateEnum::WORKING->value);
             $table->date('employment_start_at')->nullable();
@@ -40,7 +39,6 @@ return new class () extends Migration {
             $table->jsonb('working_hours')->nullable();
             $table->decimal('week_working_hours', 4)->default(0);
             $table->jsonb('data');
-            $table->jsonb('job_position_scopes');
             $table->jsonb('errors');
             $table->timestampsTz();
             $table = $this->softDeletes($table);

@@ -15,17 +15,19 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\HumanResources\JobPosition
+ *
  *
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
+ * @property int|null $group_job_position_id
  * @property string $slug
  * @property string $code
  * @property string $name
@@ -33,11 +35,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $department
  * @property string|null $team
  * @property array $data
- * @property int $number_employees
- * @property int $number_guests
- * @property int $number_roles
- * @property float $number_work_time
- * @property string|null $share_work_time
  * @property bool $locked Seeded job positions should be locked
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -45,6 +42,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Role> $roles
+ * @property-read \App\Models\HumanResources\JobPositionStats|null $stats
  * @method static Builder|JobPosition newModelQuery()
  * @method static Builder|JobPosition newQuery()
  * @method static Builder|JobPosition query()
@@ -98,5 +96,10 @@ class JobPosition extends Model implements Auditable
     public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class)->withTimestamps();
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(JobPositionStats::class);
     }
 }

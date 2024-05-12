@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_workplaces_type_road
  * @property int $number_workplaces_type_other
  * @property int $number_employees
+ * @property int $number_employees_currently_working
  * @property int $number_employees_state_hired
  * @property int $number_employees_state_working
  * @property int $number_employees_state_leaving

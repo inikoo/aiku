@@ -12,12 +12,18 @@ use Illuminate\Database\Schema\Blueprint;
 
 trait HasSysAdminStats
 {
-    public function sysAdminStats(Blueprint $table): Blueprint
+    public function guestsStatsFields(Blueprint $table): Blueprint
     {
         $table->unsignedSmallInteger('number_guests')->default(0);
         $table->unsignedSmallInteger('number_guests_status_active')->default(0);
         $table->unsignedSmallInteger('number_guests_status_inactive')->default(0);
 
+
+        return $table;
+    }
+
+    public function userStatsFields(Blueprint $table): Blueprint
+    {
         $table->unsignedSmallInteger('number_users')->default(0);
         $table->unsignedSmallInteger('number_users_status_active')->default(0);
         $table->unsignedSmallInteger('number_users_status_inactive')->default(0);

@@ -22,6 +22,8 @@ use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\JobPosition;
+use App\Models\HumanResources\JobPositionStats;
 use App\Models\HumanResources\Timesheet;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\User;
@@ -48,7 +50,14 @@ beforeEach(function () {
 });
 
 test('check seeded job positions', function () {
+
     expect($this->organisation->group->humanResourcesStats->number_job_positions)->toBe(22);
+    /** @var JobPosition $jobPosition */
+    $jobPosition = $this->organisation->jobPositions()->first();
+    expect($jobPosition->stats)->toBeInstanceOf(JobPositionStats::class)
+        ->and($jobPosition->stats->number_employees)->toBe(0);
+
+
 });
 
 test('create working place successful', function () {
@@ -107,6 +116,7 @@ test('create employee successful', function () {
     $employee  = StoreEmployee::make()->action($this->organisation, $arrayData);
 
     expect($employee)->toBeInstanceOf(Employee::class)
+        ->and($employee->stats->number_job_positions)->toBe(0)
         ->and($this->organisation->humanResourcesStats->number_employees)->toBe(1)
         ->and($this->organisation->humanResourcesStats->number_employees_type_employee)->toBe(1)
         ->and($this->organisation->humanResourcesStats->number_employees_state_hired)->toBe(1)
@@ -132,21 +142,37 @@ test('update employees successful', function ($lastEmployee) {
         ->and($this->organisation->humanResourcesStats->number_employees_state_working)->toBe(1);
 })->depends('create employee successful');
 
-test('update employee working hours', function () {
-    $lastEmployee = Employee::latest()->first();
+test('update employee working hours', function (Employee $employee) {
+    $employee = UpdateEmployeeWorkingHours::run($employee, [10]);
+    expect($employee['working_hours'])->toBeArray(10);
+    return $employee;
+})->depends('create employee successful');
 
-    $updatedEmployee = UpdateEmployeeWorkingHours::run($lastEmployee, [10]);
+test('create user from employee', function (Employee $employee) {
 
-    expect($updatedEmployee['working_hours'])->toBeArray(10);
-});
-
-test('create user from employee', function () {
-    $lastEmployee = Employee::latest()->first();
-    expect($lastEmployee)->toBeInstanceOf(Employee::class);
-    $user = CreateUserFromEmployee::run($lastEmployee);
+    $user = CreateUserFromEmployee::run($employee);
     expect($user)->toBeInstanceOf(User::class)
-        ->and($user->contact_name)->toBe($lastEmployee->contact_name);
-});
+        ->and($user->contact_name)->toBe($employee->contact_name);
+    return $employee;
+})->depends('create employee successful');
+
+test('add job position to employee', function (Employee $employee) {
+
+    /** @var JobPosition $jobPosition */
+    $jobPosition=$this->organisation->jobPositions()->where('slug', 'hr-c')->first();
+
+    UpdateEmployee::make()->action($employee, [
+        'positions' => [
+            $jobPosition->slug=> []
+        ]
+    ]);
+    $jobPosition->refresh();
+    $employee->refresh();
+    expect($employee->stats->number_job_positions)->toBe(1)
+        ->and($jobPosition->stats->number_employees)->toBe(1);
+})->depends('create user from employee');
+
+
 
 
 test('create clocking machines', function ($workplace) {
@@ -239,6 +265,8 @@ test('new timesheet for employee', function (Employee $employee) {
     $timesheet = StoreTimesheet::make()->action($employee, [
         'date' => now(),
     ]);
+
+    $employee->refresh();
 
     expect($timesheet)->toBeInstanceOf(Timesheet::class)
         ->and($timesheet->subject_id)->toBe($employee->id)
