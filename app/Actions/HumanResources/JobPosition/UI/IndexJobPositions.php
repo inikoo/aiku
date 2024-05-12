@@ -90,7 +90,7 @@ class IndexJobPositions extends OrgAction
     public function htmlResponse(LengthAwarePaginator $jobPositions, ActionRequest $request): Response
     {
         return Inertia::render(
-            'HumanResources/JobPositions',
+            'Org/HumanResources/JobPositions',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('job positions'),

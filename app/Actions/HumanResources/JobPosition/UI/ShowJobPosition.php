@@ -46,7 +46,7 @@ class ShowJobPosition extends OrgAction
     public function htmlResponse(JobPosition $jobPosition, ActionRequest $request): Response
     {
         return Inertia::render(
-            'HumanResources/JobPosition',
+            'Org/HumanResources/JobPosition',
             [
                 'title'       => __('position'),
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),

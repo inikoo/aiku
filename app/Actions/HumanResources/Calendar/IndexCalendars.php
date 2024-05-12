@@ -88,7 +88,7 @@ class IndexCalendars extends OrgAction
     public function htmlResponse(LengthAwarePaginator $employees): Response
     {
         return Inertia::render(
-            'HumanResources/Calendar',
+            'Org/HumanResources/Calendar',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('employees'),

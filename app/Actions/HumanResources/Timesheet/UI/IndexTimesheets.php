@@ -110,7 +110,7 @@ class IndexTimesheets extends OrgAction
     public function htmlResponse(LengthAwarePaginator $timesheets): Response
     {
         return Inertia::render(
-            'HumanResources/Employees',
+            'Org/HumanResources/Employees',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('timesheets'),

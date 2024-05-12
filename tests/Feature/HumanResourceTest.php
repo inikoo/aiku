@@ -176,7 +176,7 @@ test('can show hr dashboard', function () {
     $response = get(route('grp.org.hr.dashboard', $this->organisation->slug));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('HumanResources/HumanResourcesDashboard')
+            ->component('Org/HumanResources/HumanResourcesDashboard')
             ->has('breadcrumbs', 2)
             ->where('stats.0.stat', 1)->where('stats.0.href.name', 'grp.org.hr.employees.index')
             ->where('stats.1.stat', 2)->where('stats.1.href.name', 'grp.org.hr.workplaces.index');
@@ -187,7 +187,7 @@ test('can show list of workplaces', function () {
     $response = get(route('grp.org.hr.workplaces.index', $this->organisation->slug));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('HumanResources/Workplaces')
+            ->component('Org/HumanResources/Workplaces')
             ->has('title')
             ->has('breadcrumbs', 3)
             ->has('data.data', 2);
@@ -200,7 +200,7 @@ test('can show workplace', function () {
 
     $response->assertInertia(function (AssertableInertia $page) use ($workplace) {
         $page
-            ->component('HumanResources/Workplace')
+            ->component('Org/HumanResources/Workplace')
             ->has('breadcrumbs', 3)
             ->where('pageHead.meta.0.href.name', 'grp.org.hr.workplaces.show.clocking-machines.index')
             ->where('pageHead.meta.0.href.parameters', [$this->organisation->slug, $workplace->slug])
@@ -212,7 +212,7 @@ test('can show list of employees', function () {
     $response = get(route('grp.org.hr.employees.index', $this->organisation->slug));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('HumanResources/Employees')
+            ->component('Org/HumanResources/Employees')
             ->has('title')
             ->has('breadcrumbs', 3)
             ->has('data.data', 1);
@@ -227,7 +227,7 @@ test('can show employee', function () {
 
     $response->assertInertia(function (AssertableInertia $page) use ($employee) {
         $page
-            ->component('HumanResources/Employee')
+            ->component('Org/HumanResources/Employee')
             ->has('breadcrumbs', 3)
             ->where('pageHead.meta.1.href.name', 'grp.org.sysadmin.users.show')
             ->where('pageHead.meta.1.href.parameters', $employee->alias)

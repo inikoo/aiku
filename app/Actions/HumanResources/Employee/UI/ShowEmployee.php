@@ -49,7 +49,7 @@ class ShowEmployee extends OrgAction
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
         return Inertia::render(
-            'HumanResources/Employee',
+            'Org/HumanResources/Employee',
             [
                 'title'       => __('employee'),
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),

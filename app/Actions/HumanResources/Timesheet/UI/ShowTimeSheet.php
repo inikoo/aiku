@@ -50,7 +50,7 @@ class ShowTimeSheet extends OrgAction
     public function htmlResponse(Timesheet $timesheet, ActionRequest $request): Response
     {
         return Inertia::render(
-            'HumanResources/TimeSheet',
+            'Org/HumanResources/TimeSheet',
             [
                 'title'                                 => __('timesheet'),
                 'breadcrumbs'                           => $this->getBreadcrumbs($timesheet),

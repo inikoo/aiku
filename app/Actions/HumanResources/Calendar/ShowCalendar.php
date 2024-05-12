@@ -40,7 +40,7 @@ class ShowCalendar extends InertiaAction
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
         return Inertia::render(
-            'HumanResources/Calendar',
+            'Org/HumanResources/Calendar',
             [
                 'title'                                 => __('calendar'),
                 'breadcrumbs'                           => $this->getBreadcrumbs($employee),

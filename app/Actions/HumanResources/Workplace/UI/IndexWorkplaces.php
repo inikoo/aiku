@@ -121,7 +121,7 @@ class IndexWorkplaces extends OrgAction
     {
 
         return Inertia::render(
-            'HumanResources/Workplaces',
+            'Org/HumanResources/Workplaces',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('working places'),

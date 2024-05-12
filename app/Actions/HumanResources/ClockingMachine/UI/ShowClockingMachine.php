@@ -50,7 +50,7 @@ class ShowClockingMachine extends OrgAction
     public function htmlResponse(ClockingMachine $clockingMachine, ActionRequest $request): Response
     {
         return Inertia::render(
-            'HumanResources/ClockingMachine',
+            'Org/HumanResources/ClockingMachine',
             [
                 'title'                                 => __('clocking machine'),
                 'breadcrumbs'                           => $this->getBreadcrumbs(

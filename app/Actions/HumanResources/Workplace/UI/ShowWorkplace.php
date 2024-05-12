@@ -54,7 +54,7 @@ class ShowWorkplace extends OrgAction
     public function htmlResponse(Workplace $workplace, ActionRequest $request): Response
     {
         return Inertia::render(
-            'HumanResources/Workplace',
+            'Org/HumanResources/Workplace',
             [
                 'title'                            => __('working place'),
                 'breadcrumbs'                      => $this->getBreadcrumbs($request->route()->originalParameters()),

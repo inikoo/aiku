@@ -194,7 +194,7 @@ class IndexEmployees extends OrgAction
     public function htmlResponse(LengthAwarePaginator $employees, ActionRequest $request): Response
     {
         return Inertia::render(
-            'HumanResources/Employees',
+            'Org/HumanResources/Employees',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('employees'),
