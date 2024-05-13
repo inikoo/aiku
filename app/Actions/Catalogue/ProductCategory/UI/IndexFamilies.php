@@ -137,7 +137,7 @@ class IndexFamilies extends OrgAction
                                 'tooltip' => __('new shop'),
                                 'label'   => __('shop'),
                                 'route'   => [
-                                    'name'       => 'grp.org.shops.create',
+                                    'name'       => 'grp.org.shops.show.catalogue.families.create',
                                     'parameters' => [$parent->slug]
                                 ]
                                     ] : null
@@ -197,13 +197,13 @@ class IndexFamilies extends OrgAction
                         'title' => __('family')
                     ],
                     'actions' => [
-                        $this->canEdit && class_basename($this->parent)=='ProductCategory' ? [
+                        $this->canEdit && (class_basename($this->parent) == 'ProductCategory' || class_basename($this->parent) == 'Shop') ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new family'),
                             'label'   => __('family'),
                             'route'   => [
-                                'name'       => $request->route()->getName().'.create',
+                                'name'       => 'grp.org.shops.show.catalogue.families.create',
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
