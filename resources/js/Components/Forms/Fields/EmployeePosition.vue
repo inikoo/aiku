@@ -304,8 +304,8 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
             {
                 slug: "ful-c",
                 grade: "clerk",
-                label: "Worker",
-                optionsType: ['warehouses'],
+                label: "Office Clerk",
+                optionsType: ['fulfilments'],
                 number_employees: props.options.positions.data.find(position => position.slug == 'ful-c')?.number_employees || 0,
             }
         ],
@@ -361,11 +361,11 @@ const onClickJobFinetune = (departmentName: string, shopName: string, subDepartm
 
     // If 'uk' is exist in mrk-m then delete it
     if (get(props.form[props.fieldName], [subDepartmentSlug, optionType], []).includes(shopName)) {
-        if (props.form[props.fieldName][subDepartmentSlug].length === 1) {
-            // if mrk-m: ['uk'] (only 1 length), then delete mrk-m
+        if (props.form[props.fieldName][subDepartmentSlug][optionType].length === 1) {
+            // if mrk-m.shops: ['uk'] (only 1 length), then delete mrk-m
             delete props.form[props.fieldName][subDepartmentSlug]
         } else {
-            // if mrk-m: ['uk', 'ed'] (more than 1 length), then delete
+            // if mrk-m.shops: ['uk', 'ed'] (more than 1 length), then delete
             const indexShopName = get(props.form[props.fieldName], [subDepartmentSlug, optionType], []).indexOf(shopName)
             if (indexShopName !== -1) {
                 props.form[props.fieldName][subDepartmentSlug][optionType].splice(indexShopName, 1)
@@ -374,14 +374,16 @@ const onClickJobFinetune = (departmentName: string, shopName: string, subDepartm
     } else {
         for (const key in props.form[props.fieldName]) {
             // // key == wah-m || mrk-c || hr-c
+            // if wah-m include wah
             if (key.includes(departmentName)) {
-                // if wah-m include wah
+                // console.log('pp', get(props.form[props.fieldName], [key, optionType], []))
+                // console.log('pp', shopName)
                 const indexShopName = get(props.form[props.fieldName], [key, optionType], []).indexOf(shopName)
                 if (indexShopName !== -1) {
                     // if wah-c: ['uk'] then delete 'uk'
                     props.form[props.fieldName][key][optionType].splice(indexShopName, 1)
 
-                    // if wah-c: [] then delete it
+                    // if wah-c.shops: [] then delete it
                     if (!props.form[props.fieldName][key][optionType].length) {
                         delete props.form[props.fieldName][key]
                     }
