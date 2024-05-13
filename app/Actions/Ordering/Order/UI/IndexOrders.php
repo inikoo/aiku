@@ -84,7 +84,7 @@ class IndexOrders extends OrgAction
                 ->withEmptyState(
                     [
                         'title' => __("No orders found"),
-                        'count' => $parent->salesStats->number_orders
+                        'count' => $parent->salesStats?->number_orders
                     ]
                 );
 

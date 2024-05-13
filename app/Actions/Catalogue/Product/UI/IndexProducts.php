@@ -8,6 +8,7 @@
 namespace App\Actions\Catalogue\Product\UI;
 
 use App\Actions\Catalogue\HasMarketAuthorisation;
+use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Product\ProductStateEnum;
@@ -144,7 +145,6 @@ class IndexProducts extends OrgAction
                     elements: $elementGroup['elements']
                 );
             }
-
 
             $table
                 ->withGlobalSearch()
@@ -286,6 +286,17 @@ class IndexProducts extends OrgAction
             'shops.show.products.index' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.shops.show.catalogue.products.index' =>
+            array_merge(
+                ShowCatalogue::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,
