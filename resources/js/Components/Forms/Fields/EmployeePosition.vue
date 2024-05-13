@@ -304,8 +304,8 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
             {
                 slug: "ful-c",
                 grade: "clerk",
-                label: "Worker",
-                optionsType: ['warehouses'],
+                label: "Office Clerk",
+                optionsType: ['fulfilments'],
                 number_employees: props.options.positions.data.find(position => position.slug == 'ful-c')?.number_employees || 0,
             }
         ],
