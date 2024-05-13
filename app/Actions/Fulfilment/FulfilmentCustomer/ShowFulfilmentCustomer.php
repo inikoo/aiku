@@ -290,7 +290,8 @@ class ShowFulfilmentCustomer extends OrgAction
             )
             ->table(
                 IndexStoredItems::make()->tableStructure(
-                    parent: $fulfilmentCustomer->storedItems
+                    parent: $fulfilmentCustomer->storedItems,
+                    prefix: CustomerFulfilmentTabsEnum::STORED_ITEMS->value
                 )
             )
             ->table(
