@@ -24,6 +24,7 @@ import { computed, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import TableDepartments from "@/Components/Tables/Grp/Org/Market/TableDepartments.vue";
 import TableFamilies from "@/Components/Tables/TableFamilies.vue";
+import TableCollections from "@/Components/Tables/TableCollections.vue";
 import TableProducts from "@/Components/Tables/TableProducts.vue";
 import ModelDetails from "@/Components/ModelDetails.vue";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
@@ -42,6 +43,7 @@ const props = defineProps<{
     departments?: object
     families?: object
     products?: object
+    collections?:{}
 
 }>();
 
@@ -56,7 +58,8 @@ const component = computed(() => {
         families: TableFamilies,
         products: TableProducts,
         details: ModelDetails,
-        history: TableHistories
+        history: TableHistories,
+        collections: TableCollections
     };
     return components[currentTab.value];
 

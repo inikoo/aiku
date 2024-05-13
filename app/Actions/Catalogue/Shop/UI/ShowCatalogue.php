@@ -7,12 +7,14 @@
 
 namespace App\Actions\Catalogue\Shop\UI;
 
+use App\Actions\Catalogue\Collection\UI\IndexCollection;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
 use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
 use App\Actions\OrgAction;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\Catalogue\CatalogueTabsEnum;
+use App\Http\Resources\Catalogue\CollectionResource;
 use App\Http\Resources\Catalogue\DepartmentsResource;
 use App\Http\Resources\Catalogue\FamiliesResource;
 use App\Http\Resources\Catalogue\ProductsResource;
@@ -122,6 +124,21 @@ class ShowCatalogue extends OrgAction
                         )
                     )),
 
+                    CatalogueTabsEnum::COLLECTIONS->value => $this->tab == CatalogueTabsEnum::COLLECTIONS->value
+                    ?
+                    fn () => CollectionResource::collection(
+                        IndexCollection::run(
+                            parent: $shop,
+                            prefix: 'collections'
+                        )
+                    )
+                    : Inertia::lazy(fn () => CollectionResource::collection(
+                        IndexCollection::run(
+                            parent: $shop,
+                            prefix: 'collections'
+                        )
+                    )),
+
             ]
         )->table(
             IndexDepartments::make()->tableStructure(
@@ -167,6 +184,11 @@ class ShowCatalogue extends OrgAction
                     ] : false
                 ],
                 prefix: 'products'
+            )
+        )->table(
+            IndexCollection::make()->tableStructure(
+                parent: $shop,
+                prefix: 'collections'
             )
         );
     }

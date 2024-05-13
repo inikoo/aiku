@@ -5,6 +5,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Catalogue\Collection\UI\IndexCollection;
+use App\Actions\Catalogue\Collection\UI\IndexCollections;
 use App\Actions\Catalogue\Product\UI\CreateProduct;
 use App\Actions\Catalogue\Product\UI\EditProduct;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
@@ -41,3 +43,6 @@ Route::get('families/create', [CreateFamily::class, 'inShop'])->name('families.c
 Route::get('families', IndexFamilies::class)->name('families.index');
 Route::get('families/{family}',  [ShowFamily::class, 'inShop'])->name('families.show');
 Route::get('families/{family}/edit', [EditFamily::class, 'inShop'])->name('families.edit');
+
+Route::get('collections', IndexCollection::class)->name('collections.index');
+Route::get('collections/create', CreateProduct::class)->name('collections.create');
