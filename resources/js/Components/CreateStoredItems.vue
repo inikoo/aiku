@@ -27,6 +27,7 @@ const props = defineProps<{
 }>()
 
 
+
 const emits = defineEmits<{
     (e: 'onSave', event: any): void
 }>()
@@ -119,6 +120,7 @@ const onSaved = async () => {
 			{{ form.errors.quantity }}
 		</p>
 	</div>
+
 
 	<div class="space-y-2">
 		<Button full @click="onSaved" label="Submit" :loading="props.form.processing"> </Button>

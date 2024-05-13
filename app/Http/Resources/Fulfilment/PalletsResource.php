@@ -56,7 +56,9 @@ class PalletsResource extends JsonResource
             'location_code'               => $this->location_code,
             'location_id'                 => $this->location_id,
             'stored_items'                => $this->storedItems->map(fn ($storedItem) => [
+                'id'        => $storedItem->id,
                 'reference' => $storedItem->reference,
+                'notes'     => $storedItem->notes,
                 'quantity'  => (int)$storedItem->pivot->quantity,
             ]),
             'stored_items_quantity' => (int)$this->storedItems()->sum('quantity'),
