@@ -57,9 +57,9 @@ const compTheme = computed(() => {
         ]"
         :style="[
             stringToColor ? [  // if stringToColor true
-                `background-color: ${useStringToHex(label) + '30'}`,
-                `border: 1px solid ${useStringToHex(label) + '90'}`,
-                `color: ${useStringToHex(label)}`
+                `background-color: color-mix(in srgb, ${useStringToHex(label)} 30%, white)`,
+                `border: 1px solid color-mix(in srgb, ${useStringToHex(label)} 80%, black)`,
+                `color: color-mix(in srgb, ${useStringToHex(label)} 70%, black)`
             ] : ''
         ]"
     >
