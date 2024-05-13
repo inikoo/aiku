@@ -8,6 +8,7 @@
 namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\HumanResources\JobPosition\UI\IndexJobPositions;
 use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
@@ -15,6 +16,7 @@ use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\HumanResources\EmployeeTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
+use App\Http\Resources\HumanResources\JobPositionsResource;
 use App\Http\Resources\HumanResources\TimesheetsResource;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
@@ -48,6 +50,7 @@ class ShowEmployee extends OrgAction
 
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
+        // dd(IndexJobPositions::run($employee, EmployeeTabsEnum::JOB_POSITIONS->value, true));
         return Inertia::render(
             'Org/HumanResources/Employee',
             [
@@ -101,7 +104,12 @@ class ShowEmployee extends OrgAction
 
                 EmployeeTabsEnum::HISTORY->value => $this->tab == EmployeeTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($employee))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($employee)))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($employee))),
+
+                EmployeeTabsEnum::JOB_POSITIONS->value => $this->tab == EmployeeTabsEnum::JOB_POSITIONS->value ?
+                    fn () => JobPositionsResource::collection(IndexJobPositions::run($employee, EmployeeTabsEnum::JOB_POSITIONS->value, true))
+                    : Inertia::lazy(fn () => JobPositionsResource::collection(IndexJobPositions::run($employee, EmployeeTabsEnum::JOB_POSITIONS->value, true))),
+
             ]
         )->table(IndexHistory::make()->tableStructure())
             ->table(IndexTimesheets::make()->tableStructure(modelOperations: [
@@ -125,7 +133,8 @@ class ShowEmployee extends OrgAction
                     ]
                 ],
             ], prefix: EmployeeTabsEnum::TIMESHEETS->value))
-            ->table(IndexTimesheets::make()->tableStructure(prefix: EmployeeTabsEnum::TODAY_TIMESHEETS->value));
+            ->table(IndexTimesheets::make()->tableStructure(prefix: EmployeeTabsEnum::TODAY_TIMESHEETS->value))
+            ->table(IndexJobPositions::make()->tableStructure(prefix: EmployeeTabsEnum::JOB_POSITIONS->value));
     }
 
     public function getData(Employee $employee): array
