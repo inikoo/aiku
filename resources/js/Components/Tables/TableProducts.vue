@@ -26,6 +26,7 @@ function productRoute(product: Product) {
   switch (route().current()) {
 
     case "grp.org.shops.show.catalogue.products.index":
+    case "grp.org.shops.show.catalogue.dashboard":
       return route(
           'grp.org.shops.show.catalogue.products.show',
           [route().params['organisation'], route().params['shop'], product.slug]);
