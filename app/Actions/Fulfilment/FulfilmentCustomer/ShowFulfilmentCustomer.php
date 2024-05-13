@@ -187,9 +187,9 @@ class ShowFulfilmentCustomer extends OrgAction
                     ),
 
                 CustomerFulfilmentTabsEnum::INVOICES->value => $this->tab == CustomerFulfilmentTabsEnum::INVOICES->value ?
-                    fn () => InvoicesResource::collection(IndexInvoices::run($fulfilmentCustomer->fulfilment, CustomerFulfilmentTabsEnum::INVOICES->value))
+                    fn () => InvoicesResource::collection(IndexInvoices::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::INVOICES->value))
                     : Inertia::lazy(
-                        fn () => InvoicesResource::collection(IndexInvoices::run($fulfilmentCustomer->fulfilment, CustomerFulfilmentTabsEnum::INVOICES->value))
+                        fn () => InvoicesResource::collection(IndexInvoices::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::INVOICES->value))
                     ),
 
                 CustomerFulfilmentTabsEnum::PALLET_RETURNS->value => $this->tab == CustomerFulfilmentTabsEnum::PALLET_RETURNS->value ?
@@ -366,7 +366,7 @@ class ShowFulfilmentCustomer extends OrgAction
                 )
             )->table(
                 IndexInvoices::make()->tableStructure(
-                    parent: $fulfilmentCustomer->fulfilment,
+                    parent: $fulfilmentCustomer,
                     prefix: CustomerFulfilmentTabsEnum::INVOICES->value,
                 )
             );

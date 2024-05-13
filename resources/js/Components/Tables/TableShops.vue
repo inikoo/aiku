@@ -37,6 +37,7 @@ function shopRoute(shop: Shop) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+        <!-- Column: Code -->
         <template #cell(code)="{ item: shop }">
             <div class="flex">
                 <Link :href="shopRoute(shop)" class="specialUnderline">
@@ -48,12 +49,14 @@ function shopRoute(shop: Shop) {
             </div>
         </template>
         
+        <!-- Column: Name -->
         <template #cell(name)="{item: shop}">
-            <div :class="shop.state !== 'open' ? 'line-through' : ''">
+            <div :class="shop.state !== 'open' ? 'line-through text-gray-400' : ''">
                 {{ shop.name }}
             </div>
         </template>
 
+        <!-- Column: State -->
         <template #cell(state)="{item: shop}">
             <div v-if="shop.state === 'open'" v-tooltip="trans('Shop is open')" class="px-1">
                 <FontAwesomeIcon icon='fal fa-check' class='text-green-500' fixed-width aria-hidden='true' />

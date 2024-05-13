@@ -157,7 +157,6 @@ const iconList: { [key: string]: string } = {
                                 :itemKey="generateNavigationName(itemKey)"
                                 :icon="iconList[generateNavigationName(itemKey)] || ''"
                             /> -->
-                                {{ console.log('fff', Object.values(orgNav)[0]) }}
                             <NavigationSimple v-for="(nav, navKey) in Object.values(orgNav)[0]"
                                 :nav="nav"
                                 :navKey="navKey"
