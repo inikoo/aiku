@@ -138,10 +138,10 @@ class StoreStoredItemToStoredItemReturn extends OrgAction
                 'organisation'               => $storedItemReturn->organisation->slug,
                 'fulfilment'                 => $storedItemReturn->fulfilment->slug,
                 'fulfilmentCustomer'         => $storedItemReturn->fulfilmentCustomer->slug,
-                'storedItemReturn'           => $storedItemReturn->reference
+                'storedItemReturn'           => $storedItemReturn->slug
             ]),
             default => Redirect::route('retina.storage.pallet-returns.show', [
-                'storedItemReturn'     => $storedItemReturn->reference
+                'storedItemReturn'     => $storedItemReturn->slug
             ])
         };
     }
