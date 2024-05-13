@@ -225,13 +225,13 @@ class IndexDepartments extends OrgAction
                         'title' => __('department')
                     ],
                     'actions'   => [
-                        $this->canEdit && $request->route()->getName() == 'shops.show.departments.index' ? [
+                        $this->canEdit && $request->route()->getName() == 'grp.org.shops.show.catalogue.departments.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new department'),
                             'label'   => __('department'),
                             'route'   => [
-                                'name'       => 'shops.show.departments.create',
+                                'name'       => 'grp.org.shops.show.catalogue.departments.create',
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
