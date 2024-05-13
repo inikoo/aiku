@@ -50,30 +50,42 @@ const layout = useLayoutStore()
 
 // console.log('haha', Object.entries(props.orgNav.fulfilments_navigation.navigation))
 
+const shopsOpenSlugs = layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.filter(shop => shop.state === 'open').map(shop => shop.slug)
+const fulfilmentsOpenSlugs = layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.filter(fulfilment => fulfilment.state === 'open').map(fulfilment => fulfilment.slug)
+
+
+
 // Navigation Fulfilment, Shop, and Merged
-const fulfilmentsNav: MergeNavigation[] = Object.entries(props.orgNav.fulfilments_navigation.navigation).map(([key, subNavList]) => {
-    return { key: key, value: subNavList, type: 'fulfilment', root: 'grp.org.fulfilments.show.' }
-})
-const shopsNav: MergeNavigation[] = Object.entries(props.orgNav.shops_navigation.navigation).map(([key, subNavList]) => {
-    return { key: key, value: subNavList, type: 'shop', root: 'grp.org.shops.show.' }
-})
-const mergeNavigations = [...shopsNav, ...fulfilmentsNav]
+const fulfilmentsNav: () => MergeNavigation[] = () => {
+    const filterFulfilmentsOpen = Object.entries(props.orgNav.fulfilments_navigation.navigation).filter(([key, subNavList]) => fulfilmentsOpenSlugs?.includes(key))
+
+    return filterFulfilmentsOpen.map(([key, subNavList]) => {
+        return { key: key, value: subNavList, type: 'fulfilment', root: 'grp.org.fulfilments.show.' }
+    })
+}
+const shopsNav: () => MergeNavigation[] = () => {
+    const filterShopsOpen = Object.entries(props.orgNav.shops_navigation.navigation).filter(([key, subNavList]) => shopsOpenSlugs?.includes(key))
+
+    return filterShopsOpen.map(([key, subNavList]) => {
+        return { key: key, value: subNavList, type: 'shop', root: 'grp.org.shops.show.' }
+    })
+}
+
+// const shopsNav: MergeNavigation[] = Object.entries(props.orgNav.shops_navigation.navigation).filter(([key, subNavList]) => shopsOpenSlugs?.includes(key)).map(([key, subNavList]) => {
+//     return { key: key, value: subNavList, type: 'shop', root: 'grp.org.shops.show.' }
+// })
+const mergeNavigations = [...shopsNav(), ...fulfilmentsNav()]
 
 const currentNavigation = () => {
     // { product: {...}, website: {...}, crm: {...} }
     const curre = mergeNavigations.find(mergeNav => {
         return mergeNav.key == layout.organisationsState?.[layout.currentParams.organisation]?.[generateCurrentString(activeNav())]
     })
-    // console.log('???????????', curre)
+
     return curre
 }
 
 const isSomeSubnavActive = () => {
-    // console.log('Current route:', layout.currentRoute)
-    // console.log('ttt', currentNavigation()?.root)
-    // console.log('ttt', isNavigationActive(layout.currentRoute, currentNavigation()?.root))
-
-
     return Object.values(currentNavigation() || {}).some(nav => (isNavigationActive(layout.currentRoute, currentNavigation()?.root)))
 }
 
@@ -132,7 +144,7 @@ const routeArrow = (nav?: MergeNavigation) => {
             :style="{ color: layout.app.theme[1] + '99' }">
 
             <!-- Label: 'UK (Shop)' -->
-            <div class="relative flex gap-x-1.5 items-center">
+            <div v-if="!!currentNavigation()" class="relative flex gap-x-1.5 items-center">
                 <FontAwesomeIcon v-if="icon" :icon='icon' class='text-xxs' fixed-width aria-hidden='true' />
                 <div v-if="layout.leftSidebar.show" class="flex items-center gap-x-1.5">
                     <Transition name="spin-to-down">
@@ -141,10 +153,16 @@ const routeArrow = (nav?: MergeNavigation) => {
                         </span>
                     </Transition>
                     <Transition name="spin-to-down">
-                        <span :key="currentNavigation()?.type" class="text-xs capitalize leading-none">({{ currentNavigation()?.type }})</span>
+                        <span :key="currentNavigation()?.type" class="text-xs capitalize leading-none">
+                            ({{ currentNavigation()?.type }})
+                        </span>
                     </Transition>
                 </div>
             </div>
+
+            <Link v-else :href="route('grp.org.shops.index', layout.currentParams.organisation)" class="mx-auto pr-2 hover:text-gray-100">
+                Show all shops
+            </Link>
             
             <!-- Section: Arrow left-right -->
             <div v-if="isSomeSubnavActive()" class="flex text-white" :class="[
