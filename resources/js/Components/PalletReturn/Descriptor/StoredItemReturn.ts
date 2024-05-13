@@ -11,9 +11,9 @@ export default {
             label : "Quantity",
             key   : 'quantity'
         },
-        {
+      /*   {
             label : "Pallet Name",
             key   : 'pallet_name'
-        },
+        }, */
     ]
 }

@@ -17,6 +17,5 @@ const props = defineProps<{
 
 <template>
     <Table :resource="data" :name="'stored_items'" class="mt-5">
-
     </Table>
 </template>
