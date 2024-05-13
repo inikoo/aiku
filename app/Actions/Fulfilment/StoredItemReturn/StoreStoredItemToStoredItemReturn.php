@@ -37,7 +37,8 @@ class StoreStoredItemToStoredItemReturn extends OrgAction
 
             $storedItemModel->pallets()->sync([
                 $key => [
-                    'quantity' => $quantity
+                    'quantity' => $quantity,
+                    'notes'    => Arr::get($storedItem, 'notes')
                 ]
             ]);
 
@@ -50,7 +51,8 @@ class StoreStoredItemToStoredItemReturn extends OrgAction
             $quantity = $storedItemReturn->items()->where('stored_item_id', $key)->sum('quantity');
             $storedItemReturn->items()->syncWithoutDetaching([
                 $key => [
-                    'quantity' => $storedItem['quantity'] + $quantity
+                    'quantity' => $storedItem['quantity'] + $quantity,
+                    'notes'    => Arr::get($storedItem, 'notes')
                 ]
             ]);
         }
@@ -76,7 +78,8 @@ class StoreStoredItemToStoredItemReturn extends OrgAction
     {
         return [
             'stored_items'            => ['required', 'array'],
-            'stored_items.*.quantity' => ['required', 'integer', 'min:1']
+            'stored_items.*.quantity' => ['required', 'integer', 'min:1'],
+            'stored_items.*.notes'    => ['nullable', 'string']
         ];
     }
 
