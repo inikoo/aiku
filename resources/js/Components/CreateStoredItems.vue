@@ -69,7 +69,7 @@ const onSaved = async () => {
 
 	const finalData = {}
 	newData.forEach((d) => {
-		finalData[d.id] = { quantity: d.quantity, notes : d.notes }
+		finalData[d.id] = { quantity: d.quantity }
 	})
 
 	emits("onSave", finalData)
@@ -121,22 +121,6 @@ const onSaved = async () => {
 		</p>
 	</div>
 
-
-	<div>
-		<label class="block text-sm font-medium text-gray-700">{{ trans("Notes") }}</label>
-		<div class="mt-1">
-			<textarea
-				v-model="form.notes"
-				id="notes"
-				name="notes"
-				:required="false"
-                @update:modelValue="form.errors.quantity = ''"
-				class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
-		</div>
-		<p v-if="get(form, ['errors', 'notes'])" class="mt-2 text-sm text-red-600">
-			{{ form.errors.notes }}
-		</p>
-	</div>
 
 	<div class="space-y-2">
 		<Button full @click="onSaved" label="Submit" :loading="props.form.processing"> </Button>
