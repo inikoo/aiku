@@ -8,9 +8,9 @@
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Market\Product\ProductStateEnum;
-use App\Enums\Market\Product\ProductTypeEnum;
-use App\Models\Market\Product;
+use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\Product\ProductTypeEnum;
+use App\Models\Catalogue\Product;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;

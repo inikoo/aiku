@@ -147,7 +147,7 @@ class IndexClockings extends OrgAction
     public function htmlResponse(LengthAwarePaginator $clockings, ActionRequest $request): Response
     {
         return Inertia::render(
-            'HumanResources/Clockings',
+            'Org/HumanResources/Clockings',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

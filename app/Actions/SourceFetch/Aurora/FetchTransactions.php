@@ -8,9 +8,9 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
-use App\Actions\OMS\Transaction\StoreTransaction;
-use App\Models\OMS\Order;
-use App\Models\OMS\Transaction;
+use App\Actions\Ordering\Transaction\StoreTransaction;
+use App\Models\Ordering\Order;
+use App\Models\Ordering\Transaction;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;

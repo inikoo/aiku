@@ -12,7 +12,7 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\OrgStock\UI\GetStockShowcase;
 use App\Actions\UI\Inventory\ShowInventoryDashboard;
-use App\Enums\UI\StockTabsEnum;
+use App\Enums\UI\SupplyChain\StockTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\OrgStockResource;
 use App\Models\SupplyChain\Stock;

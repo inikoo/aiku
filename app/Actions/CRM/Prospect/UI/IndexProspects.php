@@ -13,16 +13,17 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithProspectsSubNavigation;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
-use App\Enums\UI\ProspectsTabsEnum;
+use App\Enums\UI\CRM\ProspectsTabsEnum;
 use App\Http\Resources\CRM\ProspectQueriesResource;
 use App\Http\Resources\CRM\ProspectsResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Mail\MailshotsResource;
 use App\Http\Resources\Tag\TagResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Catalogue\Shop;
 use App\Models\CRM\Prospect;
-use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -30,7 +31,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 use Spatie\Tags\Tag;
 
 class IndexProspects extends OrgAction

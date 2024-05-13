@@ -11,11 +11,11 @@ use App\Actions\Accounting\OrgPaymentServiceProvider\UI\ShowOrgPaymentServicePro
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\PaymentAccountsResource;
-use App\Http\Resources\Market\ShopResource;
+use App\Http\Resources\Catalogue\ShopResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\OrgPaymentServiceProvider;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

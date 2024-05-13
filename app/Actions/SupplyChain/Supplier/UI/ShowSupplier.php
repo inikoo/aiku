@@ -14,7 +14,7 @@ use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\SupplierDelivery\UI\IndexSupplierDeliveries;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
-use App\Enums\UI\SupplierTabsEnum;
+use App\Enums\UI\SupplyChain\SupplierTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Http\Resources\Procurement\SupplierDeliveryResource;

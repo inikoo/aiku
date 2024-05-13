@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\Grp\Layout;
 
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -20,10 +20,10 @@ class GetShopNavigation
         $navigation = [];
 
         if ($user->hasPermissionTo("products.$shop->id.view")) {
-            $navigation["shop"] = [
+            $navigation["catalogue"] = [
                 "root"  => "grp.org.shops.show.catalogue.",
-                "icon"  => ["fal", "fa-store-alt"],
-                "label" => __("Products"),
+                "icon"  => ["fal", "fa-cube"],
+                "label" => __("catalogue"),
                 "route" => [
                     "name"       => 'grp.org.shops.show.catalogue.dashboard',
                     "parameters" => [$shop->organisation->slug, $shop->slug],
@@ -69,6 +69,103 @@ class GetShopNavigation
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
+                    ],
+                ],
+            ];
+        }
+        if ($user->hasPermissionTo("products.$shop->id.view")) {
+            $navigation["offers"] = [
+                "root"  => "grp.org.shops.show.offers.",
+                "icon"  => ["fal", "fa-badge-percent"],
+                "label" => __("Offers"),
+                "route" => [
+                    "name"       => 'grp.org.shops.show.offers.dashboard',
+                    "parameters" => [$shop->organisation->slug, $shop->slug],
+                ],
+                "topMenu" => [
+                    "subSections" => [
+                        [
+                            "tooltip" => __("offers dashboard"),
+                            "icon"    => ["fal", "fa-chart-network"],
+                            'root'    => 'grp.org.shops.show.offers.dashboard',
+                            "route"   => [
+                                "name"       => 'grp.org.shops.show.offers.dashboard',
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                        [
+                            "label"   => __("campaigns"),
+                            "tooltip" => __("campaigns"),
+                            "icon"    => ["fal", "fa-comment-dollar"],
+                            'root'    => 'grp.org.shops.show.offers.campaigns.',
+                            "route"   => [
+                                "name"       => "grp.org.shops.show.offers.campaigns.index",
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                        [
+                            "label"   => __("offers"),
+                            "tooltip" => __("offers"),
+                            "icon"    => ["fal", "fa-badge-percent"],
+                            'root'    => 'grp.org.shops.show.offers.offers.',
+                            "route"   => [
+                                "name"       => "grp.org.shops.show.offers.offers.index",
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+        }
+        if ($user->hasPermissionTo("products.$shop->id.view")) {
+            $navigation["marketing"] = [
+                "root"  => "grp.org.shops.show.marketing.",
+                "icon"  => ["fal", "fa-bullhorn"],
+                "label" => __("Deals"),
+                "route" => [
+                    "name"       => 'grp.org.shops.show.marketing.dashboard',
+                    "parameters" => [$shop->organisation->slug, $shop->slug],
+                ],
+                "topMenu" => [
+                    "subSections" => [
+                        [
+                            "tooltip" => __("marketing dashboard"),
+                            "icon"    => ["fal", "fa-chart-network"],
+                            'root'    => 'grp.org.shops.show.marketing.dashboard',
+                            "route"   => [
+                                "name"       => 'grp.org.shops.show.marketing.dashboard',
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                        [
+                            "label"   => __("newsletters"),
+                            "tooltip" => __("newsletters"),
+                            "icon"    => ["fal", "fa-newspaper"],
+                            "route"   => [
+                                "name"       => "grp.org.shops.show.marketing.newsletters.index",
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                        [
+                            "label"   => __("mailshots"),
+                            "tooltip" => __("marketing mailshots"),
+                            "icon"    => ["fal", "fa-mail-bulk"],
+                            "route"   => [
+                                "name"       => "grp.org.shops.show.marketing.mailshots.index",
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                        [
+                            "label"   => __("notifications"),
+                            "tooltip" => __("notifications"),
+                            "icon"    => ["fal", "fa-bell"],
+                            "route"   => [
+                                "name"       => "grp.org.shops.show.marketing.notifications.index",
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+
+
                     ],
                 ],
             ];
@@ -133,7 +230,7 @@ class GetShopNavigation
         if ($user->hasPermissionTo("marketing.view")) {
             $navigation["marketing"] = [
                 "root"    => "grp.org.shops.show.marketing.",
-                "label"   => __("Marketing"),
+                "label"   => __("Deals"),
                 "icon"    => ["fal", "fa-bullhorn"],
                 "route"   => "grp.marketing.hub",
                 "topMenu" => [
@@ -180,22 +277,24 @@ class GetShopNavigation
         }
 
         if ($user->hasPermissionTo("orders.$shop->id.view")) {
-            $navigation["oms"] = [
+            $navigation["ordering"] = [
+                "root"  => "grp.org.shops.show.ordering.",
                 "scope" => "shops",
-                "label" => __("Orders"),
+                "label" => __("orders"),
                 "icon"  => ["fal", "fa-shopping-cart"],
                 "route" => [
-                    "name"       => 'grp.org.shops.show.orders.orders.index',
+                    "name"       => 'grp.org.shops.show.ordering.backlog',
                     "parameters" => [$shop->organisation->slug, $shop->slug],
                 ],
                 "topMenu" => [
-                    "subSectionsx" => [
+                    "subSections" => [
                         [
-                            "label"   => "OMS",
-                            "tooltip" => "OMS",
+                            "label"   => __('Backlog'),
+                            "tooltip" => __('Pending orders'),
                             "icon"    => ["fal", "fa-tasks-alt"],
+                            'root'    => 'grp.org.shops.show.ordering.backlog',
                             "route"   => [
-                                "name"       => "grp.oms.dashboard",
+                                "name"       => "grp.org.shops.show.ordering.backlog",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -203,11 +302,13 @@ class GetShopNavigation
                             "label"   => __("orders"),
                             "tooltip" => __("Orders"),
                             "icon"    => ["fal", "fa-shopping-cart"],
+                            'root'    => 'grp.org.shops.show.ordering.orders.',
                             "route"   => [
-                                "name"       => "grp.oms.orders.index",
+                                "name"       => "grp.org.shops.show.ordering.orders.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
+                        /*
                         [
                             "label"   => __("delivery notes"),
                             "tooltip" => __("Delivery notes"),
@@ -226,6 +327,7 @@ class GetShopNavigation
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
+                        */
                     ],
                 ],
             ];

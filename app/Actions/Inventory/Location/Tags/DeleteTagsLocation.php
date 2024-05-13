@@ -8,7 +8,7 @@
 namespace App\Actions\Inventory\Location\Tags;
 
 use App\Models\Helpers\Tag;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Illuminate\Http\RedirectResponse;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -21,7 +21,7 @@ class DeleteTagsLocation
 
     private bool $asAction = false;
     /**
-     * @var \App\Models\Market\Shop
+     * @var \App\Models\Catalogue\Shop
      */
     private Shop $parent;
 

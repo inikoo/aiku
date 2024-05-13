@@ -10,7 +10,7 @@ namespace App\Imports\CRM;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Imports\WithImport;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Rules\ValidAddress;
 use Exception;
 use Illuminate\Support\Arr;

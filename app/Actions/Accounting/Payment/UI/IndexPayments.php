@@ -17,7 +17,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\OrgPaymentServiceProvider;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

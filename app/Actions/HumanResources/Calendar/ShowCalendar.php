@@ -9,7 +9,7 @@ namespace App\Actions\HumanResources\Calendar;
 
 use App\Actions\InertiaAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
-use App\Enums\UI\EmployeeTabsEnum;
+use App\Enums\UI\HumanResources\EmployeeTabsEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
 use Inertia\Inertia;
@@ -40,7 +40,7 @@ class ShowCalendar extends InertiaAction
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
         return Inertia::render(
-            'HumanResources/Calendar',
+            'Org/HumanResources/Calendar',
             [
                 'title'                                 => __('calendar'),
                 'breadcrumbs'                           => $this->getBreadcrumbs($employee),

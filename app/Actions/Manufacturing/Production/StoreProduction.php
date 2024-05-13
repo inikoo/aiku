@@ -12,7 +12,7 @@ use App\Actions\OrgAction;
 
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProductions;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProductions;
-use App\Actions\SysAdmin\Organisation\SeedOrganisationJobPositions;
+use App\Actions\SysAdmin\Organisation\SeedJobPositions;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Enums\Manufacturing\Production\ProductionStateEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
@@ -43,14 +43,14 @@ class StoreProduction extends OrgAction
         );
         foreach ($orgAdmins as $orgAdmin) {
             UserAddRoles::run($orgAdmin, [
-                Role::where('name', RolesEnum::getRoleName(RolesEnum::PRODUCTION_ADMIN->value, $production))->first()
+                Role::where('name', RolesEnum::getRoleName(RolesEnum::MANUFACTURING_ADMIN->value, $production))->first()
             ]);
         }
 
         GroupHydrateProductions::dispatch($organisation->group);
         OrganisationHydrateProductions::run($organisation);
         ProductionHydrateUniversalSearch::dispatch($production);
-        SeedOrganisationJobPositions::run($organisation);
+        SeedJobPositions::run($organisation);
 
 
         return $production;
@@ -105,7 +105,7 @@ class StoreProduction extends OrgAction
 
     public function htmlResponse(Production $production): RedirectResponse
     {
-        return Redirect::route('grp.org.manufacturing.productions.index');
+        return Redirect::route('grp.org.productions.index');
     }
 
     public string $commandSignature = 'production:create {organisation : organisation slug} {code} {name} {--source_id=} {--state=} {--created_at=}';

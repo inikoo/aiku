@@ -8,12 +8,12 @@
 namespace App\Stubs\Migrations;
 
 use App\Enums\Fulfilment\Rental\RentalStateEnum;
-use App\Enums\Market\Product\ProductStateEnum;
-use App\Enums\Market\Product\ProductTypeEnum;
-use App\Enums\Market\ProductCategory\ProductCategoryStateEnum;
-use App\Enums\Market\Service\ServiceStateEnum;
-use App\Enums\Market\Shop\ShopStateEnum;
-use App\Enums\Market\Shop\ShopTypeEnum;
+use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\Product\ProductTypeEnum;
+use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
+use App\Enums\Catalogue\Service\ServiceStateEnum;
+use App\Enums\Catalogue\Shop\ShopStateEnum;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasCatalogueStats

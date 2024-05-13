@@ -11,7 +11,7 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
-use App\Enums\UI\StoredItemTabsEnum;
+use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\History\HistoryResource;

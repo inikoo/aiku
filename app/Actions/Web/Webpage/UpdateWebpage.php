@@ -14,7 +14,7 @@ use App\Enums\Web\Webpage\WebpagePurposeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Http\Resources\Web\WebpageResource;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\Web\Webpage;
 use App\Rules\AlphaDashSlash;
 use App\Rules\IUnique;

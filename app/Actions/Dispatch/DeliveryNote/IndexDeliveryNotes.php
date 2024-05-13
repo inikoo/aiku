@@ -8,11 +8,11 @@
 namespace App\Actions\Dispatch\DeliveryNote;
 
 use App\Actions\InertiaAction;
-use App\Actions\Market\Shop\UI\ShowShop;
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Dispatch\DeliveryNote;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

@@ -15,7 +15,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceTransaction;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;

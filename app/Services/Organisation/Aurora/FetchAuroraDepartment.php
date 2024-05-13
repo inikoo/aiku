@@ -8,7 +8,7 @@
 namespace App\Services\Organisation\Aurora;
 
 use App\Actions\Utils\Abbreviate;
-use App\Enums\Market\ProductCategory\ProductCategoryTypeEnum;
+use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDepartment extends FetchAurora

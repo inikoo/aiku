@@ -124,7 +124,7 @@ class IndexClockingMachines extends OrgAction
     public function htmlResponse(LengthAwarePaginator $clockingMachines, ActionRequest $request): Response
     {
         return Inertia::render(
-            'HumanResources/ClockingMachines',
+            'Org/HumanResources/ClockingMachines',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

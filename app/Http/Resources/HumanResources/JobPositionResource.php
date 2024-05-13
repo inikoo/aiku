@@ -8,6 +8,7 @@
 
 namespace App\Http\Resources\HumanResources;
 
+use App\Models\HumanResources\JobPosition;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
 use JsonSerializable;
@@ -16,7 +17,7 @@ class JobPositionResource extends JsonResource
 {
     public function toArray($request): array|Arrayable|JsonSerializable
     {
-        /** @var \App\Models\HumanResources\JobPosition $jobPosition */
+        /** @var JobPosition $jobPosition */
         $jobPosition = $this;
 
 
@@ -24,7 +25,7 @@ class JobPositionResource extends JsonResource
             'id'               => $jobPosition->id,
             'slug'             => $jobPosition->slug,
             'name'             => $jobPosition->name,
-            'number_employees' => $jobPosition->number_employees,
+            'number_employees' => $jobPosition->stats->number_employees,
             'scope'            => $jobPosition->scope,
 
         ];

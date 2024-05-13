@@ -10,6 +10,7 @@ namespace App\Actions\HumanResources\Employee;
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch;
 use App\Actions\HumanResources\JobPosition\SyncEmployableJobPositions;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
@@ -18,7 +19,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Warehouse;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rules\Enum;
@@ -65,6 +66,7 @@ class UpdateEmployee extends OrgAction
         }
 
         if ($employee->wasChanged(['state'])) {
+            GroupHydrateEmployees::dispatch($employee->group);
             OrganisationHydrateEmployees::dispatch($employee->organisation);
         }
 

@@ -9,7 +9,7 @@ namespace App\Models\Accounting;
 
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Models\Helpers\SerialReference;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use Eloquent;

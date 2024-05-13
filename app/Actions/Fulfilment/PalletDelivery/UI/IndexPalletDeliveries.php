@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\PalletDelivery\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
-use App\Actions\Market\HasRentalAgreement;
+use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;

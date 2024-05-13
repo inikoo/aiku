@@ -41,7 +41,7 @@ class ShowHumanResourcesDashboard
     public function htmlResponse(ActionRequest $request): Response
     {
         return Inertia::render(
-            'HumanResources/HumanResourcesDashboard',
+            'Org/HumanResources/HumanResourcesDashboard',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('human resources'),

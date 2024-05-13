@@ -7,8 +7,8 @@
 
 namespace App\Models\Accounting;
 
-use App\Models\Market\Product;
-use App\Models\OMS\Transaction;
+use App\Models\Catalogue\Product;
+use App\Models\Ordering\Transaction;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;

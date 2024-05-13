@@ -9,7 +9,7 @@ namespace App\Actions\CRM\Appointment;
 
 use App\Models\CRM\Appointment;
 use App\Models\HumanResources\Employee;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;

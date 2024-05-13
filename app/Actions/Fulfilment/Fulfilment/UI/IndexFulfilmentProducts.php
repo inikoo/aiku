@@ -8,15 +8,15 @@
 namespace App\Actions\Fulfilment\Fulfilment\UI;
 
 use App\Actions\OrgAction;
-use App\Enums\Market\Product\ProductStateEnum;
-use App\Enums\Market\Product\ProductTypeEnum;
-use App\Enums\Market\Shop\ShopTypeEnum;
+use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\Product\ProductTypeEnum;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\UI\Fulfilment\FulfilmentProductsTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentProductsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Market\Product;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;

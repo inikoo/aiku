@@ -11,7 +11,7 @@ use App\Enums\CRM\Prospect\ProspectContactedStateEnum;
 use App\Enums\CRM\Prospect\ProspectFailStatusEnum;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Models\CRM\Prospect;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class UpdateProspectEmailUndoUnsubscribed

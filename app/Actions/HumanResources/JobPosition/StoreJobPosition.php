@@ -25,7 +25,8 @@ class StoreJobPosition extends OrgAction
     {
         data_set($modelData, 'group_id', $organisation->group_id);
         /** @var JobPosition $jobPosition */
-        $jobPosition = $organisation->josPositions()->create($modelData);
+        $jobPosition = $organisation->jobPositions()->create($modelData);
+        $jobPosition->stats()->create();
 
         GroupHydrateJobPositions::run($organisation->group);
         OrganisationHydrateJobPositions::run($organisation);
@@ -46,7 +47,7 @@ class StoreJobPosition extends OrgAction
     public function rules(): array
     {
         return [
-            'code'       => [
+            'code'                  => [
                 'required',
                 new IUnique(
                     table: 'job_positions',
@@ -57,11 +58,12 @@ class StoreJobPosition extends OrgAction
                 'max:8',
                 'alpha_dash'
             ],
-            'name'       => ['required', 'max:255'],
-            'locked'     => ['sometimes', 'boolean'],
-            'scope'      => ['required', Rule::enum(JobPositionScopeEnum::class)],
-            'department' => ['sometimes', 'nullable', 'string'],
-            'team'       => ['sometimes', 'nullable', 'string']
+            'name'                  => ['required', 'max:255'],
+            'locked'                => ['sometimes', 'boolean'],
+            'scope'                 => ['required', Rule::enum(JobPositionScopeEnum::class)],
+            'department'            => ['sometimes', 'nullable', 'string'],
+            'team'                  => ['sometimes', 'nullable', 'string'],
+            'group_job_position_id' => ['sometimes', 'nullable', 'exists:group_job_positions,id'],
         ];
     }
 

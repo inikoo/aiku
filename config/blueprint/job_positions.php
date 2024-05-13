@@ -7,7 +7,7 @@
  */
 
 use App\Enums\HumanResources\JobPosition\JobPositionScopeEnum;
-use App\Enums\Market\Shop\ShopTypeEnum;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 
@@ -88,7 +88,7 @@ return [
         ],
         'mrk-m'    => [
             'code'               => 'mrk-m',
-            'name'               => 'Marketing supervisor',
+            'name'               => 'Deals supervisor',
             'scope'              => JobPositionScopeEnum::SHOPS,
             'department'         => 'products',
             'roles'              => [
@@ -101,7 +101,7 @@ return [
         ],
         'mrk-c'    => [
             'code'               => 'mrk-c',
-            'name'               => 'Marketing clerk',
+            'name'               => 'Deals clerk',
             'scope'              => JobPositionScopeEnum::SHOPS,
             'department'         => 'products',
             'roles'              => [

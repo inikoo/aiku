@@ -40,6 +40,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\Artifact> $artifacts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\JobOrder> $jobOrders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\ManufactureTask> $manufactureTasks
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\RawMaterial> $rawMaterials
@@ -112,6 +113,11 @@ class Production extends Model implements Auditable
     public function artifacts(): HasMany
     {
         return $this->hasMany(Artifact::class);
+    }
+
+    public function jobOrders(): HasMany
+    {
+        return $this->hasMany(JobOrder::class);
     }
 
 }

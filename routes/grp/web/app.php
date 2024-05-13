@@ -50,31 +50,8 @@ Route::middleware(["auth"])->group(function () {
     Route::prefix("bi")
         ->name("reports.")
         ->group(__DIR__."/reports.php");
-    Route::prefix("crm")
-        ->name("crm.")
-        ->group(__DIR__."/crm.php");
-    Route::prefix("hr")
-        ->name("hr.")
-        ->group(__DIR__."/hr.php");
-    Route::prefix("inventory")
-        ->name("inventory.")
-        ->group(__DIR__."/warehouses.php");
-    Route::prefix("fulfilment")
-        ->name("fulfilment.")
-        ->group(__DIR__."/fulfilment.php");
 
 
-    Route::prefix("web")
-        ->name("web.")
-        ->group(__DIR__."/web.php");
-
-
-    Route::prefix("oms")
-        ->name("oms.")
-        ->group(__DIR__."/orders.php");
-    Route::prefix("dispatch")
-        ->name("dispatch.")
-        ->group(__DIR__."/dispatch.php");
 
     Route::prefix("accounting")
         ->name("accounting.")

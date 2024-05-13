@@ -14,7 +14,7 @@ use App\Actions\Traits\WithProspectPrepareForValidation;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Models\Helpers\Query;
 use App\Models\CRM\Prospect;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
@@ -30,7 +30,7 @@ class StoreProspectQuery
 
     private bool $asAction = false;
     /**
-     * @var \App\Models\Market\Shop
+     * @var \App\Models\Catalogue\Shop
      */
     private Shop $scope;
 

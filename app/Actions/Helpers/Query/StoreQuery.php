@@ -7,7 +7,7 @@
 
 namespace App\Actions\Helpers\Query;
 
-use App\Actions\Market\Shop\Hydrators\ShopHydrateQueries;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateQueries;
 use App\Models\Helpers\Query;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;

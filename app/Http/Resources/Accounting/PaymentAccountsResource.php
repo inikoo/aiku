@@ -11,7 +11,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @property int $number_payments
- * @property \App\Models\Market\Shop $shops
+ * @property \App\Models\Catalogue\Shop $shops
  * @property string $payment_service_provider_slug
  * @property string $payment_service_provider_code
  * @property string $payment_service_provider_name

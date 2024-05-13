@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue'
+import { reactive, ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faCheckCircle as falCheckCircle } from '@fal'
 import { faExclamationCircle, faCheckCircle as fasCheckCircle } from '@fas'
@@ -122,7 +122,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
 
     mrk: {
         icon: "fal fa-comments-dollar",
-        department: "Marketing",
+        department: "Deals",
         subDepartment: [
             {
                 slug: "mrk-m",

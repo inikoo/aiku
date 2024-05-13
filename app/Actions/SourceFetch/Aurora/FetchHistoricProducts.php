@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Market\HistoricOuterable\StoreHistoricOuterable;
-use App\Actions\Market\HistoricOuterable\UpdateHistoricOuterable;
-use App\Models\Market\HistoricOuterable;
+use App\Actions\Catalogue\HistoricOuterable\StoreHistoricOuterable;
+use App\Actions\Catalogue\HistoricOuterable\UpdateHistoricOuterable;
+use App\Models\Catalogue\HistoricOuterable;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;

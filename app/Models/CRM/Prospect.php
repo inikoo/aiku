@@ -14,7 +14,7 @@ use App\Enums\CRM\Prospect\ProspectFailStatusEnum;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Enums\CRM\Prospect\ProspectSuccessStatusEnum;
 use App\Models\Helpers\Address;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;

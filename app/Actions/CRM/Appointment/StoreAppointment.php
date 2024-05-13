@@ -11,7 +11,7 @@ use App\Actions\CRM\Customer\StoreCustomer;
 use App\Enums\CRM\Appointment\AppointmentEventEnum;
 use App\Enums\CRM\Appointment\AppointmentTypeEnum;
 use App\Models\CRM\Customer;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;

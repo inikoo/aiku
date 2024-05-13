@@ -5,8 +5,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Enums\OMS\Order\OrderStateEnum;
-use App\Enums\OMS\Order\OrderStatusEnum;
+use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

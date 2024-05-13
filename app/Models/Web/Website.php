@@ -13,7 +13,7 @@ use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Helpers\Deployment;
 use App\Models\Helpers\Snapshot;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\Media\Media;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;

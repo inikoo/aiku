@@ -10,8 +10,8 @@ namespace App\Models\Fulfilment;
 use App\Enums\Fulfilment\Rental\RentalStateEnum;
 use App\Enums\Fulfilment\Rental\RentalTypeEnum;
 use App\Enums\Fulfilment\Rental\RentalUnitEnum;
-use App\Models\Market\HistoricOuterable;
-use App\Models\Market\IsOuterable;
+use App\Models\Catalogue\HistoricOuterable;
+use App\Models\Catalogue\IsOuterable;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * App\Models\Market\Rental
+ * App\Models\Catalogue\Rental
  *
  * @property int $id
  * @property bool $status
@@ -44,9 +44,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, HistoricOuterable> $historicRecords
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @property-read \App\Models\Market\Product|null $product
+ * @property-read \App\Models\Catalogue\Product|null $product
  * @property-read \App\Models\Fulfilment\RentalSalesIntervals|null $salesIntervals
- * @property-read \App\Models\Market\Shop|null $shop
+ * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|Rental newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Rental newQuery()

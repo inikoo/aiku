@@ -14,7 +14,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Dropshipping\CustomerClientResource;
 use App\Models\Dropshipping\CustomerClient;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;

@@ -150,18 +150,18 @@ class AppServiceProvider extends ServiceProvider
                 'SenderEmail'                            => 'App\Models\Mail\SenderEmail',
                 'SesNotification'                        => 'App\Models\Mail\SesNotification',
 
-                // Market
-                'Shop'                              => 'App\Models\Market\Shop',
-                'ProductCategory'                   => 'App\Models\Market\ProductCategory',
-                'Product'                           => 'App\Models\Market\Product',
-                'HistoricOuterable'                 => 'App\Models\Market\HistoricOuterable',
-                'ShippingZone'                      => 'App\Models\Market\ShippingZone',
-                'ShippingZoneSchema'                => 'App\Models\Market\ShippingZoneSchema',
-                'Outer'                             => 'App\Models\Market\Outer',
+                // Catalogue
+                'Shop'                              => 'App\Models\Catalogue\Shop',
+                'ProductCategory'                   => 'App\Models\Catalogue\ProductCategory',
+                'Product'                           => 'App\Models\Catalogue\Product',
+                'HistoricOuterable'                 => 'App\Models\Catalogue\HistoricOuterable',
+                'ShippingZone'                      => 'App\Models\Ordering\ShippingZone',
+                'ShippingZoneSchema'                => 'App\Models\Ordering\ShippingZoneSchema',
+                'Outer'                             => 'App\Models\Catalogue\Outer',
                 'Rental'                            => 'App\Models\Fulfilment\Rental',
-                'Service'                           => 'App\Models\Market\Service',
+                'Service'                           => 'App\Models\Catalogue\Service',
 
-                // Marketing
+                // Deals
                 'Offer'                           => 'App\Models\Marketing\Offer',
                 'OfferCampaign'                   => 'App\Models\Marketing\OfferCampaign',
                 'OfferComponent'                  => 'App\Models\Marketing\OfferComponent',
@@ -172,9 +172,9 @@ class AppServiceProvider extends ServiceProvider
                 // Notifications
                 'FcmToken'                  => 'App\Models\Notifications\FcmToken',
 
-                // OMS
-                'Order'                        => 'App\Models\OMS\Order',
-                'Transaction'                  => 'App\Models\OMS\Transaction',
+                // Ordering
+                'Order'                        => 'App\Models\Ordering\Order',
+                'Transaction'                  => 'App\Models\Ordering\Transaction',
 
                 // Procurement
                 'HistoricSupplierProduct'                   => 'App\Models\Procurement\HistoricSupplierProduct',

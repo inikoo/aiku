@@ -7,7 +7,7 @@
 
 namespace App\Models\CRM;
 
-use App\Actions\Market\Shop\Hydrators\ShopHydrateCustomerInvoices;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCustomerInvoices;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
@@ -20,10 +20,10 @@ use App\Models\Fulfilment\StoredItem;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
 use App\Models\Helpers\TaxNumber;
-use App\Models\Market\Product;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Shop;
 use App\Models\Media\Media;
-use App\Models\OMS\Order;
+use App\Models\Ordering\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;

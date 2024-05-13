@@ -76,11 +76,13 @@ use App\Actions\Inventory\Location\Tags\SyncTagsLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\ImportWarehouseArea;
-use App\Actions\Market\Product\DeleteProduct;
-use App\Actions\Market\Product\StorePhysicalGood;
-use App\Actions\Market\Product\UpdatePhysicalGood;
-use App\Actions\Market\Shop\StoreShop;
-use App\Actions\Market\Shop\SyncPaymentAccountToShop;
+use App\Actions\Manufacturing\JobOrder\StoreJobOrder;
+use App\Actions\Manufacturing\JobOrder\UpdateJobOrder;
+use App\Actions\Catalogue\Product\DeleteProduct;
+use App\Actions\Catalogue\Product\StorePhysicalGood;
+use App\Actions\Catalogue\Product\UpdatePhysicalGood;
+use App\Actions\Catalogue\Shop\StoreShop;
+use App\Actions\Catalogue\Shop\SyncPaymentAccountToShop;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
@@ -268,6 +270,11 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
 Route::post('/supplier', StoreSupplier::class)->name('supplier.store');
 Route::patch('/shop/payment-accounts/{paymentAccount:id}', SyncPaymentAccountToShop::class)->name('shop.payment-accounts.sync')->withoutScopedBindings();
 
+Route::name('production.')->prefix('production')->group(function () {
+    Route::post('{production}/job-order/store', StoreJobOrder::class)->name('job-order.store');
+    Route::patch('{job-order}/job-order/update', UpdateJobOrder::class)->name('job-order.update');
+
+});
 /*
 
 

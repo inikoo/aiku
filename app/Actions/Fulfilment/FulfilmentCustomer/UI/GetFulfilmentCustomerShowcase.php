@@ -12,7 +12,7 @@ use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
-use App\Http\Resources\Market\RentalAgreementResource;
+use App\Http\Resources\Catalogue\RentalAgreementResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsObject;

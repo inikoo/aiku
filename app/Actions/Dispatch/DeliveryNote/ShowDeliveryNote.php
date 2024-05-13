@@ -8,13 +8,13 @@
 namespace App\Actions\Dispatch\DeliveryNote;
 
 use App\Actions\InertiaAction;
-use App\Actions\OMS\Order\UI\ShowOrder;
+use App\Actions\Ordering\Order\UI\ShowOrder;
 use App\Actions\UI\WithInertia;
-use App\Enums\UI\DeliveryNoteTabsEnum;
+use App\Enums\UI\Dispatch\DeliveryNoteTabsEnum;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
+use App\Models\Catalogue\Shop;
 use App\Models\Dispatch\DeliveryNote;
-use App\Models\Market\Shop;
-use App\Models\OMS\Order;
+use App\Models\Ordering\Order;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;

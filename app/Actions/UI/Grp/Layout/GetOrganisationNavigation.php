@@ -257,9 +257,9 @@ class GetOrganisationNavigation
                 'label'   => __('Productions'),
                 'scope'   => 'productions',
                 'icon'    => ['fal', 'fa-industry'],
-                'root'    => 'grp.org.manufacturing.productions.index',
+                'root'    => 'grp.org.productions.index',
                 'route'   => [
-                    'name'       => 'grp.org.manufacturing.productions.index',
+                    'name'       => 'grp.org.productions.index',
                     'parameters' => [$organisation->slug],
                 ],
                 'topMenu' => [

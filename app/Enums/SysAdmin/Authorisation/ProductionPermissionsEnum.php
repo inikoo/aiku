@@ -11,17 +11,23 @@ use App\Models\Manufacturing\Production;
 
 enum ProductionPermissionsEnum: string
 {
-    case PRODUCTION = 'productions';
+    case PRODUCTION_OPERATIONS = 'productions_operations';
 
-    case PRODUCTION_EDIT = 'productions.edit';
+    case PRODUCTION_OPERATIONS_EDIT = 'productions_operations.edit';
 
-    case PRODUCTION_VIEW = 'productions.view';
+    case PRODUCTION_OPERATIONS_VIEW = 'productions_operations.view';
 
+    case PRODUCTION_OPERATIONS_ORCHESTRATE = 'productions_operations.orchestrate';
 
+    case PRODUCTION_RD= 'productions_rd';
 
+    case PRODUCTION_RD_VIEW = 'productions_rd.view';
 
+    case PRODUCTION_RD_EDIT = 'productions_rd.edit';
 
-    case SUPERVISOR_PRODUCTIONS        = 'supervisor-productions';
+    case PRODUCTION_PROCUREMENT      = 'productions_procurement';
+    case PRODUCTION_PROCUREMENT_EDIT = 'productions_procurement.edit';
+    case PRODUCTION_PROCUREMENT_VIEW = 'productions_procurement.view';
 
 
     public static function getAllValues(Production $production): array

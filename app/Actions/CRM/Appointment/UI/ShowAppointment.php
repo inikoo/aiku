@@ -13,7 +13,7 @@ use App\Enums\UI\Customer\AppointmentTabsEnum;
 use App\Http\Resources\CRM\AppointmentResource;
 use App\Models\CRM\Appointment;
 use App\Models\CRM\Customer;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

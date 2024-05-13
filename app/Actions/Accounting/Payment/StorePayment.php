@@ -14,7 +14,7 @@ use App\Actions\Accounting\PaymentGateway\Paypal\Orders\MakePaymentUsingPaypal;
 use App\Actions\Accounting\PaymentGateway\Xendit\Channels\Invoice\MakePaymentUsingXendit;
 use App\Actions\Accounting\PaymentServiceProvider\Hydrators\PaymentServiceProviderHydratePayments;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
-use App\Actions\Market\Shop\Hydrators\ShopHydratePayments;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydratePayments;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePayments;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePayments;

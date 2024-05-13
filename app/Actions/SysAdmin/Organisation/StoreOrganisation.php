@@ -52,7 +52,7 @@ class StoreOrganisation
         $organisation = $group->organisations()->create($modelData);
         $organisation->refresh();
         SeedOrganisationPermissions::run($organisation);
-        SeedOrganisationJobPositions::run($organisation);
+        SeedJobPositions::run($organisation);
 
 
         if ($addressData) {

@@ -54,7 +54,7 @@ enum OutboxTypeEnum: string
             OutboxTypeEnum::DELIVERY_CONFIRMATION      => 'Delivery conformation',
             OutboxTypeEnum::REORDER_REMINDER           => 'Reorder reminder',
             OutboxTypeEnum::SHOP_PROSPECT              => __('prospect'),
-            OutboxTypeEnum::MARKETING                  => 'Marketing',
+            OutboxTypeEnum::MARKETING                  => 'Deals',
             OutboxTypeEnum::NEWSLETTER                 => 'Newsletter',
             OutboxTypeEnum::OOS_NOTIFICATION           => 'Out of stock notification',
             OutboxTypeEnum::ORDER_CONFIRMATION         => 'Order confirmation',

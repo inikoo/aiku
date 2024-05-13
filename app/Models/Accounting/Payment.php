@@ -17,7 +17,7 @@ use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Assets\Currency;
 use App\Models\CRM\Customer;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;

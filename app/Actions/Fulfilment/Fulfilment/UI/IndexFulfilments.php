@@ -11,7 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentsResource;
-use App\Http\Resources\Market\ShopResource;
+use App\Http\Resources\Catalogue\ShopResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Group;

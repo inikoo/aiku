@@ -7,13 +7,13 @@
 
 namespace App\Actions\CRM\Customer\UI;
 
-use App\Actions\Market\Shop\UI\ShowShop;
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-use App\Enums\Market\Shop\ShopTypeEnum;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\CRM\CustomersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;

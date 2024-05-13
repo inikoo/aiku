@@ -30,7 +30,7 @@ class RegenerateSlugs
         foreach ($organisations as $organisation) {
             $result = (int)$organisation->execute(function () use ($command, $organisation) {
                 $modelName = match ($command->argument('model')) {
-                    'shops' => '\App\Models\Market\Shop',
+                    'shops' => '\App\Models\Catalogue\Shop',
                     default => null
                 };
                 if (!$modelName) {

@@ -8,8 +8,12 @@
 namespace App\Actions\HumanResources\JobPosition;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateJobPositionsShare;
+use App\Actions\HumanResources\JobPosition\Hydrators\JobPositionHydrateEmployees;
+use App\Actions\HumanResources\JobPosition\Hydrators\JobPositionHydrateGuests;
+use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateJobPositionsShare;
 use App\Actions\SysAdmin\User\SyncRolesFromJobPositions;
 use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Guest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -27,7 +31,7 @@ class SyncEmployableJobPositions
         $newJobPositionsIds = array_diff($jobPositionsIds, $currentJobPositions);
         $removeJobPositions = array_diff($currentJobPositions, $jobPositionsIds);
 
-        $model->jobPositions()->detach($newJobPositionsIds);
+        $model->jobPositions()->detach($removeJobPositions);
 
         foreach ($newJobPositionsIds as $jobPositionId) {
             $model->jobPositions()->attach(
@@ -45,9 +49,30 @@ class SyncEmployableJobPositions
 
             if (class_basename($model) == 'Employee') {
                 EmployeeHydrateJobPositionsShare::dispatch($model);
-                foreach ($jobPositions as $jobPositionId) {
-                    HydrateJobPosition::dispatch($jobPositionId);
+
+                foreach ($removeJobPositions as $jobPositionId) {
+                    $jobPosition=JobPosition::find($jobPositionId);
+                    JobPositionHydrateEmployees::dispatch($jobPosition);
                 }
+
+                foreach ($newJobPositionsIds as $jobPositionId) {
+                    $jobPosition=JobPosition::find($jobPositionId);
+                    JobPositionHydrateEmployees::dispatch($jobPosition);
+                }
+
+            } elseif (class_basename($model) == 'Guest') {
+                GuestHydrateJobPositionsShare::dispatch($model);
+
+                foreach ($removeJobPositions as $jobPositionId) {
+                    $jobPosition=JobPosition::find($jobPositionId);
+                    JobPositionHydrateGuests::dispatch($jobPosition);
+                }
+
+                foreach ($newJobPositionsIds as $jobPositionId) {
+                    $jobPosition=JobPosition::find($jobPositionId);
+                    JobPositionHydrateGuests::dispatch($jobPosition);
+                }
+
             }
         }
     }

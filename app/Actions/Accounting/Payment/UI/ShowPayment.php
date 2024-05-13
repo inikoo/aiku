@@ -9,13 +9,13 @@ namespace App\Actions\Accounting\Payment\UI;
 
 use App\Actions\InertiaAction;
 use App\Enums\UI\Accounting\PaymentTabsEnum;
-use App\Enums\UI\DepartmentTabsEnum;
+use App\Enums\UI\Catalogue\DepartmentTabsEnum;
 use App\Http\Resources\Accounting\PaymentsResource;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\Market\Shop;
-use App\Models\OMS\Order;
+use App\Models\Catalogue\Shop;
+use App\Models\Ordering\Order;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

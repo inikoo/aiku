@@ -9,7 +9,7 @@ namespace App\Enums\Web\Website;
 
 use App\Enums\EnumHelperTrait;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 

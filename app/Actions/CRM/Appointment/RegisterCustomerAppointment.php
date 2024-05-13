@@ -8,7 +8,7 @@
 namespace App\Actions\CRM\Appointment;
 
 use App\Actions\CRM\Customer\Register;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
 use Lorisleiva\Actions\ActionRequest;

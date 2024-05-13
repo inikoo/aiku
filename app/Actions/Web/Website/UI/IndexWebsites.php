@@ -8,13 +8,13 @@
 namespace App\Actions\Web\Website\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Market\Shop\UI\ShowShop;
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Http\Resources\Web\WebsiteResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;

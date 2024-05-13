@@ -2,7 +2,7 @@
 
 namespace App\Exports\Marketing;
 
-use App\Models\Market\ProductCategory;
+use App\Models\Catalogue\ProductCategory;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder;
 use Maatwebsite\Excel\Concerns\FromQuery;

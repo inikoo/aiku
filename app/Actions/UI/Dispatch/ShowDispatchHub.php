@@ -10,7 +10,7 @@ namespace App\Actions\UI\Dispatch;
 use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;

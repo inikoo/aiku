@@ -7,37 +7,32 @@
 <script setup lang="ts">
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import {Warehouse} from "@/types/warehouse";
+import {Production} from "@/types/production";
 
 const props = defineProps<{
     data: object,
     tab?: string
 }>()
 
-function warehouseRoute(warehouse: Warehouse) {
+
+console.log(route().current())
+function productionRoute(production: Production) {
     switch (route().current()) {
-        case 'grp.org.warehouses.index':
+        case 'grp.org.productions.index':
             return route(
-                'grp.org.warehouses.show.infrastructure.dashboard',
-                [route().params['organisation'], warehouse.slug]);
+                'grp.org.productions.show',
+                [route().params['organisation'], production.slug]);
     }
 }
 
-function warehouseAreasRoute(warehouse: Warehouse) {
-    switch (route().current()) {
-        case 'grp.org.warehouses.index':
-            return route(
-                'grp.org.warehouses.show.infrastructure.warehouse-areas.index',
-                [route().params['organisation'], warehouse.slug]);
-    }
-}
 
-function locationsRoute(warehouse: Warehouse) {
+
+function locationsRoute(production: Production) {
     switch (route().current()) {
-        case 'grp.org.warehouses.index':
+        case 'grp.org.productions.index':
             return route(
-                'grp.org.warehouses.show.infrastructure.locations.index',
-                [route().params['organisation'], warehouse.slug]);
+                'grp.org.productions.show.infrastructure.locations.index',
+                [route().params['organisation'], production.slug]);
     }
 }
 
@@ -46,19 +41,15 @@ function locationsRoute(warehouse: Warehouse) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(code)="{ item: warehouse }">
-            <Link :href="warehouseRoute(warehouse)" class="specialUnderline">
-                {{ warehouse['code'] }}
+        <template #cell(code)="{ item: production }">
+            <Link :href="productionRoute(production)" class="specialUnderline">
+                {{ production['code'] }}
             </Link>
         </template>
-        <template #cell(number_warehouse_areas)="{ item: warehouse }">
-            <Link :href="warehouseAreasRoute(warehouse)" class="specialUnderline">
-                {{ warehouse['number_warehouse_areas'] }}
-            </Link>
-        </template>
-        <template #cell(number_locations)="{ item: warehouse }">
-            <Link :href="locationsRoute(warehouse)" class="specialUnderline">
-                {{ warehouse['number_locations'] }}
+
+        <template #cell(number_locations)="{ item: production }">
+            <Link :href="locationsRoute(production)" class="specialUnderline">
+                {{ production['number_locations'] }}
             </Link>
         </template>
     </Table>

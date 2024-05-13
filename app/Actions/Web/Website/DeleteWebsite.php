@@ -7,7 +7,7 @@
 
 namespace App\Actions\Web\Website;
 
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\Web\Website;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;

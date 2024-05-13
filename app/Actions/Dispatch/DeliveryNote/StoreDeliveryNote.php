@@ -14,7 +14,7 @@ use App\Actions\OrgAction;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Models\Dispatch\DeliveryNote;
-use App\Models\OMS\Order;
+use App\Models\Ordering\Order;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Validation\Rules\Enum;

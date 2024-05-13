@@ -11,7 +11,7 @@ use App\Actions\Goods\Stock\UI\IndexStocks;
 use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\UI\Goods\ShowGoodsDashboard;
-use App\Enums\UI\StockFamilyTabsEnum;
+use App\Enums\UI\SupplyChain\StockFamilyTabsEnum;
 use App\Http\Resources\Goods\StockFamilyResource;
 use App\Http\Resources\Goods\StocksResource;
 use App\Http\Resources\History\HistoryResource;

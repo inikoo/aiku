@@ -13,16 +13,16 @@ use App\Actions\Web\Website\GetWebsiteWorkshopCategory;
 use App\Actions\Web\Website\GetWebsiteWorkshopColorScheme;
 use App\Actions\Web\Website\GetWebsiteWorkshopMenu;
 use App\Actions\Web\Website\GetWebsiteWorkshopProduct;
-use App\Enums\UI\WebsiteWorkshopTabsEnum;
+use App\Enums\UI\Web\WebsiteWorkshopTabsEnum;
 use App\Http\Resources\Web\WebsiteLayoutWorkshopResource;
+use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\SysAdmin\Organisation;
 
 class ShowWebsiteWorkshop extends OrgAction
 {

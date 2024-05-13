@@ -7,19 +7,19 @@
 
 namespace App\Actions\Web\Website\UI;
 
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\Market\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 use App\Actions\Web\HasWorkshopAction;
-use App\Enums\UI\WebsiteTabsEnum;
+use App\Enums\UI\Web\WebsiteTabsEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Http\Resources\CRM\WebUsersResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Web\WebsiteResource;
+use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Market\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
 use Illuminate\Support\Arr;

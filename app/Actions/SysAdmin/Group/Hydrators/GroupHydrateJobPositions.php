@@ -29,7 +29,7 @@ class GroupHydrateJobPositions
     public function handle(Group $group): void
     {
         $stats = [
-            'number_job_positions' => $group->josPositions()->count()
+            'number_job_positions' => $group->jobPositions()->count()
         ];
         $group->humanResourcesStats()->update($stats);
     }

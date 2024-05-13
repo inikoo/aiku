@@ -8,7 +8,7 @@ library.add(faBuilding, faEnvelope, faBalanceScale, faIndustry, faPhone)
 
 const contactAddress = {
     company: {
-        label: "Ancient Wisdom Marketing Ltd. Affinity Park, Europa Drive   Sheffield, s9 1xt",
+        label: "Ancient Wisdom Deals Ltd. Affinity Park, Europa Drive   Sheffield, s9 1xt",
         icon: "fas fa-building"
     },
     email: {

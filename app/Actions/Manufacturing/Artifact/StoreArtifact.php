@@ -70,7 +70,7 @@ class StoreArtifact extends OrgAction
     public function htmlResponse(Artifact $artifact): RedirectResponse
     {
 
-        return Redirect::route('grp.org.manufacturing.artifacts.show', [
+        return Redirect::route('grp.org.artifacts.show', [
             $artifact->slug
         ]);
     }

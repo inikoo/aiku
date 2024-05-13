@@ -10,7 +10,7 @@ namespace App\Actions\CRM\Prospect\Tags\UI;
 use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\InertiaAction;
 use App\Models\Helpers\Tag;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;

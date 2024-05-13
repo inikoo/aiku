@@ -13,7 +13,7 @@ use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Http\Resources\Accounting\SelectOrgPaymentServiceProvidersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

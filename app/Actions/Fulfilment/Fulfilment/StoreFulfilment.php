@@ -7,7 +7,7 @@
 
 namespace App\Actions\Fulfilment\Fulfilment;
 
-use App\Actions\Market\Shop\StoreShop;
+use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\Traits\Rules\WithShopRules;
@@ -16,7 +16,7 @@ use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
 use Illuminate\Http\RedirectResponse;

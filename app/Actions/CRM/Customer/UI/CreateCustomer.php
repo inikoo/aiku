@@ -11,7 +11,7 @@ use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\InertiaAction;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Helpers\Address;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

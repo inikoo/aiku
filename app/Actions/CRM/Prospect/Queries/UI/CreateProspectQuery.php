@@ -9,7 +9,7 @@ namespace App\Actions\CRM\Prospect\Queries\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\CRM\Prospect\UI\IndexProspects;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

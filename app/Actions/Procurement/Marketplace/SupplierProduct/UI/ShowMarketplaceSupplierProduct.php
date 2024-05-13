@@ -10,7 +10,7 @@ namespace App\Actions\Procurement\Marketplace\SupplierProduct\UI;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Marketplace\Supplier\UI\ShowMarketplaceSupplier;
 use App\Actions\UI\Procurement\ProcurementDashboard;
-use App\Enums\UI\MarketplaceSupplierProductTabsEnum;
+use App\Enums\UI\Procurement\MarketplaceSupplierProductTabsEnum;
 use App\Http\Resources\Procurement\MarketplaceSupplierProductResource;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;

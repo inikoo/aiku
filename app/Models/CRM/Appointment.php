@@ -10,7 +10,7 @@ namespace App\Models\CRM;
 use App\Enums\CRM\Appointment\AppointmentEventEnum;
 use App\Enums\CRM\Appointment\AppointmentStateEnum;
 use App\Enums\CRM\Appointment\AppointmentTypeEnum;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\Traits\InCustomer;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

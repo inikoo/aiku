@@ -7,7 +7,7 @@
 
 namespace App\Actions\Retina\Storage\PalletDelivery\UI;
 
-use App\Actions\Market\HasRentalAgreement;
+use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Storage\ShowStorageDashboard;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;

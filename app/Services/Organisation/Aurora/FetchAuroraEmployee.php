@@ -196,7 +196,9 @@ class FetchAuroraEmployee extends FetchAurora
 
     private function parseJobPositions(): array
     {
-        $jobPositions = JobPosition::all()->pluck('id', 'slug')->all();
+
+
+        $jobPositions =  $this->organisation->jobPositions()->pluck('id', 'slug')->all();
 
         $jobPositionCodes = [];
         foreach (explode(',', $this->auroraModelData->staff_positions) as $sourceStaffPosition) {

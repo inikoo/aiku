@@ -65,6 +65,13 @@ trait HasManufactureStats
         return $table;
     }
 
+    public function jobOrdersStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedSmallInteger('number_job_orders')->default(0);
+
+        return $table;
+    }
+
 
 
 }

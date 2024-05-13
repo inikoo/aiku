@@ -12,7 +12,7 @@ use App\Actions\HumanResources\Clocking\UI\IndexClockings;
 use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
 use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
-use App\Enums\UI\ClockingMachineTabsEnum;
+use App\Enums\UI\HumanResources\ClockingMachineTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Http\Resources\HumanResources\ClockingResource;
@@ -50,7 +50,7 @@ class ShowClockingMachine extends OrgAction
     public function htmlResponse(ClockingMachine $clockingMachine, ActionRequest $request): Response
     {
         return Inertia::render(
-            'HumanResources/ClockingMachine',
+            'Org/HumanResources/ClockingMachine',
             [
                 'title'                                 => __('clocking machine'),
                 'breadcrumbs'                           => $this->getBreadcrumbs(

@@ -7,7 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Enums\Market\Outer\OuterStateEnum;
+use App\Enums\Catalogue\Outer\OuterStateEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraOuter extends FetchAurora

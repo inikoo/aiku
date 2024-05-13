@@ -9,7 +9,7 @@ namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\OrgAction;
 use App\Models\CRM\Customer;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;

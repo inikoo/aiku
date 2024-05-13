@@ -14,7 +14,7 @@ use App\Http\Resources\Helpers\UploadsResource;
 use App\Imports\CRM\ProspectImport;
 use App\Models\CRM\Prospect;
 use App\Models\Helpers\Upload;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\ActionRequest;
 

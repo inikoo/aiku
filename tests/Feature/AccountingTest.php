@@ -12,7 +12,7 @@ use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\UpdatePaymentServiceProvider;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
-use App\Actions\Market\Shop\StoreShop;
+use App\Actions\Catalogue\Shop\StoreShop;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Models\Accounting\OrgPaymentServiceProvider;
@@ -20,7 +20,7 @@ use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\CRM\Customer;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 
 beforeAll(function () {
     loadDB('test_base_database.dump');

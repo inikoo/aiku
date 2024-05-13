@@ -12,7 +12,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\Customer;
 use App\Models\Goods\TradeUnit;
 use App\Models\HumanResources\Employee;
-use App\Models\Market\Product;
+use App\Models\Catalogue\Product;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\Supplier;

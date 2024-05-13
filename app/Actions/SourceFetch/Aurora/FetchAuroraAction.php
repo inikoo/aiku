@@ -11,7 +11,7 @@ use App\Actions\Media\Media\UpdateIsAnimatedMedia;
 use App\Actions\SourceFetch\FetchAction;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Enums\Helpers\Fetch\FetchTypeEnum;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\Media\Media;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;

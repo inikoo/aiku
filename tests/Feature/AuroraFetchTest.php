@@ -8,7 +8,7 @@
 use App\Enums\Helpers\Fetch\FetchTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Helpers\Fetch;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
 
 beforeAll(function () {

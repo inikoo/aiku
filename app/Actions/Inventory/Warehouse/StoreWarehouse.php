@@ -11,7 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouses;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouses;
-use App\Actions\SysAdmin\Organisation\SeedOrganisationJobPositions;
+use App\Actions\SysAdmin\Organisation\SeedJobPositions;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
@@ -49,7 +49,7 @@ class StoreWarehouse extends OrgAction
         GroupHydrateWarehouses::run($organisation->group);
         OrganisationHydrateWarehouses::run($organisation);
         WarehouseHydrateUniversalSearch::dispatch($warehouse);
-        SeedOrganisationJobPositions::run($organisation);
+        SeedJobPositions::run($organisation);
 
 
         return $warehouse;

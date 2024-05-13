@@ -12,7 +12,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateUniversalSearch;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Http\Resources\Web\WebsiteResource;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\Web\Website;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;

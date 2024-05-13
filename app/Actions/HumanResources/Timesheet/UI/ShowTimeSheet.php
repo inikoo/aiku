@@ -9,7 +9,7 @@ namespace App\Actions\HumanResources\Timesheet\UI;
 
 use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\OrgAction;
-use App\Enums\UI\EmployeeTabsEnum;
+use App\Enums\UI\HumanResources\EmployeeTabsEnum;
 use App\Http\Resources\HumanResources\TimesheetsResource;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Timesheet;
@@ -50,7 +50,7 @@ class ShowTimeSheet extends OrgAction
     public function htmlResponse(Timesheet $timesheet, ActionRequest $request): Response
     {
         return Inertia::render(
-            'HumanResources/TimeSheet',
+            'Org/HumanResources/TimeSheet',
             [
                 'title'                                 => __('timesheet'),
                 'breadcrumbs'                           => $this->getBreadcrumbs($timesheet),

@@ -8,7 +8,7 @@
 namespace App\Actions\Web;
 
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 

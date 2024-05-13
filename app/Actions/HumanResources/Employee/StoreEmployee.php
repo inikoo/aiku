@@ -11,6 +11,7 @@ use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
 use App\Actions\HumanResources\JobPosition\SyncEmployableJobPositions;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
@@ -80,6 +81,7 @@ class StoreEmployee extends OrgAction
         }
         SyncEmployableJobPositions::run($employee, $jobPositions);
         EmployeeHydrateWeekWorkingHours::dispatch($employee);
+        GroupHydrateEmployees::dispatch($employee->group);
         OrganisationHydrateEmployees::dispatch($organisation);
         EmployeeHydrateUniversalSearch::dispatch($employee);
 

@@ -8,8 +8,8 @@
 namespace App\Actions\Marketing\Offer;
 
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Market\OfferResource;
-use App\Models\Marketing\Offer;
+use App\Http\Resources\Catalogue\OfferResource;
+use App\Models\Deals\Offer;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOffer

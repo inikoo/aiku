@@ -12,7 +12,7 @@ use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
-use App\Enums\UI\EmployeeTabsEnum;
+use App\Enums\UI\HumanResources\EmployeeTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Http\Resources\HumanResources\TimesheetsResource;
@@ -49,7 +49,7 @@ class ShowEmployee extends OrgAction
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
         return Inertia::render(
-            'HumanResources/Employee',
+            'Org/HumanResources/Employee',
             [
                 'title'       => __('employee'),
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
@@ -130,7 +130,7 @@ class ShowEmployee extends OrgAction
 
     public function getData(Employee $employee): array
     {
-        return Arr::except($employee->toArray(), ['id', 'source_id','working_hours','errors','salary','data','job_position_scopes']);
+        return Arr::except($employee->toArray(), ['id', 'source_id','working_hours','errors','salary','data']);
     }
 
     public function jsonResponse(Employee $employee): EmployeeResource

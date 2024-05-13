@@ -12,7 +12,7 @@ use App\Enums\CRM\Appointment\AppointmentEventEnum;
 use App\Enums\CRM\Appointment\AppointmentTypeEnum;
 use App\Models\CRM\Appointment;
 use App\Models\CRM\Customer;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

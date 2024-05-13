@@ -7,8 +7,8 @@
 
 namespace App\Actions\Marketing\Offer;
 
-use App\Models\Marketing\Offer;
-use App\Models\Marketing\OfferCampaign;
+use App\Models\Deals\Offer;
+use App\Models\Deals\OfferCampaign;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -20,7 +20,7 @@ class StoreOffer
     public function handle(OfferCampaign $offerCampaign, array $modelData): Offer
     {
         $modelData['shop_id'] = $offerCampaign->shop_id;
-        /** @var \App\Models\Marketing\Offer $offer */
+        /** @var \App\Models\Deals\Offer $offer */
         $offer = $offerCampaign->offers()->create($modelData);
 
         return $offer;

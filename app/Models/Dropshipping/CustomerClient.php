@@ -10,7 +10,7 @@ namespace App\Models\Dropshipping;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
-use App\Models\Market\Shop;
+use App\Models\Catalogue\Shop;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;

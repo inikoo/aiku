@@ -17,6 +17,8 @@ return new class () extends Migration {
         Schema::create('job_positions', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table=$this->groupOrgRelationship($table);
+            $table->unsignedSmallInteger('group_job_position_id')->nullable();
+            $table->foreign('group_job_position_id')->references('id')->on('group_job_positions')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index()->collation('und_ns');
             $table->string('name')->index()->collation('und_ci');
@@ -24,11 +26,6 @@ return new class () extends Migration {
             $table->string('department')->nullable();
             $table->string('team')->nullable();
             $table->jsonb('data');
-            $table->unsignedSmallInteger('number_employees')->default(0);
-            $table->unsignedSmallInteger('number_guests')->default(0);
-            $table->unsignedSmallInteger('number_roles')->default(0);
-            $table->double('number_work_time')->default(0);
-            $table->decimal('share_work_time', 7, 6)->nullable();
             $table->boolean('locked')->default(true)->comment('Seeded job positions should be locked');
             $table->timestampsTz();
             $table->index(['code','organisation_id']);

@@ -26,10 +26,10 @@ use App\Models\Manufacturing\Artifact;
 use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
-use App\Models\Market\CollectionCategory;
-use App\Models\Market\Collection;
-use App\Models\Market\Product;
-use App\Models\OMS\Order;
+use App\Models\Catalogue\CollectionCategory;
+use App\Models\Catalogue\Collection;
+use App\Models\Catalogue\Product;
+use App\Models\Ordering\Order;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Stock;
@@ -78,11 +78,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Currency $currency
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Employee> $employees
  * @property-read \App\Models\SysAdmin\GroupFulfilmentStats|null $fulfilmentStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\GroupJobPosition> $groupJobPositions
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Guest> $guests
  * @property-read \App\Models\SysAdmin\GroupHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\SysAdmin\GroupInventoryStats|null $inventoryStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $josPositions
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $jobPositions
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Location> $locations
  * @property-read \App\Models\Media\Media|null $logo
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Mailroom> $mailrooms
@@ -261,9 +262,14 @@ class Group extends Model implements HasMedia
         return $this->belongsTo(Currency::class);
     }
 
-    public function josPositions(): HasMany
+    public function jobPositions(): HasMany
     {
         return $this->hasMany(JobPosition::class);
+    }
+
+    public function groupJobPositions(): HasMany
+    {
+        return $this->hasMany(GroupJobPosition::class);
     }
 
     public function registerMediaCollections(): void

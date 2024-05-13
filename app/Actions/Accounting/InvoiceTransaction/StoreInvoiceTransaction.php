@@ -9,7 +9,7 @@ namespace App\Actions\Accounting\InvoiceTransaction;
 
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceTransaction;
-use App\Models\Market\HistoricOuterable;
+use App\Models\Catalogue\HistoricOuterable;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreInvoiceTransaction

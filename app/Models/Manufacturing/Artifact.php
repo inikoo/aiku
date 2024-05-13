@@ -37,6 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\ManufactureTask> $manufactureTasks
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Manufacturing\Production|null $production
  * @property-read \App\Models\Manufacturing\ArtifactStats|null $stats
@@ -95,6 +96,10 @@ class Artifact extends Model
         return $this->hasOne(ArtifactStats::class);
     }
 
+    public function manufactureTasks()
+    {
+        return $this->belongsToMany(ManufactureTask::class)->using(ArtifactManufactureTask::class);
+    }
 
 
 }
