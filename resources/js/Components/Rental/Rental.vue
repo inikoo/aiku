@@ -282,12 +282,11 @@ onMounted(() => {
                                     @change="onSelectAllRows" />
                             </th>
                             
-                            <th scope="col"
-                                class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold sm:pl-6 w-full">
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold min-w-40 max-w-80">
                                 {{ trans('Rental') }}
                             </th>
                             
-                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold min-w-40 max-w-64">
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold whitespace-nowrap min-w-40 max-w-64">
                                 {{ trans('Price') }}
                             </th>
                             

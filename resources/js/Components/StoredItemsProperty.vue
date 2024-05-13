@@ -30,7 +30,7 @@ const emits = defineEmits<{
 }>()
 
 const isModalOpen = ref(false)
-const form = useForm({ id: null, quantity: 1, oldData: null })
+const form = useForm({ id: null, quantity: 1, oldData: null, notes: ""})
 
 
 const setFormOnEdit = (data) => {
