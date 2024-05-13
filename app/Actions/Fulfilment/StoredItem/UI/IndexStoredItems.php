@@ -135,9 +135,16 @@ class IndexStoredItems extends OrgAction
     public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
-        return $this->handle($fulfilmentCustomer, 'pallets');
+        return $this->handle($fulfilmentCustomer, 'stored_items');
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilmentCustomer, 'stored_items');
+    }
 
     public function getBreadcrumbs(): array
     {

@@ -160,11 +160,11 @@ class ShowFulfilmentCustomer extends OrgAction
 
                 CustomerFulfilmentTabsEnum::STORED_ITEMS->value => $this->tab == CustomerFulfilmentTabsEnum::STORED_ITEMS->value ?
                     fn () => StoredItemResource::collection(
-                        IndexStoredItems::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLETS->value)
+                        IndexStoredItems::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::STORED_ITEMS->value)
                     )
                     : Inertia::lazy(
                         fn () => StoredItemResource::collection(
-                            IndexStoredItems::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLETS->value)
+                            IndexStoredItems::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::STORED_ITEMS->value)
                         )
                     ),
 

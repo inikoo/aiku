@@ -8,8 +8,9 @@
 namespace App\Actions\Catalogue\Product\UI;
 
 use App\Actions\Catalogue\Shop\UI\IndexShops;
-use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
@@ -201,7 +202,7 @@ class ShowProduct extends OrgAction
             ),
             'grp.org.shops.show.catalogue.products.show' =>
             array_merge(
-                ShowShop::make()->getBreadcrumbs($routeParameters),
+                ShowCatalogue::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $product,
                     [
@@ -211,6 +212,24 @@ class ShowProduct extends OrgAction
                         ],
                         'model' => [
                             'name'       => 'grp.org.shops.show.catalogue.products.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.fulfilments.show.products.show' =>
+            array_merge(
+                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    $product,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.fulfilments.show.products.index',
+                            'parameters' => $routeParameters
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.fulfilments.show.products.show',
                             'parameters' => $routeParameters
                         ]
                     ],

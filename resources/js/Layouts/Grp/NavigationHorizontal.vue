@@ -50,12 +50,9 @@ const layout = useLayoutStore()
 
 // console.log('haha', Object.entries(props.orgNav.fulfilments_navigation.navigation))
 
+// Navigation Fulfilment, Shop, and Merged
 const shopsOpenSlugs = layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.filter(shop => shop.state === 'open').map(shop => shop.slug)
 const fulfilmentsOpenSlugs = layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.filter(fulfilment => fulfilment.state === 'open').map(fulfilment => fulfilment.slug)
-
-
-
-// Navigation Fulfilment, Shop, and Merged
 const fulfilmentsNav: () => MergeNavigation[] = () => {
     const filterFulfilmentsOpen = Object.entries(props.orgNav.fulfilments_navigation.navigation).filter(([key, subNavList]) => fulfilmentsOpenSlugs?.includes(key))
 

@@ -254,6 +254,7 @@ class IndexPallets extends OrgAction
                 $table->column(key: 'rental', label: __('Rental'), canBeHidden: false, searchable: true);
             }
 
+            $table->column(key: 'stored_items', label: ' ', canBeHidden: false, searchable: true);
 
             if(
                 !(
