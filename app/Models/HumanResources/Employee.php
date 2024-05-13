@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -138,7 +139,9 @@ class Employee extends Model implements HasMedia, Auditable
 
     public function jobPositions(): MorphToMany
     {
-        return $this->morphToMany(JobPosition::class, 'job_positionable')->using(JobPositionable::class)->withPivot(['share','scopes'])->withTimestamps();
+        return $this->morphToMany(JobPosition::class, 'job_positionable')->using(JobPositionable::class)
+                    ->withPivot(['share', 'scopes'])
+                    ->withTimestamps();
     }
 
     public function user(): MorphOne
@@ -169,6 +172,11 @@ class Employee extends Model implements HasMedia, Auditable
     public function getGroupId(): int
     {
         return $this->group_id;
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
     }
 
     public function stats(): HasOne

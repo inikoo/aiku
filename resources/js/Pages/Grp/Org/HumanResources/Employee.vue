@@ -23,6 +23,8 @@ import DataModel from "@/Components/DataModel.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
 import TableTimesheets from "@/Components/Tables/Grp/Org/HumanResources/TableTimesheets.vue";
+import TableJobPositions from "@/Components/Tables/Grp/Org/HumanResources/TableJobPositions.vue";
+import type {Table} from "@/types/Table.ts"
 
 library.add(
     faIdCard,
@@ -60,9 +62,11 @@ const props = defineProps<{
     data?:object
     timesheets?:object
     today_timesheets?:object
+    job_positions?: Table
 
 }>()
-
+// console.log('xxstring',props.job_positions);
+ 
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 
@@ -73,7 +77,8 @@ const component = computed(() => {
         history: TableHistories,
         data: DataModel,
         timesheets: TableTimesheets,
-        today_timesheets: TableTimesheets
+        today_timesheets: TableTimesheets,
+        job_positions: TableJobPositions,
     };
     return components[currentTab.value];
 
