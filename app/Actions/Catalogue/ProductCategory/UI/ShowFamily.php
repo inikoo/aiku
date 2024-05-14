@@ -11,7 +11,6 @@ use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
-use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\OrgAction;
 use App\Enums\UI\Catalogue\DepartmentTabsEnum;
@@ -261,7 +260,7 @@ class ShowFamily extends OrgAction
             'shops.families.show' => [
                 'label' => $family->name,
                 'route' => [
-                    'name' => $routeName,
+                    'name'       => $routeName,
                     'parameters' => [
                         'department' => $family->slug
                     ]
@@ -270,9 +269,9 @@ class ShowFamily extends OrgAction
             'shops.show.families.show' => [
                 'label' => $family->name,
                 'route' => [
-                    'name' => $routeName,
+                    'name'       => $routeName,
                     'parameters' => [
-                        'shop' => $family->shop->slug,
+                        'shop'       => $family->shop->slug,
                         'department' => $family->slug
                     ]
                 ]
