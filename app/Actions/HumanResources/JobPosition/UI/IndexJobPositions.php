@@ -124,15 +124,12 @@ class IndexJobPositions extends OrgAction
     }
 
 
-    public function asController($parent, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, ActionRequest $request, Employee $employee = null): LengthAwarePaginator
     {
-        if ($parent instanceof Organisation) {
-            $this->initialisation($parent, $request);
-        } elseif ($parent instanceof Employee) {
-            $organisation = $parent->organisation; // Get the organisation associated with the employee
-            $this->initialisation($organisation, $request);
-        }
-    
+        $this->initialisation($organisation, $request);
+        
+        $parent = $employee ?? $organisation;
+        
         return $this->handle($parent);
     }
 
