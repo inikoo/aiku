@@ -38,9 +38,13 @@ class EditUser extends InertiaAction
         $positions   = JobPosition::all();
         $permissions = $positions->map(function (JobPosition $position) {
             return [
-                $position->name => [
-                    $position->organisation->slug => $position->organisation->shops->pluck('slug')
-                ]
+                'position_name'     => $position->name,
+                'organisations'     => [
+                    $position->organisation->slug => ['uk', 'awt']
+                ],
+                'shops'                   => $position->organisation->shops->pluck('slug'),
+                'warehouses'              => $position->organisation->warehouses->pluck('slug'),
+                'fulfilments'             => $position->organisation->fulfilments->pluck('slug'),
             ];
         });
 
@@ -101,7 +105,7 @@ class EditUser extends InertiaAction
                             "permissions" => [
                                 "type"              => "permissions",
                                 "label"             => __("permissions"),
-                                "value"             => (object) $permissions,
+                                "value"             => $permissions,
                                 "fullComponentArea" => true,
                             ],
                         ],
