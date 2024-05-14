@@ -22,6 +22,8 @@ enum CatalogueTabsEnum: string
     case PRODUCTS         = 'products';
     case HISTORY          = 'history';
 
+    case COLLECTIONS       = 'collections';
+
     public function blueprint(): array
     {
         return match ($this) {
@@ -47,6 +49,11 @@ enum CatalogueTabsEnum: string
                 'align' => 'right',
                 'type'  => 'icon',
                 'title' => __('history'),
+                'icon'  => 'fal fa-clock',
+            ],
+
+            CatalogueTabsEnum::COLLECTIONS => [
+                'title' => __('collections'),
                 'icon'  => 'fal fa-clock',
             ],
 
