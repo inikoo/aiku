@@ -51,7 +51,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(fadSave, faQuestion, falSave, faInfoCircle, faAsterisk)
 
 const props = defineProps<{
-    field: any
+    field: string
     fieldData: {
         type: string
         label: string
@@ -121,8 +121,9 @@ formFields['_method'] = 'patch'
 const form = useForm(formFields)
 form['fieldType'] = 'edit'
 
-function submit() {
-    form.post(route(updateRoute.name, updateRoute.parameters))
+const submit = () => {
+    // PreserveScroll affect error in EpmloyeePosition (can't access layout)
+    form.post(route(updateRoute.name, updateRoute.parameters), { preserveScroll: true })
 }
 
 
@@ -165,14 +166,18 @@ const checkVerification = async () => {
             <!-- Title -->
             <dt v-if="!fieldData.noTitle" class="text-sm font-medium text-gray-400 capitalize">
                 <div class="inline-flex items-start leading-none">
-                    <FontAwesomeIcon v-if="fieldData.required" :icon="['fas', 'asterisk']" class="font-light text-[12px] text-red-400 mr-1"/>
+                    <FontAwesomeIcon v-if="fieldData.required" icon="fas fa-asterisk" class="font-light text-[12px] text-red-400 mr-1"/>
                     {{ fieldData.label }}
                 </div>
             </dt>
             <dd :class="props.fieldData.full ? 'sm:col-span-3' : fieldData.noTitle ? 'sm:col-span-3' : 'sm:col-span-2'" class="flex items-start text-sm text-gray-700 sm:mt-0">
                 <div class="relative w-full">
-                    <component :is="getComponent(fieldData.type)" :form="form" :fieldName="field"
-                        :options="fieldData.options" :fieldData="fieldData">
+                    <component :is="getComponent(fieldData.type)"
+                        :key="field + fieldData.type"
+                        :form="form"
+                        :fieldName="field"
+                        :options="fieldData.options"
+                        :fieldData="fieldData">
                     </component>
 
                     <!-- Verification: Label -->
@@ -188,7 +193,7 @@ const checkVerification = async () => {
                     <button v-if="!fieldData.verification" class="align-bottom" :disabled="form.processing || !form.isDirty" type="submit">
                         <FontAwesomeIcon v-if="form.isDirty" icon="fad fa-save" class="h-8 text-org-600"
                             :style="{
-                                '--fa-secondary-color': [layout.app.name === 'org' ? 'rgb(69, 38, 80)' : 'rgb(0, 255, 4)']
+                                '--fa-secondary-color': 'rgb(0, 255, 4)'
                             }" aria-hidden="true" />
                         <FontAwesomeIcon v-else icon="fal fa-save" class="h-8 text-gray-300" aria-hidden="true" />
                     </button>

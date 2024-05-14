@@ -191,7 +191,7 @@ onBeforeUnmount(() => {
                                     <!-- Field: is not hidden = true -->
                                     <div v-if="!fieldData?.hidden" class="py-2 mt-1 flex text-sm text-gray-700 sm:mt-0">
                                         <Action v-if="fieldData.type==='action'" :action="fieldData.action" :dataToSubmit="fieldData.action?.data" />
-                                        <FieldForm v-else :key="index" :field="fieldName" :fieldData="fieldData" :args="formData.args" />
+                                        <FieldForm v-else :key="fieldName+index" :field="fieldName" :fieldData="fieldData" :args="formData.args" />
                                     </div>
                                 </template>
                             </div>
