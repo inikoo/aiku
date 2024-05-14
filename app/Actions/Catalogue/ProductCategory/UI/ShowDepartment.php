@@ -136,13 +136,13 @@ class ShowDepartment extends OrgAction
                     ?
                     fn () => ProductsResource::collection(
                         IndexProducts::run(
-                            parent: $department,
+                            parent: $department->shop,
                             prefix: 'products'
                         )
                     )
                     : Inertia::lazy(fn () => ProductsResource::collection(
                         IndexProducts::run(
-                            parent: $department,
+                            parent: $department->shop,
                             prefix: 'products'
                         )
                     )),
@@ -153,41 +153,19 @@ class ShowDepartment extends OrgAction
 
 
                 DepartmentTabsEnum::FAMILIES->value => $this->tab == DepartmentTabsEnum::FAMILIES->value
-                    ?
-                    fn () => [
-                        'table'             => FamiliesResource::collection(
-                            IndexFamilies::run(
-                                parent: $department->shop,
-                                prefix: 'product_categories'
-                            )
-                        ),
-                        'createInlineModel' => [
-                            'buttonLabel' => __('family'),
-                            'dialog'      => [
-                                'title'       => __('new family'),
-                                'saveLabel'   => __('save'),
-                                'cancelLabel' => __('cancel')
-                            ]
-                        ],
-                    ]
-                    : Inertia::lazy(
-                        fn () => [
-                            'table'             => FamiliesResource::collection(
-                                IndexFamilies::run(
-                                    parent: $department->shop,
-                                    prefix: 'product_categories'
-                                )
-                            ),
-                            'createInlineModel' => [
-                                'buttonLabel' => __('family'),
-                                'dialog'      => [
-                                    'title'       => __('new family'),
-                                    'saveLabel'   => __('save'),
-                                    'cancelLabel' => __('cancel')
-                                ]
-                            ],
-                        ]
-                    ),
+                ?
+                fn () => FamiliesResource::collection(
+                    IndexFamilies::run(
+                        parent: $department,
+                        prefix: 'product_categories'
+                    )
+                )
+                : Inertia::lazy(fn () => FamiliesResource::collection(
+                    IndexFamilies::run(
+                        parent: $department,
+                        prefix: 'product_categories'
+                    )
+                )),
 
 
             ]
@@ -202,7 +180,7 @@ class ShowDepartment extends OrgAction
                 prefix: 'mailshots'
             )
         )
-            //            ->table(IndexFamilies::make()->tableStructure($department))
+            ->table(IndexFamilies::make()->tableStructure($department, prefix:'families'))
             ->table(
                 IndexProducts::make()->tableStructure(
                     parent: $department->shop,

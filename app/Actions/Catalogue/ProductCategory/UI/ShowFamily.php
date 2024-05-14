@@ -69,6 +69,13 @@ class ShowFamily extends OrgAction
         return $this->handle($family);
     }
 
+    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $family, ActionRequest $request): ProductCategory
+    {
+        $this->initialisationFromShop($shop, $request)->withTab(DepartmentTabsEnum::values());
+
+        return $this->handle($family);
+    }
+
     public function htmlResponse(ProductCategory $family, ActionRequest $request): Response
     {
 
