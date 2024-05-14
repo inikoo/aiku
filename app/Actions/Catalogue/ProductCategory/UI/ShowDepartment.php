@@ -136,13 +136,13 @@ class ShowDepartment extends OrgAction
                     ?
                     fn () => ProductsResource::collection(
                         IndexProducts::run(
-                            parent: $department->shop,
+                            parent: $department,
                             prefix: 'products'
                         )
                     )
                     : Inertia::lazy(fn () => ProductsResource::collection(
                         IndexProducts::run(
-                            parent: $department->shop,
+                            parent: $department,
                             prefix: 'products'
                         )
                     )),
