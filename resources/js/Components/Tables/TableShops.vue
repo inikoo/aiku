@@ -40,7 +40,7 @@ function shopRoute(shop: Shop) {
         <!-- Column: Code -->
         <template #cell(code)="{ item: shop }">
             <div class="flex">
-                <Link :href="shopRoute(shop)" class="specialUnderline">
+                <Link :href="shopRoute(shop)" class="primaryLink">
                     {{ shop.code }}
                 </Link>
                 <div v-if="shop.code == useLayoutStore().organisationsState?.[useLayoutStore().currentParams.organisation]?.currentShop" v-tooltip="trans('Recently selected')" class="px-0.5 flex items-center">

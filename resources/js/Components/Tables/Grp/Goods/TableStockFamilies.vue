@@ -34,7 +34,7 @@ function stockFamilyRoute(stockFamily: StockFamily) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: stockFamily }">
-            <Link :href="stockFamilyRoute(stockFamily)" class="specialUnderline">
+            <Link :href="stockFamilyRoute(stockFamily)" class="primaryLink">
                 {{ stockFamily['code'] }}
             </Link>
         </template>

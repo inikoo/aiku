@@ -36,7 +36,7 @@ function employeeRoute(employee: Employee) {
         </template>
 
         <template #cell(slug)="{ item: employee }">
-            <Link :href="employeeRoute(employee)" class="specialUnderline">
+            <Link :href="employeeRoute(employee)" class="primaryLink">
                 {{ employee['slug'] }}
             </Link>
         </template>

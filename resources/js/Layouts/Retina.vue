@@ -129,7 +129,7 @@ const sidebarOpen = ref(false)
     @apply bg-gray-300 w-0 group-hover:w-3/6 absolute h-0.5 rounded-full bottom-0 left-[50%] translate-x-[-50%] mx-auto transition-all
 }
 
-.specialUnderline {
+.primaryLink {
     background: v-bind('`linear-gradient(to top, ${layout.app.theme[2]}, ${layout.app.theme[2] + "AA"})`');
     &:hover, &:focus {
         color: v-bind('`${layout.app.theme[3]}`');
@@ -143,7 +143,7 @@ const sidebarOpen = ref(false)
     focus:[background-size:100%_100%] px-1 py-0.5
 }
 
-.specialUnderlineSecondary {
+.secondaryLink {
     background: v-bind('`linear-gradient(to top, ${layout.app.theme[4]}, ${layout.app.theme[4] + "AA"})`');
 
     @apply focus:ring-0 focus:outline-none focus:border-none

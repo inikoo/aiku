@@ -29,7 +29,7 @@ const locale = useLocaleStore();
                 <dt class="truncate text-sm font-medium text-gray-500 capitalize">{{ item.name }}</dt>
                 <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-600">
                     <Link v-if="item.href" :href="route(item.href.name, item.href.parameters)"
-                        :class="[`inline-block specialUnderline`]">
+                        :class="[`inline-block primaryLink`]">
                     {{ locale.number(item.stat ?? 0) }}
                     </Link>
                     <span v-else>

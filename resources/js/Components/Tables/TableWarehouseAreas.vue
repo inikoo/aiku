@@ -57,13 +57,13 @@ function locationsRoute(warehouseArea: WarehouseArea) {
 
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: warehouseArea }">
-            <Link :href="warehouseAreaRoute(warehouseArea)" class="specialUnderline">
+            <Link :href="warehouseAreaRoute(warehouseArea)" class="primaryLink">
                 {{ warehouseArea["code"] }}
             </Link>
         </template>
 
         <template #cell(number_locations)="{ item: warehouseArea }">
-            <Link :href="locationsRoute(warehouseArea)" class="specialUnderline">
+            <Link :href="locationsRoute(warehouseArea)" class="primaryLink">
                 {{ warehouseArea["number_locations"] }}
             </Link>
         </template>

@@ -46,7 +46,7 @@ function invoiceRoute(invoice: Invoice) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(number)="{ item: invoice }">
-            <Link :href="invoiceRoute(invoice)" class="specialUnderline py-0.5">
+            <Link :href="invoiceRoute(invoice)" class="primaryLink py-0.5">
                 {{ invoice.number }}
             </Link>
         </template>

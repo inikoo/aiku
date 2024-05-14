@@ -45,7 +45,7 @@ function webpageRoute(webpage: Webpage) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: webpage }">
-            <Link :href="webpageRoute(webpage)" class="specialUnderline">
+            <Link :href="webpageRoute(webpage)" class="primaryLink">
                 {{ webpage['code'] }}
             </Link>
         </template>

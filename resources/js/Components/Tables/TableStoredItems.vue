@@ -31,7 +31,7 @@ function storedItemRoute(storedItem) {
 <template>
     <Table :resource="data" :name="'stored_items'" class="mt-5">
         <template #cell(reference)="{ item: value }">
-            <Link v-if="route().current() != 'grp.org.fulfilments.show.crm.customers.show.stored-item-returns.show'" :href="storedItemRoute(value)" class="specialUnderline">
+            <Link v-if="route().current() != 'grp.org.fulfilments.show.crm.customers.show.stored-item-returns.show'" :href="storedItemRoute(value)" class="primaryLink">
                 {{ value.reference }}
             </Link>
         </template>

@@ -42,7 +42,7 @@ function marketplacesAgentRoute(marketplaceAgent: MarketplaceAgent) {
             <ProcurementMarketplaceAdoption :value="agent['adoption']" />
         </template>
         <template #cell(code)="{ item: agent }">
-            <Link :href="marketplacesAgentRoute(agent)" class="specialUnderline">
+            <Link :href="marketplacesAgentRoute(agent)" class="primaryLink">
             {{ agent['code'] }}
             </Link>
         </template>
