@@ -114,7 +114,7 @@ onMounted(() => {
             <!-- Field: Reference -->
             <Link as="a" v-if="box_stats.fulfilment_customer.customer.reference"
                 :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, box_stats.fulfilment_customer.fulfilment.slug, box_stats.fulfilment_customer.slug])" 
-                class="flex items-center w-fit flex-none gap-x-2 cursor-pointer specialUnderlineSecondary">
+                class="flex items-center w-fit flex-none gap-x-2 cursor-pointer secondaryLink">
                 <dt v-tooltip="'Company name'" class="flex-none">
                     <span class="sr-only">Reference</span>
                     <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />

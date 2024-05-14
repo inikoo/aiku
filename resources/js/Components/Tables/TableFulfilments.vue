@@ -36,7 +36,7 @@ function fulfilmentRoute(fulfilment: Fulfilment) {
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: fulfilment }">
             <div class="flex">
-                <Link :href="fulfilmentRoute(fulfilment)" class="specialUnderline">
+                <Link :href="fulfilmentRoute(fulfilment)" class="primaryLink">
                     {{ fulfilment.code }}
                 </Link>
                 <div v-if="fulfilment.code == useLayoutStore().organisationsState?.[useLayoutStore().currentParams.organisation]?.currentFulfilment" v-tooltip="trans('Recently selected')" class="px-0.5 leading-none">

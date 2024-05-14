@@ -46,7 +46,7 @@ function customerRoute(customer: FulfilmentCustomer) {
         </template>
 
         <template #cell(reference)="{ item: customer }">
-            <Link :href="customerRoute(customer)" class="specialUnderline">
+            <Link :href="customerRoute(customer)" class="primaryLink">
                 {{ customer['reference'] }}
             </Link>
         </template>

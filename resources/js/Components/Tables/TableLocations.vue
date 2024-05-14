@@ -123,7 +123,7 @@ onUnmounted(() => {
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Code -->
         <template #cell(code)="{ item: location }">
-            <Link :href="locationRoute(location)" class="specialUnderline">
+            <Link :href="locationRoute(location)" class="primaryLink">
                 {{ location.code }}
             </Link>
         </template>

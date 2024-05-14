@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
@@ -92,6 +93,12 @@ class JobPosition extends Model implements Auditable
         'number_employees'
     ];
 
+    public function employees(): MorphToMany
+    {
+        return $this->morphedByMany(Employee::class, 'job_positionable')
+                    ->withPivot(['share', 'scopes'])
+                    ->withTimestamps();
+    }
 
     public function roles(): BelongsToMany
     {

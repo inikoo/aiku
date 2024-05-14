@@ -8,6 +8,7 @@
 namespace App\Enums\Catalogue\Product;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 
@@ -75,7 +76,7 @@ enum ProductStateEnum: string
         ];
     }
 
-    public static function count(Shop|Organisation $parent): array
+    public static function count(Shop|Organisation|ProductCategory $parent): array
     {
         $stats=$parent->stats;
         return [

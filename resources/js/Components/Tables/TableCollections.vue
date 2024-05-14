@@ -57,17 +57,17 @@ function departmentRoute(family: Family) {
 <template>
   <Table :resource="data" :name="tab" class="mt-5">
     <template #cell(code)="{ item: family }">
-      <Link :href="familyRoute(family)" class="primaryLink">
+      <Link :href="familyRoute(family)" class="specialUnderline">
         {{ family["code"] }}
       </Link>
     </template>
       <template #cell(shop_code)="{ item: family }">
-          <Link :href="shopRoute(family)" class="secondaryLink">
+          <Link :href="shopRoute(family)" class="specialUnderlineSecondary">
               {{ family["shop_code"] }}
           </Link>
       </template>
       <template #cell(department_code)="{ item: family }">
-          <Link :href="departmentRoute(family)" class="secondaryLink">
+          <Link :href="departmentRoute(family)" class="specialUnderlineSecondary">
               {{ family["department_code"] }}
           </Link>
       </template>

@@ -52,14 +52,14 @@ function rentalRoute(product: Product) {
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Code -->
         <template #cell(code)="{ item: rental }">
-            <Link :href="rentalRoute(rental)" class="specialUnderline">
+            <Link :href="rentalRoute(rental)" class="primaryLink">
                 {{ rental['code'] }}
             </Link>
         </template>
 
         <!-- Column: Shop Code -->
         <template #cell(shop_code)="{ item: rental }">
-            <Link v-if="rental['shop_slug']" :href="rentalRoute(rental)" class="specialUnderlineSecondary">
+            <Link v-if="rental['shop_slug']" :href="rentalRoute(rental)" class="secondaryLink">
                 {{ rental['shop_slug'] }}
             </Link>
         </template>
