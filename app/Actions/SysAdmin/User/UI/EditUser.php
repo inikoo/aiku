@@ -8,7 +8,9 @@
 namespace App\Actions\SysAdmin\User\UI;
 
 use App\Actions\InertiaAction;
-use App\Models\HumanResources\JobPosition;
+use App\Enums\SysAdmin\Authorisation\RolesEnum;
+use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -33,19 +35,20 @@ class EditUser extends InertiaAction
         return $this->handle($user);
     }
 
+
     public function htmlResponse(User $user, ActionRequest $request): Response
     {
-        $positions   = JobPosition::all();
-        $permissions = $positions->map(function (JobPosition $position) {
-            return [
-                'position_name'     => $position->name,
-                'organisations'     => [
-                    $position->organisation->slug => ['uk', 'awt']
+        $roles       = collect(RolesEnum::cases());
+        $permissions = $roles->map(function ($role) {
+            return [$role->label() => match ($role->scope()) {
+                class_basename(Organisation::class) => [
+                    'organisations' => Organisation::all()->pluck('slug')
                 ],
-                'shops'                   => $position->organisation->shops->pluck('slug'),
-                'warehouses'              => $position->organisation->warehouses->pluck('slug'),
-                'fulfilments'             => $position->organisation->fulfilments->pluck('slug'),
-            ];
+                class_basename(Shop::class) => Organisation::all()->map(function (Organisation $organisation) {
+                    return ['shops' => $organisation->shops->pluck('slug')];
+                }),
+                default => []
+            }];
         });
 
         return Inertia::render("EditModel", [
@@ -105,7 +108,7 @@ class EditUser extends InertiaAction
                             "permissions" => [
                                 "type"              => "permissions",
                                 "label"             => __("permissions"),
-                                "value"             => $permissions,
+                                "value"             => (object) $permissions,
                                 "fullComponentArea" => true,
                             ],
                         ],

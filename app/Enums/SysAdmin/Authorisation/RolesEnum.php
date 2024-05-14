@@ -7,6 +7,7 @@
 
 namespace App\Enums\SysAdmin\Authorisation;
 
+use App\Enums\EnumHelperTrait;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
@@ -17,6 +18,8 @@ use App\Models\SysAdmin\Organisation;
 
 enum RolesEnum: string
 {
+    use EnumHelperTrait;
+
     case SUPER_ADMIN  = 'super-admin';
     case SYSTEM_ADMIN = 'system-admin';
 
