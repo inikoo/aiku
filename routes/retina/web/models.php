@@ -37,7 +37,7 @@ Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(
 
 Route::post('pallet-delivery', [StorePalletDelivery::class, 'fromRetina'])->name('pallet-delivery.store');
 Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->group(function () {
-    Route::post('pallet-upload', [ImportPallet::class,'fromRetina'])->name('pallet.import');
+    Route::post('pallet-upload', [ImportPallet::class,'fromRetina'])->name('pallet.upload');
     Route::post('pallet', [StorePalletFromDelivery::class, 'fromRetina'])->name('pallet.store');
     Route::post('multiple-pallet', [StoreMultiplePalletsFromDelivery::class, 'fromRetina'])->name('multiple-pallets.store');
 

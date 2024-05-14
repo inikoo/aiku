@@ -79,7 +79,7 @@ class ShowPalletDelivery extends RetinaAction
                                 //     'icon'  => ['fal', 'fa-upload'],
                                 //     'label' => 'upload',
                                 //     'route' => [
-                                //         'name'       => 'retina.models.pallet-delivery.pallet.import',
+                                //         'name'       => 'retina.models.pallet-delivery.pallet.upload',
                                 //         'parameters' => [
                                 //             'palletDelivery' => $palletDelivery->id
                                 //         ]

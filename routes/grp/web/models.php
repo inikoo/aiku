@@ -15,6 +15,7 @@ use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\CRM\Prospect\ImportShopProspects;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\CRM\WebUser\UpdateWebUser;
+use App\Actions\Devel\UI\ImportDummy;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
@@ -151,7 +152,7 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('booked-in', SetPalletDeliveryAsBookedIn::class)->name('booked-in');
 
 
-    Route::post('pallet-upload', [ImportPallet::class,'fromGrp'])->name('pallet.import');
+    Route::post('pallet-upload', [ImportPallet::class,'fromGrp'])->name('pallet.upload');
     Route::post('pallet', StorePalletFromDelivery::class)->name('pallet.store');
     Route::post('multiple-pallet', StoreMultiplePalletsFromDelivery::class)->name('multiple-pallets.store');
     Route::get('pdf', PdfPalletDelivery::class)->name('pdf');
@@ -270,11 +271,16 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
 Route::post('/supplier', StoreSupplier::class)->name('supplier.store');
 Route::patch('/shop/payment-accounts/{paymentAccount:id}', SyncPaymentAccountToShop::class)->name('shop.payment-accounts.sync')->withoutScopedBindings();
 
-Route::name('production.')->prefix('production')->group(function () {
-    Route::post('{production}/job-order/store', StoreJobOrder::class)->name('job-order.store');
-    Route::patch('{job-order}/job-order/update', UpdateJobOrder::class)->name('job-order.update');
+Route::name('production.')->prefix('production/{production}')->group(function () {
+    Route::post('job-order', StoreJobOrder::class)->name('job-order.store');
+    Route::post('artefact-upload', ImportDummy::class)->name('artefacts.upload');
 
 });
+
+Route::patch('/job-order/{jobOrder:id}', UpdateJobOrder::class)->name('job-order.update');
+
+
+
 /*
 
 

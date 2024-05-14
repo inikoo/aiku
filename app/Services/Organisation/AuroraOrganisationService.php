@@ -12,7 +12,7 @@ use App\Models\Dispatch\DeliveryNote;
 use App\Models\Helpers\Fetch;
 use App\Models\SysAdmin\Organisation;
 use App\Services\Organisation\Aurora\FetchAuroraAgent;
-use App\Services\Organisation\Aurora\FetchAuroraArtifact;
+use App\Services\Organisation\Aurora\FetchAuroraArtefact;
 use App\Services\Organisation\Aurora\FetchAuroraClockingMachine;
 use App\Services\Organisation\Aurora\FetchAuroraCustomer;
 use App\Services\Organisation\Aurora\FetchAuroraCustomerClient;
@@ -360,9 +360,9 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraClockingMachine($this))->fetch($id);
     }
 
-    public function fetchArtifact($id): array
+    public function fetchArtefact($id): array
     {
-        return (new FetchAuroraArtifact($this))->fetch($id);
+        return (new FetchAuroraArtefact($this))->fetch($id);
     }
 
 }

@@ -41,7 +41,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\Artifact> $artifacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\Artefact> $artefacts
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Manufacturing\Production $production
@@ -87,8 +87,8 @@ class ManufactureTask extends Model
         return 'slug';
     }
 
-    public function artifacts()
+    public function artefacts()
     {
-        return $this->belongsToMany(Artifact::class)->using(ArtifactManufactureTask::class);
+        return $this->belongsToMany(Artefact::class)->using(ArtefactManufactureTask::class);
     }
 }

@@ -10,7 +10,7 @@ namespace App\Enums\UI\Manufacturing;
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum ArtifactTabsEnum: string
+enum ArtefactTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
@@ -26,27 +26,27 @@ enum ArtifactTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            ArtifactTabsEnum::DASHBOARD => [
+            ArtefactTabsEnum::DASHBOARD => [
                 'title' => __('stats'),
                 'icon'  => 'fal fa-chart-line',
             ],
-            ArtifactTabsEnum::MANUFACTURE_TASKS => [
+            ArtefactTabsEnum::MANUFACTURE_TASKS => [
                 'title' => __('manufacture tasks'),
                 'icon'  => 'fal fa-hamsa',
             ],
-            ArtifactTabsEnum::DATA => [
+            ArtefactTabsEnum::DATA => [
                 'align' => 'right',
                 'type'  => 'icon',
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
             ],
-            ArtifactTabsEnum::HISTORY => [
+            ArtefactTabsEnum::HISTORY => [
                 'align' => 'right',
                 'type'  => 'icon',
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
             ],
-            ArtifactTabsEnum::SHOWCASE => [
+            ArtefactTabsEnum::SHOWCASE => [
                 'title' => __('warehouse'),
                 'icon'  => 'fas fa-info-circle',
             ],

@@ -7,12 +7,12 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Enums\Manufacturing\Artifact\ArtifactStateEnum;
+use App\Enums\Manufacturing\Artefact\ArtefactStateEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class FetchAuroraArtifact extends FetchAurora
+class FetchAuroraArtefact extends FetchAurora
 {
     use WithAuroraParsers;
 
@@ -55,8 +55,8 @@ class FetchAuroraArtifact extends FetchAurora
             $status = false;
         }
         $state = match ($this->auroraModelData->{'Supplier Part Status'}) {
-            'Discontinued', 'NoAvailable' => ArtifactStateEnum::DISCONTINUED,
-            default => ArtifactStateEnum::ACTIVE,
+            'Discontinued', 'NoAvailable' => ArtefactStateEnum::DISCONTINUED,
+            default => ArtefactStateEnum::ACTIVE,
         };
 
         //  if ($state == SupplierProductStateEnum::DISCONTINUED) {
@@ -88,7 +88,7 @@ class FetchAuroraArtifact extends FetchAurora
         $code = str_replace('&', 'and', $code);
         $code = $this->cleanTradeUnitReference($code);
 
-        $this->parsedData['artifact'] =
+        $this->parsedData['artefact'] =
             [
                 'code' => $code,
                 'name' => $name,

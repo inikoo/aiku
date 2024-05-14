@@ -14,7 +14,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $code
  * @property string $name
  * @property int $number_raw_materials
- * @property int $number_artifacts
+ * @property int $number_artefacts
  * @property int $number_manufacture_tasks
  */
 class ProductionsResource extends JsonResource
@@ -26,7 +26,7 @@ class ProductionsResource extends JsonResource
             'code'                     => $this->code,
             'name'                     => $this->name,
             'number_raw_materials'     => $this->number_raw_materials,
-            'number_artifacts'         => $this->number_artifacts,
+            'number_artefacts'         => $this->number_artefacts,
             'number_manufacture_tasks' => $this->number_manufacture_tasks,
         ];
     }

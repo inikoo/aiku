@@ -12,7 +12,7 @@ use App\Models\Manufacturing\Production;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ProductionHydrateArtifacts
+class ProductionHydrateArtefacts
 {
     use AsAction;
     use WithEnumStats;
@@ -33,7 +33,7 @@ class ProductionHydrateArtifacts
     public function handle(Production $production): void
     {
         $stats = [
-            'number_artifacts' => $production->artifacts()->count()
+            'number_artefacts' => $production->artefacts()->count()
         ];
 
         $production->stats()->update($stats);

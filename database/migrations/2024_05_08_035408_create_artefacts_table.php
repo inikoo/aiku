@@ -18,7 +18,7 @@ return new class () extends Migration {
     use HasGroupOrganisationRelationship;
     public function up(): void
     {
-        Schema::create('artifacts', function (Blueprint $table) {
+        Schema::create('artefacts', function (Blueprint $table) {
             $table->increments('id');
             $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('production_id')->index();
@@ -49,6 +49,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('artifacts');
+        Schema::dropIfExists('artefacts');
     }
 };

@@ -5,15 +5,15 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Manufacturing\Artifact;
+namespace App\Actions\Manufacturing\Artefact;
 
-use App\Actions\Manufacturing\Artifact\Hydrators\ArtifactHydrateUniversalSearch;
-use App\Actions\Manufacturing\Production\Hydrators\ProductionHydrateArtifacts;
+use App\Actions\Manufacturing\Artefact\Hydrators\ArtefactHydrateUniversalSearch;
+use App\Actions\Manufacturing\Production\Hydrators\ProductionHydrateArtefacts;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateArtifacts;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateArtifacts;
-use App\Enums\Manufacturing\Artifact\ArtifactStateEnum;
-use App\Models\Manufacturing\Artifact;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateArtefacts;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateArtefacts;
+use App\Enums\Manufacturing\Artefact\ArtefactStateEnum;
+use App\Models\Manufacturing\Artefact;
 use App\Models\Manufacturing\Production;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
@@ -22,24 +22,24 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class StoreArtifact extends OrgAction
+class StoreArtefact extends OrgAction
 {
-    public function handle(Production $production, array $modelData): Artifact
+    public function handle(Production $production, array $modelData): Artefact
     {
 
         data_set($modelData, 'organisation_id', $this->organisation->id);
         data_set($modelData, 'group_id', $production->group_id);
 
-        /** @var Artifact $artifact */
-        $artifact = $production->artifacts()->create($modelData);
-        $artifact->stats()->create();
-        GroupHydrateArtifacts::dispatch($artifact->group);
-        OrganisationHydrateArtifacts::dispatch($artifact->organisation);
-        ProductionHydrateArtifacts::dispatch($artifact->production);
-        ArtifactHydrateUniversalSearch::dispatch($artifact);
+        /** @var Artefact $artefact */
+        $artefact = $production->artefacts()->create($modelData);
+        $artefact->stats()->create();
+        GroupHydrateArtefacts::dispatch($artefact->group);
+        OrganisationHydrateArtefacts::dispatch($artefact->organisation);
+        ProductionHydrateArtefacts::dispatch($artefact->production);
+        ArtefactHydrateUniversalSearch::dispatch($artefact);
 
 
-        return $artifact;
+        return $artefact;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -60,14 +60,14 @@ class StoreArtifact extends OrgAction
                 new AlphaDashDot(),
                 Rule::notIn(['export', 'create', 'upload']),
                 new IUnique(
-                    table: 'artifacts',
+                    table: 'artefacts',
                     extraConditions: [
                         ['column' => 'organisation_id', 'value' => $this->organisation->id],
                     ]
                 ),
             ],
             'name'        => ['required', 'string', 'max:255'],
-            'state'       => ['sometimes', 'nullable', Rule::enum(ArtifactStateEnum::class)],
+            'state'       => ['sometimes', 'nullable', Rule::enum(ArtefactStateEnum::class)],
             'source_id'   => ['sometimes', 'nullable', 'string'],
             'created_at'  => ['sometimes', 'nullable', 'date'],
 
@@ -75,7 +75,7 @@ class StoreArtifact extends OrgAction
         ];
     }
 
-    public function action(Production $production, array $modelData, int $hydratorDelay = 0): Artifact
+    public function action(Production $production, array $modelData, int $hydratorDelay = 0): Artefact
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorDelay;
@@ -85,10 +85,10 @@ class StoreArtifact extends OrgAction
     }
 
 
-    public function htmlResponse(Artifact $artifact): RedirectResponse
+    public function htmlResponse(Artefact $artefact): RedirectResponse
     {
-        return Redirect::route('grp.org.artifacts.show', [
-            $artifact->slug
+        return Redirect::route('grp.org.artefacts.show', [
+            $artefact->slug
         ]);
     }
 

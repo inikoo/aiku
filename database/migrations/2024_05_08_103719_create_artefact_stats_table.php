@@ -12,10 +12,10 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('artifact_stats', function (Blueprint $table) {
+        Schema::create('artefact_stats', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('artifact_id')->index();
-            $table->foreign('artifact_id')->references('id')->on('artifacts')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedInteger('artefact_id')->index();
+            $table->foreign('artefact_id')->references('id')->on('artefacts')->onUpdate('cascade')->onDelete('cascade');
 
             $table->timestampsTz();
         });
@@ -24,6 +24,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('artifact_stats');
+        Schema::dropIfExists('artefact_stats');
     }
 };

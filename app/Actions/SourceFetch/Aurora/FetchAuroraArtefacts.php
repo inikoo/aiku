@@ -7,52 +7,52 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Manufacturing\Artifact\StoreArtifact;
-use App\Actions\Manufacturing\Artifact\UpdateArtifact;
-use App\Models\Manufacturing\Artifact;
+use App\Actions\Manufacturing\Artefact\StoreArtefact;
+use App\Actions\Manufacturing\Artefact\UpdateArtefact;
+use App\Models\Manufacturing\Artefact;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
-class FetchAuroraArtifacts extends FetchAuroraAction
+class FetchAuroraArtefacts extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:artifacts {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new}  {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:artefacts {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new}  {--d|db_suffix=}';
 
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Artifact
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Artefact
     {
-        $artifactData = $organisationSource->fetchArtifact($organisationSourceId);
+        $artefactData = $organisationSource->fetchArtefact($organisationSourceId);
 
 
-        return $this->fetchArtifact($artifactData);
+        return $this->fetchArtefact($artefactData);
     }
 
 
-    public function fetchArtifact($artifactData): ?Artifact
+    public function fetchArtefact($artefactData): ?Artefact
     {
-        if ($artifactData) {
-            if ($artifact = Artifact::withTrashed()->where('source_id', $artifactData['artifact']['source_id'])
+        if ($artefactData) {
+            if ($artefact = Artefact::withTrashed()->where('source_id', $artefactData['artefact']['source_id'])
                 ->first()) {
-                UpdateArtifact::make()->action(
-                    artifact: $artifact,
-                    modelData: $artifactData['artifact'],
+                UpdateArtefact::make()->action(
+                    artefact: $artefact,
+                    modelData: $artefactData['artefact'],
                     hydratorDelay: $this->hydrateDelay
                 );
             } else {
-                $artifact = StoreArtifact::make()->action(
-                    production: $artifactData['production'],
-                    modelData: $artifactData['artifact'],
+                $artefact = StoreArtefact::make()->action(
+                    production: $artefactData['production'],
+                    modelData: $artefactData['artefact'],
                     hydratorDelay: $this->hydrateDelay
                 );
 
-                $sourceData = explode(':', $artifact->source_id);
+                $sourceData = explode(':', $artefact->source_id);
                 DB::connection('aurora')->table('Supplier Part Dimension')
                     ->where('Supplier Part Key', $sourceData[1])
-                    ->update(['aiku_id' => $artifact->id]);
+                    ->update(['aiku_id' => $artefact->id]);
             }
 
 
-            return $artifact;
+            return $artefact;
         }
 
         return null;

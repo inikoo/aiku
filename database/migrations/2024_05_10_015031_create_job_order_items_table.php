@@ -19,8 +19,8 @@ return new class () extends Migration {
             $table = $this->groupOrgRelationship($table);
             $table->unsignedInteger('job_order_id')->index();
             $table->foreign('job_order_id')->references('id')->on('job_orders');
-            $table->unsignedInteger('artifact_id')->index();
-            $table->foreign('artifact_id')->references('id')->on('artifacts');
+            $table->unsignedInteger('artefact_id')->index();
+            $table->foreign('artefact_id')->references('id')->on('artefacts');
             $table->string('slug')->nullable()->unique()->collation('und_ns');
             $table->string('reference')->nullable()->index()->collation('und_ci');
             $table->string('status')->index()->default(JobOrderItemStatusEnum::RECEIVING->value);

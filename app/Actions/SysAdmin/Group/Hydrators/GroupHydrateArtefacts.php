@@ -12,7 +12,7 @@ use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class GroupHydrateArtifacts
+class GroupHydrateArtefacts
 {
     use AsAction;
     use WithEnumStats;
@@ -33,7 +33,7 @@ class GroupHydrateArtifacts
     public function handle(Group $group): void
     {
         $stats = [
-            'number_artifacts' => $group->artifacts()->count()
+            'number_artefacts' => $group->artefacts()->count()
         ];
 
         $group->manufactureStats()->update($stats);

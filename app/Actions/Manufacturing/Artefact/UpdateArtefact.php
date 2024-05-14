@@ -5,13 +5,13 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Manufacturing\Artifact;
+namespace App\Actions\Manufacturing\Artefact;
 
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Manufacturing\ArtifactResource;
-use App\Models\Manufacturing\Artifact;
+use App\Http\Resources\Manufacturing\ArtefactResource;
+use App\Models\Manufacturing\Artefact;
 use App\Models\Manufacturing\Production;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
@@ -19,16 +19,16 @@ use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateArtifact extends OrgAction
+class UpdateArtefact extends OrgAction
 {
     use WithActionUpdate;
 
 
-    private Artifact $artifact;
+    private Artefact $artefact;
 
-    public function handle(Artifact $artifact, array $modelData): Artifact
+    public function handle(Artefact $artefact, array $modelData): Artefact
     {
-        $stock = $this->update($artifact, $modelData, ['data', 'settings']);
+        $stock = $this->update($artefact, $modelData, ['data', 'settings']);
         OrgStockHydrateUniversalSearch::dispatch($stock);
 
         return $stock;
@@ -53,13 +53,13 @@ class UpdateArtifact extends OrgAction
                 'max:32',
                 Rule::notIn(['export', 'create', 'upload']),
                 new IUnique(
-                    table: 'artifacts',
+                    table: 'artefacts',
                     extraConditions: [
                         ['column' => 'organisation_id', 'value' => $this->organisation->id],
                         [
                             'column'   => 'id',
                             'operator' => '!=',
-                            'value'    => $this->artifact->id
+                            'value'    => $this->artefact->id
                         ],
 
                     ]
@@ -71,27 +71,27 @@ class UpdateArtifact extends OrgAction
     }
 
 
-    public function action(Artifact $artifact, array $modelData, int $hydratorDelay = 0): Artifact
+    public function action(Artefact $artefact, array $modelData, int $hydratorDelay = 0): Artefact
     {
         $this->asAction       = true;
-        $this->artifact       = $artifact;
+        $this->artefact       = $artefact;
         $this->hydratorsDelay = $hydratorDelay;
 
-        $this->initialisation($artifact->organisation, $modelData);
-        return $this->handle($artifact, $this->validatedData);
+        $this->initialisation($artefact->organisation, $modelData);
+        return $this->handle($artefact, $this->validatedData);
     }
 
-    public function asController(Organisation $organisation, Production $production, Artifact $artifact, ActionRequest $request): Artifact
+    public function asController(Organisation $organisation, Production $production, Artefact $artefact, ActionRequest $request): Artefact
     {
-        $this->artifact = $artifact;
+        $this->artefact = $artefact;
         $this->initialisationFromProduction($production, $request);
 
-        return $this->handle($artifact, $this->validatedData);
+        return $this->handle($artefact, $this->validatedData);
     }
 
 
-    public function jsonResponse(Artifact $artifact): ArtifactResource
+    public function jsonResponse(Artefact $artefact): ArtefactResource
     {
-        return new ArtifactResource($artifact);
+        return new ArtefactResource($artefact);
     }
 }

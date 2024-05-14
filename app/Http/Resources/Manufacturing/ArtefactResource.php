@@ -7,18 +7,18 @@
 
 namespace App\Http\Resources\Manufacturing;
 
-use App\Models\Manufacturing\Artifact;
+use App\Models\Manufacturing\Artefact;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ArtifactResource extends JsonResource
+class ArtefactResource extends JsonResource
 {
     public function toArray($request): array
     {
-        /** @var Artifact $artifact */
-        $artifact=$this;
+        /** @var Artefact $artefact */
+        $artefact=$this;
         return [
-            'id'      => $artifact->id,
-            'slug'    => $artifact->slug,
+            'id'      => $artefact->id,
+            'slug'    => $artefact->slug,
         ];
     }
 }

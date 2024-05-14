@@ -20,7 +20,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property int $job_order_id
- * @property int $artifact_id
+ * @property int $artefact_id
  * @property string|null $slug
  * @property string|null $reference
  * @property JobOrderItemStatusEnum $status
@@ -42,7 +42,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
- * @property-read \App\Models\Manufacturing\Artifact $artifact
+ * @property-read \App\Models\Manufacturing\Artefact $artefact
  * @property-read Group $group
  * @property-read \App\Models\Manufacturing\JobOrder $jobOrder
  * @property-read Organisation $organisation
@@ -114,9 +114,9 @@ class JobOrderItem extends Model
         return $this->belongsTo(JobOrder::class);
     }
 
-    public function artifact(): BelongsTo
+    public function artefact(): BelongsTo
     {
-        return $this->belongsTo(Artifact::class);
+        return $this->belongsTo(Artefact::class);
 
     }
 }

@@ -7,7 +7,7 @@
 
 namespace App\Models\Manufacturing;
 
-use App\Enums\Manufacturing\Artifact\ArtifactStateEnum;
+use App\Enums\Manufacturing\Artefact\ArtefactStateEnum;
 use App\Models\SupplyChain\Stock;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InProduction;
@@ -31,7 +31,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $name
  * @property string|null $description
  * @property int|null $stock_family_id
- * @property ArtifactStateEnum $state
+ * @property ArtefactStateEnum $state
  * @property array $settings
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -42,18 +42,18 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\ManufactureTask> $manufactureTasks
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Manufacturing\Production $production
- * @property-read \App\Models\Manufacturing\ArtifactStats|null $stats
+ * @property-read \App\Models\Manufacturing\ArtefactStats|null $stats
  * @property-read Stock|null $stock
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|Artifact newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Artifact newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Artifact onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Artifact query()
- * @method static \Illuminate\Database\Eloquent\Builder|Artifact withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Artifact withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Artefact newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Artefact newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Artefact onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Artefact query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Artefact withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Artefact withoutTrashed()
  * @mixin \Eloquent
  */
-class Artifact extends Model
+class Artefact extends Model
 {
     use SoftDeletes;
     use HasSlug;
@@ -63,7 +63,7 @@ class Artifact extends Model
     protected $casts = [
         'data'                   => 'array',
         'settings'               => 'array',
-        'state'                  => ArtifactStateEnum::class
+        'state'                  => ArtefactStateEnum::class
     ];
 
     protected $attributes = [
@@ -95,12 +95,12 @@ class Artifact extends Model
 
     public function stats(): HasOne
     {
-        return $this->hasOne(ArtifactStats::class);
+        return $this->hasOne(ArtefactStats::class);
     }
 
     public function manufactureTasks()
     {
-        return $this->belongsToMany(ManufactureTask::class)->using(ArtifactManufactureTask::class);
+        return $this->belongsToMany(ManufactureTask::class)->using(ArtefactManufactureTask::class);
     }
 
 

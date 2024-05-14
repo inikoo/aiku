@@ -28,7 +28,7 @@ class OrgAction
     protected Shop $shop;
     protected Fulfilment $fulfilment;
     protected Warehouse $warehouse;
-    private Production $production;
+    protected Production $production;
 
     protected bool $asAction         = false;
     protected bool $canEdit          = false;

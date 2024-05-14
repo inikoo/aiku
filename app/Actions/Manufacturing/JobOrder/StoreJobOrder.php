@@ -30,7 +30,6 @@ class StoreJobOrder extends OrgAction
     use AsAction;
     use WithAttributes;
 
-    private Production $production;
 
     public function handle(Production $production, array $modelData): JobOrder
     {

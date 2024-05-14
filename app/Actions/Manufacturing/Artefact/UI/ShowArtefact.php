@@ -5,27 +5,26 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Manufacturing\Artifact\UI;
+namespace App\Actions\Manufacturing\Artefact\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
-use App\Actions\Inventory\Artifact\UI\GetArtifactShowcase;
+use App\Actions\Inventory\Artefact\UI\GetArtefactShowcase;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
-use App\Enums\UI\Inventory\ArtifactTabsEnum;
+use App\Enums\UI\Inventory\ArtefactTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\LocationResource;
-use App\Http\Resources\Inventory\ArtifactResource;
 use App\Models\Inventory\Warehouse;
-use App\Models\Inventory\Artifact;
+use App\Models\Inventory\Artefact;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowArtifact extends OrgAction
+class ShowArtefact extends OrgAction
 {
     use WithActionButtons;
 
@@ -38,25 +37,25 @@ class ShowArtifact extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, Warehouse $warehouse, Artifact $artifact, ActionRequest $request): Artifact
+    public function asController(Organisation $organisation, Warehouse $warehouse, Artefact $artefact, ActionRequest $request): Artefact
     {
-        $this->initialisationFromWarehouse($warehouse, $request)->withTab(ArtifactTabsEnum::values());
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(ArtefactTabsEnum::values());
 
-        return $artifact;
+        return $artefact;
     }
 
-    public function htmlResponse(Artifact $artifact, ActionRequest $request): Response
+    public function htmlResponse(Artefact $artefact, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Warehouse/Artifact',
+            'Org/Warehouse/Artefact',
             [
                 'title'                                => __('warehouse area'),
                 'breadcrumbs'                          => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
                 'navigation'                           => [
-                    'previous' => $this->getPrevious($artifact, $request),
-                    'next'     => $this->getNext($artifact, $request),
+                    'previous' => $this->getPrevious($artefact, $request),
+                    'next'     => $this->getNext($artefact, $request),
                 ],
                 'pageHead'                             => [
                     'icon'    =>
@@ -64,7 +63,7 @@ class ShowArtifact extends OrgAction
                             'icon'  => ['fal', 'fa-map-signs'],
                             'title' => __('warehouse area')
                         ],
-                    'title'   => $artifact->name,
+                    'title'   => $artefact->name,
                     'actions' => [
                         $this->canEdit ?
                             [
@@ -83,8 +82,8 @@ class ShowArtifact extends OrgAction
                     ],
                     'meta'    => [
                         [
-                            'name'     => trans_choice('location|locations', $artifact->stats->number_locations),
-                            'number'   => $artifact->stats->number_locations,
+                            'name'     => trans_choice('location|locations', $artefact->stats->number_locations),
+                            'number'   => $artefact->stats->number_locations,
                             'href'     => [
                                 'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.index',
                                 'parameters' => $request->route()->originalParameters()
@@ -98,49 +97,49 @@ class ShowArtifact extends OrgAction
                 ],
                 'tabs'                                 => [
                     'current'    => $this->tab,
-                    'navigation' => ArtifactTabsEnum::navigation()
+                    'navigation' => ArtefactTabsEnum::navigation()
                 ],
-                ArtifactTabsEnum::SHOWCASE->value => $this->tab == ArtifactTabsEnum::SHOWCASE->value ?
-                    fn () => GetArtifactShowcase::run($artifact)
-                    : Inertia::lazy(fn () => GetArtifactShowcase::run($artifact)),
+                ArtefactTabsEnum::SHOWCASE->value => $this->tab == ArtefactTabsEnum::SHOWCASE->value ?
+                    fn () => GetArtefactShowcase::run($artefact)
+                    : Inertia::lazy(fn () => GetArtefactShowcase::run($artefact)),
 
-                ArtifactTabsEnum::LOCATIONS->value => $this->tab == ArtifactTabsEnum::LOCATIONS->value
+                ArtefactTabsEnum::LOCATIONS->value => $this->tab == ArtefactTabsEnum::LOCATIONS->value
                     ?
                     fn () => LocationResource::collection(
                         IndexLocations::run(
-                            parent: $artifact,
-                            prefix: ArtifactTabsEnum::LOCATIONS->value
+                            parent: $artefact,
+                            prefix: ArtefactTabsEnum::LOCATIONS->value
                         )
                     )
                     : Inertia::lazy(fn () => LocationResource::collection(
                         IndexLocations::run(
-                            parent: $artifact,
-                            prefix: ArtifactTabsEnum::LOCATIONS->value
+                            parent: $artefact,
+                            prefix: ArtefactTabsEnum::LOCATIONS->value
                         )
                     )),
 
-                ArtifactTabsEnum::HISTORY->value => $this->tab == ArtifactTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistory::run($artifact))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($artifact)))
+                ArtefactTabsEnum::HISTORY->value => $this->tab == ArtefactTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistory::run($artefact))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($artefact)))
 
             ]
         )->table(
             IndexLocations::make()->tableStructure(
-                parent: $artifact,
-                prefix: ArtifactTabsEnum::LOCATIONS->value
+                parent: $artefact,
+                prefix: ArtefactTabsEnum::LOCATIONS->value
             )
         )->table(IndexHistory::make()->tableStructure());
     }
 
 
-    public function jsonResponse(Artifact $artifact): ArtifactResource
+    public function jsonResponse(Artefact $artefact): ArtefactResource
     {
-        return new ArtifactResource($artifact);
+        return new ArtefactResource($artefact);
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
-        $headCrumb = function (Artifact $artifact, array $routeParameters, $suffix) {
+        $headCrumb = function (Artefact $artefact, array $routeParameters, $suffix) {
             return [
                 [
                     'type'           => 'modelWithIndex',
@@ -151,7 +150,7 @@ class ShowArtifact extends OrgAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $artifact->code,
+                            'label' => $artefact->code,
                         ],
                     ],
                     'suffix'         => $suffix,
@@ -160,12 +159,12 @@ class ShowArtifact extends OrgAction
             ];
         };
 
-        $artifact = Artifact::where('slug', $routeParameters['artifact'])->first();
+        $artefact = Artefact::where('slug', $routeParameters['artefact'])->first();
 
         return array_merge(
             (new ShowWarehouse())->getBreadcrumbs($routeParameters),
             $headCrumb(
-                $artifact,
+                $artefact,
                 [
                     'index' => [
                         'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.index',
@@ -173,7 +172,7 @@ class ShowArtifact extends OrgAction
                     ],
                     'model' => [
                         'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show',
-                        'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse', 'artifact'])
+                        'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse', 'artefact'])
                     ]
                 ],
                 $suffix
@@ -181,38 +180,38 @@ class ShowArtifact extends OrgAction
         );
     }
 
-    public function getPrevious(Artifact $artifact, ActionRequest $request): ?array
+    public function getPrevious(Artefact $artefact, ActionRequest $request): ?array
     {
-        $previous = Artifact::where('code', '<', $artifact->code)->when(true, function ($query) use ($artifact, $request) {
-            $query->where('warehouse_id', $artifact->warehouse_id);
+        $previous = Artefact::where('code', '<', $artefact->code)->when(true, function ($query) use ($artefact, $request) {
+            $query->where('warehouse_id', $artefact->warehouse_id);
         })->orderBy('code', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
-    public function getNext(Artifact $artifact, ActionRequest $request): ?array
+    public function getNext(Artefact $artefact, ActionRequest $request): ?array
     {
-        $next = Artifact::where('code', '>', $artifact->code)->when(true, function ($query) use ($artifact, $request) {
-            $query->where('warehouse_id', $artifact->warehouse->id);
+        $next = Artefact::where('code', '>', $artefact->code)->when(true, function ($query) use ($artefact, $request) {
+            $query->where('warehouse_id', $artefact->warehouse->id);
         })->orderBy('code')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
 
-    private function getNavigation(?Artifact $artifact, string $routeName): ?array
+    private function getNavigation(?Artefact $artefact, string $routeName): ?array
     {
-        if (!$artifact) {
+        if (!$artefact) {
             return null;
         }
 
         return [
-            'label' => $artifact->name,
+            'label' => $artefact->name,
             'route' => [
                 'name'       => $routeName,
                 'parameters' => [
-                    'organisation'  => $artifact->organisation->slug,
-                    'warehouse'     => $artifact->warehouse->slug,
-                    'artifact'      => $artifact->slug
+                    'organisation'  => $artefact->organisation->slug,
+                    'warehouse'     => $artefact->warehouse->slug,
+                    'artefact'      => $artefact->slug
                 ]
 
             ]

@@ -20,7 +20,7 @@ return new class () extends Migration {
             $table->foreign('production_id')->references('id')->on('productions');
             $table = $this->rawMaterialStats($table);
             $table = $this->manufactureTaskStats($table);
-            $table = $this->artifactsStats($table);
+            $table = $this->artefactsStats($table);
             $table = $this->jobOrdersStats($table);
             $table->timestampsTz();
 
