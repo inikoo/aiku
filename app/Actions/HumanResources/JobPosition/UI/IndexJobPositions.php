@@ -127,9 +127,9 @@ class IndexJobPositions extends OrgAction
     public function asController(Organisation $organisation, ActionRequest $request, Employee $employee = null): LengthAwarePaginator
     {
         $this->initialisation($organisation, $request);
-        
+
         $parent = $employee ?? $organisation;
-        
+
         return $this->handle($parent);
     }
 
