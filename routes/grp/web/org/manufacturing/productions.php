@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Manufacturing\Artifact\UI\IndexArtifacts;
 use App\Actions\Manufacturing\JobOrder\UI\ShowJobOrder;
 use App\Actions\Manufacturing\Production\UI\CreateProduction;
 use App\Actions\Manufacturing\Production\UI\EditProduction;
@@ -38,7 +39,7 @@ Route::prefix('{production}')
                         Route::get('', ShowProductionCrefts::class)->name('dashboard');
 
                         Route::get('raw-materials', ShowJobOrder::class)->name('raw_materials.index');
-                        Route::get('artifacts', ShowJobOrder::class)->name('artifacts.index');
+                        Route::get('artifacts', IndexArtifacts::class)->name('artifacts.index');
                     });
             });
     });

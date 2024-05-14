@@ -313,4 +313,9 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchArtifact($id): ?array
+    {
+        return null;
+    }
+
 }

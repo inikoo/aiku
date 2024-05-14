@@ -24,7 +24,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
- * @property int $stock_id
+ * @property int $production_id
+ * @property int|null $stock_id
  * @property string $slug
  * @property string $code
  * @property string|null $name
@@ -36,12 +37,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $source_id
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\ManufactureTask> $manufactureTasks
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @property-read \App\Models\Manufacturing\Production|null $production
+ * @property-read \App\Models\Manufacturing\Production $production
  * @property-read \App\Models\Manufacturing\ArtifactStats|null $stats
- * @property-read Stock $stock
+ * @property-read Stock|null $stock
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|Artifact newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Artifact newQuery()

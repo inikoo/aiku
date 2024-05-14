@@ -95,6 +95,8 @@ interface SourceOrganisationService
 
     public function fetchSupplierProduct($id);
 
+    public function fetchArtifact($id);
+
     public function fetchPaymentServiceProvider($id);
 
     public function fetchPaymentAccount($id);

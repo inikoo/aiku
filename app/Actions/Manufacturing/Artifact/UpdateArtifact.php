@@ -7,22 +7,22 @@
 
 namespace App\Actions\Manufacturing\Artifact;
 
-use App\Actions\GrpAction;
 use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateUniversalSearch;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Inventory\OrgStockResource;
+use App\Http\Resources\Manufacturing\ArtifactResource;
 use App\Models\Manufacturing\Artifact;
-use App\Models\SupplyChain\StockFamily;
+use App\Models\Manufacturing\Production;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateArtifact extends GrpAction
+class UpdateArtifact extends OrgAction
 {
     use WithActionUpdate;
 
-    private StockFamily $stockFamily;
 
     private Artifact $artifact;
 
@@ -40,7 +40,7 @@ class UpdateArtifact extends GrpAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("inventory.stocks.edit");
+        return $request->user()->hasPermissionTo("productions_rd.{$this->production->id}.edit");
     }
 
     public function rules(): array
@@ -53,13 +53,13 @@ class UpdateArtifact extends GrpAction
                 'max:32',
                 Rule::notIn(['export', 'create', 'upload']),
                 new IUnique(
-                    table: 'stocks',
+                    table: 'artifacts',
                     extraConditions: [
-                        ['column' => 'group_id', 'value' => $this->group->id],
+                        ['column' => 'organisation_id', 'value' => $this->organisation->id],
                         [
                             'column'   => 'id',
                             'operator' => '!=',
-                            'value'    => $this->stock->id
+                            'value'    => $this->artifact->id
                         ],
 
                     ]
@@ -71,26 +71,27 @@ class UpdateArtifact extends GrpAction
     }
 
 
-    public function action(Artifact $artifact, array $modelData): Artifact
+    public function action(Artifact $artifact, array $modelData, int $hydratorDelay = 0): Artifact
     {
-        $this->asAction = true;
-        $this->stock    = $artifact;
-        $this->initialisation($artifact->group, $modelData);
+        $this->asAction       = true;
+        $this->artifact       = $artifact;
+        $this->hydratorsDelay = $hydratorDelay;
 
+        $this->initialisation($artifact->organisation, $modelData);
         return $this->handle($artifact, $this->validatedData);
     }
 
-    public function asController(Artifact $artifact, ActionRequest $request): Artifact
+    public function asController(Organisation $organisation, Production $production, Artifact $artifact, ActionRequest $request): Artifact
     {
         $this->artifact = $artifact;
-        $this->initialisation($artifact->group, $request);
+        $this->initialisationFromProduction($production, $request);
 
         return $this->handle($artifact, $this->validatedData);
     }
 
 
-    public function jsonResponse(Artifact $artifact): OrgStockResource
+    public function jsonResponse(Artifact $artifact): ArtifactResource
     {
-        return new OrgStockResource($artifact);
+        return new ArtifactResource($artifact);
     }
 }

@@ -20,11 +20,16 @@ use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
+use Lorisleiva\Actions\ActionRequest;
 
 class StoreArtifact extends OrgAction
 {
     public function handle(Production $production, array $modelData): Artifact
     {
+
+        data_set($modelData, 'organisation_id', $this->organisation->id);
+        data_set($modelData, 'group_id', $production->group_id);
+
         /** @var Artifact $artifact */
         $artifact = $production->artifacts()->create($modelData);
         $artifact->stats()->create();
@@ -37,28 +42,42 @@ class StoreArtifact extends OrgAction
         return $artifact;
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return $request->user()->hasPermissionTo("productions_rd.{$this->production->id}.edit");
+    }
+
     public function rules(): array
     {
         return [
-            'code'            => [
+            'code'      => [
                 'required',
                 'max:64',
                 new AlphaDashDot(),
                 Rule::notIn(['export', 'create', 'upload']),
                 new IUnique(
-                    table: 'stocks',
+                    table: 'artifacts',
                     extraConditions: [
                         ['column' => 'organisation_id', 'value' => $this->organisation->id],
                     ]
                 ),
             ],
-            'name'            => ['required', 'string', 'max:255'],
-            'state'           => ['sometimes', 'nullable', Rule::enum(ArtifactStateEnum::class)],
+            'name'        => ['required', 'string', 'max:255'],
+            'state'       => ['sometimes', 'nullable', Rule::enum(ArtifactStateEnum::class)],
+            'source_id'   => ['sometimes', 'nullable', 'string'],
+            'created_at'  => ['sometimes', 'nullable', 'date'],
+
+
         ];
     }
 
     public function action(Production $production, array $modelData, int $hydratorDelay = 0): Artifact
     {
+        $this->asAction       = true;
         $this->hydratorsDelay = $hydratorDelay;
         $this->initialisation($production->organisation, $modelData);
 
@@ -66,10 +85,8 @@ class StoreArtifact extends OrgAction
     }
 
 
-
     public function htmlResponse(Artifact $artifact): RedirectResponse
     {
-
         return Redirect::route('grp.org.artifacts.show', [
             $artifact->slug
         ]);
