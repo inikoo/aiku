@@ -18,7 +18,6 @@ class FetchAuroraPayment extends FetchAurora
 {
     protected function parseModel(): void
     {
-        //print_r($this->auroraModelData);
 
         $data = [];
 
@@ -35,7 +34,6 @@ class FetchAuroraPayment extends FetchAurora
         $this->parsedData['paymentAccount'] = $this->parsePaymentAccount($this->organisation->id.':'.$this->auroraModelData->{'Payment Account Key'});
 
         if(!$this->parsedData['paymentAccount']) {
-            print_r($this->auroraModelData);
             dd('Error Payment Account not found');
         }
 

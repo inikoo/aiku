@@ -27,8 +27,6 @@ class FetchAuroraWebpages extends FetchAuroraAction
                 return null;
             }
 
-            //print_r($webpageData['webpage']);
-
             if ($webpage = Webpage::where('source_id', $webpageData['webpage']['source_id'])
                 ->first()) {
                 $webpage = UpdateWebpage::run(

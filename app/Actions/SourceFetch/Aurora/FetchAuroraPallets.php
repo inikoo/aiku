@@ -22,7 +22,6 @@ class FetchAuroraPallets extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Pallet
     {
         if ($palletData = $organisationSource->fetchPallet($organisationSourceId)) {
-            //print_r($palletData);
             if ($pallet = Pallet::withTrashed()->where('source_id', $palletData['pallet']['source_id'])
                 ->first()) {
                 $pallet = UpdatePallet::run(

@@ -124,7 +124,6 @@ class FetchAuroraWebpage extends FetchAurora
             $this->parsedData['webpage']['created_at'] = $createdAt;
         }
 
-        //print_r($this->parsedData['webpage']);
 
     }
 
