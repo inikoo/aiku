@@ -55,6 +55,15 @@ function departmentRoute(family: Family) {
             return route(
                 "grp.org.shops.show.catalogue.departments.index",
                 [route().params["organisation"], family.shop_slug,family.departmant_slug]);
+        case 'grp.org.shops.show.catalogue.dashboard':
+            return route(
+                "grp.org.shops.show.catalogue.departments.show",
+                [route().params["organisation"], route().params["shop"],family.department_slug]);
+        case 'grp.org.shops.show.catalogue.families.index':
+            return route(
+                "grp.org.shops.show.catalogue.departments.show",
+                [route().params["organisation"], route().params["shop"],family.department_slug]);
+
     }
 }
 
