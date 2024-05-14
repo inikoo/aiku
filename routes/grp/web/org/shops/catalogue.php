@@ -7,6 +7,7 @@
 
 use App\Actions\Catalogue\Collection\UI\IndexCollection;
 use App\Actions\Catalogue\Collection\UI\IndexCollections;
+use App\Actions\Catalogue\Collection\UI\ShowCollection;
 use App\Actions\Catalogue\Product\UI\CreateProduct;
 use App\Actions\Catalogue\Product\UI\EditProduct;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
@@ -46,3 +47,5 @@ Route::get('families/{family}/edit', [EditFamily::class, 'inShop'])->name('famil
 
 Route::get('collections', IndexCollection::class)->name('collections.index');
 Route::get('collections/create', CreateProduct::class)->name('collections.create');
+
+Route::get('collections/{collection}', ShowCollection::class)->name('collections.show');
