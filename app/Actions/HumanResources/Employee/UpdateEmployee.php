@@ -28,7 +28,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateEmployee extends OrgAction
 {
     use WithActionUpdate;
-
+    use HasPositionsRules;
 
     protected bool $asAction = false;
 
@@ -36,11 +36,14 @@ class UpdateEmployee extends OrgAction
 
     public function handle(Employee $employee, array $modelData): Employee
     {
+
         if (Arr::exists($modelData, 'positions')) {
             $jobPositions = [];
 
+
             foreach (Arr::get($modelData, 'positions', []) as $positionData) {
-                $jobPosition                    = JobPosition::firstWhere('slug', $positionData['slug']);
+                /** @var JobPosition $jobPosition */
+                $jobPosition                    = $this->organisation->jobPositions()->firstWhere('slug', $positionData['slug']);
                 $jobPositions[$jobPosition->id] = match (key(Arr::get($positionData, 'scopes', []))) {
                     'shops' => [
                         'Shop' => Shop::whereIn('slug', $positionData['scopes']['shops']['slug'])->pluck('id')->toArray()
@@ -53,6 +56,7 @@ class UpdateEmployee extends OrgAction
                     ],
                     default => []
                 };
+
             }
 
             SyncEmployableJobPositions::run($employee, $jobPositions);
@@ -87,7 +91,7 @@ class UpdateEmployee extends OrgAction
     public function rules(): array
     {
         return [
-            'worker_number' => [
+            'worker_number'                         => [
                 'sometimes',
                 'max:64',
                 'alpha_dash',
@@ -107,9 +111,9 @@ class UpdateEmployee extends OrgAction
                 ),
 
             ],
-            'employment_start_at' => ['sometimes', 'nullable', 'date'],
-            'work_email'          => ['sometimes', 'nullable', 'email', 'iunique:employees'],
-            'alias'               => [
+            'employment_start_at'                   => ['sometimes', 'nullable', 'date'],
+            'work_email'                            => ['sometimes', 'nullable', 'email', 'iunique:employees'],
+            'alias'                                 => [
                 'sometimes',
                 'string',
                 'max:16',
@@ -151,41 +155,10 @@ class UpdateEmployee extends OrgAction
         return $this->handle($employee, $this->validatedData);
     }
 
-    public function prepareForValidation(): void
+
+    public function prepareForValidation(ActionRequest $request): void
     {
-        if ($this->get('positions')) {
-            $newData = [];
-            foreach ($this->get('positions') as $key => $position) {
-                $newData[] = match (Arr::get(explode('-', $key), 0)) {
-                    'wah', 'dist', 'ful' => [
-                        'slug'   => $key,
-                        'scopes' => array_map(function ($scope) {
-                            return [
-                                'slug' => $scope
-                            ];
-                        }, $position)
-                    ],
-                    'web', 'mrk', 'cus' => [
-                        'slug'   => $key,
-                        'scopes' => array_map(function ($scope) {
-                            return [
-                                'slug' => $scope
-                            ];
-                        }, $position)
-                    ],
-                    default => [
-                        'slug'   => $key,
-                        'scopes' => []
-                    ]
-                };
-            }
-
-            $positions = [
-                'positions' => $newData
-            ];
-
-            $this->fill($positions);
-        }
+        $this->preparePositionsForValidation();
     }
 
     public function asController(Employee $employee, ActionRequest $request): Employee

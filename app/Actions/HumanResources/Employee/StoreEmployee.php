@@ -31,6 +31,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreEmployee extends OrgAction
 {
+    use HasPositionsRules;
+
     public function handle(Organisation|Workplace $parent, array $modelData): Employee
     {
         if (class_basename($parent) === 'Workplace') {
@@ -103,6 +105,9 @@ class StoreEmployee extends OrgAction
         if (!$this->get('username')) {
             $this->set('username', null);
         }
+
+        $this->preparePositionsForValidation();
+
     }
 
     public function rules(): array
@@ -150,6 +155,9 @@ class StoreEmployee extends OrgAction
             'positions'           => ['sometimes', 'array'],
             'positions.*.slug'    => ['sometimes', 'string'],
             'positions.*.scopes'  => ['sometimes', 'array'],
+            'positions.*.scopes.warehouses.slug.*'  => ['sometimes', 'exists:warehouses,slug'],
+            'positions.*.scopes.fulfilments.slug.*' => ['sometimes', 'exists:fulfilments,slug'],
+            'positions.*.scopes.shops.slug.*'       => ['sometimes', 'exists:shops,slug'],
             'email'               => ['sometimes', 'nullable', 'email'],
             'username'            => [
                 'nullable',
