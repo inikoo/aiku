@@ -16,7 +16,9 @@ const props = defineProps<{
 }>();
 
 
-function familyRoute(family: Family) {
+function familyRoute(family: Family) { 
+  console.log(route().current())
+  console.log(family.shop_slug)
   switch (route().current()) {
     case "grp.shops.show":
     case "grp.org.shops.show.catalogue.families.index":
@@ -31,6 +33,10 @@ function familyRoute(family: Family) {
       return route(
         "grp.org.shops.show.catalogue.families.show",
         [route().params["organisation"], family.shop_slug, family.slug]);
+    case "grp.org.shops.show.catalogue.dashboard":
+    return route(
+        "grp.org.shops.show.catalogue.families.show",
+        [route().params["organisation"], route().params["shop"], family.slug]);
   }
 }
 
