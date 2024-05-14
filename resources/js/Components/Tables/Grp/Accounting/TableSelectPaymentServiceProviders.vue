@@ -129,7 +129,7 @@ const onCloseModal = async (data) => {
         <!-- Column: Code -->
         <template #cell(code)="{ item: paymentServiceProvider }">
             <Link v-if="paymentServiceProvider['org_slug']" :href="paymentServiceProviderRoute(paymentServiceProvider)"
-                class="specialUnderline">
+                class="primaryLink">
                 {{ paymentServiceProvider['org_code'] }}
             </Link>
             
@@ -141,7 +141,7 @@ const onCloseModal = async (data) => {
         <!-- Column: Account -->
         <template #cell(number_payment_accounts)="{ item: paymentServiceProvider }">
             <Link v-if="paymentServiceProvider['org_slug']" :href="paymentAccountRoute(paymentServiceProvider)"
-                class="specialUnderlineSecondary">
+                class="secondaryLink">
                 {{ paymentServiceProvider['number_payment_accounts'] }}
             </Link>
         </template>
@@ -149,7 +149,7 @@ const onCloseModal = async (data) => {
         <!-- Column: Payment -->
         <template #cell(number_payments)="{ item: paymentServiceProvider }">
             <Link v-if="paymentServiceProvider['org_slug']" :href="paymentsRoute(paymentServiceProvider)"
-                class="specialUnderlineSecondary">
+                class="secondaryLink">
                 {{ paymentServiceProvider['number_payments'] }}
             </Link>
         </template>

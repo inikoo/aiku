@@ -31,7 +31,7 @@ function workplaceRoute(workplace: Workplace) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(slug)="{ item: workplace }">
-            <Link :href="workplaceRoute(workplace)" class="specialUnderline">
+            <Link :href="workplaceRoute(workplace)" class="primaryLink">
                 {{ workplace['slug'] }}
             </Link>
         </template>

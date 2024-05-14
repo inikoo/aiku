@@ -123,21 +123,21 @@ onUnmounted(() => {
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Code-->
         <template #cell(code)="{ item: paymentAccount }">
-            <Link :href="paymentAccountRoute(paymentAccount)" class="specialUnderline">
+            <Link :href="paymentAccountRoute(paymentAccount)" class="primaryLink">
                 {{ paymentAccount['code'] }}
             </Link>
         </template>
 
         <!-- Column: Provider -->
         <template #cell(payment_service_provider_code)="{ item: paymentAccount }">
-            <Link :href="providersRoute(paymentAccount)" class="specialUnderlineSecondary">
+            <Link :href="providersRoute(paymentAccount)" class="secondaryLink">
                 {{ paymentAccount['payment_service_provider_code'] }}
             </Link>
         </template>
 
         <!-- Column: Payment -->
         <template #cell(number_payments)="{ item: paymentAccount }">
-            <Link :href="paymentsRoute(paymentAccount)" class="specialUnderlineSecondary">
+            <Link :href="paymentsRoute(paymentAccount)" class="secondaryLink">
                 {{ paymentAccount['number_payments'] }}
             </Link>
         </template>

@@ -39,7 +39,7 @@ const timesheetRoute = (timesheet) => {
     <Table :resource="data" class="mt-5" :name="tab">
         <!-- Column: Code -->
         <template #cell(slug)="{ item: timesheet }">
-            <Link :href="timesheetRoute(timesheet)" class="whitespace-nowrap specialUnderline">
+            <Link :href="timesheetRoute(timesheet)" class="whitespace-nowrap primaryLink">
                 {{ timesheet["slug"] }}
             </Link>
         </template>

@@ -40,7 +40,7 @@ function storedItemRoute(storedItem) {
 <template>
     <Table :resource="data" :name="'stored_item_returns'" class="mt-5">
         <template #cell(reference)="{ item: value }">
-            <Link :href="storedItemRoute(value)" class="specialUnderline">
+            <Link :href="storedItemRoute(value)" class="primaryLink">
             {{ value.reference }}
             </Link>
         </template>

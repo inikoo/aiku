@@ -40,7 +40,7 @@ console.log(props.data);
 
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(username)="{ item: user }">
-            <Link :href="userRoute(user)" class="specialUnderline">
+            <Link :href="userRoute(user)" class="primaryLink">
                 <template v-if="user['username']">{{ user["username"] }}</template>
                 <span v-else class="italic">{{ trans("Not set") }}</span>
             </Link>

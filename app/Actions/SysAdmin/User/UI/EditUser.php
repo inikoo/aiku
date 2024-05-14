@@ -8,6 +8,7 @@
 namespace App\Actions\SysAdmin\User\UI;
 
 use App\Actions\InertiaAction;
+use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\User;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -34,6 +35,19 @@ class EditUser extends InertiaAction
 
     public function htmlResponse(User $user, ActionRequest $request): Response
     {
+        $positions   = JobPosition::all();
+        $permissions = $positions->map(function (JobPosition $position) {
+            return [
+                'position_name'     => $position->name,
+                'organisations'     => [
+                    $position->organisation->slug => ['uk', 'awt']
+                ],
+                'shops'                   => $position->organisation->shops->pluck('slug'),
+                'warehouses'              => $position->organisation->warehouses->pluck('slug'),
+                'fulfilments'             => $position->organisation->fulfilments->pluck('slug'),
+            ];
+        });
+
         return Inertia::render("EditModel", [
             "title"       => __("user"),
             "breadcrumbs" => $this->getBreadcrumbs(
@@ -91,7 +105,7 @@ class EditUser extends InertiaAction
                             "permissions" => [
                                 "type"              => "permissions",
                                 "label"             => __("permissions"),
-                                "value"             => [],
+                                "value"             => $permissions,
                                 "fullComponentArea" => true,
                             ],
                         ],

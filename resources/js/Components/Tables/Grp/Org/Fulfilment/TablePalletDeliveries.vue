@@ -118,14 +118,14 @@ const handleClick = (action: Action) => {
 
         <!-- Column: Reference -->
         <template #cell(reference)="{ item: palletDelivery }">
-            <Link :href="palletDeliveryRoute(palletDelivery)" class="specialUnderline">
+            <Link :href="palletDeliveryRoute(palletDelivery)" class="primaryLink">
             {{ palletDelivery['reference'] }}
             </Link>
         </template>
 
         <!-- Column: Customer -->
         <template #cell(customer_name)="{ item: palletDelivery }">
-            <Link :href="customerRoute(palletDelivery)" class="specialUnderlineSecondary">
+            <Link :href="customerRoute(palletDelivery)" class="secondaryLink">
             {{ palletDelivery['customer_name'] }}
             </Link>
         </template>

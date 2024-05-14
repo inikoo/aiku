@@ -71,7 +71,7 @@ const handleClick = (action: Action) => {
 
     <Table :resource="data" class="mt-5">
         <template #cell(reference)="{ item: palletDelivery }">
-            <Link :href="palletDeliveryRoute(palletDelivery)" class="specialUnderline">
+            <Link :href="palletDeliveryRoute(palletDelivery)" class="primaryLink">
                 {{ palletDelivery['reference'] }}
             </Link>
         </template>
