@@ -113,4 +113,10 @@ class Fulfilment extends Model
         return $this->hasMany(RecurringBill::class);
     }
 
+    public function fulfilmentCustomers(): HasMany
+    {
+        return $this->hasMany(FulfilmentCustomer::class);
+    }
+
+
 }

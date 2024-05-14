@@ -51,37 +51,37 @@ const dateOptions = [
     },
     {
         label: trans('Last month'),
-        labelShort: trans('xxxxx'),
+        labelShort: trans('lm'),
         value: 'lm'
     },
     {
         label: trans('Last week'),
-        labelShort: trans('xxxxx'),
+        labelShort: trans('lw'),
         value: 'lw'
     },
     {
         label: trans('Yesterday'),
-        labelShort: trans('xxxxx'),
+        labelShort: trans('y'),
         value: 'yda'
     },
     {
         label: trans('Today'),
-        labelShort: trans('xxxxx'),
+        labelShort: trans('t'),
         value: 'tdy'
     },
     {
         label: trans('1 Year'),
-        labelShort: trans('xxxxx'),
+        labelShort: trans('1y'),
         value: '1y'
     },
     {
         label: trans('1 Quarter'),
-        labelShort: trans('xxxxx'),
+        labelShort: trans('1q'),
         value: '1q'
     },
     {
         label: trans('1 Month'),
-        labelShort: trans('xxxxx'),
+        labelShort: trans('1m'),
         value: '1m'
     },
     {
@@ -382,7 +382,7 @@ const calcPercentage = (orgData, keyName: string | null) => {
                     </template>
                 </tbody>
             </table>
-            <!-- <pre>{{ groupStats.organisations[3] }}</pre> -->
+          <!--  <pre>{{ groupStats.organisations[1] }}</pre> -->
 
             
         </div>

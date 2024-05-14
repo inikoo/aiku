@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateCustomers;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Utils\Abbreviate;
@@ -19,57 +20,59 @@ class StoreFulfilmentCustomerFromCustomer extends OrgAction
 {
     public function handle(Customer $customer, Shop $shop): FulfilmentCustomer
     {
-        /** @var FulfilmentCustomer $customerFulfilment */
-        $customerFulfilment = $customer->fulfilmentCustomer()->create([
+        /** @var FulfilmentCustomer $fulfilmentCustomer */
+        $fulfilmentCustomer = $customer->fulfilmentCustomer()->create([
             'fulfilment_id'   => $shop->fulfilment->id,
             'group_id'        => $customer->group_id,
             'organisation_id' => $customer->organisation_id,
         ]);
-        $customerFulfilment->refresh();
+        $fulfilmentCustomer->refresh();
 
-        $customerFulfilment->serialReferences()->create(
+        $fulfilmentCustomer->serialReferences()->create(
             [
                 'model'           => SerialReferenceModelEnum::PALLET_DELIVERY,
-                'organisation_id' => $customerFulfilment->organisation->id,
-                'format'          => Abbreviate::run($customerFulfilment->slug).'-%03d'
+                'organisation_id' => $fulfilmentCustomer->organisation->id,
+                'format'          => Abbreviate::run($fulfilmentCustomer->slug).'-%03d'
             ]
         );
 
-        $customerFulfilment->serialReferences()->create(
+        $fulfilmentCustomer->serialReferences()->create(
             [
                 'model'           => SerialReferenceModelEnum::PALLET_RETURN,
-                'organisation_id' => $customerFulfilment->organisation->id,
-                'format'          => Abbreviate::run($customerFulfilment->slug).'-r%03d'
+                'organisation_id' => $fulfilmentCustomer->organisation->id,
+                'format'          => Abbreviate::run($fulfilmentCustomer->slug).'-r%03d'
             ]
         );
 
-        $customerFulfilment->serialReferences()->create(
+        $fulfilmentCustomer->serialReferences()->create(
             [
                 'model'           => SerialReferenceModelEnum::STORED_ITEM_RETURN,
-                'organisation_id' => $customerFulfilment->organisation->id,
-                'format'          => Abbreviate::run($customerFulfilment->slug).'-sir%03d'
+                'organisation_id' => $fulfilmentCustomer->organisation->id,
+                'format'          => Abbreviate::run($fulfilmentCustomer->slug).'-sir%03d'
             ]
         );
 
-        $customerFulfilment->serialReferences()->create(
+        $fulfilmentCustomer->serialReferences()->create(
             [
                 'model'           => SerialReferenceModelEnum::PALLET,
-                'organisation_id' => $customerFulfilment->organisation->id,
-                'format'          => Abbreviate::run($customerFulfilment->slug).'-p%04d'
+                'organisation_id' => $fulfilmentCustomer->organisation->id,
+                'format'          => Abbreviate::run($fulfilmentCustomer->slug).'-p%04d'
             ]
         );
 
-        $customerFulfilment->serialReferences()->create(
+        $fulfilmentCustomer->serialReferences()->create(
             [
                 'model'           => SerialReferenceModelEnum::RECURRING_BILL,
-                'organisation_id' => $customerFulfilment->organisation->id,
-                'format'          => Abbreviate::run($customerFulfilment->slug).'-b%03d'
+                'organisation_id' => $fulfilmentCustomer->organisation->id,
+                'format'          => Abbreviate::run($fulfilmentCustomer->slug).'-b%03d'
             ]
         );
 
 
-        FulfilmentCustomerHydrateUniversalSearch::dispatch($customerFulfilment);
+        FulfilmentCustomerHydrateUniversalSearch::dispatch($fulfilmentCustomer);
+        FulfilmentHydrateCustomers::dispatch($fulfilmentCustomer->fulfilment);
 
-        return $customerFulfilment;
+
+        return $fulfilmentCustomer;
     }
 }

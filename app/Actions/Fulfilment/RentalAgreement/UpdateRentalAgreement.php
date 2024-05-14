@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\RentalAgreement;
 
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStatus;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
@@ -26,7 +27,7 @@ class UpdateRentalAgreement extends OrgAction
     {
         /** @var RentalAgreement $rentalAgreement */
         $rentalAgreement = $this->update($rentalAgreement, Arr::except($modelData, ['rental']));
-
+        FulfilmentCustomerHydrateStatus::run($rentalAgreement->fulfilmentCustomer);
         return $rentalAgreement;
     }
 

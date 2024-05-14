@@ -100,7 +100,7 @@ class ShowFulfilmentCustomer extends OrgAction
         }
 
         return Inertia::render(
-            'Org/Fulfilment/Customer',
+            'Org/Fulfilment/FulfilmentCustomer',
             [
                 'title'       => __('customer'),
                 'breadcrumbs' => $this->getBreadcrumbs(

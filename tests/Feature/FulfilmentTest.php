@@ -6,6 +6,7 @@
  */
 
 use App\Actions\CRM\Customer\StoreCustomer;
+use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\SetPalletAsNotReceived;
 use App\Actions\Fulfilment\Pallet\SetPalletRental;
@@ -211,24 +212,41 @@ test('create fulfilment website', function (Fulfilment $fulfilment) {
 
 
 test('create fulfilment customer', function (Fulfilment $fulfilment) {
+    $customerData = Customer::factory()->definition();
+
     $customer = StoreCustomer::make()->action(
         $fulfilment->shop,
-        Customer::factory()->definition(),
+        $customerData
     );
 
+    UpdateFulfilmentCustomer::make()->action(
+        $customer->fulfilmentCustomer,
+        [
+            'pallets_storage' => true,
+            'items_storage'   => true,
+        ]
+    );
+
+    $fulfilment->refresh();
+
     expect($customer)->toBeInstanceOf(Customer::class)
+        ->and($customer->fulfilmentCustomer)->toBeInstanceOf(FulfilmentCustomer::class)
         ->and($customer->reference)->toBe('000001')
         ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED)
-        ->and($customer->fulfilmentCustomer)->toBeInstanceOf(FulfilmentCustomer::class)
+        ->and($customer->is_fulfilment)->toBeTrue()
+        ->and($customer->fulfilmentCustomer->pallets_storage)->toBeTrue()
+        ->and($customer->fulfilmentCustomer->items_storage)->toBeTrue()
+        ->and($customer->fulfilmentCustomer->dropshipping)->toBeFalse()
         ->and($customer->fulfilmentCustomer->number_pallets)->toBe(0)
-        ->and($customer->fulfilmentCustomer->number_stored_items)->toBe(0);
+        ->and($customer->fulfilmentCustomer->number_stored_items)->toBe(0)
+        ->and($fulfilment->stats->number_customers_interest_items_storage)->toBe(1)
+        ->and($fulfilment->stats->number_customers_interest_pallets_storage)->toBe(1)
+        ->and($fulfilment->stats->number_customers_interest_dropshipping)->toBe(0);
 
     return $customer->fulfilmentCustomer;
 })->depends('create fulfilment shop');
 
 test('create rental agreement', function (FulfilmentCustomer $fulfilmentCustomer) {
-
-
     $rentalAgreement = StoreRentalAgreement::make()->action(
         $fulfilmentCustomer,
         [
@@ -236,12 +254,12 @@ test('create rental agreement', function (FulfilmentCustomer $fulfilmentCustomer
             'pallets_limit' => null,
             'causes'        => [
                 [
-                    'product_id'       => $fulfilmentCustomer->fulfilment->rentals->first()->product_id,
-                    'agreed_price'     => 100,
+                    'product_id'   => $fulfilmentCustomer->fulfilment->rentals->first()->product_id,
+                    'agreed_price' => 100,
                 ],
                 [
-                    'product_id'       => $fulfilmentCustomer->fulfilment->rentals->last()->product_id,
-                    'agreed_price'     => 200,
+                    'product_id'   => $fulfilmentCustomer->fulfilment->rentals->last()->product_id,
+                    'agreed_price' => 200,
                 ],
             ]
         ]
@@ -307,9 +325,9 @@ test('update pallet delivery notes', function (PalletDelivery $palletDelivery) {
         ]
     );
     expect($palletDelivery->customer_notes)->toBe('');
+
     return $palletDelivery;
 })->depends('create pallet delivery');
-
 
 
 test('add pallet to pallet delivery', function (PalletDelivery $palletDelivery) {
@@ -363,7 +381,6 @@ test('add multiple pallets to pallet delivery', function (PalletDelivery $pallet
 })->depends('create pallet delivery');
 
 test('remove a pallet from pallet delivery', function (PalletDelivery $palletDelivery) {
-
     DeletePalletInDelivery::make()->action(
         $palletDelivery->pallets->last()
     );
@@ -417,11 +434,9 @@ test('receive pallet delivery', function (PalletDelivery $palletDelivery) {
 })->depends('confirm pallet delivery');
 
 test('start booking-in pallet delivery', function (PalletDelivery $palletDelivery) {
-
     $palletDelivery = StartBookingPalletDelivery::make()->action($palletDelivery);
 
     $palletDelivery->refresh();
-
 
 
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKING_IN)
@@ -559,7 +574,6 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
         ->and($thirdPallet->state)->toBe(PalletStateEnum::STORING);
 
 
-
     return $palletDelivery;
 })->depends('set location of third pallet in the pallet delivery');
 
@@ -634,7 +648,7 @@ test('UI show fulfilment shop customers list', function (Fulfilment $fulfilment)
     );
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Fulfilment/Customers')
+            ->component('Org/Fulfilment/FulfilmentCustomers')
             ->has('title')
             ->has('breadcrumbs', 3);
     });

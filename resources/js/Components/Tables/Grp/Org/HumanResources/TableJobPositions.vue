@@ -14,10 +14,11 @@ const props = defineProps<{
     tab?:string
 }>()
 
-
+console.log(route().current())
 function jobPositionRoute(jobPosition: JobPosition) {
     switch (route().current()) {
         case 'grp.org.hr.job-positions.index':
+      case 'grp.org.hr.employees.show':
             return route(
                 'grp.org.hr.job-positions.show',
                 [

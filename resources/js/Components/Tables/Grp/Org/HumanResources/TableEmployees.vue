@@ -16,10 +16,10 @@ const props = defineProps<{
     tab?:string
 }>()
 
-
 function employeeRoute(employee: Employee) {
     switch (route().current()) {
         case 'grp.org.hr.employees.index':
+        case 'grp.org.hr.job-positions.show':
             return route(
                 'grp.org.hr.employees.show',
                 [route().params['organisation'],employee.slug]);

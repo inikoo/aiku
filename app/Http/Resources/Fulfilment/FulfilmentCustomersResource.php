@@ -18,13 +18,13 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $contact_name
  * @property string $company_name
  * @property string $phone
- * @property \App\Models\Fulfilment\RentalAgreement $rentalAgreement
  * @property string $shop_code
  * @property string $shop_slug
  * @property string $slug
  * @property int $number_pallets
  * @property int $id
  * @property int $number_pallets_status_storing
+ * @property mixed $status
  */
 class FulfilmentCustomersResource extends JsonResource
 {
@@ -39,7 +39,8 @@ class FulfilmentCustomersResource extends JsonResource
             'company_name'                  => $this->company_name,
             'email'                         => $this->email,
             'phone'                         => $this->phone,
-            'rental_agreement'              => (bool) $this->rentalAgreement,
+            'status_label'                  => $this->status->labels()[$this->status->value],
+            'status_icon'                   => $this->status->statusIcon()[$this->status->value],
             'number_pallets_status_storing' => $this->number_pallets_status_storing
         ];
     }

@@ -21,6 +21,13 @@ enum RolesEnum: string
     use EnumHelperTrait;
 
     case SUPER_ADMIN  = 'super-admin';
+
+    case HUMAN_RESOURCES_SUPERVISOR = 'human-resources-supervisor';
+    case HUMAN_RESOURCES_CLERK      = 'human-resources-clerk';
+
+
+
+
     case SYSTEM_ADMIN = 'system-admin';
 
     case SUPPLY_CHAIN = 'supply-chain';
@@ -40,14 +47,14 @@ enum RolesEnum: string
     case DISPATCH_CLERK      = 'dispatch-clerk';
     case DISPATCH_SUPERVISOR = 'dispatch-supervisor';
 
-    case HUMAN_RESOURCES_CLERK      = 'human-resources-clerk';
-    case HUMAN_RESOURCES_SUPERVISOR = 'human-resources-supervisor';
 
     case ACCOUNTING_CLERK      = 'accounting-clerk';
     case ACCOUNTING_SUPERVISOR = 'accounting-supervisor';
 
 
     case SHOP_ADMIN = 'shop-admin';
+
+
 
     case FULFILMENT_SHOP_SUPERVISOR = 'fulfilment-shop-supervisor';
     case FULFILMENT_SHOP_CLERK      = 'fulfilment-shop-clerk';

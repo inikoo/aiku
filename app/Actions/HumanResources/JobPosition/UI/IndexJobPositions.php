@@ -41,11 +41,9 @@ class IndexJobPositions extends OrgAction
         $queryBuilder = QueryBuilder::for(JobPosition::class);
         $queryBuilder->leftJoin('job_position_stats', 'job_positions.id', 'job_position_stats.job_position_id');
 
-        // dd($parent);
         if ($parent instanceof Organisation) {
             $queryBuilder->where('organisation_id', $parent->id);
-
-        } elseif ($parent instanceof Employee) {
+        } else {
             $queryBuilder->whereHas('employees', function ($query) use ($parent) {
                 $query->where('job_positionable_id', $parent->id);
                 $query->where('job_positionable_type', class_basename($parent));
@@ -64,7 +62,8 @@ class IndexJobPositions extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo("org-supervisor.{$this->organisation->id}.human-resources");
-        return  $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
+
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
     }
 
 
@@ -124,13 +123,11 @@ class IndexJobPositions extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, ActionRequest $request, Employee $employee = null): LengthAwarePaginator
+    public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($organisation, $request);
 
-        $parent = $employee ?? $organisation;
-
-        return $this->handle($parent);
+        return $this->handle($organisation);
     }
 
     public function getBreadcrumbs(array $routeParameters): array

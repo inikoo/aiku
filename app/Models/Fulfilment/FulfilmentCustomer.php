@@ -7,7 +7,7 @@
 
 namespace App\Models\Fulfilment;
 
-use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
+use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatus;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\SerialReference;
 use App\Models\SysAdmin\Group;
@@ -92,7 +92,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_recurring_bills
  * @property int $number_recurring_bills_status_current
  * @property int $number_recurring_bills_status_former
- * @property RentalAgreementStateEnum|null $rental_agreement_state
+ * @property FulfilmentCustomerStatus $status
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -130,8 +130,9 @@ class FulfilmentCustomer extends Model
 
     protected $guarded = [];
     protected $casts   = [
-        'data'                  => 'array',
-        'rental_agreement_state'=> RentalAgreementStateEnum::class
+        'data'   => 'array',
+        'status' => FulfilmentCustomerStatus::class
+
     ];
 
     protected $attributes = [
