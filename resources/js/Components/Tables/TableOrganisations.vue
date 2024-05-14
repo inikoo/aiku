@@ -34,7 +34,7 @@ function orgRoute(org: Organisation) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: org }">
-            <Link :href="orgRoute(org)" class="specialUnderline">
+            <Link :href="orgRoute(org)" class="primaryLink">
                 {{ org['slug'] }}
             </Link>
         </template>

@@ -77,7 +77,7 @@ function palletRoutes(pallet: Pallet) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(referencex)="{ item: pallet }">
-            <Link :href="palletRoutes(pallet)" class="specialUnderline">
+            <Link :href="palletRoutes(pallet)" class="primaryLink">
                 {{ pallet['reference'] }}
             </Link>
         </template>

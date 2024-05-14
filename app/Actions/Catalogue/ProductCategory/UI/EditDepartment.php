@@ -7,14 +7,15 @@
 
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditDepartment extends InertiaAction
+class EditDepartment extends OrgAction
 {
     public function handle(ProductCategory $department): ProductCategory
     {
@@ -23,22 +24,36 @@ class EditDepartment extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('shops.edit');
+        if ($this->parent instanceof Organisation) {
+            $this->canEdit = $request->user()->hasAnyPermission(
+                [
+                    'org-supervisor.'.$this->organisation->id,
+                ]
+            );
 
-        return $request->user()->hasPermissionTo("shops.edit");
+            return $request->user()->hasAnyPermission(
+                [
+                    'org-supervisor.'.$this->organisation->id,
+                    'shops-view'.$this->organisation->id,
+                ]
+            );
+        } else {
+            $this->canEdit = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
+            return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");
+        }
     }
 
-    public function inOrganisation(ProductCategory $department, ActionRequest $request): ProductCategory
+    public function inOrganisation(Organisation $organisation, ProductCategory $department, ActionRequest $request): ProductCategory
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($department);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, ProductCategory $department, ActionRequest $request): ProductCategory
+    public function inShop(Organisation $organisation, Shop $shop, ProductCategory $department, ActionRequest $request): ProductCategory
     {
-        $this->initialisation($request);
+        $this->initialisationFromShop($shop, $request);
 
         return $this->handle($department);
     }
@@ -155,6 +170,7 @@ class EditDepartment extends InertiaAction
                     ]
                 ]
             ],
+            default => []
         };
     }
 }

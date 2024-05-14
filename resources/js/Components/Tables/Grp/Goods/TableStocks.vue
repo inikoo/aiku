@@ -48,12 +48,12 @@ function stockFamilyRoute(stock: Stock) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: stock }">
-            <Link :href="stockRoute(stock)" class="specialUnderline">
+            <Link :href="stockRoute(stock)" class="primaryLink">
                 {{ stock['code'] }}
             </Link>
         </template>
         <template #cell(family_code)="{ item: stock }">
-            <Link v-if="stock.family_slug"  :href="stockFamilyRoute(stock)" class="specialUnderlineSecondary">
+            <Link v-if="stock.family_slug"  :href="stockFamilyRoute(stock)" class="secondaryLink">
                 {{ stock['family_code'] }}
             </Link>
         </template>

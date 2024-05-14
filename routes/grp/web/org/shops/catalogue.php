@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Catalogue\Collection\UI\IndexCollection;
 use App\Actions\Catalogue\Product\UI\CreateProduct;
 use App\Actions\Catalogue\Product\UI\EditProduct;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
@@ -30,14 +31,17 @@ Route::get('products/{product}/edit', EditProduct::class)->name('products.edit')
 
 
 
-Route::get('departments/create', CreateDepartment::class)->name('departments.create');
+Route::get('departments/create', [CreateDepartment::class, 'inShop'])->name('departments.create');
 Route::get('departments/create-multi', CreateDepartments::class)->name('departments.create-multi');
 Route::get('departments', IndexDepartments::class)->name('departments.index');
 Route::get('departments/{department}', ShowDepartment::class)->name('departments.show');
-Route::get('departments/{department}/edit', EditDepartment::class)->name('departments.edit');
+Route::get('departments/{department}/edit', [EditDepartment::class, 'inShop'])->name('departments.edit');
 
 
-Route::get('families/create', CreateFamily::class)->name('families.create');
+Route::get('families/create', [CreateFamily::class, 'inShop'])->name('families.create');
 Route::get('families', IndexFamilies::class)->name('families.index');
-Route::get('families/{family}', ShowFamily::class)->name('families.show');
-Route::get('families/{family}/edit', EditFamily::class)->name('families.edit');
+Route::get('families/{family}', [ShowFamily::class, 'inShop'])->name('families.show');
+Route::get('families/{family}/edit', [EditFamily::class, 'inShop'])->name('families.edit');
+
+Route::get('collections', IndexCollection::class)->name('collections.index');
+Route::get('collections/create', CreateProduct::class)->name('collections.create');

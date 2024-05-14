@@ -52,7 +52,7 @@ function webUserRoute(webUser: WebUser) {
 
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(username)="{ item: webUser }">
-            <Link :href="webUserRoute(webUser)" class="specialUnderline">
+            <Link :href="webUserRoute(webUser)" class="primaryLink">
                 {{ webUser["username"] }}
             </Link>
         </template>

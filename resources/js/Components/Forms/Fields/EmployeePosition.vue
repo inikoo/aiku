@@ -414,7 +414,9 @@ const shopLength = layout.organisations.data.find(organisation => organisation.s
 const warehouseLength = layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_warehouses.length || 0
 const productionLength = layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_productions.length || 0
 
-// console.log('===', productionLength)
+// console.log('===', layout.organisations.data)
+// console.log('===', layout.currentParams)
+// console.log('===', fulfilmentLength)
 </script>
 
 <template>

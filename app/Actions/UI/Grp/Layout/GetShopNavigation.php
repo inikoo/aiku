@@ -69,6 +69,16 @@ class GetShopNavigation
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
+                        [
+                            "label"   => __("collections"),
+                            "tooltip" => __("Collections"),
+                            "icon"    => ["fal", "fa-cube"],
+                            'root'    => 'grp.org.shops.show.catalogue.collections.',
+                            "route"   => [
+                                "name"       => "grp.org.shops.show.catalogue.collections.index",
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
                     ],
                 ],
             ];

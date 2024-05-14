@@ -47,7 +47,7 @@ function marketplaceSupplierRoute(marketplaceSupplier: MarketplaceSupplier) {
             <ProcurementMarketplaceAdoption :value="supplier['adoption']"/>
         </template>
         <template #cell(code)="{ item: supplier }">
-            <Link :href="marketplaceSupplierRoute(supplier)" class="specialUnderline">
+            <Link :href="marketplaceSupplierRoute(supplier)" class="primaryLink">
                 {{ supplier['code'] }}
             </Link>
         </template>

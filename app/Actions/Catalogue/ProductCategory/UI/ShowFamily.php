@@ -11,8 +11,8 @@ use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
-use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\IndexMailshots;
+use App\Actions\OrgAction;
 use App\Enums\UI\Catalogue\DepartmentTabsEnum;
 use App\Http\Resources\Catalogue\DepartmentsResource;
 use App\Http\Resources\Catalogue\ProductsResource;
@@ -20,11 +20,12 @@ use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowFamily extends InertiaAction
+class ShowFamily extends OrgAction
 {
     public function handle(ProductCategory $family): ProductCategory
     {
@@ -33,23 +34,36 @@ class ShowFamily extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('shops.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('shops.edit');
+        if ($this->parent instanceof Organisation) {
+            $this->canEdit = $request->user()->hasAnyPermission(
+                [
+                    'org-supervisor.'.$this->organisation->id,
+                ]
+            );
 
-        return $request->user()->hasPermissionTo("shops.families.view");
+            return $request->user()->hasAnyPermission(
+                [
+                    'org-supervisor.'.$this->organisation->id,
+                    'shops-view'.$this->organisation->id,
+                ]
+            );
+        } else {
+            $this->canEdit = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
+            return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");
+        }
     }
 
-    public function inOrganisation(ProductCategory $family, ActionRequest $request): ProductCategory
+    public function asController(Organisation $organisation, ProductCategory $family, ActionRequest $request): ProductCategory
     {
-        $this->initialisation($request)->withTab(DepartmentTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(DepartmentTabsEnum::values());
 
         return $this->handle($family);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, ProductCategory $family, ActionRequest $request): ProductCategory
+    public function inShop(Organisation $organisation, Shop $shop, ProductCategory $family, ActionRequest $request): ProductCategory
     {
-        $this->initialisation($request)->withTab(DepartmentTabsEnum::values());
+        $this->initialisationFromShop($shop, $request)->withTab(DepartmentTabsEnum::values());
 
         return $this->handle($family);
     }
@@ -239,29 +253,30 @@ class ShowFamily extends InertiaAction
 
     private function getNavigation(?ProductCategory $family, string $routeName): ?array
     {
-        if(!$family) {
+        if (!$family) {
             return null;
         }
         return match ($routeName) {
-            'shops.families.show'=> [
-                'label'=> $family->name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'department'=> $family->slug
+            'shops.families.show' => [
+                'label' => $family->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'department' => $family->slug
                     ]
                 ]
             ],
-            'shops.show.families.show'=> [
-                'label'=> $family->name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'shop'      => $family->shop->slug,
-                        'department'=> $family->slug
+            'shops.show.families.show' => [
+                'label' => $family->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'shop'       => $family->shop->slug,
+                        'department' => $family->slug
                     ]
                 ]
             ],
+            default => [] // Add a default case to handle unmatched route names
         };
     }
 }

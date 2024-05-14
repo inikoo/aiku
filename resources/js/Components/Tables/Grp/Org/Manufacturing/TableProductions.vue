@@ -42,13 +42,13 @@ function locationsRoute(production: Production) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: production }">
-            <Link :href="productionRoute(production)" class="specialUnderline">
+            <Link :href="productionRoute(production)" class="primaryLink">
                 {{ production['code'] }}
             </Link>
         </template>
 
         <template #cell(number_locations)="{ item: production }">
-            <Link :href="locationsRoute(production)" class="specialUnderline">
+            <Link :href="locationsRoute(production)" class="primaryLink">
                 {{ production['number_locations'] }}
             </Link>
         </template>

@@ -69,7 +69,7 @@ const props = defineProps<{
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- <template #cell(reference)="{ item: pallet }">
-            <Link :href="'palletRoute(pallet)'" class="specialUnderline">
+            <Link :href="'palletRoute(pallet)'" class="primaryLink">
                 {{ pallet['reference'] }}
             </Link>
         </template> -->

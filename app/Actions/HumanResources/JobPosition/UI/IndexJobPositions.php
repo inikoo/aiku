@@ -30,28 +30,28 @@ class IndexJobPositions extends OrgAction
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
-    
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('job_positions.name', $value)
                     ->orWhereStartWith('job_positions.slug', $value);
             });
         });
-    
+
         $queryBuilder = QueryBuilder::for(JobPosition::class);
         $queryBuilder->leftJoin('job_position_stats', 'job_positions.id', 'job_position_stats.job_position_id');
-       
+
         // dd($parent);
         if ($parent instanceof Organisation) {
             $queryBuilder->where('organisation_id', $parent->id);
-           
+
         } elseif ($parent instanceof Employee) {
             $queryBuilder->whereHas('employees', function ($query) use ($parent) {
                 $query->where('job_positionable_id', $parent->id);
                 $query->where('job_positionable_type', class_basename($parent));
             });
         }
-    
+
         return $queryBuilder
             ->defaultSort('job_positions.code')
             ->select(['code', 'job_positions.slug', 'name', 'number_employees_currently_working'])
@@ -124,15 +124,12 @@ class IndexJobPositions extends OrgAction
     }
 
 
-    public function asController($parent, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, ActionRequest $request, Employee $employee = null): LengthAwarePaginator
     {
-        if ($parent instanceof Organisation) {
-            $this->initialisation($parent, $request);
-        } elseif ($parent instanceof Employee) {
-            $organisation = $parent->organisation; // Get the organisation associated with the employee
-            $this->initialisation($organisation, $request);
-        }
-    
+        $this->initialisation($organisation, $request);
+        
+        $parent = $employee ?? $organisation;
+        
         return $this->handle($parent);
     }
 

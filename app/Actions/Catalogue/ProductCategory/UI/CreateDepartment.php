@@ -7,34 +7,50 @@
 
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateDepartment extends InertiaAction
+class CreateDepartment extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('shops.departments.edit');
+        if ($this->parent instanceof Organisation) {
+            $this->canEdit = $request->user()->hasAnyPermission(
+                [
+                    'org-supervisor.'.$this->organisation->id,
+                ]
+            );
+
+            return $request->user()->hasAnyPermission(
+                [
+                    'org-supervisor.'.$this->organisation->id,
+                    'shops-view'.$this->organisation->id,
+                ]
+            );
+        } else {
+            $this->canEdit = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
+            return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");
+        }
     }
 
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function asController(Shop $shop, ActionRequest $request): ActionRequest
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): ActionRequest
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $request;
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, ActionRequest $request): Response
+    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): ActionRequest
     {
-        $this->initialisation($request);
+        $this->initialisationFromShop($shop, $request);
 
-        return $this->htmlResponse($request);
+        return $request;
     }
 
     public function htmlResponse(ActionRequest $request): Response
@@ -55,7 +71,7 @@ class CreateDepartment extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'shops.show.departments.index',
+                                'name'       => 'grp.org.shops.show.catalogue.departments.index',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]

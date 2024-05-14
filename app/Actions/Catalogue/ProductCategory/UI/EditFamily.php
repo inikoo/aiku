@@ -7,40 +7,55 @@
 
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditFamily extends InertiaAction
+class EditFamily extends OrgAction
 {
-    public function handle(ProductCategory $department): ProductCategory
+    public function handle(ProductCategory $family): ProductCategory
     {
-        return $department;
+        return $family;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('shops.products.edit');
+        if ($this->parent instanceof Organisation) {
+            $this->canEdit = $request->user()->hasAnyPermission(
+                [
+                    'org-supervisor.'.$this->organisation->id,
+                ]
+            );
 
-        return $request->user()->hasPermissionTo("shops.products.edit");
+            return $request->user()->hasAnyPermission(
+                [
+                    'org-supervisor.'.$this->organisation->id,
+                    'shops-view'.$this->organisation->id,
+                ]
+            );
+        } else {
+            $this->canEdit = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
+            return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");
+        }
     }
 
-    public function inOrganisation(ProductCategory $department, ActionRequest $request): ProductCategory
+    public function inOrganisation(Organisation $organisation, ProductCategory $family, ActionRequest $request): ProductCategory
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
-        return $this->handle($department);
+        return $this->handle($family);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, ProductCategory $department, ActionRequest $request): ProductCategory
+    public function inShop(Organisation $organisation, Shop $shop, ProductCategory $family, ActionRequest $request): ProductCategory
     {
-        $this->initialisation($request);
+        $this->initialisationFromShop($shop, $request);
 
-        return $this->handle($department);
+        return $this->handle($family);
     }
 
     public function htmlResponse(ProductCategory $family, ActionRequest $request): Response
@@ -48,7 +63,7 @@ class EditFamily extends InertiaAction
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('department'),
+                'title'       => __('family'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
@@ -126,29 +141,30 @@ class EditFamily extends InertiaAction
 
     private function getNavigation(?ProductCategory $family, string $routeName): ?array
     {
-        if(!$family) {
+        if (!$family) {
             return null;
         }
         return match ($routeName) {
-            'shops.families.edit'=> [
-                'label'=> $family->name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'department'=> $family->slug
+            'shops.families.edit' => [
+                'label' => $family->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'department' => $family->slug
                     ]
                 ]
             ],
-            'shops.show.families.edit'=> [
-                'label'=> $family->name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'shop'      => $family->shop->slug,
-                        'department'=> $family->slug
+            'shops.show.families.edit' => [
+                'label' => $family->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'shop'       => $family->shop->slug,
+                        'department' => $family->slug
                     ]
                 ]
             ],
+            default => []
         };
     }
 }

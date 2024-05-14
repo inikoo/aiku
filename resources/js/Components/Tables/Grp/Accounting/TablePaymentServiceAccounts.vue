@@ -83,18 +83,18 @@ function paymentsRoute(paymentServiceAccount: PaymentServiceProvider) {
 <template>
     <Table :resource="data" class="mt-5">
         <template #cell(codex)="{ item: paymentServiceProvider }">
-          <Link :href="paymentServiceProviderRoute(paymentServiceProvider)" class="specialUnderline">
+          <Link :href="paymentServiceProviderRoute(paymentServiceProvider)" class="primaryLink">
                 {{ paymentServiceProvider['slug'] }}
             </Link>
         </template>
 
         <template #cell(number_payment_accountsx)="{ item: paymentServiceProvider }">
-            <Link :href="paymentAccountRoute(paymentServiceProvider)" class="specialUnderlineSecondary">
+            <Link :href="paymentAccountRoute(paymentServiceProvider)" class="secondaryLink">
                 {{ paymentServiceProvider['number_payment_accounts'] }}
             </Link>
         </template>
         <template #cell(number_paymentsx)="{ item: paymentServiceProvider }">
-            <Link :href="paymentsRoute(paymentServiceProvider)" class="specialUnderlineSecondary">
+            <Link :href="paymentsRoute(paymentServiceProvider)" class="secondaryLink">
                 {{ paymentServiceProvider['number_payments'] }}
             </Link>
         </template>
