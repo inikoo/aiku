@@ -35,7 +35,7 @@ class EditUser extends InertiaAction
 
     public function htmlResponse(User $user, ActionRequest $request): Response
     {
-        $positions = JobPosition::all();
+        $positions   = JobPosition::all();
         $permissions = $positions->map(function (JobPosition $position) {
             return [
                 $position->name => [
