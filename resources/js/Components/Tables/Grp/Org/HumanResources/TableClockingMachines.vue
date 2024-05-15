@@ -15,12 +15,14 @@ import Table from '@/Components/Table/Table.vue';
 import {ClockingMachine} from "@/types/clocking-machine";
 
 function clockingMachineRoute(clockingMachine : ClockingMachine) {
+    console.log(clockingMachine)
     switch (route().current()) {
         case 'grp.org.hr.workplaces.show':
         case 'grp.org.hr.workplaces.show.clocking-machines.index':
             return route(
-                "hr.workplaces.show.clocking-machines.show",
+                "grp.org.hr.workplaces.show.clocking-machines.show",
                 [
+                    clockingMachine.organisation_slug,
                     clockingMachine.workplace_slug,
                     clockingMachine.slug
                 ]);

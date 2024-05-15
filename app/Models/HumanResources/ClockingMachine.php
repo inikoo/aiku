@@ -97,6 +97,11 @@ class ClockingMachine extends Model implements Auditable
         return $this->belongsTo(Workplace::class);
     }
 
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
+
     public function clockings(): HasMany
     {
         return $this->hasMany(Clocking::class);
