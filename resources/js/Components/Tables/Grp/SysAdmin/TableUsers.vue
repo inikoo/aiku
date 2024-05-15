@@ -10,11 +10,11 @@ import Table from "@/Components/Table/Table.vue";
 import { User } from "@/types/user";
 import { trans } from "laravel-vue-i18n";
 import Image from "@/Components/Image.vue";
-import { faUserCircle } from "@fal";
+import {faCheck, faTimes, faUserCircle, faYinYang} from "@fal";
 import { library } from "@fortawesome/fontawesome-svg-core";
+import Icon from '@/Components/Icon.vue'
 
-library.add(faUserCircle);
-
+library.add(faUserCircle, faTimes, faCheck, faYinYang);
 
 const props = defineProps<{
     data: object,
@@ -39,8 +39,12 @@ console.log(props.data);
 <!-- <pre>{{ data }}</pre> -->
 
     <Table :resource="data" :name="tab" class="mt-5">
+        <template #cell(status)="{ item: user }">
+            <Icon :data="user.status" class="px-1" />
+        </template>
+
         <template #cell(username)="{ item: user }">
-            <Link :href="userRoute(user)" class="specialUnderline">
+            <Link :href="userRoute(user)" class="primaryLink">
                 <template v-if="user['username']">{{ user["username"] }}</template>
                 <span v-else class="italic">{{ trans("Not set") }}</span>
             </Link>

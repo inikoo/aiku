@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatus;
 use App\Stubs\Migrations\HasFulfilmentStats;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasSoftDeletes;
@@ -33,7 +34,7 @@ return new class () extends Migration {
                 $table->string('webhook_access_key')->nullable()->index();
                 $table->unsignedInteger('current_recurring_bill_id')->nullable()->index();
                 $table = $this->fulfilmentStats($table);
-                $table->string('rental_agreement_state')->nullable()->index();
+                $table->string('status')->default(FulfilmentCustomerStatus::NO_RENTAL_AGREEMENT->value)->index();
                 $table->jsonb('data');
                 $table->timestampsTz();
                 $this->softDeletes($table);

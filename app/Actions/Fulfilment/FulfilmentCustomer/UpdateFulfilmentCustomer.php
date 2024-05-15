@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
 use App\Actions\CRM\Customer\UpdateCustomer;
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateCustomers;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\Fulfilment;
@@ -27,7 +28,10 @@ class UpdateFulfilmentCustomer extends OrgAction
         $customerData = Arr::only($modelData, ['contact_name', 'company_name', 'email', 'phone']);
         UpdateCustomer::run($fulfilmentCustomer->customer, $customerData);
         Arr::forget($modelData, ['contact_name', 'company_name', 'email', 'phone']);
-        return $this->update($fulfilmentCustomer, $modelData, ['data']);
+        $fulfilmentCustomer = $this->update($fulfilmentCustomer, $modelData, ['data']);
+        FulfilmentHydrateCustomers::dispatch($fulfilmentCustomer->fulfilment);
+
+        return $fulfilmentCustomer;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -66,9 +70,6 @@ class UpdateFulfilmentCustomer extends OrgAction
     }
 
     public function action(
-        Organisation $organisation,
-        Shop $shop,
-        Fulfilment $fulfilment,
         FulfilmentCustomer $fulfilmentCustomer,
         array $modelData
     ): FulfilmentCustomer {

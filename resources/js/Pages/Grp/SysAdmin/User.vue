@@ -14,13 +14,13 @@ import ModelDetails from "@/Components/ModelDetails.vue"
 import TableUserRequestLogs from "@/Components/Tables/Grp/SysAdmin/TableUserRequestLogs.vue"
 import TableHistories from "@/Components/Tables/TableHistories.vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
-import { faIdCard, faUser, faClock, faDatabase, faEnvelope, faHexagon, faFile } from '@fal'
+import {faIdCard, faUser, faClock, faDatabase, faEnvelope, faHexagon, faFile, faShieldCheck, faUserTag} from '@fal'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { capitalize } from "@/Composables/capitalize"
 import { faRoad } from "@fas"
 import SysadminUserShowcase from '@/Components/Showcases/Grp/SysadminUserShowcase.vue'
 
-library.add(faIdCard, faUser, faClock, faDatabase, faEnvelope, faHexagon, faFile, faRoad)
+library.add(faIdCard, faUser, faClock, faDatabase, faEnvelope, faHexagon, faFile, faRoad, faShieldCheck, faUserTag)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 

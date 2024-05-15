@@ -125,6 +125,26 @@ test('create employee successful', function () {
     return $employee;
 });
 
+test('add job position to employee', function (Employee $employee) {
+
+    /** @var JobPosition $jobPosition */
+    $jobPosition=$this->organisation->jobPositions()->where('slug', 'hr-c')->first();
+
+    UpdateEmployee::make()->action($employee, [
+        'positions' => [
+            [
+            'slug'  => $jobPosition->slug,
+            'scopes'=> []
+            ]
+        ]
+    ]);
+    $jobPosition->refresh();
+    $employee->refresh();
+    expect($employee->stats->number_job_positions)->toBe(1)
+        ->and($jobPosition->stats->number_employees)->toBe(1);
+})->depends('create employee successful');
+
+
 test('update employees successful', function ($lastEmployee) {
     $arrayData = [
         'contact_name'  => 'vica',
@@ -156,21 +176,6 @@ test('create user from employee', function (Employee $employee) {
     return $employee;
 })->depends('create employee successful');
 
-test('add job position to employee', function (Employee $employee) {
-
-    /** @var JobPosition $jobPosition */
-    $jobPosition=$this->organisation->jobPositions()->where('slug', 'hr-c')->first();
-
-    UpdateEmployee::make()->action($employee, [
-        'positions' => [
-            $jobPosition->slug=> []
-        ]
-    ]);
-    $jobPosition->refresh();
-    $employee->refresh();
-    expect($employee->stats->number_job_positions)->toBe(1)
-        ->and($jobPosition->stats->number_employees)->toBe(1);
-})->depends('create user from employee');
 
 
 

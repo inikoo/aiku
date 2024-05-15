@@ -25,7 +25,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowProductionCrefts extends OrgAction
+class ShowProductionCrafts extends OrgAction
 {
     use WithActionButtons;
 

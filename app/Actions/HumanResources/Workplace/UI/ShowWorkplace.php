@@ -41,18 +41,15 @@ class ShowWorkplace extends OrgAction
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
     }
 
-
-
-
     public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): Workplace
     {
         $this->initialisation($organisation, $request)->withTab(WorkplaceTabsEnum::values());
         return $this->handle($workplace);
     }
 
-
     public function htmlResponse(Workplace $workplace, ActionRequest $request): Response
     {
+
         return Inertia::render(
             'Org/HumanResources/Workplace',
             [
@@ -163,20 +160,21 @@ class ShowWorkplace extends OrgAction
         )->table(
             IndexClockingMachines::make()->tableStructure(
                 parent: $workplace,
-                /* modelOperations: [
-                        'createLink' => $this->canEdit ? [
+                 modelOperations: [
+                        'createLink' => [
+                            [
                             'route' => [
                                 'name'       => 'grp.org.hr.workplaces.show.clocking-machines.create',
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'parameters' => array_values(request()->route()->originalParameters())
                             ],
-                            'label' => __('clocking machine')
-                        ] : false,
+                            'label' => __('create clocking machine')
+                            ]
+                        ]
                     ],
-                prefix: 'clocking_machines' */
+                prefix: 'clocking_machines'
             )
         )->table(IndexHistory::make()->tableStructure());
     }
-
 
     public function jsonResponse(Workplace $workplace): WorkplaceResource
     {
@@ -185,8 +183,8 @@ class ShowWorkplace extends OrgAction
 
     public function getBreadcrumbs($routeParameters, $suffix = null): array
     {
+        // dd($routeParameters['workplace']);
         $workplace = Workplace::where('slug', $routeParameters['workplace'])->first();
-
         return array_merge(
             (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
             [
@@ -219,14 +217,18 @@ class ShowWorkplace extends OrgAction
 
     public function getPrevious(Workplace $workplace, ActionRequest $request): ?array
     {
-        $previous = Workplace::where('slug', '<', $workplace->slug)->orderBy('slug', 'desc')->first();
+        $previous = Workplace::where('slug', '<', $workplace->slug)
+            ->where('organisation_id', $this->organisation->id)
+            ->orderBy('slug', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(Workplace $workplace, ActionRequest $request): ?array
     {
-        $next = Workplace::where('slug', '>', $workplace->slug)->orderBy('slug')->first();
+        $next = Workplace::where('slug', '>', $workplace->slug)
+            ->where('organisation_id', $this->organisation->id)
+            ->orderBy('slug')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }

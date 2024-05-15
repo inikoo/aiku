@@ -168,14 +168,14 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
     <Table :resource="data" :name="tab" class="mt-5" is-check-box="true">
         <!-- Column: Reference -->
         <template #cell(reference)="{ item: pallet }">
-            <component :is="pallet.slug ? Link : 'div'" :href="pallet.slug ? palletRoute(pallet) : undefined" :class="pallet.slug ? 'specialUnderline' : ''">
+            <component :is="pallet.slug ? Link : 'div'" :href="pallet.slug ? palletRoute(pallet) : undefined" :class="pallet.slug ? 'primaryLink' : ''">
                 {{ pallet.reference }}
             </component>
         </template>
 
         <!-- Column: Pallet Reference -->
         <template #cell(pallet_referencexxx)="{ item: pallet }">
-            <Link :href="palletRoute(pallet)" class="specialUnderline">
+            <Link :href="palletRoute(pallet)" class="primaryLink">
                 {{ pallet.reference }}
             </Link>
         </template>
@@ -192,7 +192,7 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
 		</template>
 
         <template #cell(fulfilment_customer_namex)="{ item: pallet }">
-            <Link :href="fulfilmentCustomerRoute(pallet)" class="specialUnderlineSecondary">
+            <Link :href="fulfilmentCustomerRoute(pallet)" class="secondaryLink">
                 {{ pallet['fulfilment_customer_name'] }}
             </Link>
         </template>

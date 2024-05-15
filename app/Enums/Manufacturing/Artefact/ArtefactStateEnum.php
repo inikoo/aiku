@@ -5,12 +5,12 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Manufacturing\Artifact;
+namespace App\Enums\Manufacturing\Artefact;
 
 use App\Enums\EnumHelperTrait;
 use App\Models\SysAdmin\Group;
 
-enum ArtifactStateEnum: string
+enum ArtefactStateEnum: string
 {
     use EnumHelperTrait;
 

@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\RentalAgreement;
 
+use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStatus;
 use App\Actions\Fulfilment\RentalAgreementClause\StoreRentalAgreementClause;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
@@ -53,15 +54,12 @@ class StoreRentalAgreement extends OrgAction
         /** @var RentalAgreement $rentalAgreement */
         $rentalAgreement = $fulfilmentCustomer->rentalAgreement()->create($modelData);
 
-        $fulfilmentCustomer->update(
-            [
-                'rental_agreement_state' => $rentalAgreement->state
-            ]
-        );
 
         foreach ($causes as $causeData) {
             StoreRentalAgreementClause::run($rentalAgreement, $causeData);
         }
+
+        FulfilmentCustomerHydrateStatus::run($fulfilmentCustomer);
 
 
         return $rentalAgreement;

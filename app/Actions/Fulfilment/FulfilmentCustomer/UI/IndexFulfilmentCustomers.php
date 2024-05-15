@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\FulfilmentCustomer\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatus;
 use App\Http\Resources\Fulfilment\FulfilmentCustomersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -17,7 +18,6 @@ use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -26,21 +26,23 @@ use App\Services\QueryBuilder;
 
 class IndexFulfilmentCustomers extends OrgAction
 {
-    public function authorize(ActionRequest $request): bool
+    protected function getElementGroups(Fulfilment $parent): array
     {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return [
+            'status' => [
+                'label'    => __('State'),
+                'elements' => array_merge_recursive(
+                    FulfilmentCustomerStatus::labels(),
+                    FulfilmentCustomerStatus::count($parent)
+                ),
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+                'engine' => function ($query, $elements) {
+                    $query->whereIn('state', $elements);
+                }
+
+            ]
+        ];
     }
-
-
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($fulfilment);
-    }
-
 
     public function handle(Fulfilment $fulfilment, $prefix = null): LengthAwarePaginator
     {
@@ -59,11 +61,20 @@ class IndexFulfilmentCustomers extends OrgAction
         $queryBuilder = QueryBuilder::for(FulfilmentCustomer::class);
         $queryBuilder->where('fulfilment_customers.fulfilment_id', $fulfilment->id);
 
+        foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine'],
+                prefix: $prefix
+            );
+        }
 
         return $queryBuilder
             ->defaultSort('fulfilment_customers.slug')
             ->select([
                 'reference',
+                'fulfilment_customers.status',
                 'customers.id',
                 'customers.name',
                 'fulfilment_customers.slug',
@@ -72,7 +83,7 @@ class IndexFulfilmentCustomers extends OrgAction
             ])
             ->leftJoin('customers', 'customers.id', 'fulfilment_customers.customer_id')
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
-            ->allowedSorts(['reference', 'name', 'number_pallets', 'slug', 'number_pallets_status_storing'])
+            ->allowedSorts(['reference', 'name', 'number_pallets', 'slug', 'number_pallets_status_storing','status'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -87,6 +98,13 @@ class IndexFulfilmentCustomers extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
+            foreach ($this->getElementGroups($fulfilment) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
 
             $table
                 ->withModelOperations($modelOperations)
@@ -108,11 +126,26 @@ class IndexFulfilmentCustomers extends OrgAction
                         ]
                     ]
                 )
-                ->column(key: 'rental_agreement', label: __(''), canBeHidden: false, sortable: false, searchable: false, type: 'avatar')
+                ->column(key: 'status', label: __(''), canBeHidden: false, sortable: true, type: 'avatar')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_pallets_status_storing', label: ['type'=>'text', 'data'=>__('Pallets'), 'tooltip'=>__('Number of pallets in warehouse')], canBeHidden: false, sortable: true, searchable: false);
         };
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+
+        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+    }
+
+
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilment);
     }
 
     public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
@@ -122,15 +155,9 @@ class IndexFulfilmentCustomers extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
-        $container = [
-            'icon'    => ['fal', 'fa-hand-holding-box'],
-            'tooltip' => __('Fulfilment Shop'),
-            'label'   => Str::possessive($this->fulfilment->shop->name)
-
-        ];
 
         return Inertia::render(
-            'Org/Fulfilment/Customers',
+            'Org/Fulfilment/FulfilmentCustomers',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
@@ -138,7 +165,6 @@ class IndexFulfilmentCustomers extends OrgAction
                 'title'       => __('customers'),
                 'pageHead'    => [
                     'title'     => __('customers'),
-                    'container' => $container,
                     'iconRight' => [
                         'icon'  => ['fal', 'fa-user'],
                         'title' => __('customer')

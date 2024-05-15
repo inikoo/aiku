@@ -14,10 +14,11 @@ const props = defineProps<{
     tab?:string
 }>()
 
-
+console.log(route().current())
 function jobPositionRoute(jobPosition: JobPosition) {
     switch (route().current()) {
         case 'grp.org.hr.job-positions.index':
+      case 'grp.org.hr.employees.show':
             return route(
                 'grp.org.hr.job-positions.show',
                 [
@@ -33,7 +34,7 @@ function jobPositionRoute(jobPosition: JobPosition) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5"   >
         <template #cell(code)="{ item: jobPosition }">
-            <Link :href="jobPositionRoute(jobPosition)" class="specialUnderline">
+            <Link :href="jobPositionRoute(jobPosition)" class="primaryLink">
                 {{ jobPosition['code'] }}
             </Link>
         </template>

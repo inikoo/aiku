@@ -13,21 +13,14 @@ import { faSpinnerThird } from '@fad'
 import { faRoad, faClock, faDatabase, faNetworkWired } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { layoutStructure } from "@/Composables/useLayoutStructure"
+import type { Navigation } from '@/types/Tabs'
 
 library.add(faInfoCircle, faRoad, faClock, faDatabase, faPallet, faNetworkWired, faSpinnerThird)
 
 const layoutStore = inject('layout', layoutStructure)
 
 const props = defineProps<{
-    navigation: {
-        tab: {
-            align: string
-            type: string
-            icon: string
-            title: string
-            iconClass: string
-        }
-    },
+    navigation: Navigation
     current: string
 }>()
 

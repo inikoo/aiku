@@ -1,0 +1,95 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 08 May 2024 11:38:36 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Manufacturing\Artefact;
+
+use App\Actions\Manufacturing\Artefact\Hydrators\ArtefactHydrateUniversalSearch;
+use App\Actions\Manufacturing\Production\Hydrators\ProductionHydrateArtefacts;
+use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateArtefacts;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateArtefacts;
+use App\Enums\Manufacturing\Artefact\ArtefactStateEnum;
+use App\Models\Manufacturing\Artefact;
+use App\Models\Manufacturing\Production;
+use App\Rules\AlphaDashDot;
+use App\Rules\IUnique;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
+use Lorisleiva\Actions\ActionRequest;
+
+class StoreArtefact extends OrgAction
+{
+    public function handle(Production $production, array $modelData): Artefact
+    {
+
+        data_set($modelData, 'organisation_id', $this->organisation->id);
+        data_set($modelData, 'group_id', $production->group_id);
+
+        /** @var Artefact $artefact */
+        $artefact = $production->artefacts()->create($modelData);
+        $artefact->stats()->create();
+        GroupHydrateArtefacts::dispatch($artefact->group);
+        OrganisationHydrateArtefacts::dispatch($artefact->organisation);
+        ProductionHydrateArtefacts::dispatch($artefact->production);
+        ArtefactHydrateUniversalSearch::dispatch($artefact);
+
+
+        return $artefact;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return $request->user()->hasPermissionTo("productions_rd.{$this->production->id}.edit");
+    }
+
+    public function rules(): array
+    {
+        return [
+            'code'      => [
+                'required',
+                'max:64',
+                new AlphaDashDot(),
+                Rule::notIn(['export', 'create', 'upload']),
+                new IUnique(
+                    table: 'artefacts',
+                    extraConditions: [
+                        ['column' => 'organisation_id', 'value' => $this->organisation->id],
+                    ]
+                ),
+            ],
+            'name'        => ['required', 'string', 'max:255'],
+            'state'       => ['sometimes', 'nullable', Rule::enum(ArtefactStateEnum::class)],
+            'source_id'   => ['sometimes', 'nullable', 'string'],
+            'created_at'  => ['sometimes', 'nullable', 'date'],
+
+
+        ];
+    }
+
+    public function action(Production $production, array $modelData, int $hydratorDelay = 0): Artefact
+    {
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorDelay;
+        $this->initialisation($production->organisation, $modelData);
+
+        return $this->handle($production, $this->validatedData);
+    }
+
+
+    public function htmlResponse(Artefact $artefact): RedirectResponse
+    {
+        return Redirect::route('grp.org.artefacts.show', [
+            $artefact->slug
+        ]);
+    }
+
+}

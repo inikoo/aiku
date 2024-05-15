@@ -12,7 +12,7 @@ use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrganisationHydrateArtifacts
+class OrganisationHydrateArtefacts
 {
     use AsAction;
     use WithEnumStats;
@@ -33,7 +33,7 @@ class OrganisationHydrateArtifacts
     public function handle(Organisation $organisation): void
     {
         $stats = [
-            'number_artifacts' => $organisation->artifacts()->count()
+            'number_artefacts' => $organisation->artefacts()->count()
         ];
 
         $organisation->manufactureStats()->update($stats);

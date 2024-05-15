@@ -121,7 +121,7 @@ class ShowPalletDelivery extends OrgAction
                                 'label'   => 'upload',
                                 'tooltip' => __('Upload pallet via file'),
                                 'route'   => [
-                                    'name'       => 'grp.models.pallet-delivery.pallet.import',
+                                    'name'       => 'grp.models.pallet-delivery.pallet.upload',
                                     'parameters' => [
                                         'palletDelivery' => $palletDelivery->id
                                     ]

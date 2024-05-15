@@ -52,7 +52,7 @@ class GetManufacturingNavigation
 
                         [
                             'label'   => __('raw materials'),
-                            'tooltip' => __('artifacts raw materials'),
+                            'tooltip' => __('artefacts raw materials'),
                             'icon'    => ['fal', 'fa-drone'],
                             'root'    => 'grp.org.productions.show.crafts.raw_materials.',
                             'route'   => [
@@ -62,12 +62,12 @@ class GetManufacturingNavigation
                         ],
 
                         [
-                            'label'   => __('artifacts'),
+                            'label'   => __('artefacts'),
                             'tooltip' => __('manufactured products'),
                             'icon'    => ['fal', 'fa-hamsa'],
-                            'root'    => 'grp.org.productions.show.crafts.artifacts.',
+                            'root'    => 'grp.org.productions.show.crafts.artefacts.',
                             'route'   => [
-                                'name'       => 'grp.org.productions.show.crafts.artifacts.index',
+                                'name'       => 'grp.org.productions.show.crafts.artefacts.index',
                                 'parameters' => [$production->organisation->slug, $production->slug]
                             ],
                         ],

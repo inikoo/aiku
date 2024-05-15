@@ -94,8 +94,6 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                 if (!$supplierProduct) {
                     $sourceData = explode(':', $baseSupplierProduct->source_id);
                     if ($sourceData[0] == $organisationSource->getOrganisation()->id) {
-                        // print_r($supplierProductData['supplierProduct']);
-                        // print_r($baseSupplierProduct);
                         dd("Error supplier product has same code in same org");
                     }
                 }

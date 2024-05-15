@@ -58,9 +58,9 @@ trait HasManufactureStats
         return $table;
     }
 
-    public function artifactsStats(Blueprint $table): Blueprint
+    public function artefactsStats(Blueprint $table): Blueprint
     {
-        $table->unsignedSmallInteger('number_artifacts')->default(0);
+        $table->unsignedSmallInteger('number_artefacts')->default(0);
 
         return $table;
     }

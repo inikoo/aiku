@@ -15,6 +15,7 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Inventory\Warehouse;
 use App\Models\Catalogue\Shop;
+use App\Models\Manufacturing\Production;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
@@ -101,6 +102,12 @@ class StoreGuest
                 foreach (Warehouse::all() as $warehouse) {
                     UserAddRoles::run($user, [
                         Role::where('name', RolesEnum::getRoleName(RolesEnum::WAREHOUSE_ADMIN->value, $warehouse))->first()
+                    ]);
+                }
+
+                foreach (Production::all() as $production) {
+                    UserAddRoles::run($user, [
+                        Role::where('name', RolesEnum::getRoleName(RolesEnum::MANUFACTURING_ADMIN->value, $production))->first()
                     ]);
                 }
 

@@ -25,17 +25,14 @@ class FetchAuroraPallet extends FetchAurora
 
 
         if (!$customer) {
-            print_r($this->auroraModelData);
             dd("Error Customer not found");
         }
 
         if ($shop->type != ShopTypeEnum::FULFILMENT) {
-            print_r($this->auroraModelData);
             dd("Error Shop not fulfilment");
         }
 
         if (!$customer->is_fulfilment) {
-            print_r($this->auroraModelData);
             dd('error customer not fulfilment');
         }
 

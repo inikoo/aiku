@@ -25,12 +25,15 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreEmployee extends OrgAction
 {
+    use HasPositionsRules;
+
     public function handle(Organisation|Workplace $parent, array $modelData): Employee
     {
         if (class_basename($parent) === 'Workplace') {
@@ -103,6 +106,9 @@ class StoreEmployee extends OrgAction
         if (!$this->get('username')) {
             $this->set('username', null);
         }
+
+        $this->preparePositionsForValidation();
+
     }
 
     public function rules(): array
@@ -143,15 +149,18 @@ class StoreEmployee extends OrgAction
                     ]
                 ),
             ],
-            'contact_name'        => ['required', 'string', 'max:256'],
-            'date_of_birth'       => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
-            'job_title'           => ['sometimes', 'nullable', 'string', 'max:256'],
-            'state'               => ['required', new Enum(EmployeeStateEnum::class)],
-            'positions'           => ['sometimes', 'array'],
-            'positions.*.slug'    => ['sometimes', 'string'],
-            'positions.*.scopes'  => ['sometimes', 'array'],
-            'email'               => ['sometimes', 'nullable', 'email'],
-            'username'            => [
+            'contact_name'                          => ['required', 'string', 'max:256'],
+            'date_of_birth'                         => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
+            'job_title'                             => ['sometimes', 'nullable', 'string', 'max:256'],
+            'state'                                 => ['required', new Enum(EmployeeStateEnum::class)],
+            'positions'                             => ['sometimes', 'array'],
+            'positions.*.slug'                      => ['sometimes', 'string'],
+            'positions.*.scopes'                    => ['sometimes', 'array'],
+            'positions.*.scopes.warehouses.slug.*'  => ['sometimes', Rule::exists('warehouses', 'slug') ->where('organisation_id', $this->organisation->id)],
+            'positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug') ->where('organisation_id', $this->organisation->id)],
+            'positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug') ->where('organisation_id', $this->organisation->id)],
+            'email'                                 => ['sometimes', 'nullable', 'email'],
+            'username'                              => [
                 'nullable',
                 new AlphaDashDot(),
                 new IUnique(

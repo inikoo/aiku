@@ -7,7 +7,6 @@
 
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
-use App\Actions\InertiaAction;
 use App\Actions\OrgAction;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
@@ -149,7 +148,7 @@ class EditFamily extends OrgAction
             'shops.families.edit' => [
                 'label' => $family->name,
                 'route' => [
-                    'name' => $routeName,
+                    'name'       => $routeName,
                     'parameters' => [
                         'department' => $family->slug
                     ]
@@ -158,9 +157,9 @@ class EditFamily extends OrgAction
             'shops.show.families.edit' => [
                 'label' => $family->name,
                 'route' => [
-                    'name' => $routeName,
+                    'name'       => $routeName,
                     'parameters' => [
-                        'shop' => $family->shop->slug,
+                        'shop'       => $family->shop->slug,
                         'department' => $family->slug
                     ]
                 ]

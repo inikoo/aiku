@@ -69,8 +69,6 @@ class JobPositionHydrateEmployees
 
         $jobPosition->stats()->update($stats);
 
-        print_r($stats);
-
         OrganisationHydrateJobPositionsShare::run($jobPosition->organisation);
     }
 

@@ -22,7 +22,7 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Mail\Mailroom;
-use App\Models\Manufacturing\Artifact;
+use App\Models\Manufacturing\Artefact;
 use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
@@ -71,7 +71,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\GroupAccountingStats|null $accountingStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Artifact> $artifacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Artefact> $artefacts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, CollectionCategory> $collectionCategories
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Collection> $collections
  * @property-read \App\Models\SysAdmin\GroupCRMStats|null $crmStats
@@ -383,9 +383,9 @@ class Group extends Model implements HasMedia
         return $this->hasMany(ManufactureTask::class);
     }
 
-    public function artifacts(): HasMany
+    public function artefacts(): HasMany
     {
-        return $this->hasMany(Artifact::class);
+        return $this->hasMany(Artefact::class);
     }
 
 }

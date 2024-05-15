@@ -12,6 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheck, faTimes } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { trans } from 'laravel-vue-i18n'
+import warehouse from "@/Pages/Grp/Org/Warehouse/Warehouse.vue";
 library.add(faCheck, faTimes)
 
 const props = defineProps<{
@@ -36,17 +37,14 @@ function customerRoute(customer: FulfilmentCustomer) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(rental_agreement)="{ item: customer }">
-            <div v-if="customer.rental_agreement" class="w-fit mx-auto" v-tooltip="trans('Already set rental agreement.')">
-                <FontAwesomeIcon icon='fal fa-check' class='text-green-500' fixed-width aria-hidden='true' />
-            </div>
-            <div v-else v-tooltip="trans('Not set rental agreement yet.')">
-                <FontAwesomeIcon icon='fal fa-times' class='text-red-500' fixed-width aria-hidden='true' />
-            </div>
+        <template #cell(status)="{ item: customer }">
+          <div v-tooltip="customer.status_icon.tooltip" class="px-1 py-0.5">
+            <FontAwesomeIcon :icon='customer.status_icon.icon' :class='customer.status_icon.class' fixed-width aria-hidden='true' />
+          </div>
         </template>
 
         <template #cell(reference)="{ item: customer }">
-            <Link :href="customerRoute(customer)" class="specialUnderline">
+            <Link :href="customerRoute(customer)" class="primaryLink">
                 {{ customer['reference'] }}
             </Link>
         </template>

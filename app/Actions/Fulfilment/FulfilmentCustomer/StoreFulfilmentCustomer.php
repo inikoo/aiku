@@ -17,7 +17,6 @@ use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
@@ -26,26 +25,26 @@ use Symfony\Component\HttpFoundation\Response;
 
 class StoreFulfilmentCustomer extends OrgAction
 {
+    public function handle(Fulfilment $fulfilment, array $modelData): FulfilmentCustomer
+    {
+        data_set($fulfilmmentCustomerModelData, 'pallets_storage', in_array('pallets_storage', $modelData['interest']));
+        data_set($fulfilmmentCustomerModelData, 'items_storage', in_array('items_storage', $modelData['interest']));
+        data_set($fulfilmmentCustomerModelData, 'dropshipping', in_array('dropshipping', $modelData['interest']));
+
+        $customer = StoreCustomer::make()->action($fulfilment->shop, $modelData);
+
+        UpdateFulfilmentCustomer::run($customer->fulfilmentCustomer, $fulfilmmentCustomerModelData);
+
+        return $customer->fulfilmentCustomer;
+    }
+
     public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-    }
-
-
-    public function handle(Fulfilment $fulfilment, array $modelData): FulfilmentCustomer
-    {
-        data_set($modelData, 'pallets_storage', in_array('pallets_storage', $modelData['interest']));
-        data_set($modelData, 'items_storage', in_array('items_storage', $modelData['interest']));
-        data_set($modelData, 'dropshipping', in_array('dropshipping', $modelData['interest']));
-
-        $customer                      = StoreCustomer::make()->action($fulfilment->shop, $modelData);
-
-        UpdateFulfilmentCustomer::run($customer->fulfilmentCustomer, Arr::except($modelData, 'interest'));
-
-        return $customer->fulfilmentCustomer;
     }
 
     public function rules(): array
@@ -65,7 +64,7 @@ class StoreFulfilmentCustomer extends OrgAction
                     table: 'customers',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
-                        ['column' => 'deleted_at', 'operator'=>'notNull'],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
                     ]
                 ),
             ],
@@ -74,16 +73,14 @@ class StoreFulfilmentCustomer extends OrgAction
             'contact_website'          => ['nullable', 'string', 'max:255'],
             'contact_address'          => ['sometimes', new ValidAddress()],
             'delivery_address'         => ['sometimes', 'required', new ValidAddress()],
-
-            'interest'         => ['sometimes', 'required'],
-
-            'timezone_id' => ['nullable', 'exists:timezones,id'],
-            'language_id' => ['nullable', 'exists:languages,id'],
-            'data'        => ['sometimes', 'array'],
-            'source_id'   => ['sometimes', 'nullable', 'string'],
-            'created_at'  => ['sometimes', 'nullable', 'date'],
-            'deleted_at'  => ['sometimes', 'nullable', 'date'],
-            'password'    =>
+            'interest'                 => ['sometimes', 'required'],
+            'timezone_id'              => ['nullable', 'exists:timezones,id'],
+            'language_id'              => ['nullable', 'exists:languages,id'],
+            'data'                     => ['sometimes', 'array'],
+            'source_id'                => ['sometimes', 'nullable', 'string'],
+            'created_at'               => ['sometimes', 'nullable', 'date'],
+            'deleted_at'               => ['sometimes', 'nullable', 'date'],
+            'password'                 =>
                 [
                     'sometimes',
                     'required',
@@ -96,9 +93,9 @@ class StoreFulfilmentCustomer extends OrgAction
     public function htmlResponse(FulfilmentCustomer $fulfilmentCustomer): Response
     {
         return Inertia::location(route('grp.org.fulfilments.show.crm.customers.show', [
-            'organisation'               => $fulfilmentCustomer->organisation->slug,
-            'fulfilment'                 => $fulfilmentCustomer->fulfilment->slug,
-            'fulfilmentCustomer'         => $fulfilmentCustomer->slug
+            'organisation'       => $fulfilmentCustomer->organisation->slug,
+            'fulfilment'         => $fulfilmentCustomer->fulfilment->slug,
+            'fulfilmentCustomer' => $fulfilmentCustomer->slug
         ]));
     }
 

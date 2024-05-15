@@ -8,7 +8,7 @@
 import { Link } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
 import { useFormatTime, useSecondsToMS } from '@/Composables/useFormatTime'
-import customer from "@/Pages/Grp/Org/Fulfilment/Customer.vue";
+import customer from "@/Pages/Grp/Org/Fulfilment/FulfilmentCustomer.vue";
 
 const props = defineProps<{
     data: {}
@@ -39,7 +39,7 @@ const timesheetRoute = (timesheet) => {
     <Table :resource="data" class="mt-5" :name="tab">
         <!-- Column: Code -->
         <template #cell(slug)="{ item: timesheet }">
-            <Link :href="timesheetRoute(timesheet)" class="whitespace-nowrap specialUnderline">
+            <Link :href="timesheetRoute(timesheet)" class="whitespace-nowrap primaryLink">
                 {{ timesheet["slug"] }}
             </Link>
         </template>

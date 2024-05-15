@@ -44,7 +44,6 @@ class ShowEmployee extends OrgAction
     public function asController(Organisation $organisation, Employee $employee, ActionRequest $request): Employee
     {
         $this->initialisation($organisation, $request)->withTab(EmployeeTabsEnum::values());
-
         return $this->handle($employee);
     }
 
@@ -187,14 +186,18 @@ class ShowEmployee extends OrgAction
 
     public function getPrevious(Employee $employee, ActionRequest $request): ?array
     {
-        $previous = Employee::where('slug', '<', $employee->slug)->orderBy('slug', 'desc')->first();
+        $previous = Employee::where('slug', '<', $employee->slug)
+            ->where('organisation_id', $this->organisation->id)
+            ->orderBy('slug', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(Employee $employee, ActionRequest $request): ?array
     {
-        $next = Employee::where('slug', '>', $employee->slug)->orderBy('slug')->first();
+        $next = Employee::where('slug', '>', $employee->slug)
+            ->where('organisation_id', $this->organisation->id)
+            ->orderBy('slug')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }

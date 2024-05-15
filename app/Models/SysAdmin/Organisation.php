@@ -35,7 +35,7 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
-use App\Models\Manufacturing\Artifact;
+use App\Models\Manufacturing\Artefact;
 use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
@@ -96,7 +96,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationAccountingStats|null $accountingStats
  * @property-read Address|null $address
  * @property-read Agent|null $agent
- * @property-read LaravelCollection<int, Artifact> $artifacts
+ * @property-read LaravelCollection<int, Artefact> $artefacts
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\OrganisationAuthorisedModels> $authorisedModels
  * @property-read LaravelCollection<int, ClockingMachine> $clockingMachines
  * @property-read LaravelCollection<int, CollectionCategory> $collectionCategories
@@ -520,8 +520,8 @@ class Organisation extends Model implements HasMedia
         return $this->hasMany(RecurringBill::class);
     }
 
-    public function artifacts(): HasMany
+    public function artefacts(): HasMany
     {
-        return $this->hasMany(Artifact::class);
+        return $this->hasMany(Artefact::class);
     }
 }

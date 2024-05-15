@@ -33,7 +33,7 @@ class ShowUserRequestLogs
         if ($client instanceof Client) {
             try {
                 $params  = [
-                    'index' => 'aiku_local_user_requests_awg',
+                    'index' => config('elasticsearch.index_prefix') . 'user_requests_' . group()->slug,
                     'size'  => 10000,
                     'body'  => [
                         'query' => [
@@ -73,7 +73,7 @@ class ShowUserRequestLogs
         return function (InertiaTable $table) {
             $table
                 ->withGlobalSearch()
-                ->name('hst')
+                ->name('vst')
                 ->column(key: 'ip_address', label: __('IP Address'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'url', label: __('URL'), canBeHidden: false, sortable: true)
                 ->column(key: 'module', label: __('Module'), canBeHidden: false, sortable: true)

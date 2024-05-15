@@ -235,7 +235,7 @@ class ProcessSesNotification
         foreach (SesNotification::all() as $sesNotification) {
             $pending = $this->handle($sesNotification);
             if ($pending) {
-                print_r($pending);
+                // print_r($pending);
             }
         }
 

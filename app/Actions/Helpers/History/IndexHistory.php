@@ -72,17 +72,12 @@ class IndexHistory
                 ->withGlobalSearch()
                 ->withExportLinks($exportLinks)
                 ->withModelOperations($modelOperations)
+                ->column(key: 'expand', label: '', type: 'icon')
                 ->column(key: 'datetime', label: __('Date'), canBeHidden: false, sortable: true)
-
                 ->column(key: 'user_name', label: __('User'), canBeHidden: false, sortable: true)
-
-                ->column(key: 'user_agent', label: __('User Agent'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'ip_address', label: __('IP Address'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'url', label: __('URL'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'old_values', label: __('Old Values'), canBeHidden: false, sortable: true)
-                ->column(key: 'new_values', label: __('New Values'), canBeHidden: false, sortable: true)
-                ->column(key: 'action', label: __('Action'), canBeHidden: false, sortable: true)
-                ->column(key: 'auditable_type', label: __('Module'), canBeHidden: false)
+                ->column(key: 'old_values', label: __('Old Value'), canBeHidden: false, sortable: true)
+                ->column(key: 'new_values', label: __('New Value'), canBeHidden: false, sortable: true)
+                ->column(key: 'event', label: __('Action'), canBeHidden: false, sortable: true)
                 ->defaultSort('ip_address');
         };
     }

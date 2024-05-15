@@ -33,9 +33,9 @@ const props = defineProps<{
         current: string;
         navigation: object;
     },
-    history: object,
-    employees: object,
-    guests: object,
+    history?: object,
+    employees?: object,
+    guests?: object,
 
 }>()
 

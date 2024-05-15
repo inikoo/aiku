@@ -58,11 +58,11 @@ function shopRoute(customer: FulfilmentCustomer) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(reference)="{ item: customer }">
-            <Link :href="customerRoute(customer)" class="specialUnderline">
+            <Link :href="customerRoute(customer)" class="primaryLink">
                 {{ customer["reference"] }}
             </Link>
         </template>
-        <template #cell(shop)="{ item: customer }" class="specialUnderline">
+        <template #cell(shop)="{ item: customer }" class="primaryLink">
             <Link :href="shopRoute(customer)">
                 {{ customer["shop"] }}
             </Link>

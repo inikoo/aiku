@@ -14,8 +14,6 @@ use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\Catalogue\ShopResource;
 use App\Models\HumanResources\Employee;
-use App\Models\Inventory\Warehouse;
-use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Exception;
 use Illuminate\Support\Arr;
@@ -52,10 +50,13 @@ class EditEmployee extends OrgAction
             return [
                 $jobPosition->code => match (key($jobPosition->pivot->scopes)) {
                     'Warehouse' => [
-                        'warehouses' => Warehouse::whereIn('id', $jobPosition->pivot->scopes['Warehouse'])->pluck('slug')->toArray()
+                        'warehouses' => $this->organisation->warehouses->whereIn('id', $jobPosition->pivot->scopes['Warehouse'])->pluck('slug')->toArray()
                     ],
                     'Shop' => [
-                        'shops' => Shop::whereIn('id', $jobPosition->pivot->scopes['Shop'])->pluck('slug')->toArray()
+                        'shops' => $this->organisation->shops->whereIn('id', $jobPosition->pivot->scopes['Shop'])->pluck('slug')->toArray()
+                    ],
+                    'Fulfilment' => [
+                        'fulfilments' => $this->organisation->fulfilments->whereIn('id', $jobPosition->pivot->scopes['Fulfilment'])->pluck('slug')->toArray()
                     ],
                     default => []
                 }

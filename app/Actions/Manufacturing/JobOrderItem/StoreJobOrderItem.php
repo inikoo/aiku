@@ -76,7 +76,7 @@ class StoreJobOrderItem extends OrgAction
     public function rules(): array
     {
         return [
-            'artifact_id'        => ['required', 'integer', 'exists:artifacts,id'],
+            'artefact_id'        => ['required', 'integer', 'exists:artefacts,id'],
             'status'             => [
                 'sometimes',
                 Rule::enum(JobOrderItemStatusEnum::class)

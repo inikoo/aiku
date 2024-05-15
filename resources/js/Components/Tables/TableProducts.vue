@@ -52,12 +52,12 @@ function productRoute(product: Product) {
 <template>
   <Table :resource="data" :name="tab" class="mt-5">
     <template #cell(code)="{ item: product }">
-      <Link :href="productRoute(product)" class="specialUnderline">
+      <Link :href="productRoute(product)" class="primaryLink">
         {{ product['code'] }}
       </Link>
     </template>
     <template #cell(shop_code)="{ item: product }">
-      <Link v-if="product['shop_slug']" :href="productRoute(product)" class="specialUnderlineSecondary">
+      <Link v-if="product['shop_slug']" :href="productRoute(product)" class="secondaryLink">
         {{ product['shop_slug'] }}
       </Link>
     </template>

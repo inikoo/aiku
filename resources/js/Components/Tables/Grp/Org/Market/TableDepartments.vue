@@ -49,12 +49,12 @@ function shopRoute(department: Department) {
 
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: department }">
-            <Link :href="departmentRoute(department)" class="specialUnderline">
+            <Link :href="departmentRoute(department)" class="primaryLink">
                 {{ department['code'] }}
             </Link>
         </template>
         <template #cell(shop_code)="{ item: department }">
-            <Link :href="shopRoute(department)" class="specialUnderlineSecondary">
+            <Link :href="shopRoute(department)" class="secondaryLink">
                 {{ department["shop_code"] }}
             </Link>
         </template>

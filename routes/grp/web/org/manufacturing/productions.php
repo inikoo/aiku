@@ -5,12 +5,14 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Devel\UI\CreateDummy;
+use App\Actions\Manufacturing\Artefact\UI\IndexArtefacts;
 use App\Actions\Manufacturing\JobOrder\UI\ShowJobOrder;
 use App\Actions\Manufacturing\Production\UI\CreateProduction;
 use App\Actions\Manufacturing\Production\UI\EditProduction;
 use App\Actions\Manufacturing\Production\UI\IndexProductions;
 use App\Actions\Manufacturing\Production\UI\ShowProduction;
-use App\Actions\Manufacturing\Production\UI\ShowProductionCrefts;
+use App\Actions\Manufacturing\Production\UI\ShowProductionCrafts;
 use App\Actions\Manufacturing\Production\UI\ShowProductionOperations;
 use Illuminate\Support\Facades\Route;
 
@@ -35,10 +37,12 @@ Route::prefix('{production}')
 
                 Route::name('.crafts.')->prefix('crafts')
                     ->group(function () {
-                        Route::get('', ShowProductionCrefts::class)->name('dashboard');
+                        Route::get('', ShowProductionCrafts::class)->name('dashboard');
 
                         Route::get('raw-materials', ShowJobOrder::class)->name('raw_materials.index');
-                        Route::get('artifacts', ShowJobOrder::class)->name('artifacts.index');
+                        Route::get('artefacts', IndexArtefacts::class)->name('artefacts.index');
+                        Route::get('artefacts/create', CreateDummy::class)->name('artefacts.create');
+
                     });
             });
     });

@@ -18,10 +18,12 @@ return new class () extends Migration {
     use HasGroupOrganisationRelationship;
     public function up(): void
     {
-        Schema::create('artifacts', function (Blueprint $table) {
+        Schema::create('artefacts', function (Blueprint $table) {
             $table->increments('id');
             $table = $this->groupOrgRelationship($table);
-            $table->unsignedSmallInteger('stock_id');
+            $table->unsignedSmallInteger('production_id')->index();
+            $table->foreign('production_id')->references('id')->on('productions')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedSmallInteger('stock_id')->nullable()->index();
             $table->foreign('stock_id')->references('id')->on('stocks')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
             $table = $this->assertCodeDescription($table);
@@ -36,6 +38,8 @@ return new class () extends Migration {
             $table->timestampsTz();
 
             $table->softDeletesTz();
+            $table->string('source_id')->nullable()->unique();
+
 
         });
         DB::statement('CREATE INDEX ON stocks USING gin (name gin_trgm_ops) ');
@@ -45,6 +49,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('artifacts');
+        Schema::dropIfExists('artefacts');
     }
 };

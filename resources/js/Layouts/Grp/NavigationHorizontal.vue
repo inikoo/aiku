@@ -125,23 +125,33 @@ const routeArrow = (nav?: MergeNavigation) => {
 
 }
 
+// Show this Horizontal depends on:
+// - If shop is the latest, and selected shop is open
+// - If fulfilment is the latest, and selected fulfilment is open
+const isShowHorizontal = () => {
+    const isShopOpen = activeNav() == 'shop' && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.find(shop => shop.slug === layout.organisationsState[layout.currentParams.organisation]?.currentShop)?.state === 'open'
+    const isFulfilmentOpen = activeNav() == 'fulfilment' && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.find(fulfilment => fulfilment.slug === layout.organisationsState[layout.currentParams.organisation]?.currentFulfilment)?.state === 'open'
+
+    return (isShopOpen || isFulfilmentOpen) 
+}
 
 </script>
 
 <template>
-    <div class="relative isolate ring-1 ring-white/20 rounded transition-all duration-200 ease-in-out mb-1"
+    <div v-if="isShowHorizontal()" class="relative isolate ring-1 ring-white/20 rounded transition-all mb-1"
         :class="layout.leftSidebar.show ? 'px-1' : 'px-0'"
         :style="{ 'box-shadow': `0 0 0 1px ${layout.app.theme[1]}55` }">
-        <span class="text-white">
+        <span v-if="false" class="text-white">
+            <!-- Horizontal -->
             <!-- {{ currentNavigation() }} -->
         </span>
         
         <!-- Label: Icon shops/warehouses and slug -->
-        <div class="w-full flex justify-between items-end pt-2 pl-2.5 pr-0.5 pb-2"
+        <div v-if="!!currentNavigation()" class="w-full flex justify-between items-end pt-2 pl-2.5 pr-0.5 pb-2"
             :style="{ color: layout.app.theme[1] + '99' }">
 
             <!-- Label: 'UK (Shop)' -->
-            <div v-if="!!currentNavigation()" class="relative flex gap-x-1.5 items-center">
+            <div class="relative flex gap-x-1.5 items-center">
                 <FontAwesomeIcon v-if="icon" :icon='icon' class='text-xxs' fixed-width aria-hidden='true' />
                 <div v-if="layout.leftSidebar.show" class="flex items-center gap-x-1.5">
                     <Transition name="spin-to-down">
@@ -157,9 +167,6 @@ const routeArrow = (nav?: MergeNavigation) => {
                 </div>
             </div>
 
-            <Link v-else :href="route('grp.org.shops.index', layout.currentParams.organisation)" class="mx-auto pr-2 hover:text-gray-100">
-                Show all shops
-            </Link>
             
             <!-- Section: Arrow left-right -->
             <div v-if="isSomeSubnavActive()" class="flex text-white" :class="[

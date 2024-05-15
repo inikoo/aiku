@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\Fulfilment;
 
+use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydrateCustomers;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletDeliveries;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletReturns;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePallets;
@@ -29,6 +30,7 @@ class HydrateFulfilment extends HydrateModel
         FulfilmentHydratePalletDeliveries::run($fulfilment);
         FulfilmentHydratePalletReturns::run($fulfilment);
         FulfilmentHydrateRecurringBills::run($fulfilment);
+        FulfilmentHydrateCustomers::run($fulfilment);
 
     }
 

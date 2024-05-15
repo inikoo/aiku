@@ -37,6 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\FulfilmentCustomer> $fulfilmentCustomers
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
@@ -111,5 +112,11 @@ class Fulfilment extends Model
     {
         return $this->hasMany(RecurringBill::class);
     }
+
+    public function fulfilmentCustomers(): HasMany
+    {
+        return $this->hasMany(FulfilmentCustomer::class);
+    }
+
 
 }

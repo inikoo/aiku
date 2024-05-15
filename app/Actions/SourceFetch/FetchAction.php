@@ -151,9 +151,7 @@ class FetchAction
             'model_type' => $modelType,
             'error_on'   => $errorOn
         ]);
-        //print_r($modelData);
-        //print_r($e->getMessage());
-        //exit;
+
     }
 
     public function recordChange($organisationSource, $wasChanged): void

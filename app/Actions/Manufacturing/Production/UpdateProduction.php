@@ -24,10 +24,6 @@ class UpdateProduction extends OrgAction
 {
     use WithActionUpdate;
 
-
-
-    private Production $production;
-
     public function handle(Production $production, array $modelData): Production
     {
         $production = $this->update($production, $modelData, ['data', 'settings']);

@@ -37,7 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\Artifact> $artifacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\Artefact> $artefacts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\JobOrder> $jobOrders
@@ -110,9 +110,9 @@ class Production extends Model implements Auditable
         return $this->hasMany(ManufactureTask::class);
     }
 
-    public function artifacts(): HasMany
+    public function artefacts(): HasMany
     {
-        return $this->hasMany(Artifact::class);
+        return $this->hasMany(Artefact::class);
     }
 
     public function jobOrders(): HasMany

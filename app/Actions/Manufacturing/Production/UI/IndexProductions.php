@@ -66,12 +66,12 @@ class IndexProductions extends OrgAction
                 'productions.name',
                 'productions.slug as slug',
                 'number_raw_materials',
-                'number_artifacts',
+                'number_artefacts',
                 'number_manufacture_tasks',
 
             ])
             ->leftJoin('production_stats', 'production_stats.production_id', 'productions.id')
-            ->allowedSorts(['code', 'name', 'number_raw_materials', 'number_artifacts','number_manufacture_tasks'])
+            ->allowedSorts(['code', 'name', 'number_raw_materials', 'number_artefacts','number_manufacture_tasks'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -108,7 +108,7 @@ class IndexProductions extends OrgAction
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_raw_materials', label: __('materials'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_manufacture_tasks', label: __('tasks'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_artifacts', label: __('artifacts'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_artefacts', label: __('artefacts'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }

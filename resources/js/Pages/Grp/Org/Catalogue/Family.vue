@@ -5,24 +5,24 @@
   -->
 
 <script setup lang="ts">
-import {Head} from '@inertiajs/vue3';
-import {library} from '@fortawesome/fontawesome-svg-core';
+import { Head } from '@inertiajs/vue3'
+import { library } from '@fortawesome/fontawesome-svg-core'
 import {
     faBullhorn,
     faCameraRetro,
     faCube,
     faFolder, faMoneyBillWave, faProjectDiagram, faTag, faUser
-} from '@fal';
+} from '@fal'
 
-import PageHeading from '@/Components/Headings/PageHeading.vue';
-import { computed, defineAsyncComponent, ref } from "vue";
-import { useTabChange } from "@/Composables/tab-change";
-import ModelDetails from "@/Components/ModelDetails.vue";
-import TableCustomers from "@/Components/Tables/Grp/Org/CRM/TableCustomers.vue";
-import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableMailshots from "@/Components/Tables/TableMailshots.vue";
-import { faDiagramNext } from "@fortawesome/free-solid-svg-icons";
-import TableProducts from "@/Components/Tables/TableProducts.vue";
+import PageHeading from '@/Components/Headings/PageHeading.vue'
+import { computed, defineAsyncComponent, ref } from "vue"
+import { useTabChange } from "@/Composables/tab-change"
+import ModelDetails from "@/Components/ModelDetails.vue"
+import TableCustomers from "@/Components/Tables/Grp/Org/CRM/TableCustomers.vue"
+import Tabs from "@/Components/Navigation/Tabs.vue"
+import TableMailshots from "@/Components/Tables/TableMailshots.vue"
+import { faDiagramNext } from "@fortawesome/free-solid-svg-icons"
+import TableProducts from "@/Components/Tables/TableProducts.vue"
 import { capitalize } from "@/Composables/capitalize"
 
 library.add(
@@ -35,7 +35,7 @@ library.add(
     faUser,
     faMoneyBillWave,
     faDiagramNext,
-);
+)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
@@ -43,16 +43,16 @@ const props = defineProps<{
     title: string,
     pageHead: object,
     tabs: {
-        current: string;
-        navigation: object;
+        current: string
+        navigation: object
     }
-    customers: object;
-    mailshots: object;
+    customers: object
+    mailshots: object
     products: object
 }>()
 
-let currentTab = ref(props.tabs.current);
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+let currentTab = ref(props.tabs.current)
+const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
 
@@ -62,8 +62,8 @@ const component = computed(() => {
         customers: TableCustomers,
         details: ModelDetails,
         history: ModelChangelog,
-    };
-    return components[currentTab.value];
+    }
+    return components[currentTab.value]
 
 });
 
@@ -71,9 +71,9 @@ const component = computed(() => {
 
 
 <template>
-    <Head :title="capitalize(title)"/>
+
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
-    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
 </template>
-

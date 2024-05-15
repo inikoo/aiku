@@ -25,7 +25,6 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
     {
         if ($purchaseOrderData = $organisationSource->fetchPurchaseOrder($organisationSourceId)) {
 
-            //print_r($purchaseOrderData['purchase_order']);
             if (!empty($purchaseOrderData['purchase_order']['source_id']) and $purchaseOrder = PurchaseOrder::withTrashed()->where('source_id', $purchaseOrderData['purchase_order']['source_id'])->first()) {
                 $purchaseOrder = UpdatePurchaseOrder::make()->action(
                     purchaseOrder: $purchaseOrder,
