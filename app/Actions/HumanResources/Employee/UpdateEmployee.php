@@ -15,13 +15,11 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
-use App\Models\Inventory\Warehouse;
-use App\Models\Catalogue\Shop;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -46,13 +44,13 @@ class UpdateEmployee extends OrgAction
                 $jobPosition                    = $this->organisation->jobPositions()->firstWhere('slug', $positionData['slug']);
                 $jobPositions[$jobPosition->id] = match (key(Arr::get($positionData, 'scopes', []))) {
                     'shops' => [
-                        'Shop' => Shop::whereIn('slug', $positionData['scopes']['shops']['slug'])->pluck('id')->toArray()
+                        'Shop' => $this->organisation->shops->whereIn('slug', $positionData['scopes']['shops']['slug'])->pluck('id')->toArray()
                     ],
                     'warehouses' => [
-                        'Warehouse' => Warehouse::whereIn('slug', $positionData['scopes']['warehouses']['slug'])->pluck('id')->toArray()
+                        'Warehouse' => $this->organisation->warehouses->whereIn('slug', $positionData['scopes']['warehouses']['slug'])->pluck('id')->toArray()
                     ],
                     'fulfilments' => [
-                        'Fulfilment' => Fulfilment::whereIn('slug', $positionData['scopes']['fulfilments']['slug'])->pluck('id')->toArray()
+                        'Fulfilment' => $this->organisation->fulfilments->whereIn('slug', $positionData['scopes']['fulfilments']['slug'])->pluck('id')->toArray()
                     ],
                     default => []
                 };
@@ -136,9 +134,9 @@ class UpdateEmployee extends OrgAction
             'positions'                             => ['sometimes', 'array'],
             'positions.*.slug'                      => ['sometimes', 'string'],
             'positions.*.scopes'                    => ['sometimes', 'array'],
-            'positions.*.scopes.warehouses.slug.*'  => ['sometimes', 'exists:warehouses,slug'],
-            'positions.*.scopes.fulfilments.slug.*' => ['sometimes', 'exists:fulfilments,slug'],
-            'positions.*.scopes.shops.slug.*'       => ['sometimes', 'exists:shops,slug'],
+            'positions.*.scopes.warehouses.slug.*'  => ['sometimes', Rule::exists('warehouses', 'slug') ->where('organisation_id', $this->organisation->id)],
+            'positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug') ->where('organisation_id', $this->organisation->id)],
+            'positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug') ->where('organisation_id', $this->organisation->id)],
 
             'email'     => ['sometimes', 'nullable', 'email'],
             'source_id' => ['sometimes', 'string', 'max:64'],

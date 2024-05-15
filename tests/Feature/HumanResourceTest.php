@@ -133,7 +133,7 @@ test('add job position to employee', function (Employee $employee) {
     UpdateEmployee::make()->action($employee, [
         'positions' => [
             [
-            'slug'=> $jobPosition->slug,
+            'slug'  => $jobPosition->slug,
             'scopes'=> []
             ]
         ]
