@@ -96,7 +96,7 @@ class LogUserRequest
         return 'fab fa-windows';
     }
 
-    public function getLocation(string $ip): false|array|null
+    public function getLocation(string|null $ip): false|array|null
     {
         if ($position = Location::get($ip == '127.0.0.1' ? '103.121.18.96' : $ip)) {
             return [
