@@ -8,12 +8,20 @@
 namespace App\Actions\UI\Profile;
 
 use App\Actions\Assets\Language\UI\GetLanguagesOptions;
+use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
+use App\Actions\SysAdmin\UserRequest\ShowUserRequestLogs;
+use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
+use App\Enums\UI\SysAdmin\ProfileTabsEnum;
+use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\HumanResources\TimesheetsResource;
+use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Http\Resources\UI\LoggedUserResource;
 use App\Models\SysAdmin\User;
-use Arr;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -23,6 +31,7 @@ class ShowProfile
 {
     use AsAction;
     use WithInertia;
+    use WithActionButtons;
 
     public function asController(ActionRequest $request): User
     {
@@ -34,137 +43,92 @@ class ShowProfile
         return new UserResource($user);
     }
 
-    public function htmlResponse(User $user): Response
+    public function htmlResponse(User $user, ActionRequest $request): Response
     {
 
-        return Inertia::render("EditModel", [
+        return Inertia::render("Profile", [
             "title"       => __("Profile"),
             "breadcrumbs" => $this->getBreadcrumbs(),
             "pageHead"    => [
                 "title" => __("My Profile"),
             ],
-            "formData" => [
-                "blueprint" => [
-                    [
-                        "label"   => __("profile"),
-                        "icon"    => "fa-light fa-user-circle",
-                        "current" => true,
-                        "fields"  => [
-                            "email"  => [
-                                "type"  => "input",
-                                "label" => __("email"),
-                                "value" => $user->email,
-                            ],
-                            "password" => [
-                                "type"  => "password",
-                                "label" => __("password"),
-                                "value" => "",
-                            ],
-                            "about"  => [
-                                "type"      => "textEditor",
-                                "label"     => __("about"),
-                                "value"     => $user->about,
-                                "maxLength" => 500
-                            ],
-                            "avatar" => [
-                                "type"  => "avatar",
-                                "label" => __("photo"),
-                                "value" => $user->avatarImageSources(320, 320)
-                            ],
+            'pageHead'    => [
+                'title' => $user->contact_name,
+                'meta'  => [
+                        [
+                            'label'     => $user->email,
+                        'leftIcon'  => [
+                            'icon'    => 'fal fa-id-card',
+                            'tooltip' => __('Email')
+                            ]
                         ],
-                    ],
-                    // [
-                    //     "label"  => __("password"),
-                    //     "icon"   => "fa-light fa-key",
-                    //     "fields" => [
-                    //     ],
-                    // ],
-                    [
-                        "label"  => __("Settings"),
-                        "icon"   => "fal fa-cog",
-                        "fields" => [
-                            "language_id" => [
-                                "type"    => "select",
-                                "label"   => __("language"),
-                                "value"   => $user->language_id,
-                                'options' => GetLanguagesOptions::make()->translated(),
-                            ],
-                            "app_theme" => [
-                                "type"  => "app_theme",
-                                "label" => __("theme color"),
-                                "value" => Arr::get($user->settings, 'app_theme'),
-                            ],
-                        ],
-                    ],
-                    // [
-                    //     "label"  => __("appearance"),
-                    //     "icon"   => "fa-light fa-paint-brush",
-                    //     "fields" => [
-                    //         "colorMode" => [
-                    //             "type"  => "colorMode",
-                    //             "label" => __("turn dark mode"),
-                    //             "value" => "",
-                    //         ],
-                    //         "theme"     => [
-                    //             "type"  => "theme",
-                    //             "label" => __("choose your theme"),
-                    //             "value" => "",
-                    //         ],
-                    //     ],
-                    // ],
-                    // [
-                    //     "label"  => __("notifications"),
-                    //     "icon"   => "fa-light fa-bell",
-                    //     "fields" => [
-                    //         "notifications" => [
-                    //             "type"  => "myNotifications",
-                    //             "label" => __("notifications"),
-                    //             "value" => [],
-                    //             "data"  => [
-                    //                 [
-                    //                     'type' => 'new-order',
-                    //                     'label'=> __('new order'),
-                    //                 ],
-                    //                 [
-                    //                     'type' => 'new re',
-                    //                     'label'=> __('new order'),
-                    //                 ],
-                    //                 [
-                    //                     'type' => 'new user',
-                    //                     'label'=> __('new order'),
-                    //                 ],
-                    //             ]
-                    //         ],
 
-                    //     ],
-                    // ],
-                    [
-                        'label'  => __('App'),
-                        'icon'   => 'fal fa-mobile-android-alt',
-                        'fields' => [
-                            "app_login" => [
-                                "type"          => "app_login",
-                                "label"         => __("App login"),
-                                "route"         => [
-                                    "name"  => "grp.models.profile.app-login-qrcode",
-                                ],
-                                "noSaveButton"  => true,
-                                "noTitle"       => true,
-                                "full"          => true
-                            ],
-                        ]
-                    ]
+                        ['label'     => $user->username,
+                            'leftIcon'  => [
+                                'icon'    => 'fal fa-user',
+                                'tooltip' => __('User')
+                            ]
+                        ]         
                 ],
-                "args"      => [
-                    "updateRoute" => [
-                        "name"       => "grp.models.profile.update"
-                    ],
+                'actions'     => [
+                    $this->getEditActionIcon($request),
                 ],
             ],
+            'tabs'        => [
+                'current'    => $this->tab,
+                'navigation' => ProfileTabsEnum::navigation()
+            ],
+
+            // pls fix the current tab 
+            ProfileTabsEnum::SHOWCASE->value => $this->tab == ProfileTabsEnum::SHOWCASE->value ?
+            fn () => GetProfileShowcase::run($user)
+            : Inertia::lazy(fn () => GetProfileShowcase::run($user)),
+
+            ProfileTabsEnum::TIMESHEETS->value => $this->tab == ProfileTabsEnum::TIMESHEETS->value ?
+                fn () => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TIMESHEETS->value))
+                : Inertia::lazy(fn () => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TIMESHEETS->value))),
+
+            ProfileTabsEnum::HISTORY->value => $this->tab == ProfileTabsEnum::HISTORY->value ?
+                fn () => HistoryResource::collection(IndexHistory::run($user, ProfileTabsEnum::HISTORY->value))
+                : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($user, ProfileTabsEnum::HISTORY->value))),
+
+            ProfileTabsEnum::VISIT_LOGS->value => $this->tab == ProfileTabsEnum::VISIT_LOGS->value ?
+                fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username, ProfileTabsEnum::VISIT_LOGS->value))
+                : Inertia::lazy(fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username, ProfileTabsEnum::VISIT_LOGS->value))),
+
+            // ProfileTabsEnum::TODAY_TIMESHEETS->value => $this->tab == ProfileTabsEnum::TODAY_TIMESHEETS->value ?
+            //     fn () => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TODAY_TIMESHEETS->value, true))
+            //     : Inertia::lazy(fn () => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TODAY_TIMESHEETS->value, true))),
+            
             'auth'          => [
-                'user' => LoggedUserResource::make($user)->getArray(),
+                    'user' => LoggedUserResource::make($user)->getArray(),
+                ],
+
+        ]        
+            )
+    ->table(IndexTimesheets::make()->tableStructure(modelOperations: [
+            'createLink' => [
+                [
+                    'type'          => 'button',
+                    'style'         => 'primary',
+                    'icon'          => 'fal fa-file-export',
+                    'id'            => 'pdf-export',
+                    'label'         => 'Excel',
+                    'key'           => 'action',
+                    'target'        => '_blank',
+                    // 'route'         => [
+                    //     'name'       => 'grp.org.hr.employees.timesheets.export',
+                    //     'parameters' => [
+                    //         'organisation' => $employee->organisation->slug,
+                    //         'employee'     => $employee->slug,
+                    //         'type'         => 'xlsx'
+                    //     ]
+                    // ]
+                ]
             ],
-        ]);
+        ], prefix: ProfileTabsEnum::TIMESHEETS->value))
+        ->table(ShowUserRequestLogs::make()->tableStructure())
+        ->table(IndexHistory::make()->tableStructure());
     }
 
     public function getBreadcrumbs(): array
