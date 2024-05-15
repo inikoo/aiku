@@ -64,8 +64,8 @@ const iconList: { [key: string]: string } = {
                     <template v-if="itemKey == 'fulfilments_index' && (layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.length || 0) > 1">
                         <NavigationSimple
                             v-if="
-                                (!layout.organisationsState?.[layout.currentParams.organisation]?.currentFulfilment
-                                || layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.find(shop => shop.slug === layout.organisationsState[layout.currentParams.organisation]?.currentFulfilment)?.state !== 'open')
+                                !layout.organisationsState?.[layout.currentParams.organisation]?.currentFulfilment
+                                || (layout.organisationsState[layout.currentParams.organisation]?.currentFulfilment && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.find(fulfilment => fulfilment.slug === layout.organisationsState[layout.currentParams.organisation]?.currentFulfilment)?.state !== 'open')
                                 
                             "
                             :nav="orgNav"
