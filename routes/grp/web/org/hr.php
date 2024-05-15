@@ -14,6 +14,7 @@ use App\Actions\HumanResources\Clocking\UI\IndexClockings;
 use App\Actions\HumanResources\Clocking\UI\RemoveClocking;
 use App\Actions\HumanResources\Clocking\UI\ShowClocking;
 use App\Actions\HumanResources\ClockingMachine\ExportWorkplaces;
+use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UI\CreateClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UI\EditClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;

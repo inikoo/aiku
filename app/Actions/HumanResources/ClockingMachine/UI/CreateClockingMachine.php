@@ -8,16 +8,19 @@
 namespace App\Actions\HumanResources\ClockingMachine\UI;
 
 use App\Actions\OrgAction;
+use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
 class CreateClockingMachine extends OrgAction
 {
     public function handle(ActionRequest $request): Response
     {
+        // dd($request->route()->parameter('workplace')->id);
         return Inertia::render(
             'CreateModel',
             [
@@ -41,18 +44,23 @@ class CreateClockingMachine extends OrgAction
                         [
                             'title'  => __('create clocking machine'),
                             'fields' => [
-                                'code' => [
+                                'name' => [
                                     'type'        => 'input',
-                                    'label'       => __('code'),
+                                    'label'       => __('name'),
+                                ],
+                                'type' => [
+                                    'type'        => 'select',
+                                    'options'     => Options::forEnum(ClockingMachineTypeEnum::class),
+                                    'label'       => __('type'),
                                 ],
                             ]
                         ],
                     ],
                     'route'     => [
-                        'name'      => 'grp.models.working-place.clocking-machine.store',
-                        'arguments' => [
-                            'organisation' => $request->route()->parameter('organisation')->slug,
-                            'workplace'    => $request->route()->parameter('workplace')->slug
+                        'name'      => 'grp.models.org.workplaces.clocking-machines.store',
+                        'parameters' => [
+                            'organisation' => $request->route()->parameter('organisation')->id,
+                            'workplace'    => $request->route()->parameter('workplace')->id
                         ]
                     ]
                 ],
@@ -63,7 +71,11 @@ class CreateClockingMachine extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("human-resources.clocking-machines.{$this->organisation->id}.edit");
+        // for testing
+        $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
     }
 
 

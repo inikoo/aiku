@@ -18,5 +18,15 @@ enum ClockingMachineTypeEnum: string
     case MOBILE_APP = 'mobile-app';
     case LEGACY     = 'legacy';
 
+    public static function labels(): array
+    {
+        return [
+            'biometric'      => __('Biometric'),
+            'static-nfc'     => __('Static NFC'),
+            'mobile-app'     => __('Mobile App'),
+            'legacy'         => __('Legacy'),
+        ];
+    }
+
 
 }

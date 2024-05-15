@@ -20,6 +20,7 @@ use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Catalogue\Product;
+use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -29,7 +30,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowProduct extends OrgAction
 {
-    private Organisation|Shop|Fulfilment $parent;
+    private Organisation|Shop|Fulfilment|ProductCategory $parent;
 
     public function handle(Product $product): Product
     {
@@ -66,6 +67,14 @@ class ShowProduct extends OrgAction
     {
         $this->parent= $shop;
         $this->initialisationFromShop($shop, $request)->withTab(ProductTabsEnum::values());
+        return $this->handle($product);
+    }
+
+    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, Product $product,  ActionRequest $request): Product
+    {
+        $this->parent= $department;
+        $this->initialisationFromShop($shop, $request)->withTab(ProductTabsEnum::values());
+
         return $this->handle($product);
     }
 
@@ -255,44 +264,43 @@ class ShowProduct extends OrgAction
 
     private function getNavigation(?Product $product, string $routeName): ?array
     {
-        if(!$product) {
-            return null;
-        }
+    if (!$product) {
+        return null;
+    }
 
-        return match ($routeName) {
-            'shops.org.products.show'=> [
-                'label'=> $product->name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'product'=> $product->slug
-                    ]
-
-                ]
+    return match ($routeName) {
+        'shops.products.show' => [
+            'label' => $product->name,
+            'route' => [
+                'name' => $routeName,
+                'parameters' => [
+                    'product' => $product->slug,
+                ],
             ],
-            'grp.org.shops.show.catalogue.products.show'=> [
-                'label'=> $product->name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'organisation'=> $this->organisation->slug,
-                        'shop'        => $product->shop->slug,
-                        'product'     => $product->slug
-                    ]
-
-                ]
+        ],
+        'grp.org.shops.show.catalogue.products.show' => [
+            'label' => $product->name,
+            'route' => [
+                'name' => $routeName,
+                'parameters' => [
+                    'organisation' => $this->parent->slug,
+                    'shop' => $product->shop->slug,
+                    'product' => $product->slug,
+                ],
             ],
-            'grp.org.fulfilments.show.products.show'=> [
-                'label'=> $product->name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'organisation'=> $this->organisation->slug,
-                        'fulfilment'  => $product->shop->fulfilment->slug,
-                        'product'     => $product->slug
-                    ]
-                ]
+        ],
+        'grp.org.fulfilments.show.products.show' => [
+            'label' => $product->name,
+            'route' => [
+                'name' => $routeName,
+                'parameters' => [
+                    'organisation' => $this->parent->slug,
+                    'fulfilment' => $product->shop->fulfilment->slug,
+                    'product' => $product->slug,
+                ],
             ],
-        };
+        ],
+        default => null,
+    };
     }
 }

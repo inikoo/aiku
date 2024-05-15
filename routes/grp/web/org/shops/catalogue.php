@@ -6,6 +6,7 @@
  */
 
 use App\Actions\Catalogue\Collection\UI\IndexCollection;
+use App\Actions\Catalogue\Collection\UI\ShowCollection;
 use App\Actions\Catalogue\Product\UI\CreateProduct;
 use App\Actions\Catalogue\Product\UI\EditProduct;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
@@ -37,6 +38,8 @@ Route::get('departments', IndexDepartments::class)->name('departments.index');
 Route::get('departments/{department}', ShowDepartment::class)->name('departments.show');
 Route::get('departments/{department}/edit', [EditDepartment::class, 'inShop'])->name('departments.edit');
 
+Route::get('departments/{department}/families/{family}', [ShowFamily::class, 'inDepartment'])->name('departments.show.families.show');
+Route::get('departments/{department}/products/{product}', [ShowProduct::class, 'inDepartment'])->name('departments.show.products.show');
 
 Route::get('families/create', [CreateFamily::class, 'inShop'])->name('families.create');
 Route::get('families', IndexFamilies::class)->name('families.index');
@@ -45,3 +48,5 @@ Route::get('families/{family}/edit', [EditFamily::class, 'inShop'])->name('famil
 
 Route::get('collections', IndexCollection::class)->name('collections.index');
 Route::get('collections/create', CreateProduct::class)->name('collections.create');
+
+Route::get('collections/{collection}', ShowCollection::class)->name('collections.show');

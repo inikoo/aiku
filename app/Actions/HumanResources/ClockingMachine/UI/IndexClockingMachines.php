@@ -37,25 +37,25 @@ class IndexClockingMachines extends OrgAction
         }
 
         return QueryBuilder::for(ClockingMachine::class)
-            ->defaultSort('clocking_machines.name')
-            ->select(
-                [
-                    'clocking_machines.name as name',
-                    'clocking_machines.id',
-                    'workplaces.slug as workplace_slug',
-                    'clocking_machines.slug'
-                ]
-            )
-            ->leftJoin('workplaces', 'clocking_machines.workplace_id', 'workplaces.id')
-            ->when($parent, function ($query) use ($parent) {
-                if (class_basename($parent) == 'Workplace') {
-                    $query->where('clocking_machines.workplace_id', $parent->id);
-                }
-            })
-            ->allowedSorts(['slug', 'name'])
-            ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
-            ->withQueryString();
+        ->defaultSort('name') // no need to specify the table name here
+        ->select([
+            'clocking_machines.name as name',
+            'clocking_machines.id',
+            'workplaces.slug as workplace_slug', // corrected reference to 'workplaces'
+            'clocking_machines.slug',
+            'organisations.slug as organisation_slug' // corrected reference to 'organisations'
+        ])
+        ->leftJoin('workplaces', 'clocking_machines.workplace_id', '=', 'workplaces.id') // corrected join
+        ->leftJoin('organisations', 'workplaces.organisation_id', '=', 'organisations.id') // join to organisations table
+        ->when($parent, function ($query) use ($parent) {
+            if (class_basename($parent) == 'Workplace') {
+                $query->where('clocking_machines.workplace_id', $parent->id);
+            }
+        })
+        ->allowedSorts(['slug', 'name'])
+        ->allowedFilters([$globalSearch])
+        ->withPaginator($prefix)
+        ->withQueryString();
     }
 
     public function tableStructure(Organisation|Workplace $parent, ?array $modelOperations = null, $prefix = null): Closure
@@ -72,20 +72,20 @@ class IndexClockingMachines extends OrgAction
                 ->withEmptyState(
                     [
                         'title'       => __('no clocking machines'),
-                        'description' => $this->canEdit ? __('Get started by creating a new clocking machine.') : null,
-                        'count'       => class_basename($parent == 'Organisation') ? $parent->humanResourcesStats->number_clocking_machines : $parent->stats->number_clocking_machines
-                        /*
-                        'action'      => $this->canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new clocking machine'),
-                            'label'   => __('clocking machine'),
-                            'route'   => [
-                                'name'       => 'grp.org.hr.clocking-machines.create',
-                                'parameters' => array_values($request->route()->originalParameters())
+                        'description' =>  __('Get started by creating a new clocking machine.'),
+                        'count'       => class_basename($parent == 'Organisation') ? $parent->humanResourcesStats->number_clocking_machines : $parent->stats->number_clocking_machines,
+                        
+                        'action' =>   [
+                        'type' => 'button',
+                        'style' => 'create',
+                        'tooltip' => __('new clocking machine'),
+                        'label' => __('clocking machine'),
+                        'route' => [
+                            'name' => 'grp.org.hr.workplaces.show.clocking-machines.create',
+                            'parameters' => request()->route()->originalParameters()
                             ]
-                        ] : null
-                        */
+                        ] 
+                        
                     ]
                 )
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
@@ -184,14 +184,14 @@ class IndexClockingMachines extends OrgAction
             =>
             array_merge(
                 (new ShowWorkplace())->getBreadcrumbs(
-                    $routeParameters['workplace']
+                    $routeParameters
                 ),
                 $headCrumb([
                     'name'       => 'grp.org.hr.workplaces.show.clocking-machines.index',
                     'parameters' =>
                         [
-                            $routeParameters['organisation']->slug,
-                            $routeParameters['workplace']->slug
+                            $routeParameters['organisation'],
+                            $routeParameters['workplace']
                         ]
                 ])
             ),
