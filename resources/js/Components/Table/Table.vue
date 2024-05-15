@@ -734,7 +734,7 @@ watch(selectRow, () => {
 
                         <!-- Element Filter -->
                         <div class="w-fit">
-                            <TableElements v-if="queryBuilderProps.elementGroups"
+                            <TableElements v-if="queryBuilderProps?.elementGroups?.length"
                                 :elements="queryBuilderProps.elementGroups" @checkboxChanged="handleElementsChange"
                                 :title="queryBuilderData.title" :name="props.name" />
                         </div>

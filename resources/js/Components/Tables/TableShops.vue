@@ -9,20 +9,22 @@ import { Link } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
 import { Shop } from "@/types/shop"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faCircle } from '@fas'
+import { faCircle, faDoNotEnter } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { trans } from 'laravel-vue-i18n'
-import { useLayoutStore } from '../../Stores/layout'
 import Tag from '@/Components/Tag.vue'
 import { capitalize } from "@/Composables/capitalize"
+import { inject } from 'vue'
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 
-library.add(faCircle)
+library.add(faCircle, faDoNotEnter)
 
 const props = defineProps<{
     data: {}
     tab?: string
 }>()
 
+const layout = inject('layout', layoutStructure)
 
 function shopRoute(shop: Shop) {
     switch (route().current()) {
@@ -37,13 +39,25 @@ function shopRoute(shop: Shop) {
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+        <!-- Column: State -->
+        <template #cell(state)="{item: shop}">
+            <div v-if="shop.state === 'open'" v-tooltip="trans('Shop is open')" class="px-1">
+                <FontAwesomeIcon icon='fal fa-check' class='text-green-500' fixed-width aria-hidden='true' />
+            </div>
+            
+            <div v-else v-tooltip="trans('Shop is closed')" class="px-1">
+                <FontAwesomeIcon icon='fas fa-do-not-enter' class='text-red-400' fixed-width aria-hidden='true' />
+            </div>
+            
+        </template>
+
         <!-- Column: Code -->
         <template #cell(code)="{ item: shop }">
             <div class="flex">
                 <Link :href="shopRoute(shop)" class="primaryLink">
                     {{ shop.code }}
                 </Link>
-                <div v-if="shop.code == useLayoutStore().organisationsState?.[useLayoutStore().currentParams.organisation]?.currentShop" v-tooltip="trans('Recently selected')" class="px-0.5 flex items-center">
+                <div v-if="shop.code == layout.organisationsState?.[layout.currentParams.organisation]?.currentShop" v-tooltip="trans('Recently selected')" class="px-0.5 flex items-center">
                     <FontAwesomeIcon icon='fas fa-circle' class='text-lime-500 text-[6px]' fixed-width aria-hidden='true' />
                 </div>
             </div>
@@ -56,15 +70,6 @@ function shopRoute(shop: Shop) {
             </div>
         </template>
 
-        <!-- Column: State -->
-        <template #cell(state)="{item: shop}">
-            <div v-if="shop.state === 'open'" v-tooltip="trans('Shop is open')" class="px-1">
-                <FontAwesomeIcon icon='fal fa-check' class='text-green-500' fixed-width aria-hidden='true' />
-                <!-- <Tag :label="capitalize(shop.state)" :theme="9" /> -->
-            </div>
-            
-            <Tag v-else="shop.state === 'closed'" v-tooltip="trans('Shop is closed')" :label="capitalize(shop.state) || trans('Closed')" :theme="7" />
-        </template>
     </Table>
 </template>
 
