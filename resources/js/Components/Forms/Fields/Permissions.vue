@@ -36,35 +36,65 @@ const handleBox = (shopsSelected: string[], shopSlug: string) => {
     // }
 }
 
+const xxx = [
+    {
+        "Super admin": {
+            "organisations": ['awa', 'aw']
+        }
+    }
+]
+
+const abc = {
+    "Human resources supervisor": {
+        "Ancient Wisdom": {
+            "shops": ['uk', 'ed', 'awa'],
+            "warehouse": ['ed'],
+        },
+        "AW Gifts": {
+            "fulfilment": ['awf', 'es'],
+        }
+    },
+    "Super Admin": {
+        "AW Europe": {
+            "warehouse": ['ed', 'bl'],
+        }
+    }
+}
+
 
 </script>
 
 <template>
     <div class="flex flex-col gap-y-6">
         <!-- <pre>{{ form[fieldName] }}</pre> -->
-        <template v-for="permissions  in form[fieldName]" >
+        <template v-for="permissions, permissionsName, idxPermissions  in form[fieldName]" >
 
-            <!-- Permission Position -->
-            <!-- {{ permission }} -->
-                <div class="flex flex-col gap-y-2">
-                    <div class="font-medium text-xl">{{ permissions.position_name }}</div>
-                    <!-- Org and his shops -->
-                    <div  v-for="shopsSelected, orgSlug in permissions.organisations" class="flex flex-col">
-                        <div>{{ orgSlug }}:</div>
+                <!-- <pre>{{ Object.keys(permissions).length }}</pre> -->
+            <!-- <template> -->
+                <!-- Permission Position -->
+                    <div v-if="true || Object.keys(permissions).length" class="flex flex-col gap-y-2">
+                        <div class="font-medium text-xl">{{ permissionsName }}</div>
                 
-                        <!-- Shop list -->
-                        <div class="flex flex-wrap gap-x-1 gap-y-2">
-                            <div v-for="shopSlug in permissions.shops"
-                                @click="() => handleBox(shopsSelected, shopSlug)"
-                                class="w-min px-2 py-1 hover:bg-gray-200"
-                                :class="[shopsSelected.includes(shopSlug) ? 'bg-indigo-500 text-white rounded' : 'bg-gray-100']"
-                            >
-                                {{ shopSlug }}
+                        <!-- Org and his shops -->
+                        <div v-for="optionsData, optionsName in permissions" class="flex flex-col">
+                            <div class="capitalize">{{ optionsName }}:</div>
+
+                            <!-- Shop list -->
+                            <div class="flex flex-wrap gap-x-1 gap-y-2">
+                                <div v-for="option in optionsData">
+                                    <div v-for="xxslug in option"
+                                        @click="() => handleBox(optionsType, option)"
+                                        class="w-min px-2 py-1 hover:bg-gray-200"
+                                        :class="[false ? 'bg-indigo-500 text-white rounded' : 'bg-gray-100']"
+                                    >
+                                        {{ xxslug }}
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
                 
-                </div>
+                    </div>
+            <!-- </template> -->
         </template>
 
                 <!-- <Collapse v-model="question.isExpanded" :when="question.isExpanded" class="Collapse"
