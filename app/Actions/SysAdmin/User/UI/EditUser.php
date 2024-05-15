@@ -108,7 +108,7 @@ class EditUser extends InertiaAction
                             "permissions" => [
                                 "type"              => "permissions",
                                 "label"             => __("permissions"),
-                                "value"             => (object) $permissions,
+                                "value"             => $permissions,
                                 "fullComponentArea" => true,
                             ],
                         ],
