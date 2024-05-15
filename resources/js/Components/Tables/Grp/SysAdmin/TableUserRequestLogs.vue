@@ -20,7 +20,7 @@ const formatDate = (dateIso: Date) => {
 </script>
 
 <template>
-    <Table :resource="data" class="mt-5" name="hst">
+    <Table :resource="data" class="mt-5" name="vst">
         <template #cell(username)="{ item: user }">
             <template v-if="user.username">{{ user.username }}</template>
         </template>

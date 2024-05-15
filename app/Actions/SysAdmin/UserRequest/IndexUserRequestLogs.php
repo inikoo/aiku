@@ -9,6 +9,7 @@ namespace App\Actions\SysAdmin\UserRequest;
 
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
 use App\Actions\SysAdmin\UserRequest\Traits\WithFormattedRequestLogs;
+use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
 use App\InertiaTable\InertiaTable;
 use Closure;
 use Elastic\Elasticsearch\Client;
@@ -25,14 +26,14 @@ class IndexUserRequestLogs
     use AsObject;
     use WithFormattedRequestLogs;
 
-    public function handle($filter = 'VISIT'): LengthAwarePaginator|bool|array
+    public function handle($filter = ElasticsearchUserRequestTypeEnum::VISIT->value): LengthAwarePaginator|bool|array
     {
         $client = BuildElasticsearchClient::run();
 
         if ($client instanceof Client) {
             try {
                 $params  = [
-                    'index' => config('elasticsearch.index_prefix') . 'user_requests_' . app('currentTenant')->group->slug,
+                    'index' => config('elasticsearch.index_prefix') . 'user_requests_' . group()->slug,
                     'size'  => 10000,
                     'body'  => [
                         'query' => [
@@ -71,6 +72,7 @@ class IndexUserRequestLogs
         return function (InertiaTable $table) {
             $table
                 ->withGlobalSearch()
+                ->name('vst')
                 ->column(key: 'username', label: __('Username'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'ip_address', label: __('IP Address'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'url', label: __('URL'), canBeHidden: false, sortable: true)

@@ -19,10 +19,24 @@ enum UserTabsEnum: string
     case HISTORY      = 'history';
     case REQUEST_LOGS = 'request_logs';
 
+    case PERMISSIONS = 'permissions';
+    case ROLES       = 'roles';
 
     public function blueprint(): array
     {
         return match ($this) {
+            UserTabsEnum::PERMISSIONS => [
+                'title' => __('permissions'),
+                'icon'  => 'fal fa-shield-check',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
+            UserTabsEnum::ROLES => [
+                'title' => __('roles'),
+                'icon'  => 'fal fa-user-tag',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
             UserTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',

@@ -100,7 +100,7 @@ class IndexUsers extends InertiaAction
 
         return $queryBuilder->with('parent')
             ->defaultSort('username')
-            ->select(['username', 'parent_type', 'parent_id', 'email', 'contact_name', 'avatar_id'])
+            ->select(['username', 'parent_type', 'parent_id', 'email', 'contact_name', 'avatar_id', 'status'])
             ->allowedSorts(['username', 'email', 'parent_type', 'contact_name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -129,6 +129,7 @@ class IndexUsers extends InertiaAction
                 ->withTitle(title: __('Users'))
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
+                ->column(key: 'status', label: ['fal', 'fa-yin-yang'], type: 'icon')
                 ->column(key: 'avatar', label: ['fal', 'fa-user-circle'], type: 'avatar')
                 ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)

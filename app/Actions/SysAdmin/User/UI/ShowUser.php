@@ -83,6 +83,13 @@ class ShowUser extends GrpAction
                     fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))
                     : Inertia::lazy(fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username))),
 
+                UserTabsEnum::ROLES->value => $this->tab == UserTabsEnum::ROLES->value ?
+                    fn () => $user->roles->pluck('name')
+                    : Inertia::lazy(fn () => $user->roles->pluck('name')),
+
+                UserTabsEnum::PERMISSIONS->value => $this->tab == UserTabsEnum::PERMISSIONS->value ?
+                    fn () => $user->getAllPermissions()->pluck('name')
+                    : Inertia::lazy(fn () => $user->getAllPermissions()->pluck('name')),
 
                 UserTabsEnum::HISTORY->value => $this->tab == UserTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($user))

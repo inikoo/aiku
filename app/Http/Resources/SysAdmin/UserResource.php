@@ -28,6 +28,7 @@ class UserResource extends JsonResource
             'avatar'        => $user->avatarImageSources(48, 48),
             'email'         => $user->email,
             'about'         => $user->about,
+            'status'        => $user->status,
             'parent_type'   => $user->parent_type,
             'contact_name'  => $user->contact_name,
             'parent'        => $this->when($this->relationLoaded('parent'), function () {
