@@ -72,6 +72,7 @@ class IndexHistory
                 ->withGlobalSearch()
                 ->withExportLinks($exportLinks)
                 ->withModelOperations($modelOperations)
+                ->column(key: 'expand', label: '', type: 'icon')
                 ->column(key: 'datetime', label: __('Date'), canBeHidden: false, sortable: true)
                 ->column(key: 'user_name', label: __('User'), canBeHidden: false, sortable: true)
                 ->column(key: 'event', label: __('Action'), canBeHidden: false, sortable: true)
