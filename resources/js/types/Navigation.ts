@@ -23,9 +23,9 @@ export interface Navigation {
     label: string
     tooltip?: string
     scope?: string
-    icon: string[]
+    icon?: string[] | string
     route?: routeType
-    topMenu: {
+    topMenu?: {
         subSections?: SubSection[]
         dropdown?: {
             links: DropdownLink[]

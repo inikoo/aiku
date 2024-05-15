@@ -20,7 +20,7 @@ import { layoutStructure } from '@/Composables/useLayoutStructure'
 library.add(faRoute, faHandHoldingBox, faIndustry)
 
 const props = defineProps<{
-    navKey: string | number  // shops_navigation | warehouses_navigation
+    navKey?: string | number  // shops_navigation | warehouses_navigation
     nav: Navigation
 }>()
 
@@ -59,15 +59,16 @@ onUnmounted(() => {
                 {{ nav.label }}
             </span>
         </Transition>
-    <!-- If this Navigation is active, then teleport the SubSections to #TopBarSubsections in <AppTopBar> -->
-    <template v-if="isTopMenuActive && isNavigationActive(layout.currentRoute, props.nav.root || 'xx.xx.xx.xx')">
-        <Teleport to="#TopBarSubsections" :disabled="!isNavigationActive(layout.currentRoute, props.nav.root || 'xx.xx.xx.xx')">
-            <TopBarSubsections
-                v-if="nav.topMenu?.subSections"
-                :subSections="nav.topMenu.subSections"
-            />
-        </Teleport>
-    </template>
+
+        <!-- If this Navigation is active, then teleport the SubSections to #TopBarSubsections in <AppTopBar> -->
+        <template v-if="isTopMenuActive && nav.topMenu?.subSections && isNavigationActive(layout.currentRoute, props.nav.root || 'xx.xx.xx.xx')">
+            <Teleport to="#TopBarSubsections" :disabled="!isNavigationActive(layout.currentRoute, props.nav.root || 'xx.xx.xx.xx')">
+                <TopBarSubsections
+                    v-if="nav.topMenu?.subSections"
+                    :subSections="nav.topMenu.subSections"
+                />
+            </Teleport>
+        </template>
     </Link>
 
 </template>
