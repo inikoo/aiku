@@ -23,6 +23,16 @@ interface TypeWarehouse {
     state: string
 }
 
+interface TypeFulfilments {
+    code: string
+    id: number
+    name: string
+    sales: {}
+    slug: string
+    state: string
+    type: string
+}
+
 interface optionsJob {
     department: string
     icon?: string
@@ -53,6 +63,9 @@ const props = defineProps<{
                 name: string
                 number_employees: number
             }[]
+        }
+        fulfilments: {
+            data: TypeFulfilments
         }
         organisations: {}
         shops: {
@@ -141,7 +154,6 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 number_employees: props.options.positions.data.find(position => position.slug == 'mrk-c')?.number_employees || 0,
             }
         ],
-        options: props.options.shops.data?.filter(job => job.state == 'open'),
         optionsClosed: props.options.shops.data?.filter(job => job.state != 'open'),
         optionsSlug: props.options.shops.data?.filter(job => job.state == 'open').map(job => job.slug),
         // value: null
@@ -166,7 +178,6 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 number_employees: props.options.positions.data.find(position => position.slug == 'web-c')?.number_employees || 0,
             }
         ],
-        options: props.options.shops.data?.filter(job => job.state == 'open'),
         optionsClosed: props.options.shops.data?.filter(job => job.state != 'open'),
         optionsSlug: props.options.shops.data?.filter(job => job.state == 'open').map(job => job.slug),
         // value: null
@@ -210,7 +221,6 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 number_employees: props.options.positions.data.find(position => position.slug == 'wah-sc')?.number_employees || 0,
             }
         ],
-        options: props.options.warehouses.data,
         // value: null
     },
 
@@ -239,7 +249,6 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 number_employees: props.options.positions.data.find(position => position.slug == 'dist-pak')?.number_employees || 0,
             }
         ],
-        options: props.options.warehouses.data,
         // value: null
     },
 
@@ -280,7 +289,6 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 number_employees: props.options.positions.data.find(position => position.slug == 'cus-c')?.number_employees || 0,
             }
         ],
-        options: props.options.shops.data?.filter(job => job.state == 'open'),
         optionsClosed: props.options.shops.data?.filter(job => job.state != 'open'),
         optionsSlug: props.options.shops.data?.filter(job => job.state == 'open').map(job => job.slug),
         // value: null
@@ -311,11 +319,19 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 number_employees: props.options.positions.data.find(position => position.slug == 'ful-c')?.number_employees || 0,
             }
         ],
-        options: props.options.warehouses.data,
         optionsSlug: props.options.warehouses.data.map(job => job.slug),
         // value: null
     },
 })
+
+const optionsList = {
+    shops: props.options.shops.data?.filter(job => job.state == 'open'),
+    fulfilments: props.options.fulfilments.data, 
+    warehouses: props.options.warehouses.data,
+    positions: props.options.positions.data
+}
+
+console.log('options', props.options)
 
 // console.log('options Job', props.options.warehouses.data)
 // Temporary data
@@ -342,11 +358,11 @@ const handleClickSubDepartment = (department: string, subDepartmentSlug: any, op
         }
 
         // If department have 'options' (i.e. web, wah, cus)
-        if(optionsJob[department].options){
+        if(optionType.some(option => optionsList[option])){
             props.form[props.fieldName][subDepartmentSlug] = {}  // declare empty object so able to put new key
             for (const type in optionType) {
                 // type == 'fulfilment' | 'warehouse' | 'shop'
-                props.form[props.fieldName][subDepartmentSlug][optionType[type]] = optionsJob[department].options.map(xxx => xxx.slug)
+                props.form[props.fieldName][subDepartmentSlug][optionType[type]] = optionsList[optionType[type]].map(xxx => xxx.slug)
             }
         } else {
             // If department is simple department (have no shops/warehouses)
@@ -421,8 +437,6 @@ const productionLength = layout.organisations.data.find(organisation => organisa
 
 <template>
     <div class="relative">
-    <!-- <pre>{{ options.warehouses.data }} ======</pre> -->
-    <!-- <pre>{{ optionsJob.wah }}</pre> -->
         <div class="flex flex-col text-xs divide-y-[1px]">
             <template v-for="(jobGroup, departmentName, idxJobGroup) in optionsJob" :key="departmentName + idxJobGroup">
                 <div v-if="(departmentName === 'prod'  && productionLength > 0) || departmentName !== 'prod'" class="grid grid-cols-3 gap-x-1.5 px-2 items-center even:bg-gray-50 transition-all duration-200 ease-in-out">
@@ -464,23 +478,16 @@ const productionLength = layout.organisations.data.find(organisation => organisa
                                                 Object.keys(form[fieldName]).includes('admin') && departmentName != 'admin' ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-800'
                                             ]">
                                                 {{ subDepartment.label }}
-                                                <!-- {{ jobGroup.options?.filter(job => job.state == 'open').map(job => job.slug) }} -->
-                                                <!-- {{ jobGroup.optionsSlug?.every(value => form[fieldName][subDepartment.slug]?.includes(value)) }} -->
-                                                <!-- {{ (form[fieldName][subDepartment.slug] || []).every(value => jobGroup.options?.map(job => job.slug).includes(value)) }} -->
                                             </span>
                                         </span>
                                     </button>
                                 </template>
                             </div>
-                            <!-- Section: All shops & Fine tunes -->
-                            <div v-if="jobGroup.options && jobGroup.options.length > 1" class="flex gap-x-2 px-3">
-                                <!-- <div class="flex gap-x-1 items-center">
-                                    <input type="checkbox" :name="jobGroup.department + 'allshops'" :id="jobGroup.department + 'allshops'" class="h-3 w-3 appearance-none">
-                                    <label :for="jobGroup.department + 'allshops'" class="cursor-pointer">{{ jobGroup.department == 'Dispatch' || jobGroup.department == 'Warehouse' ? 'All warehouses' : 'All shops'}}</label>
-                                </div> -->
+
+                            <!-- Button: Advanced selection -->
+                            <div v-if="jobGroup.subDepartment.some(subDep => subDep.optionsType?.some(option => optionsList[option]?.length > 1))" class="flex gap-x-2 px-3">
                                 <button @click.prevent="() => openFinetune = openFinetune == jobGroup.department ? '' : jobGroup.department"
                                     class="underline disabled:no-underline whitespace-nowrap cursor-pointer disabled:cursor-auto disabled:text-gray-400"
-                                    :disabledsdsdsd="!Object.values(jobGroup.value || {}).some((item) => item)"
                                 >
                                     Advanced selection
                                 </button>
@@ -522,6 +529,7 @@ const productionLength = layout.organisations.data.find(organisation => organisa
                                         </div>
                                     </div>
                                 </div>
+                                
                                 <div v-if="jobGroup.optionsClosed?.length" class="px-2 bg-gray-400/20 py-2 rounded">
                                     <div class="flex items-center gap-x-1">
                                         <FontAwesomeIcon icon='fal fa-info-circle' class='h-3' fixed-width aria-hidden='true' />
@@ -541,17 +549,17 @@ const productionLength = layout.organisations.data.find(organisation => organisa
                 </div>
             </template>
         </div>
-        <!-- <pre>{{ form[fieldName] }}</pre> -->
 
         <!-- State: error icon & error description -->
-        <div v-if="form.errors[fieldName] || form.recentlySuccessful " class="mt-1 flex items-center gap-x-1.5 pointer-events-none">
-            <FontAwesomeIcon icon="fas fa-exclamation-circle" v-if="form.errors[fieldName]" class="h-5 w-5 text-red-500" aria-hidden="true" />
-            <FontAwesomeIcon icon="fas fa-check-circle" v-if="form.recentlySuccessful" class="h-5 w-5 text-green-500" aria-hidden="true"/>
-            <p v-if="form.errors[fieldName]" class="text-sm text-red-600 ">{{ form.errors[fieldName] }}</p>
+        <Transition name="spin-to-down">
+            <FontAwesomeIcon v-if="form.errors[fieldName]" icon="fas fa-exclamation-circle" class="absolute top-0 right-5 h-6 w-6 text-red-500" aria-hidden="true" />
+            <FontAwesomeIcon v-else-if="form.recentlySuccessful" icon="fas fa-check-circle" class="absolute top-0 right-5 h-6 w-6 text-green-500" aria-hidden="true"/>
+        </Transition>
+        <div v-if="form.errors[fieldName] " class="mt-1 flex items-center gap-x-1.5 pointer-events-none">
+            <p class="text-sm text-red-500 italic">*{{ form.errors[fieldName] }}</p>
         </div>
 
     </div>
 
-    <!-- <pre>{{ options }}</pre> -->
     <!-- <pre>{{ props.form[props.fieldName] }}</pre> -->
 </template>
