@@ -83,6 +83,7 @@ use App\Actions\Catalogue\Product\StorePhysicalGood;
 use App\Actions\Catalogue\Product\UpdatePhysicalGood;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\SyncPaymentAccountToShop;
+use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
@@ -118,6 +119,8 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('/working-place/', StoreWorkplace::class)->name('working-place.store');
     Route::post('/shop/', StoreShop::class)->name('shop.store');
     Route::post('/fulfilment/', StoreFulfilment::class)->name('fulfilment.store');
+
+    Route::post('/workplaces/{workplace:id}/clocking-machines', StoreClockingMachine::class)->name('workplaces.clocking-machines.store');
 
     Route::prefix('fulfilment/{fulfilment:id}/rentals')->name('fulfilment.rentals.')->group(function () {
         Route::post('/', StoreRental::class)->name('store');

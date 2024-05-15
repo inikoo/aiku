@@ -49,6 +49,7 @@ class ShowClockingMachine extends OrgAction
 
     public function htmlResponse(ClockingMachine $clockingMachine, ActionRequest $request): Response
     {
+        // dd($clockingMachine);
         return Inertia::render(
             'Org/HumanResources/ClockingMachine',
             [
@@ -67,7 +68,7 @@ class ShowClockingMachine extends OrgAction
                             'icon'  => ['fal', 'fa-chess-clock'],
                             'title' => __('clocking machines')
                         ],
-                    'title'   => $clockingMachine->code,
+                    'title'   => $clockingMachine->name,
                     'actions' => [
                         $this->canEdit ? [
                             'type'  => 'button',
@@ -145,7 +146,11 @@ class ShowClockingMachine extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
-        $headCrumb = function (ClockingMachine $clockingMachine, array $routeParameters, $suffix) {
+        $headCrumb = function ($clockingMachine, array $routeParameters, $suffix) {
+
+            $clockingMachine = ClockingMachine::where('slug', $routeParameters['index']['parameters']['clockingMachine'])->first();
+            // dd($routeParameters);
+            
             return [
                 [
                     'type'           => 'modelWithIndex',
@@ -170,6 +175,7 @@ class ShowClockingMachine extends OrgAction
                 (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['clockingMachine'],
+                    
                     [
                         'index' => [
                             'name'       => 'grp.org.hr.clocking-machines.index',
@@ -185,20 +191,19 @@ class ShowClockingMachine extends OrgAction
             ),
             'grp.org.hr.workplaces.show.clocking-machines.show' =>
             array_merge(
-                (new ShowWorkplace())->getBreadcrumbs($routeParameters['workplace']),
+                (new ShowWorkplace())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['clockingMachine'],
                     [
                         'index' => [
                             'name'       => 'grp.org.hr.workplaces.show.clocking-machines.index',
-                            'parameters' => [$routeParameters['workplace']->slug]
+                            'parameters' => $routeParameters
                         ],
                         'model' => [
                             'name'       => 'grp.org.hr.workplaces.show.clocking-machines.show',
-                            'parameters' => [
-                                $routeParameters['workplace']->slug,
-                                $routeParameters['clockingMachine']->slug
-                            ]
+                            'parameters' => $routeParameters
+                               
+                            
                         ]
                     ],
                     $suffix
@@ -210,14 +215,14 @@ class ShowClockingMachine extends OrgAction
 
     public function getPrevious(ClockingMachine $clockingMachine, ActionRequest $request): ?array
     {
-        $previous = ClockingMachine::where('code', '<', $clockingMachine->code)->orderBy('code', 'desc')->first();
+        $previous = ClockingMachine::where('slug', '<', $clockingMachine->slug)->orderBy('slug', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(ClockingMachine $clockingMachine, ActionRequest $request): ?array
     {
-        $next = ClockingMachine::where('code', '>', $clockingMachine->code)->orderBy('code')->first();
+        $next = ClockingMachine::where('slug', '>', $clockingMachine->slug)->orderBy('slug')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }

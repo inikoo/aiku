@@ -53,6 +53,7 @@ class ShowWorkplace extends OrgAction
 
     public function htmlResponse(Workplace $workplace, ActionRequest $request): Response
     {
+
         return Inertia::render(
             'Org/HumanResources/Workplace',
             [
@@ -163,16 +164,18 @@ class ShowWorkplace extends OrgAction
         )->table(
             IndexClockingMachines::make()->tableStructure(
                 parent: $workplace,
-                /* modelOperations: [
-                        'createLink' => $this->canEdit ? [
+                 modelOperations: [
+                        'createLink' => [
+                            [
                             'route' => [
                                 'name'       => 'grp.org.hr.workplaces.show.clocking-machines.create',
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'parameters' => array_values(request()->route()->originalParameters())
                             ],
-                            'label' => __('clocking machine')
-                        ] : false,
+                            'label' => __('create clocking machine')
+                            ]
+                        ]
                     ],
-                prefix: 'clocking_machines' */
+                prefix: 'clocking_machines'
             )
         )->table(IndexHistory::make()->tableStructure());
     }
@@ -185,8 +188,8 @@ class ShowWorkplace extends OrgAction
 
     public function getBreadcrumbs($routeParameters, $suffix = null): array
     {
+        // dd($routeParameters['workplace']);
         $workplace = Workplace::where('slug', $routeParameters['workplace'])->first();
-
         return array_merge(
             (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
             [
