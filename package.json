@@ -33,7 +33,7 @@
         "sass": "^1.69.5",
         "tailwindcss": "^3.1.0",
         "vite": "^4.3.8",
-        "vue": "^3.2.31"
+        "vue": "^3.4.27"
     },
     "dependencies": {
         "@fortawesome/fontawesome-free": "^6.4.2",
@@ -42,7 +42,7 @@
         "@fortawesome/free-regular-svg-icons": "^6.1.2",
         "@fortawesome/free-solid-svg-icons": "^6.1.2",
         "@fortawesome/vue-fontawesome": "^3.0.3",
-        "@headlessui/vue": "^1.7.0",
+        "@headlessui/vue": "^1.7.14",
         "@inertiajs/vue3": "^1.0.16",
         "@kyvg/vue3-notification": "^3.1.2",
         "@revolist/revo-dropdown": "^2.0.1",
@@ -68,6 +68,7 @@
         "@vueform/multiselect": "^2.6.2",
         "@vuepic/vue-datepicker": "^5.1.1",
         "chart.js": "^4.4.1",
+        "clipboard": "^2.0.11",
         "floating-vue": "^2.0.0-beta.24",
         "grapesjs": "^0.21.9",
         "grapesjs-blocks-basic": "^1.0.2",
@@ -91,6 +92,7 @@
         "vue-cookies": "^1.8.1",
         "vue-countup-v3": "^1.4.0",
         "vue-currency-input": "^3.1.0",
+        "vue-json-viewer": "^3.0.4",
         "vue-resizable": "^2.1.7",
         "vue-tel-input": "^8.1.1",
         "vue3-popper": "^1.5.0",

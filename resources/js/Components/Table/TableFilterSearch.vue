@@ -2,9 +2,10 @@
 import { onMounted, onUnmounted } from 'vue'
 import { trans } from 'laravel-vue-i18n'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faFilter, faTimesCircle, faFileSearch } from '@fal'
+import { faFilter, faTimesCircle } from '@fal'
+import { faSearch } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faFilter, faTimesCircle, faFileSearch)
+library.add(faFilter, faTimesCircle, faSearch)
 
 const emit = defineEmits(['resetSearch'])
 
@@ -52,7 +53,7 @@ const isUserMac = navigator.platform.includes('Mac')  // To check the user's Ope
             :class="[value ? 'border-2 border-gray-500 focus:border-gray-500 text-gray-500 w-full' : 'group-focus-within:w-full group-focus-within:pr-9 border-0 border-r border-gray-300 focus:border-gray-300']"
         >
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none space-x-1.5">
-            <FontAwesomeIcon icon="fal fa-file-search" class="h-5 w-5" aria-hidden="true"
+            <FontAwesomeIcon icon="far fa-search" class="h-5 w-5" aria-hidden="true"
                 :class="[value ? 'text-gray-500' : 'text-gray-400']" 
             />
             <span v-if="isUserMac" class="ring-1 ring-gray-400 bg-gray-100 px-2 leading-none py-0.5 text-base rounded">⌥</span>
