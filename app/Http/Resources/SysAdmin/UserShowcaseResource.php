@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\SysAdmin;
 
+use App\Actions\SysAdmin\User\LogUserRequest;
 use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
 use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Support\Arrayable;
@@ -30,10 +31,10 @@ class UserShowcaseResource extends JsonResource
             'contact_name'            => $user->contact_name,
             'authorizedOrganisations' => OrganisationsResource::collection($user->authorisedOrganisations),
             'permissions'             => $user->getAllPermissions()->pluck('name')->toArray(),
-            'lastLogged'              => null,
-            'loggedIn'                => [
-                'status'  => true,
-                'section' => 'section'
+            'last_active_at'          => $user->stats->last_active_at,
+            'last_login'              => [
+                'ip'          => $user->stats->last_login_ip,
+                'geolocation' => LogUserRequest::make()->getLocation($user->stats->last_login_ip)
             ]
         ];
     }

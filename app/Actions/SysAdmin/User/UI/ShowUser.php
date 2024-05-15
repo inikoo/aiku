@@ -90,7 +90,7 @@ class ShowUser extends GrpAction
 
             ]
         )->table(ShowUserRequestLogs::make()->tableStructure())
-            ->table(IndexHistory::make()->tableStructure());
+            ->table(IndexHistory::make()->tableStructure('hst'));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
