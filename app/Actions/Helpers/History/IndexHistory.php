@@ -75,6 +75,8 @@ class IndexHistory
                 ->column(key: 'expand', label: '', type: 'icon')
                 ->column(key: 'datetime', label: __('Date'), canBeHidden: false, sortable: true)
                 ->column(key: 'user_name', label: __('User'), canBeHidden: false, sortable: true)
+                ->column(key: 'old_values', label: __('Old Value'), canBeHidden: false, sortable: true)
+                ->column(key: 'new_values', label: __('New Value'), canBeHidden: false, sortable: true)
                 ->column(key: 'event', label: __('Action'), canBeHidden: false, sortable: true)
                 ->defaultSort('ip_address');
         };
