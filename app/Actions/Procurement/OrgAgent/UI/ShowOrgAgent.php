@@ -221,7 +221,7 @@ class ShowOrgAgent extends InertiaAction
                  ],
                  prefix: 'suppliers' */
             )
-        )->table(IndexHistory::make()->tableStructure());
+        )->table(IndexHistory::make()->tableStructure('hst'));
     }
 
 

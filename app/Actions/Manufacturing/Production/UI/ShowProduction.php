@@ -117,7 +117,7 @@ class ShowProduction extends OrgAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($production)))
 
             ]
-        )->table(IndexHistory::make()->tableStructure());
+        )->table(IndexHistory::make()->tableStructure('hst'));
     }
 
 

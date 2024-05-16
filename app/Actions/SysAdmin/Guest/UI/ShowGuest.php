@@ -85,7 +85,7 @@ class ShowGuest extends InertiaAction
                     fn () => HistoryResource::collection(IndexHistory::run($guest))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($guest)))
             ]
-        )->table(IndexHistory::make()->tableStructure());
+        )->table(IndexHistory::make()->tableStructure('hst'));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array

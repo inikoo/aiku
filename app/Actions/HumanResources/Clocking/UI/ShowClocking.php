@@ -143,7 +143,7 @@ class ShowClocking extends OrgAction
                     fn () => HistoryResource::collection(IndexHistory::run($clocking))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($clocking)))
             ]
-        )->table(IndexHistory::make()->tableStructure());
+        )->table(IndexHistory::make()->tableStructure('hst'));
     }
 
 

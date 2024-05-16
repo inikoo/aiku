@@ -195,7 +195,7 @@ class ShowWarehouse extends OrgAction
                 ], */
                 prefix: WarehouseTabsEnum::LOCATIONS->value
             )
-        )->table(IndexHistory::make()->tableStructure());
+        )->table(IndexHistory::make()->tableStructure('hst'));
     }
 
 

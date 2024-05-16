@@ -173,7 +173,7 @@ class ShowOrgSupplier extends OrgAction
             ->table(IndexSupplierProducts::make()->tableStructure())
             ->table(IndexPurchaseOrders::make()->tableStructure())
             ->table(IndexSupplierDeliveries::make()->tableStructure())
-            ->table(IndexHistory::make()->tableStructure());
+            ->table(IndexHistory::make()->tableStructure('hst'));
     }
 
 

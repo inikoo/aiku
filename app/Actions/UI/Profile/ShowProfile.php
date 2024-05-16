@@ -129,7 +129,7 @@ class ShowProfile extends GrpAction
             ],
         ], prefix: ProfileTabsEnum::TIMESHEETS->value))
         ->table(ShowUserRequestLogs::make()->tableStructure())
-        ->table(IndexHistory::make()->tableStructure());
+        ->table(IndexHistory::make()->tableStructure('hst'));
     }
 
     public function getBreadcrumbs(): array

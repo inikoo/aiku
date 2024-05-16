@@ -128,7 +128,7 @@ class ShowArtefact extends OrgAction
                 parent: $artefact,
                 prefix: ArtefactTabsEnum::LOCATIONS->value
             )
-        )->table(IndexHistory::make()->tableStructure());
+        )->table(IndexHistory::make()->tableStructure('hst'));
     }
 
 
