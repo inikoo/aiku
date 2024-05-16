@@ -48,7 +48,7 @@ class ShowClockingMachine extends OrgAction
         if ($clockingMachine) {
 
             return $clockingMachine;
-            
+
         } else {
 
             throw new \Exception('ClockingMachine not found');
@@ -166,7 +166,7 @@ class ShowClockingMachine extends OrgAction
 
             $clockingMachine = ClockingMachine::where('slug', $routeParameters['index']['parameters']['clockingMachine'])->first();
             // dd($routeParameters);
-            
+
             return [
                 [
                     'type'           => 'modelWithIndex',
@@ -191,7 +191,6 @@ class ShowClockingMachine extends OrgAction
                 (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['clockingMachine'],
-                    
                     [
                         'index' => [
                             'name'       => 'grp.org.hr.clocking-machines.index',
@@ -218,8 +217,8 @@ class ShowClockingMachine extends OrgAction
                         'model' => [
                             'name'       => 'grp.org.hr.workplaces.show.clocking-machines.show',
                             'parameters' => $routeParameters
-                               
-                            
+
+
                         ]
                     ],
                     $suffix

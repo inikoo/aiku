@@ -72,20 +72,20 @@ class IndexClockingMachines extends OrgAction
                 ->withEmptyState(
                     [
                         'title'       => __('no clocking machines'),
-                        'description' =>  __('Get started by creating a new clocking machine.'),
+                        'description' => __('Get started by creating a new clocking machine.'),
                         'count'       => class_basename($parent == 'Organisation') ? $parent->humanResourcesStats->number_clocking_machines : $parent->stats->number_clocking_machines,
-                        
-                        'action' =>   [
-                        'type' => 'button',
-                        'style' => 'create',
+
+                        'action' => [
+                        'type'    => 'button',
+                        'style'   => 'create',
                         'tooltip' => __('new clocking machine'),
-                        'label' => __('clocking machine'),
-                        'route' => [
-                            'name' => 'grp.org.hr.workplaces.show.clocking-machines.create',
+                        'label'   => __('clocking machine'),
+                        'route'   => [
+                            'name'       => 'grp.org.hr.workplaces.show.clocking-machines.create',
                             'parameters' => request()->route()->originalParameters()
                             ]
-                        ] 
-                        
+                        ]
+
                     ]
                 )
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)

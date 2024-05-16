@@ -7,7 +7,6 @@
 
 namespace App\Actions\UI\Profile;
 
-use App\Models\Catalogue\ProductCategory;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsObject;
 

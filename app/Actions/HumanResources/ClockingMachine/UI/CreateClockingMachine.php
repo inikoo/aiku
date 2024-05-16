@@ -57,7 +57,7 @@ class CreateClockingMachine extends OrgAction
                         ],
                     ],
                     'route'     => [
-                        'name'      => 'grp.models.org.workplaces.clocking-machines.store',
+                        'name'       => 'grp.models.org.workplaces.clocking-machines.store',
                         'parameters' => [
                             'organisation' => $request->route()->parameter('organisation')->id,
                             'workplace'    => $request->route()->parameter('workplace')->id

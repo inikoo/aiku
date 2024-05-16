@@ -105,21 +105,21 @@ class IndexProducts extends OrgAction
             ])
             ->leftJoin('product_stats', 'products.id', 'product_stats.product_id');
 
-            if (class_basename($parent) == 'Shop') {
-                $queryBuilder->where('products.shop_id', $parent->id);
-            } elseif (class_basename($parent) == 'Organisation') {
-                $queryBuilder->where('products.organisation_id', $parent->id);
-                $queryBuilder->leftJoin('shops', 'products.shop_id', 'shops.id');
-                $queryBuilder->addSelect(
-                    'shops.slug as shop_slug',
-                    'shops.code as shop_code',
-                    'shops.name as shop_name',
-                );
-            } elseif (class_basename($parent) == 'ProductCategory') {
-                $queryBuilder->where('products.department_id', $parent->id);
-            } else {
-                abort(419);
-            }
+        if (class_basename($parent) == 'Shop') {
+            $queryBuilder->where('products.shop_id', $parent->id);
+        } elseif (class_basename($parent) == 'Organisation') {
+            $queryBuilder->where('products.organisation_id', $parent->id);
+            $queryBuilder->leftJoin('shops', 'products.shop_id', 'shops.id');
+            $queryBuilder->addSelect(
+                'shops.slug as shop_slug',
+                'shops.code as shop_code',
+                'shops.name as shop_name',
+            );
+        } elseif (class_basename($parent) == 'ProductCategory') {
+            $queryBuilder->where('products.department_id', $parent->id);
+        } else {
+            abort(419);
+        }
 
         return $queryBuilder->allowedSorts(['code', 'name', 'shop_slug', 'department_slug', 'family_slug'])
             ->allowedFilters([$globalSearch])
