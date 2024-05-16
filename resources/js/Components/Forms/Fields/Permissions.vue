@@ -19,14 +19,14 @@ const props = defineProps<{
     fieldName: string
     options?: any
     fieldData?: {
-        
+
     }
 }>()
 
 const handleBox = (shopsSelected: string[], shopSlug: string) => {
     // console.log('ffff', shopsSelected)
     // if (shopsSelected.includes(shopSlug)) {
-        
+
     //     const indexShopSlug = shopsSelected.indexOf(shopSlug)
     //     if (indexShopSlug !== -1) {
     //         shopsSelected.splice(indexShopSlug, 1)
@@ -41,7 +41,7 @@ const handleBox = (shopsSelected: string[], shopSlug: string) => {
 
 <template>
     <div class="flex flex-col gap-y-6">
-        <!-- <pre>{{ form[fieldName] }}</pre> -->
+<!--         <pre>{{ form[fieldName] }}</pre>-->
         <template v-for="permissions  in form[fieldName]" >
 
             <!-- Permission Position -->
@@ -51,7 +51,7 @@ const handleBox = (shopsSelected: string[], shopSlug: string) => {
                     <!-- Org and his shops -->
                     <div  v-for="shopsSelected, orgSlug in permissions.organisations" class="flex flex-col">
                         <div>{{ orgSlug }}:</div>
-                
+
                         <!-- Shop list -->
                         <div class="flex flex-wrap gap-x-1 gap-y-2">
                             <div v-for="shopSlug in permissions.shops"
@@ -63,7 +63,7 @@ const handleBox = (shopsSelected: string[], shopSlug: string) => {
                             </div>
                         </div>
                     </div>
-                
+
                 </div>
         </template>
 

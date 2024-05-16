@@ -11,6 +11,7 @@ use App\Actions\InertiaAction;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
@@ -42,27 +43,42 @@ class EditUser extends InertiaAction
     {
         $roles       = collect(RolesEnum::cases());
         $permissions = $roles->map(function ($role) {
-            return [$role->label() => match ($role->scope()) {
-                class_basename(Group::class) => Group::all()->map(function (Group $group) {
-                    return [$group->name => [
-                        'organisations' => $group->organisations->pluck('slug')
+
+            // Helper function to map organisations with given relation and role
+            $mapOrganisations = function ($relation, $role) {
+                return Organisation::all()->map(function (Organisation $organisation) use ($role, $relation) {
+                    return [$role->label() => [
+                        $organisation->name => (object) [
+                            $relation => $organisation->$relation->pluck('slug')->toArray()
+                        ]
                     ]];
-                }),
+                })->reduce(function ($carry, $item) {
+                    return array_merge_recursive($carry, $item);
+                }, []);
+            };
+
+            return match ($role->scope()) {
+                class_basename(Group::class) => Group::all()->map(function (Group $group) use ($role) {
+                    return [$role->label() => [
+                        $group->name => (object) [
+                            'groups' => $group->slug
+                        ]
+                    ]];
+                })->reduce(function ($carry, $item) {
+                    return array_merge_recursive($carry, $item);
+                }, []),
+
                 class_basename(Organisation::class) => [
-                    'organisations' => Organisation::all()->pluck('slug')
+                    [$role->label() => [
+                        Organisation::all()->pluck('name')->toArray()
+                    ]]
                 ],
-                class_basename(Shop::class) => Organisation::all()->map(function (Organisation $organisation) {
-                    return [$organisation->name => [
-                        'shops' => $organisation->shops->pluck('slug')
-                    ]];
-                }),
-                class_basename(Fulfilment::class) => Organisation::all()->map(function (Organisation $organisation) {
-                    return [$organisation->name => [
-                        'fulfilments' => $organisation->fulfilments->pluck('slug')
-                    ]];
-                }),
+                class_basename(Shop::class)       => $mapOrganisations('shops', $role),
+                class_basename(Fulfilment::class) => $mapOrganisations('fulfilments', $role),
+                class_basename(Warehouse::class)  => $mapOrganisations('warehouses', $role),
+
                 default => []
-            }];
+            };
         });
 
         return Inertia::render("EditModel", [
