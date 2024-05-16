@@ -16,15 +16,19 @@ import TableTimesheets from "@/Components/Tables/Grp/Org/HumanResources/TableTim
 import TableUserRequestLogs from "@/Components/Tables/Grp/SysAdmin/TableUserRequestLogs.vue"
 import ProfileShowcase from "@/Components/Profile/ProfileShowcase.vue"
 
+import { faIdCard } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faIdCard)
+
 
 const props = defineProps<{
     title: string,
     pageHead: TSPageHeading
-    tabs: TSTabs,
+    tabs: TSTabs
     history?: {}
     timesheets?: {}
     visit_logs?: {}
-    showcase: {}
+    showcase?: {}
 
 }>()
 
@@ -34,9 +38,9 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
     const components: Component = {
         showcase: ProfileShowcase,
-        history: TableHistories,
-        timesheets: TableTimesheets,
         visit_logs: TableUserRequestLogs,
+        timesheets: TableTimesheets,
+        history: TableHistories,
         // today_timesheets: TableTimesheets,
     }
 

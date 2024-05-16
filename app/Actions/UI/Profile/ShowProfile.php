@@ -10,7 +10,6 @@ namespace App\Actions\UI\Profile;
 use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
-use App\Actions\OrgAction;
 use App\Actions\SysAdmin\UserRequest\ShowUserRequestLogs;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
@@ -102,9 +101,9 @@ class ShowProfile extends GrpAction
             //     fn () => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TODAY_TIMESHEETS->value, true))
             //     : Inertia::lazy(fn () => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TODAY_TIMESHEETS->value, true))),
 
-            'auth'          => [
-                    'user' => LoggedUserResource::make($user)->getArray(),
-                ],
+            // 'auth'          => [
+            //         'user' => LoggedUserResource::make($user)->getArray(),
+            //     ],
 
         ]
         )

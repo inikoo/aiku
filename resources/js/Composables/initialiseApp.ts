@@ -145,7 +145,7 @@ export const initialiseApp = () => {
             locale.languageOptions = usePage().props.localeData.languageOptions
         }
 
-        // Set data of User
+        // Set data of User (comes from app/Http/Resources/UI/LoggedUserResource.php)
         if (usePage().props.auth.user) {
             layout.user = usePage().props.auth.user
         }
