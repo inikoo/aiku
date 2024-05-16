@@ -47,20 +47,22 @@ class EditEmployee extends OrgAction
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
         $jobPositionsData = (object) $employee->jobPositions->map(function ($jobPosition) {
-            return [
-                $jobPosition->code => match (key($jobPosition->pivot->scopes)) {
+            $scopes = collect($jobPosition->pivot->scopes)->mapWithKeys(function ($scopeIds, $scope) use ($jobPosition) {
+                return match ($scope) {
                     'Warehouse' => [
-                        'warehouses' => $this->organisation->warehouses->whereIn('id', $jobPosition->pivot->scopes['Warehouse'])->pluck('slug')->toArray()
+                        'warehouses' => $this->organisation->warehouses->whereIn('id', $scopeIds)->pluck('slug')->toArray()
                     ],
                     'Shop' => [
-                        'shops' => $this->organisation->shops->whereIn('id', $jobPosition->pivot->scopes['Shop'])->pluck('slug')->toArray()
+                        'shops' => $this->organisation->shops->whereIn('id', $scopeIds)->pluck('slug')->toArray()
                     ],
                     'Fulfilment' => [
-                        'fulfilments' => $this->organisation->fulfilments->whereIn('id', $jobPosition->pivot->scopes['Fulfilment'])->pluck('slug')->toArray()
+                        'fulfilments' => $this->organisation->fulfilments->whereIn('id', $scopeIds)->pluck('slug')->toArray()
                     ],
                     default => []
-                }
-            ];
+                };
+            });
+
+            return [$jobPosition->code => $scopes->toArray()];
         })->reduce(function ($carry, $item) {
             return array_merge_recursive($carry, $item);
         }, []);

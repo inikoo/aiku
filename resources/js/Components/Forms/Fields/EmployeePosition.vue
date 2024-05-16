@@ -1,4 +1,4 @@
-<script setup lang="ts">
+    <script setup lang="ts">
 import { inject, reactive, ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faCheckCircle as falCheckCircle } from '@fal'
@@ -326,7 +326,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
 
 const optionsList = {
     shops: props.options.shops.data?.filter(job => job.state == 'open'),
-    fulfilments: props.options.fulfilments.data, 
+    fulfilments: props.options.fulfilments.data,
     warehouses: props.options.warehouses.data,
     positions: props.options.positions.data
 }
@@ -529,7 +529,7 @@ const productionLength = layout.organisations.data.find(organisation => organisa
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div v-if="jobGroup.optionsClosed?.length" class="px-2 bg-gray-400/20 py-2 rounded">
                                     <div class="flex items-center gap-x-1">
                                         <FontAwesomeIcon icon='fal fa-info-circle' class='h-3' fixed-width aria-hidden='true' />

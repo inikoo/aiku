@@ -25,7 +25,7 @@ Route::name('api.')->group(function () {
     Route::prefix('clocking')->as('clocking.')->group(function () {
         Route::get('clocking-machine/{qr}', [ShowClockingMachine::class, 'inApi'])->name('clocking-machine.qr.show');
         Route::post('employees/pin', [ShowEmployee::class, 'inApi'])->name('employees.pin.show');
-        Route::post('{clockingMachine:id}/clocking-machine/{employee:id}/employees', [StoreClocking::class, 'inApi'])
+        Route::post('clocking-machine/{clockingMachine:id}/employees/{employee:id}', [StoreClocking::class, 'inApi'])
             ->name('clocking-machine.employee.store')->withoutScopedBindings();
     });
 });
