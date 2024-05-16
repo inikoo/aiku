@@ -17,14 +17,15 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $notes
  * @property string $workplace_slug
  * @property string $clocking_machine_slug
+ * @property mixed $clocked_at
  */
-class ClockingResource extends JsonResource
+class ClockingsResource extends JsonResource
 {
     public function toArray($request): array
     {
         return [
             'id'                    => $this->id,
-            'slug'                  => $this->slug,
+            'clocked_at'            => $this->clocked_at,
             'type'                  => $this->type,
             'notes'                 => $this->notes,
             'workplace_slug'        => $this->workplace_slug,

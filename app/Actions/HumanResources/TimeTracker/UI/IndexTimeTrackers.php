@@ -1,20 +1,20 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Wed, 15 Mar 2023 11:34:32 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 16 May 2024 20:26:25 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\Clocking\UI;
+namespace App\Actions\HumanResources\TimeTracker\UI;
 
 use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
 use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
 use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Http\Resources\HumanResources\ClockingsResource;
-use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Timesheet;
+use App\Models\HumanResources\TimeTracker;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use Closure;
@@ -26,49 +26,43 @@ use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use App\Services\QueryBuilder;
 
-class IndexClockings extends OrgAction
+class IndexTimeTrackers extends OrgAction
 {
     private Organisation|Workplace|ClockingMachine|Timesheet $parent;
 
     public function handle(Organisation|Workplace|ClockingMachine|Timesheet $parent, $prefix = null): LengthAwarePaginator
     {
-
-
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
-        $queryBuilder = QueryBuilder::for(Clocking::class);
+        $queryBuilder = QueryBuilder::for(TimeTracker::class);
 
         switch (class_basename($parent)) {
             case 'ClockingMachine':
-                $queryBuilder->where('clockings.clocking_machine_id', $parent->id);
+                $queryBuilder->where('time_trackers.clocking_machine_id', $parent->id);
                 break;
             case 'Workplace':
-                $queryBuilder->where('clockings.workplace_id', $parent->id);
+                $queryBuilder->where('time_trackers.workplace_id', $parent->id);
                 break;
             case 'Organisation':
-                $queryBuilder->where('clockings.organisation_id', $parent->id);
+                $queryBuilder->where('time_trackers.organisation_id', $parent->id);
                 break;
             case 'Timesheet':
-                $queryBuilder->where('clockings.timesheet_id', $parent->id);
+                $queryBuilder->where('time_trackers.timesheet_id', $parent->id);
                 break;
         }
 
         return $queryBuilder
-            ->defaultSort('clockings.clocked_at')
+            ->defaultSort('time_trackers.starts_at')
             ->select(
                 [
-                    'clocked_at',
-                    'clockings.id',
-                    'clockings.type',
-                    'workplaces.slug as workplace_slug',
-                    'clocking_machines.slug as clocking_machine_slug',
-                    'clocking_machine_id'
+                    'starts_at',
+                    'ends_at',
+                    'duration',
+                    'time_trackers.id',
                 ]
             )
-            ->leftJoin('workplaces', 'clockings.workplace_id', 'workplaces.id')
-            ->leftJoin('clocking_machines', 'clockings.clocking_machine_id', 'clocking_machines.id')
-            ->allowedSorts(['clocked_at'])
+            ->allowedSorts(['starts_at'])
             ->withPaginator($prefix)
             ->withQueryString();
     }
@@ -78,7 +72,6 @@ class IndexClockings extends OrgAction
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
-
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
@@ -94,29 +87,33 @@ class IndexClockings extends OrgAction
                             class_basename($parent) == 'ClockingMachine' ? $parent->humanResourcesStats?->number_clockings : $parent->stats?->number_clockings,
                     ]
                 )
-                ->column(key: 'clocked_at', label: __('time'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('slug');
+                ->column(key: 'starts_at', label: __('clocked in'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'ends_at', label: __('clocked out'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('starts_at');
         };
     }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$organisation;
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request);
+
         return $this->handle(parent: $organisation);
     }
 
     public function inWorkplace(Organisation $organisation, Workplace $workplace, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$workplace;
+        $this->parent = $workplace;
         $this->initialisation($organisation, $request);
+
         return $this->handle(parent: $workplace);
     }
 
     public function inClockingMachine(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$clockingMachine;
+        $this->parent = $clockingMachine;
         $this->initialisation($organisation, $request);
+
         return $this->handle(parent: $clockingMachine);
     }
 
@@ -124,7 +121,7 @@ class IndexClockings extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWorkplaceInClockingMachine(Organisation $organisation, Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$clockingMachine;
+        $this->parent = $clockingMachine;
         $this->initialisation($organisation, $request);
 
         return $this->handle(parent: $clockingMachine);
@@ -147,7 +144,7 @@ class IndexClockings extends OrgAction
     public function htmlResponse(LengthAwarePaginator $clockings, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/HumanResources/Clockings',
+            'Org/HumanResources/TimeTrackers',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),

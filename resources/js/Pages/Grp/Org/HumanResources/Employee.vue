@@ -11,15 +11,11 @@ import { faEnvelope, faIdCard, faPhone, faSignature, faUser, faBirthdayCake, faV
 import {faCheckCircle} from '@fas';
 import { router } from '@inertiajs/vue3'
 import { capitalize } from "@/Composables/capitalize"
-
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-
-
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Components/ModelDetails.vue";
 import DataModel from "@/Components/DataModel.vue";
-
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
 import TableTimesheets from "@/Components/Tables/Grp/Org/HumanResources/TableTimesheets.vue";

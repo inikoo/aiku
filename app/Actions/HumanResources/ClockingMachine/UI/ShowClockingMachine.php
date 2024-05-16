@@ -15,7 +15,7 @@ use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\HumanResources\ClockingMachineTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
-use App\Http\Resources\HumanResources\ClockingResource;
+use App\Http\Resources\HumanResources\ClockingsResource;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
@@ -142,8 +142,8 @@ class ShowClockingMachine extends OrgAction
                     : Inertia::lazy(fn () => GetClockingMachineShowcase::run($clockingMachine)),
 
                 ClockingMachineTabsEnum::CLOCKINGS->value => $this->tab == ClockingMachineTabsEnum::CLOCKINGS->value ?
-                    fn () => ClockingResource::collection(IndexClockings::run($clockingMachine))
-                    : Inertia::lazy(fn () => ClockingResource::collection(IndexClockings::run($clockingMachine))),
+                    fn () => ClockingsResource::collection(IndexClockings::run($clockingMachine))
+                    : Inertia::lazy(fn () => ClockingsResource::collection(IndexClockings::run($clockingMachine))),
 
                 ClockingMachineTabsEnum::HISTORY->value => $this->tab == ClockingMachineTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($clockingMachine))

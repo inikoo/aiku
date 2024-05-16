@@ -8,7 +8,7 @@
 import { Link } from "@inertiajs/vue3";
 import Table from "@/Components/Table/Table.vue";
 import { Payment } from "@/types/payment";
-import { useFormatTime } from "@/Composables/useFormatTime copy";
+import { useFormatTime } from "@/Composables/useFormatTime";
 
 const props = defineProps<{
     data: object,

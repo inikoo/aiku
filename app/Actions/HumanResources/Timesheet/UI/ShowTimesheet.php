@@ -7,11 +7,17 @@
 
 namespace App\Actions\HumanResources\Timesheet\UI;
 
+use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\HumanResources\Clocking\UI\IndexClockings;
 use App\Actions\HumanResources\Employee\UI\ShowEmployee;
+use App\Actions\HumanResources\TimeTracker\UI\IndexTimeTrackers;
 use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
-use App\Enums\UI\HumanResources\EmployeeTabsEnum;
+use App\Enums\UI\HumanResources\TimesheetTabsEnum;
+use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\HumanResources\ClockingsResource;
 use App\Http\Resources\HumanResources\TimesheetsResource;
+use App\Http\Resources\HumanResources\TimeTrackersResource;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Timesheet;
 use App\Models\SysAdmin\Guest;
@@ -41,7 +47,7 @@ class ShowTimesheet extends OrgAction
     public function asController(Organisation $organisation, Timesheet $timesheet, ActionRequest $request): Timesheet
     {
         $this->parent = $organisation;
-        $this->initialisation($organisation, $request)->withTab(EmployeeTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(TimesheetTabsEnum::values());
 
         return $this->handle($timesheet);
     }
@@ -49,7 +55,7 @@ class ShowTimesheet extends OrgAction
     public function inEmployee(Organisation $organisation, Employee $employee, Timesheet $timesheet, ActionRequest $request): Timesheet
     {
         $this->parent = $employee;
-        $this->initialisation($organisation, $request)->withTab(EmployeeTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(TimesheetTabsEnum::values());
 
         return $this->handle($timesheet);
     }
@@ -80,10 +86,32 @@ class ShowTimesheet extends OrgAction
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => []
-                ]
+                    'navigation' => TimesheetTabsEnum::navigation()
+                ],
+
+
+                TimesheetTabsEnum::TIME_TRACKERS->value => $this->tab == TimesheetTabsEnum::TIME_TRACKERS->value ?
+                    fn () => TimeTrackersResource::collection(IndexTimeTrackers::run($timesheet, TimesheetTabsEnum::TIME_TRACKERS->value))
+                    : Inertia::lazy(fn () => TimeTrackersResource::collection(IndexTimeTrackers::run($timesheet, TimesheetTabsEnum::TIME_TRACKERS->value))),
+
+
+                TimesheetTabsEnum::CLOCKINGS->value => $this->tab == TimesheetTabsEnum::CLOCKINGS->value ?
+                    fn () => ClockingsResource::collection(IndexClockings::run($timesheet, TimesheetTabsEnum::CLOCKINGS->value))
+                    : Inertia::lazy(fn () => ClockingsResource::collection(IndexClockings::run($timesheet, TimesheetTabsEnum::CLOCKINGS->value))),
+
+
+                TimesheetTabsEnum::HISTORY->value => $this->tab == TimesheetTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistory::run($timesheet))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($timesheet))),
+
             ]
-        );
+        )->table(IndexClockings::make()->tableStructure(
+            parent:$timesheet,
+            prefix: TimesheetTabsEnum::CLOCKINGS->value
+        ))->table(IndexTimeTrackers::make()->tableStructure(
+            parent:$timesheet,
+            prefix: TimesheetTabsEnum::TIME_TRACKERS->value
+        ));
     }
 
 
@@ -139,7 +167,6 @@ class ShowTimesheet extends OrgAction
                                         'parameters' => [
                                             'organisation' => $this->organisation->slug,
                                             'employee'     => $timesheet->subject->slug,
-                                            'tab'          => EmployeeTabsEnum::TIMESHEETS->value
                                         ]
                                     ],
                                     'label' => __('timesheets')

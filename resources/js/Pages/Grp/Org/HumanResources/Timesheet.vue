@@ -5,81 +5,59 @@
   -->
 
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
-import {library} from '@fortawesome/fontawesome-svg-core';
-import { faEnvelope, faIdCard, faPhone, faSignature, faUser, faBirthdayCake, faVenusMars, faHashtag, faHeading, faHospitalUser, faClock, faPaperclip, faTimes, faCameraRetro} from '@fal';
-import {faCheckCircle} from '@fas';
-import { router } from '@inertiajs/vue3'
-import { capitalize } from "@/Composables/capitalize"
-
-import PageHeading from '@/Components/Headings/PageHeading.vue';
-
-library.add(
-    faIdCard,
-    faUser,
-    faCheckCircle,
-    faSignature,
-    faEnvelope,
-    faPhone,
-    faIdCard,
-    faBirthdayCake,
-    faVenusMars,
-    faHashtag,
-    faHeading,
-    faHospitalUser,
-    faClock,
-    faPaperclip,
-    faTimes,
-    faCameraRetro
-)
-import { computed, defineAsyncComponent, ref } from "vue";
+import { Head } from "@inertiajs/vue3";
+import { capitalize } from "@/Composables/capitalize";
+import PageHeading from "@/Components/Headings/PageHeading.vue";
+import { computed, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
-import ModelDetails from "@/Components/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 import type { Navigation } from "@/types/Tabs";
+import TableTimeTrackers from "@/Components/Tables/Grp/Org/HumanResources/TableTimeTrackers.vue";
+import TableClockings from "@/Components/Tables/Grp/Org/HumanResources/TableClockings.vue";
+import TableHistories from "@/Components/Tables/TableHistories.vue";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import {faVoteYea,faArrowsH} from '@fal';
 
-
-const createClocking = () =>{
-    router.post(route('grp.org.hr.clockings.store',props['clocking'].data.id), {})
-}
-
-const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
+library.add(
+ faVoteYea,faArrowsH
+)
 
 const props = defineProps<{
-    title: string,
-    pageHead: PageHeadingTypes,
-    tabs: {
-        current: string;
-        navigation: Navigation;
-    },
-    history: object
+  title: string,
+  pageHead: PageHeadingTypes,
+  tabs: {
+    current: string;
+    navigation: Navigation;
+  },
+  history?: object,
+  time_trackers?: object,
+  clockings?: object,
 
-}>()
+}>();
 
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 
 const component = computed(() => {
 
-    const components = {
-        details: ModelDetails,
-        history: ModelChangelog,
-    };
-    return components[currentTab.value];
+  const components = {
+    time_trackers: TableTimeTrackers,
+    clockings: TableClockings,
+    history: TableHistories
+  };
+  return components[currentTab.value];
 
 });
-
 
 
 </script>
 
 
 <template>
-    <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
-    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-    <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
-    timesheeettttt
+  <Head :title="capitalize(title)" />
+  <PageHeading :data="pageHead"></PageHeading>
+  <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
+  <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
 </template>
 

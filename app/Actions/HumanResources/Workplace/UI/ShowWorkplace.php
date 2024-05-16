@@ -16,7 +16,7 @@ use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\HumanResources\WorkplaceTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
-use App\Http\Resources\HumanResources\ClockingResource;
+use App\Http\Resources\HumanResources\ClockingsResource;
 use App\Http\Resources\HumanResources\WorkplaceResource;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
@@ -112,13 +112,13 @@ class ShowWorkplace extends OrgAction
 
                 WorkplaceTabsEnum::CLOCKINGS->value         => $this->tab == WorkplaceTabsEnum::CLOCKINGS->value
                     ?
-                    fn () => ClockingResource::collection(
+                    fn () => ClockingsResource::collection(
                         IndexClockings::run(
                             parent: $workplace,
                             prefix: 'clockings'
                         )
                     )
-                    : Inertia::lazy(fn () => ClockingResource::collection(
+                    : Inertia::lazy(fn () => ClockingsResource::collection(
                         IndexClockings::run(
                             parent: $workplace,
                             prefix: 'clockings'
