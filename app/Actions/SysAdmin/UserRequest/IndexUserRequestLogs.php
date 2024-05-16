@@ -26,10 +26,10 @@ class IndexUserRequestLogs
     use AsObject;
     use WithFormattedRequestLogs;
 
-    public function handle($filter = ElasticsearchUserRequestTypeEnum::VISIT->value): LengthAwarePaginator|bool|array
+    public function handle(string $username): LengthAwarePaginator|bool|array
     {
         $client = BuildElasticsearchClient::run();
-
+    
         if ($client instanceof Client) {
             try {
                 $params  = [
@@ -39,31 +39,28 @@ class IndexUserRequestLogs
                         'query' => [
                             'bool' => [
                                 'must' => [
-                                    ['match' => ['type' => $filter]]
+                                    ['match' => ['type' => ElasticsearchUserRequestTypeEnum::VISIT->value]],
+                                    ['match' => ['username' => $username]],
                                 ],
                             ],
                         ],
                     ],
                 ];
-
+    
                 return $this->format($client, $params);
-
+    
             } catch (ClientResponseException $e) {
-                //dd($e->getMessage());
                 // todo manage the 4xx error
                 return false;
             } catch (ServerResponseException $e) {
-                //dd($e->getMessage());
                 // todo manage the 5xx error
                 return false;
             } catch (Exception $e) {
-                //dd($e->getMessage());
                 // todo eg. network error like NoNodeAvailableException
                 return false;
-            } catch (NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             }
         }
-
+    
         return [];
     }
 

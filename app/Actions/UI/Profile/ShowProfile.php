@@ -10,6 +10,7 @@ namespace App\Actions\UI\Profile;
 use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
+use App\Actions\SysAdmin\UserRequest\IndexUserRequestLogs;
 use App\Actions\SysAdmin\UserRequest\ShowUserRequestLogs;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
@@ -94,8 +95,8 @@ class ShowProfile extends GrpAction
                 : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($user, ProfileTabsEnum::HISTORY->value))),
 
             ProfileTabsEnum::VISIT_LOGS->value => $this->tab == ProfileTabsEnum::VISIT_LOGS->value ?
-                fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username, ProfileTabsEnum::VISIT_LOGS->value))
-                : Inertia::lazy(fn () => UserRequestLogsResource::collection(ShowUserRequestLogs::run($user->username, ProfileTabsEnum::VISIT_LOGS->value))),
+                fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run($user->username, ProfileTabsEnum::VISIT_LOGS->value))
+                : Inertia::lazy(fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run($user->username, ProfileTabsEnum::VISIT_LOGS->value))),
 
             // ProfileTabsEnum::TODAY_TIMESHEETS->value => $this->tab == ProfileTabsEnum::TODAY_TIMESHEETS->value ?
             //     fn () => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TODAY_TIMESHEETS->value, true))
