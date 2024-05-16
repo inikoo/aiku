@@ -8,10 +8,6 @@ import { router } from "@inertiajs/vue3"
 import { Ref } from 'vue'
 
 export const useTabChange = (tabSlug: string, currentTab: Ref<string>) => {
-    console.log("************")
-    console.log('from', currentTab.value)
-    console.log('to', tabSlug)
-    // console.log(tabSlug, currentTab.value)
     if (tabSlug === currentTab.value) {
         return
     }

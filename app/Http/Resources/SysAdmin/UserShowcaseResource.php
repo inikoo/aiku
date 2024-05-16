@@ -29,7 +29,12 @@ class UserShowcaseResource extends JsonResource
             'about'                   => $user->about,
             'parent_type'             => $user->parent_type,
             'contact_name'            => $user->contact_name,
-            'authorizedOrganisations' => OrganisationsResource::collection($user->authorisedOrganisations),
+            // 'authorizedOrganisations' => OrganisationsResource::collection($user->authorisedOrganisations),
+            'authorizedOrganisations' => $user->authorisedOrganisations->map(fn ($organisation) => [
+                'slug' => $organisation->slug,
+                'name' => $organisation->name,
+                'type' => $organisation->type,
+            ]),
             'permissions'             => $user->getAllPermissions()->pluck('name')->toArray(),
             'last_active_at'          => $user->stats->last_active_at,
             'last_login'              => [
