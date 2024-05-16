@@ -11,7 +11,6 @@ import { Invoice } from "@/types/invoice"
 import { useLocaleStore } from '@/Stores/locale'
 import { useFormatTime } from "@/Composables/useFormatTime copy"
 
-console.log(useLocaleStore())
 
 const props = defineProps<{
     data: {}

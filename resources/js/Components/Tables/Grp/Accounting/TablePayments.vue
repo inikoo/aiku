@@ -7,7 +7,8 @@
 <script setup lang="ts">
 import { Link } from "@inertiajs/vue3";
 import Table from "@/Components/Table/Table.vue";
-import { Payment } from "@/types/Payment";
+import { Payment } from "@/types/payment";
+import { useFormatTime } from "@/Composables/useFormatTime copy";
 
 const props = defineProps<{
     data: object,
@@ -35,6 +36,11 @@ function paymentsRoute(payment: Payment) {
                 {{ payment["reference"] }}
             </Link>
         </template>
+      <template #cell(date)="{ item }">
+        <div class="text-gray-500">
+          {{ useFormatTime(item.date) }}
+        </div>
+      </template>
     </Table>
 </template>
 
