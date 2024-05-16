@@ -81,6 +81,7 @@
         "laravel/pint": "^1.0",
         "laravel/sail": "^1.18",
         "laravel/telescope": "^5.0",
+        "league/flysystem-sftp-v3": "^3.26",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.1",
         "pestphp/pest": "^2.0",

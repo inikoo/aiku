@@ -91,6 +91,15 @@ return [
             'root'   => storage_path('backups'),
             'throw'  => false,
         ],
+        'sftp' => [
+            'driver'   => 'sftp',
+            'host'     => env('SFTP_HOST'),
+            'username' => env('SFTP_USERNAME'),
+            'password' => env('SFTP_PASSWORD'),
+            'root'     => storage_path('app'),
+            'timeout'  => 30,
+        ],
+
         'excel-uploads' => match (env('APP_ENV')) {
             'production' => [
                 'driver'   => 's3',
