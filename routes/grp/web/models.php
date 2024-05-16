@@ -277,6 +277,8 @@ Route::patch('/shop/payment-accounts/{paymentAccount:id}', SyncPaymentAccountToS
 Route::name('production.')->prefix('production/{production}')->group(function () {
     Route::post('job-order', StoreJobOrder::class)->name('job-order.store');
     Route::post('artefact-upload', ImportDummy::class)->name('artefacts.upload');
+    Route::post('raw-materials-upload', ImportDummy::class)->name('raw_materials.upload');
+    Route::post('manufacture-tasks-upload', ImportDummy::class)->name('manufacture_tasks.upload');
 
 });
 
