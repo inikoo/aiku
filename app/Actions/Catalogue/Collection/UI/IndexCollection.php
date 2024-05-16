@@ -9,7 +9,6 @@ namespace App\Actions\Catalogue\Collection\UI;
 
 use App\Actions\Catalogue\HasMarketAuthorisation;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
-use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Product\ProductTypeEnum;
 use App\Http\Resources\Catalogue\CollectionResource;
@@ -85,11 +84,11 @@ class IndexCollection extends OrgAction
             );
         } elseif (class_basename($parent) == 'Organisation') {
             $queryBuilder->where('collections.organisation_id', $parent->id);
-            
+
         } else {
             abort(419);
         }
-        
+
 
         return $queryBuilder
             ->allowedSorts(['code', 'name'])
@@ -187,17 +186,17 @@ class IndexCollection extends OrgAction
             ];
         };
         return match ($routeName) {
-                'grp.org.shops.show.catalogue.collections.index' =>
-                array_merge(
-                    ShowCatalogue::make()->getBreadcrumbs($routeParameters),
-                    $headCrumb(
-                        [
-                            'name'       => $routeName,
-                            'parameters' => $routeParameters
-                        ],
-                        $suffix
-                    )
-                ),
+            'grp.org.shops.show.catalogue.collections.index' =>
+            array_merge(
+                ShowCatalogue::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
 
             default => []
         };

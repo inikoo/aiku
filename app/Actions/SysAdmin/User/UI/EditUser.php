@@ -49,9 +49,7 @@ class EditUser extends InertiaAction
                     ]];
                 }),
                 class_basename(Organisation::class) => [
-                    $role->label() => [
-                        'organisations' => Organisation::all()->pluck('slug')->toArray(),
-                    ]
+                    'organisations' => Organisation::all()->pluck('slug')
                 ],
                 class_basename(Shop::class) => Organisation::all()->map(function (Organisation $organisation) {
                     return [$organisation->name => [
@@ -126,6 +124,7 @@ class EditUser extends InertiaAction
                                 "type"              => "permissions",
                                 "label"             => __("permissions"),
                                 "value"             => $permissions,
+                                "fullComponentArea" => true,
                             ],
                         ],
                     ],

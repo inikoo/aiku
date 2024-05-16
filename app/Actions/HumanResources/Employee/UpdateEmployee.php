@@ -38,23 +38,35 @@ class UpdateEmployee extends OrgAction
         if (Arr::exists($modelData, 'positions')) {
             $jobPositions = [];
 
-
             foreach (Arr::get($modelData, 'positions', []) as $positionData) {
                 /** @var JobPosition $jobPosition */
-                $jobPosition                    = $this->organisation->jobPositions()->firstWhere('slug', $positionData['slug']);
-                $jobPositions[$jobPosition->id] = match (key(Arr::get($positionData, 'scopes', []))) {
-                    'shops' => [
-                        'Shop' => $this->organisation->shops->whereIn('slug', $positionData['scopes']['shops']['slug'])->pluck('id')->toArray()
-                    ],
-                    'warehouses' => [
-                        'Warehouse' => $this->organisation->warehouses->whereIn('slug', $positionData['scopes']['warehouses']['slug'])->pluck('id')->toArray()
-                    ],
-                    'fulfilments' => [
-                        'Fulfilment' => $this->organisation->fulfilments->whereIn('slug', $positionData['scopes']['fulfilments']['slug'])->pluck('id')->toArray()
-                    ],
-                    default => []
-                };
+                $jobPosition = $this->organisation->jobPositions()->firstWhere('slug', $positionData['slug']);
+                foreach (Arr::get($positionData, 'scopes', []) as $key => $scopes) {
+                    $scopeData = match ($key) {
+                        'shops' => [
+                            'Shop' => $this->organisation->shops->whereIn('slug', $scopes['slug'])->pluck('id')->toArray()
+                        ],
+                        'warehouses' => [
+                            'Warehouse' => $this->organisation->warehouses->whereIn('slug', $scopes['slug'])->pluck('id')->toArray()
+                        ],
+                        'fulfilments' => [
+                            'Fulfilment' => $this->organisation->fulfilments->whereIn('slug', $scopes['slug'])->pluck('id')->toArray()
+                        ],
+                        default => []
+                    };
 
+                    if (isset($jobPositions[$jobPosition->id])) {
+                        $jobPositions[$jobPosition->id] = array_merge_recursive($jobPositions[$jobPosition->id], $scopeData);
+                    } else {
+                        $jobPositions[$jobPosition->id] = $scopeData;
+                    }
+                }
+            }
+
+            foreach ($jobPositions as $id => $scopes) {
+                foreach ($scopes as $scopeKey => $ids) {
+                    $jobPositions[$id][$scopeKey] = array_values(array_unique($ids));
+                }
             }
 
             SyncEmployableJobPositions::run($employee, $jobPositions);

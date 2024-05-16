@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
- namespace App\Enums\UI\SysAdmin;
+namespace App\Enums\UI\SysAdmin;
 
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
