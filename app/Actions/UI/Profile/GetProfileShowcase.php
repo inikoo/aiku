@@ -11,12 +11,10 @@ use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Http\Resources\SysAdmin\Group\GroupResource;
 use App\Http\Resources\SysAdmin\GuestResource;
 use App\Http\Resources\SysAdmin\Organisation\UserOrganisationResource;
-use App\Models\Catalogue\ProductCategory;
 use App\Models\SysAdmin\User;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\Concerns\AsObject;
 
-class GetProfileShowcase extends JsonResource
+class GetProfileShowcase
 {
     use AsObject;
 
@@ -42,15 +40,13 @@ class GetProfileShowcase extends JsonResource
             },
             'parent_type'   => $user->parent_type,
             'contact_name'  => $user->contact_name,
-            'parent'        => $this->when($this->relationLoaded('parent'), function () {
-                return match (class_basename($this->resource->parent)) {
-                    'Employee' => new EmployeeResource($this->resource->parent),
-                    'Guest'    => new GuestResource($this->resource->parent),
-                    default    => [],
-                };
-            }),
+            'parent'        => match ($user->parent_type) {
+                'Employee' => new EmployeeResource($user->parent),
+                'Guest'    => new GuestResource($user->parent),
+                default    => [],
+            },
             'group'         => GroupResource::make($user->group),
-            'organisations' => UserOrganisationResource::collectionForUser($user->authorisedOrganisations, $this->resource),
+            'organisations' => UserOrganisationResource::collectionForUser($user->authorisedOrganisations, $user),
             'created_at'    => $user->created_at,
             'updated_at'    => $user->updated_at,
             'roles'         => $user->getRoleNames()->toArray(),

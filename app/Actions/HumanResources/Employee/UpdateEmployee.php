@@ -40,7 +40,9 @@ class UpdateEmployee extends OrgAction
 
             foreach (Arr::get($modelData, 'positions', []) as $positionData) {
                 /** @var JobPosition $jobPosition */
-                $jobPosition = $this->organisation->jobPositions()->firstWhere('slug', $positionData['slug']);
+                $jobPosition                    = $this->organisation->jobPositions()->firstWhere('slug', $positionData['slug']);
+                $jobPositions[$jobPosition->id] = [];
+
                 foreach (Arr::get($positionData, 'scopes', []) as $key => $scopes) {
                     $scopeData = match ($key) {
                         'shops' => [

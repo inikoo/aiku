@@ -39,6 +39,22 @@ class ShowClockingMachine extends OrgAction
         return $clockingMachine;
     }
 
+    public function inApi(string $qr): ClockingMachine
+    {
+        $decodedSlug = base64_decode($qr);
+
+        $clockingMachine = ClockingMachine::where('slug', $decodedSlug)->first();
+
+        if ($clockingMachine) {
+
+            return $clockingMachine;
+
+        } else {
+
+            throw new \Exception('ClockingMachine not found');
+        }
+    }
+
     /** @noinspection PhpUnusedParameterInspection */
     public function inWorkplace(Organisation $organisation, Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
