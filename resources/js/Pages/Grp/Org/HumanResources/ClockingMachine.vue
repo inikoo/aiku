@@ -14,7 +14,7 @@ import { faEnvelope, faIdCard, faPhone, faSignature, faUser, faBuilding, faBirth
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
-import ModelDetails from "@/Components/ModelDetails.vue";
+import ClockingMachineShowcase from "./ClockingMachinesShowcase.vue";
 import TableClockings from "@/Components/Tables/Grp/Org/HumanResources/TableClockings.vue";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
 
@@ -62,7 +62,7 @@ const component = computed(() => {
 
     const components = {
         clockings: TableClockings,
-        details: ModelDetails,
+        showcase: ClockingMachineShowcase,
         history: TableHistories,
     };
     return components[currentTab.value];
