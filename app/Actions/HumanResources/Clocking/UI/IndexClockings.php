@@ -91,7 +91,7 @@ class IndexClockings extends OrgAction
                         'title'       => __('no clockings'),
                         'description' => $this->canEdit ? __('Get started by creating a new clocking.') : null,
                         'count'       =>
-                            class_basename($parent) == 'ClockingMachine' ? $parent->humanResourcesStats->number_clockings : $parent->stats->number_clockings,
+                            class_basename($parent) == 'ClockingMachine' ? $parent->humanResourcesStats?->number_clockings : $parent->stats?->number_clockings,
                     ]
                 )
                 ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)

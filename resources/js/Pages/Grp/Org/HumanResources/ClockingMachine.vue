@@ -14,7 +14,7 @@ import { faEnvelope, faIdCard, faPhone, faSignature, faUser, faBuilding, faBirth
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
-import ModelDetails from "@/Components/ModelDetails.vue";
+import ClockingMachineShowcase from "./ClockingMachinesShowcase.vue";
 import TableClockings from "@/Components/Tables/Grp/Org/HumanResources/TableClockings.vue";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
 
@@ -40,6 +40,7 @@ library.add(
     faBuilding
 );
 
+
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
@@ -51,7 +52,9 @@ const props = defineProps<{
     }
     clockings?: object;
     history?: object;
+    showcase?: object;
 }>()
+
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 
@@ -59,7 +62,7 @@ const component = computed(() => {
 
     const components = {
         clockings: TableClockings,
-        details: ModelDetails,
+        showcase: ClockingMachineShowcase,
         history: TableHistories,
     };
     return components[currentTab.value];

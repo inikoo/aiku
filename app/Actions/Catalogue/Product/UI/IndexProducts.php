@@ -115,6 +115,8 @@ class IndexProducts extends OrgAction
                 'shops.code as shop_code',
                 'shops.name as shop_name',
             );
+        } elseif (class_basename($parent) == 'ProductCategory') {
+            $queryBuilder->where('products.department_id', $parent->id);
         } else {
             abort(419);
         }

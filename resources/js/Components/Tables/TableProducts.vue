@@ -20,9 +20,8 @@ const props = defineProps<{
   tab?: string,
 }>()
 
-
 function productRoute(product: Product) {
-  console.log(route().current())
+
   switch (route().current()) {
 
     case "grp.org.shops.show.catalogue.products.index":
@@ -38,6 +37,10 @@ function productRoute(product: Product) {
       return route(
           'grp.org.fulfilments.show.products.show',
           [route().params['organisation'], route().params['fulfilment'], product.slug]);
+    case 'grp.org.shops.show.catalogue.departments.show':
+      return route(
+          'grp.org.shops.show.catalogue.departments.show.products.show',
+          [route().params['organisation'], route().params['shop'], route().params['department'], product.slug]);
     default:
       return null
   }

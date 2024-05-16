@@ -15,22 +15,17 @@ const props = defineProps<{
   tab?: string,
 }>();
 
-
-function familyRoute(family: Family) {
+// TODO: FIX TS
+function familyRoute(collection: {}) {
   switch (route().current()) {
-    case "grp.shops.show":
-    case "grp.org.shops.show.catalogue.families.index":
-      return route(
-        "grp.org.shops.show.catalogue.families.show",
-        [route().params["organisation"], route().params["shop"], family.slug]);
-    case "grp.org.shops.show.catalogue.departments.show":
-      return route(
-        "grp.org.shops.show.catalogue.departments.show.families.show",
-        [route().params["organisation"], route().params["shop"], route().params["department"], family.slug]);
-    case 'grp.org.shops.index':
-      return route(
-        "grp.org.shops.show.catalogue.families.show",
-        [route().params["organisation"], family.shop_slug, family.slug]);
+    case "grp.org.shops.show.catalogue.collections.index":
+    return route(
+                "grp.org.shops.show.catalogue.collections.show",
+                [route().params["organisation"], collection.shop, collection.slug]);
+    case "grp.org.shops.show.catalogue.dashboard":
+    return route(
+                "grp.org.shops.show.catalogue.collections.show",
+                [route().params["organisation"], collection.shop, collection.slug]);
   }
 }
 

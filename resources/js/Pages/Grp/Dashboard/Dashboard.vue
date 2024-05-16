@@ -185,7 +185,7 @@ const calcPercentage = (orgData, keyName: string | null) => {
 
                 <div class="justify-self-end flex divide-x divide-gray-300 gap-x-4">
                     <!-- Radio: Show Last Year -->
-                    <div class="justify-self-end flex items-center gap-x-2 font-semibold">
+                    <div class="justify-self-end flex items-center gap-x-2 text-sm">
                         <!-- <div :class="!isShowLastYear ? '' : 'text-gray-400'">Don't show Last year</div> -->
                         <Switch
                             v-model="isShowLastYear"
@@ -198,11 +198,11 @@ const calcPercentage = (orgData, keyName: string | null) => {
                                 class="pointer-events-none inline-block h-[21px] aspect-square transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
                             />
                         </Switch>
-                        <div @click="isShowLastYear = !isShowLastYear" class="select-none cursor-pointer" :class="isShowLastYear ? '' : 'text-gray-400'">Show Last Year</div>
+                        <div @click="isShowLastYear = !isShowLastYear" class="select-none cursor-pointer whitespace-nowrap" :class="isShowLastYear ? '' : 'text-gray-400'">Show Last Year</div>
                     </div>
 
                     <!-- Radio: Show currency group/org -->
-                    <div class="pl-4 justify-self-end flex items-center gap-x-2 font-semibold">
+                    <div class="pl-4 justify-self-end flex items-center gap-x-2 text-sm">
                         <!-- <div :class="!currencyValue ? '' : 'text-gray-400'">Group Currency</div> -->
                         <Switch
                             v-model="currencyValue"
@@ -215,7 +215,7 @@ const calcPercentage = (orgData, keyName: string | null) => {
                                 class="pointer-events-none inline-block h-[21px] aspect-square transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
                             />
                         </Switch>
-                        <div @click="currencyValue = !currencyValue" class="select-none cursor-pointer" :class="currencyValue ? '' : 'text-gray-400'">Store Currency</div>
+                        <div @click="currencyValue = !currencyValue" class="select-none cursor-pointer whitespace-nowrap" :class="currencyValue ? '' : 'text-gray-400'">{{ trans('Organisation Currency')}}</div>
                     </div>
                     
                 </div>
@@ -289,7 +289,7 @@ const calcPercentage = (orgData, keyName: string | null) => {
                     <template v-for="(org, orgIdx) in groupStats.organisations" :key="org.name + orgIdx">
                         <tr v-if="org.type !== 'agent'" class="relative">
                             <!-- Column: Organisations -->
-                            <td class="uppercase w-full max-w-0 py-4 pl-4 pr-3 text-sm font-medium sm:w-auto sm:max-w-none">
+                            <td class="uppercase w-full max-w-0 py-4 pl-4 pr-3 text-sm sm:w-auto sm:max-w-none">
                                 <span v-tooltip="org.name">{{ org.code }}</span>
                             </td>
                         

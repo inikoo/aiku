@@ -419,16 +419,16 @@ class GetOrganisationNavigation
 
                             ]
                         ],
-                        [
-                            'label' => __('calendar'),
-                            'icon'  => ['fal', 'fa-calendar'],
-                            'root'  => 'grp.org.hr.calendars.',
-                            'route' => [
-                                'name'       => 'grp.org.hr.calendars.index',
-                                'parameters' => [$organisation->slug],
+                        // [
+                        //     'label' => __('calendar'),
+                        //     'icon'  => ['fal', 'fa-calendar'],
+                        //     'root'  => 'grp.org.hr.calendars.',
+                        //     'route' => [
+                        //         'name'       => 'grp.org.hr.calendars.index',
+                        //         'parameters' => [$organisation->slug],
 
-                            ]
-                        ],
+                        //     ]
+                        // ],
                         [
                             'label' => __('time sheets'),
                             'icon'  => ['fal', 'fa-stopwatch'],

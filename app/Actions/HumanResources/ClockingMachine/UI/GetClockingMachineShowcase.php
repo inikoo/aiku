@@ -17,9 +17,10 @@ class GetClockingMachineShowcase
     public function handle(ClockingMachine $clockingMachine): array
     {
         return [
-            [
+            'slug'              => base64_encode($clockingMachine->slug),
+            'name'              => $clockingMachine->name,
+            'type'              => $clockingMachine->type,
 
-            ]
         ];
     }
 }
