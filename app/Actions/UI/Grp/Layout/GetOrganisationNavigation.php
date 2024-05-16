@@ -264,28 +264,28 @@ class GetOrganisationNavigation
             ];
         }
 
-/*
-        if ($user->hasAnyPermission(['org-supervisor.'.$organisation->id, 'productions-view.'.$organisation->id])) {
-            $navigation['productions_index'] = [
-                'label'   => __('Productions'),
-                'scope'   => 'productions',
-                'icon'    => ['fal', 'fa-industry'],
-                'root'    => 'grp.org.productions.index',
-                'route'   => [
-                    'name'       => 'grp.org.productions.index',
-                    'parameters' => [$organisation->slug],
-                ],
-                'topMenu' => [
-                    'links' => [
-                        [
-                            'label'   => __('dashboard'),
-                            'tooltip' => __('Dashboard'),
+        /*
+                if ($user->hasAnyPermission(['org-supervisor.'.$organisation->id, 'productions-view.'.$organisation->id])) {
+                    $navigation['productions_index'] = [
+                        'label'   => __('Productions'),
+                        'scope'   => 'productions',
+                        'icon'    => ['fal', 'fa-industry'],
+                        'root'    => 'grp.org.productions.index',
+                        'route'   => [
+                            'name'       => 'grp.org.productions.index',
+                            'parameters' => [$organisation->slug],
+                        ],
+                        'topMenu' => [
+                            'links' => [
+                                [
+                                    'label'   => __('dashboard'),
+                                    'tooltip' => __('Dashboard'),
+                                ]
+                            ]
                         ]
-                    ]
-                ]
-            ];
-        }
-*/
+                    ];
+                }
+        */
 
 
 

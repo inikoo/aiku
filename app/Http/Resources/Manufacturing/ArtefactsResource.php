@@ -9,6 +9,10 @@ namespace App\Http\Resources\Manufacturing;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property mixed $slug
+ * @property mixed $code
+ */
 class ArtefactsResource extends JsonResource
 {
     public function toArray($request): array

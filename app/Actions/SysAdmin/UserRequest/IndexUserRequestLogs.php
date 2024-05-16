@@ -18,8 +18,6 @@ use Elastic\Elasticsearch\Exception\ServerResponseException;
 use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Lorisleiva\Actions\Concerns\AsObject;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 
 class IndexUserRequestLogs
 {
@@ -29,7 +27,7 @@ class IndexUserRequestLogs
     public function handle(string $username): LengthAwarePaginator|bool|array
     {
         $client = BuildElasticsearchClient::run();
-    
+
         if ($client instanceof Client) {
             try {
                 $params  = [
@@ -46,9 +44,9 @@ class IndexUserRequestLogs
                         ],
                     ],
                 ];
-    
+
                 return $this->format($client, $params);
-    
+
             } catch (ClientResponseException $e) {
                 // todo manage the 4xx error
                 return false;
@@ -60,7 +58,7 @@ class IndexUserRequestLogs
                 return false;
             }
         }
-    
+
         return [];
     }
 

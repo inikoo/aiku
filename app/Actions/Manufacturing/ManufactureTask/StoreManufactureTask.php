@@ -33,6 +33,7 @@ class StoreManufactureTask extends OrgAction
 
         /** @var ManufactureTask $manufactureTask */
         $manufactureTask = $production->manufactureTasks()->create($modelData);
+        $manufactureTask->stats()->create();
 
         ManufactureTaskHydrateUniversalSearch::dispatch($manufactureTask);
         GroupHydrateManufactureTasks::dispatch($manufactureTask->group);

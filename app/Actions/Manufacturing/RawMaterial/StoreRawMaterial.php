@@ -34,6 +34,7 @@ class StoreRawMaterial extends OrgAction
 
         /** @var RawMaterial $rawMaterial */
         $rawMaterial = $production->rawMaterials()->create($modelData);
+        $rawMaterial->stats()->create();
 
         RawMaterialHydrateUniversalSearch::dispatch($rawMaterial);
         GroupHydrateRawMaterials::dispatch($production->group);

@@ -19,7 +19,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('raw_materials', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table = $this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('type');
