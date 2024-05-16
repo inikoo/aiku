@@ -110,7 +110,7 @@ class ShowEmployee extends OrgAction
                     : Inertia::lazy(fn () => JobPositionsResource::collection(IndexJobPositions::run($employee, EmployeeTabsEnum::JOB_POSITIONS->value, true))),
 
             ]
-        )->table(IndexHistory::make()->tableStructure())
+        )->table(IndexHistory::make()->tableStructure('hst'))
             ->table(IndexTimesheets::make()->tableStructure(modelOperations: [
                 'createLink' => [
                     [
