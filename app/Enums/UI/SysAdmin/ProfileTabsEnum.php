@@ -72,7 +72,7 @@ enum ProfileTabsEnum: string
                 'align' => 'right',
             ],
             ProfileTabsEnum::SHOWCASE => [
-                'title' => __('Profile'),
+                'title' => __('Showcase'),
                 'icon'  => 'fas fa-info-circle',
             ],
         };

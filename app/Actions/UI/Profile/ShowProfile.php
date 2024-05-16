@@ -71,7 +71,7 @@ class ShowProfile
                         ]
                 ],
                 'actions'     => [
-                    $this->getEditActionIcon($request),
+                    $this->getEditActionIcon($request, null),
                 ],
             ],
             'tabs'        => [
