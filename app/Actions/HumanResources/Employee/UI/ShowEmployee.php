@@ -141,6 +141,13 @@ class ShowEmployee extends OrgAction
         return Arr::except($employee->toArray(), ['id', 'source_id','working_hours','errors','salary','data']);
     }
 
+    public function inApi(ActionRequest $request): Employee
+    {
+        $employee = Employee::where('pin', $request->input('pin'))->firstOrFail();
+
+        return $this->handle($employee);
+    }
+
     public function jsonResponse(Employee $employee): EmployeeResource
     {
         return new EmployeeResource($employee);
