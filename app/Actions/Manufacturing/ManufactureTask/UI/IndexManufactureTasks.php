@@ -1,18 +1,18 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Wed, 15 Mar 2023 08:39:46 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 16 May 2024 11:17:42 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Manufacturing\Artefact\UI;
+namespace App\Actions\Manufacturing\ManufactureTask\UI;
 
 use App\Actions\Manufacturing\Production\UI\ShowProductionCrafts;
 use App\Actions\OrgAction;
-use App\Enums\UI\Manufacturing\ArtefactsTabsEnum;
-use App\Http\Resources\Manufacturing\ArtefactsResource;
+use App\Enums\UI\Manufacturing\ManufactureTasksTabsEnum;
+use App\Http\Resources\Manufacturing\ManufactureTasksResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Manufacturing\Artefact;
+use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -24,7 +24,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexArtefacts extends OrgAction
+class IndexManufactureTasks extends OrgAction
 {
     protected Production|Organisation $parent;
 
@@ -49,7 +49,7 @@ class IndexArtefacts extends OrgAction
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $organisation;
-        $this->initialisation($organisation, $request)->withTab(ArtefactsTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(ManufactureTasksTabsEnum::values());
 
         return $this->handle($organisation);
     }
@@ -57,17 +57,17 @@ class IndexArtefacts extends OrgAction
     public function asController(Organisation $organisation, Production $production, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $production;
-        $this->initialisationFromProduction($production, $request)->withTab(ArtefactsTabsEnum::values());
+        $this->initialisationFromProduction($production, $request)->withTab(ManufactureTasksTabsEnum::values());
 
-        return $this->handle(parent: $production, prefix: ArtefactsTabsEnum::ARTEFACTS->value);
+        return $this->handle(parent: $production, prefix: ManufactureTasksTabsEnum::MANUFACTURE_TASKS->value);
     }
 
     public function handle(Production|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('artefacts.code', $value)
-                    ->whereWith('artefacts.name', $value);
+                $query->whereStartWith('manufacture_tasks.code', $value)
+                    ->whereWith('manufacture_tasks.name', $value);
             });
         });
 
@@ -75,28 +75,28 @@ class IndexArtefacts extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(Artefact::class);
+        $queryBuilder = QueryBuilder::for(ManufactureTask::class);
 
         if ($parent instanceof Organisation) {
-            $queryBuilder->where('artefacts.organisation_id', $parent->id);
+            $queryBuilder->where('manufacture_tasks.organisation_id', $parent->id);
         } else {
-            $queryBuilder->where('artefacts.production_id', $parent->id);
+            $queryBuilder->where('manufacture_tasks.production_id', $parent->id);
         }
 
 
         return $queryBuilder
-            ->defaultSort('artefacts.code')
+            ->defaultSort('manufacture_tasks.code')
             ->select(
                 [
-                    'artefacts.code',
-                    'artefacts.id',
-                    'artefacts.name',
+                    'manufacture_tasks.code',
+                    'manufacture_tasks.id',
+                    'manufacture_tasks.name',
                     'productions.slug as production_slug',
-                    'artefacts.slug'
+                    'manufacture_tasks.slug'
                 ]
             )
-            ->leftJoin('artefact_stats', 'artefact_stats.artefact_id', 'artefacts.id')
-            ->leftJoin('productions', 'artefacts.production_id', 'productions.id')
+            ->leftJoin('manufacture_task_stats', 'manufacture_task_stats.manufacture_task_id', 'manufacture_tasks.id')
+            ->leftJoin('productions', 'manufacture_tasks.production_id', 'productions.id')
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -117,22 +117,22 @@ class IndexArtefacts extends OrgAction
                 ->withEmptyState(
                     match (class_basename($parent)) {
                         'Organisation' => [
-                            'title'  => __("No artefacts found"),
-                            'count'  => $parent->manufactureStats->number_artefacts,
+                            'title'  => __("No manufacture tasks found"),
+                            'count'  => $parent->manufactureStats->number_manufacture_tasks,
                             'action' => null
                         ],
                         'Production' => [
-                            'title'       => __("No artefacts found"),
-                            'description' => $this->canEdit ? __('Get started by creating your first artefact. ✨')
+                            'title'       => __("No manufacture tasks found"),
+                            'description' => $this->canEdit ? __('Get started by creating your first manufacture task. ✨')
                                 : null,
-                            'count'       => $parent->stats->number_artefacts,
+                            'count'       => $parent->stats->number_manufacture_tasks,
                             'action'      => $canEdit ? [
                                 'type'    => 'button',
                                 'style'   => 'create',
-                                'tooltip' => __('new artefact'),
-                                'label'   => __('artefact'),
+                                'tooltip' => __('new manufacture task'),
+                                'label'   => __('manufacture task'),
                                 'route'   => [
-                                    'name'       => 'grp.org.productions.show.crafts.artefacts.create',
+                                    'name'       => 'grp.org.productions.show.crafts.manufacture_tasks.create',
                                     'parameters' => [
                                         $parent->organisation->slug,
                                         $parent->slug
@@ -149,26 +149,26 @@ class IndexArtefacts extends OrgAction
         };
     }
 
-    public function jsonResponse(LengthAwarePaginator $artefacts): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $manufactureTasks): AnonymousResourceCollection
     {
-        return ArtefactsResource::collection($artefacts);
+        return ManufactureTasksResource::collection($manufactureTasks);
     }
 
-    public function htmlResponse(LengthAwarePaginator $artefacts, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $manufactureTasks, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Manufacturing/Artefacts',
+            'Org/Manufacturing/ManufactureTasks',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('artefacts'),
+                'title'       => __('manufacture_tasks'),
                 'pageHead'    => [
-                    'title'     => __('artefacts'),
+                    'title'     => __('manufacture_tasks'),
                     'iconRight' => [
-                        'icon'  => ['fal', 'fa-hamsa'],
-                        'title' => __('artefacts'),
+                        'icon'  => ['fal', 'fa-drone'],
+                        'title' => __('manufacture_tasks'),
                     ],
                     'actions'   => [
                         $this->canEdit && $this->parent instanceof Production ? [
@@ -181,7 +181,7 @@ class IndexArtefacts extends OrgAction
                                     'icon'  => ['fal', 'fa-upload'],
                                     'label' => 'upload',
                                     'route' => [
-                                        'name'       => 'grp.models.production.artefacts.upload',
+                                        'name'       => 'grp.models.production.manufacture_tasks.upload',
                                         'parameters' => [
                                             $this->parent->id
                                         ]
@@ -191,9 +191,9 @@ class IndexArtefacts extends OrgAction
 
                                     'type'  => 'button',
                                     'style' => 'create',
-                                    'label' => __('artefact'),
+                                    'label' => __('task'),
                                     'route' => [
-                                        'name'       => 'grp.org.productions.show.crafts.artefacts.create',
+                                        'name'       => 'grp.org.productions.show.crafts.manufacture_tasks.create',
                                         'parameters' => $request->route()->originalParameters()
                                     ]
 
@@ -204,18 +204,18 @@ class IndexArtefacts extends OrgAction
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => ArtefactsTabsEnum::navigation(),
+                    'navigation' => ManufactureTasksTabsEnum::navigation(),
                 ],
 
-                ArtefactsTabsEnum::ARTEFACTS->value => $this->tab == ArtefactsTabsEnum::ARTEFACTS->value ?
-                    fn () => ArtefactsResource::collection($artefacts)
-                    : Inertia::lazy(fn () => ArtefactsResource::collection($artefacts)),
+                ManufactureTasksTabsEnum::MANUFACTURE_TASKS->value => $this->tab == ManufactureTasksTabsEnum::MANUFACTURE_TASKS->value ?
+                    fn () => ManufactureTasksResource::collection($manufactureTasks)
+                    : Inertia::lazy(fn () => ManufactureTasksResource::collection($manufactureTasks)),
 
             ]
         )->table(
             $this->tableStructure(
                 parent: $this->parent,
-                prefix: ArtefactsTabsEnum::ARTEFACTS->value
+                prefix: ManufactureTasksTabsEnum::MANUFACTURE_TASKS->value
             )
         );
     }
@@ -229,10 +229,10 @@ class IndexArtefacts extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.productions.show.crafts.artefacts.index',
+                            'name'       => 'grp.org.productions.show.crafts.manufacture_tasks.index',
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('artefacts'),
+                        'label' => __('manufacture_tasks'),
                         'icon'  => 'fal fa-bars',
                     ],
                     'suffix' => $suffix

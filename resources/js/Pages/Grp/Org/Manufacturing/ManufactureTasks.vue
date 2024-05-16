@@ -7,15 +7,15 @@
 <script setup lang="ts">
 import { Head } from "@inertiajs/vue3";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
-import TableArtefacts from "@/Components/Tables/Grp/Org/Manufacturing/TableArtefacts.vue";
+import TableManufactureTasks from "@/Components/Tables/Grp/Org/Manufacturing/TableManufactureTasks.vue";
 import { capitalize } from "@/Composables/capitalize";
 import { faBars, faIndustry } from "@fal";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { computed, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 import type { Navigation } from "@/types/Tabs";
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
 
 library.add(faBars, faIndustry);
@@ -28,7 +28,7 @@ const props = defineProps<{
     navigation: Navigation;
   },
   title: string
-  artefacts?: object
+  manufacture_tasks?: object
 }>();
 
 let currentTab = ref(props.tabs.current);
@@ -37,7 +37,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
   const components = {
-    artefacts: TableArtefacts
+    manufacture_tasks: TableManufactureTasks
 
   };
   return components[currentTab.value];
