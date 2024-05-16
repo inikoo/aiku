@@ -5,6 +5,9 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\HumanResources\Clocking\StoreClocking;
+use App\Actions\HumanResources\Clocking\UI\GetEmployeeUsingPin;
+use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
 use Illuminate\Support\Facades\Route;
 
 Route::name('api.')->group(function () {
@@ -17,4 +20,7 @@ Route::name('api.')->group(function () {
 
     });
     require __DIR__."/tokens.php";
+    Route::post('clocking/pin', GetEmployeeUsingPin::class)->name('clocking.pin');
+    Route::get('clocking/clocking-machine/{qr}', [ShowClockingMachine::class, 'inApi'])->name('clocking.qr');
+    Route::post('clocking/store', [StoreClocking::class, 'inApi'])->name('clocking.store');
 });

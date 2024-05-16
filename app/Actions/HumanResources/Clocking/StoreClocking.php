@@ -85,6 +85,11 @@ class StoreClocking extends OrgAction
         return $this->handle($request->user(), $parent, $subject, $this->validatedData);
     }
 
+    public function inApi(ClockingMachine|Workplace $parent, Employee $employee): Clocking
+    {
+        return $this->handle($employee, $parent, $employee, $this->validatedData);
+    }
+
 
     public function htmlResponse(Clocking $clocking): RedirectResponse
     {
