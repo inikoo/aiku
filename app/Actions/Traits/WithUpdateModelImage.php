@@ -43,6 +43,7 @@ trait WithUpdateModelImage
                     array_merge(
                         [
                             'checksum' => $checksum,
+                            'group_id' => group()->id
                         ],
                         $properties
                     )
