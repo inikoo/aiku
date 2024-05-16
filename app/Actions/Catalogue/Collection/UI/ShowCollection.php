@@ -5,27 +5,23 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
- namespace App\Actions\Catalogue\Collection\UI;
+namespace App\Actions\Catalogue\Collection\UI;
 
 use App\Actions\Catalogue\HasMarketAuthorisation;
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
-use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
 use App\Enums\UI\Catalogue\CollectionTabsEnum;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Catalogue\CollectionResource;
-use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Catalogue\Collection;
-use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -235,8 +231,8 @@ class ShowCollection extends OrgAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'organisation'=> $this->organisation->slug,
-                        'shop'        => $collection->shop->slug,
+                        'organisation'   => $this->organisation->slug,
+                        'shop'           => $collection->shop->slug,
                         'collection'     => $collection->slug
                     ]
 

@@ -7,7 +7,6 @@
 
 namespace App\Actions\UI\Profile;
 
-use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
 use App\Actions\SysAdmin\UserRequest\ShowUserRequestLogs;
@@ -21,7 +20,6 @@ use App\Http\Resources\SysAdmin\UserRequestLogsResource;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Http\Resources\UI\LoggedUserResource;
 use App\Models\SysAdmin\User;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -46,7 +44,9 @@ class ShowProfile
     public function htmlResponse(User $user, ActionRequest $request): Response
     {
 
-        return Inertia::render("Profile", [
+        return Inertia::render(
+            "Profile",
+            [
             "title"       => __("Profile"),
             "breadcrumbs" => $this->getBreadcrumbs(),
             "pageHead"    => [
@@ -57,18 +57,18 @@ class ShowProfile
                 'meta'  => [
                         [
                             'label'     => $user->email,
-                        'leftIcon'  => [
+                        'leftIcon'      => [
                             'icon'    => 'fal fa-id-card',
                             'tooltip' => __('Email')
                             ]
                         ],
 
-                        ['label'     => $user->username,
+                        ['label'        => $user->username,
                             'leftIcon'  => [
                                 'icon'    => 'fal fa-user',
                                 'tooltip' => __('User')
                             ]
-                        ]         
+                        ]
                 ],
                 'actions'     => [
                     $this->getEditActionIcon($request),
@@ -79,7 +79,7 @@ class ShowProfile
                 'navigation' => ProfileTabsEnum::navigation()
             ],
 
-            // pls fix the current tab 
+            // pls fix the current tab
             ProfileTabsEnum::SHOWCASE->value => $this->tab == ProfileTabsEnum::SHOWCASE->value ?
             fn () => GetProfileShowcase::run($user)
             : Inertia::lazy(fn () => GetProfileShowcase::run($user)),
@@ -99,13 +99,13 @@ class ShowProfile
             // ProfileTabsEnum::TODAY_TIMESHEETS->value => $this->tab == ProfileTabsEnum::TODAY_TIMESHEETS->value ?
             //     fn () => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TODAY_TIMESHEETS->value, true))
             //     : Inertia::lazy(fn () => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TODAY_TIMESHEETS->value, true))),
-            
+
             'auth'          => [
                     'user' => LoggedUserResource::make($user)->getArray(),
                 ],
 
-        ]        
-            )
+        ]
+        )
     ->table(IndexTimesheets::make()->tableStructure(modelOperations: [
             'createLink' => [
                 [

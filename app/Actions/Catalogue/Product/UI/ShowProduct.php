@@ -70,7 +70,7 @@ class ShowProduct extends OrgAction
         return $this->handle($product);
     }
 
-    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, Product $product,  ActionRequest $request): Product
+    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, Product $product, ActionRequest $request): Product
     {
         $this->parent= $department;
         $this->initialisationFromShop($shop, $request)->withTab(ProductTabsEnum::values());
@@ -264,43 +264,43 @@ class ShowProduct extends OrgAction
 
     private function getNavigation(?Product $product, string $routeName): ?array
     {
-    if (!$product) {
-        return null;
-    }
+        if (!$product) {
+            return null;
+        }
 
-    return match ($routeName) {
-        'shops.products.show' => [
-            'label' => $product->name,
-            'route' => [
-                'name' => $routeName,
-                'parameters' => [
-                    'product' => $product->slug,
+        return match ($routeName) {
+            'shops.products.show' => [
+                'label' => $product->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'product' => $product->slug,
+                    ],
                 ],
             ],
-        ],
-        'grp.org.shops.show.catalogue.products.show' => [
-            'label' => $product->name,
-            'route' => [
-                'name' => $routeName,
-                'parameters' => [
-                    'organisation' => $this->parent->slug,
-                    'shop' => $product->shop->slug,
-                    'product' => $product->slug,
+            'grp.org.shops.show.catalogue.products.show' => [
+                'label' => $product->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation' => $this->parent->slug,
+                        'shop'         => $product->shop->slug,
+                        'product'      => $product->slug,
+                    ],
                 ],
             ],
-        ],
-        'grp.org.fulfilments.show.products.show' => [
-            'label' => $product->name,
-            'route' => [
-                'name' => $routeName,
-                'parameters' => [
-                    'organisation' => $this->parent->slug,
-                    'fulfilment' => $product->shop->fulfilment->slug,
-                    'product' => $product->slug,
+            'grp.org.fulfilments.show.products.show' => [
+                'label' => $product->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation' => $this->parent->slug,
+                        'fulfilment'   => $product->shop->fulfilment->slug,
+                        'product'      => $product->slug,
+                    ],
                 ],
             ],
-        ],
-        default => null,
-    };
+            default => null,
+        };
     }
 }

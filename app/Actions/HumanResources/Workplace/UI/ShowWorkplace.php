@@ -160,7 +160,7 @@ class ShowWorkplace extends OrgAction
         )->table(
             IndexClockingMachines::make()->tableStructure(
                 parent: $workplace,
-                 modelOperations: [
+                modelOperations: [
                         'createLink' => [
                             [
                             'route' => [

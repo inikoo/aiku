@@ -8,7 +8,6 @@
 namespace App\Actions\Catalogue\Collection\UI;
 
 use App\Models\Catalogue\Collection;
-use App\Models\Catalogue\Product;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetCollectionShowcase

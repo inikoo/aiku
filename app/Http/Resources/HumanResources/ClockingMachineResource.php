@@ -23,15 +23,15 @@ class ClockingMachineResource extends JsonResource
 
 
         return [
-            'id'                => $clockingMachine->id,
+            'id'                     => $clockingMachine->id,
             'organisation_slug'      => $clockingMachine->organisation_slug,
             'workplace_slug'         => $clockingMachine->workplace_slug,
-            'slug'              => $clockingMachine->slug,
-            'name'              => $clockingMachine->name,
-            'type'              => $clockingMachine->type,
-            'created_at'        => $clockingMachine->created_at,
-            'updated_at'        => $clockingMachine->updated_at,
-            'nfc_tag'           => Arr::get($clockingMachine->data, 'nfc_tag'),
+            'slug'                   => $clockingMachine->slug,
+            'name'                   => $clockingMachine->name,
+            'type'                   => $clockingMachine->type,
+            'created_at'             => $clockingMachine->created_at,
+            'updated_at'             => $clockingMachine->updated_at,
+            'nfc_tag'                => Arr::get($clockingMachine->data, 'nfc_tag'),
             // 'workplace'         => new WorkplaceResource($clockingMachine->workplace),
         ];
     }
