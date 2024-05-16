@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Table from '@/Components/Table/Table.vue';
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import JsonViewer from 'vue-json-viewer'
 import { faPlus, faMinus } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -8,8 +8,9 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 library.add(faPlus,faMinus)
 
-const props = defineProps<{
-    data: object
+defineProps<{
+    data: object,
+    tab?:string
 }>()
 
 const index = ref(null)
@@ -40,7 +41,7 @@ const onCloseExpand = (data) => {
 </script>
 
 <template>
-    <Table :resource="data" class="mt-5" name="hst" :useExpandTable="true">
+    <Table :resource="data" class="mt-5" :name="tab" :useExpandTable="true">
         <template #cell(expand)="{ item: user }">
             <div v-if="user?.rowIndex === index" class="p-4">
                 <FontAwesomeIcon  @click="() => onCloseExpand(user)" icon='fas fa-minus' />

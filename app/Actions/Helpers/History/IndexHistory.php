@@ -58,9 +58,9 @@ class IndexHistory
             ->withQueryString();
     }
 
-    public function tableStructure($prefix=null, ?array $exportLinks = null, array $modelOperations = []): Closure
+    public function tableStructure($prefix=null, ?array $exportLinks = null): Closure
     {
-        return function (InertiaTable $table) use ($exportLinks, $prefix, $modelOperations) {
+        return function (InertiaTable $table) use ($exportLinks, $prefix) {
 
             if ($prefix) {
                 $table
@@ -71,7 +71,6 @@ class IndexHistory
             $table
                 ->withGlobalSearch()
                 ->withExportLinks($exportLinks)
-                ->withModelOperations($modelOperations)
                 ->column(key: 'expand', label: '', type: 'icon')
                 ->column(key: 'datetime', label: __('Date'), canBeHidden: false, sortable: true)
                 ->column(key: 'user_name', label: __('User'), canBeHidden: false, sortable: true)

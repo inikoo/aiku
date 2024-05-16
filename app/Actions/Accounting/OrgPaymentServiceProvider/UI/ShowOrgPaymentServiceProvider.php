@@ -67,24 +67,6 @@ class ShowOrgPaymentServiceProvider extends OrgAction
                             'title' => __('payment service provider')
                         ],
                     'title' => $orgPaymentServiceProvider->slug,
-                    /* 'actions' => [
-                         $this->canEdit ? [
-                             'type'  => 'button',
-                             'style' => 'edit',
-                             'route' => [
-                                 'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                 'parameters' => array_values($request->route()->originalParameters())
-                             ]
-                         ] : false,
-                         $this->canDelete ? [
-                             'type'  => 'button',
-                             'style' => 'delete',
-                             'route' => [
-                                 'name'       => 'grp.org.accounting.org-payment-service-providers.remove',
-                                 'parameters' => array_values($request->route()->originalParameters())
-                             ]
-                         ] : false
-                     ], */
                     'meta'  => [
                         [
                             'name'     => trans_choice('account | accounts', $orgPaymentServiceProvider->stats->number_payment_accounts),
@@ -178,19 +160,12 @@ class ShowOrgPaymentServiceProvider extends OrgAction
             ->table(
                 IndexPaymentAccounts::make()->tableStructure(
                     parent: $orgPaymentServiceProvider,
-                    //            modelOperations: [
-                    //                'createLink' => $this->canEdit ? [
-                    //                    'route' => [
-                    //                        'name'       => 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.create',
-                    //                        'parameters' => array_values($request->route()->originalParameters())
-                    //                    ],
-                    //                    'label' => __('payment account')
-                    //                ] : false,
-                    //            ],
                     prefix: OrgPaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value
                 )
             )
-            ->table(IndexHistory::make()->tableStructure('hst'));
+            ->table(IndexHistory::make()->tableStructure(
+                prefix:OrgPaymentServiceProviderTabsEnum::HISTORY->value
+            ));
     }
 
     public function jsonResponse(OrgPaymentServiceProvider $orgPaymentServiceProvider): OrgPaymentServiceProviderResource

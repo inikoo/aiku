@@ -56,12 +56,17 @@ class IndexModuleHistory
             ->withQueryString();
     }
 
-    public function tableStructure(?array $exportLinks = null): Closure
+    public function tableStructure($prefix=null,  ?array $exportLinks = null): Closure
     {
-        return function (InertiaTable $table) use ($exportLinks) {
+        return function (InertiaTable $table) use ($prefix,$exportLinks) {
+
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+
             $table
-                ->name('hst')
-                ->pageName('historyPage')
                 ->withGlobalSearch()
                 ->withExportLinks($exportLinks)
                 ->column(key: 'datetime', label: __('Date & Time'), canBeHidden: false, sortable: true)
