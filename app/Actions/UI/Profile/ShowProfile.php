@@ -7,8 +7,10 @@
 
 namespace App\Actions\UI\Profile;
 
+use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
+use App\Actions\OrgAction;
 use App\Actions\SysAdmin\UserRequest\ShowUserRequestLogs;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
@@ -25,7 +27,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowProfile
+class ShowProfile extends GrpAction
 {
     use AsAction;
     use WithInertia;
@@ -33,6 +35,7 @@ class ShowProfile
 
     public function asController(ActionRequest $request): User
     {
+        $this->initialisation(group(), $request)->withTab(ProfileTabsEnum::values());
         return $request->user();
     }
 
@@ -43,7 +46,6 @@ class ShowProfile
 
     public function htmlResponse(User $user, ActionRequest $request): Response
     {
-
         return Inertia::render(
             "Profile",
             [
