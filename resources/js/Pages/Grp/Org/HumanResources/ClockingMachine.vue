@@ -40,6 +40,7 @@ library.add(
     faBuilding
 );
 
+
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
@@ -51,7 +52,9 @@ const props = defineProps<{
     }
     clockings?: object;
     history?: object;
+    showcase?: object;
 }>()
+
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 

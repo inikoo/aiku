@@ -17,9 +17,9 @@ class GetClockingMachineShowcase
     public function handle(ClockingMachine $clockingMachine): array
     {
         return [
-            [
-
-            ]
+            'slug'              => $clockingMachine->slug,
+            'name'              => $clockingMachine->name,
+            'type'              => $clockingMachine->type,
         ];
     }
 }
