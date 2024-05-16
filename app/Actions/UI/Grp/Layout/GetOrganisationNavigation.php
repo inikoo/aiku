@@ -94,6 +94,19 @@ class GetOrganisationNavigation
             ]
         ];
 
+
+        $navigation['productions_navigation'] = [];
+        foreach (
+            $organisation->authorisedModels()->where('user_id', $user->id)
+                ->where('model_type', 'Production')
+                ->get() as $authorisedModel
+        ) {
+            $production         = $authorisedModel->model;
+            $navigation['productions_navigation']
+            [$production->slug] = GetManufacturingNavigation::run($production, $user);
+        }
+
+
         //todo fix this permission
         if ($user->hasPermissionTo("dispatching.$organisation->id.view")) {
             $navigation["dispatching"] = [
@@ -251,7 +264,7 @@ class GetOrganisationNavigation
             ];
         }
 
-
+/*
         if ($user->hasAnyPermission(['org-supervisor.'.$organisation->id, 'productions-view.'.$organisation->id])) {
             $navigation['productions_index'] = [
                 'label'   => __('Productions'),
@@ -272,17 +285,9 @@ class GetOrganisationNavigation
                 ]
             ];
         }
+*/
 
-        $navigation['productions_navigation'] = [];
-        foreach (
-            $organisation->authorisedModels()->where('user_id', $user->id)
-                ->where('model_type', 'Production')
-                ->get() as $authorisedModel
-        ) {
-            $production         = $authorisedModel->model;
-            $navigation['productions_navigation']
-            [$production->slug] = GetManufacturingNavigation::run($production, $user);
-        }
+
 
         if ($user->hasPermissionTo("procurement.$organisation->id.view")) {
             $navigation['procurement'] = [
