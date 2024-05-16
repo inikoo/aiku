@@ -9,6 +9,7 @@ import { Link } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
 import { useFormatTime, useSecondsToMS } from '@/Composables/useFormatTime'
 import { Timesheet } from "@/types/timesheet";
+import timesheet from "@/Pages/Grp/Org/HumanResources/Timesheet.vue";
 
 defineProps<{
     data: {}
@@ -16,6 +17,8 @@ defineProps<{
 }>()
 
 const timesheetRoute = (timesheet: Timesheet) => {
+
+
     switch (route().current()) {
         case "grp.org.hr.employees.show":
             return route(
@@ -25,10 +28,9 @@ const timesheetRoute = (timesheet: Timesheet) => {
                   timesheet.id])
         default:
             return route(
-                "grp.org.shops.show.crm.customers.show",
+                "grp.org.hr.timesheets.show",
                 [
-                    route().params["organisation"],
-                    route().params["shop"],
+                  route().params["organisation"],
                   timesheet.id
                 ])
     }
@@ -38,13 +40,16 @@ const timesheetRoute = (timesheet: Timesheet) => {
 
 <template>
     <Table :resource="data" class="mt-5" :name="tab">
-        <!-- Column: Code -->
-        <template #cell(slug)="{ item: timesheet }">
-            <Link :href="timesheetRoute(timesheet)" class="whitespace-nowrap primaryLink">
-                {{ timesheet["slug"] }}
-            </Link>
-        </template>
-        
+
+      <template #cell(date)="{ item:timesheet }">
+        <div class="text-gray-500">
+          <Link :href="timesheetRoute(timesheet)" class="whitespace-nowrap primaryLink">
+          {{ useFormatTime(timesheet.date) }}
+          </Link>
+        </div>
+      </template>
+
+
         <!-- Column: Start at -->
         <template #cell(start_at)="{ item: user }">
             <div class="whitespace-nowrap">{{ useFormatTime(user.start_at, {formatTime: 'hm'}) }}</div>
@@ -65,11 +70,7 @@ const timesheetRoute = (timesheet: Timesheet) => {
             <div class="tabular-nums">{{ useSecondsToMS(user.breaks_duration) }}</div>
         </template>
 
-      <template #cell(date)="{ item }">
-        <div class="text-gray-500">
-          {{ useFormatTime(item.date) }}
-        </div>
-      </template>
+
 
     </Table>
 </template>

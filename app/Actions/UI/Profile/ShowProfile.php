@@ -66,20 +66,20 @@ class ShowProfile extends GrpAction
 
                 // pls fix the current tab
                 ProfileTabsEnum::SHOWCASE->value => $this->tab == ProfileTabsEnum::SHOWCASE->value ?
-                    fn() => GetProfileShowcase::run($user)
-                    : Inertia::lazy(fn() => GetProfileShowcase::run($user)),
+                    fn () => GetProfileShowcase::run($user)
+                    : Inertia::lazy(fn () => GetProfileShowcase::run($user)),
 
                 ProfileTabsEnum::TIMESHEETS->value => $this->tab == ProfileTabsEnum::TIMESHEETS->value ?
-                    fn() => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TIMESHEETS->value))
-                    : Inertia::lazy(fn() => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TIMESHEETS->value))),
+                    fn () => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TIMESHEETS->value))
+                    : Inertia::lazy(fn () => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TIMESHEETS->value))),
 
                 ProfileTabsEnum::HISTORY->value => $this->tab == ProfileTabsEnum::HISTORY->value ?
-                    fn() => HistoryResource::collection(IndexHistory::run($user, ProfileTabsEnum::HISTORY->value))
-                    : Inertia::lazy(fn() => HistoryResource::collection(IndexHistory::run($user, ProfileTabsEnum::HISTORY->value))),
+                    fn () => HistoryResource::collection(IndexHistory::run($user, ProfileTabsEnum::HISTORY->value))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($user, ProfileTabsEnum::HISTORY->value))),
 
                 ProfileTabsEnum::VISIT_LOGS->value => $this->tab == ProfileTabsEnum::VISIT_LOGS->value ?
-                    fn() => UserRequestLogsResource::collection(IndexUserRequestLogs::run($user->username, ProfileTabsEnum::VISIT_LOGS->value))
-                    : Inertia::lazy(fn() => UserRequestLogsResource::collection(IndexUserRequestLogs::run($user->username, ProfileTabsEnum::VISIT_LOGS->value))),
+                    fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run($user->username, ProfileTabsEnum::VISIT_LOGS->value))
+                    : Inertia::lazy(fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run($user->username, ProfileTabsEnum::VISIT_LOGS->value))),
 
 
                 // 'auth'          => [

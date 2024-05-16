@@ -74,7 +74,7 @@ Route::get('/calendars', IndexCalendars::class)->name('calendars.index');
 Route::get('/calendars/{calendar}', ShowCalendar::class)->name('calendars.show');
 
 Route::get('/timesheets', IndexTimesheets::class)->name('timesheets.index');
-Route::get('/timesheets/{timeSheet}', ShowTimesheet::class)->name('timesheets.show');
+Route::get('/timesheets/{timesheet}', ShowTimesheet::class)->name('timesheets.show');
 
 
 Route::get('/workplaces', IndexWorkplaces::class)->name('workplaces.index');

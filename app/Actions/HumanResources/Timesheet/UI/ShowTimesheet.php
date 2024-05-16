@@ -9,17 +9,22 @@ namespace App\Actions\HumanResources\Timesheet\UI;
 
 use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\OrgAction;
+use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\HumanResources\EmployeeTabsEnum;
 use App\Http\Resources\HumanResources\TimesheetsResource;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Timesheet;
+use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class ShowTimesheet extends OrgAction
 {
+    private Employee|Organisation $parent;
+
     public function handle(Timesheet $timesheet): Timesheet
     {
         return $timesheet;
@@ -35,6 +40,7 @@ class ShowTimesheet extends OrgAction
 
     public function asController(Organisation $organisation, Timesheet $timesheet, ActionRequest $request): Timesheet
     {
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(EmployeeTabsEnum::values());
 
         return $this->handle($timesheet);
@@ -42,6 +48,7 @@ class ShowTimesheet extends OrgAction
 
     public function inEmployee(Organisation $organisation, Employee $employee, Timesheet $timesheet, ActionRequest $request): Timesheet
     {
+        $this->parent = $employee;
         $this->initialisation($organisation, $request)->withTab(EmployeeTabsEnum::values());
 
         return $this->handle($timesheet);
@@ -52,14 +59,18 @@ class ShowTimesheet extends OrgAction
         return Inertia::render(
             'Org/HumanResources/Timesheet',
             [
-                'title'                                 => __('timesheet'),
-                'breadcrumbs'                           => $this->getBreadcrumbs($timesheet),
-                'navigation'                            => [
+                'title'       => __('timesheet'),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
+                'navigation'  => [
                     'previous' => $this->getPrevious($timesheet, $request),
                     'next'     => $this->getNext($timesheet, $request),
                 ],
                 'pageHead'    => [
-                    'title' => $timesheet->date,
+                    'model' => $timesheet->subject_name,
+                    'title' => $timesheet->date->format('l, j F Y'),
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
@@ -81,67 +92,126 @@ class ShowTimesheet extends OrgAction
         return new TimesheetsResource($timesheet);
     }
 
-    public function getBreadcrumbs(Timesheet $timesheet, $suffix = null): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
-        return array_merge(
-            (new ShowEmployee())->getBreadcrumbs([
-                'organisation' => $this->organisation->slug,
-                'employee'     => $timesheet->subject->slug
-            ]),
-            [
-                [
-                    'type'           => 'modelWithIndex',
-                    'modelWithIndex' => [
-                        'index' => [
-                            'route' => [
-                                'name'       => 'grp.org.hr.employees.show',
-                                'parameters' => [
-                                    'organisation' => $this->organisation->slug,
-                                    'employee'     => $timesheet->subject->slug,
-                                    'tab'          => EmployeeTabsEnum::TIMESHEETS->value
-                                ]
-                            ],
-                            'label' => __('timesheet')
-                        ],
-                        'model' => [
-                            'label' => $timesheet->slug,
-                        ],
-                    ],
-                    'suffix'         => $suffix,
+        $timesheet = Timesheet::where('id', $routeParameters['timesheet'])->first();
 
-                ],
-            ]
-        );
+        return
+            match ($routeName) {
+                'grp.org.hr.timesheets.show' => array_merge(
+                    (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
+                    [
+                        [
+                            'type'           => 'modelWithIndex',
+                            'modelWithIndex' => [
+                                'index' => [
+                                    'route' => [
+                                        'name'       => 'grp.org.hr.timesheets.index',
+                                        'parameters' => Arr::only($routeParameters, 'organisation')
+                                    ],
+                                    'label' => __('timesheets')
+                                ],
+                                'model' => [
+                                    'route' => [
+                                        'name'       => 'grp.org.hr.timesheets.show',
+                                        'parameters' => $routeParameters
+                                    ],
+                                    'label' => $timesheet->subject_name.' '.$timesheet->date->format('Y-m-d'),
+                                ],
+                            ],
+                            'suffix'         => $suffix,
+
+                        ],
+                    ]
+                ),
+                'grp.org.hr.employees.show.timesheets.show' => array_merge(
+                    ShowEmployee::make()->getBreadcrumbs([
+                        'organisation' => $this->organisation->slug,
+                        'employee'     => $timesheet->subject->slug
+                    ]),
+                    [
+                        [
+                            'type'           => 'modelWithIndex',
+                            'modelWithIndex' => [
+                                'index' => [
+                                    'route' => [
+                                        'name'       => 'grp.org.hr.employees.show',
+                                        'parameters' => [
+                                            'organisation' => $this->organisation->slug,
+                                            'employee'     => $timesheet->subject->slug,
+                                            'tab'          => EmployeeTabsEnum::TIMESHEETS->value
+                                        ]
+                                    ],
+                                    'label' => __('timesheets')
+                                ],
+                                'model' => [
+                                    'label' => $timesheet->date->format('Y-m-d'),
+                                ],
+                            ],
+                            'suffix'         => $suffix,
+
+                        ],
+                    ]
+                ),
+            };
     }
 
     public function getPrevious(Timesheet $timesheet, ActionRequest $request): ?array
     {
-        $previous = Timesheet::where('slug', '<', $timesheet->slug)->orderBy('slug', 'desc')->first();
-        return $this->getNavigation($previous, $request->route()->getName());
+        $previous = Timesheet::where('date', '<', $timesheet->date);
+        if ($this->parent instanceof Organisation) {
+            $previous->where('organisation_id', $this->parent->id);
+        } else {
+            $previous->where('subject_type', 'Employee')->where('subject_id', $this->parent->id);
+        }
 
+        $previous = $previous->orderBy('date', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(Timesheet $timesheet, ActionRequest $request): ?array
     {
-        $next = Timesheet::where('slug', '>', $timesheet->slug)->orderBy('slug')->first();
+        $next = Timesheet::where('date', '>', $timesheet->date);
+        if ($this->parent instanceof Organisation) {
+            $next->where('organisation_id', $this->parent->id);
+        } else {
+            $next->where('subject_type', 'Employee')->where('subject_id', $this->parent->id);
+        }
+        $next = $next->orderBy('date')->first();
+
         return $this->getNavigation($next, $request->route()->getName());
     }
 
     private function getNavigation(?Timesheet $timesheet, string $routeName): ?array
     {
-        if(!$timesheet) {
+        if (!$timesheet) {
             return null;
         }
 
+        /** @var Employee|Guest $subject */
+        $subject = $timesheet->subject;
+
+
         return match ($routeName) {
-            'grp.org.hr.employees.show.timesheets.show' => [
-                'label'=> $timesheet->subject_name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
+            'grp.org.hr.timesheets.show' => [
+                'label' => $timesheet->subject_name.' '.$timesheet->date->format('l, j F Y'),
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
                         'organisation' => $this->organisation->slug,
-                        'employee'     => $timesheet->subject->slug,
-                        'timesheet'    => $timesheet->date,
+                        'timesheet'    => $timesheet->id,
+                    ]
+                ]
+            ],
+            'grp.org.hr.employees.show.timesheets.show' => [
+                'label' => $timesheet->date->format('l, j F Y'),
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation' => $this->organisation->slug,
+                        'employee'     => $subject->slug,
+                        'timesheet'    => $timesheet->id,
                     ]
                 ]
             ]
