@@ -19,38 +19,42 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { capitalize } from "@/Composables/capitalize"
 import { faRoad } from "@fas"
 import SysadminUserShowcase from '@/Components/Showcases/Grp/SysadminUserShowcase.vue'
-
+import UserPermissions from '@/Components/Sysadmin/UserPermissions.vue'
+import UserRoles from '@/Components/Sysadmin/UserRoles.vue'
+import { PageHeading as TSPageHeading } from '@/types/PageHeading'
+import { Tabs as TSTabs } from '@/types/Tabs'
+import type { Component } from 'vue'
 library.add(faIdCard, faUser, faClock, faDatabase, faEnvelope, faHexagon, faFile, faRoad, faShieldCheck, faUserTag)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
     title: string,
-    pageHead: {}
-    tabs: {
-        current: string
-        navigation: {}
-    }
-    showcase: {}
-    request_logs: {}
-    history: {}
-
+    pageHead: TSPageHeading
+    tabs: TSTabs
+    showcase?: {}
+    request_logs?: {}
+    history?: {}
+    permissions?: {}
+    roles?: {}
 }>()
 
-let currentTab = ref(props.tabs.current)
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
+
+const currentTab = ref(props.tabs.current)
+const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
-    const components = {
+    const components: Component = {
         showcase: SysadminUserShowcase,
         details: ModelDetails,
         request_logs: TableUserRequestLogs,
-        history: TableHistories
+        history: TableHistories,
+        permissions: UserPermissions,
+        roles: UserRoles,
     }
     return components[currentTab.value]
 
 })
-
 
 </script>
 
@@ -58,5 +62,5 @@ const component = computed(() => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
+    <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab"></component>
 </template>

@@ -5,21 +5,21 @@
   -->
 
 <script setup lang="ts">
-import { Link } from "@inertiajs/vue3";
-import Table from "@/Components/Table/Table.vue";
-import { User } from "@/types/user";
-import { trans } from "laravel-vue-i18n";
-import Image from "@/Components/Image.vue";
-import {faCheck, faTimes, faUserCircle, faYinYang} from "@fal";
-import { library } from "@fortawesome/fontawesome-svg-core";
+import { Link } from "@inertiajs/vue3"
+import Table from "@/Components/Table/Table.vue"
+import { User } from "@/types/user"
+import { trans } from "laravel-vue-i18n"
+import Image from "@/Components/Image.vue"
+import { faCheck, faTimes, faUserCircle, faYinYang } from "@fal"
+import { library } from "@fortawesome/fontawesome-svg-core"
 import Icon from '@/Components/Icon.vue'
 
-library.add(faUserCircle, faTimes, faCheck, faYinYang);
+library.add(faUserCircle, faTimes, faCheck, faYinYang)
 
 const props = defineProps<{
-    data: object,
-    tab?: string,
-}>();
+    data: {}
+    tab?: string
+}>()
 
 
 function userRoute(user: User) {
@@ -27,22 +27,23 @@ function userRoute(user: User) {
         case "grp.sysadmin.users.index":
             return route(
                 "grp.sysadmin.users.show",
-                [user.username]);
+                [user.username])
     }
 }
 
-console.log(props.data);
 
 </script>
 
 <template>
-<!-- <pre>{{ data }}</pre> -->
+    <!-- <pre>{{ data }}</pre> -->
 
     <Table :resource="data" :name="tab" class="mt-5">
+        <!-- Column: Status -->
         <template #cell(status)="{ item: user }">
             <Icon :data="user.status" class="px-1" />
         </template>
 
+        <!-- Column: Username -->
         <template #cell(username)="{ item: user }">
             <Link :href="userRoute(user)" class="primaryLink">
                 <template v-if="user['username']">{{ user["username"] }}</template>
@@ -50,9 +51,11 @@ console.log(props.data);
             </Link>
         </template>
 
+        <!-- Column: Avatar -->
         <template #cell(avatar)="{ item: user }">
             <div class="flex justify-center">
-                <Image :src="user['avatar']" class="w-6 aspect-square rounded-full overflow-hidden" :alt="user.username" />
+                <Image :src="user['avatar']" class="w-6 aspect-square rounded-full overflow-hidden shadow"
+                    :alt="user.username" />
             </div>
         </template>
 
@@ -66,17 +69,17 @@ console.log(props.data);
             <Link v-if="user['parent_type'] === 'Employee'" :href="route(
                 'grp.org.hr.employees.show',
                 [
-                user['parent']['organisation_slug'],
-                user['parent']['slug']]
-                )">
+                    user['parent']['organisation_slug'],
+                    user['parent']['slug']]
+                )" class="secondaryLink">
                 {{ trans("Employee") }}
             </Link>
-            <Link v-else-if="user['parent_type'] === 'Guest'" :href="route('grp.sysadmin.guests.show', user['parent']['slug'])">
+
+            <Link v-else-if="user['parent_type'] === 'Guest'"
+                :href="route('grp.sysadmin.guests.show', user['parent']['slug'])" class="secondaryLink">
                 {{ trans("Guest") }}
             </Link>
         </template>
 
     </Table>
 </template>
-
-

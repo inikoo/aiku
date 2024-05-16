@@ -7,6 +7,7 @@
 
 namespace App\Actions\UI\Profile;
 
+use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
 use App\Actions\SysAdmin\UserRequest\ShowUserRequestLogs;
@@ -25,7 +26,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowProfile
+class ShowProfile extends GrpAction
 {
     use AsAction;
     use WithInertia;
@@ -33,6 +34,7 @@ class ShowProfile
 
     public function asController(ActionRequest $request): User
     {
+        $this->initialisation(group(), $request)->withTab(ProfileTabsEnum::values());
         return $request->user();
     }
 
@@ -43,7 +45,6 @@ class ShowProfile
 
     public function htmlResponse(User $user, ActionRequest $request): Response
     {
-
         return Inertia::render(
             "Profile",
             [
@@ -71,7 +72,7 @@ class ShowProfile
                         ]
                 ],
                 'actions'     => [
-                    $this->getEditActionIcon($request),
+                    $this->getEditActionIcon($request, null),
                 ],
             ],
             'tabs'        => [
@@ -100,9 +101,9 @@ class ShowProfile
             //     fn () => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TODAY_TIMESHEETS->value, true))
             //     : Inertia::lazy(fn () => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TODAY_TIMESHEETS->value, true))),
 
-            'auth'          => [
-                    'user' => LoggedUserResource::make($user)->getArray(),
-                ],
+            // 'auth'          => [
+            //         'user' => LoggedUserResource::make($user)->getArray(),
+            //     ],
 
         ]
         )
@@ -128,7 +129,7 @@ class ShowProfile
             ],
         ], prefix: ProfileTabsEnum::TIMESHEETS->value))
         ->table(ShowUserRequestLogs::make()->tableStructure())
-        ->table(IndexHistory::make()->tableStructure());
+        ->table(IndexHistory::make()->tableStructure('hst'));
     }
 
     public function getBreadcrumbs(): array

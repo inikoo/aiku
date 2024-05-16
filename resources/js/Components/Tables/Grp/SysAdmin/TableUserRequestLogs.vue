@@ -10,7 +10,7 @@ import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue"
 import UserAgent from "@/Components/Elements/Info/UserAgent.vue"
 
 const props = defineProps<{
-    data: object
+    data: {}
 }>()
 
 const formatDate = (dateIso: Date) => {
@@ -21,15 +21,22 @@ const formatDate = (dateIso: Date) => {
 
 <template>
     <Table :resource="data" class="mt-5" name="vst">
+        <!-- Column: Username (if exist) -->
         <template #cell(username)="{ item: user }">
             <template v-if="user.username">{{ user.username }}</template>
         </template>
+
+        <!-- Column: User Agent (if exist) -->
         <template #cell(user_agent)="{ item: user }">
             <UserAgent :data="user.user_agent" />
         </template>
+
+        <!-- Column: Location (if exist) -->
         <template #cell(location)="{ item: user }">
             <AddressLocation :data="user.location" />
         </template>
+
+        <!-- Column: Datetime (if exist) -->
         <template #cell(datetime)="{ item: user }">
             {{ formatDate(user.datetime) }}
         </template>

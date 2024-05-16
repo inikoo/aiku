@@ -190,7 +190,7 @@ class ShowOrgPaymentServiceProvider extends OrgAction
                     prefix: OrgPaymentServiceProviderTabsEnum::PAYMENT_ACCOUNTS->value
                 )
             )
-            ->table(IndexHistory::make()->tableStructure());
+            ->table(IndexHistory::make()->tableStructure('hst'));
     }
 
     public function jsonResponse(OrgPaymentServiceProvider $orgPaymentServiceProvider): OrgPaymentServiceProviderResource

@@ -87,7 +87,7 @@ class ShowPurchaseOrder extends InertiaAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($this->purchaseOrder)))
             ]
         )->table(IndexPurchaseOrderItems::make()->tableStructure())
-            ->table(IndexHistory::make()->tableStructure());
+            ->table(IndexHistory::make()->tableStructure('hst'));
     }
 
     public function jsonResponse(): PurchaseOrderResource

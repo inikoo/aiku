@@ -54,7 +54,7 @@ onUnmounted(() => {
 })
 
 const isUserMac = navigator.platform.includes('Mac')  // To check the user's Operating System
-const notifications = layoutStore.user.notifications;
+const notifications = layoutStore.user.notifications
 
 </script>
 

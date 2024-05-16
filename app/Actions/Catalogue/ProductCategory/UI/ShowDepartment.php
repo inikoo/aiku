@@ -196,7 +196,7 @@ class ShowDepartment extends OrgAction
                     prefix: 'products'
                 )
             )
-            ->table(IndexHistory::make()->tableStructure());
+            ->table(IndexHistory::make()->tableStructure('hst'));
     }
 
 

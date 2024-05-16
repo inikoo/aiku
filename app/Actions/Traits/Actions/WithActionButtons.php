@@ -32,7 +32,7 @@ trait WithActionButtons
         ];
     }
 
-    protected function getEditActionIcon(ActionRequest $request, string $sectionName = 'properties'): array
+    protected function getEditActionIcon(ActionRequest $request, string|null $sectionName = 'properties'): array
     {
         return [
             'type'    => 'button',
