@@ -63,7 +63,6 @@ const props = defineProps<{
     history?: object
     data?:object
     timesheets?:object
-    today_timesheets?:object
     job_positions?: Table
 
 }>()
@@ -79,7 +78,6 @@ const component = computed(() => {
         history: TableHistories,
         data: DataModel,
         timesheets: TableTimesheets,
-        today_timesheets: TableTimesheets,
         job_positions: TableJobPositions,
     };
     return components[currentTab.value];

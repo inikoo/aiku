@@ -19,7 +19,6 @@ enum ProfileTabsEnum: string
     case HISTORY                        = 'history';
     case VISIT_LOGS                     = 'visit_logs';
     // case DATA                           = 'data';
-    // case TODAY_TIMESHEETS               = 'today_timesheets';
     case TIMESHEETS                     = 'timesheets';
     // case ATTACHMENTS                    = 'attachments';
     // case IMAGES                         = 'images';
@@ -29,10 +28,7 @@ enum ProfileTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            // ProfileTabsEnum::TODAY_TIMESHEETS => [
-            //     'title' => __('today timesheets'),
-            //     'icon'  => 'fal fa-database',
-            // ],
+
             ProfileTabsEnum::VISIT_LOGS => [
                 'title' => __('visit logs'),
                 'icon'  => 'fal fa-database',

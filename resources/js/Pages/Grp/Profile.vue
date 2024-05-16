@@ -41,7 +41,6 @@ const component = computed(() => {
         visit_logs: TableUserRequestLogs,
         timesheets: TableTimesheets,
         history: TableHistories,
-        // today_timesheets: TableTimesheets,
     }
 
     return components[currentTab.value]

@@ -59,7 +59,7 @@ class ShowTimesheet extends OrgAction
                     'next'     => $this->getNext($timesheet, $request),
                 ],
                 'pageHead'    => [
-                    'title' => $timesheet->slug,
+                    'title' => $timesheet->date,
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
@@ -135,13 +135,13 @@ class ShowTimesheet extends OrgAction
 
         return match ($routeName) {
             'grp.org.hr.employees.show.timesheets.show' => [
-                'label'=> $timesheet->subject->contact_name,
+                'label'=> $timesheet->subject_name,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
                         'organisation' => $this->organisation->slug,
                         'employee'     => $timesheet->subject->slug,
-                        'timesheet'    => $timesheet->slug,
+                        'timesheet'    => $timesheet->date,
                     ]
                 ]
             ]

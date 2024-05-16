@@ -98,9 +98,6 @@ class ShowProfile extends GrpAction
                 fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run($user->username, ProfileTabsEnum::VISIT_LOGS->value))
                 : Inertia::lazy(fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run($user->username, ProfileTabsEnum::VISIT_LOGS->value))),
 
-            // ProfileTabsEnum::TODAY_TIMESHEETS->value => $this->tab == ProfileTabsEnum::TODAY_TIMESHEETS->value ?
-            //     fn () => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TODAY_TIMESHEETS->value, true))
-            //     : Inertia::lazy(fn () => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TODAY_TIMESHEETS->value, true))),
 
             // 'auth'          => [
             //         'user' => LoggedUserResource::make($user)->getArray(),
