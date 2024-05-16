@@ -22,5 +22,6 @@ Route::name('api.')->group(function () {
     require __DIR__."/tokens.php";
     Route::post('clocking/pin', GetEmployeeUsingPin::class)->name('clocking.pin');
     Route::get('clocking/clocking-machine/{qr}', [ShowClockingMachine::class, 'inApi'])->name('clocking.qr');
-    Route::post('clocking/store', [StoreClocking::class, 'inApi'])->name('clocking.store');
+    Route::scopeBindings()->post('clocking/{clockingMachine:id}/employees/{employee:id}/store', [StoreClocking::class, 'inApi'])->name('clocking.store');
+
 });

@@ -21,6 +21,7 @@ use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
+use Google\Service\ShoppingContent\ActionReason;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Redirect;
@@ -85,9 +86,9 @@ class StoreClocking extends OrgAction
         return $this->handle($request->user(), $parent, $subject, $this->validatedData);
     }
 
-    public function inApi(ClockingMachine|Workplace $parent, Employee $employee): Clocking
+    public function inApi(ClockingMachine $clockingMachine, Employee $employee, ActionRequest $request): Clocking
     {
-        return $this->handle($employee, $parent, $employee, $this->validatedData);
+        return $this->handle($employee, $clockingMachine, $employee, $request->all());
     }
 
 
