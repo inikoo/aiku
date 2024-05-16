@@ -30,7 +30,7 @@ enum ProfileTabsEnum: string
     {
         return match ($this) {
             // ProfileTabsEnum::TODAY_TIMESHEETS => [
-            //     'title' => __('today time sheets'),
+            //     'title' => __('today timesheets'),
             //     'icon'  => 'fal fa-database',
             // ],
             ProfileTabsEnum::VISIT_LOGS => [
@@ -50,7 +50,7 @@ enum ProfileTabsEnum: string
             //     'align' => 'right',
             // ],
             ProfileTabsEnum::TIMESHEETS => [
-                'title' => __('time sheets'),
+                'title' => __('timesheets'),
                 'icon'  => 'fal fa-database',
             ],
             // EmployeeTabsEnum::JOB_POSITIONS => [

@@ -17,6 +17,8 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
 import TableEmployees from "@/Components/Tables/Grp/Org/HumanResources/TableEmployees.vue";
 import TableGuests from "@/Components/Tables/Grp/SysAdmin/TableGuests.vue";
+import type { Navigation } from "@/types/Tabs";
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
 library.add(
   faUserHardHat,
@@ -28,10 +30,10 @@ const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChan
 
 const props = defineProps<{
     title: string,
-    pageHead: object,
+    pageHead: PageHeadingTypes,
     tabs: {
         current: string;
-        navigation: object;
+        navigation: Navigation;
     },
     history?: object,
     employees?: object,

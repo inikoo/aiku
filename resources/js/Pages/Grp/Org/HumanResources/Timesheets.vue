@@ -1,17 +1,17 @@
 <!--
-  -  Author: Raul Perusquia <raul@inikoo.com>
-  -  Created: Thu, 15 Sept 2022 20:33:56 Malaysia Time, Kuala Lumpur, Malaysia
-  -  Copyright (c) 2022, Raul A Perusquia Flores
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Thu, 16 May 2024 12:23:59 British Summer Time, Sheffield, UK
+  - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableClockingMachines from "@/Components/Tables/Grp/Org/HumanResources/TableClockingMachines.vue";
+import TableSheets from "@/Components/Tables/Grp/Org/HumanResources/TableTimesheets.vue";
 import { capitalize } from "@/Composables/capitalize"
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
-const props = defineProps <{
+defineProps <{
     pageHead: PageHeadingTypes
     title: string
     data: object
@@ -21,6 +21,6 @@ const props = defineProps <{
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
-    <TableClockingMachines :data="data" />
+    <TableSheets :data="data" />
 </template>
 

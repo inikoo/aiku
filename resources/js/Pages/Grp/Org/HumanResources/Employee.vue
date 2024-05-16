@@ -25,6 +25,8 @@ import TableHistories from "@/Components/Tables/TableHistories.vue";
 import TableTimesheets from "@/Components/Tables/Grp/Org/HumanResources/TableTimesheets.vue";
 import TableJobPositions from "@/Components/Tables/Grp/Org/HumanResources/TableJobPositions.vue";
 import type {Table} from "@/types/Table.ts"
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
+import type { Navigation } from "@/types/Tabs";
 
 library.add(
     faIdCard,
@@ -53,10 +55,10 @@ const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChan
 
 const props = defineProps<{
     title: string,
-    pageHead: object,
+    pageHead: PageHeadingTypes,
     tabs: {
         current: string;
-        navigation: object;
+        navigation: Navigation;
     },
     history?: object
     data?:object

@@ -23,6 +23,7 @@ class StoreTimesheet extends OrgAction
     {
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
+        data_set($modelData, 'subject_name', $parent->contact_name);
 
         /** @var Timesheet $timesheet */
         $timesheet = $parent->timesheets()->create($modelData);

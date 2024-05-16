@@ -435,11 +435,11 @@ class GetOrganisationNavigation
                         //     ]
                         // ],
                         [
-                            'label' => __('time sheets'),
+                            'label' => __('timesheets'),
                             'icon'  => ['fal', 'fa-stopwatch'],
-                            'root'  => 'grp.org.hr.time-sheets.',
+                            'root'  => 'grp.org.hr.timesheets.',
                             'route' => [
-                                'name'       => 'grp.org.hr.time-sheets.index',
+                                'name'       => 'grp.org.hr.timesheets.index',
                                 'parameters' => [$organisation->slug],
 
                             ]

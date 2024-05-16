@@ -18,7 +18,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowTimeSheet extends OrgAction
+class ShowTimesheet extends OrgAction
 {
     public function handle(Timesheet $timesheet): Timesheet
     {
@@ -50,7 +50,7 @@ class ShowTimeSheet extends OrgAction
     public function htmlResponse(Timesheet $timesheet, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/HumanResources/TimeSheet',
+            'Org/HumanResources/Timesheet',
             [
                 'title'                                 => __('timesheet'),
                 'breadcrumbs'                           => $this->getBreadcrumbs($timesheet),

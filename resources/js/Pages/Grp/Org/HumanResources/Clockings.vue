@@ -8,11 +8,12 @@ import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import TableClockings from "@/Components/Tables/Grp/Org/HumanResources/TableClockings.vue";
 import { capitalize } from "@/Composables/capitalize"
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
 const props = defineProps<{
     data: object
     title: string
-    pageHead: object
+    pageHead: PageHeadingTypes
 }>()
 </script>
 

@@ -33,7 +33,7 @@ use App\Actions\HumanResources\JobPosition\UI\IndexJobPositions;
 use App\Actions\HumanResources\JobPosition\UI\RemoveJobPosition;
 use App\Actions\HumanResources\JobPosition\UI\ShowJobPosition;
 use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
-use App\Actions\HumanResources\Timesheet\UI\ShowTimeSheet;
+use App\Actions\HumanResources\Timesheet\UI\ShowTimesheet;
 use App\Actions\HumanResources\Workplace\UI\CreateWorkplace;
 use App\Actions\HumanResources\Workplace\UI\EditWorkplace;
 use App\Actions\HumanResources\Workplace\UI\IndexWorkplaces;
@@ -61,7 +61,7 @@ Route::post('/employees/{employee}/user', ShowEmployee::class)->name('employees.
 Route::post('/employees/{employee}/user', CreateUserFromEmployee::class)->name('employees.show.user.store');
 Route::get('/employees/{employee}/timesheets/export', ExportEmployeeTimesheets::class)->name('employees.timesheets.export');
 
-Route::get('/employees/{employee}/timesheets/{timesheet}', [ShowTimeSheet::class, 'inEmployee'])->name('employees.show.timesheets.show');
+Route::get('/employees/{employee}/timesheets/{timesheet}', [ShowTimesheet::class, 'inEmployee'])->name('employees.show.timesheets.show');
 
 Route::get('/positions', IndexJobPositions::class)->name('job-positions.index');
 Route::get('/positions/create', CreateJobPosition::class)->name('job-positions.create');
@@ -73,8 +73,8 @@ Route::get('/positions/{jobPosition}/delete', RemoveJobPosition::class)->name('j
 Route::get('/calendars', IndexCalendars::class)->name('calendars.index');
 Route::get('/calendars/{calendar}', ShowCalendar::class)->name('calendars.show');
 
-Route::get('/time-sheets', IndexTimeSheets::class)->name('time-sheets.index');
-Route::get('/time-sheets/{timeSheet}', ShowTimesheet::class)->name('time-sheets.show');
+Route::get('/timesheets', IndexTimesheets::class)->name('timesheets.index');
+Route::get('/timesheets/{timeSheet}', ShowTimesheet::class)->name('timesheets.show');
 
 
 Route::get('/workplaces', IndexWorkplaces::class)->name('workplaces.index');

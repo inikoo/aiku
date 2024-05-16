@@ -18,10 +18,10 @@ return new class () extends Migration {
         Schema::create('timesheets', function (Blueprint $table) {
             $table->increments('id');
             $table = $this->groupOrgRelationship($table);
-            $table->string('slug')->unique()->collation('und_ns');
             $table->date('date');
             $table->string('subject_type')->comment('Employee|Guest');
             $table->unsignedSmallInteger('subject_id');
+            $table->string('subject_name')->index();
             $table->dateTimeTz('start_at')->nullable();
             $table->dateTimeTz('end_at')->nullable();
             $table->unsignedSmallInteger('number_time_trackers')->default(0);

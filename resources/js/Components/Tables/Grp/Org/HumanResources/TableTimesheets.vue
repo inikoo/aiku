@@ -8,31 +8,32 @@
 import { Link } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
 import { useFormatTime, useSecondsToMS } from '@/Composables/useFormatTime'
-import customer from "@/Pages/Grp/Org/Fulfilment/FulfilmentCustomer.vue";
+import { Timesheet } from "@/types/timesheet";
 
-const props = defineProps<{
+defineProps<{
     data: {}
     tab?: string
 }>()
 
-const timesheetRoute = (timesheet) => {
+const timesheetRoute = (timesheet: Timesheet) => {
     switch (route().current()) {
         case "grp.org.hr.employees.show":
             return route(
                 "grp.org.hr.employees.show.timesheets.show",
-                [route().params["organisation"], route().params["employee"], timesheet.slug])
+                [route().params["organisation"],
+                  route().params["employee"],
+                  timesheet.id])
         default:
             return route(
                 "grp.org.shops.show.crm.customers.show",
                 [
                     route().params["organisation"],
                     route().params["shop"],
-                    customer.slug
+                  timesheet.id
                 ])
     }
 }
 
-// console.log(props.data)
 </script>
 
 <template>
@@ -63,6 +64,12 @@ const timesheetRoute = (timesheet) => {
         <template #cell(breaks_duration)="{ item: user }">
             <div class="tabular-nums">{{ useSecondsToMS(user.breaks_duration) }}</div>
         </template>
+
+      <template #cell(date)="{ item }">
+        <div class="text-gray-500">
+          {{ useFormatTime(item.date) }}
+        </div>
+      </template>
 
     </Table>
 </template>
