@@ -33,7 +33,7 @@ const props = defineProps<{
             navigation: Navigation[]
         }
     }
-    icon: string
+    // icon: string
 
 }>()
 
@@ -152,7 +152,11 @@ const isShowHorizontal = () => {
 
             <!-- Label: 'UK (Shop)' -->
             <div class="relative flex gap-x-1.5 items-center">
-                <FontAwesomeIcon v-if="icon" :icon='icon' class='text-xxs' fixed-width aria-hidden='true' />
+                <Transition name="spin-to-down">
+                    <FontAwesomeIcon v-if="currentNavigation()?.type === 'shop'" icon="fal fa-store-alt" class='text-xxs' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon v-else-if="currentNavigation()?.type === 'fulfilment'" icon="fal fa-hand-holding-box" class='text-xxs' fixed-width aria-hidden='true' />
+                </Transition>
+
                 <div v-if="layout.leftSidebar.show" class="flex items-center gap-x-1.5">
                     <Transition name="spin-to-down">
                         <span :key="currentNavigation()?.key" class="text-sm leading-none uppercase">
