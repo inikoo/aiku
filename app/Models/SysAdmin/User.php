@@ -126,6 +126,14 @@ class User extends Authenticatable implements HasMedia, Auditable
         'settings' => '{}',
     ];
 
+    protected $auditExclude = [
+        'number_authorised_organisations',
+        'number_authorised_fulfilments',
+        'number_authorised_shops',
+        'number_authorised_warehouses',
+        'number_authorised_productions'
+    ];
+
     public function generateTags(): array
     {
         return [

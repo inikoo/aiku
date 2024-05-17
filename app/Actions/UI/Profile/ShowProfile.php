@@ -58,6 +58,17 @@ class ShowProfile extends GrpAction
                 "breadcrumbs"                    => $this->getBreadcrumbs(),
                 "pageHead"                       => [
                     "title" => __("My Profile"),
+                    'actions'      => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'label' => __('edit profile'),
+                            'route' => [
+                                'name'       => 'grp.profile.edit',
+                                'parameters' => array_values(request()->route()->originalParameters())
+                            ],
+                        ]
+                    ]
                 ],
                 'tabs'                           => [
                     'current'    => $this->tab,
@@ -78,8 +89,8 @@ class ShowProfile extends GrpAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($user, ProfileTabsEnum::HISTORY->value))),
 
                 ProfileTabsEnum::VISIT_LOGS->value => $this->tab == ProfileTabsEnum::VISIT_LOGS->value ?
-                    fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run($user->username, ProfileTabsEnum::VISIT_LOGS->value))
-                    : Inertia::lazy(fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run($user->username, ProfileTabsEnum::VISIT_LOGS->value))),
+                    fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run())
+                    : Inertia::lazy(fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run())),
 
 
                 // 'auth'          => [
