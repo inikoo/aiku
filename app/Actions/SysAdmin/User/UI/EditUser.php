@@ -40,8 +40,16 @@ class EditUser extends InertiaAction
 
     public function htmlResponse(User $user, ActionRequest $request): Response
     {
+
+
+        $orgTypeShop=[];
+
         $roles       = collect(RolesEnum::cases());
         $permissions = $roles->map(function ($role) {
+
+
+
+
             return [$role->label() => match ($role->scope()) {
                 class_basename(Group::class) => Group::all()->map(function (Group $group) {
                     return [$group->name => [
@@ -113,8 +121,8 @@ class EditUser extends InertiaAction
                             ],
                         ],
                     ],
-                    "permissions" => [
-                        "label"   => __("Permissions"),
+                    "permissions_shop_organisation" => [
+                        "label"   => __("Ecommerce Permissions"),
                         "title"   => __("Permissions"),
                         "icon"    => "fa-light fa-user-lock",
                         "current" => false,
@@ -128,6 +136,38 @@ class EditUser extends InertiaAction
                             ],
                         ],
                     ],
+                    "permissions_agents" => [
+                        "label"   => __("Agents Permissions"),
+                        "title"   => __("Permissions"),
+                        "icon"    => "fa-light fa-user-lock",
+                        "current" => false,
+                        "fields"  => [
+                            "permissions" => [
+                                "full"              => true,
+                                "type"              => "permissions",
+                                "label"             => __("permissions"),
+                                "value"             => $permissions,
+                                "fullComponentArea" => true,
+                            ],
+                        ],
+                    ],
+
+                    "permissions_digital_agency" => [
+                        "label"   => __("Digital agency permissions"),
+                        "title"   => __("Permissions"),
+                        "icon"    => "fa-light fa-user-lock",
+                        "current" => false,
+                        "fields"  => [
+                            "permissions" => [
+                                "full"              => true,
+                                "type"              => "permissions",
+                                "label"             => __("permissions"),
+                                "value"             => $permissions,
+                                "fullComponentArea" => true,
+                            ],
+                        ],
+                    ],
+
                 ],
                 "args" => [
                     "updateRoute" => [

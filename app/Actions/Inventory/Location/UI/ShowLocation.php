@@ -140,7 +140,7 @@ class ShowLocation extends OrgAction
                     fn () => HistoryResource::collection(IndexHistory::run($location))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($location)))
             ]
-        )->table(IndexHistory::make()->tableStructure())->table(
+        )->table(IndexHistory::make()->tableStructure(prefix: LocationTabsEnum::HISTORY->value))->table(
             IndexPallets::make()->tableStructure(
                 $location,
                 prefix: PalletDeliveryTabsEnum::PALLETS->value

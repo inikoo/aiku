@@ -41,16 +41,18 @@ import ModelDetails from "@/Components/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableClockingMachine from "@/Components/Tables/Grp/Org/HumanResources/TableClockingMachines.vue";
 import TableClockings from "@/Components/Tables/Grp/Org/HumanResources/TableClockings.vue";
+import type { Navigation } from "@/types/Tabs";
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
 
 const ModelChangelog = defineAsyncComponent(() => import("@/Components/ModelChangelog.vue"));
 
 const props = defineProps<{
     title: string,
-    pageHead: object,
+    pageHead: PageHeadingTypes,
     tabs: {
         current: string;
-        navigation: object;
+        navigation: Navigation;
     }
     clocking_machines?: object;
     clockings?: object;

@@ -1,3 +1,9 @@
+<!--
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Thu, 16 May 2024 12:23:41 British Summer Time, Sheffield, UK
+  - Copyright (c) 2024, Raul A Perusquia Flores
+  -->
+
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';

@@ -11,7 +11,6 @@ use App\Actions\Manufacturing\Production\UI\ShowProductionCrafts;
 use App\Actions\OrgAction;
 use App\Enums\UI\Manufacturing\ArtefactsTabsEnum;
 use App\Http\Resources\Manufacturing\ArtefactsResource;
-use App\Http\Resources\Manufacturing\ProductionsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Manufacturing\Artefact;
 use App\Models\Manufacturing\Production;
@@ -209,8 +208,8 @@ class IndexArtefacts extends OrgAction
                 ],
 
                 ArtefactsTabsEnum::ARTEFACTS->value => $this->tab == ArtefactsTabsEnum::ARTEFACTS->value ?
-                    fn () => ProductionsResource::collection($artefacts)
-                    : Inertia::lazy(fn () => ProductionsResource::collection($artefacts)),
+                    fn () => ArtefactsResource::collection($artefacts)
+                    : Inertia::lazy(fn () => ArtefactsResource::collection($artefacts)),
 
             ]
         )->table(

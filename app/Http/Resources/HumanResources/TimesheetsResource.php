@@ -8,33 +8,38 @@
 
 namespace App\Http\Resources\HumanResources;
 
-use App\Models\HumanResources\Timesheet;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
 use JsonSerializable;
 
+/**
+ * @property int $id
+ * @property mixed $date
+ * @property mixed $start_at
+ * @property mixed $end_at
+ * @property mixed $working_duration
+ * @property mixed $breaks_duration
+ * @property int $number_time_trackers
+ * @property int $number_open_time_trackers
+ * @property string $subject_name
+ */
 class TimesheetsResource extends JsonResource
 {
     public function toArray($request): array|Arrayable|JsonSerializable
     {
-        /** @var Timesheet $timesheet */
-        $timesheet = $this;
+
 
         return [
-            'id'                                       => $timesheet->id,
-            'organisation_id'                          => $timesheet->organisation_id,
-            'organisation_slug'                        => $timesheet->organisation->slug,
-            'slug'                                     => $timesheet->slug,
-            'date'                                     => $timesheet->date,
-            'start_at'                                 => $timesheet->start_at,
-            'end_at'                                   => $timesheet->end_at,
-            'working_duration'                         => $timesheet->working_duration,
-            'breaks_duration'                          => $timesheet->breaks_duration,
-            'number_time_trackers'                     => $timesheet->number_time_trackers,
-            'number_open_time_trackers'                => $timesheet->number_open_time_trackers,
+            'id'                                       => $this->id,
+            'date'                                     => $this->date,
+            'subject_name'                             => $this->subject_name,
+            'start_at'                                 => $this->start_at,
+            'end_at'                                   => $this->end_at,
+            'working_duration'                         => $this->working_duration,
+            'breaks_duration'                          => $this->breaks_duration,
+            'number_time_trackers'                     => $this->number_time_trackers,
+            'number_open_time_trackers'                => $this->number_open_time_trackers,
 
-            'created_at' => $timesheet->created_at,
-            'updated_at' => $timesheet->updated_at,
         ];
     }
 }

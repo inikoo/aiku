@@ -93,9 +93,7 @@ class ShowEmployee extends OrgAction
                     fn () => TimesheetsResource::collection(IndexTimesheets::run($employee, EmployeeTabsEnum::TIMESHEETS->value))
                     : Inertia::lazy(fn () => TimesheetsResource::collection(IndexTimesheets::run($employee, EmployeeTabsEnum::TIMESHEETS->value))),
 
-                EmployeeTabsEnum::TODAY_TIMESHEETS->value => $this->tab == EmployeeTabsEnum::TODAY_TIMESHEETS->value ?
-                    fn () => TimesheetsResource::collection(IndexTimesheets::run($employee, EmployeeTabsEnum::TODAY_TIMESHEETS->value, true))
-                    : Inertia::lazy(fn () => TimesheetsResource::collection(IndexTimesheets::run($employee, EmployeeTabsEnum::TODAY_TIMESHEETS->value, true))),
+
 
                 EmployeeTabsEnum::DATA->value => $this->tab == EmployeeTabsEnum::DATA->value ?
                     fn () => $this->getData($employee)
@@ -110,8 +108,10 @@ class ShowEmployee extends OrgAction
                     : Inertia::lazy(fn () => JobPositionsResource::collection(IndexJobPositions::run($employee, EmployeeTabsEnum::JOB_POSITIONS->value, true))),
 
             ]
-        )->table(IndexHistory::make()->tableStructure())
-            ->table(IndexTimesheets::make()->tableStructure(modelOperations: [
+        )->table(IndexHistory::make()->tableStructure(prefix: EmployeeTabsEnum::HISTORY->value))
+            ->table(IndexTimesheets::make()->tableStructure(
+                parent:$employee,
+                modelOperations: [
                 'createLink' => [
                     [
                         'type'          => 'button',
@@ -131,8 +131,10 @@ class ShowEmployee extends OrgAction
                         ]
                     ]
                 ],
-            ], prefix: EmployeeTabsEnum::TIMESHEETS->value))
-            ->table(IndexTimesheets::make()->tableStructure(prefix: EmployeeTabsEnum::TODAY_TIMESHEETS->value))
+            ],
+                prefix: EmployeeTabsEnum::TIMESHEETS->value
+            ))
+
             ->table(IndexJobPositions::make()->tableStructure(prefix: EmployeeTabsEnum::JOB_POSITIONS->value));
     }
 

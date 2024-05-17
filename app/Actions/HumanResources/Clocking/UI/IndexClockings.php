@@ -11,9 +11,10 @@ use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
 use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
 use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
-use App\Http\Resources\HumanResources\ClockingResource;
+use App\Http\Resources\HumanResources\ClockingsResource;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
+use App\Models\HumanResources\Timesheet;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use Closure;
@@ -23,31 +24,41 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
-use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
 class IndexClockings extends OrgAction
 {
-    private Organisation|Workplace|ClockingMachine $parent;
+    private Organisation|Workplace|ClockingMachine|Timesheet $parent;
 
-    public function handle($parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|Workplace|ClockingMachine|Timesheet $parent, $prefix = null): LengthAwarePaginator
     {
-        $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
-            $query->where(function ($query) use ($value) {
-                $query->whereStartWith('clockings.id', $value);
-            });
-        });
+
 
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
         $queryBuilder = QueryBuilder::for(Clocking::class);
 
+        switch (class_basename($parent)) {
+            case 'ClockingMachine':
+                $queryBuilder->where('clockings.clocking_machine_id', $parent->id);
+                break;
+            case 'Workplace':
+                $queryBuilder->where('clockings.workplace_id', $parent->id);
+                break;
+            case 'Organisation':
+                $queryBuilder->where('clockings.organisation_id', $parent->id);
+                break;
+            case 'Timesheet':
+                $queryBuilder->where('clockings.timesheet_id', $parent->id);
+                break;
+        }
 
         return $queryBuilder
-            ->defaultSort('clockings.id')
+            ->defaultSort('clockings.clocked_at')
             ->select(
                 [
+                    'clocked_at',
                     'clockings.id',
                     'clockings.type',
                     'workplaces.slug as workplace_slug',
@@ -57,27 +68,17 @@ class IndexClockings extends OrgAction
             )
             ->leftJoin('workplaces', 'clockings.workplace_id', 'workplaces.id')
             ->leftJoin('clocking_machines', 'clockings.clocking_machine_id', 'clocking_machines.id')
-            ->when($parent, function ($query) use ($parent) {
-                switch (class_basename($parent)) {
-                    case 'ClockingMachine':
-                        $query->where('clockings.clocking_machine_id', $parent->id);
-                        break;
-                    case 'Workplace':
-                        $query->where('clockings.workplace_id', $parent->id);
-                        break;
-                }
-            })
-            ->allowedSorts(['id'])
-            ->allowedFilters([$globalSearch])
+            ->allowedSorts(['clocked_at'])
             ->withPaginator($prefix)
             ->withQueryString();
     }
 
 
-    public function tableStructure(Organisation|Workplace|ClockingMachine $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Organisation|Workplace|ClockingMachine|Timesheet $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
+
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
@@ -93,8 +94,8 @@ class IndexClockings extends OrgAction
                             class_basename($parent) == 'ClockingMachine' ? $parent->humanResourcesStats?->number_clockings : $parent->stats?->number_clockings,
                     ]
                 )
-                ->column(key: 'id', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('id');
+                ->column(key: 'clocked_at', label: __('time'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('slug');
         };
     }
 
@@ -139,7 +140,7 @@ class IndexClockings extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $clockings): AnonymousResourceCollection
     {
-        return ClockingResource::collection($clockings);
+        return ClockingsResource::collection($clockings);
     }
 
 
@@ -179,7 +180,7 @@ class IndexClockings extends OrgAction
                         ] : false
                     ]
                 ],
-                'data'        => ClockingResource::collection($clockings),
+                'data'        => ClockingsResource::collection($clockings),
 
 
             ]

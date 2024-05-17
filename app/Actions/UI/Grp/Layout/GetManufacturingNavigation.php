@@ -76,9 +76,9 @@ class GetManufacturingNavigation
                             'label'   => __('tasks'),
                             'tooltip' => __('manufacture tasks'),
                             'icon'    => ['fal', 'fa-code-merge'],
-                            'root'    => 'grp.org.productions.show.crafts.raw_materials.',
+                            'root'    => 'grp.org.productions.show.crafts.manufacture_tasks.',
                             'route'   => [
-                                'name'       => 'grp.org.productions.show.crafts.raw_materials.index',
+                                'name'       => 'grp.org.productions.show.crafts.manufacture_tasks.index',
                                 'parameters' => [$production->organisation->slug, $production->slug]
                             ],
                         ],

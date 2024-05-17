@@ -8,42 +8,47 @@
 import { Link } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
 import { useFormatTime, useSecondsToMS } from '@/Composables/useFormatTime'
-import customer from "@/Pages/Grp/Org/Fulfilment/FulfilmentCustomer.vue";
+import { Timesheet } from "@/types/timesheet";
 
-const props = defineProps<{
+defineProps<{
     data: {}
     tab?: string
 }>()
 
-const timesheetRoute = (timesheet) => {
+const timesheetRoute = (timesheet: Timesheet) => {
+
+
     switch (route().current()) {
         case "grp.org.hr.employees.show":
             return route(
                 "grp.org.hr.employees.show.timesheets.show",
-                [route().params["organisation"], route().params["employee"], timesheet.slug])
+                [route().params["organisation"],
+                  route().params["employee"],
+                  timesheet.id])
         default:
             return route(
-                "grp.org.shops.show.crm.customers.show",
+                "grp.org.hr.timesheets.show",
                 [
-                    route().params["organisation"],
-                    route().params["shop"],
-                    customer.slug
+                  route().params["organisation"],
+                  timesheet.id
                 ])
     }
 }
 
-// console.log(props.data)
 </script>
 
 <template>
     <Table :resource="data" class="mt-5" :name="tab">
-        <!-- Column: Code -->
-        <template #cell(slug)="{ item: timesheet }">
-            <Link :href="timesheetRoute(timesheet)" class="whitespace-nowrap primaryLink">
-                {{ timesheet["slug"] }}
-            </Link>
-        </template>
-        
+
+      <template #cell(date)="{ item:timesheet }">
+        <div class="text-gray-500">
+          <Link :href="timesheetRoute(timesheet)" class="whitespace-nowrap primaryLink">
+          {{ useFormatTime(timesheet.date) }}
+          </Link>
+        </div>
+      </template>
+
+
         <!-- Column: Start at -->
         <template #cell(start_at)="{ item: user }">
             <div class="whitespace-nowrap">{{ useFormatTime(user.start_at, {formatTime: 'hm'}) }}</div>
@@ -63,6 +68,8 @@ const timesheetRoute = (timesheet) => {
         <template #cell(breaks_duration)="{ item: user }">
             <div class="tabular-nums">{{ useSecondsToMS(user.breaks_duration) }}</div>
         </template>
+
+
 
     </Table>
 </template>

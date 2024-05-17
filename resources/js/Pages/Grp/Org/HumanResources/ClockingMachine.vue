@@ -20,6 +20,7 @@ import TableHistories from "@/Components/Tables/TableHistories.vue";
 
 import { capitalize } from "@/Composables/capitalize"
 import {faCheckCircle} from '@fas';
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 library.add(
     faIdCard,
     faUser,
@@ -45,7 +46,7 @@ const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChan
 
 const props = defineProps<{
     title: string,
-    pageHead: object,
+    pageHead: PageHeadingTypes,
     tabs: {
         current: string;
         navigation: object;

@@ -15,6 +15,7 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InProduction;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
@@ -46,6 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Manufacturing\Production $production
+ * @property-read \App\Models\Manufacturing\RawMaterialStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|RawMaterial newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RawMaterial newQuery()
@@ -88,6 +90,11 @@ class RawMaterial extends Model implements Auditable
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(RawMaterialStats::class);
     }
 
 

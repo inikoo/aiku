@@ -35,6 +35,8 @@ use Spatie\Tags\Tag as BaseTag;
  * @method static \Illuminate\Database\Eloquent\Builder|Tag newQuery()
  * @method static Builder|Tag ordered(string $direction = 'asc')
  * @method static \Illuminate\Database\Eloquent\Builder|Tag query()
+ * @method static Builder|Tag whereJsonContainsLocale(string $column, string $locale, ?mixed $value)
+ * @method static Builder|Tag whereJsonContainsLocales(string $column, array $locales, ?mixed $value)
  * @method static Builder|Tag whereLocale(string $column, string $locale)
  * @method static Builder|Tag whereLocales(string $column, array $locales)
  * @method static Builder|Tag withType(?string $type = null)

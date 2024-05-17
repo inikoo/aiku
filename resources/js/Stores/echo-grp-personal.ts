@@ -72,7 +72,6 @@ export const useEchoGrpPersonal = defineStore("echo-grp-personal", {
                 }
             );
 
-            console.log(param)
         },
     },
 });

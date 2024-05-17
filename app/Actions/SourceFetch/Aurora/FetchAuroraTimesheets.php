@@ -21,20 +21,20 @@ class FetchAuroraTimesheets extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Timesheet
     {
-        if ($timeSheetData = $organisationSource->fetchTimesheet($organisationSourceId)) {
+        if ($timesheetData = $organisationSource->fetchTimesheet($organisationSourceId)) {
 
-            if ($timesheet = Timesheet::where('source_id', $timeSheetData['timesheet']['source_id'])->first()) {
+            if ($timesheet = Timesheet::where('source_id', $timesheetData['timesheet']['source_id'])->first()) {
                 $timesheet = UpdateTimesheet::make()->action(
                     timesheet: $timesheet,
-                    modelData: $timeSheetData['timesheet']
+                    modelData: $timesheetData['timesheet']
                 );
             } else {
                 $timesheet = StoreTimesheet::make()->action(
-                    parent: $timeSheetData['employee'],
-                    modelData: $timeSheetData['timesheet'],
+                    parent: $timesheetData['employee'],
+                    modelData: $timesheetData['timesheet'],
                 );
 
-                foreach ($timeSheetData['clockings'] as $clockingData) {
+                foreach ($timesheetData['clockings'] as $clockingData) {
                     StoreClocking::make()->action(
                         generator: $clockingData['generator'],
                         parent: $clockingData['parent'],

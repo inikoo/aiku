@@ -11,20 +11,18 @@ import { faEnvelope, faIdCard, faPhone, faSignature, faUser, faBirthdayCake, faV
 import {faCheckCircle} from '@fas';
 import { router } from '@inertiajs/vue3'
 import { capitalize } from "@/Composables/capitalize"
-
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-
-
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Components/ModelDetails.vue";
 import DataModel from "@/Components/DataModel.vue";
-
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableHistories from "@/Components/Tables/TableHistories.vue";
 import TableTimesheets from "@/Components/Tables/Grp/Org/HumanResources/TableTimesheets.vue";
 import TableJobPositions from "@/Components/Tables/Grp/Org/HumanResources/TableJobPositions.vue";
 import type {Table} from "@/types/Table.ts"
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
+import type { Navigation } from "@/types/Tabs";
 
 library.add(
     faIdCard,
@@ -53,15 +51,14 @@ const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChan
 
 const props = defineProps<{
     title: string,
-    pageHead: object,
+    pageHead: PageHeadingTypes,
     tabs: {
         current: string;
-        navigation: object;
+        navigation: Navigation;
     },
     history?: object
     data?:object
     timesheets?:object
-    today_timesheets?:object
     job_positions?: Table
 
 }>()
@@ -77,7 +74,6 @@ const component = computed(() => {
         history: TableHistories,
         data: DataModel,
         timesheets: TableTimesheets,
-        today_timesheets: TableTimesheets,
         job_positions: TableJobPositions,
     };
     return components[currentTab.value];

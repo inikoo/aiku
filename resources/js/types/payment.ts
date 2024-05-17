@@ -11,6 +11,4 @@ export interface Payment {
     status: string
     date: string
     reference: string,
-
-
 }

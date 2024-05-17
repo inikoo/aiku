@@ -12,6 +12,8 @@ use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardTermsE
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InProduction;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -45,6 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Manufacturing\Production $production
+ * @property-read \App\Models\Manufacturing\ManufactureTaskStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|ManufactureTask newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ManufactureTask newQuery()
@@ -87,7 +90,12 @@ class ManufactureTask extends Model
         return 'slug';
     }
 
-    public function artefacts()
+    public function stats(): HasOne
+    {
+        return $this->hasOne(ManufactureTaskStats::class);
+    }
+
+    public function artefacts(): BelongsToMany
     {
         return $this->belongsToMany(Artefact::class)->using(ArtefactManufactureTask::class);
     }
