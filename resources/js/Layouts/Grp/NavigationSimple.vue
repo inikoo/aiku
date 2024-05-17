@@ -20,8 +20,8 @@ import { layoutStructure } from '@/Composables/useLayoutStructure'
 library.add(faRoute, faHandHoldingBox, faIndustry)
 
 const props = defineProps<{
-    navKey?: string | number  // shops_navigation | warehouses_navigation
     nav: Navigation
+    navKey?: string | number  // shops_navigation | warehouses_navigation
 }>()
 
 const layout = inject('layout', layoutStructure)

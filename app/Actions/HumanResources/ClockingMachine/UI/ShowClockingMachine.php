@@ -142,16 +142,16 @@ class ShowClockingMachine extends OrgAction
                     : Inertia::lazy(fn () => GetClockingMachineShowcase::run($clockingMachine)),
 
                 ClockingMachineTabsEnum::CLOCKINGS->value => $this->tab == ClockingMachineTabsEnum::CLOCKINGS->value ?
-                    fn () => ClockingsResource::collection(IndexClockings::run($clockingMachine))
-                    : Inertia::lazy(fn () => ClockingsResource::collection(IndexClockings::run($clockingMachine))),
+                    fn () => ClockingsResource::collection(IndexClockings::run($clockingMachine, ClockingMachineTabsEnum::CLOCKINGS->value))
+                    : Inertia::lazy(fn () => ClockingsResource::collection(IndexClockings::run($clockingMachine, ClockingMachineTabsEnum::CLOCKINGS->value))),
 
                 ClockingMachineTabsEnum::HISTORY->value => $this->tab == ClockingMachineTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($clockingMachine))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($clockingMachine)))
 
             ]
-        )->table(IndexClockings::make()->tableStructure($clockingMachine))
-            ->table(IndexHistory::make()->tableStructure(prefix: ClockingMachineTabsEnum::HISTORY->value));
+        )->table(IndexClockings::make()->tableStructure($clockingMachine, prefix: ClockingMachineTabsEnum::CLOCKINGS->value))
+            ->table(IndexHistory::make()->tableStructure('hst'));
     }
 
 

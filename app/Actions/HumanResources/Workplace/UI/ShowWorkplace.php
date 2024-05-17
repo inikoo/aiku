@@ -15,8 +15,8 @@ use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\HumanResources\WorkplaceTabsEnum;
 use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\HumanResources\ClockingMachineResource;
-use App\Http\Resources\HumanResources\ClockingsResource;
+use App\Http\Resources\HumanResources\ClockingMachinesResource;
+use App\Http\Resources\HumanResources\ClockingResource;
 use App\Http\Resources\HumanResources\WorkplaceResource;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
@@ -112,13 +112,13 @@ class ShowWorkplace extends OrgAction
 
                 WorkplaceTabsEnum::CLOCKINGS->value         => $this->tab == WorkplaceTabsEnum::CLOCKINGS->value
                     ?
-                    fn () => ClockingsResource::collection(
+                    fn () => ClockingResource::collection(
                         IndexClockings::run(
                             parent: $workplace,
                             prefix: 'clockings'
                         )
                     )
-                    : Inertia::lazy(fn () => ClockingsResource::collection(
+                    : Inertia::lazy(fn () => ClockingResource::collection(
                         IndexClockings::run(
                             parent: $workplace,
                             prefix: 'clockings'
@@ -126,13 +126,13 @@ class ShowWorkplace extends OrgAction
                     )),
                 WorkplaceTabsEnum::CLOCKING_MACHINES->value => $this->tab == WorkplaceTabsEnum::CLOCKING_MACHINES->value
                     ?
-                    fn () => ClockingMachineResource::collection(
+                    fn () => ClockingMachinesResource::collection(
                         IndexClockingMachines::run(
                             parent: $workplace,
                             prefix: 'clocking_machines'
                         )
                     )
-                    : Inertia::lazy(fn () => ClockingMachineResource::collection(
+                    : Inertia::lazy(fn () => ClockingMachinesResource::collection(
                         IndexClockingMachines::run(
                             parent: $workplace,
                             prefix: 'clocking_machines'
@@ -173,7 +173,7 @@ class ShowWorkplace extends OrgAction
                     ],
                 prefix: 'clocking_machines'
             )
-        )->table(IndexHistory::make()->tableStructure(prefix: WorkplaceTabsEnum::HISTORY->value));
+        )->table(IndexHistory::make()->tableStructure('hst'));
     }
 
     public function jsonResponse(Workplace $workplace): WorkplaceResource

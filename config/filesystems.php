@@ -96,7 +96,7 @@ return [
             'host'     => env('SFTP_HOST'),
             'username' => env('SFTP_USERNAME'),
             'password' => env('SFTP_PASSWORD'),
-            'root'     => storage_path('app'),
+            'root'     => storage_path('app/media'),
             'timeout'  => 30,
         ],
 
