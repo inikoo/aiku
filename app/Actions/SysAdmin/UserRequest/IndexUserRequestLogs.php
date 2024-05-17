@@ -24,7 +24,7 @@ class IndexUserRequestLogs
     use AsObject;
     use WithFormattedRequestLogs;
 
-    public function handle(string $username): LengthAwarePaginator|bool|array
+    public function handle($filter = ElasticsearchUserRequestTypeEnum::VISIT->value): LengthAwarePaginator|bool|array
     {
         $client = BuildElasticsearchClient::run();
 
@@ -37,8 +37,9 @@ class IndexUserRequestLogs
                         'query' => [
                             'bool' => [
                                 'must' => [
-                                    ['match' => ['type' => ElasticsearchUserRequestTypeEnum::VISIT->value]],
-                                    ['match' => ['username' => $username]],
+                                    ['match' => ['type' => $filter]],
+                                    // ['match' => ['type' => ElasticsearchUserRequestTypeEnum::VISIT->value]],
+
                                 ],
                             ],
                         ],

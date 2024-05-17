@@ -31,7 +31,7 @@ enum ProfileTabsEnum: string
 
             ProfileTabsEnum::VISIT_LOGS => [
                 'title' => __('visit logs'),
-                'icon'  => 'fal fa-database',
+                'icon'  => 'fal fa-eye',
             ],
             // EmployeeTabsEnum::IMAGES => [
             //     'title' => __('images'),
@@ -47,7 +47,7 @@ enum ProfileTabsEnum: string
             // ],
             ProfileTabsEnum::TIMESHEETS => [
                 'title' => __('timesheets'),
-                'icon'  => 'fal fa-database',
+                'icon'  => 'fal fa-stopwatch',
             ],
             // EmployeeTabsEnum::JOB_POSITIONS => [
             //     'title' => __('job positions'),

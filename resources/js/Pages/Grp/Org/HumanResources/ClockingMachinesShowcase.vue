@@ -14,6 +14,8 @@ const props = defineProps<{
         type: String
     },
 }>()
+
+console.log(props.data)
 </script>
 
 
