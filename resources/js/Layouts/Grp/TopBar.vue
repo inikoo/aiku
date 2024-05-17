@@ -9,24 +9,22 @@ import { Link, router } from "@inertiajs/vue3"
 import { reactive, inject } from "vue"
 import MenuPopoverList from "@/Layouts/Grp/MenuPopoverList.vue"
 import TopBarSelectButton from "@/Layouts/Grp/TopBarSelectButton.vue"
-import { Menu, MenuItem, MenuItems } from "@headlessui/vue"
+import { Menu, MenuItems } from "@headlessui/vue"
 import { Disclosure } from "@headlessui/vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { trans } from "laravel-vue-i18n"
 import Image from "@/Components/Image.vue"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faChevronDown } from "@far"
 import { faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus, faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows,
-  faConciergeBell,faGarage,faHamsa,faCodeMerge,faSortShapesDownAlt, faHatChef, faTags, faCommentDollar, faNewspaper, faMailBulk, faBell, faLaptopHouse} from "@fal"
+  faConciergeBell,faGarage,faHamsa,faCodeMerge,faSortShapesDownAlt, faHatChef, faTags, faCommentDollar, faNewspaper, faMailBulk, faBell, faLaptopHouse,faHandHoldingBox} from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { useTruncate } from "@/Composables/useTruncate"
 import MenuTopRight from "@/Layouts/Grp/MenuTopRight.vue"
 import TopBarDropdownScope from "@/Layouts/Grp/TopBarDropdownScope.vue"
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus,
     faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows,
-    faConciergeBell,faGarage,faHamsa,faCodeMerge,faSortShapesDownAlt, faHatChef,faTags, faCommentDollar, faNewspaper, faMailBulk, faBell, faLaptopHouse
+    faConciergeBell,faGarage,faHamsa,faCodeMerge,faSortShapesDownAlt, faHatChef,faTags, faCommentDollar, faNewspaper, faMailBulk, faBell, faLaptopHouse,faHandHoldingBox
 );
 
 const props = defineProps<{

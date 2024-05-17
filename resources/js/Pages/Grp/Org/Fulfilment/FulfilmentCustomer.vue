@@ -32,7 +32,6 @@ import Multiselect from "@vueform/multiselect"
 import { Link } from "@inertiajs/vue3"
 import { get } from 'lodash'
 import axios from 'axios'
-import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue"
 
 import {
     faStickyNote,
@@ -52,16 +51,19 @@ import {
 import { notify } from '@kyvg/vue3-notification'
 import FulfilmentCustomerWebhook from "@/Components/Showcases/Grp/FulfilmentCustomerWebhook.vue";
 import TableInvoices from "@/Components/Tables/TableInvoices.vue";
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
+import type { Navigation } from "@/types/Tabs";
+import TableHistories from "@/Components/Tables/TableHistories.vue";
 library.add( faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading, faFileInvoice)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
     title: string
-    pageHead: {}
+    pageHead: PageHeadingTypes,
     tabs: {
         current: string
-        navigation: {}
+        navigation: Navigation;
     }
     showcase?: {}
     invoices?: {}
@@ -75,6 +77,7 @@ const props = defineProps<{
     web_users?: {}
     recurring_bills?: {}
     webhook?: {}
+     history?: {}
 }>()
 
 let currentTab = ref(props.tabs.current)
@@ -92,10 +95,10 @@ const component = computed(() => {
         invoices: TableInvoices,
         details: ModelDetails,
         history: ModelChangelog,
-        dispatched_emails: TableDispatchedEmails,
         web_users: TableWebUsers,
         webhook: FulfilmentCustomerWebhook,
-        recurring_bills: TableRecurringBills
+        recurring_bills: TableRecurringBills,
+        history: TableHistories
     }
 
     return components[currentTab.value]
@@ -140,10 +143,8 @@ const warehouseChange = (value) => {
 
 const layout = inject('layout')
 
-// console.log('eeew', layout.user.id)
 onMounted(() => {
     window.Echo.private(`grp.${layout.group.id}.fulfilmentCustomer.${layout.user.id}`).listen('.PalletDelivery', (e) => {
-        // console.log('emits from Retina', e)
         notify({
             title: e.data.title,
             text: e.data.text,

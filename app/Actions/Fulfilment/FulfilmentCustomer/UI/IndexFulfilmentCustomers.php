@@ -30,14 +30,14 @@ class IndexFulfilmentCustomers extends OrgAction
     {
         return [
             'status' => [
-                'label'    => __('State'),
+                'label'    => __('Status'),
                 'elements' => array_merge_recursive(
                     FulfilmentCustomerStatus::labels(),
                     FulfilmentCustomerStatus::count($parent)
                 ),
 
                 'engine' => function ($query, $elements) {
-                    $query->whereIn('state', $elements);
+                    $query->whereIn('fulfilment_customers.status', $elements);
                 }
 
             ]
