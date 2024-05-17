@@ -15,11 +15,11 @@ enum FulfilmentCustomerTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE = 'showcase';
+    case SHOWCASE      = 'showcase';
     case PALLETS       = 'pallets';
     case STORED_ITEMS  = 'stored_items';
 
-    case PALLET_DELIVERIES          = 'pallet_deliveries';
+    case PALLET_DELIVERIES                = 'pallet_deliveries';
     case STORED_ITEM_RETURNS              = 'stored_item_returns';
     case PALLET_RETURNS                   = 'pallet_returns';
 
@@ -27,7 +27,7 @@ enum FulfilmentCustomerTabsEnum: string
     case INVOICES                         = 'invoices';
 
     case HISTORY              = 'history';
-    case ATTACHMENTS       = 'attachments';
+    case ATTACHMENTS          = 'attachments';
 
     case WEB_USERS = 'web_users';
     case WEBHOOK   = 'webhook';

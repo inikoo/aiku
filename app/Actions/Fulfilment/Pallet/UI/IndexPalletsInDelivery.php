@@ -31,23 +31,24 @@ use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
+use App\Models\SysAdmin\User;
 
-class IndexPallets extends OrgAction
+class IndexPalletsInDelivery extends OrgAction
 {
     use HasFulfilmentAssetsAuthorisation;
 
-    private FulfilmentCustomer|Fulfilment $parent;
+    private FulfilmentCustomer|Fulfilment|PalletDelivery|PalletReturn $parent;
 
     private bool $selectStoredPallets = false;
 
-    protected function getElementGroups(FulfilmentCustomer|Fulfilment $parent): array
+    protected function getElementGroups(FulfilmentCustomer|Fulfilment|PalletDelivery|PalletReturn $parent): array
     {
         return [
             'status' => [
                 'label'    => __('Status'),
                 'elements' => array_merge_recursive(
-                    PalletStatusEnum::labels($parent),
-                    PalletStatusEnum::count($parent)
+                    PalletStatusEnum::labels(scope: 'operations'),
+                    PalletStatusEnum::count($parent, 'operations')
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -59,8 +60,10 @@ class IndexPallets extends OrgAction
         ];
     }
 
-    public function handle(FulfilmentCustomer|Fulfilment $parent, $prefix = null): LengthAwarePaginator
+    public function handle(FulfilmentCustomer|Fulfilment|PalletDelivery|PalletReturn $parent, $prefix = null): LengthAwarePaginator
     {
+
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('pallets.customer_reference', $value)
@@ -83,11 +86,18 @@ class IndexPallets extends OrgAction
             case "Fulfilment":
                 $query->where('pallets.fulfilment_id', $parent->id);
                 break;
+            case "PalletDelivery":
+                $query->where('pallet_delivery_id', $parent->id);
+                break;
+            case "PalletReturn":
+                $query->where('pallet_return_id', $parent->id);
+                break;
             default:
                 abort(422);
+
         }
 
-        $query->whereNotIn('pallets.status', ['in-process', 'not-received', 'returned', 'incident']);
+        $query->whereNotIn('pallets.status', ['in-process','not-received','returned','incident']);
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $query->whereElementGroup(
@@ -99,7 +109,11 @@ class IndexPallets extends OrgAction
         }
 
 
-        $query->whereNotNull('pallets.slug');
+
+        if(!$parent instanceof PalletDelivery and !$parent instanceof PalletReturn) {
+            $query->whereNotNull('pallets.slug');
+        }
+
 
 
         $query->defaultSort('pallets.id')
@@ -122,11 +136,12 @@ class IndexPallets extends OrgAction
             );
 
 
-        if ($parent instanceof Fulfilment) {
+        if ($parent instanceof Fulfilment or $parent instanceof Organisation) {
             $query->leftJoin('fulfilment_customers', 'fulfilment_customers.id', 'pallets.fulfilment_customer_id');
             $query->leftJoin('customers', 'customers.id', 'fulfilment_customers.customer_id');
             $query->addSelect('customers.name as fulfilment_customer_name', 'customers.slug as fulfilment_customer_slug');
         }
+
 
 
         return $query->allowedSorts(['customer_reference', 'reference', 'fulfilment_customer_name'])
@@ -135,7 +150,7 @@ class IndexPallets extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(FulfilmentCustomer|Fulfilment $parent, $prefix = null, $modelOperations = []): Closure
+    public function tableStructure(Organisation|FulfilmentCustomer|Fulfilment|PalletDelivery|PalletReturn $parent, $prefix = null, $modelOperations = []): Closure
     {
         return function (InertiaTable $table) use ($prefix, $modelOperations, $parent) {
             if ($prefix) {
@@ -167,17 +182,19 @@ class IndexPallets extends OrgAction
 
             if ($parent instanceof Fulfilment) {
                 $emptyStateData['description'] = __("There is not pallets in this fulfilment shop");
-            } else {
+            }
+            if ($parent instanceof FulfilmentCustomer) {
                 $emptyStateData['description'] = __("This customer don't have any pallets");
             }
 
-            $table->withGlobalSearch();
-
+            if(!$parent instanceof PalletDelivery and !$parent instanceof PalletReturn) {
+                $table->withGlobalSearch();
+            }
 
             $table->withEmptyState($emptyStateData)
                 ->withModelOperations($modelOperations);
 
-            if ($parent->state == PalletDeliveryStateEnum::IN_PROCESS) {
+            if($parent->state == PalletDeliveryStateEnum::IN_PROCESS) {
                 $table->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
             } else {
                 $table->column(key: 'type_icon', label: ['fal', 'fa-yin-yang'], type: 'icon');
@@ -196,27 +213,46 @@ class IndexPallets extends OrgAction
             }
 
 
-            $customersReferenceLabel = __("Pallet reference (customer's), notes");
-            if (
-                ($parent instanceof PalletDelivery and $parent->state == PalletDeliveryStateEnum::IN_PROCESS) or ($parent instanceof PalletReturn and $parent->state == PalletReturnStateEnum::IN_PROCESS)
+            $customersReferenceLabel= __("Pallet reference (customer's), notes");
+            if(
+                ($parent instanceof PalletDelivery and  $parent->state==PalletDeliveryStateEnum::IN_PROCESS)or ($parent instanceof PalletReturn and $parent->state==PalletReturnStateEnum::IN_PROCESS)
             ) {
-                $customersReferenceLabel = __('Customer Reference');
+                $customersReferenceLabel= __('Customer Reference');
             }
+
+
 
 
             $table->column(key: 'customer_reference', label: $customersReferenceLabel, canBeHidden: false, sortable: true, searchable: true);
 
 
-            if (
-                ($parent instanceof PalletDelivery and $parent->state == PalletDeliveryStateEnum::IN_PROCESS) or ($parent instanceof PalletReturn and $parent->state == PalletReturnStateEnum::IN_PROCESS)
+
+
+            if(
+                ($parent instanceof PalletDelivery and  $parent->state==PalletDeliveryStateEnum::IN_PROCESS)or ($parent instanceof PalletReturn and $parent->state==PalletReturnStateEnum::IN_PROCESS)
             ) {
                 $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true);
+
             }
 
 
-            //$table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
-            //$table->column(key: 'rental', label: __('Rental'), canBeHidden: false, searchable: true);
-            //$table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
+
+            if (($parent instanceof Organisation or $parent instanceof Fulfilment or $parent instanceof Warehouse or $parent instanceof PalletDelivery or $parent instanceof PalletReturn) and in_array($parent->state, [PalletDeliveryStateEnum::BOOKED_IN, PalletDeliveryStateEnum::BOOKING_IN]) and request(
+            )->user() instanceof User) {
+                $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
+                $table->column(key: 'rental', label: __('Rental'), canBeHidden: false, searchable: true);
+            }
+
+
+            if(
+                !(
+                    ($parent instanceof PalletDelivery and  in_array($parent->state, [PalletDeliveryStateEnum::BOOKED_IN, PalletDeliveryStateEnum::RECEIVED])) or
+                    ($parent instanceof PalletReturn and ($parent->state==PalletReturnStateEnum::DISPATCHED or $parent->state==PalletReturnStateEnum::CANCEL))
+                )
+            ) {
+                $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
+
+            }
 
 
             $table->defaultSort('reference');
@@ -232,7 +268,11 @@ class IndexPallets extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $pallets, ActionRequest $request): Response
     {
-        $stats = $this->parent->stats;
+
+        $stats=$this->parent->stats;
+
+
+
 
 
         return Inertia::render(
@@ -262,20 +302,20 @@ class IndexPallets extends OrgAction
                         ],
                     ],
 
-                    'meta' => [
+                    'meta'    => [
                         [
-                            'label'    => __('Returned pallets'),
-                            'number'   => $stats->number_pallets_state_dispatched,
-                            'href'     => [
+                            'label'     => __('Returned pallets'),
+                            'number'    => $stats->number_pallets_state_dispatched,
+                            'href'      => [
                                 'name'       => 'grp.org.fulfilments.show.operations.returned_pallets.index',
                                 'parameters' => $request->route()->originalParameters()
                             ],
                             'leftIcon' => PalletStateEnum::stateIcon()[PalletStateEnum::DISPATCHED->value]
                         ],
                         [
-                            'label'    => __('Damaged pallets'),
-                            'number'   => $stats->number_pallets_state_damaged,
-                            'href'     => [
+                            'label'     => __('Damaged pallets'),
+                            'number'    => $stats->number_pallets_state_damaged,
+                            'href'      => [
                                 'name'       => 'grp.org.fulfilments.show.operations.returned_pallets.index',
                                 'parameters' => $request->route()->originalParameters()
                             ],
@@ -283,9 +323,9 @@ class IndexPallets extends OrgAction
                         ],
 
                         [
-                            'label'    => __('Lost pallets'),
-                            'number'   => $stats->number_pallets_state_lost,
-                            'href'     => [
+                            'label'     => __('Lost pallets'),
+                            'number'    => $stats->number_pallets_state_lost,
+                            'href'      => [
                                 'name'       => 'grp.org.fulfilments.show.operations.returned_pallets.index',
                                 'parameters' => $request->route()->originalParameters()
                             ],
@@ -301,9 +341,9 @@ class IndexPallets extends OrgAction
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
+
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
-
         return $this->handle($fulfilment, 'pallets');
     }
 
@@ -315,6 +355,7 @@ class IndexPallets extends OrgAction
 
         return $this->handle($fulfilmentCustomer, 'pallets');
     }
+
 
 
     /** @noinspection PhpUnusedParameterInspection */
@@ -336,9 +377,10 @@ class IndexPallets extends OrgAction
     }
 
 
+
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return array_merge(
+        return    array_merge(
             ShowFulfilment::make()->getBreadcrumbs($routeParameters),
             [
                 [

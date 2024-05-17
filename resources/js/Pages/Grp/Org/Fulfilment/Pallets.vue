@@ -10,14 +10,15 @@
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { capitalize } from "@/Composables/capitalize"
-import TablePallets from "@/Components/Tables/TablePallets.vue";
+import TablePallets from "@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue";
 import Action from "@/Components/Forms/Fields/Action.vue"
 import {useForm} from '@inertiajs/vue3';
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
-const props = defineProps<{
+defineProps<{
     data: object
     title: string
-    pageHead: object
+    pageHead: PageHeadingTypes
 }>()
 
 const form = useForm({ pallet : []})

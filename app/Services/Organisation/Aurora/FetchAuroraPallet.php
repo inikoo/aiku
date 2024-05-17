@@ -59,8 +59,9 @@ class FetchAuroraPallet extends FetchAurora
             default     => PalletStateEnum::DISPATCHED
         };
         $status = match ($this->auroraModelData->{'Fulfilment Asset State'}) {
-            'InProcess', 'Received' => PalletStatusEnum::RECEIVING,
-            'BookedIn' => PalletStatusEnum::STORING,
+            'InProcess' => PalletStatusEnum::IN_PROCESS,
+            'Received'  => PalletStatusEnum::RECEIVING,
+            'BookedIn'  => PalletStatusEnum::STORING,
             'BookedOut', 'Invoiced' => PalletStatusEnum::RETURNED,
             'Lost' => PalletStatusEnum::INCIDENT,
         };

@@ -31,6 +31,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_pallets_state_damaged
  * @property int $number_pallets_state_lost
  * @property int $number_pallets_state_dispatched
+ * @property int $number_pallets_status_in_process
  * @property int $number_pallets_status_receiving
  * @property int $number_pallets_status_not_received
  * @property int $number_pallets_status_storing

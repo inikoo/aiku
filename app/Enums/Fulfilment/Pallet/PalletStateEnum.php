@@ -19,8 +19,10 @@ enum PalletStateEnum: string
 {
     use EnumHelperTrait;
 
-    // Status: receiving
+    // Status: in-process
     case IN_PROCESS   = 'in-process';
+
+    // Status: receiving
     case SUBMITTED    = 'submitted';
     case CONFIRMED    = 'confirmed';
     case RECEIVED     = 'received';

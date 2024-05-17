@@ -17,7 +17,7 @@ import { useTabChange } from "@/Composables/tab-change"
 import ModelDetails from "@/Components/ModelDetails.vue"
 import TableHistories from "@/Components/Tables/TableHistories.vue"
 import FulfilmentShowcase from "@/Components/Showcases/Org/FulfilmentShowcase.vue"
-import TablePallets from "@/Components/Tables/TablePallets.vue"
+import TablePallets from "@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue"
 
 library.add(faTachometerAlt, faHandHoldingBox)
 

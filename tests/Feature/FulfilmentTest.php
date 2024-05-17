@@ -343,7 +343,7 @@ test('add pallet to pallet delivery', function (PalletDelivery $palletDelivery) 
     $palletDelivery->refresh();
     expect($pallet)->toBeInstanceOf(Pallet::class)
         ->and($pallet->state)->toBe(PalletStateEnum::IN_PROCESS)
-        ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING)
+        ->and($pallet->status)->toBe(PalletStatusEnum::IN_PROCESS)
         ->and($pallet->type)->toBe(PalletTypeEnum::OVERSIZE)
         ->and($pallet->notes)->toBe('note A')
         ->and($pallet->source_id)->toBeNull()
@@ -690,7 +690,7 @@ test('create pallet no delivery', function (Fulfilment $fulfilment) {
 
     expect($pallet)->toBeInstanceOf(Pallet::class)
         ->and($pallet->state)->toBe(PalletStateEnum::IN_PROCESS)
-        ->and($pallet->status)->toBe(PalletStatusEnum::RECEIVING)
+        ->and($pallet->status)->toBe(PalletStatusEnum::IN_PROCESS)
         ->and($pallet->type)->toBe(PalletTypeEnum::PALLET)
         ->and($pallet->notes)->toBe('')
         ->and($pallet->source_id)->toBeNull()

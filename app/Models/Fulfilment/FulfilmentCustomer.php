@@ -29,6 +29,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
+ * @property FulfilmentCustomerStatus $status
  * @property string $slug
  * @property int $customer_id
  * @property int $fulfilment_id
@@ -54,6 +55,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_pallets_state_damaged
  * @property int $number_pallets_state_lost
  * @property int $number_pallets_state_dispatched
+ * @property int $number_pallets_status_in_process
  * @property int $number_pallets_status_receiving
  * @property int $number_pallets_status_not_received
  * @property int $number_pallets_status_storing
@@ -92,7 +94,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_recurring_bills
  * @property int $number_recurring_bills_status_current
  * @property int $number_recurring_bills_status_former
- * @property FulfilmentCustomerStatus $status
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

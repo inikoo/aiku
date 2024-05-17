@@ -44,17 +44,17 @@ class UpdateRentalAgreement extends OrgAction
 
 
 
-            foreach($oldData as $key=>$value){
-                if($oldData[$key] == $newData[$key]){
+            foreach($oldData as $key=>$value) {
+                if($oldData[$key] == $newData[$key]) {
                     data_forget($oldData, $key);
                     data_forget($newData, $key);
                 }
             }
 
 
-            $customer=$rentalAgreement->fulfilmentCustomer->customer;
-            $customer->auditEvent = 'update';
-            $customer->isCustomEvent = true;
+            $customer                 =$rentalAgreement->fulfilmentCustomer->customer;
+            $customer->auditEvent     = 'update';
+            $customer->isCustomEvent  = true;
             $customer->auditCustomOld =$oldData;
             $customer->auditCustomNew = $newData;
             Event::dispatch(AuditCustom::class, [$customer]);

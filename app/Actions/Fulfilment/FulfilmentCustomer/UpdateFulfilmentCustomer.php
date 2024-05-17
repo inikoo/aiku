@@ -32,24 +32,24 @@ class UpdateFulfilmentCustomer extends OrgAction
         Arr::forget($modelData, ['contact_name', 'company_name', 'email', 'phone']);
 
         $oldData = [
-            'pallets_storage'=>$fulfilmentCustomer->pallets_storage,
-            'items_storage'=>$fulfilmentCustomer->items_storage,
-            'dropshipping'=>$fulfilmentCustomer->dropshipping
+            'pallets_storage'=> $fulfilmentCustomer->pallets_storage,
+            'items_storage'  => $fulfilmentCustomer->items_storage,
+            'dropshipping'   => $fulfilmentCustomer->dropshipping
         ];
 
         $fulfilmentCustomer = $this->update($fulfilmentCustomer, $modelData, ['data']);
 
 
 
-        if($fulfilmentCustomer->wasChanged()){
+        if($fulfilmentCustomer->wasChanged()) {
 
-            $fulfilmentCustomer->customer->auditEvent = 'update';
+            $fulfilmentCustomer->customer->auditEvent    = 'update';
             $fulfilmentCustomer->customer->isCustomEvent = true;
 
             $newData = [
-                'pallets_storage'=>$fulfilmentCustomer->pallets_storage,
-                'items_storage'=>$fulfilmentCustomer->items_storage,
-                'dropshipping'=>$fulfilmentCustomer->dropshipping
+                'pallets_storage'=> $fulfilmentCustomer->pallets_storage,
+                'items_storage'  => $fulfilmentCustomer->items_storage,
+                'dropshipping'   => $fulfilmentCustomer->dropshipping
             ];
 
 

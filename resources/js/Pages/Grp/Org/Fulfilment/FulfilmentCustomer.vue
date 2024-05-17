@@ -15,7 +15,7 @@ import { router } from '@inertiajs/vue3'
 import TablePalletReturns from "@/Components/Tables/TablePalletReturns.vue"
 
 import ModelDetails from "@/Components/ModelDetails.vue"
-import TablePallets from "@/Components/Tables/TablePallets.vue"
+import TablePallets from "@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue"
 import TableWebUsers from "@/Components/Tables/TableWebUsers.vue"
 
 import TableStoredItemReturn from "@/Components/Tables/TableStoredItemReturn.vue"

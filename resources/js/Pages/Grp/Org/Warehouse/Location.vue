@@ -16,7 +16,7 @@ import TableHistories from "@/Components/Tables/TableHistories.vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import { capitalize } from "@/Composables/capitalize"
 import LocationShowcase from "@/Components/Showcases/Org/LocationShowcase.vue"
-import TablePallets from "@/Components/Tables/TablePallets.vue"
+import TablePallets from "@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue"
 
 library.add(faInventory, faExchange, faBox, faWarehouse, faMapSigns, faPallet)
 
