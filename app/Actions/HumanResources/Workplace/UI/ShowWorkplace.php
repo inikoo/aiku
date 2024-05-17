@@ -173,7 +173,7 @@ class ShowWorkplace extends OrgAction
                     ],
                 prefix: 'clocking_machines'
             )
-        )->table(IndexHistory::make()->tableStructure('hst'));
+        )->table(IndexHistory::make()->tableStructure(prefix: WorkplaceTabsEnum::HISTORY->value));
     }
 
     public function jsonResponse(Workplace $workplace): WorkplaceResource

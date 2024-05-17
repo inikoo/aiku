@@ -97,7 +97,7 @@ class ShowUser extends GrpAction
 
             ]
         )->table(ShowUserRequestLogs::make()->tableStructure())
-            ->table(IndexHistory::make()->tableStructure(UserTabsEnum::HISTORY->value));
+            ->table(IndexHistory::make()->tableStructure(prefix: UserTabsEnum::HISTORY->value));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array

@@ -151,7 +151,7 @@ class ShowClockingMachine extends OrgAction
 
             ]
         )->table(IndexClockings::make()->tableStructure($clockingMachine))
-            ->table(IndexHistory::make()->tableStructure('hst'));
+            ->table(IndexHistory::make()->tableStructure(prefix: ClockingMachineTabsEnum::HISTORY->value));
     }
 
 

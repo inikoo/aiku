@@ -52,7 +52,7 @@ class IndexHistory
 
         return $queryBuilder
             ->defaultSort('audits.created_at')
-            ->allowedSorts(['auditable_id', 'auditable_type', 'user_type', 'url','created_at'])
+            ->allowedSorts(['ip_address','auditable_id', 'auditable_type', 'user_type', 'url','created_at'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();

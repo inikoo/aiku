@@ -173,7 +173,7 @@ class ShowPaymentAccount extends OrgAction
                 ],
                 prefix: 'payments'
             )
-        )->table(IndexHistory::make()->tableStructure('hst'));
+        )->table(IndexHistory::make()->tableStructure(prefix: PaymentAccountTabsEnum::HISTORY->value));
     }
 
 
