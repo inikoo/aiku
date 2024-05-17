@@ -11,11 +11,13 @@ use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InFulfilmentCustomer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -52,12 +54,13 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement withoutTrashed()
  * @mixin \Eloquent
  */
-class RentalAgreement extends Model
+class RentalAgreement extends Model implements Auditable
 {
     use SoftDeletes;
     use HasUniversalSearch;
     use HasSlug;
     use InFulfilmentCustomer;
+    use HasHistory;
 
     protected $guarded = [];
     protected $casts   = [
@@ -68,6 +71,16 @@ class RentalAgreement extends Model
 
     protected $attributes = [
         'data' => '{}',
+    ];
+
+    public function generateTags(): array
+    {
+        return ['fulfilment'];
+    }
+
+    protected array $auditInclude = [
+        'billing_cycle',
+        'pallets_limit',
     ];
 
     public function getRouteKeyName(): string

@@ -126,7 +126,7 @@ class User extends Authenticatable implements HasMedia, Auditable
         'settings' => '{}',
     ];
 
-    protected $auditExclude = [
+    protected array $auditExclude = [
         'number_authorised_organisations',
         'number_authorised_fulfilments',
         'number_authorised_shops',

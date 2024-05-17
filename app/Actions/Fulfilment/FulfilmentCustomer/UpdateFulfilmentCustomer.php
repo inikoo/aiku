@@ -16,7 +16,9 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Event;
 use Lorisleiva\Actions\ActionRequest;
+use OwenIt\Auditing\Events\AuditCustom;
 
 class UpdateFulfilmentCustomer extends OrgAction
 {
@@ -28,7 +30,35 @@ class UpdateFulfilmentCustomer extends OrgAction
         $customerData = Arr::only($modelData, ['contact_name', 'company_name', 'email', 'phone']);
         UpdateCustomer::run($fulfilmentCustomer->customer, $customerData);
         Arr::forget($modelData, ['contact_name', 'company_name', 'email', 'phone']);
+
+        $oldData = [
+            'pallets_storage'=>$fulfilmentCustomer->pallets_storage,
+            'items_storage'=>$fulfilmentCustomer->items_storage,
+            'dropshipping'=>$fulfilmentCustomer->dropshipping
+        ];
+
         $fulfilmentCustomer = $this->update($fulfilmentCustomer, $modelData, ['data']);
+
+
+
+        if($fulfilmentCustomer->wasChanged()){
+
+            $fulfilmentCustomer->customer->auditEvent = 'update';
+            $fulfilmentCustomer->customer->isCustomEvent = true;
+
+            $newData = [
+                'pallets_storage'=>$fulfilmentCustomer->pallets_storage,
+                'items_storage'=>$fulfilmentCustomer->items_storage,
+                'dropshipping'=>$fulfilmentCustomer->dropshipping
+            ];
+
+
+            $fulfilmentCustomer->customer->auditCustomOld =$oldData;
+            $fulfilmentCustomer->customer->auditCustomNew = $newData;
+            Event::dispatch(AuditCustom::class, [$fulfilmentCustomer->customer]);
+        }
+
+
         FulfilmentHydrateCustomers::dispatch($fulfilmentCustomer->fulfilment);
 
         return $fulfilmentCustomer;

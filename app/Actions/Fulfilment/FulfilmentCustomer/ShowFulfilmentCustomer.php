@@ -215,8 +215,8 @@ class ShowFulfilmentCustomer extends OrgAction
                     ),
 
                 FulfilmentCustomerTabsEnum::HISTORY->value => $this->tab == FulfilmentCustomerTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer))),
+                    fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))),
 
 
             ]

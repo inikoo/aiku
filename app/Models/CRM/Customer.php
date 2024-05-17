@@ -29,6 +29,7 @@ use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddresses;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
@@ -43,6 +44,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\Sluggable\HasSlug;
@@ -111,7 +113,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Customer withoutTrashed()
  * @mixin \Eloquent
  */
-class Customer extends Model implements HasMedia
+class Customer extends Model implements HasMedia, Auditable
 {
     use SoftDeletes;
     use HasAddresses;
@@ -119,6 +121,7 @@ class Customer extends Model implements HasMedia
     use HasUniversalSearch;
     use HasPhoto;
     use HasFactory;
+    use HasHistory;
     use InShop;
 
     protected $casts = [
@@ -137,6 +140,16 @@ class Customer extends Model implements HasMedia
     ];
 
     protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        $tags = ['crm'];
+        if($this->is_fulfilment) {
+            $tags[] = 'fulfilment';
+        }
+        return $tags;
+    }
+
 
     public function getSlugOptions(): SlugOptions
     {
@@ -185,7 +198,14 @@ class Customer extends Model implements HasMedia
         });
     }
 
+    protected array $auditInclude = [
+        'contact_name',
+        'company_name',
+        'email',
+        'phone',
+        'contact_website'
 
+    ];
 
     public function clients(): HasMany
     {
