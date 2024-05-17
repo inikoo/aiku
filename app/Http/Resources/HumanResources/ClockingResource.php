@@ -15,6 +15,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $slug
  * @property string $type
  * @property string $notes
+ * @property string $attend_at
  * @property string $workplace_slug
  * @property string $clocking_machine_slug
  */
@@ -27,6 +28,7 @@ class ClockingResource extends JsonResource
             'type'                  => $this->type,
             'notes'                 => $this->notes,
             'workplace_slug'        => $this->workplace->slug,
+            'attend_at'             => $this->attend_at,
             'clocking_machine_slug' => $this->clockingMachine->slug,
             'employee'              => EmployeeResource::make($this->subject),
             'photo'                 => $this->photoImageSources()
