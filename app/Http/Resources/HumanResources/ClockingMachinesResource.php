@@ -14,7 +14,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 use JsonSerializable;
 
-class ClockingMachineResource extends JsonResource
+class ClockingMachinesResource extends JsonResource
 {
     public function toArray($request): array|Arrayable|JsonSerializable
     {
@@ -23,11 +23,8 @@ class ClockingMachineResource extends JsonResource
 
         return [
             'id'                     => $clockingMachine->id,
-            'organisation_id'        => $clockingMachine->organisation_id,
-            'organisation_slug'      => $clockingMachine->organisation->slug,
-            'workplace_id'           => $clockingMachine->workplace_id,
-            'workplace_slug'         => $clockingMachine->workplace->slug,
-            'workplace_name'         => $clockingMachine->workplace->name,
+            'organisation_slug'      => $clockingMachine->organisation_slug,
+            'workplace_slug'         => $clockingMachine->workplace_slug,
             'slug'                   => $clockingMachine->slug,
             'name'                   => $clockingMachine->name,
             'type'                   => $clockingMachine->type,

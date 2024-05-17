@@ -10,7 +10,7 @@ namespace App\Actions\HumanResources\ClockingMachine\UI;
 use App\Actions\HumanResources\Workplace\UI\ShowWorkplace;
 use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
-use App\Http\Resources\HumanResources\ClockingMachineResource;
+use App\Http\Resources\HumanResources\ClockingMachinesResource;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
@@ -117,7 +117,7 @@ class IndexClockingMachines extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $clockingMachine): AnonymousResourceCollection
     {
-        return ClockingMachineResource::collection($clockingMachine);
+        return ClockingMachinesResource::collection($clockingMachine);
     }
 
 
@@ -145,7 +145,7 @@ class IndexClockingMachines extends OrgAction
                         ] : false
                     ]
                 ],
-                'data'        => ClockingMachineResource::collection($clockingMachines)
+                'data'        => ClockingMachinesResource::collection($clockingMachines)
 
             ]
         )->table($this->tableStructure($this->organisation));

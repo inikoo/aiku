@@ -15,7 +15,7 @@ use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\HumanResources\WorkplaceTabsEnum;
 use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\HumanResources\ClockingMachineResource;
+use App\Http\Resources\HumanResources\ClockingMachinesResource;
 use App\Http\Resources\HumanResources\ClockingResource;
 use App\Http\Resources\HumanResources\WorkplaceResource;
 use App\Models\HumanResources\Workplace;
@@ -126,13 +126,13 @@ class ShowWorkplace extends OrgAction
                     )),
                 WorkplaceTabsEnum::CLOCKING_MACHINES->value => $this->tab == WorkplaceTabsEnum::CLOCKING_MACHINES->value
                     ?
-                    fn () => ClockingMachineResource::collection(
+                    fn () => ClockingMachinesResource::collection(
                         IndexClockingMachines::run(
                             parent: $workplace,
                             prefix: 'clocking_machines'
                         )
                     )
-                    : Inertia::lazy(fn () => ClockingMachineResource::collection(
+                    : Inertia::lazy(fn () => ClockingMachinesResource::collection(
                         IndexClockingMachines::run(
                             parent: $workplace,
                             prefix: 'clocking_machines'

@@ -34,7 +34,7 @@ class IndexClockings extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('clockings.slug', $value);
+                $query->whereStartWith('clockings.id', $value);
             });
         });
 
@@ -45,12 +45,11 @@ class IndexClockings extends OrgAction
 
 
         return $queryBuilder
-            ->defaultSort('clockings.slug')
+            ->defaultSort('clockings.id')
             ->select(
                 [
                     'clockings.id',
                     'clockings.type',
-                    'clockings.slug',
                     'workplaces.slug as workplace_slug',
                     'clocking_machines.slug as clocking_machine_slug',
                     'clocking_machine_id'
@@ -68,7 +67,7 @@ class IndexClockings extends OrgAction
                         break;
                 }
             })
-            ->allowedSorts(['slug'])
+            ->allowedSorts(['id'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -94,8 +93,8 @@ class IndexClockings extends OrgAction
                             class_basename($parent) == 'ClockingMachine' ? $parent->humanResourcesStats?->number_clockings : $parent->stats?->number_clockings,
                     ]
                 )
-                ->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->defaultSort('slug');
+                ->column(key: 'id', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
+                ->defaultSort('id');
         };
     }
 
