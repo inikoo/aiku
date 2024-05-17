@@ -89,7 +89,7 @@ const onDoubleClickCheckbox = (elementName: string, scope: string) => {
 }
 
 onMounted(() => {
-    console.log('fff', props.elements)
+    // console.log('fff', props.elements)
     // To handle selected checkbox on hard-refresh
     const prefix = props.name === 'default' ? 'elements' : props.name + '_' + 'elements'  // To handle banners_elements, users_elements, etc
     const searchParams = new URLSearchParams(window.location.search)
