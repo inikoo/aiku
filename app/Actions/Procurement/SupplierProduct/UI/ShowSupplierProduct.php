@@ -104,7 +104,7 @@ class ShowSupplierProduct extends InertiaAction
             ]
         )->table(IndexSupplierProducts::make()->tableStructure())
             ->table(IndexPurchaseOrders::make()->tableStructure())
-            ->table(IndexHistory::make()->tableStructure('hst'));
+            ->table(IndexHistory::make()->tableStructure(prefix: SupplierProductTabsEnum::HISTORY->value));
     }
 
 

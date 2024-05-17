@@ -150,7 +150,7 @@ class ShowWebsite extends OrgAction
                 ],
                 prefix: 'web_users'
             )
-        )->table(IndexHistory::make()->tableStructure('hst'));
+        )->table(IndexHistory::make()->tableStructure(prefix: WebsiteTabsEnum::CHANGELOG->value));
     }
 
 

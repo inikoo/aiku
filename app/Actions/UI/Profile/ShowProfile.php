@@ -95,7 +95,7 @@ class ShowProfile extends GrpAction
                 )
             )
             ->table(ShowUserRequestLogs::make()->tableStructure())
-            ->table(IndexHistory::make()->tableStructure(ProfileTabsEnum::HISTORY->value));
+            ->table(IndexHistory::make()->tableStructure(prefix: ProfileTabsEnum::HISTORY->value));
     }
 
     public function getBreadcrumbs(): array

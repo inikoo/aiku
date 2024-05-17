@@ -173,7 +173,7 @@ class ShowSupplier extends GrpAction
         ->table(IndexSupplierProducts::make()->tableStructure())
         ->table(IndexPurchaseOrders::make()->tableStructure())
         ->table(IndexSupplierDeliveries::make()->tableStructure())
-        ->table(IndexHistory::make()->tableStructure('hst'));
+        ->table(IndexHistory::make()->tableStructure(prefix: SupplierTabsEnum::HISTORY->value));
     }
 
 

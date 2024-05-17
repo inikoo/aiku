@@ -159,7 +159,7 @@ class ShowPallet extends OrgAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($this->pallet)))
 
             ]
-        )->table(IndexHistory::make()->tableStructure('hst'))
+        )->table(IndexHistory::make()->tableStructure(prefix: PalletTabsEnum::HISTORY->value))
             ->table(IndexStoredItems::make()->tableStructure($pallet->items));
     }
 

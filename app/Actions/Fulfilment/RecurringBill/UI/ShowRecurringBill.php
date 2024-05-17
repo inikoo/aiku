@@ -157,7 +157,7 @@ class ShowRecurringBill extends OrgAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($storedItem)))
 
             ]
-        )->table(IndexHistory::make()->tableStructure('hst'))
+        )->table(IndexHistory::make()->tableStructure(prefix: StoredItemTabsEnum::HISTORY->value))
             ->table(IndexStoredItemPallets::make()->tableStructure($storedItem, 'pallets'));
     }
 

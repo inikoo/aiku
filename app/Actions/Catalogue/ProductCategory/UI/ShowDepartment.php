@@ -196,7 +196,7 @@ class ShowDepartment extends OrgAction
                     prefix: 'products'
                 )
             )
-            ->table(IndexHistory::make()->tableStructure('hst'));
+            ->table(IndexHistory::make()->tableStructure(prefix: DepartmentTabsEnum::HISTORY->value));
     }
 
 

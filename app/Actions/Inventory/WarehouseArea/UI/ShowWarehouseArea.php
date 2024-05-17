@@ -128,7 +128,7 @@ class ShowWarehouseArea extends OrgAction
                 parent: $warehouseArea,
                 prefix: WarehouseAreaTabsEnum::LOCATIONS->value
             )
-        )->table(IndexHistory::make()->tableStructure('hst'));
+        )->table(IndexHistory::make()->tableStructure(prefix: WarehouseAreaTabsEnum::HISTORY->value));
     }
 
 

@@ -7,13 +7,17 @@
 
 namespace App\Models\HumanResources;
 
+use App\Actions\Helpers\Images\GetPictureSources;
 use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
+use App\Models\Media\Media;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
 /**
  * App\Models\HumanResources\Clocking
@@ -36,6 +40,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $deleted_by_type
  * @property int|null $deleted_by_id
  * @property string|null $source_id
+ * @property-read Media $photo
  * @property-read \App\Models\HumanResources\ClockingMachine|null $clockingMachine
  * @property-read \App\Models\HumanResources\Timesheet|null $timesheet
  * @property-read \App\Models\HumanResources\Workplace|null $workplace
@@ -47,9 +52,10 @@ use Illuminate\Support\Carbon;
  * @method static Builder|Clocking withoutTrashed()
  * @mixin Eloquent
  */
-class Clocking extends Model
+class Clocking extends Model implements HasMedia
 {
     use SoftDeletes;
+    use InteractsWithMedia;
 
     protected $casts = [
         'clocked_at' => 'datetime:Y-m-d H:i:s',
@@ -58,6 +64,11 @@ class Clocking extends Model
 
 
     protected $guarded = [];
+
+    public function subject(): BelongsTo
+    {
+        return $this->morphTo();
+    }
 
     public function workplace(): BelongsTo
     {
@@ -72,6 +83,26 @@ class Clocking extends Model
     public function timesheet(): BelongsTo
     {
         return $this->belongsTo(Timesheet::class);
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('photo')
+            ->singleFile();
+    }
+
+    public function photo(): BelongsTo
+    {
+        return $this->belongsTo(Media::class, 'photo_id');
+    }
+
+    public function photoImageSources($width = 0, $height = 0)
+    {
+        if($this->photo) {
+            $photoThumbnail = $this->photo->getImage()->resize($width, $height);
+            return GetPictureSources::run($photoThumbnail);
+        }
+        return null;
     }
 
 }

@@ -18,7 +18,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $workplace_slug
  * @property string $clocking_machine_slug
  */
-class ClockingsResource extends JsonResource
+class ClockingResource extends JsonResource
 {
     public function toArray($request): array
     {
@@ -26,8 +26,10 @@ class ClockingsResource extends JsonResource
             'id'                    => $this->id,
             'type'                  => $this->type,
             'notes'                 => $this->notes,
-            'workplace_slug'        => $this->workplace_slug,
-            'clocking_machine_slug' => $this->clocking_machine_slug
+            'workplace_slug'        => $this->workplace->slug,
+            'clocking_machine_slug' => $this->clockingMachine->slug,
+            'employee'              => EmployeeResource::make($this->subject),
+            'photo'                 => $this->photoImageSources()
         ];
     }
 }
