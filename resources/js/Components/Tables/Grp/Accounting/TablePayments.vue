@@ -10,7 +10,7 @@ import Table from "@/Components/Table/Table.vue";
 import { Payment } from "@/types/payment";
 import { useFormatTime } from "@/Composables/useFormatTime";
 
-const props = defineProps<{
+defineProps<{
     data: object,
     tab?: string
 }>();
@@ -23,7 +23,7 @@ function paymentsRoute(payment: Payment) {
         case "grp.org.accounting.payments.index":
             return route(
                 "grp.org.accounting.payments.show",
-                [route().params["organisation"], payment.slug]);
+                [route().params["organisation"], payment.id]);
     }
 
 }

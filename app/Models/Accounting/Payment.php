@@ -7,14 +7,10 @@
 
 namespace App\Models\Accounting;
 
-use App\Actions\Helpers\SerialReference\GetSerialReference;
-use App\Actions\Utils\Abbreviate;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
 use App\Enums\Accounting\Payment\PaymentSubsequentStatusEnum;
 use App\Enums\Accounting\Payment\PaymentTypeEnum;
-use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
-use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Assets\Currency;
 use App\Models\CRM\Customer;
 use App\Models\Catalogue\Shop;
@@ -31,14 +27,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
-
 /**
- * App\Models\Payments\Payment
+ *
  *
  * @property int $id
- * @property string $slug
  * @property int $group_id
  * @property int $organisation_id
  * @property int $payment_service_provider_id
@@ -84,7 +76,6 @@ use Spatie\Sluggable\SlugOptions;
 class Payment extends Model
 {
     use SoftDeletes;
-    use HasSlug;
     use HasUniversalSearch;
     use HasFactory;
     use InCustomer;
@@ -103,11 +94,6 @@ class Payment extends Model
 
     protected $guarded = [];
 
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
-    }
-
     protected static function booted(): void
     {
         static::creating(
@@ -115,35 +101,8 @@ class Payment extends Model
                 $payment->type = $payment->amount >= 0 ? PaymentTypeEnum::PAYMENT : PaymentTypeEnum::REFUND;
             }
         );
-
-
     }
 
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom(function () {
-
-
-                if($this->paymentAccount->type==PaymentAccountTypeEnum::ACCOUNT) {
-                    $slug=GetSerialReference::run(
-                        container: $this->paymentAccount,
-                        modelType: SerialReferenceModelEnum::PAYMENT
-                    );
-                } else {
-                    $slug = $this->reference;
-
-                    if ($slug == '') {
-                        $slug = Abbreviate::run($this->paymentAccount->slug).'-'.now()->format('Ymd');
-                    }
-
-                }
-
-                return $slug;
-            })
-            ->doNotGenerateSlugsOnUpdate()
-            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
-    }
 
     public function orgPaymentServiceProvider(): BelongsTo
     {

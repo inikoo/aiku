@@ -85,8 +85,8 @@ class IndexPayments extends OrgAction
         return $queryBuilder
             ->defaultSort('-date')
             ->select([
+                'payments.id',
                 'payments.reference',
-                'payments.slug',
                 'payments.status',
                 'payments.date',
                 'payment_accounts.slug as payment_accounts_slug',

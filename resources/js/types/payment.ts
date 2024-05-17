@@ -5,7 +5,7 @@
  */
 
 export interface Payment {
-    slug: string,
+    id: number
     payment_service_providers_slug: string
     payment_accounts_slug: string
     status: string
