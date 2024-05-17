@@ -20,6 +20,7 @@ export const layoutStructure = {
     currentModule: "",
     currentRoute: "grp.dashboard.show", // Define value to avoid route null at first load
     currentParams: {} as {[key: string]: string},
+    digital_agency: {} as {data: OrganisationsData[]},
     group: null as Group | null,
     leftSidebar: {
         show: true,

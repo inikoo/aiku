@@ -17,15 +17,16 @@ import Image from "@/Components/Image.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faChevronDown } from "@far"
 import { faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus, faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows,
-  faConciergeBell,faGarage,faHamsa,faCodeMerge,faSortShapesDownAlt, faHatChef, faTags, faCommentDollar, faNewspaper, faMailBulk, faBell} from "@fal"
+  faConciergeBell,faGarage,faHamsa,faCodeMerge,faSortShapesDownAlt, faHatChef, faTags, faCommentDollar, faNewspaper, faMailBulk, faBell, faLaptopHouse} from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { useTruncate } from "@/Composables/useTruncate"
 import MenuTopRight from "@/Layouts/Grp/MenuTopRight.vue"
+import TopBarDropdownScope from "@/Layouts/Grp/TopBarDropdownScope.vue"
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus,
     faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows,
-    faConciergeBell,faGarage,faHamsa,faCodeMerge,faSortShapesDownAlt, faHatChef,faTags, faCommentDollar, faNewspaper, faMailBulk, faBell
+    faConciergeBell,faGarage,faHamsa,faCodeMerge,faSortShapesDownAlt, faHatChef,faTags, faCommentDollar, faNewspaper, faMailBulk, faBell, faLaptopHouse
 );
 
 const props = defineProps<{
@@ -132,75 +133,42 @@ const label = {
                                 />
                                 <transition>
                                     <MenuItems
-                                        class="min-w-24 w-fit max-w-96 absolute left-0 mt-2 origin-top-right divide-y divide-gray-100 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
-                                        <div class="px-1 py-1 space-y-2.5">
-                                            <!-- Dropdown: Group -->
-                                            <div v-if="layoutStore.group" class="">
-                                                <div class="flex items-center gap-x-1.5 px-1 mb-1">
-                                                    <FontAwesomeIcon icon="fal fa-city" class="text-gray-400 text-xxs" aria-hidden="true" />
-                                                    <span class="text-[9px] leading-none text-gray-400">Groups</span>
-                                                    <hr class="w-full rounded-full border-slate-300">
-                                                </div>
-                                                <MenuItem v-slot="{ active }">
-                                                    <div @click="() => router.visit(route('grp.dashboard.show'))" :class="[
-                                                        !layoutStore.currentParams?.organisation ? 'bg-slate-300 text-slate-600' : active ? 'bg-slate-200/75 text-indigo-600' : 'text-slate-600']"
-                                                        class="group flex w-full gap-x-2 items-center rounded pl-3 pr-2 py-2 text-sm cursor-pointer"
-                                                    >
-                                                        <FontAwesomeIcon icon="fal fa-city" class="" ariaa-hidden="true" />
-                                                        <div class="space-x-1">
-                                                            <span class="font-semibold">{{ layoutStore.group?.label }}</span>
-                                                            <span class="text-[9px] leading-none text-gray-400">({{ trans("Group") }})</span>
-                                                        </div>
-                                                    </div>
-                                                </MenuItem>
-                                            </div>
+                                        class="px-1 py-1 space-y-2.5 min-w-24 w-fit max-w-96 absolute left-0 mt-2 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                                        <!-- Dropdown: Group -->
+                                        <TopBarDropdownScope v-if="layoutStore.group" class=""
+                                            :menuItems="[{
+                                                label: layoutStore.group?.label,
+                                            }]"
+                                            menuKey="group"
+                                            :imageSkeleton="imageSkeleton"
+                                            :label="trans('groups')"
+                                            icon="fal fa-city"
+                                        />
 
-                                            <!-- Dropdown: Organisation -->
-                                            <div v-if="layoutStore.organisations.data.length > 1">
-                                                <div class="flex items-center gap-x-1.5 px-1 mb-1">
-                                                    <FontAwesomeIcon icon="fal fa-building" class="text-gray-400 text-xxs" aria-hidden="true" />
-                                                    <span class="text-[9px] leading-none text-gray-400">{{ trans("Organisations") }}</span>
-                                                    <hr class="w-full rounded-full border-slate-300">
-                                                </div>
-                                                <div class="max-h-52 overflow-y-auto space-y-1.5">
-                                                    <MenuItem v-for="(item) in layoutStore.organisations.data" v-slot="{ active }">
-                                                        <div @click="() => router.visit(route('grp.org.dashboard.show', { organisation: item.slug }))" :class="[
-                                                            item.slug == layoutStore.currentParams?.organisation ? 'bg-slate-300 text-slate-600' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
-                                                            'group flex gap-x-2 w-full justify-start items-center rounded pl-2 pr-4 py-2 text-sm cursor-pointer',
-                                                        ]">
-                                                            <div class="h-5 aspect-square rounded-full overflow-hidden ring-1 ring-slate-200 bg-slate-50">
-                                                                <Image v-show="imageSkeleton[item.slug]" :src="item.logo" @onLoadImage="() => imageSkeleton[item.slug] = true" />
-                                                                <div v-show="!imageSkeleton[item.slug]" class="skeleton w-5 h-5" />
-                                                            </div>
-                                                            <div class="font-semibold whitespace-nowrap">{{ useTruncate(item.label, 20) }}</div>
-                                                        </div>
-                                                    </MenuItem>
-                                                </div>
-                                            </div>
+                                        <!-- Dropdown: Organisation -->
+                                        <TopBarDropdownScope v-if="layoutStore.organisations.data.length"
+                                            :menuItems="layoutStore.organisations.data"
+                                            :imageSkeleton="imageSkeleton"
+                                            :label="trans('organisations')"
+                                            icon="fal fa-building"
+                                        />
 
-                                            <!-- Dropdown: Agents -->
-                                            <div v-if="layoutStore.agents?.data?.length > 1">
-                                                <div class="flex items-center gap-x-1.5 px-1 mb-1">
-                                                    <FontAwesomeIcon icon="fal fa-people-arrows" class="text-gray-400 text-xxs" aria-hidden="true" />
-                                                    <span class="text-[9px] leading-none text-gray-400">{{ trans("Agents") }}</span>
-                                                    <hr class="w-full rounded-full border-slate-300">
-                                                </div>
-                                                <div class="max-h-52 overflow-y-auto space-y-1.5">
-                                                    <MenuItem v-for="(item) in layoutStore.agents?.data" v-slot="{ active }">
-                                                        <div @click="() => router.visit(route('grp.org.dashboard.show', { organisation: item.slug }))" :class="[
-                                                            item.slug == layoutStore.currentParams?.organisation ? 'bg-slate-300 text-slate-600' : 'text-slate-600 hover:bg-slate-200/75 hover:text-indigo-600',
-                                                            'group flex gap-x-2 w-full justify-start items-center rounded pl-2 pr-4 py-2 text-sm cursor-pointer',
-                                                        ]">
-                                                            <div class="h-5 aspect-square rounded-full overflow-hidden ring-1 ring-slate-200 bg-slate-50">
-                                                                <Image v-show="imageSkeleton[item.slug]" :src="item.logo" @onLoadImage="() => imageSkeleton[item.slug] = true" />
-                                                                <div v-show="!imageSkeleton[item.slug]" class="skeleton w-5 h-5" />
-                                                            </div>
-                                                            <div class="font-semibold whitespace-nowrap">{{ useTruncate(item.label, 20) }}</div>
-                                                        </div>
-                                                    </MenuItem>
-                                                </div>
-                                            </div>
-                                        </div>
+
+                                        <!-- Dropdown: Agents -->
+                                        <TopBarDropdownScope v-if="layoutStore.agents?.data?.length"
+                                            :menuItems="layoutStore.agents?.data"
+                                            :imageSkeleton="imageSkeleton"
+                                            :label="trans('agents')"
+                                            icon="fal fa-people-arrows"
+                                        />
+
+                                        <!-- Dropdown: Digital Agency -->
+                                        <TopBarDropdownScope v-if="layoutStore.digital_agency?.data?.length"
+                                            :menuItems="layoutStore.digital_agency?.data"
+                                            :imageSkeleton="imageSkeleton"
+                                            :label="trans('digital agency')"
+                                            icon="fal fa-laptop-house"
+                                        />
                                     </MenuItems>
                                 </transition>
                             </Menu>
@@ -208,8 +176,8 @@ const label = {
                             <!-- {{ layoutStore.isShopPage && layoutStore.organisationsState[layoutStore.currentParams.organisation].currentShop }} -->
                             <!-- Dropdown: Shops and Fulfilment-->
                             <Menu v-if="layoutStore.currentParams?.organisation && (layoutStore.isShopPage || layoutStore.isFulfilmentPage)"
-                                  as="div" class="relative inline-block text-left"
-                                  v-slot="{ close: closeMenu }"
+                                as="div" class="relative inline-block text-left"
+                                v-slot="{ close: closeMenu }"
                             >
                                 <TopBarSelectButton
                                     :icon="layoutStore.isFulfilmentPage ? 'fal fa-hand-holding-box' : 'fal fa-store-alt'"
@@ -230,9 +198,9 @@ const label = {
                                 <transition>
                                     <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-400 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                                         <MenuPopoverList v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_shops.length"
-                                                         icon="fal fa-store-alt" :navKey="'shop'" :closeMenu="closeMenu" />
+                                            icon="fal fa-store-alt" :navKey="'shop'" :closeMenu="closeMenu" />
                                         <MenuPopoverList v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_fulfilments.length"
-                                                         icon="fal fa-hand-holding-box" :navKey="'fulfilment'" :closeMenu="closeMenu" />
+                                            icon="fal fa-hand-holding-box" :navKey="'fulfilment'" :closeMenu="closeMenu" />
                                     </MenuItems>
                                 </transition>
                             </Menu>
