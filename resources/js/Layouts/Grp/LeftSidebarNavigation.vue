@@ -11,15 +11,17 @@ import { faBoxUsd, faUsersCog, faChartLine, faUserHardHat, faUser, faInventory, 
     faChevronDown, faPalletAlt, faAbacus,faCloudRainbow,faShoppingCart,faMountains, faTasksAlt, faTruck,
   faFlaskPotion,faFillDrip,faBullhorn,faBadgePercent
 } from "@fal"
-import { useLayoutStore } from "@/Stores/layout.js"
 import NavigationSimple from '@/Layouts/Grp/NavigationSimple.vue'
 import { generateNavigationName, generateCurrentString } from '@/Composables/useConvertString'
 import '@/Composables/Icon/ProductionsStateIcon'
 
 import { get } from "lodash"
 import NavigationGroup from "@/Layouts/Grp/NavigationGroup.vue"
+import NavigationScope from "@/Layouts/Grp/NavigationScope.vue"
 import NavigationHorizontal from "@/Layouts/Grp/NavigationHorizontal.vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
+import { trans } from "laravel-vue-i18n"
+
 library.add(faBoxUsd, faUsersCog, faChartLine, faUserHardHat, faUser, faUsersCog, faInventory, faConveyorBeltAlt, faChevronDown, faPalletAlt,
 faAbacus, faCloudRainbow,faShoppingCart,faMountains, faTasksAlt, faTruck, faFlaskPotion, faFillDrip, faBullhorn,faBadgePercent
 )
@@ -92,7 +94,6 @@ const iconList: { [key: string]: string } = {
                             )"
                             :orgNav="orgNav"
                             :itemKey="generateNavigationName(itemKey)"
-                            :icon="iconList[generateNavigationName(itemKey)] || ''"
                         />
                     </template>
 
@@ -122,27 +123,14 @@ const iconList: { [key: string]: string } = {
                     </template>
                     
                     <template v-if="itemKey == 'productions_navigation' && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_productions.length">
-                        <!-- If: Productions length is 1 -->
-                        <template v-if="layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_productions.length === 1">
-                            <!-- <NavigationGroup
-                                :orgNav="orgNav"
-                                :itemKey="generateNavigationName(itemKey)"
-                                :icon="iconList[generateNavigationName(itemKey)] || ''"
-                            /> -->
-                            <NavigationSimple v-for="(nav, navKey) in Object.values(orgNav)[0]"
-                                :nav="nav"
-                                :navKey="navKey"
-                            />
-                        </template>
+                        <NavigationScope
+                            :key="itemKey"
+                            icon="fal fa-fill-drip"
+                            :navs="orgNav[Object.keys(orgNav)[0]]"
+                            :scope="trans('production')"
+                            root="grp.org.productions.show."
 
-                        <!-- Else: Productions length more than 1 -->
-                        <template v-else-if="layout.organisationsState?.[layout.currentParams.organisation]?.[generateNavigationName(generateCurrentString(itemKey))]">
-                            <NavigationGroup
-                                :orgNav="orgNav"
-                                :itemKey="generateNavigationName(itemKey)"
-                                :icon="iconList[generateNavigationName(itemKey)]"
-                            />
-                        </template>
+                        />
                     </template>
                 </template>
 

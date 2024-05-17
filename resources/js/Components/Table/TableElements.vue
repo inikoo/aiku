@@ -96,8 +96,8 @@ onMounted(() => {
     const stateParam = searchParams.get(`${prefix}[${selectedGroup.value}]`)
     stateParam ? selectedElement[selectedGroup.value] = stateParam.split(",") : false
 
-    const asdfzxc = Object.keys(props.elements)
-    console.log('rr', asdfzxc.some(elementName => window.location.search.includes(`elements[${elementName}]`)))
+    // const asdfzxc = Object.keys(props.elements)
+    // console.log('rr', asdfzxc.some(elementName => window.location.search.includes(`elements[${elementName}]`)))
 })
 
 </script>
