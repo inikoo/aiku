@@ -63,9 +63,9 @@ class StoreClockingMachine extends OrgAction
         return [
             'name'  => ['required', 'max:64', 'string',
                         new IUnique(
-                            table: 'workplaces',
+                            table: 'clocking_machines',
                             extraConditions: [
-                                ['column' => 'group_id', 'value' => $this->organisation->group_id],
+                                ['column' => 'organisation_id', 'value' => $this->organisation->id],
                             ]
                         ),
                 ],
