@@ -168,7 +168,7 @@ class Customer extends Model implements HasMedia, Auditable
                 return $slug;
             })
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(32)
+            ->slugsShouldBeNoLongerThan(36)
             ->doNotGenerateSlugsOnUpdate();
     }
 
@@ -181,7 +181,14 @@ class Customer extends Model implements HasMedia, Auditable
     {
         static::creating(
             function (Customer $customer) {
-                $customer->name = $customer->company_name == '' ? $customer->contact_name : $customer->company_name;
+
+                $name=$customer->company_name == '' ? $customer->contact_name : $customer->company_name;
+                $name=trim($name);
+                if($name=='') {
+                    $emailData=explode('@', $customer->email);
+                    $name     =$emailData[0]??$customer->email;
+                }
+                $customer->name = $name;
             }
         );
 
@@ -189,10 +196,17 @@ class Customer extends Model implements HasMedia, Auditable
             if ($customer->wasChanged('trade_state')) {
                 ShopHydrateCustomerInvoices::dispatch($customer->shop);
             }
-            if ($customer->wasChanged(['contact_name', 'company_name'])) {
+            if ($customer->wasChanged(['contact_name', 'company_name','email'])) {
+                $name=$customer->company_name == '' ? $customer->contact_name : $customer->company_name;
+                $name=trim($name);
+                if($name=='') {
+                    $emailData=explode('@', $customer->email);
+                    $name     =$emailData[0]??$customer->email;
+                }
+
                 $customer->updateQuietly(
                     [
-                        'name' => $customer->company_name == '' ? $customer->contact_name : $customer->company_name
+                        'name' => $name
                     ]
                 );
             }
@@ -270,10 +284,6 @@ class Customer extends Model implements HasMedia, Auditable
         return $this->hasOne(FulfilmentCustomer::class);
     }
 
-    public function palletDeliveries(): HasMany
-    {
-        return $this->hasMany(PalletDelivery::class);
-    }
 
     public function appointments(): HasMany
     {

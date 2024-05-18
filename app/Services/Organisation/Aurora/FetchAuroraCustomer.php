@@ -49,18 +49,44 @@ class FetchAuroraCustomer extends FetchAurora
             rawData: (array)$this->auroraModelData
         );
 
+
+
         $contactName = $this->auroraModelData->{'Customer Main Contact Name'};
         $company     = $this->auroraModelData->{'Customer Company Name'};
 
+
+        $contactName=$this->cleanName($contactName);
+
+        $company=$this->cleanName($company);
+        $company=$this->cleanCompanyName($company);
+
+
         if (!$company and !$contactName) {
             $contactName = $this->auroraModelData->{'Customer Name'};
-            if (!$contactName) {
-                $contactName = $this->auroraModelData->{'Customer Main Plain Email'};
+            $contactName =$this->cleanName($contactName);
+            $contactName =$this->cleanCompanyName($contactName);
+        }
+
+        $phone=$this->auroraModelData->{'Customer Main Plain Mobile'};
+        if($phone=='') {
+            $phone=$this->auroraModelData->{'Customer Main Plain Telephone'};
+        }
+
+        if(is_numeric($contactName)) {
+
+            $tmp = preg_replace('/[^0-9]/i', '', $contactName);
+            $tmp =(string) preg_replace('/^0/', '', $tmp);
+
+            if(strlen($contactName)>6 and   preg_match("/$tmp/", $phone)) {
+                $contactName='';
             }
-            if (!$contactName) {
-                $contactName = 'Unknown';
+            if($contactName!='' and $company=='') {
+                $company    =$contactName;
+                $contactName='';
             }
         }
+
+
 
         $this->parsedData['customer'] =
             [
@@ -70,7 +96,7 @@ class FetchAuroraCustomer extends FetchAurora
                 'contact_name'             => $contactName,
                 'company_name'             => $company,
                 'email'                    => $this->auroraModelData->{'Customer Main Plain Email'},
-                'phone'                    => $this->auroraModelData->{'Customer Main Plain Mobile'},
+                'phone'                    => $phone,
                 'identity_document_number' => Str::limit($this->auroraModelData->{'Customer Registration Number'}),
                 'contact_website'          => $this->auroraModelData->{'Customer Website'},
                 'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Customer Key'},
@@ -78,6 +104,8 @@ class FetchAuroraCustomer extends FetchAurora
                 'contact_address'          => $billingAddress,
                 'tax_number'               => $taxNumber
             ];
+
+        //print_r($this->parsedData['customer']);
 
         if ($billingAddress != $deliveryAddress) {
             $this->parsedData['customer']['delivery_address'] = $deliveryAddress;
@@ -93,4 +121,33 @@ class FetchAuroraCustomer extends FetchAurora
             ->table('Customer Dimension')
             ->where('Customer Key', $id)->first();
     }
+
+
+    protected function cleanCompanyName($name): string
+    {
+
+        $name=str_replace('(Ebay/Amazon Account)', '', $name);
+        $name=trim($name);
+
+        if(preg_match('/-*\s*(None|Not yet started trading|undecided as of yet)\s*-*/', $name)) {
+            $name='';
+        }
+
+        if(in_array($name, ['-','Unknown','- None -','- Not yet started trading -','- Select -','--Please Select--'])) {
+            $name='';
+        }
+
+        return $name;
+    }
+
+    protected function cleanName($name): string
+    {
+        $name=trim($name);
+
+        if(preg_match('/^([:\-.+,*01?_\/])+$/', $name)) {
+            $name='';
+        }
+        return $name;
+    }
+
 }
