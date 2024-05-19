@@ -15,7 +15,6 @@ use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
@@ -84,6 +83,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
+ * @property array $migration_data
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, \App\Models\CRM\Appointment> $appointments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
@@ -95,7 +95,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read MediaCollection<int, Media> $media
  * @property-read Collection<int, Order> $orders
  * @property-read Organisation $organisation
- * @property-read Collection<int, PalletDelivery> $palletDeliveries
  * @property-read Collection<int, Payment> $payments
  * @property-read Collection<int, Product> $products
  * @property-read Shop|null $shop
@@ -126,18 +125,20 @@ class Customer extends Model implements HasMedia, Auditable
     use InShop;
 
     protected $casts = [
-        'data'        => 'array',
-        'settings'    => 'array',
-        'location'    => 'array',
-        'state'       => CustomerStateEnum::class,
-        'status'      => CustomerStatusEnum::class,
-        'trade_state' => CustomerTradeStateEnum::class
+        'data'           => 'array',
+        'settings'       => 'array',
+        'location'       => 'array',
+        'migration_data' => 'array',
+        'state'          => CustomerStateEnum::class,
+        'status'         => CustomerStatusEnum::class,
+        'trade_state'    => CustomerTradeStateEnum::class
     ];
 
     protected $attributes = [
-        'data'     => '{}',
-        'settings' => '{}',
-        'location' => '{}',
+        'data'           => '{}',
+        'settings'       => '{}',
+        'location'       => '{}',
+        'migration_data' => '{}'
     ];
 
     protected $guarded = [];
@@ -145,9 +146,10 @@ class Customer extends Model implements HasMedia, Auditable
     public function generateTags(): array
     {
         $tags = ['crm'];
-        if($this->is_fulfilment) {
+        if ($this->is_fulfilment) {
             $tags[] = 'fulfilment';
         }
+
         return $tags;
     }
 
@@ -156,12 +158,11 @@ class Customer extends Model implements HasMedia, Auditable
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-
                 $slug = $this->company_name;
                 if ($slug == '') {
                     $slug = $this->contact_name;
                 }
-                if ($slug == '' or $slug=='Unknown') {
+                if ($slug == '' or $slug == 'Unknown') {
                     $slug = $this->reference;
                 }
 
@@ -181,12 +182,11 @@ class Customer extends Model implements HasMedia, Auditable
     {
         static::creating(
             function (Customer $customer) {
-
-                $name=$customer->company_name == '' ? $customer->contact_name : $customer->company_name;
-                $name=trim($name);
-                if($name=='') {
-                    $emailData=explode('@', $customer->email);
-                    $name     =$emailData[0]??$customer->email;
+                $name = $customer->company_name == '' ? $customer->contact_name : $customer->company_name;
+                $name = trim($name);
+                if ($name == '') {
+                    $emailData = explode('@', $customer->email);
+                    $name      = $emailData[0] ?? $customer->email;
                 }
                 $customer->name = $name;
             }
@@ -196,12 +196,12 @@ class Customer extends Model implements HasMedia, Auditable
             if ($customer->wasChanged('trade_state')) {
                 ShopHydrateCustomerInvoices::dispatch($customer->shop);
             }
-            if ($customer->wasChanged(['contact_name', 'company_name','email'])) {
-                $name=$customer->company_name == '' ? $customer->contact_name : $customer->company_name;
-                $name=trim($name);
-                if($name=='') {
-                    $emailData=explode('@', $customer->email);
-                    $name     =$emailData[0]??$customer->email;
+            if ($customer->wasChanged(['contact_name', 'company_name', 'email'])) {
+                $name = $customer->company_name == '' ? $customer->contact_name : $customer->company_name;
+                $name = trim($name);
+                if ($name == '') {
+                    $emailData = explode('@', $customer->email);
+                    $name      = $emailData[0] ?? $customer->email;
                 }
 
                 $customer->updateQuietly(
