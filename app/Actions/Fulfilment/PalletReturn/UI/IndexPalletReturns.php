@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
@@ -25,7 +26,6 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -33,6 +33,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPalletReturns extends OrgAction
 {
+    use WithFulfilmentCustomerSubNavigation;
+
+
     private Fulfilment|Warehouse|FulfilmentCustomer $parent;
 
     public function authorize(ActionRequest $request): bool
@@ -199,21 +202,10 @@ class IndexPalletReturns extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
-        $container = null;
-        if($this->parent instanceof Fulfilment) {
-            $container = [
-                'icon'    => ['fal', 'fa-pallet-alt'],
-                'tooltip' => __('Fulfilment Shop'),
-                'label'   => Str::possessive($this->fulfilment->shop->name)
+        $subNavigation=[];
 
-            ];
-        } elseif($this->parent instanceof Warehouse) {
-            $container = [
-                'icon'    => ['fal', 'fa-warehouse-alt'],
-                'tooltip' => __('Warehouse'),
-                'label'   => Str::possessive($this->warehouse->name)
-
-            ];
+        if($this->parent instanceof  FulfilmentCustomer) {
+            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
         }
 
         return Inertia::render(
@@ -225,10 +217,10 @@ class IndexPalletReturns extends OrgAction
                 ),
                 'title'       => __('pallet returns'),
                 'pageHead'    => [
-                    'title'     => __('returns'),
-                    'container' => $container,
-                    'iconRight' => [
-                        'icon'  => ['fal', 'fa-sign-out'],
+                    'title'         => __('returns'),
+                    'subNavigation' => $subNavigation,
+                    'icon'          => [
+                        'icon'  => ['fal', 'fa-sign-out-alt'],
                         'title' => __('returns')
                     ],
                     'actions' => [
@@ -281,13 +273,13 @@ class IndexPalletReturns extends OrgAction
                 )
             ),
 
-            'grp.org.fulfilments.show.crm.customers.show.pallet-returns.index'=> array_merge(
+            'grp.org.fulfilments.show.crm.customers.show.pallet_returns.index'=> array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.index',
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.index',
                         'parameters' => Arr::only($routeParameters, ['organisation','fulfilment','fulfilmentCustomer'])
                     ]
                 )

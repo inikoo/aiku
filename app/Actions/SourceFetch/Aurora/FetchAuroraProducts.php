@@ -34,6 +34,47 @@ class FetchAuroraProducts extends FetchAuroraAction
 
             if ($product = Product::withTrashed()->where('source_id', $productData['product']['source_id'])
                 ->first()) {
+
+                if(!$product->mainOuterable) {
+
+
+                    print "fix missing main outerable\n";
+
+                    $outer=Outer::where('historic_source_id', $productData['product']['historic_source_id'])->first();
+
+
+                    if(!$outer) {
+                        print "adding missing outer\n";
+
+                        $outer=StoreOuter::run(
+                            product: $product,
+                            modelData: [
+                                'code'              => $product->code,
+                                'price'             => $productData['product']['main_outerable_price'],
+                                'name'              => $product->name,
+                                'is_main'           => true,
+                                'main_outer_ratio'  => 1,
+                                'source_id'         => $product->source_id,
+                                'historic_source_id'=> $product->historic_source_id
+                            ]
+                        );
+
+
+                    }
+
+                    SetProductMainOuter::run(
+                        product: $product,
+                        mainOuter: $outer
+                    );
+
+                    $product->refresh();
+
+
+
+
+                }
+
+
                 try {
                     $product = UpdatePhysicalGood::make()->action(
                         product: $product,

@@ -114,7 +114,7 @@ class StoreMultiplePalletsFromDelivery extends OrgAction
             'retina.models.pallet-delivery.multiple-pallets.store' => Redirect::route('retina.storage.pallet-deliveries.show', [
                 'palletDelivery' => $this->parent->slug
             ]),
-            default => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
+            default => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show', [
                 'organisation'       => $this->organisation->slug,
                 'fulfilment'         => $this->fulfilment->slug,
                 'fulfilmentCustomer' => $this->fulfilmentCustomer->slug,

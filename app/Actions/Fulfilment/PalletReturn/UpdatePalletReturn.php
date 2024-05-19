@@ -103,7 +103,7 @@ class UpdatePalletReturn extends OrgAction
         $routeName = $request->route()->getName();
 
         return match ($routeName) {
-            'grp.models.fulfilment-customer.pallet-delivery.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
+            'grp.models.fulfilment-customer.pallet-delivery.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show', [
                 'organisation'           => $palletReturn->organisation->slug,
                 'fulfilment'             => $palletReturn->fulfilment->slug,
                 'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,

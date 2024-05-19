@@ -126,7 +126,7 @@ class StoreStoredItemReturn extends OrgAction
     {
         return [
             'route' => [
-                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.show',
+                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
                 'parameters' => [
                     'organisation'           => $palletReturn->organisation->slug,
                     'fulfilment'             => $palletReturn->fulfilment->slug,

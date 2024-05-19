@@ -57,7 +57,7 @@ const originUrl = location.origin
                 </div>
                 <div v-if="data.icon" class="inline text-gray-400">
                     <FontAwesomeIcon :title="capitalize(data.icon.tooltip ?? '')" aria-hidden="true"
-                        :icon="data.icon.icon || data.icon" size="sm" class="" />
+                        :icon="data.icon.icon || data.icon" size="sm" fixed-width />
                     <!-- <FontAwesomeIcon v-if="data.iconBis" :title="capitalize(data.iconBis.tooltip ?? '')" aria-hidden="true"
                         :icon="data.iconBis.icon" size="sm" class="" :class="data.iconBis.class"/> -->
                 </div>

@@ -49,7 +49,7 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
                 ]);
         default:
             return route(
-                'grp.org.fulfilments.show.crm.customers.show.pallet-returns.show',
+                'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],

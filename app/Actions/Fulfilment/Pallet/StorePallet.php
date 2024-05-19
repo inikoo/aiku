@@ -166,7 +166,7 @@ class StorePallet extends OrgAction
     public function htmlResponse(Pallet $pallet, ActionRequest $request): RedirectResponse
     {
         if ($this->parent instanceof PalletDelivery) {
-            return Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
+            return Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show', [
                 'organisation'       => $pallet->organisation->slug,
                 'fulfilment'         => $pallet->fulfilment->slug,
                 'fulfilmentCustomer' => $pallet->fulfilmentCustomer->slug,

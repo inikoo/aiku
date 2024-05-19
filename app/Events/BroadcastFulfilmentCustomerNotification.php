@@ -38,13 +38,13 @@ class BroadcastFulfilmentCustomerNotification implements ShouldQueue
             'slug'  => $parent->slug,
             'id'    => $parent->id,
             'route' => match (class_basename($parent)) {
-                'PalletDelivery' => route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
+                'PalletDelivery' => route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show', [
                     'organisation'       => $parent->organisation->slug,
                     'fulfilment'         => $parent->fulfilment->slug,
                     'fulfilmentCustomer' => $parent->fulfilmentCustomer->slug,
                     $parent->slug
                 ]),
-                'PalletReturn' => route('grp.org.fulfilments.show.crm.customers.show.pallet-returns.show', [
+                'PalletReturn' => route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
                     'organisation'       => $parent->organisation->slug,
                     'fulfilment'         => $parent->fulfilment->slug,
                     'fulfilmentCustomer' => $parent->fulfilmentCustomer->slug,

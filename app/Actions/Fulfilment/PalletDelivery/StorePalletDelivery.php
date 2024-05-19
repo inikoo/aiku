@@ -156,7 +156,7 @@ class StorePalletDelivery extends OrgAction
     {
         return [
             'route' => [
-                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show',
+                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',
                 'parameters' => [
                     'organisation'           => $palletDelivery->organisation->slug,
                     'fulfilment'             => $palletDelivery->fulfilment->slug,
@@ -172,7 +172,7 @@ class StorePalletDelivery extends OrgAction
         $routeName = $request->route()->getName();
 
         return match ($routeName) {
-            'grp.models.fulfilment-customer.pallet-delivery.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
+            'grp.models.fulfilment-customer.pallet-delivery.store' => Inertia::location(route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show', [
                 'organisation'           => $palletDelivery->organisation->slug,
                 'fulfilment'             => $palletDelivery->fulfilment->slug,
                 'fulfilmentCustomer'     => $palletDelivery->fulfilmentCustomer->slug,

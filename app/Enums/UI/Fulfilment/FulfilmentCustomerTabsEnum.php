@@ -16,26 +16,31 @@ enum FulfilmentCustomerTabsEnum: string
     use HasTabs;
 
     case SHOWCASE      = 'showcase';
-    case PALLETS       = 'pallets';
-    case STORED_ITEMS  = 'stored_items';
 
-    case PALLET_DELIVERIES                = 'pallet_deliveries';
-    case STORED_ITEM_RETURNS              = 'stored_item_returns';
-    case PALLET_RETURNS                   = 'pallet_returns';
 
-    case RECURRING_BILLS                  = 'recurring_bills';
-    case INVOICES                         = 'invoices';
+    /*
+     case PALLETS       = 'pallets';
+     case STORED_ITEMS  = 'stored_items';
+
+     case PALLET_DELIVERIES                = 'pallet_deliveries';
+     case STORED_ITEM_RETURNS              = 'stored_item_returns';
+     case PALLET_RETURNS                   = 'pallet_returns';
+
+     case RECURRING_BILLS                  = 'recurring_bills';
+     case INVOICES                         = 'invoices';
+*/
 
     case HISTORY              = 'history';
     case ATTACHMENTS          = 'attachments';
 
-    case WEB_USERS = 'web_users';
+    //   case WEB_USERS = 'web_users';
     case WEBHOOK   = 'webhook';
 
 
     public function blueprint(): array
     {
         return match ($this) {
+            /*
             FulfilmentCustomerTabsEnum::PALLETS => [
                 'title' => __('pallets'),
                 'icon'  => 'fal fa-pallet',
@@ -47,12 +52,6 @@ enum FulfilmentCustomerTabsEnum: string
             FulfilmentCustomerTabsEnum::STORED_ITEM_RETURNS => [
                 'title' => __('stored item returns'),
                 'icon'  => 'fal fa-truck-loading',
-            ],
-            FulfilmentCustomerTabsEnum::HISTORY => [
-                'align' => 'right',
-                'type'  => 'icon',
-                'title' => __('history'),
-                'icon'  => 'fal fa-clock',
             ],
             FulfilmentCustomerTabsEnum::INVOICES => [
                 'title' => __('invoices'),
@@ -70,12 +69,7 @@ enum FulfilmentCustomerTabsEnum: string
                 'title' => __('returns'),
                 'icon'  => 'fal fa-sign-out-alt',
             ],
-            FulfilmentCustomerTabsEnum::ATTACHMENTS => [
-                'align' => 'right',
-                'title' => __('attachments'),
-                'icon'  => 'fal fa-paperclip',
-                'type'  => 'icon'
-            ],
+
 
             FulfilmentCustomerTabsEnum::WEB_USERS => [
                 'align' => 'right',
@@ -83,6 +77,20 @@ enum FulfilmentCustomerTabsEnum: string
                 'icon'  => 'fal fa-terminal',
                 'type'  => 'icon',
             ],
+            */
+            FulfilmentCustomerTabsEnum::ATTACHMENTS => [
+                'align' => 'right',
+                'title' => __('attachments'),
+                'icon'  => 'fal fa-paperclip',
+                'type'  => 'icon'
+            ],
+            FulfilmentCustomerTabsEnum::HISTORY => [
+                'align' => 'right',
+                'type'  => 'icon',
+                'title' => __('history'),
+                'icon'  => 'fal fa-clock',
+            ],
+
             FulfilmentCustomerTabsEnum::WEBHOOK => [
                 'align' => 'right',
                 'type'  => 'icon',

@@ -117,7 +117,7 @@ class FetchAuroraCustomer extends FetchAurora
         }
 
         $identityDocumentNumber = $this->cleanCompanyNumber(Str::limit($this->auroraModelData->{'Customer Registration Number'}));
-        if ($identityDocumentNumber != '' and $company!=$identityDocumentNumber ) {
+        if ($identityDocumentNumber != '' and $company!=$identityDocumentNumber) {
             $this->parsedData['customer']['identity_document_number'] = $identityDocumentNumber;
         }
 
@@ -171,14 +171,14 @@ class FetchAuroraCustomer extends FetchAurora
         $string=$this->cleanName($string);
         $string=$this->cleanCompanyName($string);
 
-        $string=preg_replace('/^([:;])\s*/','' ,$string);
+        $string=preg_replace('/^([:;])\s*/', '', $string);
 
 
-        if(preg_match('/(No tengo|Don.?t have|Dont have|I don.t have|not Applicable|Not available|Not yet|Sheffield|independente em nome próprio|Sole Trader|carmen|carlos|En proceso|entrepreneur|unknown|test|to follow|Under construction)/i',$string)){
+        if(preg_match('/(No tengo|Don.?t have|Dont have|I don.t have|not Applicable|Not available|Not yet|Sheffield|independente em nome próprio|Sole Trader|carmen|carlos|En proceso|entrepreneur|unknown|test|to follow|Under construction)/i', $string)) {
             $string='';
         }
 
-        if(in_array($string,[
+        if(in_array($string, [
             'Zürich','universes','sra.','Noch nicht vorhanden','No hay número de registro',
             'Slovenská Republika','slovensko','Slovensko/Slovakia','recargo de equivalencia','nose',
             'No Selection','No lo se','Empresa en nombre individual','new business','En projet',
@@ -188,11 +188,11 @@ class FetchAuroraCustomer extends FetchAurora
             'Na sole trader','Não tenho','Česká republika','Sra.','Sra','Sra.','Sra','Sra.','Sra','Sra.','Sra',
             '///','1100 Tatra banka, a.s.','21% IVA (NO RECARGO)','5,2%','5,20','Barcelona',
             "Ali'ne baba et ses 4500 produits",'SK','GB','EL','na','NA','n/a','N/A','N/a','en cour','en cours','MT',
-            '-SR','000 000 000 000 00','Slovenská republika','En cours pas recu encore','Slowakei','Slovakia'])){
+            '-SR','000 000 000 000 00','Slovenská republika','En cours pas recu encore','Slowakei','Slovakia'])) {
             $string='';
         }
 
-        if(strlen($string)<4){
+        if(strlen($string)<4) {
             $string='';
         }
 
@@ -204,7 +204,7 @@ class FetchAuroraCustomer extends FetchAurora
     protected function cleanUrl($url): string
     {
         $url=$this->cleanName($url);
-        if(in_array($url,['www.'])){
+        if(in_array($url, ['www.'])) {
             $url='';
         }
 

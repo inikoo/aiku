@@ -9,6 +9,7 @@ namespace App\Actions\CRM\WebUser;
 
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Http\Resources\CRM\WebUserResource;
 use App\Models\CRM\Customer;
@@ -18,7 +19,6 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Arr;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -26,6 +26,8 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowWebUser extends OrgAction
 {
     use WithAuthorizeWebUserScope;
+    use WithFulfilmentCustomerSubNavigation;
+
 
     private FulfilmentCustomer|Customer $parent;
 
@@ -62,19 +64,11 @@ class ShowWebUser extends OrgAction
 
     public function htmlResponse(WebUser $webUser, ActionRequest $request): Response
     {
-        $container = null;
-        if (class_basename($this->parent) == 'Customer') {
-            $container = [
-                'icon'    => ['fal', 'fa-user'],
-                'tooltip' => __('Customer'),
-                'label'   => Str::possessive($this->parent->name)
-            ];
-        } elseif (class_basename($this->parent) == 'FulfilmentCustomer') {
-            $container = [
-                'icon'    => ['fal', 'fa-user'],
-                'tooltip' => __('Customer'),
-                'label'   => Str::possessive($this->parent->customer->name)
-            ];
+
+        $subNavigation=[];
+
+        if($this->parent instanceof  FulfilmentCustomer) {
+            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
         }
 
 
@@ -87,9 +81,9 @@ class ShowWebUser extends OrgAction
                     $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
-                    'title'     => __('web user'),
-                    'container' => $container,
-                    'meta'      => [
+                    'title'         => __('web user'),
+                    'subNavigation' => $subNavigation,
+                    'meta'          => [
                         [
                             'name' => $webUser->username
                         ]

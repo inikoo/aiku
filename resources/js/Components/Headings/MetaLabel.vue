@@ -21,7 +21,7 @@ const locale = useLocaleStore()
 </script>
 
 <template>
-    <div class="leading-none">{{ item.label  }}</div>
+    <span class="leading-none">{{ item.label  }}</span>
     <template v-if="typeof item.number == 'number'">
         (<span v-if="item.number">{{ locale.number(item.number) }}</span>
         <FontAwesomeIcon v-else icon="fal fa-empty-set"/>)

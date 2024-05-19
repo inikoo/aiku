@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\Pallet\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
@@ -34,6 +35,8 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowPallet extends OrgAction
 {
+    use WithFulfilmentCustomerSubNavigation;
+
     public Customer|null $customer = null;
     private Warehouse|Organisation|FulfilmentCustomer|Fulfilment $parent;
 
@@ -92,15 +95,24 @@ class ShowPallet extends OrgAction
     }
 
 
-    public function htmlResponse(Pallet $pallet): Response
+    public function htmlResponse(Pallet $pallet, ActionRequest $request): Response
     {
+
+
+        $subNavigation=[];
+
+        if($this->parent instanceof  FulfilmentCustomer) {
+            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        }
+
+
         return Inertia::render(
             'Org/Fulfilment/Pallet',
             [
                 'title'       => __('pallets'),
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    request()->route()->getName(),
-                    request()->route()->originalParameters()
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
                     'icon'          =>
@@ -108,8 +120,9 @@ class ShowPallet extends OrgAction
                             'icon'  => ['fal', 'fa-pallet'],
                             'title' => __('pallets')
                         ],
-                    'title'  => $this->pallet->reference,
-                    'actions'=> [
+                    'title'         => $this->pallet->reference,
+                    'subNavigation' => $subNavigation,
+                    'actions'       => [
                         /*[
                             'type'    => 'button',
                             'style'   => 'cancel',

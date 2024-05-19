@@ -7,32 +7,36 @@
 
 namespace App\Http\Resources\Fulfilment;
 
-use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @property string $customer_name
  * @property string $customer_slug
+ * @property mixed $id
+ * @property mixed $slug
+ * @property mixed $reference
+ * @property mixed $customer_reference
+ * @property mixed $number_pallets
+ * @property mixed $dispatched_at
+ * @property mixed $state
  */
 class PalletDeliveriesResource extends JsonResource
 {
     public function toArray($request): array
     {
-        /** @var PalletDelivery $palletDelivery */
-        $palletDelivery = $this;
 
         return [
-            'id'                 => $palletDelivery->id,
-            'slug'               => $palletDelivery->slug,
-            'reference'          => $palletDelivery->reference,
-            'state'              => $palletDelivery->state,
-            'state_label'        => $palletDelivery->state->labels()[$palletDelivery->state->value],
-            'state_icon'         => $palletDelivery->state->stateIcon()[$palletDelivery->state->value],
-            'customer_reference' => $palletDelivery->customer_reference,
-            'number_pallets'     => $palletDelivery->number_pallets,
+            'id'                 => $this->id,
+            'slug'               => $this->slug,
+            'reference'          => $this->reference,
+            'state'              => $this->state,
+            'state_label'        => $this->state->labels()[$this->state->value],
+            'state_icon'         => $this->state->stateIcon()[$this->state->value],
+            'customer_reference' => $this->customer_reference,
+            'number_pallets'     => $this->number_pallets,
             'customer_name'      => $this->customer_name,
             'customer_slug'      => $this->customer_slug,
-            'dispatched_date'    => $palletDelivery->dispatched_at
+            'dispatched_date'    => $this->dispatched_at
         ];
     }
 }

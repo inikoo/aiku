@@ -133,7 +133,7 @@ class StorePalletFromDelivery extends OrgAction
         $routeName = $request->route()->getName();
 
         return match ($routeName) {
-            'grp.models.pallet-delivery.pallet.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show', [
+            'grp.models.pallet-delivery.pallet.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show', [
                 'organisation'           => $pallet->organisation->slug,
                 'fulfilment'             => $pallet->fulfilment->slug,
                 'fulfilmentCustomer'     => $pallet->fulfilmentCustomer->slug,

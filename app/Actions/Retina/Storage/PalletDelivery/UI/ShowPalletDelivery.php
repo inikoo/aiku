@@ -146,7 +146,7 @@ class ShowPalletDelivery extends RetinaAction
 
                 'uploadRoutes' => [
                     'history' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.pallets.uploads.history',
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.pallets.uploads.history',
                         'parameters' => [
                             'organisation'       => $palletDelivery->organisation->slug,
                             'fulfilment'         => $palletDelivery->fulfilment->slug,
@@ -155,7 +155,7 @@ class ShowPalletDelivery extends RetinaAction
                         ]
                     ],
                     'download' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.pallets.uploads.templates',
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.pallets.uploads.templates',
                         'parameters' => [
                             'organisation'       => $palletDelivery->organisation->slug,
                             'fulfilment'         => $palletDelivery->fulfilment->slug,
@@ -235,17 +235,17 @@ class ShowPalletDelivery extends RetinaAction
 
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show' => array_merge(
+            'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show' => array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])),
                 $headCrumb(
                     $palletDelivery,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.index',
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.index',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
                         ],
                         'model' => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show',
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer', 'palletDelivery'])
                         ]
                     ],

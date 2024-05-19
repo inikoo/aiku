@@ -1,6 +1,6 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Sun, 25 Feb 2024 10:30:47 Central Standard Time, Mexico City, Mexico
+  - Created: Sun, 19 May 2024 15:09:29 British Summer Time, Sheffield, UK
   - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
@@ -55,9 +55,9 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
                     route().params['warehouse'],
                     palletDelivery.slug
                 ])
-        case 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.index':
+        case 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.index':
             return route(
-                'grp.org.fulfilments.show.crm.customers.show.pallet-returns.show',
+                'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],
@@ -66,7 +66,7 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
                 ])
         default:
             return route(
-                'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.show',
+                'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],
