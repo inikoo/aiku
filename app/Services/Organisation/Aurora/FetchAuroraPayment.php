@@ -10,7 +10,6 @@ namespace App\Services\Organisation\Aurora;
 use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Enums\Accounting\Payment\PaymentStateEnum;
 use App\Enums\Accounting\Payment\PaymentStatusEnum;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -26,21 +25,18 @@ class FetchAuroraPayment extends FetchAurora
             $data['exchange'] = $this->auroraModelData->{'Payment Currency Exchange Rate'};
         }
 
-
         $shop=$this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Payment Store Key'});
-
-
 
         $this->parsedData['paymentAccount'] = $this->parsePaymentAccount($this->organisation->id.':'.$this->auroraModelData->{'Payment Account Key'});
 
         if(!$this->parsedData['paymentAccount']) {
+            print_r($this->auroraModelData);
             dd('Error Payment Account not found');
         }
 
         $this->parsedData['customer']       = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Payment Customer Key'});
 
-        /** @var \App\Models\CRM\Customer $customer */
-        $customer = $this->parsedData['customer'];
+
 
         $state  = Str::lower($this->auroraModelData->{'Payment Transaction Status'});
         $status = PaymentStatusEnum::IN_PROCESS;
@@ -60,33 +56,37 @@ class FetchAuroraPayment extends FetchAurora
         }
 
 
-        $date=$this->parseDate($this->auroraModelData->{'Payment Created Date'});
-        if(!$date) {
-            $date=$this->parseDate($this->auroraModelData->{'Payment Last Updated Date'});
+        $createdAt=$this->parseDatetime($this->auroraModelData->{'Payment Created Date'});
+        if(!$createdAt) {
+            $createdAt=$this->parseDatetime($this->auroraModelData->{'Payment Last Updated Date'});
         }
-        if(!$date) {
-            $date=$this->parseDate($this->auroraModelData->{'Payment Completed Date'});
+        if(!$createdAt) {
+            $createdAt=$this->parseDatetime($this->auroraModelData->{'Payment Completed Date'});
         }
-        if(!$date) {
-            $date=$this->parseDate($this->auroraModelData->{'Payment Cancelled Date'});
+        if(!$createdAt) {
+            $createdAt=$this->parseDatetime($this->auroraModelData->{'Payment Cancelled Date'});
         }
 
-        $date=new Carbon($date);
+        $lastUpdatedDate=$this->parseDatetime($this->auroraModelData->{'Payment Last Updated Date'});
+        if(!$lastUpdatedDate) {
+            $lastUpdatedDate=$createdAt;
+        }
+
 
         $this->parsedData['payment'] = [
 
             'reference'    => $this->auroraModelData->{'Payment Transaction ID'},
             'amount'       => $this->auroraModelData->{'Payment Transaction Amount'},
-            'org_amount'   => $this->auroraModelData->{'Payment Transaction Amount'} * GetHistoricCurrencyExchange::run($shop->currency, $shop->organisation->currency, $date),
-            'group_amount' => $this->auroraModelData->{'Payment Transaction Amount'} * GetHistoricCurrencyExchange::run($shop->currency, $shop->group->currency, $date),
+            'org_amount'   => $this->auroraModelData->{'Payment Transaction Amount'} * GetHistoricCurrencyExchange::run($shop->currency, $shop->organisation->currency, $createdAt),
+            'group_amount' => $this->auroraModelData->{'Payment Transaction Amount'} * GetHistoricCurrencyExchange::run($shop->currency, $shop->group->currency, $createdAt),
             'data'         => $data,
             'currency_id'  => $this->parseCurrencyID($this->auroraModelData->{'Payment Currency Code'}),
 
-            'date'         => $this->parseDate($this->auroraModelData->{'Payment Last Updated Date'}),
-            'created_at'   => $this->parseDate($this->auroraModelData->{'Payment Created Date'}),
-            'completed_at' => $this->parseDate($this->auroraModelData->{'Payment Completed Date'}),
+            'date'         => $lastUpdatedDate,
+            'created_at'   => $createdAt,
+            'completed_at' => $this->parseDatetime($this->auroraModelData->{'Payment Completed Date'}),
 
-            'cancelled_at' => $this->parseDate($this->auroraModelData->{'Payment Cancelled Date'}),
+            'cancelled_at' => $this->parseDatetime($this->auroraModelData->{'Payment Cancelled Date'}),
 
             'state'     => $state,
             'status'    => $status,

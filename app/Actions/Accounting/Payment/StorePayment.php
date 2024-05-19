@@ -56,12 +56,15 @@ class StorePayment extends OrgAction
         /** @var Payment $payment */
         $payment = $paymentAccount->payments()->create($modelData);
 
+        // todo: move this to a separate action
+        /*
         match ($paymentAccount->type->value) {
             PaymentAccountTypeEnum::CHECKOUT->value         => MakePaymentUsingCheckout::run($payment, $modelData),
             PaymentAccountTypeEnum::XENDIT->value           => MakePaymentUsingXendit::run($payment),
             PaymentAccountTypeEnum::PAYPAL->value           => MakePaymentUsingPaypal::run($payment, $modelData),
             default                                         => null
         };
+        */
 
         GroupHydratePayments::dispatch($payment->group)->delay($this->hydratorsDelay);
         OrganisationHydratePayments::dispatch($paymentAccount->organisation)->delay($this->hydratorsDelay);
