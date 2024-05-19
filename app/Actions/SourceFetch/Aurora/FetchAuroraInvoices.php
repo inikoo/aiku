@@ -64,6 +64,7 @@ class FetchAuroraInvoices extends FetchAuroraAction
                             strict: false
                         );
                     } catch (Exception $e) {
+                        //dd($e->getMessage());
                         $this->recordError($organisationSource, $e, $invoiceData['invoice'], 'Invoice', 'store');
 
                         return null;

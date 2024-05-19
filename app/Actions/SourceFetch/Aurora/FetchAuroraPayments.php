@@ -35,6 +35,8 @@ class FetchAuroraPayments extends FetchAuroraAction
                     );
                     $this->markAuroraModel($payment);
                 } catch (Exception $e) {
+                    //print_r($paymentData['payment']);
+                    //dd($e);
                     $this->recordError($organisationSource, $e, $paymentData['payment'], 'Payment', 'update');
 
                     return null;
