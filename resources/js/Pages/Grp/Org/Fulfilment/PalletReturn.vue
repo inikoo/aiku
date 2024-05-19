@@ -29,7 +29,6 @@ import { BoxStats, PDRNotes } from '@/types/Pallet'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { trans } from "laravel-vue-i18n"
 library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt )
 
 const layout = inject('layout', {})

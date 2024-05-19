@@ -5,15 +5,12 @@
   -->
 
 <script setup lang="ts">
-import { Head, router, useForm } from '@inertiajs/vue3'
+import { Head} from '@inertiajs/vue3'
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import TableStoredItemReturn from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemReturn.vue"
-import TablePalletReturns from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturns.vue"
-import Table from "@/Components/Table/Table.vue"
-import TagPallete from "@/Components/TagPallete.vue";
-import Icon from "@/Components/Icon.vue";
+
 library.add()
 
 

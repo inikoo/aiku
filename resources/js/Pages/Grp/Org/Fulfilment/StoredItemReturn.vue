@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { Head, useForm, router } from "@inertiajs/vue3"
+import { Head} from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
@@ -15,7 +15,6 @@ import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import Timeline from "@/Components/Utils/Timeline.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Modal from "@/Components/Utils/Modal.vue"
-// import TableStoredItems from "@/Components/Tables/TableStoredItems.vue"
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
 import StoredItemReturnDescriptor from "@/Components/PalletReturn/Descriptor/StoredItemReturn"

@@ -1,16 +1,15 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Mon, 20 Mar 2023 23:18:59 Malaysia Time, Kuala Lumpur, Malaysia
-  - Copyright (c) 2023, Raul A Perusquia Flores
+  - Created: Sun, 19 May 2024 18:45:58 British Summer Time, Sheffield, UK
+  - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
 import { library } from "@fortawesome/fontawesome-svg-core"
 
 import { faTimes } from '@fal'
-import TagPallete from '@/Components/TagPallete.vue'
+import TagPallet from '@/Components/TagPallet.vue'
 import Icon from '@/Components/Icon.vue'
 
 library.add( faTimes )
@@ -76,7 +75,7 @@ const props = defineProps<{
 
         <template #cell(state)="{ item: pallet }">
             <!-- <Icon v-if="pallet['state_icon']" :data="pallet['state_icon']" class="px-1" /> -->
-            <TagPallete :stateIcon="pallet.state_icon" />
+            <TagPallet :stateIcon="pallet.state_icon" />
         </template>
         <template #cell(type_icon)="{ item: pallet }">
 			<Icon :data="pallet.type_icon" class="px-1" />

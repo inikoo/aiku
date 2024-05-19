@@ -4,12 +4,11 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 <script setup lang="ts">
-import type { Component } from "vue"
+import { Component, computed, ref } from "vue";
 import { Head } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faBox, faExchange, faInventory, faWarehouse, faMapSigns, faPallet } from "@fal"
-import { computed, defineAsyncComponent, provide, ref } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 import ModelDetails from "@/Components/ModelDetails.vue"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
@@ -17,15 +16,15 @@ import Tabs from "@/Components/Navigation/Tabs.vue"
 import { capitalize } from "@/Composables/capitalize"
 import LocationShowcase from "@/Components/Showcases/Org/LocationShowcase.vue"
 import TablePallets from "@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue"
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
 library.add(faInventory, faExchange, faBox, faWarehouse, faMapSigns, faPallet)
 
 
-// const ModelChangelog = defineAsyncComponent(() => import("@/Components/ModelChangelog.vue"))
 
 const props = defineProps<{
     title: string
-    pageHead: {}
+    pageHead: PageHeadingTypes
     tabs: {
         current: string
         navigation: {}

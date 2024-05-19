@@ -8,9 +8,8 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Department} from "@/types/department";
-import {Family} from "@/types/family";
 
-const props = defineProps<{
+defineProps<{
     data: object,
     tab?:string
 }>();

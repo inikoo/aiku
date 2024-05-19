@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { Head, useForm, usePage } from '@inertiajs/vue3'
+import { Head, useForm } from '@inertiajs/vue3'
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -26,7 +26,6 @@ import TablePalletDeliveries from '@/Components/Tables/Grp/Org/Fulfilment/TableP
 import TableRecurringBills from '@/Components/Tables/Grp/Org/Fulfilment/TableRecurringBills.vue'
 import Popover from '@/Components/Popover.vue'
 import FulfilmentCustomerShowcase from "@/Components/Showcases/Grp/FulfilmentCustomerShowcase.vue"
-import CustomerInvoices from "@/Components/Fulfilment/CustomerInvoices.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import Multiselect from "@vueform/multiselect"
 import { Link } from "@inertiajs/vue3"
