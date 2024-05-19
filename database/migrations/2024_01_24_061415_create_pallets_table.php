@@ -59,6 +59,7 @@ return new class () extends Migration {
                 $table->dateTimeTz('set_as_incident_at')->nullable();
                 $table->dateTimeTz('dispatched_at')->nullable();
                 $table->jsonb('data');
+                $table->jsonb('incident_report');
                 $table->timestampsTz();
                 $table = $this->softDeletes($table);
                 $table->string('source_id')->nullable()->unique();

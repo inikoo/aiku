@@ -37,6 +37,7 @@ return new class () extends Migration {
                 $table->dateTimeTz('booked_in_at')->nullable();
                 $table->dateTimeTz('settled_at')->nullable();
                 $table->jsonb('data');
+                $table->jsonb('incident_report');
                 $table = $this->softDeletes($table);
                 $table->timestampsTz();
                 $table->string('source_id')->nullable()->unique();

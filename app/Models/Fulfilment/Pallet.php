@@ -58,6 +58,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $set_as_incident_at
  * @property \Illuminate\Support\Carbon|null $dispatched_at
  * @property array $data
+ * @property array $incident_report
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -94,26 +95,28 @@ class Pallet extends Model
 
     protected $guarded = [];
     protected $casts   = [
-        'data'                     => 'array',
-        'state'                    => PalletStateEnum::class,
-        'status'                   => PalletStatusEnum::class,
-        'type'                     => PalletTypeEnum::class,
-        'set_as_not_received_at'   => 'datetime',
-        'received_at'              => 'datetime',
-        'booking_in_at'            => 'datetime',
-        'booked_in_at'             => 'datetime',
-        'storing_at'               => 'datetime',
-        'requested_for_return_at'  => 'datetime',
-        'picking_at'               => 'datetime',
-        'picked_at'                => 'datetime',
-        'set_as_incident_at'       => 'datetime',
-        'dispatched_at'            => 'datetime',
+        'data'                    => 'array',
+        'incident_report'         => 'array',
+        'state'                   => PalletStateEnum::class,
+        'status'                  => PalletStatusEnum::class,
+        'type'                    => PalletTypeEnum::class,
+        'set_as_not_received_at'  => 'datetime',
+        'received_at'             => 'datetime',
+        'booking_in_at'           => 'datetime',
+        'booked_in_at'            => 'datetime',
+        'storing_at'              => 'datetime',
+        'requested_for_return_at' => 'datetime',
+        'picking_at'              => 'datetime',
+        'picked_at'               => 'datetime',
+        'set_as_incident_at'      => 'datetime',
+        'dispatched_at'           => 'datetime',
 
     ];
 
     protected $attributes = [
-        'data'  => '{}',
-        'notes' => '',
+        'data'            => '{}',
+        'incident_report' => '{}',
+        'notes'           => '',
     ];
 
     public function getRouteKeyName(): string
