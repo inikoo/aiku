@@ -13,9 +13,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faChevronRight } from '@far'
 import { faBars } from '@fal'
 import { faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight } from '@fas'
-import { capitalize } from "@/Composables/capitalize"
 import { routeType } from '@/types/route'
-// import { useLayoutStore } from '@/Stores/layout'
 
 library.add(faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight, faChevronRight, faBars)
 
@@ -100,14 +98,14 @@ router.on('navigate', (event) => {
                         <component :is="breadcrumb.simple.route ? Link : 'span'" :class="'hover:text-gray-700' || ''"
                             :href="breadcrumb.simple?.route?.name ? route( breadcrumb.simple.route.name, breadcrumb.simple.route.parameters ) : '#' ">
                             <FontAwesomeIcon v-if="breadcrumb.simple?.icon" :class="breadcrumb.simple.label ? 'mr-1' : ''" class="flex-shrink-0 h-3.5 w-3.5" :icon="breadcrumb.simple.icon" aria-hidden="true" />
-                            <span class="capitalize">{{ breadcrumb.simple.label }}</span>
+                            <span>{{ breadcrumb.simple.label }}</span>
                         </component>
                     </template>
 
                     <!-- Section: Create Model -->
                     <template v-else-if="breadcrumb.type === 'creatingModel'">
                         <FontAwesomeIcon class="flex-shrink-0 h-3.5 w-3.5 mr-1 text-yellow-500 ml-2" icon="fas fa-sparkles" aria-hidden="true" />
-                        <span class="capitalize text-yellow-600 opacity-75"> {{ breadcrumb.creatingModel.label }}</span>
+                        <span class="text-yellow-600 opacity-75"> {{ breadcrumb.creatingModel.label }}</span>
                     </template>
 
                     <template v-else-if="breadcrumb.type === 'modelWithIndex'">
@@ -115,12 +113,12 @@ router.on('navigate', (event) => {
                             <FontAwesomeIcon v-if="breadcrumbIdx !== 0" class="flex-shrink-0 h-3 w-3 mx-3 opacity-50 place-self-center" icon="fa-regular fa-chevron-right" aria-hidden="true" />
                             <component :is="breadcrumb.modelWithIndex?.index?.route?.name ? Link : 'div'"  class="hover:text-gray-700 grid grid-flow-col items-center" :href="breadcrumb.modelWithIndex?.index?.route?.name ? route(breadcrumb.modelWithIndex.index.route.name, breadcrumb.modelWithIndex.index.route.parameters) : '#' ">
                                 <FontAwesomeIcon icon="fal fa-bars" class="flex-shrink-0 h-3.5 w-3.5 mr-1" aria-hidden="true" />
-                                <span class="capitalize">{{ breadcrumb.modelWithIndex.index.label }}</span>
+                                <span>{{ breadcrumb.modelWithIndex.index.label }}</span>
                             </component>
                         </div>
                         <span class="mx-3 select-none">→</span>
                         <component :is="breadcrumb.modelWithIndex?.model?.route?.name ? Link : 'div'" class="text-indigo-400 hover:text-indigo-500" :href="breadcrumb.modelWithIndex?.model?.route?.name ? route(breadcrumb.modelWithIndex.model.route.name, breadcrumb.modelWithIndex.model.route.parameters) : '#'">
-                            <span class="capitalize">
+                            <span>
                                 {{ breadcrumb.modelWithIndex.model.label }}
                             </span>
                         </component>
@@ -151,10 +149,10 @@ router.on('navigate', (event) => {
 
                             <!-- Icon Arrow -->
                             <FontAwesomeIcon v-if="breadcrumbIdx != 0" class="flex-shrink-0 h-3.5 w-3.5 text-gray-300" icon="fa fa-arrow-from-left" aria-hidden="true" />
-                            <span v-if="breadcrumbIdx == 0 && !breadcrumb.simple.label" class="grid grid-flow-cols justify-center font-bold capitalize ml-2">
+                            <span v-if="breadcrumbIdx == 0 && !breadcrumb.simple.label" class="grid grid-flow-cols justify-center font-bold ml-2">
                                 DASHBOARD
                             </span>
-                            <span class="capitalize grid grid-flow-col items-center ml-4 mr-3">
+                            <span class="grid grid-flow-col items-center ml-4 mr-3">
                                 {{ breadcrumb.simple.label }}
                             </span>
 
@@ -164,7 +162,7 @@ router.on('navigate', (event) => {
                     </template>
 
                     <template v-else-if="breadcrumb.type === 'creatingModel'">
-                        <span class="capitalize text-yellow-600 opacity-75">
+                        <span class="text-yellow-600 opacity-75">
                             {{ breadcrumb.creatingModel.label }}
                         </span>
                     </template>
@@ -176,7 +174,7 @@ router.on('navigate', (event) => {
                                 :style="{ paddingLeft: 12 + breadcrumbIdx * 7 + 'px' }"
                             >
                                 <FontAwesomeIcon class="flex-shrink-0 h-3.5 w-3.5 text-gray-300" icon="fa fa-arrow-from-left" aria-hidden="true" />
-                                <span class="capitalize md:text-xs ml-4 mr-3">
+                                <span class="md:text-xs ml-4 mr-3">
                                     {{ breadcrumb.modelWithIndex.index.label }}
                                 </span>
 
@@ -190,7 +188,7 @@ router.on('navigate', (event) => {
                                 :style="{ paddingLeft: 12 + (breadcrumbIdx + 1) * 7 + 'px', }"
                             >
                                 <FontAwesomeIcon class="flex-shrink-0 h-3.5 w-3.5 mr-1 text-gray-300" icon="fa fa-arrow-from-left" aria-hidden="true" />
-                                <span class="capitalize ml-4 mr-3">
+                                <span class="ml-4 mr-3">
                                     {{ breadcrumb.modelWithIndex.model.label }}
                                 </span>
                             </component>
@@ -207,7 +205,7 @@ router.on('navigate', (event) => {
                 <Link v-if="props.navigation.previous"
                     :href="props.navigation?.previous?.route?.name ? route(props.navigation.previous?.route.name, props.navigation.previous?.route.parameters) + urlParameter : '#'"
                     class="rounded w-full h-full flex items-center justify-center opacity-70 hover:opacity-100 cursor-pointer hover:text-indigo-900"
-                    :title="capitalize(props.navigation.previous?.label)"
+                    :title="props.navigation.previous?.label"
                 >
                     <FontAwesomeIcon icon="fas fa-arrow-left" class="" aria-hidden="true" />
                 </Link>
@@ -218,7 +216,7 @@ router.on('navigate', (event) => {
             <div class="flex justify-center items-center w-8">
                 <Link v-if="props.navigation.next"
                     class="rounded w-full h-full flex items-center justify-center opacity-70 hover:opacity-100 cursor-pointer hover:text-indigo-900"
-                    :title="capitalize(props.navigation.next?.label)"
+                    :title="props.navigation.next?.label"
                     :href="props.navigation?.next?.route?.name ? route(props.navigation.next?.route.name, props.navigation.next?.route.parameters) + urlParameter : '#'"
                 >
                     <FontAwesomeIcon icon="fas fa-arrow-right" class="" aria-hidden="true" />
