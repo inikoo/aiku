@@ -1,4 +1,10 @@
 
+<!--
+  - Author: Raul Perusquia <raul@inikoo.com>
+  - Created: Sun, 19 May 2024 19:55:46 British Summer Time, Sheffield, UK
+  - Copyright (c) 2024, Raul A Perusquia Flores
+  -->
+
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3'
 import PageHeading from "@/Components/Headings/PageHeading.vue"
@@ -13,7 +19,6 @@ import { trans } from 'laravel-vue-i18n'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from 'chart.js'
 import Image from '@/Components/Image.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { Pie } from 'vue-chartjs'
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
 import FlatTreeMap from '@/Components/Navigation/FlatTreeMap.vue'
 

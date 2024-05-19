@@ -1,6 +1,6 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Sun, 19 May 2024 18:26:26 British Summer Time, Sheffield, UK
+  - Created: Sun, 19 May 2024 19:25:03 British Summer Time, Sheffield, UK
   - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
@@ -12,6 +12,14 @@ import TablePallets from "@/Components/Tables/Grp/Org/Inventory/TablePallets.vue
 import Action from "@/Components/Forms/Fields/Action.vue"
 import {useForm} from '@inertiajs/vue3';
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import {
+faStickyNote,
+
+} from '@fal';
+library.add(
+  faStickyNote,
+)
 
 defineProps<{
     data: object

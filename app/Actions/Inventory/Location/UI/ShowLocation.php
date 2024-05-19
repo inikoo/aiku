@@ -24,7 +24,6 @@ use App\Models\Inventory\WarehouseArea;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -69,19 +68,7 @@ class ShowLocation extends OrgAction
 
     public function htmlResponse(Location $location, ActionRequest $request): Response
     {
-        if ($this->parent instanceof Warehouse) {
-            $container = [
-                'icon'    => ['fal', 'fa-warehouse'],
-                'tooltip' => __('Warehouse'),
-                'label'   => Str::possessive($this->parent->code)
-            ];
-        } else {
-            $container = [
-                'icon'    => ['fal', 'fa-map-signs'],
-                'tooltip' => __('Warehouse area'),
-                'label'   => Str::possessive($this->parent->code)
-            ];
-        }
+
 
         $navigation = LocationTabsEnum::navigation();
 
@@ -111,7 +98,6 @@ class ShowLocation extends OrgAction
                     'next'     => $this->getNext($location, $request),
                 ],
                 'pageHead'    => [
-                    'container' => $container,
                     'icon'      => [
                         'title' => __('locations'),
                         'icon'  => 'fal fa-inventory'

@@ -34,7 +34,7 @@ class ShowFulfilmentDashboard extends OrgAction
     public function htmlResponse(ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Warehouse/Fulfilment/FulfilmentDashboard',
+            'Org/Warehouse/FulfilmentDashboard',
             [
                 'breadcrumbs'  => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'        => __('fulfilment'),

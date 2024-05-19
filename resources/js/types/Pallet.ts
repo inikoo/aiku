@@ -1,7 +1,6 @@
 // PDR = Pallet Delivery/Return
 
 import { Timeline } from "@/types/Timeline"
-import { FulfilmentCustomer } from '@/types/Customer'
 import { routeType } from "@/types/route"
 
 export interface Pallet {
@@ -39,6 +38,7 @@ export interface Pallet {
     }
     location: string
     location_code: string
+    location_slug: string
     location_id: number
     stored_items: any[]
     stored_items_quantity: number

@@ -11,16 +11,10 @@ use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
-use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
-use App\Models\Fulfilment\PalletDelivery;
-use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -33,7 +27,6 @@ use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
-use App\Models\SysAdmin\User;
 
 class IndexPalletsInWarehouse extends OrgAction
 {
@@ -68,7 +61,7 @@ class IndexPalletsInWarehouse extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('pallets.customer_reference', $value)
-                    ->orWhereWith('pallets.reference', $value);
+                    ->orWhereStartWith('pallets.reference', $value);
             });
         });
 
@@ -91,7 +84,7 @@ class IndexPalletsInWarehouse extends OrgAction
         $query->whereIn('pallets.status', ['receiving', 'storing', 'returning']);
 
 
-        if (!$parent instanceof Location) {
+        if ($parent instanceof Warehouse) {
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $query->whereElementGroup(
                     key: $key,
@@ -100,11 +93,6 @@ class IndexPalletsInWarehouse extends OrgAction
                     prefix: $prefix
                 );
             }
-        }
-
-
-        if ($this->selectStoredPallets) {
-            $query->where('pallets.state', PalletStateEnum::STORING);
         }
 
 
@@ -129,15 +117,11 @@ class IndexPalletsInWarehouse extends OrgAction
 
         if (!$parent instanceof Location) {
             $query->leftJoin('locations', 'locations.id', 'pallets.location_id');
-            $query->addSelect('locations.code as location_code', 'locations.slug as location_slug', 'locations.id as location_id');
-        }
-        if ($parent instanceof Fulfilment or $parent instanceof Warehouse or $parent instanceof Organisation) {
-            $query->leftJoin('fulfilment_customers', 'fulfilment_customers.id', 'pallets.fulfilment_customer_id');
-            $query->leftJoin('customers', 'customers.id', 'fulfilment_customers.customer_id');
-            $query->addSelect('customers.name as fulfilment_customer_name', 'customers.slug as fulfilment_customer_slug');
+            $query->addSelect('locations.code as location_code', 'locations.slug as location_slug');
         }
 
-        return $query->allowedSorts(['customer_reference', 'reference', 'fulfilment_customer_name'])
+
+        return $query->allowedSorts(['customer_reference', 'reference', 'location_code'])
             ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -152,7 +136,7 @@ class IndexPalletsInWarehouse extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            if (!$parent instanceof Location and !$parent instanceof PalletDelivery and !$parent instanceof PalletReturn) {
+            if ($parent instanceof Warehouse) {
                 foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                     $table->elementGroup(
                         key: $key,
@@ -173,19 +157,10 @@ class IndexPalletsInWarehouse extends OrgAction
             ];
 
 
-            if ($parent instanceof Fulfilment) {
-                $emptyStateData['description'] = __("There is not pallets in this fulfilment shop");
-            }
             if ($parent instanceof Warehouse) {
                 $emptyStateData['description'] = __("There isn't any fulfilment pallet in this warehouse");
             }
-            if ($parent instanceof FulfilmentCustomer) {
-                $emptyStateData['description'] = __("This customer don't have any pallets");
-            }
 
-            if (!$parent instanceof PalletDelivery and !$parent instanceof PalletReturn) {
-                $table->withGlobalSearch();
-            }
 
             $table->withEmptyState($emptyStateData)
                 ->withModelOperations($modelOperations);
@@ -196,52 +171,18 @@ class IndexPalletsInWarehouse extends OrgAction
                 $table->column(key: 'type_icon', label: ['fal', 'fa-yin-yang'], type: 'icon');
             }
 
-            if (!($parent instanceof PalletDelivery and $parent->state == PalletDeliveryStateEnum::IN_PROCESS)) {
-                $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
-                $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
+            $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+
+
+            $table->column(key: 'customer_reference', label: __("Pallet reference (customer's), notes"), canBeHidden: false, sortable: true, searchable: true);
+
+
+            if ($parent instanceof Warehouse) {
+                $table->column(key: 'location_code', label: __('Location'), canBeHidden: false, sortable: true, searchable: true);
             }
 
-            $customersReferenceLabel = __("Pallet reference (customer's), notes");
-            if (
-                ($parent instanceof PalletDelivery and $parent->state == PalletDeliveryStateEnum::IN_PROCESS) or ($parent instanceof PalletReturn and $parent->state == PalletReturnStateEnum::IN_PROCESS)
-            ) {
-                $customersReferenceLabel = __('Customer Reference');
-            }
-
-
-            $table->column(key: 'customer_reference', label: $customersReferenceLabel, canBeHidden: false, sortable: true, searchable: true);
-
-
-            if ($parent instanceof Organisation || $parent instanceof Fulfilment || $parent instanceof Warehouse) {
-                $table->column(key: 'fulfilment_customer_name', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true);
-            }
-
-
-            if (
-                ($parent instanceof PalletDelivery and $parent->state == PalletDeliveryStateEnum::IN_PROCESS) or ($parent instanceof PalletReturn and $parent->state == PalletReturnStateEnum::IN_PROCESS)
-            ) {
-                $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true);
-            }
-
-
-            if (($parent instanceof Organisation or $parent instanceof Fulfilment or $parent instanceof Warehouse or $parent instanceof PalletDelivery or $parent instanceof PalletReturn) and in_array(
-                $parent->state,
-                [PalletDeliveryStateEnum::BOOKED_IN, PalletDeliveryStateEnum::BOOKING_IN]
-            ) and request()->user() instanceof User) {
-                $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
-                $table->column(key: 'rental', label: __('Rental'), canBeHidden: false, searchable: true);
-            }
-
-            $table->column(key: 'stored_items', label: 'Stored Items', canBeHidden: false, searchable: true);
-
-            if (
-                !(
-                    ($parent instanceof PalletDelivery and in_array($parent->state, [PalletDeliveryStateEnum::BOOKED_IN, PalletDeliveryStateEnum::RECEIVED])) or
-                    ($parent instanceof PalletReturn and ($parent->state == PalletReturnStateEnum::DISPATCHED or $parent->state == PalletReturnStateEnum::CANCEL))
-                )
-            ) {
-                $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
-            }
+            $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
 
 
             $table->defaultSort('reference');
@@ -256,7 +197,7 @@ class IndexPalletsInWarehouse extends OrgAction
     public function htmlResponse(LengthAwarePaginator $pallets, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Fulfilment/Pallets',
+            'Org/Warehouse/Pallets',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
