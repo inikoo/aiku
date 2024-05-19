@@ -21,10 +21,10 @@ import {
   faCameraRetro, faPaperclip, faPoop, faMoneyBill, faClipboard
 } from '@fal';
 import AgentShowcase from "@/Components/Showcases/Grp/AgentShowcase.vue";
-import TableSupplierProducts from "@/Components/Tables/TableSupplierProducts.vue";
-import TablePurchaseOrders from "@/Components/Tables/TablePurchaseOrders.vue";
+import TableSupplierProducts from "@/Components/Tables/Grp/SupplyChain/TableSupplierProducts.vue";
+import TablePurchaseOrders from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrders.vue";
 import { capitalize } from "@/Composables/capitalize"
-import TableHistories from "@/Components/Tables/TableHistories.vue";
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{

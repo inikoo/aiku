@@ -22,7 +22,7 @@ import TableCustomers from "@/Components/Tables/Grp/Org/CRM/TableCustomers.vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import TableMailshots from "@/Components/Tables/TableMailshots.vue"
 import { faDiagramNext } from "@fortawesome/free-solid-svg-icons"
-import TableProducts from "@/Components/Tables/TableProducts.vue"
+import TableProducts from "@/Components/Tables/Grp/Org/Catalogue/TableProducts.vue"
 import { capitalize } from "@/Composables/capitalize"
 
 library.add(

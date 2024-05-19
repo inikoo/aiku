@@ -18,11 +18,11 @@ import {
     faTags,faCube,faCodeBranch,faShoppingCart
 } from '@fal';
 import ModelDetails from "@/Components/ModelDetails.vue";
-import TableOrders from "@/Components/Tables/TableOrders.vue";
+import TableOrders from "@/Components/Tables/Grp/Org/Ordering/TableOrders.vue";
 import {useTabChange} from "@/Composables/tab-change";
 import {computed, defineAsyncComponent, ref} from "vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableProducts from "@/Components/Tables/TableProducts.vue";
+import TableProducts from "@/Components/Tables/Grp/Org/Catalogue/TableProducts.vue";
 import CustomerShowcase from "@/Components/Showcases/Grp/CustomerShowcase.vue";
 
 import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue";
@@ -83,7 +83,7 @@ import {
     TransitionChild,
     TransitionRoot,
 } from "@headlessui/vue";
-import TableWebUsers from "@/Components/Tables/TableWebUsers.vue";
+import TableWebUsers from "@/Components/Tables/Grp/Org/CRM/TableWebUsers.vue";
 
 
 const isOpen = ref(false);

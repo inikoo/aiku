@@ -1,7 +1,7 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Sun, 19 Mar 2023 14:00:48 Malaysia Time, Kuala Lumpur, Malaysia
-  - Copyright (c) 2023, Raul A Perusquia Flores
+  - Created: Sun, 19 May 2024 18:31:26 British Summer Time, Sheffield, UK
+  - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
@@ -215,7 +215,7 @@ onUnmounted(() => {
     </Table>
 </template>
 
-<style src="@vueform/multiselect/themes/default.css"></style>
+<style src="../../../../../../../node_modules/@vueform/multiselect/themes/default.css"></style>
 
 <style lang="scss">
 .multiselect-tags-search {

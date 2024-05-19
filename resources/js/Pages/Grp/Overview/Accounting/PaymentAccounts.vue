@@ -7,7 +7,7 @@
 <script setup>
 import { Head } from "@inertiajs/vue3";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
-import TablePaymentAccounts from '@/Components/Tables/Grp/Accounting/TablePaymentAccounts.vue';
+import TablePaymentAccounts from '@/Components/Tables/Grp/Org/Accounting/TablePaymentAccounts.vue';
 import { capitalize } from "@/Composables/capitalize"
 
 defineProps(["data", "title", "pageHead"]);

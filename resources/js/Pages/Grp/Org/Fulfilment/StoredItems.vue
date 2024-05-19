@@ -8,7 +8,7 @@
 import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
-import TableStoredItems from "@/Components/Tables/TableStoredItems.vue"
+import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue"
 const props = defineProps<{
     data: object
     title: string

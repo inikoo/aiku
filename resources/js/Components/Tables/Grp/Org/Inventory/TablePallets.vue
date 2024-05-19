@@ -1,6 +1,6 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Fri, 17 May 2024 12:38:41 British Summer Time, Sheffield, UK
+  - Created: Sun, 19 May 2024 18:32:23 British Summer Time, Sheffield, UK
   - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
@@ -285,7 +285,7 @@ const onMovePallet = async (url: string, locationId: number, palletReference: st
     </Table>
 </template>
 
-<style src="../../../../../../../../node_modules/@vueform/multiselect/themes/default.css"></style>
+<style src="../../../../../../../node_modules/@vueform/multiselect/themes/default.css"></style>
 
 <style lang="scss">
 .multiselect-tags-search {

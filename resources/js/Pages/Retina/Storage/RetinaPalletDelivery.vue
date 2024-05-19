@@ -5,8 +5,8 @@ import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import { computed, ref, watch, inject } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
-import TableHistories from "@/Components/Tables/TableHistories.vue"
-import RetinaTablePalletDeliveryPallets from '@/Components/Tables/RetinaTablePalletDeliveryPallets.vue'
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
+import RetinaTablePalletDeliveryPallets from '@/Components/Tables/Retina/RetinaTablePalletDeliveryPallets.vue'
 import Timeline from '@/Components/Utils/Timeline.vue'
 import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'

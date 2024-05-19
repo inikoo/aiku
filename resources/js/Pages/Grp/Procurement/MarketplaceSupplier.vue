@@ -37,7 +37,7 @@ import {
     faPaperPlane,
     faPaperclip
 } from '@fal';
-import TableMarketplaceSupplierProducts from "@/Components/Tables/TableMarketplaceSupplierProducts.vue";
+import TableMarketplaceSupplierProducts from "@/Components/Tables/Grp/Org/Procurement/TableMarketplaceSupplierProducts.vue";
 
 library.add(
     faInventory,

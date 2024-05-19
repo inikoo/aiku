@@ -13,9 +13,9 @@ import {
     faDollarSign, faEnvelope, faFileInvoiceDollar,
     faPaperclip, faRoad, faStickyNote, faTag, faThList, faTruck, faUserTag
 } from '@fal';
-import TablePayments from "@/Components/Tables/Grp/Accounting/TablePayments.vue";
-import TableInvoices from "@/Components/Tables/TableInvoices.vue";
-import TableDeliveryNotes from "@/Components/Tables/TableDeliveryNotes.vue";
+import TablePayments from "@/Components/Tables/Grp/Org/Accounting/TablePayments.vue";
+import TableInvoices from "@/Components/Tables/Grp/Org/Accounting/TableInvoices.vue";
+import TableDeliveryNotes from "@/Components/Tables/Grp/Org/Dispatching/TableDeliveryNotes.vue";
 import ModelDetails from "@/Components/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
 import {computed, defineAsyncComponent, ref} from "vue";

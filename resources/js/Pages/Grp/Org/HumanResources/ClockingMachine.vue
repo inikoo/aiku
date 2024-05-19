@@ -16,7 +16,7 @@ import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import ClockingMachineShowcase from "./ClockingMachinesShowcase.vue";
 import TableClockings from "@/Components/Tables/Grp/Org/HumanResources/TableClockings.vue";
-import TableHistories from "@/Components/Tables/TableHistories.vue";
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 
 import { capitalize } from "@/Composables/capitalize"
 import {faCheckCircle} from '@fas';

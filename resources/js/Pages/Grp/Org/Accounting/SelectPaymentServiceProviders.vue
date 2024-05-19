@@ -9,7 +9,7 @@ import { Head } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 
 import { capitalize } from "@/Composables/capitalize"
-import TableSelectPaymentServiceProviders from "@/Components/Tables/Grp/Accounting/TableSelectPaymentServiceProviders.vue"
+import TableSelectPaymentServiceProviders from "@/Components/Tables/Grp/Org/Accounting/TableSelectPaymentServiceProviders.vue"
 
 const props = defineProps(["data", "title", "pageHead", 'paymentAccountTypes', 'organisation_id'])
 </script>

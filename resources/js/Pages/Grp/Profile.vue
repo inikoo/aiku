@@ -11,7 +11,7 @@ import type { Component } from 'vue'
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
 
-import TableHistories from "@/Components/Tables/TableHistories.vue"
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import TableTimesheets from "@/Components/Tables/Grp/Org/HumanResources/TableTimesheets.vue"
 import TableUserRequestLogs from "@/Components/Tables/Grp/SysAdmin/TableUserRequestLogs.vue"
 import ProfileShowcase from "@/Components/Profile/ProfileShowcase.vue"

@@ -10,7 +10,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
 import ModelDetails from "@/Components/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
-import TablePurchaseOrderItems from "@/Components/Tables/TablePurchaseOrderItems.vue";
+import TablePurchaseOrderItems from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrderItems.vue";
 import { capitalize } from "@/Composables/capitalize"
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
@@ -37,7 +37,7 @@ import {
     faInfoCircle,
     faCameraRetro
 } from '@fal';
-import TableHistories from "@/Components/Tables/TableHistories.vue";
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 // import TablePurchaseOrders from "@/Components/Tables/TablePurchaseOrders.vue";
 
 library.add(

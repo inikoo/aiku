@@ -20,8 +20,8 @@ import {
     faTerminal,
     faCameraRetro,faPeopleArrows
 } from '@fal';
-import TableMarketplaceSuppliers from "@/Components/Tables/TableMarketplaceSuppliers.vue";
-import TableMarketplaceSupplierProducts from "@/Components/Tables/TableMarketplaceSupplierProducts.vue";
+import TableMarketplaceSuppliers from "@/Components/Tables/Grp/Org/Procurement/TableMarketplaceSuppliers.vue";
+import TableMarketplaceSupplierProducts from "@/Components/Tables/Grp/Org/Procurement/TableMarketplaceSupplierProducts.vue";
 import MarketplaceAgentShowcase from "@/Components/Showcases/Grp/MarketplaceAgentShowcase.vue";
 import { capitalize } from "@/Composables/capitalize"
 

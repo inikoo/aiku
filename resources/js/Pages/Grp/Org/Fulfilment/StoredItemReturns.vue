@@ -9,7 +9,7 @@
   import PageHeading from '@/Components/Headings/PageHeading.vue';
   import { capitalize } from "@/Composables/capitalize"
   import TablePalletDeliveries from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveries.vue";
-  import TableStoredItemReturn from "@/Components/Tables/TableStoredItemReturn.vue";
+  import TableStoredItemReturn from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemReturn.vue";
 
   const props = defineProps<{
       data: object

@@ -8,7 +8,7 @@
 import { Head } from "@inertiajs/vue3";
 import PageHeading from "@/Components/Headings/PageHeading.vue";
 import { capitalize } from "@/Composables/capitalize"
-import TableOrganisations from "@/Components/Tables/TableOrganisations.vue";
+import TableOrganisations from "@/Components/Tables/Grp/SysAdmin/TableOrganisations.vue";
 
 defineProps<{
     data: object

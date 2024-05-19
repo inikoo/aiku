@@ -15,7 +15,7 @@ import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 import type { Navigation } from "@/types/Tabs";
 import TableTimeTrackers from "@/Components/Tables/Grp/Org/HumanResources/TableTimeTrackers.vue";
 import TableClockings from "@/Components/Tables/Grp/Org/HumanResources/TableClockings.vue";
-import TableHistories from "@/Components/Tables/TableHistories.vue";
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {faVoteYea,faArrowsH} from '@fal';
 

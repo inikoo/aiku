@@ -10,15 +10,15 @@ import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, } from "@headlessui/vue"
-import TableStoredItems from "@/Components/Tables/TableStoredItems.vue"
+import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue"
 import { router } from '@inertiajs/vue3'
-import TablePalletReturns from "@/Components/Tables/TablePalletReturns.vue"
+import TablePalletReturns from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturns.vue"
 
 import ModelDetails from "@/Components/ModelDetails.vue"
 import TablePallets from "@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue"
-import TableWebUsers from "@/Components/Tables/TableWebUsers.vue"
+import TableWebUsers from "@/Components/Tables/Grp/Org/CRM/TableWebUsers.vue"
 
-import TableStoredItemReturn from "@/Components/Tables/TableStoredItemReturn.vue"
+import TableStoredItemReturn from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemReturn.vue"
 import { useTabChange } from "@/Composables/tab-change"
 import { computed, defineAsyncComponent, inject, onMounted, onUnmounted, ref } from "vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
@@ -51,10 +51,10 @@ import {
 } from '@fal'
 import { notify } from '@kyvg/vue3-notification'
 import FulfilmentCustomerWebhook from "@/Components/Showcases/Grp/FulfilmentCustomerWebhook.vue";
-import TableInvoices from "@/Components/Tables/TableInvoices.vue";
+import TableInvoices from "@/Components/Tables/Grp/Org/Accounting/TableInvoices.vue";
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 import type { Navigation } from "@/types/Tabs";
-import TableHistories from "@/Components/Tables/TableHistories.vue";
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 library.add( faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading, faFileInvoice)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))

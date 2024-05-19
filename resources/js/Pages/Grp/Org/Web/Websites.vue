@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableWebsites from "@/Components/Tables/TableWebsites.vue";
+import TableWebsites from "@/Components/Tables/Grp/Org/Web/TableWebsites.vue";
 import { capitalize } from "@/Composables/capitalize"
 
 const props = defineProps <{
