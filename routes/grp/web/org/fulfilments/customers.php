@@ -35,7 +35,6 @@ use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
 use App\Actions\Fulfilment\StoredItemReturn\UI\ShowStoredItemReturn;
 use App\Actions\Helpers\Uploads\HistoryUploads;
-use App\Actions\Inventory\Location\UI\IndexLocations;
 
 //Route::get('', ShowFulfilmentCRMDashboard::class)->name('dashboard');
 
@@ -73,7 +72,6 @@ Route::prefix('{fulfilmentCustomer}')->as('show')->group(function () {
     Route::prefix('pallets')->as('.pallets.')->group(function () {
         Route::get('', [IndexPallets::class, 'inFulfilmentCustomer'])->name('index');
         Route::get('{pallet}', [ShowPallet::class, 'inFulfilmentCustomer'])->name('show');
-        Route::get('{pallet:id}/locations', [IndexLocations::class, 'fromPallet'])->name('locations.index');
     });
 
     Route::prefix('pallet-deliveries')->as('.pallet_deliveries.')->group(function () {

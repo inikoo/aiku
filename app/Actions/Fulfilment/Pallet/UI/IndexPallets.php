@@ -8,6 +8,8 @@
 namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -20,7 +22,6 @@ use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -35,6 +36,7 @@ use App\Services\QueryBuilder;
 class IndexPallets extends OrgAction
 {
     use HasFulfilmentAssetsAuthorisation;
+    use WithFulfilmentCustomerSubNavigation;
 
     private FulfilmentCustomer|Fulfilment $parent;
 
@@ -232,7 +234,16 @@ class IndexPallets extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $pallets, ActionRequest $request): Response
     {
-        $stats = $this->parent->stats;
+
+        $subNavigation=[];
+
+        if($this->parent instanceof  Fulfilment) {
+            $stats = $this->parent->stats;
+        } else {
+            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $stats        = $this->parent;
+        }
+
 
 
         return Inertia::render(
@@ -244,9 +255,13 @@ class IndexPallets extends OrgAction
                 ),
                 'title'       => __('pallets'),
                 'pageHead'    => [
-                    'title'   => __('pallets'),
-                    'icon'    => ['fal', 'fa-pallet'],
-                    'actions' => [
+                    'title'   => $this->parent instanceof  Fulfilment ? __('pallets') : __('customer pallets'),
+                    'icon'    => [
+                        'icon'  => ['fal', 'fa-pallet'],
+                    ],
+
+                    'subNavigation'=> $subNavigation,
+                    'actions'      => [
                         [
                             'type'  => 'button',
                             'style' => 'create',
@@ -317,46 +332,50 @@ class IndexPallets extends OrgAction
     }
 
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function fromDelivery(Organisation $organisation, Warehouse $warehouse, PalletDelivery $palletDelivery, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $warehouse;
-        $this->initialisationFromWarehouse($warehouse, $request);
-
-        return $this->handle($palletDelivery);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function fromReturn(Organisation $organisation, Warehouse $warehouse, PalletReturn $palletReturn, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $warehouse;
-        $this->initialisationFromWarehouse($warehouse, $request);
-
-        return $this->handle($palletReturn);
-    }
-
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return array_merge(
-            ShowFulfilment::make()->getBreadcrumbs($routeParameters),
-            [
+        return match($routeName) {
+            'grp.org.fulfilments.show.crm.customers.show.pallets.index'=>
+            array_merge(
+                ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
                 [
-                    'type'   => 'simple',
-                    'simple' => [
-                        'route' => [
-                            'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
-                            'parameters' => [
-                                'organisation' => $routeParameters['organisation'],
-                                'fulfilment'   => $routeParameters['fulfilment'],
-                            ]
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
+                                'parameters' => $routeParameters,
+                            ],
+                            'label' => __('pallets'),
+                            'icon'  => 'fal fa-bars',
                         ],
-                        'label' => __('pallets'),
-                        'icon'  => 'fal fa-bars',
-                    ],
 
+                    ]
                 ]
-            ]
-        );
+            ),
+            default=> array_merge(
+                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
+                                'parameters' => [
+                                    'organisation' => $routeParameters['organisation'],
+                                    'fulfilment'   => $routeParameters['fulfilment'],
+                                ]
+                            ],
+                            'label' => __('pallets'),
+                            'icon'  => 'fal fa-bars',
+                        ],
+
+                    ]
+                ]
+            )
+        };
+
+
     }
 }

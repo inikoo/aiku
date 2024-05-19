@@ -12,6 +12,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 
@@ -28,7 +29,7 @@ enum PalletStatusEnum: string
     case RETURNED     = 'returned';
     case INCIDENT     = 'incident';
 
-    public static function labels(FulfilmentCustomer|Fulfilment|null $parent=null): array
+    public static function labels(FulfilmentCustomer|Fulfilment|Warehouse|Location|null $parent=null): array
     {
         $labels = [
             'in-process'   => __('In process'),
@@ -42,7 +43,7 @@ enum PalletStatusEnum: string
         ];
 
 
-        if ($parent instanceof Fulfilment) {
+        if ($parent instanceof Fulfilment or $parent instanceof Warehouse) {
             unset($labels['in-process']);
             unset($labels['not-received']);
             unset($labels['incident']);
@@ -50,7 +51,6 @@ enum PalletStatusEnum: string
         } elseif ($parent instanceof FulfilmentCustomer) {
             unset($labels['in-process']);
         }
-
 
         return $labels;
     }
@@ -151,7 +151,7 @@ enum PalletStatusEnum: string
             'incident'     => $stats->number_pallets_status_incident,
             'returned'     => $stats->number_pallets_status_returned,
         ];
-        if ($parent instanceof Fulfilment) {
+        if ($parent instanceof Fulfilment  or $parent instanceof Warehouse) {
             unset($counts['in-process']);
             unset($counts['not-received']);
             unset($counts['incident']);

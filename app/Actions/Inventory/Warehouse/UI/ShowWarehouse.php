@@ -219,7 +219,7 @@ class ShowWarehouse extends OrgAction
                                 'name'       => 'grp.org.warehouses.index',
                                 'parameters' => $routeParameters['organisation']
                             ],
-                            'label' => __('warehouse'),
+                            'label' => __('Warehouses'),
                             'icon'  => 'fal fa-bars'
                         ],
                         'model' => [

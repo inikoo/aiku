@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\Location\UI;
 
-use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
+use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInWarehouse;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
@@ -133,15 +133,15 @@ class ShowLocation extends OrgAction
                     : Inertia::lazy(fn () => GetLocationShowcase::run($location)),
 
                 LocationTabsEnum::PALLETS->value => $this->tab == LocationTabsEnum::PALLETS->value ?
-                    fn () => PalletsResource::collection(IndexPallets::run($location))
-                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($location))),
+                    fn () => PalletsResource::collection(IndexPalletsInWarehouse::run($location))
+                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPalletsInWarehouse::run($location))),
 
                 LocationTabsEnum::HISTORY->value => $this->tab == LocationTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($location))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($location)))
             ]
         )->table(IndexHistory::make()->tableStructure(prefix: LocationTabsEnum::HISTORY->value))->table(
-            IndexPallets::make()->tableStructure(
+            IndexPalletsInWarehouse::make()->tableStructure(
                 $location,
                 prefix: PalletDeliveryTabsEnum::PALLETS->value
             )
