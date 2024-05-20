@@ -1,12 +1,12 @@
     <script setup lang="ts">
 import { inject, reactive, ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faCheckCircle as falCheckCircle } from '@fal'
+import { faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faCheckCircle as falCheckCircle } from '@fal'
 import { faExclamationCircle, faCheckCircle as fasCheckCircle } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { get } from 'lodash'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
-library.add(faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faExclamationCircle, fasCheckCircle, falCheckCircle)
+library.add(faInfoCircle, faCircle, faCrown, faBars, faAbacus, faCommentsDollar, faCheckDouble, faQuestionCircle, faTimes, faExclamationCircle, fasCheckCircle, falCheckCircle)
 
 interface TypeShop {
     id: number
@@ -511,13 +511,17 @@ const productionLength = layout.organisations.data.find(organisation => organisa
                         <Transition mode="in-out">
                             <div v-if="openFinetune == jobGroup.department" class="relative bg-slate-400/10 border border-gray-300 rounded-md py-2 px-2 mb-3">
                                 <div class="flex gap-x-8 mb-3">
-                                    <div class="flex flex-col gap-y-4">
+                                    <div class="flex flex-col gap-y-4 pt-4">
                                         <template v-for="optionData, optionKey, optionIdx in optionsList" :key="optionKey + optionIdx">
                                             <div v-if="jobGroup.subDepartment.some(subDep => subDep.optionsType?.includes(optionKey))" class="">
                                                 <div class="text-white text-center bg-indigo-500 capitalize py-0.5">{{ optionKey }}</div>
                                                 <div class="flex flex-col gap-x-2 gap-y-0.5">
                                                     <!-- Section: Box radio -->
-                                                    <div v-for="(shop, idxZXC) in optionData" class="grid grid-cols-4 items-center justify-start gap-x-6 min-h-6" >
+                                                    <div v-for="(shop, idxZXC) in optionData" class="grid grid-cols-4 items-center justify-start gap-x-6 min-h-6"
+                                                        :style="{
+                                                            'grid-template-columns': `repeat(${1 + jobGroup.subDepartment.length}, minmax(0, 1fr))`
+                                                        }"
+                                                    >
                                                         <!-- Section: Shop name -->
                                                         <div class="w-40 leading-none">
                                                             {{ shop.name }}
@@ -535,6 +539,7 @@ const productionLength = layout.organisations.data.find(organisation => organisa
                                                                     @click.prevent="onClickJobFinetune(departmentName, shop.slug, subDep.slug, optionKey)"
                                                                     class="group h-full cursor-pointer flex items-center justify-center rounded-md px-3 font-medium capitalize disabled:text-gray-400 disabled:cursor-not-allowed disabled:ring-0 disabled:active:active:ring-offset-0"
                                                                     :disabled="!!Object.keys(form[fieldName]).includes('admin')"
+                                                                    v-tooltip="subDep.label"
                                                                 >
                                                                     <div class="relative text-left">
                                                                         <template v-if="Object.keys(form[fieldName]).includes('admin')">
@@ -602,5 +607,5 @@ const productionLength = layout.organisations.data.find(organisation => organisa
 
     </div>
 
-    <pre>{{ props.form[props.fieldName] }}</pre>
+    <!-- <pre>{{ props.form[props.fieldName] }}</pre> -->
 </template>
