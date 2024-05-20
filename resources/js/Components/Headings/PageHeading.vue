@@ -70,25 +70,21 @@ const originUrl = location.origin
             </div>
 
             <!-- Section: mini Tabs -->
-            <div v-if="data.meta" class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6">
-                <div class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6 text-gray-500 text-xs pt-2">
-                    <div v-for="item in data.meta" class="flex items-center">
-                        <FontAwesomeIcon v-if="item.leftIcon"
-                            :title="item.leftIcon.tooltip"
-                            aria-hidden="true" :icon="item.leftIcon.icon" class="text-gray-400 pr-2" />
-                        <component :is="item.href?.name ? Link : 'div'" :href="item.href?.name ? route(item.href.name, item.href.parameters) : '#'"
-                            :class="[
-                                item.href?.name && $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), ''))
-                                ? 'text-gray-600 font-medium'
-                                : 'text-gray-400 hover:text-gray-500'
-                            ]"
-                        >
-                            <MetaLabel :item="item" />
-                        </component>
-                        <!-- <span v-else>
-                            <MetaLabel :item=item />
-                        </span> -->
-                    </div>
+            <div v-if="data.meta" class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-0.5 text-gray-500 text-xs pt-2">
+                <div v-for="item in data.meta" class="flex items-center">
+                    <FontAwesomeIcon v-if="item.leftIcon"
+                        :title="item.leftIcon.tooltip"
+                        fixed-width
+                        aria-hidden="true" :icon="item.leftIcon.icon" class="text-gray-400 pr-0.5" />
+                    <component :is="item.href?.name ? Link : 'div'" :href="item.href?.name ? route(item.href.name, item.href.parameters) : '#'"
+                        :class="[
+                            item.href?.name && $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), ''))
+                            ? 'text-gray-600 font-medium'
+                            : 'text-gray-400 hover:text-gray-500'
+                        ]"
+                    >
+                        <MetaLabel :item="item" />
+                    </component>
                 </div>
             </div>
         </div>
