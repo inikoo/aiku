@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
- namespace App\Actions\Manufacturing\RawMaterial\UI;
+namespace App\Actions\Manufacturing\RawMaterial\UI;
 
 use App\Actions\OrgAction;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialStateEnum;
@@ -13,7 +13,6 @@ use App\Enums\Manufacturing\RawMaterial\RawMaterialStockStatusEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialTypeEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
 use App\Models\Manufacturing\Production;
-use App\Models\Manufacturing\RawMaterialStats;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -83,11 +82,11 @@ class CreateRawMaterial extends OrgAction
                                     'required' => true
                                 ],
                                 'unit' => [
-                                    'type'     => 'select',
+                                    'type'      => 'select',
                                     'options'   => RawMaterialUnitEnum::values(),
-                                    'label'    => __('unit'),
-                                    'value'    => '',
-                                    'required' => true
+                                    'label'     => __('unit'),
+                                    'value'     => '',
+                                    'required'  => true
                                 ],
                                 'unit_cost' => [
                                     'type'     => 'input',
@@ -102,18 +101,18 @@ class CreateRawMaterial extends OrgAction
                                     'required' => true
                                 ],
                                 'stock_status' => [
-                                    'type'     => 'select',
+                                    'type'      => 'select',
                                     'options'   => RawMaterialStockStatusEnum::values(),
-                                    'label'    => __('stock status'),
-                                    'value'    => '',
-                                    'required' => true
+                                    'label'     => __('stock status'),
+                                    'value'     => '',
+                                    'required'  => true
                                 ],
 
                             ]
                         ]
                     ],
                     'route'      => [
-                        'name'       => 'grp.models.production.raw-materials.store',
+                        'name'        => 'grp.models.production.raw-materials.store',
                         'parameters'  => [$this->parent->id]
                     ]
                 ],

@@ -21,16 +21,20 @@ const props = defineProps<{
     }[]
 }>()
 
-const originUrl = location.origin
+// const originUrl = location.origin
 </script>
 
 <template>
     <div class="-mt-2 flex flex-col sm:flex-row">
         <div class="flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-3 gap-y-1 items-end text-gray-400 text-xs">
-            <div v-for="subNav, itemIdx in dataNavigation" class="flex items-center -ml-1 first:text-sm">
+            <div v-for="subNav, itemIdx in dataNavigation" class="flex items-center -ml-1 first:text-indigo-500"
+                :class="[
+                    layout.currentRoute.includes(subNav.href.name) ? `text-gray-500` : ``
+                ]"
+            >
                 <Link v-if="subNav.href?.name"
                     :href="route(subNav.href.name, subNav.href.parameters)"
-                    class="relative group py-1 px-1.5 flex items-center hover:text-gray-600 transition-all"  
+                    class="relative group py-1 px-1.5 flex items-center hover:text-gray-600 transition-all"
                 >
                     <FontAwesomeIcon v-if="subNav.leftIcon" :icon="subNav.leftIcon.icon" v-tooltip="capitalize(subNav.leftIcon.tooltip)" aria-hidden="true" class="pr-1" />
                     <MetaLabel :item="subNav" />
@@ -41,7 +45,7 @@ const originUrl = location.origin
                         ]"
                     /> -->
                     <div v-if="itemIdx !== 0" :class="[
-                            layout.currentRoute.includes(subNav.href.name) ? `bottomNavigationActive` : `bottomNavigation`
+                            layout.currentRoute.includes(subNav.href.name) ? `bottomNavigationSecondaryActive` : `bottomNavigationSecondary`
                         ]"
                     />
                 </Link>

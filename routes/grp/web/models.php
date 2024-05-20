@@ -84,6 +84,8 @@ use App\Actions\Catalogue\Product\StorePhysicalGood;
 use App\Actions\Catalogue\Product\UpdatePhysicalGood;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\SyncPaymentAccountToShop;
+use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
+use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
 use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
 use App\Actions\Manufacturing\ManufactureTask\StoreManufactureTask;
 use App\Actions\Manufacturing\RawMaterial\ImportRawMaterial;
@@ -186,6 +188,8 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::patch('undo-not-received', UndoPalletStateToReceived::class)->name('undo-not-received');
     Route::patch('undo-booked-in', UndoPalletStateToReceived::class)->name('undo-booked-in');
 
+    Route::patch('damaged', SetPalletAsDamaged::class)->name('damaged');
+    Route::patch('lost', SetPalletAsLost::class)->name('lost');
 
 });
 

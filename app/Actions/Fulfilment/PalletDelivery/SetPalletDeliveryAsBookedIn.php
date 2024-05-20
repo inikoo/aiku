@@ -51,7 +51,7 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
         }
 
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
-        SendPalletDeliveryNotification::run($palletDelivery);
+        SendPalletDeliveryNotification::dispatch($palletDelivery);
 
         return $palletDelivery;
     }

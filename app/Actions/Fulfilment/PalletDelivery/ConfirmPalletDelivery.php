@@ -62,7 +62,7 @@ class ConfirmPalletDelivery extends OrgAction
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
 
-        SendPalletDeliveryNotification::run($palletDelivery);
+        SendPalletDeliveryNotification::dispatch($palletDelivery);
 
         return $palletDelivery;
     }

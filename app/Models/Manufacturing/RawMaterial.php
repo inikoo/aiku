@@ -99,7 +99,7 @@ class RawMaterial extends Model implements Auditable
         return $this->hasOne(RawMaterialStats::class);
     }
 
-    public function production() : BelongsTo 
+    public function production(): BelongsTo
     {
         return $this->belongsTo(Production::class);
     }

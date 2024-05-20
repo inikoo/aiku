@@ -27,7 +27,7 @@ class NotReceivedPalletDelivery extends OrgAction
         $palletDelivery= $this->update($palletDelivery, $modelData);
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
 
-        SendPalletDeliveryNotification::run($palletDelivery);
+        SendPalletDeliveryNotification::dispatch($palletDelivery);
 
         return $palletDelivery;
     }

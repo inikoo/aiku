@@ -49,7 +49,7 @@ class SubmitPalletDelivery extends OrgAction
             $palletDelivery = ConfirmPalletDelivery::run($palletDelivery);
         }
 
-        SendPalletDeliveryNotification::run($palletDelivery);
+        SendPalletDeliveryNotification::dispatch($palletDelivery);
 
         FulfilmentCustomerHydratePallets::dispatch($palletDelivery->fulfilmentCustomer);
         FulfilmentHydratePallets::dispatch($palletDelivery->fulfilment);

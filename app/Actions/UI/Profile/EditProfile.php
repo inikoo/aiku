@@ -45,7 +45,7 @@ class EditProfile
                 'actions'      => [
                     [
                         'type'  => 'button',
-                        'style' => 'cancel',
+                        'style' => 'exit',
                         'label' => __('back to profile'),
                         'route' => [
                             'name'       => 'grp.profile.show',
@@ -72,10 +72,13 @@ class EditProfile
                                 "value" => "",
                             ],
                             "about"  => [
-                                "type"      => "textEditor",
-                                "label"     => __("about"),
-                                "value"     => $user->about,
-                                "maxLength" => 500
+                                "type"          => "textarea",
+                                "label"         => __("about"),
+                                "value"         => $user->about,
+                                "maxLength"     => 48,
+                                "counter"       => true,
+                                "rows"          => 5,
+                                "placeholder"   => __('Enter up to 50 characters')
                             ],
                             "avatar" => [
                                 "type"  => "avatar",
