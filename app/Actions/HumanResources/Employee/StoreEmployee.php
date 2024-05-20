@@ -9,7 +9,6 @@ namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch;
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
-use App\Actions\HumanResources\Employee\Traits\HasEmployeePositionGenerator;
 use App\Actions\HumanResources\JobPosition\SyncEmployableJobPositions;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
@@ -111,9 +110,9 @@ class StoreEmployee extends OrgAction
 
         // this run if come from UI, so tests and migrations are not affected
         //if(!$this->asAction) {
-            // don't know what this does if no need it delete it
-            // $this->preparePositionsForValidation();
-            // apply $this->generatePositions(...) here if needed
+        // don't know what this does if no need it delete it
+        // $this->preparePositionsForValidation();
+        // apply $this->generatePositions(...) here if needed
         //}
     }
 

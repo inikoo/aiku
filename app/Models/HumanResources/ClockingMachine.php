@@ -49,6 +49,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read \App\Models\HumanResources\ClockingMachineStats|null $stats
+ * @property-read Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read UniversalSearch|null $universalSearch
  * @property-read \App\Models\HumanResources\Workplace $workplace
  * @method static Builder|ClockingMachine newModelQuery()
