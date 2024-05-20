@@ -110,7 +110,7 @@ class StoreEmployee extends OrgAction
 
         // this run if come from UI, so tests and migrations are not affected
         //if(!$this->asAction) {
-        // don't know what this does if no need it delete it
+        // don't know what this does if no need it,  delete it
         // $this->preparePositionsForValidation();
         // apply $this->generatePositions(...) here if needed
         //}
