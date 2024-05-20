@@ -12,7 +12,7 @@ export interface OptionsTime {
 export const useFormatTime = (dateIso: string | Date | undefined, OptionsTime?: OptionsTime) => {
     if (!dateIso) return '-'  // If the provided data date is null
 
-    console.log('ll',OptionsTime)
+    console.log(OptionsTime)
 
     let tempLocaleCode = OptionsTime?.localeCode === 'zh-Hans' ? 'zhCN' : OptionsTime?.localeCode ?? 'enUS'
     let tempDateIso = new Date(dateIso)
@@ -94,7 +94,7 @@ export const useIsFutureIsAPast = (dateIso: Date | string, additionalSeconds: nu
 
 // Method: Convert from '28359' (in seconds) to '7h 52m 39s'
 export const useSecondsToMS = (seconds: number) => {
-    if (!seconds) return '00:00:00'
+    if (!seconds) return '00:00'
 
     // Create a duration object with only seconds
     const duration = intervalToDuration({ start: 0, end: seconds * 1000 }); // Convert seconds to milliseconds
