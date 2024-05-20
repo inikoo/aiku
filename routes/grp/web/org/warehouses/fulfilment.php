@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Fulfilment\Pallet\UI\EditPallet;
 use App\Actions\Devel\UI\IndexDummies;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInWarehouse;
 use App\Actions\Fulfilment\Pallet\UI\IndexReturnedPalletsInWarehouse;
@@ -25,6 +26,7 @@ Route::get('lost-pallets', IndexDummies::class)->name('lost_pallets.index');
 Route::prefix('pallets')->as('pallets.')->group(function () {
     Route::get('', IndexPalletsInWarehouse::class)->name('index');
     Route::get('{pallet}', [ShowPallet::class, 'inWarehouse'])->name('show');
+    Route::get('/pallets/{pallet}/edit', [EditPallet::class, 'inWarehouse'])->name('edit');
 });
 
 

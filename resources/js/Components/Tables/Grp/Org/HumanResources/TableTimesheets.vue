@@ -9,12 +9,14 @@ import { Link } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
 import { useFormatTime, useSecondsToMS } from '@/Composables/useFormatTime'
 import { Timesheet } from "@/types/timesheet";
+import {useLocaleStore} from '@/Stores/locale'
 
 defineProps<{
     data: {}
     tab?: string
 }>()
 
+const locale = useLocaleStore()
 const timesheetRoute = (timesheet: Timesheet) => {
 
 
@@ -43,25 +45,25 @@ const timesheetRoute = (timesheet: Timesheet) => {
       <template #cell(date)="{ item:timesheet }">
         <div class="text-gray-500">
           <Link :href="timesheetRoute(timesheet)" class="whitespace-nowrap primaryLink">
-          {{ useFormatTime(timesheet.date) }}
+          {{ useFormatTime(timesheet.date,{localeCode : locale.language.code }) }}
           </Link>
         </div>
       </template>
 
-
+   
         <!-- Column: Start at -->
         <template #cell(start_at)="{ item: user }">
-            <div class="whitespace-nowrap">{{ useFormatTime(user.start_at, {formatTime: 'hm'}) }}</div>
+            <div class="whitespace-nowrap">{{ useFormatTime(user.start_at, {formatTime: 'hh:mm', localeCode : locale.language.code }) }}</div>
         </template>
         
         <!-- Column: End at -->
         <template #cell(end_at)="{ item: user }">
-            <div class="whitespace-nowrap">{{ useFormatTime(user.end_at, {formatTime: 'hm'}) }}</div>
+            <div class="whitespace-nowrap">{{ useFormatTime(user.end_at, {formatTime: 'hh:mm', localeCode : locale.language.code }) }}</div>
         </template>
         
         <!-- Column: Working duration -->
         <template #cell(working_duration)="{ item: user }">
-            <div class="tabular-nums">{{ useSecondsToMS(user.working_duration) }}</div>
+            <div  class="tabular-nums">{{ useSecondsToMS(user.working_duration) }}</div>
         </template>
         
         <!-- Column: Breaks Duration -->
