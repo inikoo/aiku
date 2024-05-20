@@ -23,7 +23,7 @@ interface TypeWarehouse {
     state: string
 }
 
-interface TypeFulfilments {
+interface TypeFulfilment {
     code: string
     id: number
     name: string
@@ -65,7 +65,7 @@ const props = defineProps<{
             }[]
         }
         fulfilments: {
-            data: TypeFulfilments
+            data: TypeFulfilment
         }
         organisations: {}
         shops: {
@@ -143,7 +143,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 slug: "mrk-m",
                 grade: "manager",
                 label: "Supervisor",
-                optionsType: ['shops', 'fulfilments'],
+                optionsType: ['shops'],
                 number_employees: props.options.positions.data.find(position => position.slug == 'mrk-m')?.number_employees || 0,
             },
             {
@@ -151,13 +151,6 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
                 grade: "clerk",
                 label: "Worker",
                 optionsType: ['shops'],
-                number_employees: props.options.positions.data.find(position => position.slug == 'mrk-c')?.number_employees || 0,
-            },
-            {
-                slug: "mrk-o",
-                grade: "clerk",
-                label: "Office",
-                optionsType: ['shops', 'warehouses'],
                 number_employees: props.options.positions.data.find(position => position.slug == 'mrk-c')?.number_employees || 0,
             }
         ],
@@ -486,17 +479,18 @@ const productionLength = layout.organisations.data.find(organisation => organisa
                                                 </template>
 
                                                 <template v-else-if="Object.keys(form[fieldName]).includes(subDepartment.slug)">
-                                                    <FontAwesomeIcon v-if="jobGroup.optionsSlug?.every(optionSlug => get(form[fieldName], [subDepartment.slug, subDepartment.optionsType], []).includes(optionSlug))" icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
-                                                    <FontAwesomeIcon v-else-if="jobGroup.optionsSlug?.some(optionSlug => get(form[fieldName], [subDepartment.slug, subDepartment.optionsType], []).includes(optionSlug))" icon='fal fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
+                                                    <FontAwesomeIcon v-if="subDepartment.optionsType?.every((optionType: string) => optionsList[optionType].map((list: TypeShop | TypeFulfilment | TypeWarehouse) => list.slug).every(optionSlug => get(form[fieldName], [subDepartment.slug, optionType], []).includes(optionSlug)))" icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
+                                                    <FontAwesomeIcon v-else-if="subDepartment.optionsType?.some((optionType: string) => get(form[fieldName], [subDepartment.slug, optionType], []).some((optionValue: string) => optionsList[optionType].map((list: TypeShop | TypeFulfilment | TypeWarehouse) => list.slug).includes(optionValue)))" icon='fal fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
                                                     <FontAwesomeIcon v-else icon='fas fa-check-circle' class="text-green-500" fixed-width aria-hidden='true' />
                                                     <!-- {{ subDepartment.optionsType?.map(xds => jobGroup.optionsSlug?.every(value => get(form[fieldName], [subDepartment.slug, xds], []).includes(value))) }} -->
                                                 </template>
                                                 <FontAwesomeIcon v-else icon='fal fa-circle' fixed-width aria-hidden='true' />
                                             </div>
                                             <span v-tooltip="subDepartment.number_employees + ' employees on this position'" :class="[
-                                                Object.keys(form[fieldName]).includes('admin') && departmentName != 'admin' ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-800'
+                                                Object.keys(form[fieldName]).includes('admin') && departmentName != 'admin' ? 'text-gray-400' : 'text-gray-600 group-hover:text-gray-700'
                                             ]">
                                                 {{ subDepartment.label }}
+                                                <!-- {{ subDepartment.optionsType?.every((optionType: string) => optionsList[optionType].map((list: TypeShop | TypeFulfilment | TypeWarehouse) => list.slug).every(optionSlug => get(form[fieldName], [subDepartment.slug, optionType], []).includes(optionSlug))) }} -->
                                             </span>
                                         </span>
                                     </button>
@@ -520,7 +514,7 @@ const productionLength = layout.organisations.data.find(organisation => organisa
                                     <div class="flex flex-col gap-y-4">
                                         <template v-for="optionData, optionKey, optionIdx in optionsList" :key="optionKey + optionIdx">
                                             <div v-if="jobGroup.subDepartment.some(subDep => subDep.optionsType?.includes(optionKey))" class="">
-                                                <div class="text-white text-center bg-indigo-500">{{ optionKey }}</div>
+                                                <div class="text-white text-center bg-indigo-500 capitalize py-0.5">{{ optionKey }}</div>
                                                 <div class="flex flex-col gap-x-2 gap-y-0.5">
                                                     <!-- Section: Box radio -->
                                                     <div v-for="(shop, idxZXC) in optionData" class="grid grid-cols-4 items-center justify-start gap-x-6 min-h-6" >
