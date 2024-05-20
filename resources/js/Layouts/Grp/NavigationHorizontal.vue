@@ -147,46 +147,52 @@ const isShowHorizontal = () => {
         </span>
         
         <!-- Label: Icon shops/warehouses and slug -->
-        <div v-if="!!currentNavigation()" class="w-full flex justify-between items-end pt-2 pl-2.5 pr-0.5 pb-2"
+        <div v-if="!!currentNavigation()" class="relative w-full flex justify-between items-end pt-2 pl-2.5 pr-0.5 pb-2"
             :style="{ color: layout.app.theme[1] + '99' }">
 
             <!-- Label: 'UK (Shop)' -->
-            <div class="relative flex gap-x-1.5 items-center">
+            <div class="relative flex gap-x-1.5 items-center"
+                :class="layout.leftSidebar.show ? '' : 'pt-1'"
+            >
                 <Transition name="spin-to-down">
                     <FontAwesomeIcon v-if="currentNavigation()?.type === 'shop'" icon="fal fa-store-alt" class='text-xxs' fixed-width aria-hidden='true' />
                     <FontAwesomeIcon v-else-if="currentNavigation()?.type === 'fulfilment'" icon="fal fa-hand-holding-box" class='text-xxs' fixed-width aria-hidden='true' />
                 </Transition>
 
-                <div v-if="layout.leftSidebar.show" class="flex items-center gap-x-1.5">
-                    <Transition name="spin-to-down">
-                        <span :key="currentNavigation()?.key" class="text-sm leading-none uppercase">
-                            {{ currentNavigation()?.key }}
-                        </span>
-                    </Transition>
-                    <Transition name="spin-to-down">
-                        <span :key="currentNavigation()?.type" class="text-xs capitalize leading-none">
-                            ({{ currentNavigation()?.type }})
-                        </span>
-                    </Transition>
-                </div>
+                <Transition name="slide-to-left">
+                    <div v-if="layout.leftSidebar.show" class="flex items-center gap-x-1.5">
+                        <Transition name="spin-to-down">
+                            <span :key="currentNavigation()?.key" class="text-sm leading-3 uppercase">
+                                {{ currentNavigation()?.key }}
+                            </span>
+                        </Transition>
+                        <Transition name="spin-to-down">
+                            <span :key="currentNavigation()?.type" class="text-xs capitalize leading-3">
+                                ({{ currentNavigation()?.type }})
+                            </span>
+                        </Transition>
+                    </div>
+                </Transition>
             </div>
 
             
             <!-- Section: Arrow left-right -->
-            <div v-if="isSomeSubnavActive()" class="flex text-white" :class="[
-                layout.leftSidebar.show ? 'justify-self-end text-xxs' : ''
-            ]">
-                <component :is="previousNavigation() ? Link : 'div'" :href="routeArrow(previousNavigation())" class="py-0.5 px-[1px] flex justify-center items-center rounded"
-                    :class="previousNavigation() ? 'hover:bg-black/10' : 'text-white/40'"
-                >
-                    <FontAwesomeIcon icon='fas fa-chevron-left' class='' fixed-width aria-hidden='true' />
-                </component>
-                <component :is="nextNavigation() ? Link : 'div'" :href="routeArrow(nextNavigation())" class="py-0.5 px-[1px] flex justify-center items-center rounded"
-                    :class="nextNavigation() ? 'hover:bg-black/10' : 'text-white/40'"
-                >
-                    <FontAwesomeIcon icon='fas fa-chevron-right' class='' fixed-width aria-hidden='true' />
-                </component>
-            </div>
+            <Transition name="slide-to-left">
+                <div v-if="isSomeSubnavActive() && layout.leftSidebar.show" class="flex text-white" :class="[
+                    layout.leftSidebar.show ? 'justify-self-end text-xxs' : ''
+                ]">
+                    <component :is="previousNavigation() ? Link : 'div'" :href="routeArrow(previousNavigation())" class="py-0.5 px-[1px] flex justify-center items-center rounded"
+                        :class="previousNavigation() ? 'hover:bg-black/10' : 'text-white/40'"
+                    >
+                        <FontAwesomeIcon icon='fas fa-chevron-left' class='' fixed-width aria-hidden='true' />
+                    </component>
+                    <component :is="nextNavigation() ? Link : 'div'" :href="routeArrow(nextNavigation())" class="py-0.5 px-[1px] flex justify-center items-center rounded"
+                        :class="nextNavigation() ? 'hover:bg-black/10' : 'text-white/40'"
+                    >
+                        <FontAwesomeIcon icon='fas fa-chevron-right' class='' fixed-width aria-hidden='true' />
+                    </component>
+                </div>
+            </Transition>
         </div>
 
         <!-- If Shops/Warehouses length is 1 (Show the subnav straighly) -->
