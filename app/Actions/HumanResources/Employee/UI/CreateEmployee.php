@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\Catalogue\ShopResource;
 use App\Models\SysAdmin\Organisation;
 use Exception;
@@ -126,11 +127,12 @@ class CreateEmployee extends OrgAction
                                     'required' => true,
                                     'label'    => __('position'),
                                     'options'  => [
-                                        'positions'     => JobPositionResource::collection($this->organisation->jobPositions),
-                                        'shops'         => ShopResource::collection($this->organisation->shops),
-                                        'warehouses'    => WarehouseResource::collection($this->organisation->warehouses),
+                                        'positions'           => JobPositionResource::collection($this->organisation->jobPositions),
+                                        'shops'               => ShopResource::collection($this->organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
+                                        'fulfilments'         => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
+                                        'warehouses'          => WarehouseResource::collection($this->organisation->warehouses),
                                     ],
-                                    'value'    => [],
+                                    'value'    => new \stdClass(),
                                     'full'     => true
                                 ],
                             ]

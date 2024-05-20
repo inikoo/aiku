@@ -17,12 +17,13 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Laravel\Sanctum\HasApiTokens;
 use OwenIt\Auditing\Contracts\Auditable;
 
 use Spatie\Sluggable\HasSlug;
@@ -58,7 +59,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|ClockingMachine withoutTrashed()
  * @mixin Eloquent
  */
-class ClockingMachine extends Model implements Auditable
+class ClockingMachine extends Authenticatable implements Auditable
 {
     use SoftDeletes;
     use HasSlug;
@@ -66,6 +67,7 @@ class ClockingMachine extends Model implements Auditable
     use HasFactory;
     use HasHistory;
     use InOrganisation;
+    use HasApiTokens;
 
     protected $casts = [
         'data'        => 'array',

@@ -42,7 +42,7 @@ class IndexPallets extends OrgAction
 
     private bool $selectStoredPallets = false;
 
-    protected function getElementGroups(FulfilmentCustomer|Fulfilment $parent): array
+    protected function getElementGroups(FulfilmentCustomer|Fulfilment|PalletDelivery $parent): array
     {
         return [
             'status' => [
@@ -61,7 +61,7 @@ class IndexPallets extends OrgAction
         ];
     }
 
-    public function handle(FulfilmentCustomer|Fulfilment $parent, $prefix = null): LengthAwarePaginator
+    public function handle(FulfilmentCustomer|Fulfilment|PalletDelivery $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -84,6 +84,9 @@ class IndexPallets extends OrgAction
                 break;
             case "Fulfilment":
                 $query->where('pallets.fulfilment_id', $parent->id);
+                break;
+            case "PalletDelivery":
+                $query->where('pallets.pallet_delivery_id', $parent->id);
                 break;
             default:
                 abort(422);
@@ -137,7 +140,7 @@ class IndexPallets extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(FulfilmentCustomer|Fulfilment $parent, $prefix = null, $modelOperations = []): Closure
+    public function tableStructure(FulfilmentCustomer|Fulfilment|PalletDelivery $parent, $prefix = null, $modelOperations = []): Closure
     {
         return function (InertiaTable $table) use ($prefix, $modelOperations, $parent) {
             if ($prefix) {

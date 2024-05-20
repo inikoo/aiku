@@ -28,7 +28,7 @@
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
-
+console.log(props.stored_items);
 const components = {
     showcase: PalletShowcase,
     stored_items: TableStoredItems,

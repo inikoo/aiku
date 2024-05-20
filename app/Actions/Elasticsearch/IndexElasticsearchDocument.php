@@ -32,7 +32,6 @@ class IndexElasticsearchDocument
             'body'   => $body
         ];
 
-
         try {
             if ($client instanceof Client) {
                 return $client->index($params);
