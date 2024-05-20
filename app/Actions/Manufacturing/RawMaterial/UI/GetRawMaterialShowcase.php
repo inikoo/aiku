@@ -5,9 +5,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
- namespace App\Actions\Manufacturing\RawMaterial\UI;
+namespace App\Actions\Manufacturing\RawMaterial\UI;
 
-use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
 use Lorisleiva\Actions\Concerns\AsObject;
 
