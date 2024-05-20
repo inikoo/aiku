@@ -9,6 +9,7 @@ namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch;
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
+use App\Actions\HumanResources\Employee\Traits\HasEmployeePositionGenerator;
 use App\Actions\HumanResources\JobPosition\SyncEmployableJobPositions;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
@@ -16,7 +17,6 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\HumanResources\Employee;
-use App\Models\HumanResources\JobPosition;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
@@ -33,6 +33,7 @@ use Lorisleiva\Actions\ActionRequest;
 class StoreEmployee extends OrgAction
 {
     use HasPositionsRules;
+    use HasEmployeePositionGenerator;
 
     public function handle(Organisation|Workplace $parent, array $modelData): Employee
     {
@@ -43,18 +44,14 @@ class StoreEmployee extends OrgAction
             $organisation = $parent;
         }
 
-
         data_set($modelData, 'group_id', $organisation->group_id);
-
-        $positions = Arr::get($modelData, 'positions', []);
 
         $credentials = Arr::only($modelData, ['username', 'password', 'reset_password']);
 
-        Arr::forget($modelData, 'positions');
         Arr::forget($modelData, ['username', 'password', 'reset_password']);
 
         /** @var Employee $employee */
-        $employee = $parent->employees()->create($modelData);
+        $employee = $parent->employees()->create(Arr::except($modelData, 'positions'));
         $employee->stats()->create();
 
 
@@ -75,13 +72,9 @@ class StoreEmployee extends OrgAction
             );
         }
 
+        $jobPositions = $this->generatePositions($modelData);
+        Arr::forget($modelData, 'positions');
 
-
-        $jobPositions = [];
-        foreach ($positions as $positionData) {
-            $jobPosition                    = JobPosition::firstWhere('slug', $positionData['slug']);
-            $jobPositions[$jobPosition->id] = $positionData['scopes'];
-        }
         SyncEmployableJobPositions::run($employee, $jobPositions);
         EmployeeHydrateWeekWorkingHours::dispatch($employee);
         GroupHydrateEmployees::dispatch($employee->group);
@@ -105,6 +98,10 @@ class StoreEmployee extends OrgAction
     {
         if (!$this->get('username')) {
             $this->set('username', null);
+        }
+
+        if ($this->has('state')) {
+            $this->set('state', Arr::get($this->get('state'), 'value'));
         }
 
         $this->preparePositionsForValidation();
@@ -177,7 +174,6 @@ class StoreEmployee extends OrgAction
         ];
     }
 
-
     public function action(Organisation|Workplace $parent, $modelData): Employee
     {
         $this->asAction = true;
@@ -203,6 +199,9 @@ class StoreEmployee extends OrgAction
 
     public function htmlResponse(Employee $employee): RedirectResponse
     {
-        return Redirect::route('grp.org.hr.employees.show', $employee->slug);
+        return Redirect::route('grp.org.hr.employees.show', [
+            'organisation' => $employee->organisation->slug,
+            'employee'     => $employee->slug,
+        ]);
     }
 }
