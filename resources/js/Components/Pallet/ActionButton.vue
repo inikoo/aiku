@@ -48,13 +48,13 @@ const form = useForm({ message: '' })
         preserveScroll: true,
         onStart:()=>{loading.value = true},
         onSuccess: () => {
-            closedPopover()
+            close()
             loading.value = false
         },
         onError: (errors) => {
             loading.value = false
         },
-        onFinish: ()=>{loading.value = true}
+        onFinish: ()=>{loading.value = false}
     })
 }
 

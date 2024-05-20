@@ -187,6 +187,9 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
     Route::patch('undo-not-received', UndoPalletStateToReceived::class)->name('undo-not-received');
     Route::patch('undo-booked-in', UndoPalletStateToReceived::class)->name('undo-booked-in');
 
+    Route::patch('damaged', SetPalletAsDamaged::class)->name('damaged');
+    Route::patch('lost', SetPalletAsLost::class)->name('lost');
+
 });
 
 Route::patch('{storedItem:id}/stored-items', MoveStoredItem::class)->name('stored-items.move');
@@ -242,9 +245,6 @@ Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function
 Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function () {
     Route::patch('/', UpdateWarehouse::class)->name('warehouse.update');
     Route::post('areas/upload', [ImportWarehouseArea::class, 'inWarehouse'])->name('warehouse-areas.upload');
-
-    Route::patch('pallet/{pallet:id}/damaged', SetPalletAsDamaged::class)->name('pallet.damaged');
-    Route::patch('pallet/{pallet:id}/lost', SetPalletAsLost::class)->name('pallet.lost');
 
     Route::patch('pallet/{pallet:id}/locations', [UpdatePalletLocation::class, 'inWarehouse'])->name('pallets.location.update')->withoutScopedBindings();
 
