@@ -22,6 +22,7 @@ import type { Meta, Links } from "@/types/Table";
 import { Pallet } from "@/types/Pallet";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { useLayoutStore } from "@/Stores/layout"
+import ButtonAction from "@/Components/Pallet/ActionButton.vue"
 
 library.add(faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote,faSquare);
 
@@ -136,13 +137,13 @@ const onUpdateStatus=(routes,data)=>{
 
 <template>
   <!-- <pre>{{ props.data.data[0] }}</pre> -->
-  <Table :resource="data" :name="tab" class="mt-5" is-check-box="true">
+  <Table :resource="data" :name="tab" class="mt-5" :is-check-box="false">
     <!-- Column: Reference -->
 
     <!-- Column: Pallet Reference -->
     <template #cell(reference)="{ item: pallet }">
       <Link :href="palletRoute(pallet)" class="primaryLink">
-        {{ pallet.reference }}
+      {{ pallet.reference }}
       </Link>
     </template>
 
@@ -151,15 +152,15 @@ const onUpdateStatus=(routes,data)=>{
       <div>
         {{ item.customer_reference }}
         <span v-if="item.notes" class="text-gray-400 text-xs ml-1">
-                    <FontAwesomeIcon icon="fal fa-sticky-note" class="text-gray-400" fixed-width aria-hidden="true" />
-                    {{ item.notes }}
-                </span>
+          <FontAwesomeIcon icon="fal fa-sticky-note" class="text-gray-400" fixed-width aria-hidden="true" />
+          {{ item.notes }}
+        </span>
       </div>
     </template>
 
     <template #cell(location_code)="{ item: pallet }">
-      <Link v-if="pallet.location_slug"  :href="locationRoute(pallet)" class="secondaryLink">
-        {{ pallet["location_code"] }}
+      <Link v-if="pallet.location_slug" :href="locationRoute(pallet)" class="secondaryLink">
+      {{ pallet["location_code"] }}
       </Link>
     </template>
 
@@ -174,8 +175,8 @@ const onUpdateStatus=(routes,data)=>{
     <!-- Column: Stored Items -->
     <template #cell(stored_items)="{ item: pallet }">
       <div v-if="pallet.stored_items.length" class="flex flex-wrap gap-x-1 gap-y-1.5">
-        <Tag v-for="item of pallet.stored_items" :theme="item.id"
-             :label="`${item.reference} (${item.quantity})`" :closeButton="false" :stringToColor="true">
+        <Tag v-for="item of pallet.stored_items" :theme="item.id" :label="`${item.reference} (${item.quantity})`"
+          :closeButton="false" :stringToColor="true">
           <template #label>
             <div class="whitespace-nowrap text-xs">
               {{ item["reference"] }} (<span class="font-light">{{ item["quantity"] }}</span>)
@@ -194,50 +195,43 @@ const onUpdateStatus=(routes,data)=>{
         <!-- Action: Move Pallet -->
         <Popover v-if="item.status === 'storing' && isMovePallet" width="w-full" class="relative">
           <template #button>
-            <Button @click="() => (locationsList.length ? '' : getLocationsList(), palletSelected?.[item.reference] ? '' : palletSelected = {[item.reference]: item.location_id})" type="secondary"
-                    tooltip="Move pallet to another location" label="Move pallet" :key="item.index" :size="'xs'" />
+            <Button
+              @click="() => (locationsList.length ? '' : getLocationsList(), palletSelected?.[item.reference] ? '' : palletSelected = { [item.reference]: item.location_id })"
+              type="secondary" tooltip="Move pallet to another location" label="Move pallet" :key="item.index"
+              :size="'xs'" />
           </template>
           <template #content="{ close }">
             <div class="w-[250px]">
               <span class="text-xs px-1 my-2">Location:</span>
               <div>
-                <Multiselect ref="_multiselectRef"
-                             v-model="palletSelected[item.reference]"
-                             :canClear="false"
-                             :canDeselect="false"
-                             label="code"
-                             valueProp="id"
-                             placeholder="Select location.."
-                             :options="locationsList"
-                             :noResultsText="isLoading ? 'loading...' : 'No Result'"
-                >
-
+                <Multiselect ref="_multiselectRef" v-model="palletSelected[item.reference]" :canClear="false"
+                  :canDeselect="false" label="code" valueProp="id" placeholder="Select location.."
+                  :options="locationsList" :noResultsText="isLoading ? 'loading...' : 'No Result'">
                 </Multiselect>
-                <!-- <p v-if="error.location_id" class="mt-2 text-sm text-red-600">{{ error.location_id }}</p> -->
               </div>
               <div class="flex justify-end mt-2">
-                <Button @click="() => onMovePallet(route(item.updateLocationRoute.name, item.updateLocationRoute.parameters), palletSelected?.[item.reference], item.reference, close)"
-                        type="primary"
-                        tooltip="Move pallet"
-                        :loading="isLoading"
-                        label="save"
-                        :key="item.index + palletSelected?.[item.reference]"
-                        :size="'xs'"
-                        :disabled="palletSelected?.[item.reference] == item.location_id"
-                />
+                <Button
+                  @click="() => onMovePallet(route(item.updateLocationRoute.name, item.updateLocationRoute.parameters), palletSelected?.[item.reference], item.reference, close)"
+                  type="primary" tooltip="Move pallet" :loading="isLoading" label="save"
+                  :key="item.index + palletSelected?.[item.reference]" :size="'xs'"
+                  :disabled="palletSelected?.[item.reference] == item.location_id" />
               </div>
             </div>
           </template>
         </Popover>
 
+        <ButtonAction :item="item"/>
+    <!--     <pre>{{ item }}</pre> -->
         <!-- Action: Set as storing, damaged, lost -->
-        <div v-if="item.status === 'storing' && isMovePallet" class="flex gap-x-1 gap-y-2">
-          <Button label="Set as damaged" type="negative" iconRight="fal fa-fragile" size="xs" @click="() => onUpdateStatus(item.updateRoute,{ status : 'incident', state : 'damaged'})"/>
-          <Button label="Set as lost" type="negative" iconRight="fal fa-ghost" size="xs"  @click="() => onUpdateStatus(item.updateRoute,{ status : 'incident', state : 'lost'})"/>
+        <!-- <div v-if="item.status === 'storing' && isMovePallet" class="flex gap-x-1 gap-y-2">
+          <Button label="Set as damaged" type="negative" iconRight="fal fa-fragile" size="xs"
+            @click="() => onUpdateStatus(item.updateRoute, { status: 'incident', state: 'damaged' })" />
+          <Button label="Set as lost" type="negative" iconRight="fal fa-ghost" size="xs"
+            @click="() => onUpdateStatus(item.updateRoute, { status: 'incident', state: 'lost' })" />
         </div>
         <div v-else-if="(item.status === 'lost' || item.status === 'damaged') && isMovePallet">
           <Button label="Undo" type="tertiary" icon="fal fa-box-up" size="xs" v-tooltip="`Set pallet as stored`" />
-        </div>
+        </div> -->
       </div>
     </template>
 
