@@ -46,7 +46,7 @@ const form = useForm({ message: '' })
         routes.parameters
     ), {
         preserveScroll: true,
-        onStart:()=>{loading.value = true}
+        onStart:()=>{loading.value = true},
         onSuccess: () => {
             closedPopover()
             loading.value = false
