@@ -13,6 +13,8 @@ use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Actions\WithActionButtons;
+use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\UI\Fulfilment\PalletTabsEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
@@ -34,6 +36,7 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowPallet extends OrgAction
 {
+    // use WithActionButtons;
     public Customer|null $customer = null;
     private Warehouse|Organisation|FulfilmentCustomer|Fulfilment $parent;
 
@@ -99,6 +102,7 @@ class ShowPallet extends OrgAction
             [
                 'title'       => __('pallets'),
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $this->parent,
                     request()->route()->getName(),
                     request()->route()->originalParameters()
                 ),
@@ -110,38 +114,38 @@ class ShowPallet extends OrgAction
                         ],
                     'title'  => $this->pallet->reference,
                     'actions'=> [
-                        /*[
-                            'type'    => 'button',
-                            'style'   => 'cancel',
-                            'tooltip' => __('return to customer'),
-                            'label'   => $this->pallet->status == PalletStatusEnum::RETURNED ? __('returned') : __('return to customer'),
-                            'route'   => [
-                                'name'       => 'grp.fulfilment.stored-items.setReturn',
-                                'parameters' => array_values(request()->route()->originalParameters())
-                            ],
-                            'disabled' => $this->pallet->status == PalletStatusEnum::RETURNED
-                        ],
+                        // [
+                        //     'type'    => 'button',
+                        //     'style'   => 'cancel',
+                        //     'tooltip' => __('return to customer'),
+                        //     'label'   => $this->pallet->status == PalletStatusEnum::RETURNED ? __('returned') : __('return to customer'),
+                        //     'route'   => [
+                        //         'name'       => 'grp.fulfilment.stored-items.setReturn',
+                        //         'parameters' => array_values(request()->route()->originalParameters())
+                        //     ],
+                        //     'disabled' => $this->pallet->status == PalletStatusEnum::RETURNED
+                        // ],
                         [
                             'type'    => 'button',
                             'style'   => 'edit',
                             'tooltip' => __('edit stored items'),
-                            'label'   => __('stored items'),
+                            'label'   => __('Edit'),
                             'route'   => [
-                                'name'       => preg_replace('/show$/', 'edit', request()->route()->getName()),
+                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.edit',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ]
                         ],
-                        [
-                            'type'    => 'button',
-                            'style'   => 'delete',
-                            'tooltip' => __('set as damaged'),
-                            'label'   => $this->pallet->status == PalletStatusEnum::DAMAGED ? __('damaged') : __('set as damaged'),
-                            'route'   => [
-                                'name'       => 'grp.fulfilment.stored-items.setDamaged',
-                                'parameters' => array_values(request()->route()->originalParameters())
-                            ],
-                            'disabled' => $this->pallet->status == PalletStatusEnum::DAMAGED
-                        ],*/
+                        // [
+                        //     'type'    => 'button',
+                        //     'style'   => 'delete',
+                        //     'tooltip' => __('set as damaged'),
+                        //     'label'   => $this->pallet->status == PalletStatusEnum::DAMAGED ? __('damaged') : __('set as damaged'),
+                        //     'route'   => [
+                        //         'name'       => 'grp.fulfilment.stored-items.setDamaged',
+                        //         'parameters' => array_values(request()->route()->originalParameters())
+                        //     ],
+                        //     'disabled' => $this->pallet->status == PalletStatusEnum::DAMAGED
+                        // ],
                     ],
                 ],
                 'tabs'        => [
@@ -151,8 +155,8 @@ class ShowPallet extends OrgAction
                 PalletTabsEnum::SHOWCASE->value => $this->tab == PalletTabsEnum::SHOWCASE->value ?
                 fn () => $this->jsonResponse($pallet) : Inertia::lazy(fn () => $this->jsonResponse($pallet)),
                 PalletTabsEnum::STORED_ITEMS->value => $this->tab == PalletTabsEnum::STORED_ITEMS->value ?
-                    fn () => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer))
-                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer))),
+                    fn () => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer, PalletTabsEnum::STORED_ITEMS->value))
+                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer, PalletTabsEnum::STORED_ITEMS->value))),
 
                 PalletTabsEnum::HISTORY->value => $this->tab == PalletTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($this->pallet))
@@ -160,7 +164,7 @@ class ShowPallet extends OrgAction
 
             ]
         )->table(IndexHistory::make()->tableStructure(prefix: PalletTabsEnum::HISTORY->value))
-            ->table(IndexStoredItems::make()->tableStructure($pallet->items));
+            ->table(IndexStoredItems::make()->tableStructure($pallet->storedItems));
     }
 
 
@@ -169,11 +173,10 @@ class ShowPallet extends OrgAction
         return new PalletResource($pallet);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
+    public function getBreadcrumbs(Organisation|Warehouse|Fulfilment $parent, string $routeName, array $routeParameters, string $suffix = ''): array
     {
         $pallet=Pallet::where('slug', $routeParameters['pallet'])->first();
-
-        return match (class_basename($this->parent)) {
+        return match (class_basename($parent)) {
             'Warehouse'    => $this->getBreadcrumbsFromWarehouse($pallet, $routeName, $suffix),
             'Organisation' => $this->getBreadcrumbsFromFulfilment($pallet, $routeName, $suffix),
             default        => $this->getBreadcrumbsFromFulfilmentCustomer($pallet, $routeName, $suffix),
