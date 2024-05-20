@@ -19,6 +19,8 @@ use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -35,7 +37,7 @@ class StoreRawMaterial extends OrgAction
         /** @var RawMaterial $rawMaterial */
         $rawMaterial = $production->rawMaterials()->create($modelData);
         $rawMaterial->stats()->create();
-
+ 
         RawMaterialHydrateUniversalSearch::dispatch($rawMaterial);
         GroupHydrateRawMaterials::dispatch($production->group);
         OrganisationHydrateRawMaterials::dispatch($production->organisation);
@@ -50,7 +52,7 @@ class StoreRawMaterial extends OrgAction
         }
 
         //todo create/find correct permissions
-        return $request->user()->hasPermissionTo("productions-view.{$this->organisation->id}");
+        return $request->user()->hasPermissionTo("productions_rd.{$this->production->id}.edit");
     }
 
     public function rules(): array
@@ -75,6 +77,18 @@ class StoreRawMaterial extends OrgAction
         ];
     }
 
+    // public function afterValidator($validator)
+    // {
+    //     dd($validator);
+    // }
+
+    public function htmlResponse(RawMaterial $rawMaterial): RedirectResponse
+    {
+        $production = $rawMaterial->production;
+        $organisation = $rawMaterial->organisation;
+        return Redirect::route('grp.org.productions.show.crafts.raw_materials.index', [$organisation, $production]);
+    }
+
     public function action(Production $production, array $modelData): RawMaterial
     {
         $this->asAction = true;
@@ -85,7 +99,7 @@ class StoreRawMaterial extends OrgAction
 
     public function asController(Organisation $organisation, Production $production, ActionRequest $request): RawMaterial
     {
-        $this->initialisation($organisation, $request);
+        $this->initialisationFromProduction($production, $request);
 
         return $this->handle($production, $this->validatedData);
     }
