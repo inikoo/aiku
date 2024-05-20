@@ -126,6 +126,14 @@ class PalletsResource extends JsonResource
                 'name'       => 'grp.models.warehouse.pallets.location.update',
                 'parameters' => [$this->warehouse_id, $this->id]
             ],
+            'setAsLost' => [
+                'name'       => 'grp.models.warehouse.pallet.lost',
+                'parameters' => [$this->warehouse_id, $this->id]
+            ],
+            'setAsDamaged' => [
+                'name'       => 'grp.models.warehouse.pallet.damaged',
+                'parameters' => [$this->warehouse_id, $this->id]
+            ],
             'storeStoredItemRoute' => match (request()->routeIs('retina.*')) {
                 true => [
                     'name'       => 'retina.models.pallet.stored-items.update',
