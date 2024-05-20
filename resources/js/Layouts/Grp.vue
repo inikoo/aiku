@@ -154,19 +154,33 @@ const sidebarOpen = ref(false)
     focus:[background-size:100%_100%] px-1 py-0.5
 }
 
+
 // For icon box in FlatTreemap
+.specialBoxActive {
+    background: v-bind('`linear-gradient(to top, ${layout.app.theme[0]}, ${layout.app.theme[0] + "AA"})`');
+    color: v-bind('`${layout.app.theme[1]}`');
+    border: v-bind('`2px solid ${layout.app.theme[0] + "99"}`') !important;
+
+    @apply rounded overflow-hidden
+    cursor-pointer
+    focus:ring-0 focus:outline-none
+    bg-no-repeat [background-position:0%_100%]
+    motion-safe:transition-all motion-safe:duration-100
+    [background-size:100%_100%]
+    focus:[background-size:100%_100%] px-1;
+}
 .specialBox {
     background: v-bind('`linear-gradient(to top, ${layout.app.theme[0]}, ${layout.app.theme[0] + "AA"})`');
     color: v-bind('`${layout.app.theme[0]}`');
-    border: v-bind('`4px solid ${layout.app.theme[0]}`');
+    border: v-bind('`2px solid ${layout.app.theme[0] + "99"}`') !important;
 
     &:hover, &:focus {
         color: v-bind('`${layout.app.theme[1]}`');
     }
 
-    @apply border-indigo-300 border-2 rounded-md
+    @apply rounded overflow-hidden
     cursor-pointer
-    focus:ring-0 focus:outline-none focus:border-none
+    focus:ring-0 focus:outline-none
     bg-no-repeat [background-position:0%_100%]
     [background-size:100%_0em]
     motion-safe:transition-all motion-safe:duration-100
