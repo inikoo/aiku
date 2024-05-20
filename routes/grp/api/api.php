@@ -17,9 +17,9 @@ Route::name('api.')->group(function () {
 
         require __DIR__."/org.php";
 
-        Route::prefix('clocking')->as('clocking.')->group(function () {
-            Route::post('employees/pin', [ShowEmployee::class, 'inApi'])->name('employees.pin.show');
-            Route::post('clocking-machine/{clockingMachine:id}/employees/{employee:id}', [StoreClocking::class, 'inApi'])
+        Route::prefix('clocking/employees')->as('clocking.')->group(function () {
+            Route::post('/pin', [ShowEmployee::class, 'inApi'])->name('employees.pin.show');
+            Route::post('/{employee:id}', [StoreClocking::class, 'inApi'])
                 ->name('clocking-machine.employee.store')->withoutScopedBindings();
         });
     });
