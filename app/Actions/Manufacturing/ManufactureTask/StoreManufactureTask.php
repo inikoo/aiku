@@ -18,6 +18,8 @@ use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -49,8 +51,16 @@ class StoreManufactureTask extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("productions-view.{$this->organisation->id}");
+        return $request->user()->hasPermissionTo("productions_rd.{$this->production->id}.edit");
     }
+
+    public function htmlResponse(ManufactureTask $manufactureTask): RedirectResponse
+    {
+        $production   = $manufactureTask->production;
+        $organisation = $manufactureTask->organisation;
+        return Redirect::route('grp.org.productions.show.crafts.manufacture_tasks.index', [$organisation, $production]);
+    }
+
 
     public function rules(): array
     {
@@ -78,6 +88,12 @@ class StoreManufactureTask extends OrgAction
             'operative_reward_amount'           => ['required', 'numeric', 'min:0'],
         ];
     }
+
+    //     public function afterValidator($validator)
+    // {
+    //     dd($validator);
+    // }
+
 
     public function action(Production $production, array $modelData): ManufactureTask
     {

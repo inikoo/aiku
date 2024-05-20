@@ -9,9 +9,11 @@ namespace App\Models\Manufacturing;
 
 use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
 use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InProduction;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -98,5 +100,15 @@ class ManufactureTask extends Model
     public function artefacts(): BelongsToMany
     {
         return $this->belongsToMany(Artefact::class)->using(ArtefactManufactureTask::class);
+    }
+
+    public function production(): BelongsTo
+    {
+        return $this->belongsTo(Production::class);
+    }
+
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
     }
 }

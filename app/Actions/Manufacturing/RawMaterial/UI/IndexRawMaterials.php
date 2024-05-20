@@ -66,8 +66,7 @@ class IndexRawMaterials extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('raw_materials.code', $value)
-                    ->whereWith('raw_materials.name', $value);
+                $query->whereStartWith('raw_materials.code', $value);
             });
         });
 
@@ -90,14 +89,13 @@ class IndexRawMaterials extends OrgAction
                 [
                     'raw_materials.code',
                     'raw_materials.id',
-                    'raw_materials.name',
                     'productions.slug as production_slug',
                     'raw_materials.slug'
                 ]
             )
             ->leftJoin('raw_material_stats', 'raw_material_stats.raw_material_id', 'raw_materials.id')
             ->leftJoin('productions', 'raw_materials.production_id', 'productions.id')
-            ->allowedSorts(['code', 'name'])
+            ->allowedSorts(['code'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -144,7 +142,6 @@ class IndexRawMaterials extends OrgAction
                     }
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
         };
     }
@@ -163,12 +160,12 @@ class IndexRawMaterials extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('raw_materials'),
+                'title'       => __('raw materials'),
                 'pageHead'    => [
-                    'title'     => __('raw_materials'),
+                    'title'     => __('raw materials'),
                     'iconRight' => [
                         'icon'  => ['fal', 'fa-drone'],
-                        'title' => __('raw_materials'),
+                        'title' => __('raw materials'),
                     ],
                     'actions'   => [
                         $this->canEdit && $this->parent instanceof Production ? [
@@ -232,7 +229,7 @@ class IndexRawMaterials extends OrgAction
                             'name'       => 'grp.org.productions.show.crafts.raw_materials.index',
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('raw_materials'),
+                        'label' => __('raw materials'),
                         'icon'  => 'fal fa-bars',
                     ],
                     'suffix' => $suffix
