@@ -26,7 +26,7 @@ Route::get('lost-pallets', IndexDummies::class)->name('lost_pallets.index');
 Route::prefix('pallets')->as('pallets.')->group(function () {
     Route::get('', IndexPalletsInWarehouse::class)->name('index');
     Route::get('{pallet}', [ShowPallet::class, 'inWarehouse'])->name('show');
-Route::get('/pallets/{pallet}/edit', [EditPallet::class, 'inWarehouse'])->name('pallets.edit');
+Route::get('/pallets/{pallet}/edit', [EditPallet::class, 'inWarehouse'])->name('edit');
 });
 
 
