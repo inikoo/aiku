@@ -37,7 +37,7 @@ class StoreRawMaterial extends OrgAction
         /** @var RawMaterial $rawMaterial */
         $rawMaterial = $production->rawMaterials()->create($modelData);
         $rawMaterial->stats()->create();
- 
+
         RawMaterialHydrateUniversalSearch::dispatch($rawMaterial);
         GroupHydrateRawMaterials::dispatch($production->group);
         OrganisationHydrateRawMaterials::dispatch($production->organisation);
@@ -84,7 +84,7 @@ class StoreRawMaterial extends OrgAction
 
     public function htmlResponse(RawMaterial $rawMaterial): RedirectResponse
     {
-        $production = $rawMaterial->production;
+        $production   = $rawMaterial->production;
         $organisation = $rawMaterial->organisation;
         return Redirect::route('grp.org.productions.show.crafts.raw_materials.index', [$organisation, $production]);
     }

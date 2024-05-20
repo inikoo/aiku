@@ -50,13 +50,13 @@ class StoreManufactureTask extends OrgAction
         if ($this->asAction) {
             return true;
         }
-        
+
         return $request->user()->hasPermissionTo("productions_rd.{$this->production->id}.edit");
     }
 
     public function htmlResponse(ManufactureTask $manufactureTask): RedirectResponse
     {
-        $production = $manufactureTask->production;
+        $production   = $manufactureTask->production;
         $organisation = $manufactureTask->organisation;
         return Redirect::route('grp.org.productions.show.crafts.manufacture_tasks.index', [$organisation, $production]);
     }

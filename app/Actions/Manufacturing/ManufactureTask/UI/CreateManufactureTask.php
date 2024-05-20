@@ -5,14 +5,11 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
- namespace App\Actions\Manufacturing\ManufactureTask\UI;
+namespace App\Actions\Manufacturing\ManufactureTask\UI;
 
 use App\Actions\OrgAction;
 use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
 use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
-use App\Enums\Manufacturing\RawMaterial\RawMaterialStockStatusEnum;
-use App\Enums\Manufacturing\RawMaterial\RawMaterialTypeEnum;
-use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
 use App\Models\Manufacturing\Production;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -110,18 +107,18 @@ class CreateManufactureTask extends OrgAction
                                     'required' => true
                                 ],
                                 'operative_reward_terms' => [
-                                    'type'     => 'select',
+                                    'type'      => 'select',
                                     'options'   => ManufactureTaskOperativeRewardTermsEnum::values(),
-                                    'label'    => __('operative reward terms'),
-                                    'value'    => '',
-                                    'required' => true
+                                    'label'     => __('operative reward terms'),
+                                    'value'     => '',
+                                    'required'  => true
                                 ],
                                 'operative_reward_allowance_type' => [
-                                    'type'     => 'select',
+                                    'type'      => 'select',
                                     'options'   => ManufactureTaskOperativeRewardAllowanceTypeEnum::values(),
-                                    'label'    => __('operative reward allowance type'),
-                                    'value'    => '',
-                                    'required' => true
+                                    'label'     => __('operative reward allowance type'),
+                                    'value'     => '',
+                                    'required'  => true
                                 ],
                                 'operative_reward_amount' => [
                                     'type'     => 'input',
