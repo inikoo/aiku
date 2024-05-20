@@ -36,6 +36,8 @@ class StoreClocking extends OrgAction
     use WithBase64FileConverter;
     use WithUpdateModelImage;
 
+    public Employee $employee;
+
     public function handle(Organisation|User|Employee|Guest $generator, ClockingMachine|Workplace $parent, Employee|Guest $subject, array $modelData): Clocking
     {
 
@@ -98,6 +100,12 @@ class StoreClocking extends OrgAction
             return true;
         }
 
+        if($request->user() instanceof ClockingMachine) {
+            $employeeWorkplace = $this->employee->workplaces()->wherePivot('workplace_id', $request->user()->workplace_id)->count() > 0;
+
+            return ($this->organisation->id === $request->user()->organisation_id) && $employeeWorkplace;
+        }
+
         return $request->user()->hasPermissionTo("human-resources.workplaces.{$this->organisation->id}.edit");
     }
 
@@ -121,8 +129,7 @@ class StoreClocking extends OrgAction
 
     public function inApi(ClockingMachine $clockingMachine, Employee $employee, ActionRequest $request): Clocking
     {
-        $this->asAction = true;
-
+        $this->employee = $employee;
         $this->initialisation($clockingMachine->organisation, $request);
 
         return $this->handle($employee, $clockingMachine, $employee, $this->validatedData);

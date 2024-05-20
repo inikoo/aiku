@@ -36,7 +36,6 @@ class StoreClockingMachine extends OrgAction
             Arr::forget($modelData, 'nfc_tag');
         }
 
-
         /** @var ClockingMachine $clockingMachine */
         $clockingMachine =  $workplace->clockingMachines()->create($modelData);
         $clockingMachine->stats()->create();

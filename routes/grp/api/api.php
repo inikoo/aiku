@@ -6,7 +6,6 @@
  */
 
 use App\Actions\HumanResources\Clocking\StoreClocking;
-use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
 use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use Illuminate\Support\Facades\Route;
 
@@ -18,14 +17,12 @@ Route::name('api.')->group(function () {
 
         require __DIR__."/org.php";
 
+        Route::prefix('clocking')->as('clocking.')->group(function () {
+            Route::post('employees/pin', [ShowEmployee::class, 'inApi'])->name('employees.pin.show');
+            Route::post('clocking-machine/{clockingMachine:id}/employees/{employee:id}', [StoreClocking::class, 'inApi'])
+                ->name('clocking-machine.employee.store')->withoutScopedBindings();
+        });
     });
-    require __DIR__."/tokens.php";
 
-    // This is not complete yet, only for testing if its works
-    Route::prefix('clocking')->as('clocking.')->group(function () {
-        Route::get('clocking-machine/{qr}', [ShowClockingMachine::class, 'inApi'])->name('clocking-machine.qr.show');
-        Route::post('employees/pin', [ShowEmployee::class, 'inApi'])->name('employees.pin.show');
-        Route::post('clocking-machine/{clockingMachine:id}/employees/{employee:id}', [StoreClocking::class, 'inApi'])
-            ->name('clocking-machine.employee.store')->withoutScopedBindings();
-    });
+    require __DIR__."/tokens.php";
 });
