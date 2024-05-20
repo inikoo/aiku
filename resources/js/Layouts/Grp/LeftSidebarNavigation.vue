@@ -88,6 +88,7 @@ const iconList: { [key: string]: string } = {
                 <template v-else-if="itemKey == 'shops_fulfilments_navigation' || itemKey == 'warehouses_navigation' || itemKey == 'productions_navigation'">
                     <template v-if="itemKey == 'shops_fulfilments_navigation'">
                         <NavigationHorizontal
+                            :key="itemKey + layout.currentParams.organisation"
                             v-if="(
                                 layout.organisationsState[layout.currentParams.organisation]?.currentShop && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.find(shop => shop.slug === layout.organisationsState[layout.currentParams.organisation]?.currentShop)?.state === 'open')
                                 || (layout.organisationsState[layout.currentParams.organisation]?.currentFulfilment && layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments.find(fulfilment => fulfilment.slug === layout.organisationsState[layout.currentParams.organisation]?.currentFulfilment)?.state === 'open'

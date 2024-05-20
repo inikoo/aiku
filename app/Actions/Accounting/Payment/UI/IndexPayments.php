@@ -56,7 +56,7 @@ class IndexPayments extends OrgAction
         } elseif (class_basename($parent) == 'Shop') {
             $queryBuilder->where('payments.shop_id', $parent->id);
         } elseif (class_basename($parent) == 'Invoice') {
-            // todo
+
             //            abort(404);
         } elseif (class_basename($parent) == 'Order') {
             $queryBuilder->leftJoin(
@@ -85,8 +85,8 @@ class IndexPayments extends OrgAction
         return $queryBuilder
             ->defaultSort('-date')
             ->select([
+                'payments.id',
                 'payments.reference',
-                'payments.slug',
                 'payments.status',
                 'payments.date',
                 'payment_accounts.slug as payment_accounts_slug',

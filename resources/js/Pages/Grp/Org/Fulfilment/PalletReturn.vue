@@ -11,13 +11,13 @@ import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import { computed, onMounted, ref, watch, inject } from 'vue'
 import { useTabChange } from "@/Composables/tab-change"
-import TableHistories from "@/Components/Tables/TableHistories.vue"
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import Timeline from "@/Components/Utils/Timeline.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Modal from "@/Components/Utils/Modal.vue"
 import BoxNote from "@/Components/Pallet/BoxNote.vue"
 import TablePalletReturn from "@/Components/PalletReturn/tablePalletReturn.vue"
-import TablePalletReturnsDelivery from "@/Components/Tables/TablePalletReturnsDelivery.vue"
+import TablePalletReturnsDelivery from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturnsDelivery.vue"
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn"
@@ -29,7 +29,6 @@ import { BoxStats, PDRNotes } from '@/types/Pallet'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { trans } from "laravel-vue-i18n"
 library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt )
 
 const layout = inject('layout', {})

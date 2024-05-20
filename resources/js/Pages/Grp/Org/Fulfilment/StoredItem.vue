@@ -11,9 +11,9 @@ import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import { computed, ref } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
-import TableHistories from "@/Components/Tables/TableHistories.vue"
-import TablePalletStoredItem from '@/Components/Tables/TablePalletStoredItem.vue'
-import TablePallets from '@/Components/Tables/TablePallets.vue'
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
+import TablePalletStoredItem from '@/Components/Tables/Grp/Org/Fulfilment/TablePalletStoredItem.vue'
+import TablePallets from '@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue'
 import { routeType } from '@/types/route'
 import StoredItemShowcase from '@/Components/Showcases/Grp/StoredItemShowcase.vue'
 

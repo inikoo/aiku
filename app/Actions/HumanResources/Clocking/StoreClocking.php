@@ -26,7 +26,6 @@ use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Redirect;
@@ -37,10 +36,15 @@ class StoreClocking extends OrgAction
     use WithBase64FileConverter;
     use WithUpdateModelImage;
 
-    public function handle(Organisation|User|Employee|Guest $generator, ClockingMachine|Workplace $parent, Employee|Guest $subject, array $modelData, ?UploadedFile $photo): Clocking
+    public function handle(Organisation|User|Employee|Guest $generator, ClockingMachine|Workplace $parent, Employee|Guest $subject, array $modelData): Clocking
     {
+
         data_set($modelData, 'generator_type', class_basename($generator));
         data_set($modelData, 'generator_id', $generator->id);
+
+
+        $uploadedPhoto = Arr::pull($modelData, 'photo');
+
 
         if (class_basename($parent::class) == 'ClockingMachine') {
             $modelData['clocking_machine_id'] = $parent->id;
@@ -62,12 +66,13 @@ class StoreClocking extends OrgAction
 
         $clocking->refresh();
 
-        if ($photo) {
+        if ($uploadedPhoto) {
+
             SetClockingPhotoFromImage::run(
                 clocking: $clocking,
-                imagePath: $photo->getPathName(),
-                originalFilename: $photo->getClientOriginalName(),
-                extension: $photo->getClientOriginalExtension()
+                imagePath: $uploadedPhoto->getPathName(),
+                originalFilename: $uploadedPhoto->getClientOriginalName(),
+                extension: $uploadedPhoto->getClientOriginalExtension()
             );
         }
 
@@ -111,16 +116,16 @@ class StoreClocking extends OrgAction
     {
         $this->initialisation($parent->organisation, $request);
 
-        return $this->handle($request->user(), $parent, $subject, $this->validatedData, null);
+        return $this->handle($request->user(), $parent, $subject, $this->validatedData);
     }
 
     public function inApi(ClockingMachine $clockingMachine, Employee $employee, ActionRequest $request): Clocking
     {
         $this->asAction = true;
-        $this->fillFromRequest($request);
-        $validated = $this->validateAttributes();
 
-        return $this->handle($employee, $clockingMachine, $employee, Arr::except($validated, 'photo'), Arr::get($validated, 'photo'));
+        $this->initialisation($clockingMachine->organisation, $request);
+
+        return $this->handle($employee, $clockingMachine, $employee, $this->validatedData);
     }
 
     public function htmlResponse(Clocking $clocking): RedirectResponse
@@ -145,7 +150,7 @@ class StoreClocking extends OrgAction
             $this->set('clocked_at', Carbon::parse($this->get('clocked_at')));
         }
 
-        if($this->has('photo')) {
+        if ($this->has('photo')) {
             $this->set('photo', $this->convertBase64ToFile($this->get('photo')));
         }
     }

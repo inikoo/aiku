@@ -13,7 +13,7 @@ import { Link } from '@inertiajs/vue3'
 import { computed, defineAsyncComponent, ref } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 import ModelDetails from "@/Components/ModelDetails.vue"
-import TablePayments from "@/Components/Tables/Grp/Accounting/TablePayments.vue"
+import TablePayments from "@/Components/Tables/Grp/Org/Accounting/TablePayments.vue"
 import OperationsInvoiceShowcase from "@/Components/Showcases/Grp/Fulfilment/OperationsInvoiceShowcase.vue"
 // import TableOperationsInvoiceItems from "@/Components/Tables/TableOperationsInvoiceItems.vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"

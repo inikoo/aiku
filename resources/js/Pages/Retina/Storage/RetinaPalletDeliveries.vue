@@ -18,7 +18,7 @@ import Modal from "@/Components/Utils/Modal.vue"
 import { ref } from 'vue'
 
 import { PalletDelivery } from "@/types/pallet-delivery"
-import TagPallete from '@/Components/TagPallete.vue'
+import TagPallet from '@/Components/TagPallet.vue'
 
 library.add(faPlus, faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble, faCross)
 
@@ -77,7 +77,7 @@ const handleClick = (action: Action) => {
         </template>
 
         <template #cell(state)="{ item: palletDelivery }">
-            <TagPallete :stateIcon="palletDelivery.state_icon" />
+            <TagPallet :stateIcon="palletDelivery.state_icon" />
         </template>
 
 

@@ -1,0 +1,132 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 19 May 2024 12:26:53 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Fulfilment;
+
+use App\Models\Fulfilment\FulfilmentCustomer;
+use Lorisleiva\Actions\ActionRequest;
+
+trait WithFulfilmentCustomerSubNavigation
+{
+    public function getFulfilmentCustomerSubNavigation(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request)
+    {
+        $subNavigation = [];
+
+        $subNavigation[]=[
+            'href' => [
+                'name'      => 'grp.org.fulfilments.show.crm.customers.show',
+                'parameters'=> $request->route()->originalParameters()
+
+            ],
+
+            'label'     => $fulfilmentCustomer->customer->name,
+            'leftIcon'  => [
+                'icon'    => 'fal fa-user',
+                'tooltip' => __('customer'),
+            ],
+
+
+        ];
+
+
+        $subNavigation[]=[
+            'href' => [
+                'name'      => 'grp.org.fulfilments.show.crm.customers.show.web-users.index',
+                'parameters'=> $request->route()->originalParameters()
+
+            ],
+
+            'label'     => __('Web users'),
+            'leftIcon'  => [
+                'icon'    => 'fal fa-terminal',
+                'tooltip' => __('Web users'),
+            ],
+            'number'=> $fulfilmentCustomer->customer->stats->number_web_users
+
+
+        ];
+
+        $subNavigation[]=[
+            'href' => [
+                'name'      => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
+                'parameters'=> $request->route()->originalParameters()
+
+            ],
+
+            'label'     => __('Pallets'),
+            'leftIcon'  => [
+                'icon'    => 'fal fa-pallet',
+                'tooltip' => __('Pallets'),
+            ],
+            'number'=> $fulfilmentCustomer->number_pallets
+
+        ];
+
+        $subNavigation[]=[
+            'href' => [
+                'name'      => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.index',
+                'parameters'=> $request->route()->originalParameters()
+            ],
+
+            'label'     => __('Deliveries'),
+            'leftIcon'  => [
+                'icon'    => 'fal fa-truck-couch',
+                'tooltip' => __('Pallet deliveries'),
+            ],
+            'number'=> $fulfilmentCustomer->number_pallet_deliveries
+
+        ];
+
+        $subNavigation[]=[
+            'href' => [
+                'name'      => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.index',
+                'parameters'=> $request->route()->originalParameters()
+            ],
+
+            'label'     => __('Returns'),
+            'leftIcon'  => [
+                'icon'    => 'fal fa-sign-out-alt',
+                'tooltip' => __('Pallet returns'),
+            ],
+            'number'=> $fulfilmentCustomer->number_pallet_returns
+
+        ];
+
+
+        $subNavigation[]=[
+            'href' => [
+                'name'      => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.index',
+                'parameters'=> $request->route()->originalParameters()
+            ],
+
+            'label'     => __('Recurring bills'),
+            'leftIcon'  => [
+                'icon'    => 'fal fa-receipt',
+                'tooltip' => __('Recurring bills'),
+            ],
+            'number'=> $fulfilmentCustomer->number_recurring_bills
+
+        ];
+
+        $subNavigation[]=[
+            'href' => [
+                'name'      => 'grp.org.fulfilments.show.crm.customers.show.invoices.index',
+                'parameters'=> $request->route()->originalParameters()
+            ],
+
+            'label'     => __('Invoices'),
+            'leftIcon'  => [
+                'icon'    => 'fal fa-file-invoice-dollar',
+                'tooltip' => __('Invoices'),
+            ],
+            'number'=> $fulfilmentCustomer->customer->stats->number_invoices
+
+        ];
+
+        return $subNavigation;
+    }
+}

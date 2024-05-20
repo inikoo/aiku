@@ -5,7 +5,7 @@ import { faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faSeedling, faShare, faSpellCheck, faCheck, faCheckDouble)
     
-const props = defineProps<{
+defineProps<{
     stateIcon: {
         tooltip: string
         icon: string | string[]
@@ -13,18 +13,6 @@ const props = defineProps<{
     }
 }>()
 
-
-// Select Tag's theme depends on enum delivery
-// const getTagTheme = (tagLabel: string) => {
-//     switch (tagLabel) {
-//         case 'In process': return 6
-//         case 'Submitted': return 4
-//         case 'Confirmed': return 5
-//         case 'Received': return 2
-//         case 'Done': return 3
-//         default: return 99
-//     }
-// }
 
 const getClass = (colorName: string) => {
     return `bg-${colorName}-100 border border-${colorName}-200 text-${colorName}-500`

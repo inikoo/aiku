@@ -67,7 +67,6 @@ class FulfilmentHydratePallets
                 $q->where('fulfilment_id', $fulfilment->id);
             }
         ));
-
         $fulfilment->stats()->update($stats);
     }
 }

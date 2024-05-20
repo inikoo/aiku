@@ -8,10 +8,10 @@
   import {Head} from '@inertiajs/vue3';
   import PageHeading from '@/Components/Headings/PageHeading.vue';
   import { capitalize } from "@/Composables/capitalize"
-  import TableStoredItems from "@/Components/Tables/TableStoredItems.vue";
+  import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue";
   import Tabs from "@/Components/Navigation/Tabs.vue";
   import { computed, ref } from "vue";
-  import TableHistories from "@/Components/Tables/TableHistories.vue";
+  import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
   import { useTabChange } from "@/Composables/tab-change";
   import PalletShowcase from "@/Components/Showcases/Org/PalletShowcase.vue";
 

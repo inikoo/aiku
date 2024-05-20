@@ -13,8 +13,8 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Components/ModelDetails.vue";
-import TableLocations from "@/Components/Tables/TableLocations.vue";
-import TableHistories from "@/Components/Tables/TableHistories.vue";
+import TableLocations from "@/Components/Tables/Grp/Org/Inventory/TableLocations.vue";
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 
 import { capitalize } from "@/Composables/capitalize"
 library.add(

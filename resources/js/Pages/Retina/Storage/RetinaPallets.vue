@@ -8,7 +8,7 @@ import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import Multiselect from "@vueform/multiselect"
 import { Link } from "@inertiajs/vue3"
-import RetinaTablePallets from "@/Components/Tables/RetinaTablePallets.vue"
+import RetinaTablePallets from "@/Components/Tables/Retina/RetinaTablePallets.vue"
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, } from "@headlessui/vue"
 import { faStickyNote, faPallet, faUser, faNarwhal, faTruckCouch, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faShare } from '@fal'
 library.add( faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faShare )

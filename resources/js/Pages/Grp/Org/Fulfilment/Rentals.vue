@@ -7,11 +7,11 @@
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableRentals from "@/Components/Tables/Grp/Org/Fulfilment/Products/TableRentals.vue";
+import TableRentals from "@/Components/Tables/Grp/Org/Fulfilment/TableRentals.vue";
 import {capitalize} from "@/Composables/capitalize"
 import {computed, ref} from "vue";
 import {useTabChange} from "@/Composables/tab-change";
-import TableHistories from "@/Components/Tables/TableHistories.vue";
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 
 const props = defineProps<{

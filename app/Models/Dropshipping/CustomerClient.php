@@ -100,7 +100,7 @@ class CustomerClient extends Model
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->slugsShouldBeNoLongerThan(12);
+            ->slugsShouldBeNoLongerThan(36);
     }
 
     protected static function booted(): void

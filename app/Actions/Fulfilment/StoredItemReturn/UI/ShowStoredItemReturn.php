@@ -239,7 +239,7 @@ class ShowStoredItemReturn extends OrgAction
 
                 'uploadRoutes' => [
                     'history' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.pallets.uploads.history',
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.uploads.history',
                         'parameters' => [
                             'organisation'           => $storedItemReturn->organisation->slug,
                             'fulfilment'             => $storedItemReturn->fulfilment->slug,
@@ -248,7 +248,7 @@ class ShowStoredItemReturn extends OrgAction
                         ]
                     ],
                     'download' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.pallets.uploads.templates',
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.uploads.templates',
                         'parameters' => [
                             'organisation'           => $storedItemReturn->organisation->slug,
                             'fulfilment'             => $storedItemReturn->fulfilment->slug,
@@ -334,7 +334,7 @@ class ShowStoredItemReturn extends OrgAction
                     $storedItemReturn,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.index',
+                            'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.index',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
                         ],
                         'model' => [

@@ -42,7 +42,7 @@ return new class () extends Migration {
                 $table->foreign('pallet_delivery_id')->references('id')->on('pallet_deliveries');
                 $table->unsignedInteger('pallet_return_id')->index()->nullable();
                 $table->foreign('pallet_return_id')->references('id')->on('pallet_returns');
-                $table->string('status')->index()->default(PalletStatusEnum::RECEIVING->value);
+                $table->string('status')->index()->default(PalletStatusEnum::IN_PROCESS->value);
                 $table->string('state')->index()->default(PalletStateEnum::IN_PROCESS->value);
                 $table->string('type')->index()->default(PalletTypeEnum::PALLET->value);
                 $table->text('notes')->nullable();
@@ -59,6 +59,7 @@ return new class () extends Migration {
                 $table->dateTimeTz('set_as_incident_at')->nullable();
                 $table->dateTimeTz('dispatched_at')->nullable();
                 $table->jsonb('data');
+                $table->jsonb('incident_report');
                 $table->timestampsTz();
                 $table = $this->softDeletes($table);
                 $table->string('source_id')->nullable()->unique();

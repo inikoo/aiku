@@ -120,7 +120,7 @@ class ShowPalletReturn extends RetinaAction
 
                 'uploadRoutes' => [
                     'history' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.pallets.uploads.history',
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.uploads.history',
                         'parameters' => [
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,
@@ -129,7 +129,7 @@ class ShowPalletReturn extends RetinaAction
                         ]
                     ],
                     'download' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-returns.pallets.uploads.templates',
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.uploads.templates',
                         'parameters' => [
                             'organisation'       => $palletReturn->organisation->slug,
                             'fulfilment'         => $palletReturn->fulfilment->slug,

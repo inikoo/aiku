@@ -8,6 +8,8 @@
 namespace App\Actions\Accounting\Invoice\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\InvoicesResource;
@@ -21,7 +23,6 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -29,6 +30,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexInvoices extends OrgAction
 {
+    use WithFulfilmentCustomerSubNavigation;
+
     private Organisation|Fulfilment|FulfilmentCustomer|Shop $parent;
 
     public function handle(Organisation|Fulfilment|FulfilmentCustomer|Shop $parent, $prefix = null): LengthAwarePaginator
@@ -130,7 +133,7 @@ class IndexInvoices extends OrgAction
         } elseif ($this->parent instanceof Shop) {
             //todo think about it
             return false;
-        } elseif ($this->parent instanceof Fulfilment) {
+        } elseif ($this->parent instanceof FulfilmentCustomer or $this->parent instanceof Fulfilment) {
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
         }
 
@@ -146,6 +149,12 @@ class IndexInvoices extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $invoices, ActionRequest $request): Response
     {
+        $subNavigation=[];
+
+        if($this->parent instanceof FulfilmentCustomer) {
+            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        }
+
         $routeName       = $request->route()->getName();
         $routeParameters = $request->route()->originalParameters();
 
@@ -159,14 +168,11 @@ class IndexInvoices extends OrgAction
                 'title'       => __('invoices'),
                 'pageHead'    => [
                     'title'     => __('invoices'),
-                    'container' => match ($routeName) {
-                        'grp.org.accounting.shops.show.invoices.index' => [
-                            'icon'    => ['fal', 'fa-store-alt'],
-                            'tooltip' => __('Shop'),
-                            'label'   => Str::possessive($routeParameters['shop']->name)
-                        ],
-                        default => null
-                    },
+                    'icon'      => [
+                        'icon' => ['fal', 'fa-file-invoice-dollar'],
+                    ],
+                    'subNavigation'=> $subNavigation,
+
                 ],
                 'data'        => InvoicesResource::collection($invoices),
 
@@ -202,6 +208,15 @@ class IndexInvoices extends OrgAction
         return $this->handle($fulfilment);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilmentCustomer;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilmentCustomer);
+    }
+
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
@@ -222,21 +237,27 @@ class IndexInvoices extends OrgAction
             ];
         };
 
+
         return match ($routeName) {
+            'grp.org.fulfilments.show.crm.customers.show.invoices.index'=>
+            array_merge(
+                ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
+                $headCrumb()
+            ),
             'grp.org.accounting.shops.show.invoices.index' =>
             array_merge(
                 ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.shops.show.dashboard', $routeParameters),
-                $headCrumb($routeParameters)
+                $headCrumb()
             ),
             'grp.org.accounting.invoices.index' =>
             array_merge(
                 ShowAccountingDashboard::make()->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
-                $headCrumb($routeParameters)
+                $headCrumb()
             ),
             'grp.org.fulfilments.show.operations.invoices.index' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs(routeParameters: $routeParameters),
-                $headCrumb($routeParameters)
+                $headCrumb()
             ),
 
             default => []

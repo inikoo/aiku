@@ -15,7 +15,7 @@ import EmptyState from '@/Components/Utils/EmptyState.vue'
 import {Link, useForm} from "@inertiajs/vue3"
 import {trans} from 'laravel-vue-i18n'
 
-import {computed, getCurrentInstance, onMounted, onUnmounted, ref, toRefs, Transition, watch, onBeforeMount, reactive } from 'vue';
+import {computed, getCurrentInstance, onMounted, onUnmounted, ref, Transition, watch, reactive } from 'vue';
 import qs from 'qs';
 import clone from 'lodash-es/clone';
 import filter from 'lodash-es/filter';
@@ -24,10 +24,8 @@ import forEach from 'lodash-es/forEach';
 import isEqual from 'lodash-es/isEqual';
 import map from 'lodash-es/map';
 import { kebabCase  } from 'lodash'
-// import { library } from "@fortawesome/fontawesome-svg-core";
 import {useLocaleStore} from '@/Stores/locale';
 import CountUp from 'vue-countup-v3';
-// import { cloneDeep } from 'lodash';
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheckSquare, faCheck } from '@fal'

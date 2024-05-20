@@ -10,7 +10,6 @@ namespace App\Models\Fulfilment;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
-use App\Models\CRM\Customer;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -45,6 +44,7 @@ use App\Models\Inventory\Location;
  * @property string|null $booked_in_at
  * @property string|null $settled_at
  * @property array $data
+ * @property array $incident_report
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property Carbon|null $created_at
@@ -72,15 +72,17 @@ class StoredItem extends Model implements Auditable
     use HasHistory;
 
     protected $casts = [
-        'data'   => 'array',
-        'state'  => StoredItemStateEnum::class,
-        'status' => StoredItemStatusEnum::class,
-        'type'   => StoredItemTypeEnum::class
+        'data'            => 'array',
+        'incident_report' => 'array',
+        'state'           => StoredItemStateEnum::class,
+        'status'          => StoredItemStatusEnum::class,
+        'type'            => StoredItemTypeEnum::class
     ];
 
     protected $attributes = [
-        'data'  => '{}',
-        'notes' => '',
+        'data'            => '{}',
+        'incident_report' => '{}',
+        'notes'           => '',
     ];
 
     protected $guarded = [];

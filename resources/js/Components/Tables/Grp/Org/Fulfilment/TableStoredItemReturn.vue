@@ -1,13 +1,13 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Mon, 20 Mar 2023 23:18:59 Malaysia Time, Kuala Lumpur, Malaysia
-  - Copyright (c) 2023, Raul A Perusquia Flores
+  - Created: Sun, 19 May 2024 18:46:51 British Summer Time, Sheffield, UK
+  - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
-import TagPallete from "@/Components/TagPallete.vue"
+import TagPallet from "@/Components/TagPallet.vue"
 import Icon from "@/Components/Icon.vue"
 import { inject } from 'vue'
 
@@ -47,7 +47,7 @@ function storedItemRoute(storedItem) {
 
         <!-- Column: State -->
         <template #cell(state)="{ item: value }">
-            <TagPallete v-if="layout.app.name === 'retina'" :stateIcon="value.state_icon" />
+            <TagPallet v-if="layout.app.name === 'retina'" :stateIcon="value.state_icon" />
             <Icon v-else :data="value['state_icon']" class="px-1" />
         </template>
     </Table>

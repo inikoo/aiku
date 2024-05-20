@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\PalletDelivery\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\OrgAction;
@@ -29,7 +30,6 @@ use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -39,6 +39,8 @@ class IndexPalletDeliveries extends OrgAction
 {
     use HasFulfilmentAssetsAuthorisation;
     use HasRentalAgreement;
+    use WithFulfilmentCustomerSubNavigation;
+
 
     private Fulfilment|Warehouse|FulfilmentCustomer $parent;
 
@@ -54,6 +56,7 @@ class IndexPalletDeliveries extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
+
         $this->parent = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
@@ -93,10 +96,11 @@ class IndexPalletDeliveries extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('reference', $value)
-                    ->orWhereStartWith('customer_reference', $value)
-                    ->orWhereStartWith('slug', $value);
+                    ->orWhereStartWith('customer_reference', $value);
             });
         });
+
+
 
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
@@ -173,15 +177,15 @@ class IndexPalletDeliveries extends OrgAction
                         ],
                         'FulfilmentCustomer' => [
                             'title'       => __($hasRentalAgreementActive ?
-                                'This customer has not received any pallet deliveries yet'
+                                __('We did not find any pallet deliveries for this customer')
                                 : (!$hasRentalAgreement ? 'You dont have rental agreement active yet. Please create rental agreement below'
                                 : 'You have rental agreement but its ' . $parent->rentalAgreement->state->value)),
                             'count'       => $parent->number_pallet_deliveries,
                             'action'      => $hasRentalAgreementActive ? [
                                 'type'    => 'button',
                                 'style'   => 'create',
-                                'tooltip' => __('Create new delivery order'),
-                                'label'   => __('New Delivery Pallet'),
+                                'tooltip' => __('Create new delivery'),
+                                'label'   => __('New delivery'),
                                 'options' => [
                                     'warehouses' => WarehouseResource::collection($parent->fulfilment->warehouses)
                                 ],
@@ -234,27 +238,12 @@ class IndexPalletDeliveries extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
-        $container = null;
-        if ($this->parent instanceof Fulfilment) {
-            $container = [
-                'icon'    => ['fal', 'fa-pallet-alt'],
-                'tooltip' => __('Fulfilment Shop'),
-                'label'   => Str::possessive($this->fulfilment->shop->name)
 
-            ];
-        } elseif ($this->parent instanceof Warehouse) {
-            $container = [
-                'icon'    => ['fal', 'fa-warehouse-alt'],
-                'tooltip' => __('Warehouse'),
-                'label'   => Str::possessive($this->warehouse->name)
+        $subNavigation=[];
 
-            ];
+        if($this->parent instanceof  FulfilmentCustomer) {
+            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
         }
-
-
-
-
-
 
         return Inertia::render(
             'Org/Fulfilment/PalletDeliveries',
@@ -265,12 +254,10 @@ class IndexPalletDeliveries extends OrgAction
                 ),
                 'title'       => __('pallet deliveries'),
                 'pageHead'    => [
-                    'title'     => __('deliveries'),
-                    'container' => $container,
-                    'iconRight' => [
-                        'icon'  => ['fal', 'fa-truck-couch'],
-                        'title' => __('delivery')
-                    ],
+                    'title'         => __('deliveries'),
+                    'subNavigation' => $subNavigation,
+                    'icon'          => ['fal', 'fa-truck-couch'],
+                    /*
                     'actions' => [
                         ($this->canEdit && $this->parent instanceof FulfilmentCustomer) ? [
                             'type'    => 'button',
@@ -287,6 +274,7 @@ class IndexPalletDeliveries extends OrgAction
                             ]
                         ] : null
                     ]
+                    */
                 ],
                 'data'        => PalletDeliveriesResource::collection($customers),
 
@@ -311,13 +299,13 @@ class IndexPalletDeliveries extends OrgAction
 
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.index' => array_merge(
+            'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.index' => array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet-deliveries.index',
+                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.index',
                         'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer'])
                     ]
                 )

@@ -1,6 +1,6 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Thu, 25 Jan 2024 11:46:16 Malaysia Time, Bali Office, Indonesia
+  - Created: Sun, 19 May 2024 18:46:51 British Summer Time, Sheffield, UK
   - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
@@ -10,7 +10,7 @@ import Table from "@/Components/Table/Table.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPlus } from "@fas"
-import TagPallete from '@/Components/TagPallete.vue'
+import TagPallet from '@/Components/TagPallet.vue'
 
 import { PalletDelivery } from "@/types/pallet-delivery"
 import Icon from "@/Components/Icon.vue"
@@ -49,7 +49,7 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
                 ]);
         default:
             return route(
-                'grp.org.fulfilments.show.crm.customers.show.pallet-returns.show',
+                'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],
@@ -72,7 +72,7 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
 
         <!-- Column: State -->
         <template #cell(state)="{ item: palletReturn }">
-            <TagPallete v-if="app == 'retina'" :stateIcon="palletReturn.state_icon" />
+            <TagPallet v-if="app == 'retina'" :stateIcon="palletReturn.state_icon" />
             <Icon v-else :data="palletReturn['state_icon']" class="px-1"/>
         </template>
 

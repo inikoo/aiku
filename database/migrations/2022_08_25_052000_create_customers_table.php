@@ -45,6 +45,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();
+            $table->jsonb('migration_data');
             $table->unique(['shop_id', 'reference']);
         });
         DB::statement('CREATE INDEX ON customers USING gin (name gin_trgm_ops) ');

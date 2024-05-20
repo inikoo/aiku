@@ -41,7 +41,7 @@ class EditProfile
             "title"       => __("Edit Profile"),
             "breadcrumbs" => $this->getBreadcrumbs(),
             "pageHead"    => [
-                "title" => __("Edit Profile"),
+                "title"        => __("Edit Profile"),
                 'actions'      => [
                     [
                         'type'  => 'button',

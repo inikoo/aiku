@@ -10,7 +10,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { faBox, faBullhorn, faCameraRetro, faCube, faFolder, faMoneyBillWave, faProjectDiagram, faRoad, faShoppingCart, faStream, faUsers } from '@fal'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import ModelDetails from "@/Components/ModelDetails.vue"
-import TableOrders from "@/Components/Tables/TableOrders.vue"
+import TableOrders from "@/Components/Tables/Grp/Org/Ordering/TableOrders.vue"
 import { useTabChange } from "@/Composables/tab-change"
 import { computed, defineAsyncComponent, ref } from "vue"
 import type { Component } from 'vue'

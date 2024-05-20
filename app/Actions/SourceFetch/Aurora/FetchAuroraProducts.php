@@ -7,8 +7,11 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Catalogue\Outer\StoreOuter;
+use App\Actions\Catalogue\Product\SetProductMainOuter;
 use App\Actions\Catalogue\Product\StorePhysicalGood;
 use App\Actions\Catalogue\Product\UpdatePhysicalGood;
+use App\Models\Catalogue\Outer;
 use App\Models\Catalogue\Product;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
@@ -22,9 +25,8 @@ class FetchAuroraProducts extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Product
     {
         if ($productData = $organisationSource->fetchProduct($organisationSourceId)) {
-
             $sourceData = explode(':', $productData['product']['source_id']);
-            $tradeUnits =$organisationSource->fetchProductStocks($sourceData[1])['trade_units'];
+            $tradeUnits = $organisationSource->fetchProductStocks($sourceData[1])['trade_units'];
 
             data_set(
                 $productData,
@@ -34,6 +36,38 @@ class FetchAuroraProducts extends FetchAuroraAction
 
             if ($product = Product::withTrashed()->where('source_id', $productData['product']['source_id'])
                 ->first()) {
+                if (!$product->mainOuterable) {
+                    print "fix missing main outerable\n";
+
+                    $outer = Outer::where('historic_source_id', $productData['product']['historic_source_id'])->first();
+
+
+                    if (!$outer) {
+                        print "adding missing outer\n";
+
+                        $outer = StoreOuter::run(
+                            product: $product,
+                            modelData: [
+                                'code'               => $product->code,
+                                'price'              => $productData['product']['main_outerable_price'],
+                                'name'               => $product->name,
+                                'is_main'            => true,
+                                'main_outer_ratio'   => 1,
+                                'source_id'          => $product->source_id,
+                                'historic_source_id' => $product->historic_source_id
+                            ]
+                        );
+                    }
+
+                    SetProductMainOuter::run(
+                        product: $product,
+                        mainOuter: $outer
+                    );
+
+                    $product->refresh();
+                }
+
+
                 try {
                     $product = UpdatePhysicalGood::make()->action(
                         product: $product,
@@ -41,10 +75,10 @@ class FetchAuroraProducts extends FetchAuroraAction
                     );
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $productData['product'], 'Product', 'update');
+
                     return null;
                 }
             } else {
-
                 try {
                     $product = StorePhysicalGood::make()->action(
                         parent: $productData['parent'],
@@ -53,6 +87,7 @@ class FetchAuroraProducts extends FetchAuroraAction
                     );
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $productData['product'], 'Product', 'store');
+
                     return null;
                 }
             }

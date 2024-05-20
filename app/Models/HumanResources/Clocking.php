@@ -40,8 +40,11 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property string|null $deleted_by_type
  * @property int|null $deleted_by_id
  * @property string|null $source_id
- * @property-read Media $photo
+ * @property int|null $photo_id
  * @property-read \App\Models\HumanResources\ClockingMachine|null $clockingMachine
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
+ * @property-read Media|null $photo
+ * @property-read Model|\Eloquent $subject
  * @property-read \App\Models\HumanResources\Timesheet|null $timesheet
  * @property-read \App\Models\HumanResources\Workplace|null $workplace
  * @method static Builder|Clocking newModelQuery()

@@ -10,7 +10,6 @@ import { Link } from "@inertiajs/vue3"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faMapSigns, faPallet, faTruckCouch, faUpload, faWarehouse, faEmptySet } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { capitalize } from "@/Composables/capitalize"
 import MetaLabel from "@/Components/Headings/MetaLabel.vue"
 import Container from "@/Components/Headings/Container.vue"
 import Action from "@/Components/Forms/Fields/Action.vue"
@@ -56,41 +55,36 @@ const originUrl = location.origin
                     </div>
                 </div>
                 <div v-if="data.icon" class="inline text-gray-400">
-                    <FontAwesomeIcon :title="capitalize(data.icon.tooltip ?? '')" aria-hidden="true"
-                        :icon="data.icon.icon || data.icon" size="sm" class="" />
-                    <!-- <FontAwesomeIcon v-if="data.iconBis" :title="capitalize(data.iconBis.tooltip ?? '')" aria-hidden="true"
-                        :icon="data.iconBis.icon" size="sm" class="" :class="data.iconBis.class"/> -->
+                    <FontAwesomeIcon :title="data.icon.tooltip ?? ''" aria-hidden="true"
+                        :icon="data.icon.icon || data.icon" size="sm" fixed-width />
+
                 </div>
                 <h2 :class="!data.noCapitalise? 'capitalize' : ''">
                     <span v-if="data.model" class="text-gray-400 mr-2 font-medium">{{ data.model }}</span>{{ data.title }}
                 </h2>
                 <FontAwesomeIcon v-if="data.iconRight"
-                    :title="capitalize(data.iconRight.tooltip || '')"
+                    :title="data.iconRight.tooltip || ''"
                     :icon="data.iconRight.icon" class="h-4" :class="data.iconRight.class"
                     aria-hidden="true"
                 />
             </div>
 
             <!-- Section: mini Tabs -->
-            <div v-if="data.meta" class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6">
-                <div class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:space-x-6 text-gray-500 text-xs pt-2">
-                    <div v-for="item in data.meta" class="flex items-center">
-                        <FontAwesomeIcon v-if="item.leftIcon"
-                            :title="capitalize(item.leftIcon.tooltip)"
-                            aria-hidden="true" :icon="item.leftIcon.icon" class="text-gray-400 pr-2" />
-                        <component :is="item.href?.name ? Link : 'div'" :href="item.href?.name ? route(item.href.name, item.href.parameters) : '#'"
-                            :class="[
-                                item.href?.name && $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), ''))
-                                ? 'text-gray-600 font-medium'
-                                : 'text-gray-400 hover:text-gray-500'
-                            ]"
-                        >
-                            <MetaLabel :item="item" />
-                        </component>
-                        <!-- <span v-else>
-                            <MetaLabel :item=item />
-                        </span> -->
-                    </div>
+            <div v-if="data.meta" class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-0.5 text-gray-500 text-xs pt-2">
+                <div v-for="item in data.meta" class="flex items-center">
+                    <FontAwesomeIcon v-if="item.leftIcon"
+                        :title="item.leftIcon.tooltip"
+                        fixed-width
+                        aria-hidden="true" :icon="item.leftIcon.icon" class="text-gray-400 pr-0.5" />
+                    <component :is="item.href?.name ? Link : 'div'" :href="item.href?.name ? route(item.href.name, item.href.parameters) : '#'"
+                        :class="[
+                            item.href?.name && $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), ''))
+                            ? 'text-gray-600 font-medium'
+                            : 'text-gray-400 hover:text-gray-500'
+                        ]"
+                    >
+                        <MetaLabel :item="item" />
+                    </component>
                 </div>
             </div>
         </div>
@@ -120,7 +114,7 @@ const originUrl = location.origin
                                                     :icon="button.icon"
                                                     :iconRight="action.iconRight"
                                                     :key="`ActionButton${button.label}${button.style}`" :tooltip="button.tooltip"
-                                                    class="capitalize inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
+                                                    class="inline-flex items-center h-full rounded-none text-sm border-none font-medium shadow-sm focus:ring-transparent focus:ring-offset-transparent focus:ring-0"
                                                     :class="{'rounded-l-md': index === 0, 'rounded-r-md ': index === action.button?.length - 1}"
                                             >
                                             </Button>

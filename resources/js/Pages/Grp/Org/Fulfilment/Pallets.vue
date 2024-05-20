@@ -1,5 +1,3 @@
-
-
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
   - Created: Sat, 27 Jan 2024 15:13:18 Malaysia Time, Sanur, Bali, Indonesia
@@ -10,14 +8,15 @@
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { capitalize } from "@/Composables/capitalize"
-import TablePallets from "@/Components/Tables/TablePallets.vue";
+import TablePallets from "@/Components/Tables/Grp/Org/Fulfilment/TablePallets.vue";
 import Action from "@/Components/Forms/Fields/Action.vue"
 import {useForm} from '@inertiajs/vue3';
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
-const props = defineProps<{
+defineProps<{
     data: object
     title: string
-    pageHead: object
+    pageHead: PageHeadingTypes
 }>()
 
 const form = useForm({ pallet : []})

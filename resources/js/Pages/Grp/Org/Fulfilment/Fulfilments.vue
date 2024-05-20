@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableFulfilments from "@/Components/Tables/TableFulfilments.vue";
+import TableFulfilments from "@/Components/Tables/Grp/Org/Fulfilment/TableFulfilments.vue";
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { computed, ref } from "vue";

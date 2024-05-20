@@ -5,22 +5,21 @@
   -->
 
 <script setup lang="ts">
-import { Head, useForm, router } from "@inertiajs/vue3"
+import { Head} from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import { computed, ref, watch } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
-import TableHistories from "@/Components/Tables/TableHistories.vue"
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import Timeline from "@/Components/Utils/Timeline.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Modal from "@/Components/Utils/Modal.vue"
-// import TableStoredItems from "@/Components/Tables/TableStoredItems.vue"
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
 import StoredItemReturnDescriptor from "@/Components/PalletReturn/Descriptor/StoredItemReturn"
 import TableReturn from '@/Components/PalletReturn/tablePalletReturn.vue'
-import TableStoredItemReturnStoredItems from "@/Components/Tables/TableStoredItemReturnStoredItems.vue"
+import TableStoredItemReturnStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemReturnStoredItems.vue"
 import FieldEditableTable from "@/Components/FieldEditableTable.vue"
 
 const props = defineProps<{

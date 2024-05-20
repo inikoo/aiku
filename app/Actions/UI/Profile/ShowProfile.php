@@ -57,7 +57,7 @@ class ShowProfile extends GrpAction
                 "title"                          => __("Profile"),
                 "breadcrumbs"                    => $this->getBreadcrumbs(),
                 "pageHead"                       => [
-                    "title" => __("My Profile"),
+                    "title"        => __("My Profile"),
                     'actions'      => [
                         [
                             'type'  => 'button',

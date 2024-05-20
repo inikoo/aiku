@@ -221,7 +221,7 @@ class IndexWarehouses extends OrgAction
                             'name'       => 'grp.org.warehouses.index',
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('warehouses'),
+                        'label' => __('Warehouses'),
                         'icon'  => 'fal fa-bars',
                     ],
                     'suffix' => $suffix

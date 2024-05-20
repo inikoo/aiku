@@ -1,7 +1,7 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Mon, 20 Mar 2023 23:18:59 Malaysia Time, Kuala Lumpur, Malaysia
-  - Copyright (c) 2023, Raul A Perusquia Flores
+  - Created: Sun, 19 May 2024 18:50:57 British Summer Time, Sheffield, UK
+  - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
@@ -12,8 +12,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCircle, faDoNotEnter } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { trans } from 'laravel-vue-i18n'
-import Tag from '@/Components/Tag.vue'
-import { capitalize } from "@/Composables/capitalize"
 import { inject } from 'vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 

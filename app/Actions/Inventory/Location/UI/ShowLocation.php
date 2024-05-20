@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\Location\UI;
 
-use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
+use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInWarehouse;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\ShowWarehouseArea;
@@ -24,7 +24,6 @@ use App\Models\Inventory\WarehouseArea;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -69,19 +68,7 @@ class ShowLocation extends OrgAction
 
     public function htmlResponse(Location $location, ActionRequest $request): Response
     {
-        if ($this->parent instanceof Warehouse) {
-            $container = [
-                'icon'    => ['fal', 'fa-warehouse'],
-                'tooltip' => __('Warehouse'),
-                'label'   => Str::possessive($this->parent->code)
-            ];
-        } else {
-            $container = [
-                'icon'    => ['fal', 'fa-map-signs'],
-                'tooltip' => __('Warehouse area'),
-                'label'   => Str::possessive($this->parent->code)
-            ];
-        }
+
 
         $navigation = LocationTabsEnum::navigation();
 
@@ -111,7 +98,6 @@ class ShowLocation extends OrgAction
                     'next'     => $this->getNext($location, $request),
                 ],
                 'pageHead'    => [
-                    'container' => $container,
                     'icon'      => [
                         'title' => __('locations'),
                         'icon'  => 'fal fa-inventory'
@@ -133,15 +119,15 @@ class ShowLocation extends OrgAction
                     : Inertia::lazy(fn () => GetLocationShowcase::run($location)),
 
                 LocationTabsEnum::PALLETS->value => $this->tab == LocationTabsEnum::PALLETS->value ?
-                    fn () => PalletsResource::collection(IndexPallets::run($location))
-                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($location))),
+                    fn () => PalletsResource::collection(IndexPalletsInWarehouse::run($location))
+                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPalletsInWarehouse::run($location))),
 
                 LocationTabsEnum::HISTORY->value => $this->tab == LocationTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($location))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($location)))
             ]
         )->table(IndexHistory::make()->tableStructure(prefix: LocationTabsEnum::HISTORY->value))->table(
-            IndexPallets::make()->tableStructure(
+            IndexPalletsInWarehouse::make()->tableStructure(
                 $location,
                 prefix: PalletDeliveryTabsEnum::PALLETS->value
             )

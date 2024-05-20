@@ -119,31 +119,37 @@ export const initialiseApp = () => {
             layout.group = usePage().props.layout.group
         }
 
+
         // Set App theme
         if(usePage().props.layout?.app_theme) {
             layout.app.theme = usePage().props.layout?.app_theme
         }
 
-        // Set Organisations (for Multiselect in TopBar)
+
+        // Set Organisations, Agents, Digital Agency (for Multiselect in TopBar)
         if (usePage().props.layout?.organisations) {
             layout.organisations = usePage().props.layout.organisations
         }
-
-        // Set Organisations (for Multiselect in TopBar)
         if (usePage().props.layout?.agents) {
             layout.agents = usePage().props.layout.agents
         }
+        if (usePage().props.layout?.digital_agency) {
+            layout.digital_agency = usePage().props.layout.digital_agency
+        }
+
 
         // Set Navigation (for LeftSidebar)
         if (usePage().props.layout?.navigation) {
             layout.navigation = usePage().props.layout.navigation ?? null;
         }
 
+
         // Set data of Locale (Language)
         if (usePage().props.localeData) {
             locale.language = usePage().props.localeData.language
             locale.languageOptions = usePage().props.localeData.languageOptions
         }
+
 
         // Set data of User (comes from app/Http/Resources/UI/LoggedUserResource.php)
         if (usePage().props.auth.user) {

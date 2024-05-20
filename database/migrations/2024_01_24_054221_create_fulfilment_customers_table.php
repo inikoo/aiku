@@ -23,6 +23,7 @@ return new class () extends Migration {
             Schema::create('fulfilment_customers', function (Blueprint $table) {
                 $table->increments('id');
                 $table = $this->groupOrgRelationship($table);
+                $table->string('status')->default(FulfilmentCustomerStatus::NO_RENTAL_AGREEMENT->value)->index();
                 $table->string('slug')->unique()->collation('und_ns');
                 $table->unsignedInteger('customer_id');
                 $table->foreign('customer_id')->references('id')->on('customers');
@@ -34,7 +35,6 @@ return new class () extends Migration {
                 $table->string('webhook_access_key')->nullable()->index();
                 $table->unsignedInteger('current_recurring_bill_id')->nullable()->index();
                 $table = $this->fulfilmentStats($table);
-                $table->string('status')->default(FulfilmentCustomerStatus::NO_RENTAL_AGREEMENT->value)->index();
                 $table->jsonb('data');
                 $table->timestampsTz();
                 $this->softDeletes($table);

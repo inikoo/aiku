@@ -1,18 +1,17 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Thu, 25 Jan 2024 11:46:16 Malaysia Time, Bali Office, Indonesia
+  - Created: Sun, 19 May 2024 18:46:51 British Summer Time, Sheffield, UK
   - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
 import Table from "@/Components/Table/Table.vue"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faTrashAlt, faPaperPlane } from "@far"
 import { faSignOutAlt, faTimes, faShare, faCross } from "@fal"
 import { Link } from "@inertiajs/vue3"
 import Tag from "@/Components/Tag.vue"
-import TagPallete from '@/Components/TagPallete.vue'
+import TagPallet from '@/Components/TagPallet.vue'
 
 import Icon from "@/Components/Icon.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -45,7 +44,7 @@ function customerRoute(pallet: object) {
         <!-- Column: State -->
 		<template #cell(state)="{ item: palletDelivery }">
             <div v-if="app == 'retina'" class="px-3">
-                <TagPallete :stateIcon="palletDelivery.state_icon" />
+                <TagPallet :stateIcon="palletDelivery.state_icon" />
             </div>
 			<Icon v-else :data="palletDelivery['state_icon']" class="px-1" />
 		</template>
@@ -99,9 +98,6 @@ function customerRoute(pallet: object) {
             </div>
         </template>
 
-      <!--   <template #cell(type_icon)="{ item: pallet }">
-			<Icon :data="pallet.type_icon" class="px-1" />
-		</template> -->
 
     </Table>
 </template>

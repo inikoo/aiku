@@ -15,7 +15,6 @@ use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
@@ -29,6 +28,7 @@ use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddresses;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
@@ -43,6 +43,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\Sluggable\HasSlug;
@@ -82,8 +83,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
+ * @property array $migration_data
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, \App\Models\CRM\Appointment> $appointments
+ * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, CustomerClient> $clients
  * @property-read FulfilmentCustomer|null $fulfilmentCustomer
  * @property-read Group $group
@@ -92,7 +95,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read MediaCollection<int, Media> $media
  * @property-read Collection<int, Order> $orders
  * @property-read Organisation $organisation
- * @property-read Collection<int, PalletDelivery> $palletDeliveries
  * @property-read Collection<int, Payment> $payments
  * @property-read Collection<int, Product> $products
  * @property-read Shop|null $shop
@@ -111,7 +113,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Customer withoutTrashed()
  * @mixin \Eloquent
  */
-class Customer extends Model implements HasMedia
+class Customer extends Model implements HasMedia, Auditable
 {
     use SoftDeletes;
     use HasAddresses;
@@ -119,42 +121,55 @@ class Customer extends Model implements HasMedia
     use HasUniversalSearch;
     use HasPhoto;
     use HasFactory;
+    use HasHistory;
     use InShop;
 
     protected $casts = [
-        'data'        => 'array',
-        'settings'    => 'array',
-        'location'    => 'array',
-        'state'       => CustomerStateEnum::class,
-        'status'      => CustomerStatusEnum::class,
-        'trade_state' => CustomerTradeStateEnum::class
+        'data'           => 'array',
+        'settings'       => 'array',
+        'location'       => 'array',
+        'migration_data' => 'array',
+        'state'          => CustomerStateEnum::class,
+        'status'         => CustomerStatusEnum::class,
+        'trade_state'    => CustomerTradeStateEnum::class
     ];
 
     protected $attributes = [
-        'data'     => '{}',
-        'settings' => '{}',
-        'location' => '{}',
+        'data'           => '{}',
+        'settings'       => '{}',
+        'location'       => '{}',
+        'migration_data' => '{}'
     ];
 
     protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        $tags = ['crm'];
+        if ($this->is_fulfilment) {
+            $tags[] = 'fulfilment';
+        }
+
+        return $tags;
+    }
+
 
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-
                 $slug = $this->company_name;
                 if ($slug == '') {
                     $slug = $this->contact_name;
                 }
-                if ($slug == '' or $slug=='Unknown') {
+                if ($slug == '' or $slug == 'Unknown') {
                     $slug = $this->reference;
                 }
 
                 return $slug;
             })
             ->saveSlugsTo('slug')
-            ->slugsShouldBeNoLongerThan(32)
+            ->slugsShouldBeNoLongerThan(36)
             ->doNotGenerateSlugsOnUpdate();
     }
 
@@ -167,7 +182,13 @@ class Customer extends Model implements HasMedia
     {
         static::creating(
             function (Customer $customer) {
-                $customer->name = $customer->company_name == '' ? $customer->contact_name : $customer->company_name;
+                $name = $customer->company_name == '' ? $customer->contact_name : $customer->company_name;
+                $name = trim($name);
+                if ($name == '') {
+                    $emailData = explode('@', $customer->email);
+                    $name      = $emailData[0] ?? $customer->email;
+                }
+                $customer->name = $name;
             }
         );
 
@@ -175,17 +196,31 @@ class Customer extends Model implements HasMedia
             if ($customer->wasChanged('trade_state')) {
                 ShopHydrateCustomerInvoices::dispatch($customer->shop);
             }
-            if ($customer->wasChanged(['contact_name', 'company_name'])) {
+            if ($customer->wasChanged(['contact_name', 'company_name', 'email'])) {
+                $name = $customer->company_name == '' ? $customer->contact_name : $customer->company_name;
+                $name = trim($name);
+                if ($name == '') {
+                    $emailData = explode('@', $customer->email);
+                    $name      = $emailData[0] ?? $customer->email;
+                }
+
                 $customer->updateQuietly(
                     [
-                        'name' => $customer->company_name == '' ? $customer->contact_name : $customer->company_name
+                        'name' => $name
                     ]
                 );
             }
         });
     }
 
+    protected array $auditInclude = [
+        'contact_name',
+        'company_name',
+        'email',
+        'phone',
+        'contact_website'
 
+    ];
 
     public function clients(): HasMany
     {
@@ -249,10 +284,6 @@ class Customer extends Model implements HasMedia
         return $this->hasOne(FulfilmentCustomer::class);
     }
 
-    public function palletDeliveries(): HasMany
-    {
-        return $this->hasMany(PalletDelivery::class);
-    }
 
     public function appointments(): HasMany
     {

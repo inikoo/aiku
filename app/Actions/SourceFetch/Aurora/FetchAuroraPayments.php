@@ -23,36 +23,43 @@ class FetchAuroraPayments extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Payment
     {
         if ($paymentData = $organisationSource->fetchPayment($organisationSourceId)) {
-            if ($payment = Payment::where('source_id', $paymentData['payment']['source_id'])
-                ->first()) {
+
+
+            if ($payment = Payment::where('source_id', $paymentData['payment']['source_id'])->first()) {
+
                 try {
                     $payment = UpdatePayment::make()->action(
                         payment: $payment,
                         modelData: $paymentData['payment'],
                         hydratorsDelay: $this->hydrateDelay
                     );
+                    $this->markAuroraModel($payment);
                 } catch (Exception $e) {
+                    //print_r($paymentData['payment']);
+                    //dd($e);
                     $this->recordError($organisationSource, $e, $paymentData['payment'], 'Payment', 'update');
 
                     return null;
                 }
-                $this->markAuroraModel($payment);
-            } else {
-                if ($paymentData['customer']) {
-                    try {
-                        $payment = StorePayment::make()->action(
-                            customer: $paymentData['customer'],
-                            paymentAccount: $paymentData['paymentAccount'],
-                            modelData: $paymentData['payment'],
-                            hydratorsDelay: $this->hydrateDelay
-                        );
-                    } catch (Exception $e) {
-                        $this->recordError($organisationSource, $e, $paymentData['payment'], 'Payment', 'store');
 
-                        return null;
-                    }
+            } elseif ($paymentData['customer']) {
+
+                try {
+                    $payment = StorePayment::make()->action(
+                        customer: $paymentData['customer'],
+                        paymentAccount: $paymentData['paymentAccount'],
+                        modelData: $paymentData['payment'],
+                        hydratorsDelay: $this->hydrateDelay
+                    );
                     $this->markAuroraModel($payment);
+                } catch (Exception $e) {
+                    //print_r($paymentData['payment']);
+                    //dd($e);
+                    $this->recordError($organisationSource, $e, $paymentData['payment'], 'Payment', 'store');
+
+                    return null;
                 }
+
             }
 
 
@@ -65,7 +72,6 @@ class FetchAuroraPayments extends FetchAuroraAction
     public function markAuroraModel(Payment $payment): void
     {
         $sourceData = explode(':', $payment->source_id);
-
         DB::connection('aurora')->table('Payment Dimension')
             ->where('Payment Key', $sourceData[1])
             ->update(['aiku_id' => $payment->id]);

@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableDepartments from "@/Components/Tables/Grp/Org/Market/TableDepartments.vue";
+import TableDepartments from "@/Components/Tables/Grp/Org/Catalogue/TableDepartments.vue";
 import { capitalize } from "@/Composables/capitalize"
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 

@@ -14,7 +14,7 @@ import { faChartNetwork } from '@fal'
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import { computed, defineAsyncComponent, ref } from "vue"
 import WarehouseDashboard from "@/Components/Dashboards/WarehouseDashboard.vue"
-import TableHistories from "@/Components/Tables/TableHistories.vue"
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import { useTabChange } from "@/Composables/tab-change"
 import { capitalize } from "@/Composables/capitalize"
 import ModelDetails from "@/Components/ModelDetails.vue";

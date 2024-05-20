@@ -34,6 +34,9 @@ class UpdateClockingMachine extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if($this->asAction) {
+            return true;
+        }
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
     }
 
@@ -48,8 +51,8 @@ class UpdateClockingMachine extends OrgAction
                     table: 'clocking_machines',
                     extraConditions: [
                         [
-                            'column' => 'group_id',
-                            'value'  => $this->organisation->group_id,
+                            'column' => 'organisation_id',
+                            'value'  => $this->organisation->id,
 
                         ],
                         [
@@ -61,7 +64,7 @@ class UpdateClockingMachine extends OrgAction
                 ),
 
             ],
-            'source_id' => 'sometimes|string|max:255',
+            'source_id'  => 'sometimes|string|max:255',
 
         ];
     }
@@ -76,6 +79,7 @@ class UpdateClockingMachine extends OrgAction
 
     public function action(ClockingMachine $clockingMachine, array $modelData): ClockingMachine
     {
+        $this->asAction        =true;
         $this->clockingMachine = $clockingMachine;
         $this->initialisation($clockingMachine->organisation, $modelData);
 

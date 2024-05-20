@@ -22,7 +22,7 @@ import {computed, defineAsyncComponent, ref} from "vue";
 import ModelDetails from "@/Components/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
 import TableSuppliers from "@/Components/Tables/Grp/SupplyChain/TableSuppliers.vue";
-import TableSupplierProducts from "@/Components/Tables/TableSupplierProducts.vue";
+import TableSupplierProducts from "@/Components/Tables/Grp/SupplyChain/TableSupplierProducts.vue";
 import AgentShowcase from "@/Components/Showcases/Grp/AgentShowcase.vue";
 import { capitalize } from "@/Composables/capitalize"
 
@@ -42,9 +42,9 @@ const props = defineProps<{
     errors?: object,
     history: object
 }>()
-import TablePurchaseOrders from "@/Components/Tables/TablePurchaseOrders.vue";
+import TablePurchaseOrders from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrders.vue";
 import {useForm} from "@inertiajs/vue3";
-import TableHistories from "@/Components/Tables/TableHistories.vue";
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 
 library.add(
     faInventory,

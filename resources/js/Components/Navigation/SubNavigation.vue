@@ -4,9 +4,10 @@ import { capitalize } from "@/Composables/capitalize"
 import { routeType } from '@/types/route'
 import MetaLabel from "@/Components/Headings/MetaLabel.vue"
 import { Link } from "@inertiajs/vue3"
-import { useLayoutStore } from '@/Stores/layout'
+import { inject } from "vue"
+import { layoutStructure } from "@/Composables/useLayoutStructure"
 
-const layout = useLayoutStore()
+const layout = inject('layout', layoutStructure)
 
 const props = defineProps<{
     dataNavigation: {
@@ -24,22 +25,30 @@ const originUrl = location.origin
 </script>
 
 <template>
-    <div class="flex flex-col sm:flex-row">
-        <div class="flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-3 text-gray-500 text-xs">
-            <div v-for="item in dataNavigation" class="flex items-center -ml-1.5">
-                <Link v-if="item.href" :href="`${route(item.href.name, item.href.parameters)}`" 
-                    class="relative group rounded-sm py-1 px-1.5"
+    <div class="-mt-2 flex flex-col sm:flex-row">
+        <div class="flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-3 gap-y-1 items-end text-gray-400 text-xs">
+            <div v-for="subNav, itemIdx in dataNavigation" class="flex items-center -ml-1 first:text-sm">
+                <Link v-if="subNav.href?.name"
+                    :href="route(subNav.href.name, subNav.href.parameters)"
+                    class="relative group py-1 px-1.5 flex items-center hover:text-gray-600 transition-all"  
                 >
-                    <FontAwesomeIcon v-if="item.leftIcon" :icon="item.leftIcon.icon" :title="capitalize(item.leftIcon.tooltip)" aria-hidden="true" class="pr-2" />
-                    <MetaLabel :item=item />
-                    <div :class="[
-                        $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), '')) ? `bottomNavigationActive${capitalize(layout.app.name)}` : `bottomNavigation${capitalize(layout.app.name)}`
-                    ]" />
+                    <FontAwesomeIcon v-if="subNav.leftIcon" :icon="subNav.leftIcon.icon" v-tooltip="capitalize(subNav.leftIcon.tooltip)" aria-hidden="true" class="pr-1" />
+                    <MetaLabel :item="subNav" />
+                    <!-- <div
+                        class=""
+                        :class="[
+                            $page.url.startsWith((route(subNav.href.name, subNav.href.parameters)).replace(new RegExp(originUrl, 'g'), '')) ? `bottomNavigationActive` : `bottomNavigation`
+                        ]"
+                    /> -->
+                    <div v-if="itemIdx !== 0" :class="[
+                            layout.currentRoute.includes(subNav.href.name) ? `bottomNavigationActive` : `bottomNavigation`
+                        ]"
+                    />
                 </Link>
                 
                 <span v-else>
-                    <FontAwesomeIcon v-if="item.leftIcon" :icon="item.leftIcon.icon" :title="capitalize(item.leftIcon.tooltip)" aria-hidden="true" class="pr-2" />
-                    <MetaLabel :item=item />
+                    <FontAwesomeIcon v-if="subNav.leftIcon" :icon="subNav.leftIcon.icon" :title="capitalize(subNav.leftIcon.tooltip)" aria-hidden="true" class="pr-2" />
+                    <MetaLabel :item="subNav" />
                 </span>
             </div>
         </div>

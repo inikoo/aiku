@@ -23,10 +23,10 @@ import {
 import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import ModelDetails from "@/Components/ModelDetails.vue";
-import TableSupplierProducts from "@/Components/Tables/TableSupplierProducts.vue";
-import TableProducts from "@/Components/Tables/TableProducts.vue";
+import TableSupplierProducts from "@/Components/Tables/Grp/SupplyChain/TableSupplierProducts.vue";
+import TableProducts from "@/Components/Tables/Grp/Org/Catalogue/TableProducts.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
-import TableLocations from "@/Components/Tables/TableLocations.vue";
+import TableLocations from "@/Components/Tables/Grp/Org/Inventory/TableLocations.vue";
 import StockShowcase from "@/Components/Showcases/Grp/StockShowcase.vue";
 import { capitalize } from "@/Composables/capitalize"
 library.add(

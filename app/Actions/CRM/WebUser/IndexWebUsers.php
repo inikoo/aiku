@@ -9,6 +9,7 @@ namespace App\Actions\CRM\WebUser;
 
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Http\Resources\CRM\WebUsersResource;
@@ -32,6 +33,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexWebUsers extends OrgAction
 {
     use WithAuthorizeWebUserScope;
+    use WithFulfilmentCustomerSubNavigation;
 
     private Shop|Organisation|Customer|FulfilmentCustomer|Website $parent;
 
@@ -89,6 +91,13 @@ class IndexWebUsers extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $webUsers, ActionRequest $request): Response
     {
+
+        $subNavigation=[];
+
+        if($this->parent instanceof FulfilmentCustomer) {
+            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        }
+
         return Inertia::render(
             'Org/Shop/CRM/WebUsers',
             [
@@ -98,8 +107,10 @@ class IndexWebUsers extends OrgAction
                 ),
                 'title'       => __('web users'),
                 'pageHead'    => [
-                    'title'   => __('web users'),
-                    'actions' => [
+                    'title'        => __('web users'),
+                    'icon'         => ['fal', 'fa-terminal'],
+                    'subNavigation'=> $subNavigation,
+                    'actions'      => [
                         ($this->canEdit &&  ($this->parent instanceof Customer || $this->parent instanceof  FulfilmentCustomer)) ? [
                             'type'  => 'button',
                             'style' => 'create',

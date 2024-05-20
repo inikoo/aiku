@@ -17,12 +17,13 @@ use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\StoredItemReturn\UI\IndexStoredItemReturns;
-use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\Catalogue\HasRentalAgreement;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithWebUserMeta;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
-use App\Enums\UI\Fulfilment\CustomerFulfilmentTabsEnum;
+use App\Enums\UI\Fulfilment\FulfilmentCustomerTabsEnum;
 use App\Http\Resources\Accounting\InvoicesResource;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\CRM\WebUsersResource;
@@ -32,8 +33,8 @@ use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\Http\Resources\Fulfilment\StoredItemReturnsResource;
+use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\WarehouseResource;
-use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -48,6 +49,7 @@ class ShowFulfilmentCustomer extends OrgAction
 {
     use WithWebUserMeta;
     use HasRentalAgreement;
+    use WithFulfilmentCustomerSubNavigation;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer): FulfilmentCustomer
     {
@@ -67,7 +69,7 @@ class ShowFulfilmentCustomer extends OrgAction
         FulfilmentCustomer $fulfilmentCustomer,
         ActionRequest $request
     ): FulfilmentCustomer {
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(CustomerFulfilmentTabsEnum::values());
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(FulfilmentCustomerTabsEnum::values());
 
         return $this->handle($fulfilmentCustomer);
     }
@@ -76,28 +78,31 @@ class ShowFulfilmentCustomer extends OrgAction
     {
         $webUsersMeta = $this->getWebUserMeta($fulfilmentCustomer->customer, $request);
 
-        $navigation = CustomerFulfilmentTabsEnum::navigation();
 
+        $navigation = FulfilmentCustomerTabsEnum::navigation();
 
-        if (!$fulfilmentCustomer->pallets_storage) {
-            unset($navigation[CustomerFulfilmentTabsEnum::PALLETS->value]);
-            unset($navigation[CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value]);
-            unset($navigation[CustomerFulfilmentTabsEnum::PALLET_RETURNS->value]);
-        }
-        if (!$fulfilmentCustomer->items_storage) {
-            unset($navigation[CustomerFulfilmentTabsEnum::STORED_ITEM_RETURNS->value]);
-            unset($navigation[CustomerFulfilmentTabsEnum::STORED_ITEMS->value]);
-        }
+        /*
+                if (!$fulfilmentCustomer->pallets_storage) {
+                    unset($navigation[FulfilmentCustomerTabsEnum::PALLETS->value]);
+                    unset($navigation[FulfilmentCustomerTabsEnum::PALLET_DELIVERIES->value]);
+                    unset($navigation[FulfilmentCustomerTabsEnum::PALLET_RETURNS->value]);
+                }
+                if (!$fulfilmentCustomer->items_storage) {
+                    unset($navigation[FulfilmentCustomerTabsEnum::STORED_ITEM_RETURNS->value]);
+                    unset($navigation[FulfilmentCustomerTabsEnum::STORED_ITEMS->value]);
+                }
+        */
         // todo
         //if (!$fulfilmentCustomer->dropshipping) {
         //}
-
-        if(!$fulfilmentCustomer->rentalAgreement || ($fulfilmentCustomer->rentalAgreement->state != RentalAgreementStateEnum::ACTIVE)) {
-            unset($navigation[CustomerFulfilmentTabsEnum::PALLETS->value]);
-            unset($navigation[CustomerFulfilmentTabsEnum::INVOICES->value]);
-            unset($navigation[CustomerFulfilmentTabsEnum::RECURRING_BILLS->value]);
-            unset($navigation[CustomerFulfilmentTabsEnum::PALLET_RETURNS->value]);
-        }
+        /*
+                if(!$fulfilmentCustomer->rentalAgreement || ($fulfilmentCustomer->rentalAgreement->state != RentalAgreementStateEnum::ACTIVE)) {
+                    unset($navigation[FulfilmentCustomerTabsEnum::PALLETS->value]);
+                    unset($navigation[FulfilmentCustomerTabsEnum::INVOICES->value]);
+                    unset($navigation[FulfilmentCustomerTabsEnum::RECURRING_BILLS->value]);
+                    unset($navigation[FulfilmentCustomerTabsEnum::PALLET_RETURNS->value]);
+                }
+        */
 
         return Inertia::render(
             'Org/Fulfilment/FulfilmentCustomer',
@@ -113,10 +118,12 @@ class ShowFulfilmentCustomer extends OrgAction
                 'pageHead' => [
                     'icon' => [
                         'title' => __('customer'),
-                        'icon'  => 'fal fa-user'
+                        'icon'  => 'fal fa-user',
+
                     ],
-                    'meta' => array_filter([
-                        $webUsersMeta
+                    'subNavigation'=> $this->getFulfilmentCustomerSubNavigation($fulfilmentCustomer, $request),
+                    'meta'         => array_filter([
+                        $webUsersMeta,
                     ]),
                     'title' => $fulfilmentCustomer->customer->name,
                     'edit'  => $this->canEdit ? [
@@ -144,82 +151,84 @@ class ShowFulfilmentCustomer extends OrgAction
                     'navigation' => $navigation
                 ],
 
-                CustomerFulfilmentTabsEnum::SHOWCASE->value => $this->tab == CustomerFulfilmentTabsEnum::SHOWCASE->value ?
+                FulfilmentCustomerTabsEnum::SHOWCASE->value => $this->tab == FulfilmentCustomerTabsEnum::SHOWCASE->value ?
                     fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)
                     : Inertia::lazy(fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)),
 
 
-                CustomerFulfilmentTabsEnum::WEBHOOK->value => $this->tab == CustomerFulfilmentTabsEnum::WEBHOOK->value ?
+                FulfilmentCustomerTabsEnum::WEBHOOK->value => $this->tab == FulfilmentCustomerTabsEnum::WEBHOOK->value ?
                     fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)
                     : Inertia::lazy(fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)),
 
-
-                CustomerFulfilmentTabsEnum::PALLETS->value => $this->tab == CustomerFulfilmentTabsEnum::PALLETS->value ?
+/*
+                FulfilmentCustomerTabsEnum::PALLETS->value => $this->tab == FulfilmentCustomerTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPallets::run($fulfilmentCustomer, 'pallets'))
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($fulfilmentCustomer, 'pallets'))),
 
-                CustomerFulfilmentTabsEnum::STORED_ITEMS->value => $this->tab == CustomerFulfilmentTabsEnum::STORED_ITEMS->value ?
+                FulfilmentCustomerTabsEnum::STORED_ITEMS->value => $this->tab == FulfilmentCustomerTabsEnum::STORED_ITEMS->value ?
                     fn () => StoredItemResource::collection(
-                        IndexStoredItems::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::STORED_ITEMS->value)
+                        IndexStoredItems::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::STORED_ITEMS->value)
                     )
                     : Inertia::lazy(
                         fn () => StoredItemResource::collection(
-                            IndexStoredItems::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::STORED_ITEMS->value)
+                            IndexStoredItems::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::STORED_ITEMS->value)
                         )
                     ),
 
-                CustomerFulfilmentTabsEnum::STORED_ITEM_RETURNS->value => $this->tab == CustomerFulfilmentTabsEnum::STORED_ITEM_RETURNS->value ?
+                FulfilmentCustomerTabsEnum::STORED_ITEM_RETURNS->value => $this->tab == FulfilmentCustomerTabsEnum::STORED_ITEM_RETURNS->value ?
                     fn () => StoredItemReturnsResource::collection(IndexStoredItemReturns::run($fulfilmentCustomer))
                     : Inertia::lazy(
                         fn () => StoredItemReturnsResource::collection(IndexStoredItemReturns::run($fulfilmentCustomer))
                     ),
 
-                CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value => $this->tab == CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value ?
-                    fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value))
+                FulfilmentCustomerTabsEnum::PALLET_DELIVERIES->value => $this->tab == FulfilmentCustomerTabsEnum::PALLET_DELIVERIES->value ?
+                    fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::PALLET_DELIVERIES->value))
                     : Inertia::lazy(
-                        fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value))
+                        fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::PALLET_DELIVERIES->value))
                     ),
 
-                CustomerFulfilmentTabsEnum::RECURRING_BILLS->value => $this->tab == CustomerFulfilmentTabsEnum::RECURRING_BILLS->value ?
-                    fn () => RecurringBillsResource::collection(IndexRecurringBills::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::RECURRING_BILLS->value))
+                FulfilmentCustomerTabsEnum::RECURRING_BILLS->value => $this->tab == FulfilmentCustomerTabsEnum::RECURRING_BILLS->value ?
+                    fn () => RecurringBillsResource::collection(IndexRecurringBills::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::RECURRING_BILLS->value))
                     : Inertia::lazy(
-                        fn () => RecurringBillsResource::collection(IndexRecurringBills::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::RECURRING_BILLS->value))
+                        fn () => RecurringBillsResource::collection(IndexRecurringBills::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::RECURRING_BILLS->value))
                     ),
 
-                CustomerFulfilmentTabsEnum::INVOICES->value => $this->tab == CustomerFulfilmentTabsEnum::INVOICES->value ?
-                    fn () => InvoicesResource::collection(IndexInvoices::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::INVOICES->value))
+                FulfilmentCustomerTabsEnum::INVOICES->value => $this->tab == FulfilmentCustomerTabsEnum::INVOICES->value ?
+                    fn () => InvoicesResource::collection(IndexInvoices::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::INVOICES->value))
                     : Inertia::lazy(
-                        fn () => InvoicesResource::collection(IndexInvoices::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::INVOICES->value))
+                        fn () => InvoicesResource::collection(IndexInvoices::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::INVOICES->value))
                     ),
 
-                CustomerFulfilmentTabsEnum::PALLET_RETURNS->value => $this->tab == CustomerFulfilmentTabsEnum::PALLET_RETURNS->value ?
+                FulfilmentCustomerTabsEnum::PALLET_RETURNS->value => $this->tab == FulfilmentCustomerTabsEnum::PALLET_RETURNS->value ?
                     fn () => PalletReturnsResource::collection(
-                        IndexPalletReturns::run($fulfilmentCustomer, CustomerFulfilmentTabsEnum::PALLET_RETURNS->value)
+                        IndexPalletReturns::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::PALLET_RETURNS->value)
                     )
                     : Inertia::lazy(
                         fn () => PalletReturnsResource::collection(
                             IndexPalletReturns::run(
                                 $fulfilmentCustomer,
-                                CustomerFulfilmentTabsEnum::PALLET_RETURNS->value
+                                FulfilmentCustomerTabsEnum::PALLET_RETURNS->value
                             )
                         )
                     ),
 
-                CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerFulfilmentTabsEnum::DISPATCHED_EMAILS->value ?
-                    fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($fulfilmentCustomer))
-                    : Inertia::lazy(
-                        fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($fulfilmentCustomer))
-                    ),
 
-                CustomerFulfilmentTabsEnum::WEB_USERS->value => $this->tab == CustomerFulfilmentTabsEnum::WEB_USERS->value ?
+
+                FulfilmentCustomerTabsEnum::WEB_USERS->value => $this->tab == FulfilmentCustomerTabsEnum::WEB_USERS->value ?
                     fn () => WebUsersResource::collection(IndexWebUsers::run($fulfilmentCustomer->customer))
                     : Inertia::lazy(
                         fn () => WebUsersResource::collection(IndexWebUsers::run($fulfilmentCustomer->customer))
                     ),
+*/
+                FulfilmentCustomerTabsEnum::HISTORY->value => $this->tab == FulfilmentCustomerTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))),
 
 
             ]
-        )->table(IndexStoredItems::make()->tableStructure($fulfilmentCustomer->storedItems))
+        )
+            ->table(IndexStoredItems::make()->tableStructure($fulfilmentCustomer->storedItems))
+          /*
             ->table(
                 IndexPalletDeliveries::make()->tableStructure(
                     $fulfilmentCustomer,
@@ -244,7 +253,7 @@ class ShowFulfilmentCustomer extends OrgAction
                             ]
                         ]
                     ],
-                    prefix: CustomerFulfilmentTabsEnum::PALLET_DELIVERIES->value,
+                    prefix: FulfilmentCustomerTabsEnum::PALLET_DELIVERIES->value,
                 )
             )
             ->table(
@@ -265,13 +274,13 @@ class ShowFulfilmentCustomer extends OrgAction
                             ]
                         ],
                     ],
-                    prefix: CustomerFulfilmentTabsEnum::PALLET_RETURNS->value
+                    prefix: FulfilmentCustomerTabsEnum::PALLET_RETURNS->value
                 )
             )
             ->table(
                 IndexPallets::make()->tableStructure(
                     parent: $fulfilmentCustomer,
-                    prefix: CustomerFulfilmentTabsEnum::PALLETS->value,
+                    prefix: FulfilmentCustomerTabsEnum::PALLETS->value,
                     modelOperations: [
                         'bulk' => [
                             [
@@ -291,7 +300,7 @@ class ShowFulfilmentCustomer extends OrgAction
             ->table(
                 IndexStoredItems::make()->tableStructure(
                     parent: $fulfilmentCustomer->storedItems,
-                    prefix: CustomerFulfilmentTabsEnum::STORED_ITEMS->value
+                    prefix: FulfilmentCustomerTabsEnum::STORED_ITEMS->value
                 )
             )
             ->table(
@@ -312,7 +321,7 @@ class ShowFulfilmentCustomer extends OrgAction
                             ]
                         ],
                     ],
-                    prefix: CustomerFulfilmentTabsEnum::STORED_ITEM_RETURNS->value,
+                    prefix: FulfilmentCustomerTabsEnum::STORED_ITEM_RETURNS->value,
                 )
             )
             ->table(
@@ -333,9 +342,10 @@ class ShowFulfilmentCustomer extends OrgAction
                             ]
                         ],
                     ],
-                    prefix: CustomerFulfilmentTabsEnum::PALLET_RETURNS->value
+                    prefix: FulfilmentCustomerTabsEnum::PALLET_RETURNS->value
                 )
-            )->table(
+            )
+            ->table(
                 IndexWebUsers::make()->tableStructure(
                     parent: $fulfilmentCustomer,
                     modelOperations: [
@@ -357,20 +367,24 @@ class ShowFulfilmentCustomer extends OrgAction
                             ]
                         ]
                     ],
-                    prefix: CustomerFulfilmentTabsEnum::WEB_USERS->value,
+                    prefix: FulfilmentCustomerTabsEnum::WEB_USERS->value,
                     canEdit: $this->canEdit
                 )
-            )->table(
+            )
+            ->table(
                 IndexRecurringBills::make()->tableStructure(
                     parent: $fulfilmentCustomer,
-                    prefix: CustomerFulfilmentTabsEnum::RECURRING_BILLS->value,
+                    prefix: FulfilmentCustomerTabsEnum::RECURRING_BILLS->value,
                 )
-            )->table(
+            )
+            ->table(
                 IndexInvoices::make()->tableStructure(
                     parent: $fulfilmentCustomer,
-                    prefix: CustomerFulfilmentTabsEnum::INVOICES->value,
+                    prefix: FulfilmentCustomerTabsEnum::INVOICES->value,
                 )
-            );
+            )
+          */
+            ->table(IndexHistory::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::HISTORY->value));
     }
 
 

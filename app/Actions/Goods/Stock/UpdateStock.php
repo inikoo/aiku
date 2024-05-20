@@ -7,8 +7,8 @@
 
 namespace App\Actions\Goods\Stock;
 
+use App\Actions\Goods\Stock\Hydrators\StockHydrateUniversalSearch;
 use App\Actions\GrpAction;
-use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateUniversalSearch;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Inventory\OrgStockResource;
 use App\Models\SupplyChain\Stock;
@@ -29,7 +29,7 @@ class UpdateStock extends GrpAction
     public function handle(Stock $stock, array $modelData): Stock
     {
         $stock = $this->update($stock, $modelData, ['data', 'settings']);
-        OrgStockHydrateUniversalSearch::dispatch($stock);
+        StockHydrateUniversalSearch::dispatch($stock);
 
         return $stock;
     }

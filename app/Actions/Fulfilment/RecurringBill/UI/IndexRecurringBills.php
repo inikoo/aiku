@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\RecurringBill\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
+use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\OrgAction;
 use App\Enums\UI\Fulfilment\RecurringBillsTabsEnum;
 use App\Http\Resources\Fulfilment\RecurringBillsResource;
@@ -27,6 +28,10 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexRecurringBills extends OrgAction
 {
+    use WithFulfilmentCustomerSubNavigation;
+
+    private Fulfilment|FulfilmentCustomer $parent;
+
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
@@ -37,11 +42,21 @@ class IndexRecurringBills extends OrgAction
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $fulfilment;
+
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(RecurringBillsTabsEnum::values());
 
         return $this->handle($fulfilment);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $fulfilmentCustomer;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($fulfilmentCustomer);
+    }
 
     public function handle(Fulfilment|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator
     {
@@ -109,7 +124,11 @@ class IndexRecurringBills extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $recurringBills, ActionRequest $request): Response
     {
+        $subNavigation=[];
 
+        if($this->parent instanceof  FulfilmentCustomer) {
+            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        }
 
         return Inertia::render(
             'Org/Fulfilment/RecurringBills',
@@ -119,10 +138,10 @@ class IndexRecurringBills extends OrgAction
                 ),
                 'title'       => __('recurring bills'),
                 'pageHead'    => [
-                    'title'     => __('recurring bills'),
-                    'iconRight' => [
+                    'title'         => __('recurring bills'),
+                    'subNavigation' => $subNavigation,
+                    'icon'          => [
                         'icon'  => ['fal', 'fa-receipt'],
-                        'title' => __('recurring bill')
                     ],
                 ],
 

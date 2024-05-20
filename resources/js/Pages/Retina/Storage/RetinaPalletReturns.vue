@@ -39,7 +39,7 @@ import {
     TransitionChild,
     TransitionRoot,
 } from "@headlessui/vue"
-import TablePalletReturns from "@/Components/Tables/TablePalletReturns.vue";
+import TablePalletReturns from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturns.vue";
 
 
 const isOpen = ref(false)
@@ -96,7 +96,7 @@ function palletReturnRoute(palletReturn: PalletDelivery) {
                 ]);
         default:
             return route(
-                'grp.org.fulfilments.show.crm.customers.show.pallet-returns.show',
+                'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],

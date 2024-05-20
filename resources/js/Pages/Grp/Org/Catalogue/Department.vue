@@ -22,9 +22,9 @@ import TableCustomers from "@/Components/Tables/Grp/Org/CRM/TableCustomers.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableMailshots from "@/Components/Tables/TableMailshots.vue";
 import { faDiagramNext } from "@fortawesome/free-solid-svg-icons";
-import TableProducts from "@/Components/Tables/TableProducts.vue";
-import TableFamilies from "@/Components/Tables/TableFamilies.vue";
-import TableHistories from "@/Components/Tables/TableHistories.vue";
+import TableProducts from "@/Components/Tables/Grp/Org/Catalogue/TableProducts.vue";
+import TableFamilies from "@/Components/Tables/Grp/Org/Catalogue/TableFamilies.vue";
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 import { capitalize } from "@/Composables/capitalize"
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 library.add(

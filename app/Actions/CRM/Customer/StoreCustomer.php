@@ -198,8 +198,8 @@ class StoreCustomer extends OrgAction
 
     public function afterValidator(Validator $validator): void
     {
-        if (!$this->get('contact_name') and !$this->get('company_name')) {
-            $validator->errors()->add('company_name', 'contact name or company name required');
+        if (!$this->get('contact_name') and !$this->get('company_name')  and !$this->get('email')) {
+            $validator->errors()->add('company_name', 'At least one of contact_name, company_name or email must be provided');
         }
     }
 

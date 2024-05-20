@@ -5,8 +5,8 @@
   -->
 <script setup lang="ts">
 
-import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
-import {useLocaleStore} from "@/Stores/locale";
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { useLocaleStore } from "@/Stores/locale"
 
 
 const props = defineProps<{
@@ -21,9 +21,11 @@ const locale = useLocaleStore()
 </script>
 
 <template>
-    <div class="leading-none">{{ item.label  }}</div>
-    <template v-if="typeof item.number == 'number'">
-        (<span v-if="item.number">{{ locale.number(item.number) }}</span>
-        <FontAwesomeIcon v-else icon="fal fa-empty-set"/>)
-    </template>
+    <div class="xl:whitespace-nowrap">
+        <span class="leading-none">{{ item.label }}</span>
+        <template v-if="typeof item.number == 'number'">
+            (<span v-if="item.number">{{ locale.number(item.number) }}</span>
+            <FontAwesomeIcon v-else icon="fal fa-empty-set" />)
+        </template>
+    </div>
 </template>

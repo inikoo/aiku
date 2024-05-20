@@ -18,7 +18,6 @@ return new class () extends Migration {
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('slug')->unique()->collation('und_ns');
             $table=$this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('payment_service_provider_id')->index();
             $table->foreign('payment_service_provider_id')->references('id')->on('payment_service_providers');

@@ -8,13 +8,13 @@
   import {Head} from '@inertiajs/vue3';
   import PageHeading from '@/Components/Headings/PageHeading.vue';
   import { capitalize } from "@/Composables/capitalize"
-  import TablePalletDeliveries from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveries.vue";
-  import TableStoredItemReturn from "@/Components/Tables/TableStoredItemReturn.vue";
+  import TableStoredItemReturn from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItemReturn.vue";
+  import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
-  const props = defineProps<{
+defineProps<{
       data: object
       title: string
-      pageHead: object
+      pageHead: PageHeadingTypes
   }>()
 
   </script>
