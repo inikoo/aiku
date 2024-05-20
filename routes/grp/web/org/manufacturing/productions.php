@@ -8,6 +8,7 @@
 use App\Actions\Devel\UI\CreateDummy;
 use App\Actions\Manufacturing\Artefact\UI\IndexArtefacts;
 use App\Actions\Manufacturing\JobOrder\UI\ShowJobOrder;
+use App\Actions\Manufacturing\ManufactureTask\UI\CreateManufactureTask;
 use App\Actions\Manufacturing\ManufactureTask\UI\IndexManufactureTasks;
 use App\Actions\Manufacturing\Production\UI\CreateProduction;
 use App\Actions\Manufacturing\Production\UI\EditProduction;
@@ -15,6 +16,7 @@ use App\Actions\Manufacturing\Production\UI\IndexProductions;
 use App\Actions\Manufacturing\Production\UI\ShowProduction;
 use App\Actions\Manufacturing\Production\UI\ShowProductionCrafts;
 use App\Actions\Manufacturing\Production\UI\ShowProductionOperations;
+use App\Actions\Manufacturing\RawMaterial\UI\CreateRawMaterial;
 use App\Actions\Manufacturing\RawMaterial\UI\IndexRawMaterials;
 use Illuminate\Support\Facades\Route;
 
@@ -42,13 +44,13 @@ Route::prefix('{production}')
                         Route::get('', ShowProductionCrafts::class)->name('dashboard');
 
                         Route::get('raw-materials', IndexRawMaterials::class)->name('raw_materials.index');
-                        Route::get('raw-materials/create', CreateDummy::class)->name('raw_materials.create');
+                        Route::get('raw-materials/create', CreateRawMaterial::class)->name('raw_materials.create');
 
                         Route::get('artefacts', IndexArtefacts::class)->name('artefacts.index');
                         Route::get('artefacts/create', CreateDummy::class)->name('artefacts.create');
 
                         Route::get('manufacture-tasks', IndexManufactureTasks::class)->name('manufacture_tasks.index');
-                        Route::get('manufacture-tasks/create', CreateDummy::class)->name('manufacture_tasks.create');
+                        Route::get('manufacture-tasks/create', CreateManufactureTask::class)->name('manufacture_tasks.create');
 
 
                     });

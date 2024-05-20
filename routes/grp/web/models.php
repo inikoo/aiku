@@ -85,6 +85,8 @@ use App\Actions\Catalogue\Product\UpdatePhysicalGood;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\SyncPaymentAccountToShop;
 use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
+use App\Actions\Manufacturing\ManufactureTask\StoreManufactureTask;
+use App\Actions\Manufacturing\RawMaterial\StoreRawMaterial;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
@@ -274,11 +276,13 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
 Route::post('/supplier', StoreSupplier::class)->name('supplier.store');
 Route::patch('/shop/payment-accounts/{paymentAccount:id}', SyncPaymentAccountToShop::class)->name('shop.payment-accounts.sync')->withoutScopedBindings();
 
-Route::name('production.')->prefix('production/{production}')->group(function () {
+Route::name('production.')->prefix('production/{production:id}')->group(function () {
     Route::post('job-order', StoreJobOrder::class)->name('job-order.store');
     Route::post('artefact-upload', ImportDummy::class)->name('artefacts.upload');
     Route::post('raw-materials-upload', ImportDummy::class)->name('raw_materials.upload');
     Route::post('manufacture-tasks-upload', ImportDummy::class)->name('manufacture_tasks.upload');
+    Route::post('raw-materials', StoreRawMaterial::class)->name('raw-materials.store');
+    Route::post('manufacture-tasks', StoreManufactureTask::class)->name('manufacture_tasks.store');
 
 });
 

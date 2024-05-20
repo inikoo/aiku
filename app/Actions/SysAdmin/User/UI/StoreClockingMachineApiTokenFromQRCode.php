@@ -7,6 +7,7 @@
 
 namespace App\Actions\SysAdmin\User\UI;
 
+use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Models\HumanResources\ClockingMachine;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
@@ -24,7 +25,8 @@ class StoreClockingMachineApiTokenFromQRCode
     public function handle(ClockingMachine $clockingMachine, array $modelData): array
     {
         return [
-            'token' => $clockingMachine->createToken(Arr::get($modelData, 'device_name', 'unknown-device'))->plainTextToken
+            'token' => $clockingMachine->createToken(Arr::get($modelData, 'device_name', 'unknown-device'))->plainTextToken,
+            'data'  => ClockingMachineResource::make($clockingMachine)
         ];
     }
 

@@ -8,6 +8,7 @@
 namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch;
+use App\Actions\HumanResources\Employee\Traits\HasEmployeePositionGenerator;
 use App\Actions\HumanResources\JobPosition\SyncEmployableJobPositions;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
@@ -16,7 +17,6 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
-use App\Models\HumanResources\JobPosition;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -27,6 +27,7 @@ class UpdateEmployee extends OrgAction
 {
     use WithActionUpdate;
     use HasPositionsRules;
+    use HasEmployeePositionGenerator;
 
     protected bool $asAction = false;
 
@@ -34,46 +35,13 @@ class UpdateEmployee extends OrgAction
 
     public function handle(Employee $employee, array $modelData): Employee
     {
-
         if (Arr::exists($modelData, 'positions')) {
-            $jobPositions = [];
-
-            foreach (Arr::get($modelData, 'positions', []) as $positionData) {
-                /** @var JobPosition $jobPosition */
-                $jobPosition                    = $this->organisation->jobPositions()->firstWhere('slug', $positionData['slug']);
-                $jobPositions[$jobPosition->id] = [];
-
-                foreach (Arr::get($positionData, 'scopes', []) as $key => $scopes) {
-                    $scopeData = match ($key) {
-                        'shops' => [
-                            'Shop' => $this->organisation->shops->whereIn('slug', $scopes['slug'])->pluck('id')->toArray()
-                        ],
-                        'warehouses' => [
-                            'Warehouse' => $this->organisation->warehouses->whereIn('slug', $scopes['slug'])->pluck('id')->toArray()
-                        ],
-                        'fulfilments' => [
-                            'Fulfilment' => $this->organisation->fulfilments->whereIn('slug', $scopes['slug'])->pluck('id')->toArray()
-                        ],
-                        default => []
-                    };
-
-                    if (isset($jobPositions[$jobPosition->id])) {
-                        $jobPositions[$jobPosition->id] = array_merge_recursive($jobPositions[$jobPosition->id], $scopeData);
-                    } else {
-                        $jobPositions[$jobPosition->id] = $scopeData;
-                    }
-                }
-            }
-
-            foreach ($jobPositions as $id => $scopes) {
-                foreach ($scopes as $scopeKey => $ids) {
-                    $jobPositions[$id][$scopeKey] = array_values(array_unique($ids));
-                }
-            }
+            $jobPositions = $this->generatePositions($modelData);
 
             SyncEmployableJobPositions::run($employee, $jobPositions);
             Arr::forget($modelData, 'positions');
         }
+
         $employee = $this->update($employee, $modelData, ['data', 'salary']);
 
 
