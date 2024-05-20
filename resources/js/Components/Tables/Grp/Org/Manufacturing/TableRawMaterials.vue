@@ -16,12 +16,16 @@ const props = defineProps<{
 
 
 console.log(route().current())
-function productionRoute(production: Production) {
+function productionRoute(rawMaterial: {}) {
     switch (route().current()) {
-        case 'grp.org.productions.index':
+        // case 'grp.org.productions.index':
+        //     return route(
+        //         'grp.org.productions.show',
+        //         [route().params['organisation'], production.slug]);
+        case 'grp.org.productions.show.crafts.raw_materials.index':
             return route(
-                'grp.org.productions.show',
-                [route().params['organisation'], production.slug]);
+                'grp.org.productions.show.crafts.raw_materials.show',
+                [route().params['organisation'], route().params['production'], rawMaterial.slug]);
     }
 }
 
