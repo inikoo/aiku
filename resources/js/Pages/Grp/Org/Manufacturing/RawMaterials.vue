@@ -19,6 +19,7 @@ import type { Navigation } from "@/types/Tabs";
 import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 import { get } from 'lodash'
 import Button from '@/Components/Elements/Buttons/Button.vue'
+import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 
 
 library.add(faBars, faIndustry);
