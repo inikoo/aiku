@@ -102,7 +102,7 @@ class ManufactureTask extends Model implements Auditable
 
     public function artefacts(): BelongsToMany
     {
-        return $this->belongsToMany(Artefact::class)->using(ArtefactManufactureTask::class);
+        return $this->belongsToMany(Artefact::class, 'artefacts_manufacture_tasks');
     }
 
     public function production(): BelongsTo

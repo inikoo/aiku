@@ -16,6 +16,7 @@ use App\Enums\UI\Manufacturing\ManufactureTaskTabsEnum;
 use App\Enums\UI\Manufacturing\ProductionTabsEnum;
 use App\Enums\UI\Manufacturing\RawMaterialTabsEnum;
 use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\Manufacturing\ArtefactsResource;
 use App\Http\Resources\Manufacturing\ManufactureTasksResource;
 use App\Http\Resources\Manufacturing\RawMaterialsResource;
 use App\Http\Resources\Tag\TagResource;
@@ -110,9 +111,9 @@ class ShowManufactureTask extends OrgAction
                     fn () => GetManufactureTaskShowcase::run($manufactureTask)
                     : Inertia::lazy(fn () => GetManufactureTaskShowcase::run($manufactureTask)),
 
-
-
-
+                ManufactureTaskTabsEnum::ARTEFACT->value => $this->tab == ManufactureTaskTabsEnum::ARTEFACT->value
+                    ? fn () => ArtefactsResource::collection(GetManufactureTaskArtefacts::run($manufactureTask, $request))
+                    : Inertia::lazy(fn () => ArtefactsResource::collection(GetManufactureTaskArtefacts::run($manufactureTask, $request))),
 
                 ManufactureTaskTabsEnum::HISTORY->value => $this->tab == ManufactureTaskTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($manufactureTask))
