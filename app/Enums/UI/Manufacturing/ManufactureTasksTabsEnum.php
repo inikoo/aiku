@@ -22,8 +22,8 @@ enum ManufactureTasksTabsEnum: string
     {
         return match ($this) {
             ManufactureTasksTabsEnum::MANUFACTURE_TASKS => [
-                'title' => __('manufacture tasks'),
-                'icon'  => 'fal fa-drone',
+                'title' => __('tasks'),
+                'icon'  => 'fal fa-bars',
             ],
             ManufactureTasksTabsEnum::MANUFACTURE_TASKS_HISTORIES => [
                 'title' => __('history'),

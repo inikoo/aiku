@@ -201,6 +201,10 @@ class IndexRawMaterials extends OrgAction
                         ] : null,
                     ]
                 ],
+                'upload' => [
+                    'event'   => 'action-progress',
+                    'channel' => 'grp.personal.' . $this->organisation->id
+                ],
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => RawMaterialsTabsEnum::navigation(),

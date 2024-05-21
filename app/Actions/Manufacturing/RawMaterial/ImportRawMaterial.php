@@ -21,12 +21,15 @@ use App\Models\Helpers\Upload;
 use App\Models\Inventory\Warehouse;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
+use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\ActionRequest;
 
 class ImportRawMaterial extends OrgAction
 {
     use WithImportModel;
 
+
+    
     public function handle(Production $production, $file): Upload
     {
         $upload = StoreUploads::run($file, RawMaterial::class);
@@ -56,6 +59,14 @@ class ImportRawMaterial extends OrgAction
 
 
         return true;
+    }
+
+    public function asController(Production $production, ActionRequest $request): Upload
+    {
+        $request->validate();
+        $file = $request->file('file');
+        Storage::disk('local')->put($this->tmpPath, $file);
+        return $this->handle($production, $file);
     }
 
     public function jsonResponse(Upload $upload): array

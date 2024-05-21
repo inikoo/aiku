@@ -23,7 +23,7 @@ enum ArtefactsTabsEnum: string
         return match ($this) {
             ArtefactsTabsEnum::ARTEFACTS => [
                 'title' => __('artefacts'),
-                'icon'  => 'fal fa-hamsa',
+                'icon'  => 'fal fa-bars',
             ],
             ArtefactsTabsEnum::ARTEFACTS_HISTORIES => [
                 'title' => __('history'),

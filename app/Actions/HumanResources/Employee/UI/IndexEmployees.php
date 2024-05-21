@@ -145,6 +145,7 @@ class IndexEmployees extends OrgAction
                 ->withGlobalSearch();
 
             if (class_basename($parent) == 'Organisation') {
+
                 $table->withEmptyState(
                     [
                         'title'       => __('no employees'),

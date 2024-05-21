@@ -163,9 +163,9 @@ class IndexManufactureTasks extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('manufacture_tasks'),
+                'title'       => __('Manufacture tasks'),
                 'pageHead'    => [
-                    'title'     => __('manufacture_tasks'),
+                    'title'     => __('Manufacture tasks'),
                     'iconRight' => [
                         'icon'  => ['fal', 'fa-drone'],
                         'title' => __('manufacture_tasks'),
@@ -232,7 +232,7 @@ class IndexManufactureTasks extends OrgAction
                             'name'       => 'grp.org.productions.show.crafts.manufacture_tasks.index',
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('manufacture_tasks'),
+                        'label' => __('Manufacture tasks'),
                         'icon'  => 'fal fa-bars',
                     ],
                     'suffix' => $suffix
