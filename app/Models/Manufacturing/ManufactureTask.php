@@ -10,6 +10,7 @@ namespace App\Models\Manufacturing;
 use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
 use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InProduction;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -60,12 +62,13 @@ use Spatie\Sluggable\SlugOptions;
  * @mixin \Eloquent
  */
 
-class ManufactureTask extends Model
+class ManufactureTask extends Model implements Auditable
 {
     use InProduction;
     use SoftDeletes;
     use HasSlug;
     use HasUniversalSearch;
+    use HasHistory;
 
     protected $guarded = [];
 

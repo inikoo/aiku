@@ -5,21 +5,22 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Manufacturing\RawMaterial\UI;
+namespace App\Actions\Manufacturing\ManufactureTask\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Manufacturing\Production\UI\ShowProductionCrafts;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Actions\Traits\Actions\WithActionButtons;
+use App\Enums\UI\Manufacturing\ManufactureTaskTabsEnum;
 use App\Enums\UI\Manufacturing\ProductionTabsEnum;
 use App\Enums\UI\Manufacturing\RawMaterialTabsEnum;
 use App\Http\Resources\History\HistoryResource;
-
+use App\Http\Resources\Manufacturing\ManufactureTasksResource;
 use App\Http\Resources\Manufacturing\RawMaterialsResource;
 use App\Http\Resources\Tag\TagResource;
 use App\Models\Helpers\Tag;
-
+use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
 use App\Models\SysAdmin\Organisation;
@@ -28,13 +29,13 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowRawMaterial extends OrgAction
+class ShowManufactureTask extends OrgAction
 {
     use WithActionButtons;
 
-    public function handle(RawMaterial $rawMaterial): RawMaterial
+    public function handle(ManufactureTask $manufactureTask): ManufactureTask
     {
-        return $rawMaterial;
+        return $manufactureTask;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -54,33 +55,33 @@ class ShowRawMaterial extends OrgAction
         ]);
     }
 
-    public function asController(Organisation $organisation, Production $production, RawMaterial $rawMaterial, ActionRequest $request): RawMaterial
+    public function asController(Organisation $organisation, Production $production, ManufactureTask $manufactureTask, ActionRequest $request): ManufactureTask
     {
-        $this->initialisationFromProduction($production, $request)->withTab(RawMaterialTabsEnum::values());
+        $this->initialisationFromProduction($production, $request)->withTab(ManufactureTaskTabsEnum::values());
 
-        return $this->handle($rawMaterial);
+        return $this->handle($manufactureTask);
     }
 
 
-    public function htmlResponse(RawMaterial $rawMaterial, ActionRequest $request): Response
+    public function htmlResponse(ManufactureTask $manufactureTask, ActionRequest $request): Response
     {
 
         return Inertia::render(
-            'Org/Manufacturing/RawMaterial',
+            'Org/Manufacturing/ManufactureTask',
             [
-                'title'                            => __('raw material'),
+                'title'                            => __('manufacture task'),
                 'breadcrumbs'                      => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'navigation'                       => [
-                    'previous' => $this->getPrevious($rawMaterial, $request),
-                    'next'     => $this->getNext($rawMaterial, $request),
+                    'previous' => $this->getPrevious($manufactureTask, $request),
+                    'next'     => $this->getNext($manufactureTask, $request),
                 ],
                 'pageHead'                         => [
                     'icon'    =>
                         [
                             'icon'  => ['fal', 'industry'],
-                            'title' => __('raw material')
+                            'title' => __('manufacture task')
                         ],
-                    'title'   => $rawMaterial->code,
+                    'title'   => $manufactureTask->name,
                     'actions' => [
                         [
                             'type'    => 'button',
@@ -101,35 +102,35 @@ class ShowRawMaterial extends OrgAction
                 'tabs'                             => [
 
                     'current'    => $this->tab,
-                    'navigation' => RawMaterialTabsEnum::navigation(),
+                    'navigation' => ManufactureTaskTabsEnum::navigation(),
                 ],
                 'tagsList'      => TagResource::collection(Tag::all()),
 
-                RawMaterialTabsEnum::SHOWCASE->value => $this->tab == RawMaterialTabsEnum::SHOWCASE->value ?
-                    fn () => GetRawMaterialShowcase::run($rawMaterial)
-                    : Inertia::lazy(fn () => GetRawMaterialShowcase::run($rawMaterial)),
+                ManufactureTaskTabsEnum::SHOWCASE->value => $this->tab == ManufactureTaskTabsEnum::SHOWCASE->value ?
+                    fn () => GetManufactureTaskShowcase::run($manufactureTask)
+                    : Inertia::lazy(fn () => GetManufactureTaskShowcase::run($manufactureTask)),
 
 
 
 
 
-               RawMaterialTabsEnum::HISTORY->value => $this->tab == RawMaterialTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistory::run($rawMaterial))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($rawMaterial)))
+                ManufactureTaskTabsEnum::HISTORY->value => $this->tab == ManufactureTaskTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistory::run($manufactureTask))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($manufactureTask)))
 
             ]
-        )->table(IndexHistory::make()->tableStructure(prefix: ProductionTabsEnum::HISTORY->value));
+        )->table(IndexHistory::make()->tableStructure(prefix: ManufactureTaskTabsEnum::HISTORY->value));
     }
 
 
-    public function jsonResponse(RawMaterial $rawMaterial): RawMaterialsResource
+    public function jsonResponse(ManufactureTask $manufactureTask): ManufactureTasksResource
     {
-        return new RawMaterialsResource($rawMaterial);
+        return new ManufactureTasksResource($manufactureTask);
     }
 
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
-        $rawMaterial = RawMaterial::where('slug', $routeParameters['rawMaterial'])->first();
+        $manufactureTask = ManufactureTask::where('slug', $routeParameters['manufactureTask'])->first();
 
         return array_merge(
             ShowProductionCrafts::make()->getBreadcrumbs($routeParameters),
@@ -139,18 +140,18 @@ class ShowRawMaterial extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name'       => 'grp.org.productions.show.crafts.raw_materials.index',
+                                'name'       => 'grp.org.productions.show.crafts.manufacture_tasks.index',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('raw materials'),
+                            'label' => __('manufacture tasks'),
                             'icon'  => 'fal fa-bars',
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.org.productions.show.crafts.raw_materials.show',
+                                'name'       => 'grp.org.productions.show.crafts.manufacture_tasks.show',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => $rawMaterial?->code,
+                            'label' => $manufactureTask?->code,
                             'icon'  => 'fal fa-bars'
                         ],
                     ],
@@ -161,34 +162,34 @@ class ShowRawMaterial extends OrgAction
         );
     }
 
-    public function getPrevious(RawMaterial $rawMaterial, ActionRequest $request): ?array
+    public function getPrevious(ManufactureTask $manufactureTask, ActionRequest $request): ?array
     {
-        $previous = RawMaterial::where('code', '<', $rawMaterial->code)->where('organisation_id', $rawMaterial->organisation_id)->orderBy('code', 'desc')->first();
+        $previous = ManufactureTask::where('code', '<', $manufactureTask->code)->where('organisation_id', $manufactureTask->organisation_id)->orderBy('code', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
-    public function getNext(RawMaterial $rawMaterial, ActionRequest $request): ?array
+    public function getNext(ManufactureTask $manufactureTask, ActionRequest $request): ?array
     {
-        $next = RawMaterial::where('code', '>', $rawMaterial->code)->where('organisation_id', $rawMaterial->organisation_id)->orderBy('code')->first();
+        $next = ManufactureTask::where('code', '>', $manufactureTask->code)->where('organisation_id', $manufactureTask->organisation_id)->orderBy('code')->first();
 
         return $this->getNavigation($next, $request->route()->getName());
     }
 
-    private function getNavigation(?RawMaterial $rawMaterial, string $routeName): ?array
+    private function getNavigation(?ManufactureTask $manufactureTask, string $routeName): ?array
     {
-        if (!$rawMaterial) {
+        if (!$manufactureTask) {
             return null;
         }
 
         return match ($routeName) {
             'grp.org.productions.show.infrastructure.dashboard' => [
-                'label' => $rawMaterial->cide,
+                'label' => $manufactureTask->code,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
                         'organisation'  => $this->organisation->slug,
-                        'production'    => $rawMaterial->production->slug
+                        'production'    => $manufactureTask->production->slug
                     ]
                 ]
             ],

@@ -10,6 +10,7 @@ use App\Actions\Manufacturing\Artefact\UI\IndexArtefacts;
 use App\Actions\Manufacturing\JobOrder\UI\ShowJobOrder;
 use App\Actions\Manufacturing\ManufactureTask\UI\CreateManufactureTask;
 use App\Actions\Manufacturing\ManufactureTask\UI\IndexManufactureTasks;
+use App\Actions\Manufacturing\ManufactureTask\UI\ShowManufactureTask;
 use App\Actions\Manufacturing\Production\UI\CreateProduction;
 use App\Actions\Manufacturing\Production\UI\EditProduction;
 use App\Actions\Manufacturing\Production\UI\IndexProductions;
@@ -55,6 +56,8 @@ Route::prefix('{production}')
 
                         Route::get('manufacture-tasks', IndexManufactureTasks::class)->name('manufacture_tasks.index');
                         Route::get('manufacture-tasks/create', CreateManufactureTask::class)->name('manufacture_tasks.create');
+                        Route::get('manufacture-tasks/{manufactureTask}', ShowManufactureTask::class)->name('manufacture_tasks.show');
+
 
 
                     });
