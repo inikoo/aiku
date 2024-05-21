@@ -77,7 +77,7 @@ class IndexPalletsInDelivery extends OrgAction
             );
 
 
-        return $query->allowedSorts(['customer_reference', 'reference', 'fulfilment_customer_name'])
+        return $query->allowedSorts(['customer_reference', 'reference', 'fulfilment_customer_name','type'])
             ->allowedFilters([$globalSearch, 'customer_reference', 'reference'])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -145,8 +145,15 @@ class IndexPalletsInDelivery extends OrgAction
             }
 
 
-            $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
-            $table->column(key: 'rental', label: __('Rental'), canBeHidden: false, searchable: true);
+
+            if($palletDelivery->state == PalletDeliveryStateEnum::BOOKING_IN or $palletDelivery->state == PalletDeliveryStateEnum::BOOKED_IN){
+                $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
+                $table->column(key: 'rental', label: __('Rental'), canBeHidden: false, searchable: true);
+
+            }
+
+
+
 
 
             if (
@@ -235,6 +242,7 @@ class IndexPalletsInDelivery extends OrgAction
                     ]
                 ],
                 'data'        => PalletsResource::collection($pallets),
+
             ]
         )->table($this->tableStructure($this->parent, 'pallets'));
     }
