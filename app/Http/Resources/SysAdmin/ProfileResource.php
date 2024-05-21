@@ -27,9 +27,9 @@ class ProfileResource extends JsonResource
         $user = $this;
 
         return [
-            'showcase'   => GetProfileShowcase::run($user),
-            'timesheets' => TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TIMESHEETS->value)),
-            'history'    => HistoryResource::collection(IndexHistory::run($user, ProfileTabsEnum::HISTORY->value)),
+            'showcase'   => GetProfileShowcase::run($user->resource),
+            'timesheets' => TimesheetsResource::collection(IndexTimesheets::run($user->resource->parent, ProfileTabsEnum::TIMESHEETS->value)),
+            'history'    => HistoryResource::collection(IndexHistory::run($user->resource, ProfileTabsEnum::HISTORY->value)),
             'visit_logs' => UserRequestLogsResource::collection(IndexUserRequestLogs::run())
         ];
     }
