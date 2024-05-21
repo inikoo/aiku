@@ -11,7 +11,9 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialStateEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialTypeEnum;
 use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
+use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -44,7 +46,7 @@ class UpdateRawMaterial extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("productions-view.{$this->organisation->id}");
+        return $request->user()->hasPermissionTo("productions_rd.{$this->production->id}.edit");
     }
 
 
@@ -79,10 +81,10 @@ class UpdateRawMaterial extends OrgAction
         ];
     }
 
-    public function asController(RawMaterial $rawMaterial, ActionRequest $request): RawMaterial
+    public function asController(Organisation $organisation, Production $production, RawMaterial $rawMaterial, ActionRequest $request): RawMaterial
     {
         $this->rawMaterial = $rawMaterial;
-        $this->initialisation($rawMaterial->organisation, $request);
+        $this->initialisationFromProduction($rawMaterial->production, $request);
 
 
         return $this->handle(

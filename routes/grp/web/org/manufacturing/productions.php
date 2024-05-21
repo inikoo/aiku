@@ -17,6 +17,7 @@ use App\Actions\Manufacturing\Production\UI\ShowProduction;
 use App\Actions\Manufacturing\Production\UI\ShowProductionCrafts;
 use App\Actions\Manufacturing\Production\UI\ShowProductionOperations;
 use App\Actions\Manufacturing\RawMaterial\UI\CreateRawMaterial;
+use App\Actions\Manufacturing\RawMaterial\UI\EditRawMaterial;
 use App\Actions\Manufacturing\RawMaterial\UI\IndexRawMaterials;
 use App\Actions\Manufacturing\RawMaterial\UI\ShowRawMaterial;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +48,7 @@ Route::prefix('{production}')
                         Route::get('raw-materials', IndexRawMaterials::class)->name('raw_materials.index');
                         Route::get('raw-materials/create', CreateRawMaterial::class)->name('raw_materials.create');
                         Route::get('raw-materials/{rawMaterial}', ShowRawMaterial::class)->name('raw_materials.show');
+                        Route::get('raw-materials/{rawMaterial}/edit', EditRawMaterial::class)->name('raw_materials.edit');
 
                         Route::get('artefacts', IndexArtefacts::class)->name('artefacts.index');
                         Route::get('artefacts/create', CreateDummy::class)->name('artefacts.create');

@@ -82,7 +82,17 @@ class ShowRawMaterial extends OrgAction
                         ],
                     'title'   => $rawMaterial->code,
                     'actions' => [
-                        $this->canEdit ? $this->getEditActionIcon($request) : null,
+                        [
+                            'type'    => 'button',
+                        'tooltip' => __('Edit'),
+                        'icon'    => 'fal fa-pencil',
+                        'style'   => 'secondary',
+                        'route'   => [
+                            'name'       => preg_replace('/(show|dashboard)$/', 'edit', $request->route()->getName()),
+                            'parameters' =>  $request->route()->originalParameters()
+                            
+                            ]
+                        ]
 
                     ],
 
@@ -137,7 +147,7 @@ class ShowRawMaterial extends OrgAction
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.org.productions.index',
+                                'name'       => 'grp.org.productions.show.crafts.raw_materials.show',
                                 'parameters' => $routeParameters
                             ],
                             'label' => $rawMaterial?->code,
