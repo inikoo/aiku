@@ -7,6 +7,7 @@
 
 namespace App\Actions\Inventory\Warehouse;
 
+use App\Enums\SysAdmin\Authorisation\FulfilmentPermissionsEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Enums\SysAdmin\Authorisation\WarehousePermissionsEnum;
 use App\Models\Inventory\Warehouse;
@@ -61,12 +62,9 @@ class SeedWarehousePermissions
             });
 
 
-
         foreach (RolesEnum::cases() as $case) {
             if ($case->scope() === 'Warehouse') {
-
                 if (!$role = (new Role())->where('name', RolesEnum::getRoleName($case->value, $warehouse))->first()) {
-
                     $role = Role::create(
                         [
                             'name'       => RolesEnum::getRoleName($case->value, $warehouse),
@@ -79,11 +77,32 @@ class SeedWarehousePermissions
                 $warehousePermissions = [];
 
                 foreach ($case->getPermissions() as $permissionName) {
-                    if ($permission = (new Permission())->where('name', WarehousePermissionsEnum::getPermissionName($permissionName->value, $warehouse))->first()) {
-                        $warehousePermissions[] = $permission;
+                    if (class_basename($permissionName) == 'WarehousePermissionsEnum') {
+                        if ($permission = (new Permission())->where('name', WarehousePermissionsEnum::getPermissionName($permissionName->value, $warehouse))->first()) {
+                            $warehousePermissions[] = $permission;
+                        }
+                    } else {
+                        foreach ($warehouse->fulfilments as $fulfilment) {
+                            if ($permission = (new Permission())->where('name', FulfilmentPermissionsEnum::getPermissionName($permissionName->value, $fulfilment))->first()) {
+                                $warehousePermissions[] = $permission;
+                            }
+                        }
                     }
                 }
                 $role->syncPermissions($warehousePermissions);
+            } elseif ($case->scope() === 'Fulfilment') {
+                if ($case == RolesEnum::FULFILMENT_SHOP_SUPERVISOR) {
+                    foreach ($warehouse->fulfilments as $fulfilment) {
+                        $role = (new Role())->where('name', RolesEnum::getRoleName($case->value, $warehouse))->first();
+                        foreach ($case->getPermissions() as $permissionName) {
+                            if (class_basename($permissionName) == 'FulfilmentPermissionsEnum') {
+                                if ($permission = (new Permission())->where('name', FulfilmentPermissionsEnum::getPermissionName($permissionName->value, $fulfilment))->first()) {
+                                    $role->attachPermissions($permission);
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -97,7 +116,6 @@ class SeedWarehousePermissions
             $command->info("Seeding permissions for warehouse: $warehouse->name");
             setPermissionsTeamId($warehouse->group_id);
             $this->handle($warehouse);
-
         }
 
         return 0;
