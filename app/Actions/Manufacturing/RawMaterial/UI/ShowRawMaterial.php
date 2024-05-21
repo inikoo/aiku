@@ -10,7 +10,6 @@ namespace App\Actions\Manufacturing\RawMaterial\UI;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Manufacturing\Production\UI\ShowProductionCrafts;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Enums\UI\Manufacturing\ProductionTabsEnum;
 use App\Enums\UI\Manufacturing\RawMaterialTabsEnum;
@@ -23,7 +22,6 @@ use App\Models\Helpers\Tag;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -84,13 +82,13 @@ class ShowRawMaterial extends OrgAction
                     'actions' => [
                         [
                             'type'    => 'button',
-                        'tooltip' => __('Edit'),
-                        'icon'    => 'fal fa-pencil',
-                        'style'   => 'secondary',
-                        'route'   => [
+                        'tooltip'     => __('Edit'),
+                        'icon'        => 'fal fa-pencil',
+                        'style'       => 'secondary',
+                        'route'       => [
                             'name'       => preg_replace('/(show|dashboard)$/', 'edit', $request->route()->getName()),
-                            'parameters' =>  $request->route()->originalParameters()
-                            
+                            'parameters' => $request->route()->originalParameters()
+
                             ]
                         ]
 
