@@ -19,6 +19,7 @@ import { useLayoutStore } from "@/Stores/layout"
 import TopBar from "@/Layouts/Grp/TopBar.vue"
 import LeftSideBar from "@/Layouts/Grp/LeftSideBar.vue"
 import RightSideBar from "@/Layouts/Grp/RightSideBar.vue"
+import StackedComponents from "@/Layouts/Grp/StackedComponents.vue"
 import Breadcrumbs from "@/Components/Navigation/Breadcrumbs.vue"
 import Notification from '@/Components/Utils/Notification.vue'
 import { faTachometerAltFast, faGlobe } from '@fal'
@@ -68,6 +69,12 @@ const sidebarOpen = ref(false)
         <!-- Sidebar: Right -->
         <RightSideBar class="fixed top-16 w-44 transition-all duration-200 ease-in-out"
             :class="[Object.values(layout.rightSidebar).some(value => value.show) ? 'right-0' : '-right-44']" />
+
+        <Teleport to="body">
+            <StackedComponents
+            
+            />
+        </Teleport>
 
     </div>
 

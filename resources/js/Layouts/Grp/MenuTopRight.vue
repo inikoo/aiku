@@ -6,10 +6,15 @@ import { router } from '@inertiajs/vue3'
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useLiveUsers } from '@/Stores/active-users'
 import SearchBar from "@/Components/SearchBar.vue"
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Image from '@/Components/Image.vue'
 import Popover from '@/Components/Popover.vue'
 import NotificationList from '@/Components/NotificationList/NotificationList.vue'
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faSignOutAlt } from '@fas'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import Button from "@/Components/Elements/Buttons/Button.vue"
+library.add(faSignOutAlt)
 
 const props = defineProps<{
     urlPrefix: string
@@ -61,7 +66,7 @@ const notifications = layoutStore.user.notifications
 <template>
     <!-- Avatar Group -->
     <div class="flex justify-between gap-x-2">
-        <div class="flex items-center">
+        <div class="flex items-center gap-x-1">
             <!-- Button: Search -->
             <button @click="showSearchDialog = !showSearchDialog" id="search"
                 class="h-7 w-fit flex items-center justify-center gap-x-3 ring-1 ring-gray-300 rounded-md px-3 text-gray-500 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
@@ -76,19 +81,36 @@ const notifications = layoutStore.user.notifications
             </button>
 
             <!-- Button: Notifications -->
-            <div class="relative">
+            <div class="relative mx-2 flex items-center">
                 <Popover width="w-full">
                     <template #button>
-                        <button type="button"
-                            class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 mr-3 ml-3">
-                            <span class="sr-only">{{ trans("View notifications") }}</span>
+                        <div class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                            <span class="sr-only">{{ trans("Logout") }}</span>
                             <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
-                        </button>
+                        </div>
                     </template>
 
                     <template #content="{ close: closed }">
                         <div class="w-96">
                             <NotificationList :messages="notifications" />
+                        </div>
+                    </template>
+                </Popover>
+            </div>
+
+            <!-- Button: Logout -->
+            <div class="relative">
+                <Popover width="w-full">
+                    <template #button>
+                        <FontAwesomeIcon icon='fal fa-sign-out-alt' class='text-red-400 hover:text-red-500' fixed-width aria-hidden='true' size="lg" />
+                    </template>
+
+                    <template #content="{ close: closed }">
+                        <div class="min-w-32 flex flex-col justify-center gap-y-2">
+                            <div class="whitespace-nowrap text-gray-500 text-xs">Are you sure want to logout?</div>
+                            <div class="mx-auto">
+                                <Button @click="logoutAuth()" label="Yes, Logout" type="negative" />
+                            </div>
                         </div>
                     </template>
                 </Popover>
@@ -117,14 +139,14 @@ const notifications = layoutStore.user.notifications
                         </div>
                         </MenuItem>
                     </div>
-                    <div class="py-1">
+                    <!-- <div class="py-1">
                         <MenuItem v-slot="{ active }">
                         <div @click="logoutAuth()"
                             :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
                             {{ trans('Logout') }}
                         </div>
                         </MenuItem>
-                    </div>
+                    </div> -->
                 </MenuItems>
             </transition>
         </Menu>

@@ -16,15 +16,18 @@ import TableTimesheets from "@/Components/Tables/Grp/Org/HumanResources/TableTim
 import TableUserRequestLogs from "@/Components/Tables/Grp/SysAdmin/TableUserRequestLogs.vue"
 import ProfileShowcase from "@/Components/Profile/ProfileShowcase.vue"
 
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faIdCard } from '@fal'
+import { faSpinnerThird } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faIdCard)
+import axios from 'axios'
+library.add(faIdCard, faSpinnerThird)
 
 
 const props = defineProps<{
     title: string,
     pageHead: TSPageHeading
-    tabs: TSTabs
+    tabs?: TSTabs
     history?: {}
     timesheets?: {}
     visit_logs?: {}
@@ -32,7 +35,7 @@ const props = defineProps<{
 
 }>()
 
-const currentTab = ref(props.tabs.current)
+const currentTab = ref(props.tabs?.current || 'showcase')
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
@@ -47,14 +50,29 @@ const component = computed(() => {
 
 })
 
+const isLoading = ref(false)
+const dataxx = ref(null)
+async () => {
+    isLoading.value = true
+    try {
+        dataxx.value = await axios.get(
+            route('grp.profile.show'),
+        )
+        console.log('response', dataxx.value)
+    } catch (error: any) {
+
+    }
+    isLoading.value = false
+}
+
 </script>
 
 
 <template>
 
-    <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead" />
-    <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
-
-    <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
+    <!-- <Head :title="capitalize(title)" /> -->
+    <!-- <PageHeading :data="pageHead" /> -->
+    <Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
+    <FontAwesomeIcon v-if="isLoading" icon='fad fa-spinner-third' class='animate-spin' size="lg" fixed-width aria-hidden='true' />
+    <component v-else :is="ProfileShowcase" :data="dataxx" tab="showcase" />
 </template>
