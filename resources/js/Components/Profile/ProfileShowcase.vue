@@ -64,7 +64,7 @@ const props = defineProps<{
                             Status
                         </div>
                         <div class="col-span-2 font-medium capitalize">
-                            {{ data?.status.tooltip }}
+                            {{ data?.status?.tooltip }}
                         </div>
                     </div>
 
@@ -100,7 +100,7 @@ const props = defineProps<{
                             Roles
                         </div>
                         <div class="col-span-2 font-medium">
-                            {{ data?.roles.length }} roles
+                            {{ data?.roles?.length }} roles
                         </div>
                     </div>
 
@@ -109,7 +109,7 @@ const props = defineProps<{
                             Permissions
                         </div>
                         <div class="col-span-2 font-medium">
-                            {{ data?.permissions.length }} access
+                            {{ data?.permissions?.length }} access
                         </div>
                     </div>
                 </div>

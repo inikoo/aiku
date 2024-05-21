@@ -9,55 +9,10 @@ import { useColorTheme } from '@/Composables/useStockList'
 
 import { defineStore } from "pinia"
 import { Image } from "@/types/Image"
-// import { routeType } from "@/types/route"
 import { Colors } from "@/types/Color"
-import { OrganisationsData, Group } from "@/types/LayoutRules"
+import { OrganisationsData, Group, OrganisationState, StackedComponent} from '@/types/LayoutRules'
+import Profile from "@/Pages/Grp/Profile.vue"
 
-// interface OrganisationsData {
-//     id: number
-//     slug: string
-//     code: string
-//     label: string
-//     logo: Image
-//     route: routeType
-//     authorised_shops: {
-//         id: number
-//         slug: string
-//         code: string
-//         label: string
-//         state: string
-//         type: string
-//         route: routeType
-//     }[]
-//     authorised_warehouses: {
-//         id: number
-//         slug: string
-//         code: string
-//         label: string
-//         state: string
-//         route: routeType
-//     }[]
-//     authorised_fulfilments: {
-//         id: number
-//         slug: string
-//         code: string
-//         label: string
-//         state: string
-//         type: string
-//         route: routeType
-//     }[]
-// }
-
-// interface Group {
-//     logo: Image
-//     slug: string
-//     label: string
-// }
-
-// Each organisation have their own state
-interface OrganisationState {
-    [key: string] : string  // 'currentShop' | 'currentWarehouse' | 'currentFulfilment'
-}
 
 export const useLayoutStore = defineStore("layout", {
     state: () => (
@@ -95,6 +50,7 @@ export const useLayoutStore = defineStore("layout", {
                     show: false
                 }
             },
+            stackedComponents: [] as StackedComponent[],
             user: {} as { id: number, avatar_thumbnail: Image, email: string, username: string },
         }
     ),

@@ -1,24 +1,28 @@
 <script setup lang='ts'>
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
 import { trans } from 'laravel-vue-i18n'
 import { useLayoutStore } from '@/Stores/layout'
 import { router } from '@inertiajs/vue3'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, inject } from 'vue'
 import { useLiveUsers } from '@/Stores/active-users'
 import SearchBar from "@/Components/SearchBar.vue"
 import Image from '@/Components/Image.vue'
 import Popover from '@/Components/Popover.vue'
 import NotificationList from '@/Components/NotificationList/NotificationList.vue'
 
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import { layoutStructure } from "@/Composables/useLayoutStructure"
+import Profile from '@/Pages/Grp/Profile.vue'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faSignOutAlt } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import Button from "@/Components/Elements/Buttons/Button.vue"
 library.add(faSignOutAlt)
 
 const props = defineProps<{
     urlPrefix: string
 }>()
+
+const layout = inject('layout', layoutStructure)
 
 const layoutStore = useLayoutStore()
 const showSearchDialog = ref(false)
@@ -115,40 +119,14 @@ const notifications = layoutStore.user.notifications
                     </template>
                 </Popover>
             </div>
-        </div>
 
-        <!-- Avatar Button -->
-        <Menu as="div" class="relative">
-            <MenuButton id="avatar-thumbnail"
-                class="flex max-w-xs overflow-hidden items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+            <!-- Button: Logout -->
+            <div @click="layout.stackedComponents.push(Profile)"
+                class="flex max-w-xs overflow-hidden items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 cursor-pointer">
                 <span class="sr-only">{{ trans("Open user menu") }}</span>
                 <Image class="h-8 w-8 rounded-full" :src="layoutStore.user.avatar_thumbnail" alt="" />
-            </MenuButton>
+            </div>
+        </div>
 
-            <transition enter-active-class="transition ease-out duration-100"
-                enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
-                leave-to-class="transform opacity-0 scale-95">
-                <MenuItems
-                    class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
-                    <div class="py-1">
-                        <MenuItem v-slot="{ active }">
-                        <div type="button" @click="router.visit(route(urlPrefix + 'profile.show'))"
-                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
-                            {{ trans("View profile") }}
-                        </div>
-                        </MenuItem>
-                    </div>
-                    <!-- <div class="py-1">
-                        <MenuItem v-slot="{ active }">
-                        <div @click="logoutAuth()"
-                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
-                            {{ trans('Logout') }}
-                        </div>
-                        </MenuItem>
-                    </div> -->
-                </MenuItems>
-            </transition>
-        </Menu>
     </div>
 </template>

@@ -5,7 +5,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue"
 
 import { useTabChange } from "@/Composables/tab-change"
 import { capitalize } from "@/Composables/capitalize"
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import type { Component } from 'vue'
 
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
@@ -51,19 +51,24 @@ const component = computed(() => {
 })
 
 const isLoading = ref(false)
-const dataxx = ref(null)
-async () => {
+const dataProfile = ref(null)
+const fetchProfileData = async () => {
     isLoading.value = true
     try {
-        dataxx.value = await axios.get(
+        const { data } = await axios.get(
             route('grp.profile.show'),
         )
-        console.log('response', dataxx.value)
+        dataProfile.value = data.data
+        console.log('response', dataProfile.value)
     } catch (error: any) {
 
     }
     isLoading.value = false
 }
+
+onMounted(() => {
+    fetchProfileData()
+})
 
 </script>
 
@@ -73,6 +78,8 @@ async () => {
     <!-- <Head :title="capitalize(title)" /> -->
     <!-- <PageHeading :data="pageHead" /> -->
     <Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
-    <FontAwesomeIcon v-if="isLoading" icon='fad fa-spinner-third' class='animate-spin' size="lg" fixed-width aria-hidden='true' />
-    <component v-else :is="ProfileShowcase" :data="dataxx" tab="showcase" />
+    <div v-if="isLoading" class="h-full w-full flex items-center justify-center">
+        <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin' size="4x" fixed-width aria-hidden='true' />
+    </div>
+    <component v-else :is="ProfileShowcase" :data="dataProfile" tab="showcase" />
 </template>
