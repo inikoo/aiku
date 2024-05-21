@@ -9,6 +9,7 @@ use App\Actions\Devel\UI\CreateDummy;
 use App\Actions\Manufacturing\Artefact\UI\IndexArtefacts;
 use App\Actions\Manufacturing\JobOrder\UI\ShowJobOrder;
 use App\Actions\Manufacturing\ManufactureTask\UI\CreateManufactureTask;
+use App\Actions\Manufacturing\ManufactureTask\UI\EditManufactureTask;
 use App\Actions\Manufacturing\ManufactureTask\UI\IndexManufactureTasks;
 use App\Actions\Manufacturing\ManufactureTask\UI\ShowManufactureTask;
 use App\Actions\Manufacturing\Production\UI\CreateProduction;
@@ -57,6 +58,7 @@ Route::prefix('{production}')
                         Route::get('manufacture-tasks', IndexManufactureTasks::class)->name('manufacture_tasks.index');
                         Route::get('manufacture-tasks/create', CreateManufactureTask::class)->name('manufacture_tasks.create');
                         Route::get('manufacture-tasks/{manufactureTask}', ShowManufactureTask::class)->name('manufacture_tasks.show');
+                        Route::get('manufacture-tasks/{manufactureTask}/edit', EditManufactureTask::class)->name('manufacture_tasks.edit');
 
 
 

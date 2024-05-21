@@ -88,6 +88,7 @@ use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
 use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
 use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
 use App\Actions\Manufacturing\ManufactureTask\StoreManufactureTask;
+use App\Actions\Manufacturing\ManufactureTask\UpdateManufactureTask;
 use App\Actions\Manufacturing\RawMaterial\ImportRawMaterial;
 use App\Actions\Manufacturing\RawMaterial\StoreRawMaterial;
 use App\Actions\Manufacturing\RawMaterial\UpdateRawMaterial;
@@ -290,6 +291,7 @@ Route::name('production.')->prefix('production/{production:id}')->group(function
     Route::post('raw-materials', StoreRawMaterial::class)->name('raw-materials.store');
     Route::patch('raw-materials/{rawMaterial:id}', UpdateRawMaterial::class)->name('raw-materials.update');
     Route::post('manufacture-tasks', StoreManufactureTask::class)->name('manufacture_tasks.store');
+    Route::patch('manufacture-tasks/{manufactureTask:id}', UpdateManufactureTask::class)->name('manufacture_tasks.update');
 
 });
 
