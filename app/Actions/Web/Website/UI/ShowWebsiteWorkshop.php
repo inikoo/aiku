@@ -7,19 +7,17 @@
 
 namespace App\Actions\Web\Website\UI;
 
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\Web\Website\GetWebsiteWorkshopCategory;
 use App\Actions\Web\Website\GetWebsiteWorkshopColorScheme;
 use App\Actions\Web\Website\GetWebsiteWorkshopMenu;
 use App\Actions\Web\Website\GetWebsiteWorkshopProduct;
 use App\Enums\UI\Web\WebsiteWorkshopTabsEnum;
 use App\Http\Resources\Web\WebsiteLayoutWorkshopResource;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -28,16 +26,14 @@ class ShowWebsiteWorkshop extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        $this->canEdit = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
+        return $request->user()->hasPermissionTo("web.{$this->shop->id}.view");
 
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, Website $website, ActionRequest $request): Website
+    public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): Website
     {
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(WebsiteWorkshopTabsEnum::values());
-
+        $this->initialisationFromShop($shop, $request)->withTab(WebsiteWorkshopTabsEnum::values());
         return $website;
     }
 
@@ -59,12 +55,7 @@ class ShowWebsiteWorkshop extends OrgAction
                 ],
                 'pageHead'    => [
 
-                    'title'    => __('Workshop'),
-                    'container'=> [
-                        'icon'    => ['fal', 'fa-globe'],
-                        'tooltip' => __('Website'),
-                        'label'   => Str::possessive($website->name)
-                    ],
+                    'title'        => __('Workshop'),
                     'iconRight'    =>
                         [
                             'icon'  => ['fal', 'drafting-compass'],
@@ -125,6 +116,9 @@ class ShowWebsiteWorkshop extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
+
+
+
         $headCrumb = function (string $type, Website $website, array $routeParameters, string $suffix) {
             return [
                 [
@@ -153,23 +147,24 @@ class ShowWebsiteWorkshop extends OrgAction
             ];
         };
 
+        $website=Website::where('slug', $routeParameters['website'])->first();
 
         return match ($routeName) {
             'grp.org.shops.show.web.websites.workshop' =>
 
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     'modelWithIndex',
-                    $routeParameters['website'],
+                    $website,
                     [
                         'index' => [
                             'name'       => 'grp.org.shops.show.web.websites.index',
-                            'parameters' => []
+                            'parameters' => $routeParameters
                         ],
                         'model' => [
                             'name'       => 'grp.org.shops.show.web.websites.show',
-                            'parameters' => [$routeParameters['website']->slug]
+                            'parameters' => $routeParameters
                         ]
                     ],
                     $suffix
@@ -196,7 +191,7 @@ class ShowWebsiteWorkshop extends OrgAction
 
     private function getNavigation(?Website $website, string $routeName): ?array
     {
-        return null;
+
         if (!$website) {
             return null;
         }
@@ -207,7 +202,9 @@ class ShowWebsiteWorkshop extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'website' => $website->slug
+                        'organisation'=> $website->organisation->slug,
+                        'shop'        => $website->shop->slug,
+                        'website'     => $website->slug
                     ]
                 ]
             ]

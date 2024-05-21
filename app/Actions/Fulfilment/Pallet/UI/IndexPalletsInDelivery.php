@@ -146,7 +146,7 @@ class IndexPalletsInDelivery extends OrgAction
 
 
 
-            if($palletDelivery->state == PalletDeliveryStateEnum::BOOKING_IN or $palletDelivery->state == PalletDeliveryStateEnum::BOOKED_IN){
+            if($palletDelivery->state == PalletDeliveryStateEnum::BOOKING_IN or $palletDelivery->state == PalletDeliveryStateEnum::BOOKED_IN) {
                 $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
                 $table->column(key: 'rental', label: __('Rental'), canBeHidden: false, searchable: true);
 

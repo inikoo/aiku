@@ -38,15 +38,12 @@ class ShowWebsite extends OrgAction
         if ($this->parent instanceof Shop) {
             $this->canEdit      = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
             $this->isSupervisor = $request->user()->hasPermissionTo("supervisor-web.{$this->shop->id}");
-
             return $request->user()->hasPermissionTo("web.{$this->shop->id}.view");
         } elseif ($this->parent instanceof Fulfilment) {
             $this->canEdit      = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
             $this->isSupervisor = $request->user()->hasPermissionTo("supervisor-fulfilment-shop.{$this->fulfilment->id}");
-
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
         }
-
         return false;
     }
 
@@ -54,7 +51,6 @@ class ShowWebsite extends OrgAction
     {
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(WebsiteTabsEnum::values());
-
         return $website;
     }
 
@@ -251,7 +247,6 @@ class ShowWebsite extends OrgAction
             return null;
         }
 
-
         return match ($routeName) {
             'grp.org.websites.show' => [
                 'label' => $website->name,
@@ -259,6 +254,7 @@ class ShowWebsite extends OrgAction
                     'name'       => $routeName,
                     'parameters' => [
                         'organisation' => $website->shop->organisation->slug,
+                        'shop'         => $website->shop->slug,
                         'website'      => $website->slug
                     ]
                 ]
