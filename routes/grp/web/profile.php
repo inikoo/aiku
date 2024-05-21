@@ -5,6 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Actions\UI\Notification\IndexNotification;
 use App\Actions\UI\Profile\EditProfile;
 use App\Actions\UI\Profile\ShowProfile;
 use App\Actions\UI\Profile\UpdateProfile;
@@ -12,3 +13,4 @@ use App\Actions\UI\Profile\UpdateProfile;
 Route::get('/', ShowProfile::class)->name('show');
 Route::get('/edit', EditProfile::class)->name('edit');
 Route::post('/', UpdateProfile::class)->name('update');
+Route::get('/notifications', IndexNotification::class)->name('notifications.index');
