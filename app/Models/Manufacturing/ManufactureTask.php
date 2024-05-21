@@ -10,6 +10,7 @@ namespace App\Models\Manufacturing;
 use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
 use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InProduction;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -47,7 +49,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\Artefact> $artefacts
  * @property-read \App\Models\SysAdmin\Group $group
- * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read Organisation $organisation
  * @property-read \App\Models\Manufacturing\Production $production
  * @property-read \App\Models\Manufacturing\ManufactureTaskStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
@@ -60,12 +62,13 @@ use Spatie\Sluggable\SlugOptions;
  * @mixin \Eloquent
  */
 
-class ManufactureTask extends Model
+class ManufactureTask extends Model implements Auditable
 {
     use InProduction;
     use SoftDeletes;
     use HasSlug;
     use HasUniversalSearch;
+    use HasHistory;
 
     protected $guarded = [];
 
@@ -99,7 +102,7 @@ class ManufactureTask extends Model
 
     public function artefacts(): BelongsToMany
     {
-        return $this->belongsToMany(Artefact::class)->using(ArtefactManufactureTask::class);
+        return $this->belongsToMany(Artefact::class, 'artefacts_manufacture_tasks');
     }
 
     public function production(): BelongsTo

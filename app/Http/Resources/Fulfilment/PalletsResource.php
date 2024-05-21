@@ -127,12 +127,12 @@ class PalletsResource extends JsonResource
                 'parameters' => [$this->warehouse_id, $this->id]
             ],
             'setAsLost' => [
-                'name'       => 'grp.models.warehouse.pallet.lost',
-                'parameters' => [$this->warehouse_id, $this->id]
+                'name'       => 'grp.models.pallet.lost',
+                'parameters' => [$this->id]
             ],
             'setAsDamaged' => [
-                'name'       => 'grp.models.warehouse.pallet.damaged',
-                'parameters' => [$this->warehouse_id, $this->id]
+                'name'       => 'grp.models.pallet.damaged',
+                'parameters' => [$this->id]
             ],
             'storeStoredItemRoute' => match (request()->routeIs('retina.*')) {
                 true => [

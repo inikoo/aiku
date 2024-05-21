@@ -66,12 +66,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $week_working_hours
  * @property array $data
  * @property array $errors
+ * @property string|null $pin
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
- * @property string|null $pin
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\HumanResources\Clocking> $clockings
  * @property-read Group $group

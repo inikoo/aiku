@@ -40,13 +40,13 @@ return new class () extends Migration {
             $table->decimal('week_working_hours', 4)->default(0);
             $table->jsonb('data');
             $table->jsonb('errors');
+            $table->string('pin')->nullable()->unique();
             $table->timestampsTz();
             $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();
         });
         DB::statement("CREATE INDEX ON employees (lower('worker_number')) ");
         DB::statement("CREATE INDEX ON employees (lower('alias')) ");
-
         DB::statement('CREATE INDEX ON employees USING gin (contact_name gin_trgm_ops) ');
     }
 

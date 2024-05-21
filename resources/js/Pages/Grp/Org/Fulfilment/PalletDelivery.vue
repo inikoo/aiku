@@ -26,8 +26,6 @@ import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
 import JsBarcode from 'jsbarcode'
-import Checkbox from '@/Components/Forms/Fields/Checkbox.vue'
-
 import { PalletDelivery, BoxStats, PDRNotes } from '@/types/Pallet'
 import { Table } from '@/types/Table'
 import { Tabs as TSTabs } from '@/types/Tabs'
@@ -36,7 +34,6 @@ import '@/Composables/Icon/PalletDeliveryStateEnum'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone } from '@fal'
-import { useFormatTime } from '@/Composables/useFormatTime'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone,faExclamationTriangle)
 
@@ -68,7 +65,6 @@ const props = defineProps<{
     }
 }>()
 
-console.log('ewqewq', props.box_stats)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
@@ -78,7 +74,7 @@ const dataModal = ref({ isModalOpen: false })
 const formAddPallet = useForm({ notes: '', customer_reference: '', type : 'pallet' })
 const formMultiplePallet = useForm({ number_pallets: 1, type : 'pallet' })
 
-// Method: Add single pallete
+// Method: Add single pallet
 const handleFormSubmitAddPallet = (data: {}, closedPopover: Function) => {
     loading.value = true
     formAddPallet.post(route(
@@ -98,7 +94,7 @@ const handleFormSubmitAddPallet = (data: {}, closedPopover: Function) => {
     })
 }
 
-// Method: Add many pallete
+// Method: Add many pallet
 const handleFormSubmitAddMultiplePallet = (data: {}, closedPopover: Function) => {
     loading.value = true
     formMultiplePallet.post(route(
@@ -196,8 +192,8 @@ const changePalletType=(form,fieldName,value)=>{
 
 
 const typePallet = [
-    { label : 'Pallet', value : 'pallet'}, 
-    { label : 'Box', value : 'box'}, 
+    { label : 'Pallet', value : 'pallet'},
+    { label : 'Box', value : 'box'},
     { label : 'Oversize', value : 'oversize'}
 ]
 
@@ -215,13 +211,13 @@ const typePallet = [
                 v-tooltip="action.button.tooltip" class="rounded-l rounded-r-none border-none" />
         </template>
 
-        <!-- Button: Add many pallete -->
+        <!-- Button: Add many pallet -->
         <template #button-group-multiple="{ action }">
             <Popover width="w-full" class="relative h-full">
                 <template #button>
                     <Button :style="action.button.style" :icon="action.button.icon" :iconRight="action.button.iconRight"
                         :key="`ActionButton${action.button.label}${action.button.style}`"
-                        :tooltip="'Add multiple pallet'" class="rounded-none border-none" />
+                        :tooltip="trans('Add multiple pallets')" class="rounded-none border-none" />
                 </template>
 
                 <template #content="{ close: closed }">

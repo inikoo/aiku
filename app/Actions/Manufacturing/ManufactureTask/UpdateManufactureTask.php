@@ -11,6 +11,8 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
 use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
 use App\Models\Manufacturing\ManufactureTask;
+use App\Models\Manufacturing\Production;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -39,7 +41,7 @@ class UpdateManufactureTask extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("productions-view.{$this->organisation->id}");
+        return $request->user()->hasPermissionTo("productions_rd.{$this->production->id}.edit");
     }
 
     public function rules(): array
@@ -78,10 +80,10 @@ class UpdateManufactureTask extends OrgAction
         ];
     }
 
-    public function asController(ManufactureTask $manufactureTask, ActionRequest $request): ManufactureTask
+    public function asController(Organisation $organisation, Production $production, ManufactureTask $manufactureTask, ActionRequest $request): ManufactureTask
     {
         $this->manufactureTask = $manufactureTask;
-        $this->initialisation($manufactureTask->organisation, $request);
+        $this->initialisationFromProduction($manufactureTask->production, $request);
 
         return $this->handle(
             manufactureTask: $manufactureTask,

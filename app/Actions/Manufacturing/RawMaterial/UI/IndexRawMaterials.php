@@ -7,9 +7,11 @@
 
 namespace App\Actions\Manufacturing\RawMaterial\UI;
 
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Manufacturing\Production\UI\ShowProductionCrafts;
 use App\Actions\OrgAction;
 use App\Enums\UI\Manufacturing\RawMaterialsTabsEnum;
+use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Manufacturing\RawMaterialsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Manufacturing\RawMaterial;
@@ -199,6 +201,10 @@ class IndexRawMaterials extends OrgAction
                         ] : null,
                     ]
                 ],
+                'upload' => [
+                    'event'   => 'action-progress',
+                    'channel' => 'grp.personal.' . $this->organisation->id
+                ],
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => RawMaterialsTabsEnum::navigation(),
@@ -208,13 +214,17 @@ class IndexRawMaterials extends OrgAction
                     fn () => RawMaterialsResource::collection($rawMaterials)
                     : Inertia::lazy(fn () => RawMaterialsResource::collection($rawMaterials)),
 
+                RawMaterialsTabsEnum::RAW_MATERIALS_HISTORIES->value => $this->tab == RawMaterialsTabsEnum::RAW_MATERIALS_HISTORIES->value ?
+                    fn () => HistoryResource::collection(IndexHistory::run($rawMaterials))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($rawMaterials)))
+
             ]
         )->table(
             $this->tableStructure(
                 parent: $this->parent,
                 prefix: RawMaterialsTabsEnum::RAW_MATERIALS->value
             )
-        );
+        )->table(IndexHistory::make()->tableStructure(prefix: RawMaterialsTabsEnum::RAW_MATERIALS_HISTORIES->value));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array

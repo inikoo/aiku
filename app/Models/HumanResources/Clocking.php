@@ -34,13 +34,13 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property string|null $generator_type
  * @property int|null $generator_id
  * @property string|null $notes
+ * @property int|null $photo_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $deleted_by_type
  * @property int|null $deleted_by_id
  * @property string|null $source_id
- * @property int|null $photo_id
  * @property-read \App\Models\HumanResources\ClockingMachine|null $clockingMachine
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read Media|null $photo

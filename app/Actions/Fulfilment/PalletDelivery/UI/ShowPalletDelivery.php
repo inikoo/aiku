@@ -9,7 +9,7 @@ namespace App\Actions\Fulfilment\PalletDelivery\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
+use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInDelivery;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
@@ -25,7 +25,6 @@ use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -83,20 +82,7 @@ class ShowPalletDelivery extends OrgAction
 
     public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
     {
-        $container = null;
-        if ($this->parent instanceof Warehouse) {
-            $container = [
-                'icon'    => ['fal', 'fa-warehouse'],
-                'tooltip' => __('Warehouse'),
-                'label'   => Str::possessive($this->parent->code)
-            ];
-        } elseif ($this->parent instanceof FulfilmentCustomer) {
-            $container = [
-                'icon'    => ['fal', 'fa-user'],
-                'tooltip' => __('Customer'),
-                'label'   => Str::possessive($this->parent->customer->reference)
-            ];
-        }
+
         $palletStateReceivedCount = $palletDelivery->pallets()->where('state', PalletStateEnum::BOOKING_IN)->count();
         $palletNotInRentalCount   = $palletDelivery->pallets()->whereNull('rental_id')->count();
 
@@ -119,7 +105,7 @@ class ShowPalletDelivery extends OrgAction
                                 'style'   => 'secondary',
                                 'icon'    => ['fal', 'fa-upload'],
                                 'label'   => 'upload',
-                                'tooltip' => __('Upload pallet via file'),
+                                'tooltip' => __('Upload pallets via spreadsheet'),
                                 'route'   => [
                                     'name'       => 'grp.models.pallet-delivery.pallet.upload',
                                     'parameters' => [
@@ -405,11 +391,11 @@ class ShowPalletDelivery extends OrgAction
 
 
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
-                    fn () => PalletsResource::collection(IndexPallets::run($palletDelivery, 'pallets'))
-                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($palletDelivery, 'pallets'))),
+                    fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))
+                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))),
             ]
         )->table(
-            IndexPallets::make()->tableStructure(
+            IndexPalletsInDelivery::make()->tableStructure(
                 $palletDelivery,
                 prefix: PalletDeliveryTabsEnum::PALLETS->value
             )

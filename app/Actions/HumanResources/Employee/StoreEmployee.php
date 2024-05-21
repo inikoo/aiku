@@ -9,7 +9,6 @@ namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateUniversalSearch;
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
-use App\Actions\HumanResources\Employee\Traits\HasEmployeePositionGenerator;
 use App\Actions\HumanResources\JobPosition\SyncEmployableJobPositions;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
@@ -17,6 +16,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\JobPosition;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
@@ -26,14 +26,12 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Enum;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreEmployee extends OrgAction
 {
     use HasPositionsRules;
-    use HasEmployeePositionGenerator;
 
     public function handle(Organisation|Workplace $parent, array $modelData): Employee
     {
@@ -50,9 +48,16 @@ class StoreEmployee extends OrgAction
 
         Arr::forget($modelData, ['username', 'password', 'reset_password']);
 
+        $positions=Arr::get($modelData, 'positions', []);
+        data_forget($modelData, 'positions');
+
         /** @var Employee $employee */
-        $employee = $parent->employees()->create(Arr::except($modelData, 'positions'));
+        $employee = $parent->employees()->create($modelData);
         $employee->stats()->create();
+
+        if(in_array($employee->state, [EmployeeStateEnum::LEAVING, EmployeeStateEnum::WORKING])) {
+            SetEmployeePin::run($employee);
+        }
 
 
         if (Arr::get($credentials, 'username')) {
@@ -72,8 +77,11 @@ class StoreEmployee extends OrgAction
             );
         }
 
-        $jobPositions = $this->generatePositions($modelData);
-        Arr::forget($modelData, 'positions');
+        $jobPositions = [];
+        foreach ($positions as $positionData) {
+            $jobPosition                    = JobPosition::firstWhere('slug', $positionData['slug']);
+            $jobPositions[$jobPosition->id] = $positionData['scopes'];
+        }
 
         SyncEmployableJobPositions::run($employee, $jobPositions);
         EmployeeHydrateWeekWorkingHours::dispatch($employee);
@@ -100,12 +108,12 @@ class StoreEmployee extends OrgAction
             $this->set('username', null);
         }
 
-        if ($this->has('state')) {
-            $this->set('state', Arr::get($this->get('state'), 'value'));
-        }
-
-        $this->preparePositionsForValidation();
-
+        // this run if come from UI, so tests and migrations are not affected
+        //if(!$this->asAction) {
+        // don't know what this does if no need it,  delete it
+        // $this->preparePositionsForValidation();
+        // apply $this->generatePositions(...) here if needed
+        //}
     }
 
     public function rules(): array
@@ -149,7 +157,7 @@ class StoreEmployee extends OrgAction
             'contact_name'                          => ['required', 'string', 'max:256'],
             'date_of_birth'                         => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
             'job_title'                             => ['sometimes', 'nullable', 'string', 'max:256'],
-            'state'                                 => ['required', new Enum(EmployeeStateEnum::class)],
+            'state'                                 => ['required',  Rule::enum(EmployeeStateEnum::class)],
             'positions'                             => ['sometimes', 'array'],
             'positions.*.slug'                      => ['sometimes', 'string'],
             'positions.*.scopes'                    => ['sometimes', 'array'],
@@ -184,6 +192,7 @@ class StoreEmployee extends OrgAction
             $organisation = $parent;
         }
 
+
         $this->initialisation($organisation, $modelData);
 
         return $this->handle($parent, $this->validatedData);
@@ -192,8 +201,6 @@ class StoreEmployee extends OrgAction
     public function asController(Organisation $organisation, ActionRequest $request): Employee
     {
         $this->initialisation($organisation, $request);
-
-        // Call the handle method with the validated data and return the result
         return $this->handle($organisation, $this->validatedData);
     }
 

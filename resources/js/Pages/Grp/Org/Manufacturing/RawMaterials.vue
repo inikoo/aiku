@@ -32,6 +32,7 @@ const props = defineProps<{
   },
   title: string
   raw_materials?: object
+  raw_materials_histories?: {}
 }>();
 
 let currentTab = ref(props.tabs.current);
@@ -40,7 +41,8 @@ const dataModal = ref({ isModalOpen: false })
 const component = computed(() => {
 
   const components = {
-    raw_materials: TableRawMaterials
+    raw_materials: TableRawMaterials,
+    raw_materials_histories: TableHistories,
   };
   return components[currentTab.value];
 

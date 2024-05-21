@@ -7,6 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
+use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\JobPosition\JobPositionScopeEnum;
 use App\Models\HumanResources\JobPosition;
 use Illuminate\Support\Arr;
@@ -136,8 +137,8 @@ class FetchAuroraEmployee extends FetchAurora
             'employment_end_at'        => $this->parseDate($this->auroraModelData->{'Staff Valid To'}),
             'type'                     => Str::snake($this->auroraModelData->{'Staff Type'}, '-'),
             'state'                    => match ($this->auroraModelData->{'Staff Currently Working'}) {
-                'No'    => 'left',
-                default => 'working'
+                'No'    => EmployeeStateEnum::LEFT,
+                default => EmployeeStateEnum::WORKING
             },
             'data'                     => $data,
             'errors'                   => $errors,

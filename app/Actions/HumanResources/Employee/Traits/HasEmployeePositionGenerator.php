@@ -7,11 +7,12 @@
 
 namespace App\Actions\HumanResources\Employee\Traits;
 
+use App\Models\HumanResources\JobPosition;
 use Illuminate\Support\Arr;
 
 trait HasEmployeePositionGenerator
 {
-    public function generatePositions(array $modelData)
+    public function generatePositions(array $modelData): array
     {
         $jobPositions = [];
         foreach (Arr::get($modelData, 'positions', []) as $positionData) {

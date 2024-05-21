@@ -16,12 +16,12 @@ const props = defineProps<{
 
 
 console.log(route().current())
-function productionRoute(production: Production) {
+function productionRoute(manufactureTask: {}) {
     switch (route().current()) {
-        case 'grp.org.productions.index':
+        case 'grp.org.productions.show.crafts.manufacture_tasks.index':
             return route(
-                'grp.org.productions.show',
-                [route().params['organisation'], production.slug]);
+                'grp.org.productions.show.crafts.manufacture_tasks.show',
+                [route().params['organisation'], route().params['production'], manufactureTask.slug]);
     }
 }
 

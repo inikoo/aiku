@@ -47,7 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
- * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read Organisation $organisation
  * @property-read \App\Models\Manufacturing\Production $production
  * @property-read \App\Models\Manufacturing\RawMaterialStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
