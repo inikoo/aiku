@@ -14,9 +14,9 @@ import { layoutStructure } from "@/Composables/useLayoutStructure"
 import Profile from '@/Pages/Grp/Profile.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faSignOutAlt } from '@fas'
+import { faDoorOpen } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faSignOutAlt)
+library.add(faDoorOpen)
 
 const props = defineProps<{
     urlPrefix: string
@@ -89,7 +89,6 @@ const notifications = layoutStore.user.notifications
                 <Popover width="w-full">
                     <template #button>
                         <div class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                            <span class="sr-only">{{ trans("Logout") }}</span>
                             <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
                         </div>
                     </template>
@@ -106,7 +105,9 @@ const notifications = layoutStore.user.notifications
             <div class="relative">
                 <Popover width="w-full">
                     <template #button>
-                        <FontAwesomeIcon icon='fal fa-sign-out-alt' class='text-red-400 hover:text-red-500' fixed-width aria-hidden='true' size="lg" />
+                      <div class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 mr-2">
+                        <FontAwesomeIcon icon='far fa-door-open'  fixed-width aria-hidden='true' size="lg" />
+                      </div>
                     </template>
 
                     <template #content="{ close: closed }">
