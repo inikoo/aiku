@@ -164,7 +164,7 @@ class CreateRawMaterial extends OrgAction
                 [
                     'type'         => 'creatingModel',
                     'creatingModel'=> [
-                        'label'=> __('creating production'),
+                        'label'=> __('creating raw material'),
                     ]
                 ]
             ]

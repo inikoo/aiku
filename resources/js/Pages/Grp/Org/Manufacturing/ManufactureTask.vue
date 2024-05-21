@@ -7,7 +7,7 @@ import { useTabChange } from "@/Composables/tab-change"
 import { capitalize } from "@/Composables/capitalize"
 import { computed, defineAsyncComponent, ref } from 'vue'
 import type { Component } from 'vue'
-
+import TableArtefacts from "@/Components/Tables/Grp/Org/Manufacturing/TableArtefacts.vue"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
@@ -18,11 +18,12 @@ const props = defineProps<{
     title: string,
     pageHead: TSPageHeading
     tabs: TSTabs
+    artefact?:{}
     history?: {}
 
     
 }>()
-
+console.log(history)
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
@@ -30,6 +31,7 @@ const component = computed(() => {
 
     const components: Component = {
         // showcase: FileShowcase
+        artefact: TableArtefacts,
         history: TableHistories,
     }
 

@@ -30,7 +30,7 @@ enum RawMaterialTabsEnum: string
                 'icon'  => 'fal fa-clock',
             ],
             RawMaterialTabsEnum::SHOWCASE => [
-                'title' => __('dashboard'),
+                'title' => __('Details'),
                 'icon'  => 'fal fa-chart-network',
             ],
         };
