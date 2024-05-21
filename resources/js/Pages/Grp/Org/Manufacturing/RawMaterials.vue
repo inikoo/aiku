@@ -16,6 +16,9 @@ import { useTabChange } from "@/Composables/tab-change";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 import type { Navigation } from "@/types/Tabs";
+import UploadExcel from '@/Components/Upload/UploadExcel.vue'
+import { get } from 'lodash'
+import Button from '@/Components/Elements/Buttons/Button.vue'
 
 
 library.add(faBars, faIndustry);
@@ -33,7 +36,7 @@ const props = defineProps<{
 
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
-
+const dataModal = ref({ isModalOpen: false })
 const component = computed(() => {
 
   const components = {
@@ -43,12 +46,29 @@ const component = computed(() => {
 
 });
 
+const onUploadOpen = (action) => {
+    dataModal.value.isModalOpen = true
+    dataModal.value.uploadRoutes = action.route
+}
+
+console.log(props)
+
 </script>
 
 <template>
   <Head :title="capitalize(title)" />
-  <PageHeading :data="pageHead"></PageHeading>
+  <PageHeading :data="pageHead">
+    <template #button-group-upload="{ action }">
+            <Button @click="() => onUploadOpen(action.button)" :style="action.button.style" :icon="action.button.icon"
+                v-tooltip="action.button.tooltip" class="rounded-l rounded-r-none border-none" />
+        </template>
+  </PageHeading>
   <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
   <component :is="component" :tab="currentTab" :data="props[currentTab]"></component>
+
+  <UploadExcel information="The list of column file: customer_reference, notes, stored_items"
+        :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{
+        upload: get(dataModal, 'uploadRoutes', {}),
+    }" :dataModal="dataModal" />
 </template>
 
