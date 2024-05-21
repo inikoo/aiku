@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { Link, router } from "@inertiajs/vue3"
+import { Link } from "@inertiajs/vue3"
 import { reactive, inject } from "vue"
 import MenuPopoverList from "@/Layouts/Grp/MenuPopoverList.vue"
 import TopBarSelectButton from "@/Layouts/Grp/TopBarSelectButton.vue"
@@ -16,18 +16,18 @@ import { trans } from "laravel-vue-i18n"
 import Image from "@/Components/Image.vue"
 import { faChevronDown } from "@far"
 import { faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus, faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows,
-  faConciergeBell,faGarage,faHamsa,faCodeMerge,faSortShapesDownAlt, faHatChef, faTags, faCommentDollar, faNewspaper, faMailBulk, faBell, faLaptopHouse,faHandHoldingBox} from "@fal"
+  faConciergeBell,faGarage,faHamsa,faCodeMerge,faSortShapesDownAlt, faHatChef, faTags, faCommentDollar, faNewspaper, faMailBulk, faBell, faLaptopHouse,faHandHoldingBox,faStream} from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import MenuTopRight from "@/Layouts/Grp/MenuTopRight.vue"
 import TopBarDropdownScope from "@/Layouts/Grp/TopBarDropdownScope.vue"
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus,
-    faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows,
+    faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows,faStream,
     faConciergeBell,faGarage,faHamsa,faCodeMerge,faSortShapesDownAlt, faHatChef,faTags, faCommentDollar, faNewspaper, faMailBulk, faBell, faLaptopHouse,faHandHoldingBox
 );
 
-const props = defineProps<{
+defineProps<{
     sidebarOpen: boolean
     logoRoute: string
     urlPrefix: string
@@ -51,9 +51,6 @@ const label = {
     fulfilmentSelect: trans("Select fulfilments")
 }
 
-// console.log('agexxxnts', layoutStore.currentParams?.organisation)
-// console.log('agents', layoutStore.agents.data)
-// console.log('agents', layoutStore.agents.data.find((item) => item.slug == layoutStore.currentParams?.organisation))
 
 </script>
 

@@ -13,7 +13,6 @@ use App\Actions\Helpers\Uploads\StoreUploads;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithImportModel;
 use App\Http\Resources\Helpers\UploadsResource;
-use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
@@ -52,11 +51,6 @@ class ImportRawMaterial extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $userable=$request->user();
-        if($userable instanceof WebUser) {
-
-        }
-
 
         return true;
     }

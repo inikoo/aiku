@@ -12,7 +12,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 trait WithFulfilmentCustomerSubNavigation
 {
-    public function getFulfilmentCustomerSubNavigation(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request)
+    public function getFulfilmentCustomerSubNavigation(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): array
     {
         $subNavigation = [];
 
@@ -25,7 +25,7 @@ trait WithFulfilmentCustomerSubNavigation
 
             'label'     => $fulfilmentCustomer->customer->name,
             'leftIcon'  => [
-                'icon'    => 'fal fa-user',
+                'icon'    => 'fal fa-stream',
                 'tooltip' => __('customer'),
             ],
 
@@ -46,7 +46,6 @@ trait WithFulfilmentCustomerSubNavigation
                 'tooltip' => __('Web users'),
             ],
             'number'=> $fulfilmentCustomer->customer->stats->number_web_users
-
 
         ];
 

@@ -19,7 +19,6 @@ use App\Actions\HumanResources\ClockingMachine\UI\EditClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
 use App\Actions\HumanResources\ClockingMachine\UI\RemoveClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
-use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
 use App\Actions\HumanResources\Employee\ExportEmployees;
 use App\Actions\HumanResources\Employee\ExportEmployeeTimesheets;
 use App\Actions\HumanResources\Employee\UI\CreateEmployee;
@@ -48,20 +47,30 @@ Route::get('/', [
     'label' => 'human resources'
 
 ])->name('dashboard');
-Route::get('/employees', IndexEmployees::class)->name('employees.index');
-Route::get('/employees/create', CreateEmployee::class)->name('employees.create');
 
-Route::get('/employees/export', ExportEmployees::class)->name('employees.export');
+Route::prefix('employees')->as('employees.')->group(function () {
+    Route::get('', IndexEmployees::class)->name('index');
+    Route::get('create', CreateEmployee::class)->name('create');
+    Route::get('export', ExportEmployees::class)->name('export');
 
-Route::get('/employees/{employee}', ShowEmployee::class)->name('employees.show');
-Route::get('/employees/{employee}/edit', EditEmployee::class)->name('employees.edit');
-Route::get('/employees/{employee}/delete', RemoveEmployee::class)->name('employees.remove');
+    Route::prefix('{employee}')->group(function () {
+        Route::get('', ShowEmployee::class)->name('show');
+        Route::get('edit', EditEmployee::class)->name('edit');
+        Route::get('delete', RemoveEmployee::class)->name('remove');
 
-Route::post('/employees/{employee}/user', ShowEmployee::class)->name('employees.show.user');
-Route::post('/employees/{employee}/user', CreateUserFromEmployee::class)->name('employees.show.user.store');
-Route::get('/employees/{employee}/timesheets/export', ExportEmployeeTimesheets::class)->name('employees.timesheets.export');
+        Route::as('show.')->group(function () {
+            Route::get('/positions', [IndexJobPositions::class,'inEmployee'])->name('positions.index');
 
-Route::get('/employees/{employee}/timesheets/{timesheet}', [ShowTimesheet::class, 'inEmployee'])->name('employees.show.timesheets.show');
+            Route::get('timesheets', [IndexEmployees::class,'inEmployee'])->name('timesheets.index');
+            Route::get('timesheets/export', ExportEmployeeTimesheets::class)->name('timesheets.export');
+            Route::get('timesheets/{timesheet}', [ShowTimesheet::class, 'inEmployee'])->name('timesheets.show');
+        });
+
+
+
+    });
+});
+
 
 Route::get('/positions', IndexJobPositions::class)->name('job-positions.index');
 Route::get('/positions/create', CreateJobPosition::class)->name('job-positions.create');
