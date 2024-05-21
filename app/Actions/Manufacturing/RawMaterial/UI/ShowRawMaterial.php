@@ -8,6 +8,7 @@
  namespace App\Actions\Manufacturing\RawMaterial\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Manufacturing\Production\UI\ShowProductionCrafts;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Actions\Traits\Actions\WithActionButtons;
@@ -122,18 +123,18 @@ class ShowRawMaterial extends OrgAction
         $rawMaterial = RawMaterial::where('slug', $routeParameters['rawMaterial'])->first();
 
         return array_merge(
-            (new ShowOrganisationDashboard())->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
+            ShowProductionCrafts::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'           => 'modelWithIndex',
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name'       => 'grp.org.productions.index',
-                                'parameters' => $routeParameters['organisation']
+                                'name'       => 'grp.org.productions.show.crafts.raw_materials.index',
+                                'parameters' => $routeParameters
                             ],
-                            'label' => __('production'),
-                            'icon'  => 'fal fa-bars'
+                            'label' => __('raw materials'),
+                            'icon'  => 'fal fa-bars',
                         ],
                         'model' => [
                             'route' => [
