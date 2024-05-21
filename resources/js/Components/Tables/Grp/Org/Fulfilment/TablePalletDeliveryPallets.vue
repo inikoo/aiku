@@ -26,6 +26,7 @@ import { routeType } from "@/types/route"
 import { Table as TSTable } from "@/types/Table"
 
 import '@/Composables/Icon/PalletStateEnum'
+import { trans } from "laravel-vue-i18n";
 
 library.add(faTrashAlt, faPaperPlane, faInventory, faTruckLoading, faStickyNote, faTimesSquare, faPallet, faBox, faSortSizeUp)
 
@@ -49,9 +50,9 @@ const emits = defineEmits<{
 
 
 const typePallet = [
-	{ label: 'Pallet', value: 'pallet' },
-	{ label: 'Box', value: 'box' },
-	{ label: 'Oversize', value: 'oversize' }
+	{ label: trans('Pallet'), value: 'pallet' },
+	{ label: trans('Box'), value: 'box' },
+	{ label: trans('Oversize'), value: 'oversize' }
 ]
 
 
@@ -75,7 +76,7 @@ const onSaved = async (pallet: { form: {} }, fieldName: string) => {
 }
 
 const onSavedRental = async (pallet: { form: {} }, fieldName: string) => {
-	console.log('masuk')
+
 	if (pallet[fieldName] != pallet.form.data()[fieldName]) {
 		pallet.form.processing = true
 		try {
@@ -166,10 +167,13 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 		<!-- Column: Stored Items -->
 		<template #cell(location)="{ item: pallet }">
-			<div class="flex gap-x-1 gap-y-2 items-center">
+			<div v-if="!pallet.location_id" class="flex gap-x-1 gap-y-2 items-center">
 				<LocationFieldDelivery :key="pallet.state" :pallet="pallet"
 					@renderTableKey="() => emits('renderTableKey')" :locationRoute="locationRoute" />
 			</div>
+      <template v-else>
+        {{pallet.location_code}}
+      </template>
 		</template>
 
 		<!-- Column: type pallet -->

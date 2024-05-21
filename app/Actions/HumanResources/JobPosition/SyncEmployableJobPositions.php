@@ -33,10 +33,17 @@ class SyncEmployableJobPositions
 
         $model->jobPositions()->detach($removeJobPositions);
 
+
+
         foreach ($newJobPositionsIds as $jobPositionId) {
+
+
+
             $model->jobPositions()->attach(
                 [
-                    $jobPositionId => ['scopes' => $jobPositions[$jobPositionId]]
+                    $jobPositionId => [
+                        'scopes' => $jobPositions[$jobPositionId]
+                    ]
                 ],
             );
         }

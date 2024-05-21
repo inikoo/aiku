@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
- namespace App\Actions\Manufacturing\RawMaterial\UI;
+namespace App\Actions\Manufacturing\RawMaterial\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Manufacturing\Production\UI\ShowProductionCrafts;
@@ -16,7 +16,6 @@ use App\Enums\UI\Manufacturing\ProductionTabsEnum;
 use App\Enums\UI\Manufacturing\RawMaterialTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 
-use App\Http\Resources\Manufacturing\ProductionResource;
 use App\Http\Resources\Manufacturing\RawMaterialsResource;
 use App\Http\Resources\Tag\TagResource;
 use App\Models\Helpers\Tag;
@@ -171,7 +170,7 @@ class ShowRawMaterial extends OrgAction
         if (!$rawMaterial) {
             return null;
         }
-    
+
         return match ($routeName) {
             'grp.org.productions.show.infrastructure.dashboard' => [
                 'label' => $rawMaterial->cide,
