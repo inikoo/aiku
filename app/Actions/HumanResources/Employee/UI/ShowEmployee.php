@@ -18,9 +18,11 @@ use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Http\Resources\HumanResources\JobPositionsResource;
 use App\Http\Resources\HumanResources\TimesheetsResource;
+use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -35,6 +37,10 @@ class ShowEmployee extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if($request->user() instanceof ClockingMachine) {
+            return true;
+        }
+
         $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
         $this->canDelete = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
 
@@ -143,9 +149,27 @@ class ShowEmployee extends OrgAction
         return Arr::except($employee->toArray(), ['id', 'source_id','working_hours','errors','salary','data']);
     }
 
+    public function rules(): array
+    {
+        $rules = [];
+        if(request()->user() instanceof ClockingMachine) {
+            $rules = [
+                'pin' => ['required', 'string', Rule::exists('employees', 'pin')]
+            ];
+        }
+
+        return $rules;
+    }
+
     public function inApi(ActionRequest $request): Employee
     {
-        $employee = Employee::where('pin', $request->input('pin'))->firstOrFail();
+        $workplace = $request->user()->workplace;
+
+        $this->initialisation($workplace->organisation, $request);
+
+        $employee = $workplace
+        ->employees()
+        ->where('pin', $request->input('pin'))->firstOrFail();
 
         return $this->handle($employee);
     }
