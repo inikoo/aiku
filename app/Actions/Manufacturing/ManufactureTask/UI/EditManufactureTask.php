@@ -5,24 +5,15 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
- namespace App\Actions\Manufacturing\ManufactureTask\UI;
+namespace App\Actions\Manufacturing\ManufactureTask\UI;
 
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
 use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
-use App\Enums\Manufacturing\RawMaterial\RawMaterialStateEnum;
-use App\Enums\Manufacturing\RawMaterial\RawMaterialStockStatusEnum;
-use App\Enums\Manufacturing\RawMaterial\RawMaterialTypeEnum;
-use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\Pallet;
-use App\Models\Inventory\Warehouse;
 use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
-use App\Models\Manufacturing\RawMaterial;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -217,11 +208,12 @@ class EditManufactureTask extends OrgAction
         return array_merge(
             ShowManufactureTask::make()->getBreadcrumbs(
                 routeParameters: $routeParameters,
-                suffix: '('.__('editing').')'),
+                suffix: '('.__('editing').')'
+            ),
             [
                 [
                     'type'         => 'editingModel',
-                    'editingModel'=> [
+                    'editingModel' => [
                         'label'=> __('editing raw material'),
                     ]
                 ]

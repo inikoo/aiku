@@ -5,11 +5,10 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
- namespace App\Actions\Manufacturing\ManufactureTask\UI;
+namespace App\Actions\Manufacturing\ManufactureTask\UI;
 
 use App\Http\Resources\Manufacturing\ArtefactsResource;
 use App\Models\Manufacturing\ManufactureTask;
-use App\Models\Manufacturing\RawMaterial;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsObject;
 
