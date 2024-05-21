@@ -12,7 +12,7 @@ export interface OptionsTime {
 export const useFormatTime = (dateIso: string | Date | undefined, OptionsTime?: OptionsTime) => {
     if (!dateIso) return '-'  // If the provided data date is null
 
-    console.log(OptionsTime)
+    // console.log(OptionsTime)
 
     let tempLocaleCode = OptionsTime?.localeCode === 'zh-Hans' ? 'zhCN' : OptionsTime?.localeCode ?? 'enUS'
     let tempDateIso = new Date(dateIso)
@@ -101,8 +101,8 @@ export const useSecondsToMS = (seconds: number) => {
 
     // console.log('wew', duration)
     const strHour = duration.hours ? duration.hours : '00'
-    const strMinutes = duration.minutes.toString().padStart(2, '0')
-    const strSeconds = duration.seconds.toString().padStart(2, '0')
+    const strMinutes = duration.minutes?.toString().padStart(2, '0')
+    const strSeconds = duration.seconds?.toString().padStart(2, '0')
 
     return strHour + ':' + strMinutes + ':' + strSeconds
 }
