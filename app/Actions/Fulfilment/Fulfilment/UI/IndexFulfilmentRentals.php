@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\Fulfilment\UI;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Rental\RentalStateEnum;
 use App\Enums\UI\Fulfilment\RentalsTabsEnum;
-use App\Http\Resources\Catalogue\RentalsResource;
+use App\Http\Resources\Fulfilment\RentalsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Rental;
@@ -62,6 +62,8 @@ class IndexFulfilmentRentals extends OrgAction
         $queryBuilder->where('rentals.shop_id', $parent->shop_id);
         $queryBuilder->join('products', 'rentals.product_id', '=', 'products.id');
         $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
+
+
 
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
