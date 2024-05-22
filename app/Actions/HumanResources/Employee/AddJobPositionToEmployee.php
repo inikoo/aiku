@@ -34,7 +34,6 @@ class AddJobPositionToEmployee
             [
                 'scopes' => $scopes
             ]
-
         );
 
         if ($employee->user) {
@@ -84,7 +83,7 @@ class AddJobPositionToEmployee
                 $fulfilment = $employee->organisation->fulfilments()->where('slug', $fulfilmentSlug)->first();
                 if ($fulfilment) {
                     $scopes['Fulfilment'][] = $fulfilment->id;
-                }else{
+                } else {
                     $command->error("Fulfillment $fulfilmentSlug not found");
                     return 1;
                 }
@@ -97,7 +96,7 @@ class AddJobPositionToEmployee
                 $warehouse = $employee->organisation->warehouses()->where('slug', $warehouseSlug)->first();
                 if ($warehouse) {
                     $scopes['Warehouse'][] = $warehouse->id;
-                }else{
+                } else {
                     $command->error("Warehouse $warehouseSlug not found");
                     return 1;
                 }
@@ -110,7 +109,7 @@ class AddJobPositionToEmployee
                 $shop = $employee->organisation->shops()->where('slug', $shopSlug)->first();
                 if ($shop) {
                     $scopes['Shop'][] = $shop->id;
-                }else{
+                } else {
                     $command->error("Shop $shopSlug not found");
                     return 1;
                 }

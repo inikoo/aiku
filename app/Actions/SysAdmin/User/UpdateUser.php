@@ -99,7 +99,7 @@ class UpdateUser extends GrpAction
     public function prepareForValidation(): void
     {
 
-        if(!$this->has('auth_type')){
+        if(!$this->has('auth_type')) {
             $this->set('auth_type', UserAuthTypeEnum::DEFAULT);
         }
 

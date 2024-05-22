@@ -91,7 +91,7 @@ class SeedFulfilmentPermissions
                     }
                 }
                 $role->syncPermissions($fulfilmentPermissions);
-            }elseif ($case->scope() === 'Warehouse') {
+            } elseif ($case->scope() === 'Warehouse') {
                 if ($case == RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR) {
                     foreach ($fulfilment->warehouses as $warehouse) {
                         $role = (new Role())->where('name', RolesEnum::getRoleName($case->value, $warehouse))->first();
