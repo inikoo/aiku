@@ -7,6 +7,7 @@
 
 namespace App\Actions\UI\Retina\Layout;
 
+use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\SysAdmin\Group\GroupResource;
 use App\Models\CRM\WebUser;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -20,14 +21,13 @@ class GetLayout
         if (!$webUser) {
             return [];
         }
-
-
         return [
-            'website'         => GroupResource::make($request->get('website'))->getArray(),
+            'website'  => GroupResource::make($request->get('website'))->getArray(),
+            'customer' => CustomersResource::make($webUser->customer)->getArray(),
 
-            'navigation'      => match ($request->get('website')->type->value) {
+            'navigation' => match ($request->get('website')->type->value) {
                 'fulfilment' => GetRetinaFulfilmentNavigation::run($webUser),
-                default      => []
+                default => []
             },
         ];
     }
