@@ -30,6 +30,21 @@ class GetRetinaFulfilmentNavigation
             ]
         ];
 
+        $additionalSubsections = [];
+
+        if($webUser?->customer?->fulfilmentCustomer?->number_pallets_status_storing) {
+            $additionalSubsections = [
+                [
+                    'label' => __('pallet return'),
+                    'icon'  => ['fal', 'fa-truck-ramp'],
+                    'root'  => 'retina.storage.pallet-returns.',
+                    'route' => [
+                        'name'       => 'retina.storage.pallet-returns.index'
+                    ]
+                ]
+            ];
+        }
+
         $groupNavigation['storage'] = [
             'label'   => __('Storage'),
             'icon'    => ['fal', 'fa-pallet'],
@@ -55,22 +70,15 @@ class GetRetinaFulfilmentNavigation
                             'name'       => 'retina.storage.pallet-deliveries.index'
                         ]
                     ],
-                    [
-                        'label' => __('pallet return'),
-                        'icon'  => ['fal', 'fa-truck-ramp'],
-                        'root'  => 'retina.storage.pallet-returns.',
-                        'route' => [
-                            'name'       => 'retina.storage.pallet-returns.index'
-                        ]
-                    ],
-                    [
-                        'label' => __('stored item return'),
-                        'icon'  => ['fal', 'fa-truck-couch'],
-                        'root'  => 'retina.storage.stored-item-returns.',
-                        'route' => [
-                            'name'       => 'retina.storage.stored-item-returns.index'
-                        ]
-                    ],
+                    ...$additionalSubsections,
+                    // [
+                    //     'label' => __('stored item return'),
+                    //     'icon'  => ['fal', 'fa-truck-couch'],
+                    //     'root'  => 'retina.storage.stored-item-returns.',
+                    //     'route' => [
+                    //         'name'       => 'retina.storage.stored-item-returns.index'
+                    //     ]
+                    // ],
                 ]
             ]
         ];
