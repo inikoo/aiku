@@ -10,6 +10,7 @@ namespace App\Actions\UI\Profile;
 use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
+use App\Http\Resources\SysAdmin\ProfileResource;
 use App\Http\Resources\SysAdmin\UserResource;
 use App\Http\Resources\UI\LoggedUserResource;
 use App\Models\SysAdmin\User;
@@ -29,9 +30,9 @@ class EditProfile
         return $request->user();
     }
 
-    public function jsonResponse(User $user): UserResource
+    public function jsonResponse(User $user): ProfileResource
     {
-        return new UserResource($user);
+        return new ProfileResource($user);
     }
 
     public function htmlResponse(User $user): Response
