@@ -108,7 +108,7 @@ const notifications = layoutStore.user.notifications
             <div class="relative">
                 <Popover width="w-full">
                     <template #button>
-                      <div class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 mr-2">
+                      <div v-tooltip="trans('log out')" class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 mr-2">
                         <FontAwesomeIcon icon='far fa-door-open'  fixed-width aria-hidden='true' size="lg" />
                       </div>
                     </template>

@@ -73,11 +73,11 @@ const bottomNavigation = computed(() => [
     <div class="flex justify-around px-2 transition-all duration-200 ease-in-out"
         :class="layout.leftSidebar.show ? '' : 'flex-col-reverse items-center gap-y-2 mb-2'"
     >
-        <Link :href="route('grp.dashboard.show')" v-tooltip="trans('Go to Group dashboard')" :aria-label="'qqqq'"
+        <!-- <Link :href="route('grp.dashboard.show')" v-tooltip="trans('Go to Group dashboard')" :aria-label="'qqqq'"
             class="text-white flex-shrink cursor-pointer px-1 py-2 rounded-md flex flex-col items-center justify-center gap-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
             <FontAwesomeIcon icon="fal fa-city" class='leading-none' fixed-width aria-hidden='true' />
             <span v-if="layout.leftSidebar.show" class="text-[8px] leading-none tracking-widest text-center">{{ layout.group?.label }}</span>
-        </Link>
+        </Link> -->
 
         <!-- Shops -->
         <template v-for="(bottomNav, indexBottomNav) in bottomNavigation" :key="indexBottomNav">
