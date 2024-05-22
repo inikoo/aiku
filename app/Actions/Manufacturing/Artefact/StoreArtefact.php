@@ -15,6 +15,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateArtefacts;
 use App\Enums\Manufacturing\Artefact\ArtefactStateEnum;
 use App\Models\Manufacturing\Artefact;
 use App\Models\Manufacturing\Production;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
@@ -87,9 +88,18 @@ class StoreArtefact extends OrgAction
 
     public function htmlResponse(Artefact $artefact): RedirectResponse
     {
-        return Redirect::route('grp.org.artefacts.show', [
-            $artefact->slug
+        $production = $artefact->production;
+        $organisation = $artefact->organisation;
+        return Redirect::route('grp.org.productions.show.crafts.artefacts.index', [
+            $organisation, $production
         ]);
+    }
+
+    public function asController(Organisation $organisation, Production $production, ActionRequest $request): Artefact
+    {
+        $this->initialisationFromProduction($production, $request);
+
+        return $this->handle($production, $this->validatedData);
     }
 
 }
