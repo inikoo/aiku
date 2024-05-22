@@ -17,7 +17,7 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import Modal from "@/Components/Utils/Modal.vue"
 import BoxNote from "@/Components/Pallet/BoxNote.vue"
 import TablePalletReturn from "@/Components/PalletReturn/tablePalletReturn.vue"
-import TablePalletReturnsDelivery from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturnsDelivery.vue"
+import TablePalletReturnsDelivery from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturnPallets.vue"
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn"

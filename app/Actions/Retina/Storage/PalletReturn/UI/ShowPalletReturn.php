@@ -7,15 +7,14 @@
 
 namespace App\Actions\Retina\Storage\PalletReturn\UI;
 
-use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
-use App\Actions\Fulfilment\PalletReturnItem\UI\IndexPalletReturnItems;
+use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInReturn;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Storage\ShowStorageDashboard;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
-use App\Http\Resources\Fulfilment\PalletReturnItemsResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
+use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
 use Inertia\Inertia;
@@ -160,11 +159,11 @@ class ShowPalletReturn extends RetinaAction
                 'data' => PalletReturnResource::make($palletReturn),
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
-                    fn () => PalletReturnItemsResource::collection(IndexPalletReturnItems::run($palletReturn))
-                    : Inertia::lazy(fn () => PalletReturnItemsResource::collection(IndexPalletReturnItems::run($palletReturn))),
+                    fn () => PalletsResource::collection(IndexPalletsInReturn::run($palletReturn))
+                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPalletsInReturn::run($palletReturn))),
             ]
         )->table(
-            IndexPallets::make()->tableStructure(
+            IndexPalletsInReturn::make()->tableStructure(
                 $palletReturn,
                 prefix: PalletReturnTabsEnum::PALLETS->value
             )

@@ -108,9 +108,9 @@ class IndexPalletsInDelivery extends OrgAction
                 $table->column(key: 'type_icon', label: ['fal', 'fa-yin-yang'], type: 'avatar');
             }
 
-           /*  if (!($palletDelivery instanceof PalletDelivery and $palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS)) {
-                $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
-            } */
+            /*  if (!($palletDelivery instanceof PalletDelivery and $palletDelivery->state == PalletDeliveryStateEnum::IN_PROCESS)) {
+                 $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
+             } */
 
             if ($palletDelivery instanceof Organisation || $palletDelivery instanceof Fulfilment) {
                 $table->column(key: 'fulfilment_customer_name', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true);

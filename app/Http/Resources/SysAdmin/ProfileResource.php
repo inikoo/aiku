@@ -7,9 +7,6 @@
 
 namespace App\Http\Resources\SysAdmin;
 
-use App\Http\Resources\HumanResources\EmployeeResource;
-use App\Http\Resources\SysAdmin\Group\GroupResource;
-use App\Http\Resources\SysAdmin\Organisation\UserOrganisationResource;
 use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -42,7 +39,7 @@ class ProfileResource extends JsonResource
                 ]
             },
             'settings'         => [
-                'language' => $user->language_id,
+                'language'  => $user->language_id,
                 'app_theme' => Arr::get($user->settings, 'app_theme')
             ]
         ];

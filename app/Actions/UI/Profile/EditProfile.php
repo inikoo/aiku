@@ -10,8 +10,6 @@ namespace App\Actions\UI\Profile;
 use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
-use App\Http\Resources\SysAdmin\ProfileResource;
-use App\Http\Resources\SysAdmin\UserResource;
 use App\Http\Resources\UI\LoggedUserResource;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
@@ -42,17 +40,17 @@ class EditProfile
             "breadcrumbs" => $this->getBreadcrumbs(),
             "pageHead"    => [
                 "title"        => __("Edit Profile"),
-                'actions'      => [
-                    [
-                        'type'  => 'button',
-                        'style' => 'exit',
-                        'label' => __('back to profile'),
-                        'route' => [
-                            'name'       => 'grp.profile.show',
-                            'parameters' => array_values(request()->route()->originalParameters())
-                        ],
-                    ]
-                ]
+                // 'actions'      => [
+                //     [
+                //         'type'  => 'button',
+                //         'style' => 'exit',
+                //         'label' => __('back to profile'),
+                //         'route' => [
+                //             'name'       => 'grp.profile.show',
+                //             'parameters' => array_values(request()->route()->originalParameters())
+                //         ],
+                //     ]
+                // ]
             ],
             "formData" => [
                 "blueprint" => [
