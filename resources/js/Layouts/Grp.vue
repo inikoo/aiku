@@ -8,7 +8,7 @@
 
 
 <script setup lang="ts">
-import { ref, provide } from "vue"
+import { ref, provide, defineAsyncComponent } from 'vue'
 import { initialiseApp } from "@/Composables/initialiseApp"
 import { usePage } from "@inertiajs/vue3"
 import Footer from "@/Components/Footer/Footer.vue"
@@ -19,7 +19,7 @@ import { useLayoutStore } from "@/Stores/layout"
 import TopBar from "@/Layouts/Grp/TopBar.vue"
 import LeftSideBar from "@/Layouts/Grp/LeftSideBar.vue"
 import RightSideBar from "@/Layouts/Grp/RightSideBar.vue"
-import StackedComponents from "@/Layouts/Grp/StackedComponents.vue"
+// import StackedComponents from "@/Layouts/Grp/StackedComponents.vue"
 import Breadcrumbs from "@/Components/Navigation/Breadcrumbs.vue"
 import Notification from '@/Components/Utils/Notification.vue'
 import { faTachometerAltFast, faGlobe } from '@fal'
@@ -30,6 +30,9 @@ provide('layout', useLayoutStore())
 provide('isMovePallet', true)  // To conditionally render 'Move Pallet' button
 
 initialiseApp()
+
+const StackedComponents = defineAsyncComponent(() => import('@/Layouts/Grp/StackedComponents.vue'))
+
 
 const layout = useLayoutStore()
 const sidebarOpen = ref(false)
@@ -71,9 +74,9 @@ const sidebarOpen = ref(false)
             :class="[Object.values(layout.rightSidebar).some(value => value.show) ? 'right-0' : '-right-44']" />
 
         <Teleport to="body">
-            <StackedComponents
-            
-            />
+            <Transition name="stacked-component">
+                <StackedComponents v-if="layout.stackedComponents?.length" />
+            </Transition>
         </Teleport>
 
     </div>
