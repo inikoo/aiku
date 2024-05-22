@@ -174,7 +174,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 		<!-- Column: Set Loaction -->
 		<template #cell(location)="{ item: pallet }">
-			<div v-if="!pallet.location_id" class="flex gap-x-1 gap-y-2 items-center">
+			<div v-if="pallet.state == 'booked-in' || pallet.state == 'booking-in'" class="flex gap-x-1 gap-y-2 items-center">
 				<LocationFieldDelivery :key="pallet.state" :pallet="pallet"
 					@renderTableKey="() => emits('renderTableKey')" :locationRoute="locationRoute" />
 			</div>

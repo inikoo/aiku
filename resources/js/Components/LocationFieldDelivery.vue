@@ -45,6 +45,7 @@ const onSaveError = (errorValue: any) => {
     error.value = errorValue
 }
 
+
 </script>
 
 <template>
@@ -54,8 +55,8 @@ const onSaveError = (errorValue: any) => {
             <template #button>
                 <!-- <Button :type="pallet.state == 'booked-in' ? 'primary' : 'tertiary'" :icon="['fal', 'inventory']"
                     tooltip="Set location for pallet" :key="pallet.index" :size="'xs'" /> -->
-                <div v-if="pallet.location" class="text-gray-400">
-                    {{ pallet.location }}
+                <div v-if="pallet.location_code" class="text-gray-400">
+                    {{ pallet.location_code }}
                     <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='ml-1' fixed-width aria-hidden='true' />
                 </div>
 
