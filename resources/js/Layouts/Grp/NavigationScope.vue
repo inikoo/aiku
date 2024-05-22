@@ -25,14 +25,16 @@ const layout = inject('layout', layoutStructure)
         <div class="w-full flex items-center pt-2 pl-2.5 pr-0.5 pb-2 gap-x-1.5"
             :style="{ color: layout.app.theme[1] + '99' }">
             <FontAwesomeIcon :icon="icon" class='text-xxs' fixed-width aria-hidden='true' />
-            <div class="flex items-center gap-x-1.5">
-                <!-- <span class="text-sm leading-none uppercase">
-                    xxx
-                </span> -->
-                <span class="text-xs capitalize leading-none">
-                    {{ scope }}
-                </span>
-            </div>
+            <Transition name="slide-to-left">
+                <div v-if="layout.leftSidebar.show" class="flex items-center gap-x-1.5">
+                    <!-- <span class="text-sm leading-none uppercase">
+                        xxx
+                    </span> -->
+                    <span class="text-xs capitalize leading-none">
+                        {{ scope }}
+                    </span>
+                </div>
+            </Transition>
         </div>
 
         <div v-for="nav, navIndex in navs" :key="scope + navIndex" class="flex flex-col gap-y-1 mb-1">

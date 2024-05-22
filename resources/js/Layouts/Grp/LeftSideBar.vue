@@ -55,7 +55,7 @@ const handleToggleLeftBar = () => {
             <LeftSidebarNavigation />
         </div>
 
-        <div class="absolute bottom-[68px] w-full">
+        <div v-if="false" class="absolute bottom-[68px] w-full">
             <LeftSidebarBottomNav />
         </div>
     </div>
