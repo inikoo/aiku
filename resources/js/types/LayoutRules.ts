@@ -1,6 +1,7 @@
 
 import { Image } from "@/types/Image"
 import { routeType } from "@/types/route"
+import type { Component } from "vue"
 
 export interface OrganisationsData {
     id: number
@@ -68,4 +69,8 @@ export interface Currency {
     data: []
     created_at: Date
     updated_at: Date
+}
+
+export interface StackedComponent {
+    component: Component
 }

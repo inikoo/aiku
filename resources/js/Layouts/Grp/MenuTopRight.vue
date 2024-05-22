@@ -1,19 +1,28 @@
 <script setup lang='ts'>
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
 import { trans } from 'laravel-vue-i18n'
 import { useLayoutStore } from '@/Stores/layout'
 import { router } from '@inertiajs/vue3'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, inject } from 'vue'
 import { useLiveUsers } from '@/Stores/active-users'
 import SearchBar from "@/Components/SearchBar.vue"
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Image from '@/Components/Image.vue'
 import Popover from '@/Components/Popover.vue'
 import NotificationList from '@/Components/NotificationList/NotificationList.vue'
 
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import { layoutStructure } from "@/Composables/useLayoutStructure"
+import Profile from '@/Pages/Grp/Profile.vue'
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faDoorOpen } from '@far'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faDoorOpen)
+
 const props = defineProps<{
     urlPrefix: string
 }>()
+
+const layout = inject('layout', layoutStructure)
 
 const layoutStore = useLayoutStore()
 const showSearchDialog = ref(false)
@@ -61,7 +70,7 @@ const notifications = layoutStore.user.notifications
 <template>
     <!-- Avatar Group -->
     <div class="flex justify-between gap-x-2">
-        <div class="flex items-center">
+        <div class="flex items-center gap-x-1">
             <!-- Button: Search -->
             <button @click="showSearchDialog = !showSearchDialog" id="search"
                 class="h-7 w-fit flex items-center justify-center gap-x-3 ring-1 ring-gray-300 rounded-md px-3 text-gray-500 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
@@ -76,14 +85,12 @@ const notifications = layoutStore.user.notifications
             </button>
 
             <!-- Button: Notifications -->
-            <div class="relative">
+            <div class="relative mx-2 flex items-center">
                 <Popover width="w-full">
                     <template #button>
-                        <button type="button"
-                            class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 mr-3 ml-3">
-                            <span class="sr-only">{{ trans("View notifications") }}</span>
+                        <div class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
                             <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
-                        </button>
+                        </div>
                     </template>
 
                     <template #content="{ close: closed }">
@@ -93,40 +100,34 @@ const notifications = layoutStore.user.notifications
                     </template>
                 </Popover>
             </div>
-        </div>
 
-        <!-- Avatar Button -->
-        <Menu as="div" class="relative">
-            <MenuButton id="avatar-thumbnail"
-                class="flex max-w-xs overflow-hidden items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+            <!-- Button: Logout -->
+            <div class="relative">
+                <Popover width="w-full">
+                    <template #button>
+                      <div class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 mr-2">
+                        <FontAwesomeIcon icon='far fa-door-open'  fixed-width aria-hidden='true' size="lg" />
+                      </div>
+                    </template>
+
+                    <template #content="{ close: closed }">
+                        <div class="min-w-32 flex flex-col justify-center gap-y-2">
+                            <div class="whitespace-nowrap text-gray-500 text-xs">Are you sure want to logout?</div>
+                            <div class="mx-auto">
+                                <Button @click="logoutAuth()" label="Yes, Logout" type="negative" />
+                            </div>
+                        </div>
+                    </template>
+                </Popover>
+            </div>
+
+            <!-- Button: Logout -->
+            <div @click="layout.stackedComponents.push(Profile)"
+                class="flex max-w-xs overflow-hidden items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 cursor-pointer">
                 <span class="sr-only">{{ trans("Open user menu") }}</span>
                 <Image class="h-8 w-8 rounded-full" :src="layoutStore.user.avatar_thumbnail" alt="" />
-            </MenuButton>
+            </div>
+        </div>
 
-            <transition enter-active-class="transition ease-out duration-100"
-                enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100"
-                leave-to-class="transform opacity-0 scale-95">
-                <MenuItems
-                    class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-200 focus:outline-none">
-                    <div class="py-1">
-                        <MenuItem v-slot="{ active }">
-                        <div type="button" @click="router.visit(route(urlPrefix + 'profile.show'))"
-                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
-                            {{ trans("View profile") }}
-                        </div>
-                        </MenuItem>
-                    </div>
-                    <div class="py-1">
-                        <MenuItem v-slot="{ active }">
-                        <div @click="logoutAuth()"
-                            :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700', 'block px-4 py-2 text-sm cursor-pointer']">
-                            {{ trans('Logout') }}
-                        </div>
-                        </MenuItem>
-                    </div>
-                </MenuItems>
-            </transition>
-        </Menu>
     </div>
 </template>

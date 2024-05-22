@@ -12,4 +12,7 @@ enum RawMaterialStateEnum: string
     case IN_USE         = 'in_use';
     case ORPHAN         = 'orphan';
     case DISCONTINUED   = 'discontinued';
+
+
+
 }

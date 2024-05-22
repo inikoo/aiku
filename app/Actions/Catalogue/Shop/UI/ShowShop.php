@@ -241,7 +241,7 @@ class ShowShop extends OrgAction
                                     'name'       => 'grp.org.shops.index',
                                     'parameters' => Arr::only($routeParameters, 'organisation')
                                 ],
-                                'label' => __('shops'),
+                                'label' => __('Shops'),
                                 'icon'  => 'fal fa-bars'
                             ],
                             'model' => [

@@ -141,7 +141,7 @@ class ShowProductionCrafts extends OrgAction
                                 'name'       => 'grp.org.productions.index',
                                 'parameters' => $routeParameters['organisation']
                             ],
-                            'label' => __('production'),
+                            'label' => __('Production'),
                             'icon'  => 'fal fa-bars'
                         ],
                         'model' => [

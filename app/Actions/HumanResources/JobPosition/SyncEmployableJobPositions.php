@@ -55,7 +55,7 @@ class SyncEmployableJobPositions
             }
 
             if (class_basename($model) == 'Employee') {
-                EmployeeHydrateJobPositionsShare::dispatch($model);
+                EmployeeHydrateJobPositionsShare::run($model);
 
                 foreach ($removeJobPositions as $jobPositionId) {
                     $jobPosition=JobPosition::find($jobPositionId);
@@ -68,7 +68,7 @@ class SyncEmployableJobPositions
                 }
 
             } elseif (class_basename($model) == 'Guest') {
-                GuestHydrateJobPositionsShare::dispatch($model);
+                GuestHydrateJobPositionsShare::run($model);
 
                 foreach ($removeJobPositions as $jobPositionId) {
                     $jobPosition=JobPosition::find($jobPositionId);

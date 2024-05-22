@@ -13,8 +13,6 @@ use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
 use App\Imports\WithImport;
 use App\Models\Helpers\Upload;
 use App\Models\Manufacturing\Production;
-use App\Models\Manufacturing\RawMaterial;
-use App\Rules\IUnique;
 use Exception;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
@@ -27,7 +25,7 @@ class RawMaterialImport implements ToCollection, WithHeadingRow, SkipsOnFailure,
 {
     use WithImport;
 
-    protected RawMaterial $scope;
+    protected Production $scope;
     public function __construct(Production $production, Upload $upload)
     {
         $this->upload = $upload;
@@ -73,12 +71,6 @@ class RawMaterialImport implements ToCollection, WithHeadingRow, SkipsOnFailure,
                 'required',
                 'alpha_dash',
                 'max:64',
-                new IUnique(
-                    table: 'raw_materials',
-                    extraConditions: [
-                        ['column' => 'organisation_id', 'value' => $this->scope->organisation->id],
-                    ]
-                ),
             ],
             'description'      => ['required', 'string', 'max:255'],
             'unit'             => ['required', Rule::enum(RawMaterialUnitEnum::class)],

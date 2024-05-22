@@ -1,6 +1,6 @@
 import { useColorTheme } from '@/Composables/useStockList'
 
-import { OrganisationsData, Group, OrganisationState} from '@/types/LayoutRules'
+import { OrganisationsData, Group, OrganisationState, StackedComponent} from '@/types/LayoutRules'
 import { Colors } from "@/types/Color"
 import { Navigation, grpNavigation, orgNavigation } from "@/types/Navigation"
 import { Image } from "@/types/Image"
@@ -30,7 +30,6 @@ export const layoutStructure = {
         org: {} as { [key: string]: orgNavigation } | { [key: string]: Navigation } | Navigation
     },
     organisations: {
-        // currentOrganisations: '',
         data: {} as OrganisationsData[]
     },
     organisationsState: {} as {[key: string]: OrganisationState},
@@ -44,5 +43,6 @@ export const layoutStructure = {
             show: false
         }
     },
+    stackedComponents: [] as StackedComponent[],
     user: {} as { id: number, avatar_thumbnail: Image, email: string, username: string },
 }

@@ -5,22 +5,22 @@
   -->
 
 <script setup lang="ts">
-import {Head} from '@inertiajs/vue3';
-import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableSheets from "@/Components/Tables/Grp/Org/HumanResources/TableTimesheets.vue";
+import { Head } from '@inertiajs/vue3'
+import PageHeading from '@/Components/Headings/PageHeading.vue'
+import TableSheets from "@/Components/Tables/Grp/Org/HumanResources/TableTimesheets.vue"
 import { capitalize } from "@/Composables/capitalize"
-import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading"
 
-defineProps <{
+defineProps<{
     pageHead: PageHeadingTypes
     title: string
-    data: object
+    data: {}
 }>()
 </script>
 
 <template>
+
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <TableSheets :data="data" />
 </template>
-

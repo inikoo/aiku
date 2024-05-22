@@ -7,6 +7,7 @@
 
 namespace App\Actions\HumanResources\JobPosition\UI;
 
+use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Http\Resources\HumanResources\JobPositionsResource;
@@ -25,6 +26,9 @@ use App\Services\QueryBuilder;
 
 class IndexJobPositions extends OrgAction
 {
+    use WithEmployeeSubNavigation;
+    private Employee|Organisation $parent;
+
     public function handle(Organisation|Employee $parent, string $prefix = null): LengthAwarePaginator
     {
         if ($prefix) {
@@ -72,14 +76,29 @@ class IndexJobPositions extends OrgAction
         return JobPositionsResource::collection($jobPositions);
     }
 
-    public function tableStructure(?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Organisation|Employee $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix, $parent) {
             if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
+
+            $table->withEmptyState(
+                match (class_basename($parent)) {
+                    'Organisation' => [
+                        'title'       => __("No job positions found"),
+                        'count'       => $parent->humanResourcesStats->number_job_positions,
+                    ],
+                    'Employee' => [
+                        'title'       => __("Employee has no job positions"),
+                        'count'       => $parent->stats->number_job_positions
+
+                    ],
+                    default => null
+                }
+            );
 
 
             $table
@@ -94,13 +113,27 @@ class IndexJobPositions extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $jobPositions, ActionRequest $request): Response
     {
+
+        $subNavigation=[];
+
+        if($this->parent instanceof Employee) {
+            $subNavigation = $this->getEmployeeSubNavigation($this->parent, $request);
+        }
+
+
         return Inertia::render(
             'Org/HumanResources/JobPositions',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('job positions'),
                 'pageHead'    => [
-                    'title'   => __('positions'),
+                    'icon'    => [
+                        'title' => __('Job positions'),
+                        'icon'  => 'fal fa-network-wired'
+                    ],
+                    'title'         => __('Job positions'),
+                    'subNavigation' => $subNavigation,
+                    /*
                     'actions' => [
                         $this->canEdit ? [
                             'type'  => 'button',
@@ -114,20 +147,29 @@ class IndexJobPositions extends OrgAction
                             ]
                         ] : false
                     ]
+                    */
                 ],
                 'data'        => JobPositionsResource::collection($jobPositions),
 
 
             ]
-        )->table($this->tableStructure());
+        )->table($this->tableStructure($this->parent));
     }
 
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent=$organisation;
         $this->initialisation($organisation, $request);
-
         return $this->handle($organisation);
+    }
+
+
+    public function inEmployee(Organisation $organisation, Employee $employee, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent=$employee;
+        $this->initialisation($organisation, $request);
+        return $this->handle($employee);
     }
 
     public function getBreadcrumbs(array $routeParameters): array
