@@ -76,9 +76,9 @@ const options = {
                     <h2 v-else class="text-3xl font-light italic brightness-75">{{ trans('No name') }}</h2>
                     <div class="text-lg">
                         {{ customer?.shop }}
-                        <span class="text-gray-400">
+                        <!-- <span class="text-gray-400">
                             ({{ customer?.number_active_clients || 0 }} clients)
-                        </span>
+                        </span> -->
                     </div>
                 </div>
                 <div class="space-y-3 text-sm text-slate-500">

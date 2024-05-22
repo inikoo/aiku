@@ -19,17 +19,17 @@ if (usePage().props.language) {
 </script>
 
 <template>
-    <div class="relative h-screen w-screen bg-gradient-to-bl from-sky-100 to-indigo-200 pt-64 sm:px-6 lg:px-8">
+    <div class="relative h-screen w-screen bg-gradient-to-tr from-slate-950 to-slate-800 pt-64 sm:px-6 lg:px-8">
         <div class="flex items-center justify-center gap-x-2">
-            <img class="h-12 w-auto" src="/art/logo-yellow.svg" alt="Aiku" />
+            <img class="h-12 w-auto" src="/art/logo-yellow.svg" :alt="usePage().props.iris?.name || 'App'" />
             <span style="font-family: Fira" class="text-4xl text-white leading-none">{{ usePage().props.iris?.name }}</span>
         </div>
 
-        <div class="grid grid-cols-7 mt-8 mx-auto md:w-full max-w-4xl shadow-lg rounded-lg overflow-hidden">
-            <div class="col-span-3 bg-[url('/art/backgroundWarehouse.jpg')] bg-cover bg-center">
+        <div class="grid grid-cols-7 mt-8 mx-auto md:w-full max-w-xl shadow-lg rounded-lg overflow-hidden">
+            <!-- <div class="col-span-3 bg-[url('/art/backgroundWarehouse.jpg')] bg-cover bg-center">
                 
-            </div>
-            <div class="col-span-4 backdrop-blur-sm relative bg-white/65 py-8 px-4 md:px-10">
+            </div> -->
+            <div class="col-span-7 backdrop-blur-sm relative bg-gray-200 py-8 px-4 md:px-10">
                 <slot />
             </div>
         </div>

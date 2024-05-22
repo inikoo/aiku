@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from "@inertiajs/vue3"
-import { useLayoutStore } from "@/Stores/retinaLayout"
+// import { useLayoutStore } from "@/Stores/retinaLayout"
 import { Disclosure } from "@headlessui/vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { trans } from "laravel-vue-i18n"
@@ -12,6 +12,7 @@ import { faTerminal, faCog } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
 import MenuTopRight from "@/Layouts/Retina/MenuTopRight.vue"
+import { inject } from "vue"
 
 library.add(faChevronDown, faDotCircle, faTerminal, faCog)
 
@@ -25,8 +26,7 @@ defineEmits<{
     (e: "sidebarOpen", value: boolean): void
 }>()
 
-
-const layoutStore = useLayoutStore()
+const layout = inject('layout')
 
 // For label
 const label = {
@@ -41,7 +41,7 @@ const label = {
 <template>
     <Disclosure as="nav" class="fixed top-0 z-[21] w-full " v-slot="{ open }"
                 :style="{
-            'color': layoutStore.app.theme[2]
+            'color': layout.app.theme[2]
         }"
     >
         <div class="mt-1 flex h-11 lg:h-10 flex-shrink-0 gap-x-2">
@@ -61,26 +61,26 @@ const label = {
                 <!-- App Title: Image and Title -->
                 <div class="ml-3 w-0 md:w-44 mt-1 flex flex-1 items-center justify-center md:justify-start transition-all duration-300 ease-in-out"
                      :class="[
-                        // layoutStore.leftSidebar.show ? 'md:w-44 md:pr-4' : 'md:w-12'
+                        // layout.leftSidebar.show ? 'md:w-44 md:pr-4' : 'md:w-12'
                     ]"
                      :style="{
-                        // 'background-color': layoutStore.app.theme[0],
-                        'color': layoutStore.app.theme[2],
-                        // 'border-bottom': `1px solid ${layoutStore.app.theme[1]}3F`
+                        // 'background-color': layout.app.theme[0],
+                        'color': layout.app.theme[2],
+                        // 'border-bottom': `1px solid ${layout.app.theme[1]}3F`
                     }"
                 >
-                    <Link :href="layoutStore.app?.url ?? '#'"
+                    <Link :href="layout.app?.url ?? '#'"
                           class="pl-2 hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
                           :class="[
-                            // layoutStore.leftSidebar.show ? 'py-1 pl-4' : 'pl-3 w-full'
+                            // layout.leftSidebar.show ? 'py-1 pl-4' : 'pl-3 w-full'
                         ]"
                     >
-                        <Image :src="undefined" class="aspect-square h-6" />
+                        <!-- <Image :src="undefined" class="aspect-square h-6" /> -->
                         <Transition name="slide-to-left">
-                            <p v-if="layoutStore.leftSidebar.show || true" class="capitalize text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate"
-                               :style="{color: layoutStore.app.theme[2]}"
+                            <p v-if="layout.leftSidebar.show || true" class="capitalize text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate"
+                               :style="{color: layout.app.theme[2]}"
                             >
-                                {{ layoutStore.app?.name }}
+                                {{ layout.website?.label }}
                             </p>
                         </Transition>
                     </Link>
