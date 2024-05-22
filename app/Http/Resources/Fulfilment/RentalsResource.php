@@ -1,45 +1,49 @@
 <?php
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 25 Apr 2024 15:09:20 British Summer Time, Sheffield, UK
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Thu, 18 Apr 2024 09:27:56 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Http\Resources\Fulfilment;
 
-use App\Models\Catalogue\Product;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @property string $slug
  * @property string $code
- * @property mixed $created_at
- * @property mixed $updated_at
+ * @property int $id
+ * @property string $slug
  * @property string $name
- * @property string $state
+ * @property string $main_outerable_price
+ * @property string $description
  * @property mixed $type
- *
+ * @property mixed $auto_assign_asset
+ * @property mixed $auto_assign_asset_type
+ * @property mixed $price
+ * @property mixed $currency_code
+ * @property mixed $unit
+ * @property mixed $state
  */
 class RentalsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        /** @var Product $product */
-        $product= $this;
+
 
         return [
-            'slug'               => $this->slug,
-            'code'               => $this->code,
-            'name'               => $this->name,
-            'state'              => $this->state,
-            'state_label'        => $product->state->labels()[$product->state->value],
-            'state_icon'         => $product->state->stateIcon()[$product->state->value],
-            'type'               => $this->type,
-            'type_label'         => $product->type->labels()[$product->type->value],
-            'type_icon'          => $product->type->typeIcon()[$product->type->value],
-
-
-
+            'id'                     => $this->id,
+            'code'                   => $this->code,
+            'name'                   => $this->name,
+            'price'                  => $this->price,
+            'currency_code'          => $this->currency_code,
+            'unit'                   => $this->unit,
+            'unit_abbreviation'      => $this->unit->abbreviations()[$this->unit->value],
+            'unit_label'             => $this->unit->labels()[$this->unit->value],
+            'description'            => $this->description,
+            'auto_assign_asset_type' => $this->auto_assign_asset_type,
+            'auto_assign_asset'      => $this->auto_assign_asset,
+            'state_label'            => $this->state->labels()[$this->state->value],
+            'state_icon'             => $this->state->stateIcon()[$this->state->value],
         ];
     }
 }
