@@ -232,7 +232,7 @@ class IndexArtefacts extends OrgAction
                             'name'       => 'grp.org.productions.show.crafts.artefacts.index',
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('artefacts'),
+                        'label' => __('Artefacts'),
                         'icon'  => 'fal fa-bars',
                     ],
                     'suffix' => $suffix
