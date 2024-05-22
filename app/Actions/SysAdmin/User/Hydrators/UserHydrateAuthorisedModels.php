@@ -36,17 +36,25 @@ class UserHydrateAuthorisedModels
             } elseif ($permission->scope_type === 'Shop') {
                 $shop                                   = Shop::find($permission->scope_id);
                 $authorisedShops[$permission->scope_id] = ['org_id' => $shop->organisation_id];
+                $authorisedOrganisations[$shop->organisation_id] = ['org_id' => $shop->organisation_id];
             } elseif ($permission->scope_type === 'Fulfilment') {
                 $fulfilment                                   = Fulfilment::find($permission->scope_id);
                 $authorisedFulfilments[$permission->scope_id] = ['org_id' => $fulfilment->organisation_id];
+                $authorisedOrganisations[$fulfilment->organisation_id] = ['org_id' => $fulfilment->organisation_id];
+
             } elseif ($permission->scope_type === 'Warehouse') {
                 $warehouse                                   = Warehouse::find($permission->scope_id);
                 $authorisedWarehouses[$permission->scope_id] = ['org_id' => $warehouse->organisation_id];
+                $authorisedOrganisations[$warehouse->organisation_id] = ['org_id' => $warehouse->organisation_id];
+
             } elseif ($permission->scope_type === 'Production') {
                 $production                                   = Production::find($permission->scope_id);
                 $authorisedProductions[$permission->scope_id] = ['org_id' => $production->organisation_id];
+                $authorisedOrganisations[$production->organisation_id] = ['org_id' => $production->organisation_id];
+
             }
         }
+
 
 
         $user->authorisedOrganisations()->sync($authorisedOrganisations);

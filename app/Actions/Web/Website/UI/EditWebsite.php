@@ -8,6 +8,7 @@
 namespace App\Actions\Web\Website\UI;
 
 use App\Actions\OrgAction;
+use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
@@ -19,6 +20,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditWebsite extends OrgAction
 {
+    private Fulfilment|Shop $parent;
+
     public function handle(Website $website): Website
     {
         return $website;
@@ -26,17 +29,38 @@ class EditWebsite extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        if ($this->parent instanceof Shop) {
+            $this->canEdit      = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
+            $this->isSupervisor = $request->user()->hasPermissionTo("supervisor-web.{$this->shop->id}");
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            return $request->user()->hasPermissionTo("web.{$this->shop->id}.view");
+        } elseif ($this->parent instanceof Fulfilment) {
+            $this->canEdit      = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+            $this->isSupervisor = $request->user()->hasPermissionTo("supervisor-fulfilment-shop.{$this->fulfilment->id}");
 
+            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        }
+
+        return false;
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Website
+    public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): Website
     {
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->parent = $shop;
+        $this->initialisationFromShop($shop, $request);
+
         return $this->handle($website);
     }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Website
+    {
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($website);
+    }
+
 
     /**
      * @throws Exception
@@ -46,75 +70,75 @@ class EditWebsite extends OrgAction
         return Inertia::render(
             'EditModel',
             [
-                    'title'       => __("Website's settings"),
-                    'breadcrumbs' => $this->getBreadcrumbs(
-                        $request->route()->getName(),
-                        $request->route()->originalParameters()
-                    ),
-                    'navigation'   => [
-                        'previous' => $this->getPrevious($website, $request),
-                        'next'     => $this->getNext($website, $request),
+                'title'       => __("Website's settings"),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
+                'navigation'  => [
+                    'previous' => $this->getPrevious($website, $request),
+                    'next'     => $this->getNext($website, $request),
+                ],
+                'pageHead'    => [
+                    'title'     => __('Settings'),
+                    'container' => [
+                        'icon'    => ['fal', 'fa-globe'],
+                        'tooltip' => __('Website'),
+                        'label'   => Str::possessive($website->name)
                     ],
-                    'pageHead'    => [
-                        'title'     => __('Settings'),
-                        'container' => [
-                            'icon'    => ['fal', 'fa-globe'],
-                            'tooltip' => __('Website'),
-                            'label'   => Str::possessive($website->name)
+
+                    'iconRight' =>
+                        [
+                            'icon'  => ['fal', 'sliders-h'],
+                            'title' => __("Website's settings")
                         ],
 
-                        'iconRight'    =>
-                            [
-                                'icon'  => ['fal', 'sliders-h'],
-                                'title' => __("Website's settings")
-                            ],
-
-                        'actions'   => [
-                            [
-                                'type'  => 'button',
-                                'style' => 'exitEdit',
-                                'label' => __('Exit settings'),
-                                'route' => [
-                                    'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
-                                    'parameters' => array_values($request->route()->originalParameters())
-                                ]
+                    'actions' => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'exitEdit',
+                            'label' => __('Exit settings'),
+                            'route' => [
+                                'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
+                        ]
+                    ],
+                ],
+                'formData'    => [
+                    'blueprint' => [
+                        [
+                            'label'  => __('ID/domain'),
+                            'icon'   => 'fa-light fa-id-card',
+                            'fields' => [
+                                'code'   => [
+                                    'type'     => 'input',
+                                    'label'    => __('code'),
+                                    'value'    => $website->code,
+                                    'required' => true,
+                                ],
+                                'name'   => [
+                                    'type'     => 'input',
+                                    'label'    => __('name'),
+                                    'value'    => $website->name,
+                                    'required' => true,
+                                ],
+                                'domain' => [
+                                    'type'      => 'inputWithAddOn',
+                                    'label'     => __('domain'),
+                                    'leftAddOn' => [
+                                        'label' => 'http://www.'
+                                    ],
+                                    'value'     => $website->domain,
+                                    'required'  => true,
+                                ],
                             ]
                         ],
-                    ],
-                    'formData' => [
-                        'blueprint' => [
-                            [
-                                'label'  => __('ID/domain'),
-                                'icon'   => 'fa-light fa-id-card',
-                                'fields' => [
-                                    'code' => [
-                                        'type'     => 'input',
-                                        'label'    => __('code'),
-                                        'value'    => $website->code,
-                                        'required' => true,
-                                    ],
-                                    'name' => [
-                                        'type'     => 'input',
-                                        'label'    => __('name'),
-                                        'value'    => $website->name,
-                                        'required' => true,
-                                    ],
-                                    'domain' => [
-                                        'type'      => 'inputWithAddOn',
-                                        'label'     => __('domain'),
-                                        'leftAddOn' => [
-                                            'label'=> 'http://www.'
-                                        ],
-                                        'value'    => $website->domain,
-                                        'required' => true,
-                                    ],
-                                ]
-                            ],
-                            [
+                        [
                             'label'  => __('Registrations'),
                             'icon'   => 'fa-light fa-id-card',
                             'fields' => [
-                                'approval' => [
+                                'approval'           => [
                                     'type'     => 'toggle',
                                     'label'    => __('Registrations Approval'),
                                     'value'    => false,
@@ -125,144 +149,144 @@ class EditWebsite extends OrgAction
                                     'mode'     => 'card',
                                     'label'    => __('Registration Type'),
                                     'value'    => [
-                                        'title'        => "type B",
-                                        'description'  => 'This user able to create and delete',
-                                        'label'        => '17 users left',
-                                        'value'        => "typeB",
+                                        'title'       => "type B",
+                                        'description' => 'This user able to create and delete',
+                                        'label'       => '17 users left',
+                                        'value'       => "typeB",
                                     ],
                                     'required' => true,
                                     'options'  => [
                                         [
-                                            'title'        => "type A",
-                                            'description'  => 'This user able to edit',
-                                            'label'        => '425 users left',
-                                            'value'        => "typeA",
+                                            'title'       => "type A",
+                                            'description' => 'This user able to edit',
+                                            'label'       => '425 users left',
+                                            'value'       => "typeA",
                                         ],
                                         [
-                                            'title'        => "type B",
-                                            'description'  => 'This user able to create and delete',
-                                            'label'        => '17 users left',
-                                            'value'        => "typeB",
+                                            'title'       => "type B",
+                                            'description' => 'This user able to create and delete',
+                                            'label'       => '17 users left',
+                                            'value'       => "typeB",
                                         ],
                                     ]
                                 ],
-                                'web_registrations' => [
+                                'web_registrations'  => [
                                     'type'     => 'webRegistrations',
                                     'label'    => __('Web Registration'),
                                     'value'    => [
                                         [
-                                            'key'       => 'telephone',
-                                            'name'      => __('telephone'),
-                                            'show'      => true,
-                                            'required'  => false,
+                                            'key'      => 'telephone',
+                                            'name'     => __('telephone'),
+                                            'show'     => true,
+                                            'required' => false,
                                         ],
                                         [
-                                            'key'       => 'address',
-                                            'name'      => __('address'),
-                                            'show'      => false,
-                                            'required'  => false,
+                                            'key'      => 'address',
+                                            'name'     => __('address'),
+                                            'show'     => false,
+                                            'required' => false,
                                         ],
                                         [
-                                            'key'       => 'company',
-                                            'name'      => __('company'),
-                                            'show'      => false,
-                                            'required'  => false,
+                                            'key'      => 'company',
+                                            'name'     => __('company'),
+                                            'show'     => false,
+                                            'required' => false,
                                         ],
                                         [
-                                            'key'       => 'contact_name',
-                                            'name'      => __('contact_name'),
-                                            'show'      => false,
-                                            'required'  => false,
+                                            'key'      => 'contact_name',
+                                            'name'     => __('contact_name'),
+                                            'show'     => false,
+                                            'required' => false,
                                         ],
                                         [
-                                            'key'       => 'registration_number',
-                                            'name'      => __('registration number'),
-                                            'show'      => true,
-                                            'required'  => false,
+                                            'key'      => 'registration_number',
+                                            'name'     => __('registration number'),
+                                            'show'     => true,
+                                            'required' => false,
                                         ],
                                         [
-                                            'key'       => 'tax_number',
-                                            'name'      => __('tax number'),
-                                            'show'      => false,
-                                            'required'  => false,
+                                            'key'      => 'tax_number',
+                                            'name'     => __('tax number'),
+                                            'show'     => false,
+                                            'required' => false,
                                         ],
                                         [
-                                            'key'       => 'terms_and_conditions',
-                                            'name'      => __('terms and conditions'),
-                                            'show'      => true,
-                                            'required'  => true,
+                                            'key'      => 'terms_and_conditions',
+                                            'name'     => __('terms and conditions'),
+                                            'show'     => true,
+                                            'required' => true,
                                         ],
                                         [
-                                            'key'       => 'marketing',
-                                            'name'      => __('marketing'),
-                                            'show'      => false,
-                                            'required'  => false,
+                                            'key'      => 'marketing',
+                                            'name'     => __('marketing'),
+                                            'show'     => false,
+                                            'required' => false,
                                         ],
-                                ],
+                                    ],
                                     'required' => true,
                                     'options'  => [
                                         [
-                                            'key'       => 'telephone',
-                                            'name'      => __('telephone'),
-                                            'show'      => true,
-                                            'required'  => false,
+                                            'key'      => 'telephone',
+                                            'name'     => __('telephone'),
+                                            'show'     => true,
+                                            'required' => false,
                                         ],
                                         [
-                                            'key'       => 'address',
-                                            'name'      => __('address'),
-                                            'show'      => false,
-                                            'required'  => false,
+                                            'key'      => 'address',
+                                            'name'     => __('address'),
+                                            'show'     => false,
+                                            'required' => false,
                                         ],
                                         [
-                                            'key'       => 'company',
-                                            'name'      => __('company'),
-                                            'show'      => false,
-                                            'required'  => false,
+                                            'key'      => 'company',
+                                            'name'     => __('company'),
+                                            'show'     => false,
+                                            'required' => false,
                                         ],
                                         [
-                                            'key'       => 'contact_name',
-                                            'name'      => __('contact name'),
-                                            'show'      => false,
-                                            'required'  => false,
+                                            'key'      => 'contact_name',
+                                            'name'     => __('contact name'),
+                                            'show'     => false,
+                                            'required' => false,
                                         ],
                                         [
-                                            'key'       => 'registration_number',
-                                            'name'      => __('registration number'),
-                                            'show'      => true,
-                                            'required'  => false,
+                                            'key'      => 'registration_number',
+                                            'name'     => __('registration number'),
+                                            'show'     => true,
+                                            'required' => false,
                                         ],
                                         [
-                                            'key'       => 'tax_number',
-                                            'name'      => __('tax number'),
-                                            'show'      => false,
-                                            'required'  => false,
+                                            'key'      => 'tax_number',
+                                            'name'     => __('tax number'),
+                                            'show'     => false,
+                                            'required' => false,
                                         ],
                                         [
-                                            'key'       => 'terms_and_conditions',
-                                            'name'      => __('terms and conditions'),
-                                            'show'      => true,
-                                            'required'  => false,
+                                            'key'      => 'terms_and_conditions',
+                                            'name'     => __('terms and conditions'),
+                                            'show'     => true,
+                                            'required' => false,
                                         ],
                                         [
-                                            'key'       => 'marketing',
-                                            'name'      => __('marketing'),
-                                            'show'      => false,
-                                            'required'  => false,
+                                            'key'      => 'marketing',
+                                            'name'     => __('marketing'),
+                                            'show'     => false,
+                                            'required' => false,
                                         ],
-                                ]
+                                    ]
                                 ]
                             ]
                         ],
                     ],
-                        'args'      => [
-                            'updateRoute' => [
-                                'name'       => 'grp.models.website.update',
-                                'parameters' => $website->id
-                            ],
-                        ]
-                    ],
+                    'args'      => [
+                        'updateRoute' => [
+                            'name'       => 'grp.models.website.update',
+                            'parameters' => $website->id
+                        ],
+                    ]
+                ],
 
-                ]
+            ]
         );
     }
 
@@ -302,7 +326,9 @@ class EditWebsite extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'website' => $website->slug
+                        'organisation' => $website->shop->organisation->slug,
+                        'shop'         => $website->shop->slug,
+                        'website'      => $website->slug
                     ]
                 ]
             ],
@@ -310,7 +336,11 @@ class EditWebsite extends OrgAction
                 'label' => $website->name,
                 'route' => [
                     'name'       => $routeName,
-                    'parameters' => request()->route()->originalParameters()
+                    'parameters' => [
+                        'organisation' => $this->parent->organisation->slug,
+                        'fulfilment'   => $this->parent->slug,
+                        'website'      => $website->slug
+                    ]
                 ]
             ]
         };

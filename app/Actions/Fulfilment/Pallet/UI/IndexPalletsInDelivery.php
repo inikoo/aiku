@@ -9,10 +9,8 @@ namespace App\Actions\Fulfilment\Pallet\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
-use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
@@ -20,10 +18,6 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Inertia\Inertia;
-use Inertia\Response;
-use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
@@ -146,7 +140,7 @@ class IndexPalletsInDelivery extends OrgAction
 
 
 
-            if($palletDelivery->state == PalletDeliveryStateEnum::BOOKING_IN or $palletDelivery->state == PalletDeliveryStateEnum::BOOKED_IN){
+            if($palletDelivery->state == PalletDeliveryStateEnum::BOOKING_IN or $palletDelivery->state == PalletDeliveryStateEnum::BOOKED_IN) {
                 $table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
                 $table->column(key: 'rental', label: __('Rental'), canBeHidden: false, searchable: true);
 
@@ -168,83 +162,6 @@ class IndexPalletsInDelivery extends OrgAction
 
             $table->defaultSort('reference');
         };
-    }
-
-
-    public function jsonResponse(LengthAwarePaginator $pallets): AnonymousResourceCollection
-    {
-        return PalletsResource::collection($pallets);
-    }
-
-
-    public function htmlResponse(LengthAwarePaginator $pallets, ActionRequest $request): Response
-    {
-        $stats = $this->parent->stats;
-
-
-        return Inertia::render(
-            'Org/Fulfilment/Pallets',
-            [
-                'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
-                    $request->route()->originalParameters()
-                ),
-                'title'       => __('pallets'),
-                'pageHead'    => [
-                    'title'   => __('pallets'),
-                    'icon'    => ['fal', 'fa-pallet'],
-                    'actions' => [
-                        [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('New Delivery'),
-                            'route' => [
-                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.create',
-                                'parameters' => [
-                                    'organisation' => $request->route('organisation'),
-                                    'warehouse'    => $request->route('warehouse'),
-                                    'fulfilment'   => $request->route('fulfilment')
-                                ]
-                            ]
-                        ],
-                    ],
-
-                    'meta' => [
-                        [
-                            'label'    => __('Returned pallets'),
-                            'number'   => $stats->number_pallets_state_dispatched,
-                            'href'     => [
-                                'name'       => 'grp.org.fulfilments.show.operations.returned_pallets.index',
-                                'parameters' => $request->route()->originalParameters()
-                            ],
-                            'leftIcon' => PalletStateEnum::stateIcon()[PalletStateEnum::DISPATCHED->value]
-                        ],
-                        [
-                            'label'    => __('Damaged pallets'),
-                            'number'   => $stats->number_pallets_state_damaged,
-                            'href'     => [
-                                'name'       => 'grp.org.fulfilments.show.operations.returned_pallets.index',
-                                'parameters' => $request->route()->originalParameters()
-                            ],
-                            'leftIcon' => PalletStateEnum::stateIcon()[PalletStateEnum::DAMAGED->value]
-                        ],
-
-                        [
-                            'label'    => __('Lost pallets'),
-                            'number'   => $stats->number_pallets_state_lost,
-                            'href'     => [
-                                'name'       => 'grp.org.fulfilments.show.operations.returned_pallets.index',
-                                'parameters' => $request->route()->originalParameters()
-                            ],
-                            'leftIcon' => PalletStateEnum::stateIcon()[PalletStateEnum::LOST->value]
-                        ],
-
-                    ]
-                ],
-                'data'        => PalletsResource::collection($pallets),
-
-            ]
-        )->table($this->tableStructure($this->parent, 'pallets'));
     }
 
 

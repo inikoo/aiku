@@ -21,6 +21,7 @@ class GetLayout
         if (!$user) {
             return [];
         }
+
         return [
 
             'group'          => GroupResource::make(app('group'))->getArray(),
