@@ -11,6 +11,7 @@ use App\Actions\UI\Profile\EditProfile;
 use App\Actions\UI\Profile\ShowProfile;
 use App\Actions\UI\Profile\ShowProfileIndexHistory;
 use App\Actions\UI\Profile\ShowProfileIndexVisitLogs;
+use App\Actions\UI\Profile\ShowProfilePageHeadTabs;
 use App\Actions\UI\Profile\ShowProfileShowcase;
 use App\Actions\UI\Profile\UpdateProfile;
 
@@ -20,6 +21,7 @@ Route::post('/', UpdateProfile::class)->name('update');
 
 Route::get('/notifications', IndexNotification::class)->name('notifications.index');
 
+Route::get('/page-head-tabs', ShowProfilePageHeadTabs::class)->name('page-head-tabs.show');
 Route::get('/showcase', ShowProfileShowcase::class)->name('showcase.show');
 Route::get('/timesheets', IndexTimesheets::class)->name('timesheets.index');
 Route::get('/histories', ShowProfileIndexHistory::class)->name('history.index');
