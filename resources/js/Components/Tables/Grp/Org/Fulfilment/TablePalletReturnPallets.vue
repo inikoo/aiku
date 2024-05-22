@@ -12,12 +12,16 @@ import { faSignOutAlt, faTimes, faShare, faCross } from "@fal"
 import { Link } from "@inertiajs/vue3"
 import Tag from "@/Components/Tag.vue"
 import TagPallet from '@/Components/TagPallet.vue'
+import '@/Composables/Icon/PalletReturnStateEnum'  // Import all icon for State
 
 import Icon from "@/Components/Icon.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { inject } from 'vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { trans } from "laravel-vue-i18n"
+import { layoutStructure } from "@/Composables/useLayoutStructure"
 
-const layout = inject('layout')
+const layout = inject('layout', layoutStructure)
 
 library.add(faTrashAlt, faSignOutAlt, faTimes, faShare, faCross, faPaperPlane)
 const props = defineProps<{
@@ -27,7 +31,7 @@ const props = defineProps<{
     app?: string // 'retina'
 }>()
 
-function customerRoute(pallet: object) {
+function customerRoute(pallet: {}) {
     return route(pallet.deleteFromReturnRoute.name, pallet.deleteFromReturnRoute.parameters)
 }
 </script>
@@ -36,10 +40,12 @@ function customerRoute(pallet: object) {
     <!-- <pre>{{data}}</pre> -->
     <Table :resource="data" :name="tab" class="mt-5">
 
-        <!-- <template #cell(reference)>
-        
-            asdsadsadsa
-        </template> -->
+        <!-- Column: Type Icon -->
+		<template #cell(type_icon)="{ item: palletDelivery }">
+            <div v-if="app == 'retina'" class="px-3" />
+
+            <FontAwesomeIcon v-else v-tooltip="palletDelivery.type_icon.tooltip" :icon='palletDelivery.type_icon.icon' :class='palletDelivery.type_icon.class' fixed-width aria-hidden='true' />
+		</template>
 
         <!-- Column: State -->
 		<template #cell(state)="{ item: palletDelivery }">
@@ -67,10 +73,15 @@ function customerRoute(pallet: object) {
             </div>
         </template>
 
+        <!-- Column: Location -->
+		<template #cell(location)="{ item: palletDelivery }">
+            {{ palletDelivery.location_slug }}
+		</template>
+
         <!-- Column: Actions -->
         <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in-process' || props.state == 'picking'">
             <div v-if="props.state == 'in-process'">
-                <Link as="div" :href="customerRoute(pallet)" method="delete">
+                <Link as="div" :href="customerRoute(pallet)" v-tooltip="trans('Unselect this pallet')" method="delete">
                     <Button icon="fal fa-trash-alt" type="negative" />
                 </Link>
             </div>
