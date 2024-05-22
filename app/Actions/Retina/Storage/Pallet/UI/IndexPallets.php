@@ -40,8 +40,8 @@ class IndexPallets extends RetinaAction
             'state' => [
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
-                    PalletStatusEnum::labels(forElements: true),
-                    PalletStatusEnum::count($parent, forElements: true)
+                    PalletStatusEnum::labels($parent),
+                    PalletStatusEnum::count($parent)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -144,8 +144,8 @@ class IndexPallets extends RetinaAction
                 $table->column(key: 'reference', label: __('reference number'), canBeHidden: false, sortable: true, searchable: true);
             }
 
-            $table->column(key: 'customer_reference', label: __('pallet name'), canBeHidden: false, sortable: false, searchable: true);
-            $table->column(key: 'rental', label: __('rental'), canBeHidden: false, sortable: false, searchable: true);
+            $table->column(key: 'customer_reference', label: __('pallet name'), canBeHidden: false, searchable: true);
+            $table->column(key: 'rental', label: __('rental'), canBeHidden: false,  searchable: true);
             $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true)
                 ->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true)
                 ->defaultSort('reference');
