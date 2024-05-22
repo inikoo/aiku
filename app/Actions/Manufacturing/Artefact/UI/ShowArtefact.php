@@ -9,7 +9,6 @@ namespace App\Actions\Manufacturing\Artefact\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Inventory\Location\UI\IndexLocations;
-use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Manufacturing\Production\UI\ShowProductionCrafts;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
@@ -22,7 +21,6 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Manufacturing\Artefact;
 use App\Models\Manufacturing\Production;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -144,11 +142,11 @@ class ShowArtefact extends OrgAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($artefact)))
 
             ]
-        // )->table(
-        //     IndexLocations::make()->tableStructure(
-        //         parent: $artefact,
-        //         prefix: ArtefactTabsEnum::LOCATIONS->value
-        //     )
+            // )->table(
+            //     IndexLocations::make()->tableStructure(
+            //         parent: $artefact,
+            //         prefix: ArtefactTabsEnum::LOCATIONS->value
+            //     )
         )->table(IndexHistory::make()->tableStructure(prefix: ArtefactTabsEnum::HISTORY->value));
     }
 
