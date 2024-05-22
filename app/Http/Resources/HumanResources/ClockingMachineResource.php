@@ -29,6 +29,8 @@ class ClockingMachineResource extends JsonResource
             'workplace_slug'         => $clockingMachine->workplace->slug,
             'workplace_name'         => $clockingMachine->workplace->name,
             'slug'                   => $clockingMachine->slug,
+            'qr_code'                => $clockingMachine->qr_code,
+            'status'                 => $clockingMachine->status,
             'name'                   => $clockingMachine->name,
             'type'                   => $clockingMachine->type,
             'created_at'             => $clockingMachine->created_at,

@@ -7,6 +7,8 @@
 
 namespace App\Actions\SysAdmin\User\UI;
 
+use App\Actions\Traits\WithActionUpdate;
+use App\Enums\HumanResources\ClockingMachine\ClockingMachineStatusEnum;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Models\HumanResources\ClockingMachine;
 use Illuminate\Support\Arr;
@@ -18,12 +20,17 @@ class StoreClockingMachineApiTokenFromQRCode
 {
     use AsAction;
     use WithAttributes;
+    use WithActionUpdate;
 
     private bool $asAction = false;
 
 
     public function handle(ClockingMachine $clockingMachine, array $modelData): array
     {
+        data_set($modelData, 'status', ClockingMachineStatusEnum::CONNECTED->value);
+
+        $this->update($clockingMachine, $modelData);
+
         return [
             'token' => $clockingMachine->createToken(Arr::get($modelData, 'device_name', 'unknown-device'))->plainTextToken,
             'data'  => ClockingMachineResource::make($clockingMachine)
@@ -33,8 +40,9 @@ class StoreClockingMachineApiTokenFromQRCode
     public function rules(): array
     {
         return [
-            'qr_code'              => ['required', 'string', 'exists:clocking_machines,slug'],
+            'qr_code'              => ['required', 'string', 'exists:clocking_machines,qr_code'],
             'device_name'          => ['required', 'string'],
+            'device_uuid'          => ['required', 'string'],
         ];
     }
 
@@ -52,8 +60,8 @@ class StoreClockingMachineApiTokenFromQRCode
 
         $validatedData = $this->validateAttributes();
 
-        $clockingMachine = ClockingMachine::where('slug', $validatedData['qr_code'])->first();
+        $clockingMachine = ClockingMachine::where('qr_code', $validatedData['qr_code'])->first();
 
-        return $this->handle($clockingMachine, Arr::only($validatedData, ['device_name']));
+        return $this->handle($clockingMachine, Arr::only($validatedData, ['device_name', 'device_uuid']));
     }
 }

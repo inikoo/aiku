@@ -5,6 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\SysAdmin\User\UI\DeleteClockingMachineApiToken;
 use App\Actions\SysAdmin\User\UI\StoreClockingMachineApiTokenFromQRCode;
 use App\Actions\SysAdmin\User\UI\StoreUserApiTokenFromCredentials;
 use App\Actions\SysAdmin\User\UI\StoreUserApiTokenFromQRCode;
@@ -17,6 +18,7 @@ Route::name('mobile-app.tokens.')->group(function () {
 
     Route::prefix('clocking-machines')->name('clocking-machine.')->group(function () {
         Route::post('tokens/qr-code', StoreClockingMachineApiTokenFromQRCode::class)->name('qr-code.store');
+        Route::delete('tokens/qr-code', DeleteClockingMachineApiToken::class)->name('qr-code.delete')->middleware(['auth:sanctum','bind_group']);
     });
 });
 

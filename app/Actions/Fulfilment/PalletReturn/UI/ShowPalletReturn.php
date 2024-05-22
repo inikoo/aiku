@@ -144,8 +144,8 @@ class ShowPalletReturn extends OrgAction
                 $palletReturn->state == PalletReturnStateEnum::CONFIRMED ? [
                     'type'    => 'button',
                     'style'   => 'save',
-                    'tooltip' => __('picking'),
-                    'label'   => __('picking'),
+                    'tooltip' => __('start picking'),
+                    'label'   => __('start picking'),
                     'key'     => 'action',
                     'route'   => [
                         'method'     => 'post',

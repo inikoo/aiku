@@ -19,7 +19,11 @@ class GetClockingMachineShowcase
         return [
             'slug'              => $clockingMachine->slug,
             'name'              => $clockingMachine->name,
-            'type'              => $clockingMachine->type
+            'type'              => $clockingMachine->type,
+            'qr_code'           => $clockingMachine->qr_code,
+            'status'            => $clockingMachine->status,
+            'device_name'       => $clockingMachine->device_name,
+            'device_uuid'       => $clockingMachine->device_uuid
         ];
     }
 }

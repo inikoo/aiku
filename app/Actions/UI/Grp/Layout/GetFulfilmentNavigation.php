@@ -19,7 +19,8 @@ class GetFulfilmentNavigation
     {
         $navigation = [];
 
-        if ($user->hasPermissionTo("fulfilment.$fulfilment->id.view")) {
+        if ($user->hasPermissionTo("fulfilment-shop.$fulfilment->id.view")) {
+
 
             $navigation['products'] = [
                 'root'  => 'grp.org.fulfilments.show.products.',
