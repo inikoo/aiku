@@ -13,7 +13,7 @@ import axios from 'axios'
 import { routeType } from '@/types/route'
 import { notify } from '@kyvg/vue3-notification'
 import { PDRNotes } from '@/types/Pallet'
-import { layoutStructure } from '@/Composables/useLayoutStructure'
+// import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { useBasicColor } from '@/Composables/useColors'
 library.add(faPencil, faStickyNote, faTrash, faPlus, faLock, faTimes)
 
@@ -97,7 +97,7 @@ const fallbackColor = '#374151'  // Color
 
         <!-- Section: Note -->
         <p @dblclick="noteData.editable ? isModalOpen = true : false"
-            v-tooltip="trans('Double click to edit')"
+            v-tooltip="noteData.editable ? trans('Double click to edit') : false"
             class="h-full mx-auto items-center px-4 rounded-md pt-4 pb-2 text-xxs break-words"
             :class="noteData.editable ? 'cursor-pointer' : ''"
             :style="{
@@ -106,7 +106,7 @@ const fallbackColor = '#374151'  // Color
             }"
         >
             <template v-if="noteData.note">{{ noteData.note }}</template>
-            <span v-else class="italic"
+            <span v-else class="italic select-none"
                 :style="{
                     color: fallbackColor + '55'
                 }"

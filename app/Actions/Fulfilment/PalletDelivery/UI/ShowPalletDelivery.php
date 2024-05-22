@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery\UI;
 
+use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentRentals;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInDelivery;
@@ -19,6 +20,7 @@ use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
+use App\Http\Resources\Fulfilment\RentalsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
@@ -82,16 +84,29 @@ class ShowPalletDelivery extends OrgAction
 
     public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): Response
     {
-
         $palletStateReceivedCount = $palletDelivery->pallets()->where('state', PalletStateEnum::BOOKING_IN)->count();
         $palletNotInRentalCount   = $palletDelivery->pallets()->whereNull('rental_id')->count();
-
+    
         $numberPallets       = $palletDelivery->fulfilmentCustomer->pallets()->count();
         $numberStoredPallets = $palletDelivery->pallets()->where('state', PalletDeliveryStateEnum::BOOKED_IN->value)->count();
-
+    
         $palletLimits = $palletDelivery->fulfilmentCustomer->rentalAgreement->pallets_limit;
         $totalPallets = $numberPallets + $numberStoredPallets;
-
+        $pdfButton = [
+            'type'   => 'button',
+            'style'  => 'tertiary',
+            'label'  => 'PDF',
+            'target' => '_blank',
+            'icon'   => 'fal fa-file-pdf',
+            'key'    => 'action',
+            'route'  => [
+                'name'       => 'grp.models.pallet-delivery.pdf',
+                'parameters' => [
+                    'palletDelivery' => $palletDelivery->id
+                ]
+            ]
+        ];
+    
         $actions = [];
         if ($this->canEdit) {
             $actions = match ($palletDelivery->state) {
@@ -225,30 +240,17 @@ class ShowPalletDelivery extends OrgAction
                 ],
                 default => []
             };
-
+    
             if (!in_array($palletDelivery->state, [
                 PalletDeliveryStateEnum::IN_PROCESS,
                 PalletDeliveryStateEnum::SUBMITTED
             ])) {
-                $actions[] = [
-                    'type'   => 'button',
-                    'style'  => 'tertiary',
-                    'label'  => 'PDF',
-                    'target' => '_blank',
-                    'icon'   => 'fal fa-file-pdf',
-                    'key'    => 'action',
-                    'route'  => [
-                        'name'       => 'grp.models.pallet-delivery.pdf',
-                        'parameters' => [
-                            'palletDelivery' => $palletDelivery->id
-                        ]
-                    ]
-                ];
+                $actions = array_merge([$pdfButton], $actions);
             }
         }
-
+    
         $palletLimitLeft = ($palletLimits - ($totalPallets + $numberStoredPallets));
-
+    
         return Inertia::render(
             'Org/Fulfilment/PalletDelivery',
             [
@@ -276,25 +278,25 @@ class ShowPalletDelivery extends OrgAction
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
-
-
+    
+    
                     'actions' => $actions,
-
-
+    
+    
                 ],
-
+    
                 'updateRoute' => [
                     'name'       => 'grp.models.pallet-delivery.update',
                     'parameters' => [
                         'palletDelivery'     => $palletDelivery->id
                     ]
                 ],
-
+    
                 'upload' => [
                     'event'   => 'action-progress',
                     'channel' => 'grp.personal.' . $this->organisation->id
                 ],
-
+    
                 'uploadRoutes' => [
                     'history' => [
                         'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.pallets.uploads.history',
@@ -315,7 +317,7 @@ class ShowPalletDelivery extends OrgAction
                         ]
                     ],
                 ],
-
+    
                 'locationRoute' => [
                     'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
                     'parameters' => [
@@ -323,7 +325,7 @@ class ShowPalletDelivery extends OrgAction
                         'warehouse'    => $palletDelivery->warehouse->slug
                     ]
                 ],
-
+    
                 'rentalRoute' => [
                     'name'       => 'grp.org.fulfilments.show.products.rentals.index',
                     'parameters' => [
@@ -331,7 +333,7 @@ class ShowPalletDelivery extends OrgAction
                         'fulfilment'    => $palletDelivery->fulfilment->slug
                     ]
                 ],
-
+    
                 'storedItemsRoute' => [
                     'index' => [
                         'name'       => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
@@ -349,17 +351,17 @@ class ShowPalletDelivery extends OrgAction
                         ]
                     ]
                 ],
-
+    
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => PalletDeliveryTabsEnum::navigation()
                 ],
-
+    
                 'pallet_limits' => $palletLimits == null ? null : ($palletLimitLeft <= 2 ? [
                     'status'  => 'exceeded',
                     'message' => __("Pallet almost reached the limits: $palletLimitLeft left.")
                 ] : false),
-
+    
                 'data'             => PalletDeliveryResource::make($palletDelivery),
                 'box_stats'        => [
                     'fulfilment_customer'          => FulfilmentCustomerResource::make($palletDelivery->fulfilmentCustomer)->getArray(),
@@ -388,11 +390,13 @@ class ShowPalletDelivery extends OrgAction
                         'field'           => 'internal_notes'
                     ],
                 ],
-
-
+    
+    
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))),
+
+                'rentals' => RentalsResource::collection(IndexFulfilmentRentals::run($palletDelivery->fulfilment, 'rentals'))
             ]
         )->table(
             IndexPalletsInDelivery::make()->tableStructure(
@@ -401,6 +405,7 @@ class ShowPalletDelivery extends OrgAction
             )
         );
     }
+    
 
 
     public function jsonResponse(PalletDelivery $palletDelivery): PalletDeliveryResource
