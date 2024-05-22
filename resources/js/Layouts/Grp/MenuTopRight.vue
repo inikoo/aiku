@@ -94,9 +94,9 @@ const notifications = layoutStore.user.notifications
                         </div>
                     </template>
 
-                    <template #content="{ close: closed }">
+                    <template #content="{ close }">
                         <div class="w-96">
-                            <NotificationList :messages="notifications" />
+                            <NotificationList :messages="notifications" :close />
                         </div>
                     </template>
                 </Popover>
