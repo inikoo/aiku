@@ -10,6 +10,7 @@ namespace App\Http\Resources\SysAdmin\Group;
 use App\Http\Resources\Assets\CurrencyResource;
 use App\Http\Resources\HasSelfCall;
 use App\Models\SysAdmin\Group;
+use App\Models\Web\Website;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class GroupResource extends JsonResource
@@ -26,7 +27,7 @@ class GroupResource extends JsonResource
             'slug'     => $group->slug,
             'label'    => $group->name,
             'logo'     => $group->logoImageSources(48, 48),
-            'currency' => CurrencyResource::make($group->currency)->getArray()
+            'currency' => CurrencyResource::make($group->resource instanceof Website ? $group->organisation->currency : $group->currency)->getArray()
         ];
     }
 }
