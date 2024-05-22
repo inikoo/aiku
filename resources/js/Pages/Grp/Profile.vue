@@ -95,7 +95,7 @@ const fetchTabData = async (tabName: string) => {
         )
         dataTab.value = data.data
         currentTab.value = tabName
-        console.log('response', dataTab.value)
+        // console.log('response', dataTab.value)
     } catch (error: any) {
         dataTab.value = null
         notify({
@@ -116,7 +116,7 @@ const fetchPageHead = async () => {
             route('grp.profile.page-head-tabs.show'),
         )
         dataProfile.value = data
-        console.log('response pageHead', data)
+        // console.log('response pageHead', data)
     } catch (error: any) {
         dataProfile.value = null
         notify({
@@ -128,7 +128,7 @@ const fetchPageHead = async () => {
 }
 
 onMounted(() => {
-    console.log("On mounted currentTab")
+    // console.log("On mounted currentTab")
     fetchPageHead()
     fetchTabData(currentTab.value)
 })

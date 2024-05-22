@@ -70,7 +70,9 @@ class IndexPalletsInReturn extends OrgAction
                 'pallets.fulfilment_customer_id',
                 'pallets.warehouse_id',
                 'pallets.pallet_delivery_id',
-                'pallets.pallet_return_id'
+                'pallets.pallet_return_id',
+                'locations.slug as location_slug',
+                'locations.slug as location_code'
             );
 
 
@@ -117,7 +119,7 @@ class IndexPalletsInReturn extends OrgAction
             $table->column(key: 'type_icon', label: ['fal', 'fa-yin-yang'], type: 'icon');
 
 
-            $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
+            /* $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon'); */
 
 
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);

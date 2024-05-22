@@ -110,3 +110,16 @@
 .list-leave-active {
     position: absolute;
 }
+
+
+.stacked-component-move,
+.stacked-component-enter-active,
+.stacked-component-leave-active {
+  position: fixed;
+  transition: all 0.5s ease;
+}
+
+.stacked-component-enter-from,
+.stacked-component-leave-to {
+  transform: translateX(100%);
+}
