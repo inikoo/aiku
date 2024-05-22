@@ -38,8 +38,10 @@ onMounted(async () => {
 <template>
     <Head title="Login" />
     <h1 class="text-center text-2xl font-bold text-slate-800">Login</h1>
+    
     <form class="space-y-6 mt-7">
-        <div>
+        <!-- Section: Username -->
+        <div class="">
             <label for="login" class="block text-sm font-medium text-gray-700">{{ trans('Username') }}</label>
             <div class="mt-1">
                 <input v-model="form.username" ref="inputUsername" id="username" name="username" :autofocus="true"
@@ -51,7 +53,8 @@ onMounted(async () => {
             </div>
         </div>
 
-        <div>
+        <!-- Section: Password -->
+        <div class="">
             <label for="password" class="block text-sm font-medium text-gray-700"> {{ trans('Password') }} </label>
             <div class="mt-1 flex flex-col rounded-md">
                 <LoginPassword :showProcessing="false" id="password" name="password" :form="form" fieldName="password" @keydown.enter="submit" placeholder="********"/>
@@ -59,6 +62,7 @@ onMounted(async () => {
             </div>
         </div>
 
+        <!-- Section: Remember me -->
         <div class="flex items-center justify-between">
             <div class="flex items-center">
                 <Checkbox name="remember-me" id="remember-me" v-model:checked="form.remember" />
@@ -66,10 +70,9 @@ onMounted(async () => {
             </div>
         </div>
 
+        <!-- Section: Button submit -->
         <div class="space-y-2">
-            <Button full @click.prevent="submit" :loading="isLoading" label="Sign in"  
-                class="bg-indigo-700 hover:bg-slate-600 border border-slate-500 text-teal-50 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
-            />
+            <Button full @click.prevent="submit" :loading="isLoading" label="Sign in" />
             <!-- <p class="text-gray-600">Don't have account yet? <Link as="span" :href="route('retina.register')" class="cursor-pointer font-bold hover:underline">Sign up</Link></p> -->
         </div>
     </form>

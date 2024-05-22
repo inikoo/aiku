@@ -29,7 +29,7 @@ if (usePage().props.language) {
             <!-- <div class="col-span-3 bg-[url('/art/backgroundWarehouse.jpg')] bg-cover bg-center">
                 
             </div> -->
-            <div class="col-span-7 backdrop-blur-sm relative bg-gray-200 py-8 px-4 md:px-10">
+            <div class="col-span-7 backdrop-blur-sm relative bg-white py-8 px-4 md:px-10">
                 <slot />
             </div>
         </div>

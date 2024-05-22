@@ -5,7 +5,7 @@ import NavigationMenu from '@/Layouts/Iris/NavigationMenu.vue'
 import Footer from '@/Layouts/Iris/Footer.vue'
 
 const props = defineProps<{
-    header: {
+    header?: {
         header_name: string
         header_data: {
             name: string
@@ -18,7 +18,7 @@ const props = defineProps<{
     }
 }>()
 
-console.log('props', props.header)
+// console.log('props', props.header)
 
 const headerData = {
     header_name: 'HeaderTypeA1',
@@ -32,8 +32,8 @@ const headerData = {
         {
             name: 'Headline1',
             data: {
-                title: "Your UxxxxxxK's Best Fulfilment",
-                description: "Stqqqqqqqqorage - Pick & Pack - Distribution"
+                title: "Your UK's Best Fulfilment",
+                description: "Storage - Pick & Pack - Distribution"
             }
         },
     ]
@@ -45,7 +45,8 @@ const headerData = {
     <div class="relative">
         <div class="container max-w-7xl mx-auto shadow-xl">
             <!-- Section: Top header -->
-            <IrisHeader :data="header" />
+            <!-- <IrisHeader :data="header" /> -->
+            <IrisHeader :data="headerData" />
 
             <!-- Section: Navigation Tab -->
             <NavigationMenu />
