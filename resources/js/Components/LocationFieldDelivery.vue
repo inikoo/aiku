@@ -32,7 +32,7 @@ const emits = defineEmits<{
 const location = useForm({ ...props.pallet })
 const error = ref({})
 
-const isPalletDamaged = ref(props.pallet.state === 'damaged')
+/* const isPalletDamaged = ref(props.pallet.state === 'damaged') */
 
 const onSaveSuccess = (closed: Function) => {
     closed()
@@ -85,10 +85,10 @@ const onSaveError = (errorValue: any) => {
                             @updateVModel="() => error.location_id = ''"
                         />
                         
-                        <div class="flex gap-x-1 items-center mt-2 pl-0.5">
+                       <!--  <div class="flex gap-x-1 items-center mt-2 pl-0.5">
                             <input v-model="isPalletDamaged" type="checkbox" id="checkboxLocation" class="rounded border-gray-300 text-red-500 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                             <label for="checkboxLocation" class="select-none cursor-pointer text-gray-500">Set as damaged</label>
-                        </div>
+                        </div> -->
 
                         <p v-if="error.location_id" class="mt-2 text-sm text-red-600">{{ error.location_id }}</p>
                     </div>
@@ -104,7 +104,7 @@ const onSaveError = (errorValue: any) => {
                             :size="'xs'"
                             :disabled="!location.location_id"
                             @onError="onSaveError"
-                            :dataToSubmit="{ location_id: location.data().location_id, damaged: isPalletDamaged}"
+                            :dataToSubmit="{ location_id: location.data().location_id}"
                             routeName="bookInRoute"
                             :data="pallet" />
                     </div>

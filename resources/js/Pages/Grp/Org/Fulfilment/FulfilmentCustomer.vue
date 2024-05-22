@@ -9,6 +9,7 @@ import { Head, useForm } from '@inertiajs/vue3'
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { library } from "@fortawesome/fontawesome-svg-core"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot, } from "@headlessui/vue"
 import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue"
 import { router } from '@inertiajs/vue3'
@@ -32,6 +33,7 @@ import { Link } from "@inertiajs/vue3"
 import { get } from 'lodash'
 import axios from 'axios'
 
+import { trans } from 'laravel-vue-i18n'
 import {
     faStickyNote,
     faPallet,
@@ -46,7 +48,7 @@ import {
     faShare,
     faTruckLoading,
     faFileInvoice,
-
+    faExclamationTriangle
 } from '@fal'
 import { notify } from '@kyvg/vue3-notification'
 import FulfilmentCustomerWebhook from "@/Components/Showcases/Grp/FulfilmentCustomerWebhook.vue";
@@ -54,7 +56,8 @@ import TableInvoices from "@/Components/Tables/Grp/Org/Accounting/TableInvoices.
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 import type { Navigation } from "@/types/Tabs";
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
-library.add( faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading, faFileInvoice)
+import Modal from "@/Components/Utils/Modal.vue"
+library.add(faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading, faFileInvoice, faExclamationTriangle)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
@@ -77,7 +80,7 @@ const props = defineProps<{
     web_users?: {}
     recurring_bills?: {}
     webhook?: {}
-     history?: {}
+    history?: {}
 }>()
 
 let currentTab = ref(props.tabs.current)
@@ -110,6 +113,9 @@ const component = computed(() => {
 const isOpen = ref(false)
 const warehouseValue = ref(null)
 const errorMessage = ref(null)
+const isModalOpen = ref(false)
+const layout = inject('layout')
+const loadingCreatePalletDelivery = ref(false)
 
 function setIsOpen(value) {
     isOpen.value = value
@@ -141,7 +147,20 @@ const warehouseChange = (value) => {
     warehouseValue.value = value
 }
 
-const layout = inject('layout')
+const onButtonCreateDeliveryClick = (action: object) => {
+    console.log(action)
+    if (action.disabled) isModalOpen.value = true
+    else {
+        router[action.route.method](
+        route(action.route.name,action.route.parameters),
+        {
+            onBefore: () => { loadingCreatePalletDelivery.value = true },
+            onError: () => { loadingCreatePalletDelivery.value = false }
+        })
+    }
+}
+
+
 
 onMounted(() => {
     window.Echo.private(`grp.${layout.group.id}.fulfilmentCustomer.${layout.user.id}`).listen('.PalletDelivery', (e) => {
@@ -157,13 +176,18 @@ onUnmounted(() => {
     window.Echo.private(`grp.${layout.group.id}.fulfilmentCustomer.${layout.user.id}`).stopListening('.PalletDelivery')
 })
 
+
+
+console.log(props)
+
 </script>
 
 <template>
     <!-- {{currentTab}} -->
+
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
-        <template #button-create-delivery="{ action: action }">
+        <!--   <template #button-create-delivery="{ action: action }">
             <div v-if="action.action.options.warehouses.data.length > 1" class="relative">
                 <Popover :width="'w-full'" ref="_popover">
                     <template #button>
@@ -172,7 +196,7 @@ onUnmounted(() => {
                             :key="`ActionButton${action.action.label}${action.action.style}`"
                             :tooltip="action.action.tooltip" />
                     </template>
-                    <template #content="{ close: closed }">
+<template #content="{ close: closed }">
                         <div class="w-[250px]">
                             <Multiselect v-model="warehouseValue" :searchable="true" :object="true" valueProp="id"
                                 :options="action.action.options.warehouses.data" track-by="name" label="name"
@@ -187,24 +211,28 @@ onUnmounted(() => {
 
                         </div>
                     </template>
-                </Popover>
-            </div>
-            <div v-else>
-                <Link :href="route(action.action.route?.name, action.action.route?.parameters)" :method="'post'"
-                    :as="'button'">
-                    <Button :style="action.action.style" :label="action.action.label" :icon="action.action.icon"
-                        :iconRight="action.action.iconRight" :key="`ActionButton${action.action.label}${action.action.style}`"
-                        :tooltip="action.action.tooltip" />
-                </Link>
-            </div>
+</Popover>
+</div>
+<div v-else>
+    <Link :href="route(action.action.route?.name, action.action.route?.parameters)" :method="'post'" :as="'button'">
+    <Button :style="action.action.style" :label="action.action.label" :icon="action.action.icon"
+        :iconRight="action.action.iconRight" :key="`ActionButton${action.action.label}${action.action.style}`"
+        :tooltip="action.action.tooltip" />
+    </Link>
+</div>
+</template> -->
 
+
+        <template #button-delivery="{ action: action }">
+            <Button :style="action.action.disabled ? 'gray' : action.action.style" :label="action.action.label"
+                :icon="['fas', 'plus']" :iconRight="action.action.iconRight"
+                @click="() => onButtonCreateDeliveryClick(action.action)" :loading="loadingCreatePalletDelivery"
+                :key="`ActionButton${action.action.label}${action.action.style}`" :tooltip="action.action.tooltip" />
         </template>
-    </PageHeading>
-    <!--
-      Todo: modal forms for quick creation of models
-      -->
 
-    <TransitionRoot as="template" :show="isOpen">
+    </PageHeading>
+
+    <!--     <TransitionRoot as="template" :show="isOpen">
         <Dialog :open="isOpen" @close="setIsOpen" as="div" class="relative z-10">
             <TransitionChild as="template" enter="ease-out duration-300" enter-from="opacity-0" enter-to="opacity-100"
                 leave="ease-in duration-200" leave-from="opacity-100" leave-to="opacity-0">
@@ -238,9 +266,22 @@ onUnmounted(() => {
                 </div>
             </div>
         </Dialog>
-    </TransitionRoot>
+    </TransitionRoot> -->
+
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
+
+
+
+    <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-1/4">
+        <div class="text-center">
+            <font-awesome-icon :icon="['fal', 'exclamation-triangle']"  class="mx-auto h-12 w-12 text-gray-400"/>
+            <h3 class="mt-2 text-sm font-semibold text-gray-900">{{trans('You Dont Have Rental Agreement')}}</h3>
+            <p class="mt-1 text-sm text-gray-500">{{trans('You need to make a rental agreement first to continue this')}}.</p>
+            <div class="mt-6">
+            </div>
+        </div>
+    </Modal>
 
 </template>
 

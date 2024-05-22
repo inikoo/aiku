@@ -111,7 +111,7 @@ class ShowFulfilmentCustomer extends OrgAction
                         'style'    => 'create',
                         'tooltip'  => __('Create Delivery'),
                         'label'    => __('Delivery'),
-                        'disabled' => $fulfilmentCustomer->status == FulfilmentCustomerStatus::NO_RENTAL_AGREEMENT->value,
+                        'disabled' => $fulfilmentCustomer->status == FulfilmentCustomerStatus::NO_RENTAL_AGREEMENT,
                         'route'    => [
                             'method'     => 'post',
                             'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',

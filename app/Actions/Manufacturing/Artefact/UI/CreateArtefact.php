@@ -5,12 +5,10 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
- namespace App\Actions\Manufacturing\Artefact\UI;
+namespace App\Actions\Manufacturing\Artefact\UI;
 
 use App\Actions\OrgAction;
 use App\Enums\Manufacturing\Artefact\ArtefactStateEnum;
-use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
-use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
 use App\Models\Manufacturing\Production;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
