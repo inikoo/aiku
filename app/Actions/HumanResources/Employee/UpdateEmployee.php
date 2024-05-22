@@ -13,14 +13,17 @@ use App\Actions\HumanResources\JobPosition\SyncEmployableJobPositions;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
+use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
+use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateEmployee extends OrgAction
@@ -42,6 +45,11 @@ class UpdateEmployee extends OrgAction
             Arr::forget($modelData, 'positions');
         }
 
+
+        $credentials = Arr::only($modelData, ['username', 'password']);
+        data_forget($modelData,'username');
+        data_forget($modelData,'password');
+
         $employee = $this->update($employee, $modelData, ['data', 'salary']);
 
 
@@ -54,6 +62,9 @@ class UpdateEmployee extends OrgAction
             OrganisationHydrateEmployees::dispatch($employee->organisation);
         }
 
+        if($employee->user){
+            UpdateUser::run($employee->user, $credentials);
+        }
 
         return $employee;
     }
@@ -92,7 +103,19 @@ class UpdateEmployee extends OrgAction
 
             ],
             'employment_start_at'                   => ['sometimes', 'nullable', 'date'],
-            'work_email'                            => ['sometimes', 'nullable', 'email', 'iunique:employees'],
+            'work_email'                            => ['sometimes', 'nullable', 'email',
+                                                        new IUnique(
+                                                            table: 'employees',
+                                                            extraConditions: [
+
+                                                                [
+                                                                    'column'   => 'group_id',
+                                                                    'operator' => '=',
+                                                                    'value'    => $this->employee->group_id
+                                                                ],
+                                                            ]
+                                                        ),
+                ],
             'alias'                                 => [
                 'sometimes',
                 'string',
@@ -119,9 +142,29 @@ class UpdateEmployee extends OrgAction
             'positions.*.scopes.warehouses.slug.*'  => ['sometimes', Rule::exists('warehouses', 'slug') ->where('organisation_id', $this->organisation->id)],
             'positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug') ->where('organisation_id', $this->organisation->id)],
             'positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug') ->where('organisation_id', $this->organisation->id)],
-
             'email'     => ['sometimes', 'nullable', 'email'],
             'source_id' => ['sometimes', 'string', 'max:64'],
+            'username'        => ['sometimes','required', 'lowercase',new AlphaDashDot(),
+
+                                  Rule::notIn(['export', 'create']),
+                                  new IUnique(
+                                      table: 'users',
+                                      extraConditions: [
+
+                                          [
+                                              'column'   => 'id',
+                                              'operator' => '!=',
+                                              'value'    => $this->employee->user->id
+                                          ],
+                                      ]
+                                  ),
+
+
+
+
+            ],
+            'password'        => ['sometimes','required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
+
         ];
     }
 
@@ -143,6 +186,7 @@ class UpdateEmployee extends OrgAction
 
     public function asController(Employee $employee, ActionRequest $request): Employee
     {
+
         $this->employee = $employee;
         $this->initialisation($employee->organisation, $request);
 
