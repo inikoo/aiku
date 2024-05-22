@@ -30,7 +30,10 @@ export const initialiseRetinaApp = () => {
          echoLiveUsers.subscribe()  // Websockets: active users
     }
 
+    // console.log('props', usePage().props)
+
     if (usePage().props.auth.user) {
+        layout.user = usePage().props.auth.user
         echoCustomer.subscribe(usePage().props.auth.user.customer_id);
         // Echo: Personal
         echoPersonal.subscribe(usePage().props.auth.user.id);

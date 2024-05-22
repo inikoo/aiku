@@ -1,9 +1,8 @@
 <script setup lang='ts'>
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue"
 import { trans } from 'laravel-vue-i18n'
-import { useLayoutStore } from '@/Stores/layout'
 import { router } from '@inertiajs/vue3'
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
 import { useLiveUsers } from '@/Stores/active-users'
 import SearchBar from "@/Components/SearchBar.vue"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -13,14 +12,15 @@ const props = defineProps<{
     urlPrefix: string
 }>()
 
-const layoutStore = useLayoutStore()
 const showSearchDialog = ref(false)
+
+const layout = inject('layout')
 
 const logoutAuth = () => {
     router.post(route(props.urlPrefix + 'logout'))
 
     const dataActiveUser = {
-        ...layoutStore.user,
+        ...layout.user,
         name: null,
         last_active: new Date(),
         action: 'logout',
@@ -34,7 +34,7 @@ const logoutAuth = () => {
     window.Echo.join(`grp.live.users`).whisper('otherIsNavigating', dataActiveUser)
     useLiveUsers().unsubscribe()  // Unsubscribe from Laravel Echo
 }
-
+console.log('layout', layout.user)
 </script>
 
 <template>
@@ -58,10 +58,12 @@ const logoutAuth = () => {
 
         <!-- Avatar Button -->
         <Menu as="div" class="relative">
-            <MenuButton id="avatar-thumbnail"
-                class="flex max-w-xs overflow-hidden items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500">
+            <MenuButton id="avatar-thumbnail" class="flex gap-x-2 items-center rounded-full">
                 <span class="sr-only">{{ trans("Open user menu") }}</span>
-                <Image class="h-8 w-8 rounded-full" :src="layoutStore.user.avatar_thumbnail" alt="" />
+                <div class="h-8 w-8 rounded-full overflow-hidden">
+                    <Image :src="layout.user.avatar_thumbnail" alt="" />
+                </div>
+                <div class="text-gray-500">Hello, <span class="font-semibold text-gray-700">{{ layout.user.username }}</span></div>
             </MenuButton>
             
             <transition enter-active-class="transition ease-out duration-100"
