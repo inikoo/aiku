@@ -53,7 +53,7 @@ const props = defineProps<{
         </div>
 
         <div class="flex w-full justify-center border-t border-gray-200 mt-3 pt-3">
-            <Link :href="route('grp.profile.notifications.index')" @click="() => close()" class="cursor-pointer px-2 text-gray-400 hover:text-gray-500 font-semibold">
+            <Link :href="route('grp.notifications')" @click="() => close()" class="cursor-pointer px-2 text-gray-400 hover:text-gray-500 font-semibold">
                 Show all notification
             </Link>
         </div>

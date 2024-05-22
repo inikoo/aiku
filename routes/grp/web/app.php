@@ -5,13 +5,14 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-
+use App\Actions\UI\Notification\IndexNotification;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(["auth"])->group(function () {
     Route::get('/', function () {
         return redirect('/dashboard');
     });
+    Route::get('/notifications', IndexNotification::class)->name('notifications');
     Route::prefix("overview")
         ->name("overview.")
         ->group(__DIR__ . "/overview.php");

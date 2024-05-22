@@ -13,4 +13,3 @@ use App\Actions\UI\Profile\UpdateProfile;
 Route::get('/', ShowProfile::class)->name('show');
 Route::get('/edit', EditProfile::class)->name('edit');
 Route::post('/', UpdateProfile::class)->name('update');
-Route::get('/notifications', IndexNotification::class)->name('notifications.index');
