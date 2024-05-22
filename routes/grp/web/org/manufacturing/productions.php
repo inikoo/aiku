@@ -5,7 +5,6 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Devel\UI\CreateDummy;
 use App\Actions\Manufacturing\Artefact\UI\CreateArtefact;
 use App\Actions\Manufacturing\Artefact\UI\IndexArtefacts;
 use App\Actions\Manufacturing\JobOrder\UI\ShowJobOrder;
