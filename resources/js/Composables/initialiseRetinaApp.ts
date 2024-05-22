@@ -30,7 +30,7 @@ export const initialiseRetinaApp = () => {
          echoLiveUsers.subscribe()  // Websockets: active users
     }
 
-    // console.log('props', usePage().props)
+    // console.log('Retina props', usePage().props)
 
     if (usePage().props.auth.user) {
         layout.user = usePage().props.auth.user
@@ -58,6 +58,17 @@ export const initialiseRetinaApp = () => {
         if (usePage().props.localeData) {
             locale.language = usePage().props.localeData.language;
             locale.languageOptions = usePage().props.localeData.languageOptions;
+        }
+
+        // Set data of Website
+        if (usePage().props.layout?.website) {
+            layout.website = usePage().props.layout?.website
+        }
+
+        // Set data of Locale (Language)
+        if (usePage().props.layout?.customer) {
+            layout.customer = usePage().props.layout.customer
+            // console.log('ewew', locale.customer)
         }
 
         if (usePage().props.app) {
