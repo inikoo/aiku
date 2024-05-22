@@ -95,7 +95,17 @@ class ShowArtefact extends OrgAction
                         //     ]
                         //     : null,
                         // $this->canDelete ? $this->getDeleteActionIcon($request) : null,
-                        $this->canEdit ? $this->getEditActionIcon($request) : null,
+                        [
+                            'type'    => 'button',
+                        'tooltip'     => __('Edit'),
+                        'icon'        => 'fal fa-pencil',
+                        'style'       => 'secondary',
+                        'route'       => [
+                            'name'       => preg_replace('/(show|dashboard)$/', 'edit', $request->route()->getName()),
+                            'parameters' => $request->route()->originalParameters()
+
+                            ]
+                        ]
                     ],
                     // 'meta'    => [
                     //     [
