@@ -11,6 +11,7 @@ import { faCheck, faPlus, faMinus } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Head } from '@inertiajs/vue3'
 import LayoutIris from '@/Layouts/Iris.vue'
+// import "https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"
 
 const props = defineProps<{
     data: any
@@ -44,7 +45,7 @@ const features = [
         name: 'Loading Docks',
         description: 'Efficiently load and unload your shipments with our convenient loading docks. Lorem ipsum dolor sit amet consectetur adipisicing elit. Mollitia, odit.'
     }
-];
+]
 
 const pricing = [
     {
@@ -85,17 +86,131 @@ const faqs = [
     },
 ]
 
+const people = [
+  {
+    name: 'South Yorkshire - Heart of the UK',
+    role: 'Senior Developer',
+    imageUrl:
+      'https://www.aw-fulfilment.co.uk/wi.php?id=1830486',
+    bio: 'Praesentium iure error aliquam voluptas ut libero. Commodi placeat sit iure nulla officiis. Ut ex sit repellat tempora. Qui est accusamus exercitationem natus ut voluptas. Officiis velit eos ducimus.',
+    xUrl: '#',
+    linkedinUrl: '#',
+  },
+  {
+    name: '100 000 Square Foot',
+    role: 'Senior Developer',
+    imageUrl:
+      'https://www.aw-fulfilment.co.uk/wi.php?id=1830487',
+    bio: 'Praesentium iure error aliquam voluptas ut libero. Commodi placeat sit iure nulla officiis. Ut ex sit repellat tempora. Qui est accusamus exercitationem natus ut voluptas. Officiis velit eos ducimus.',
+    xUrl: '#',
+    linkedinUrl: '#',
+  },
+  {
+    name: 'Pallet & Parcel Delivery across UK',
+    role: 'Senior Developer',
+    imageUrl:
+      'https://www.aw-fulfilment.co.uk/wi.php?id=1830488',
+    bio: 'Praesentium iure error aliquam voluptas ut libero. Commodi placeat sit iure nulla officiis. Ut ex sit repellat tempora. Qui est accusamus exercitationem natus ut voluptas. Officiis velit eos ducimus.',
+    xUrl: '#',
+    linkedinUrl: '#',
+  },
+  {
+    name: 'Storage Solutions',
+    role: 'Senior Developer',
+    imageUrl:
+      'https://www.aw-fulfilment.co.uk/wi.php?id=1849917',
+    bio: 'Praesentium iure error aliquam voluptas ut libero. Commodi placeat sit iure nulla officiis. Ut ex sit repellat tempora. Qui est accusamus exercitationem natus ut voluptas. Officiis velit eos ducimus.',
+    xUrl: '#',
+    linkedinUrl: '#',
+  },
+  {
+    name: 'Pick & Pack',
+    role: 'Senior Developer',
+    imageUrl:
+      'https://www.aw-fulfilment.co.uk/wi.php?id=1849918',
+    bio: 'Praesentium iure error aliquam voluptas ut libero. Commodi placeat sit iure nulla officiis. Ut ex sit repellat tempora. Qui est accusamus exercitationem natus ut voluptas. Officiis velit eos ducimus.',
+    xUrl: '#',
+    linkedinUrl: '#',
+  },
+  {
+    name: 'Rework & Repack  ',
+    role: 'Senior Developer',
+    imageUrl:
+      'https://www.aw-fulfilment.co.uk/wi.php?id=1849919',
+    bio: 'Praesentium iure error aliquam voluptas ut libero. Commodi placeat sit iure nulla officiis. Ut ex sit repellat tempora. Qui est accusamus exercitationem natus ut voluptas. Officiis velit eos ducimus.',
+    xUrl: '#',
+    linkedinUrl: '#',
+  },
+  // More people...
+]
+
+
 </script>
 
 <template>
+
     <Head title="Warehouse Solution" />
-    
+
 
     <div class="bg-white pb-20">
+        <div class="">
+            <iframe title="AW Fulfilment" style="width:100%;height: 100%; border: 0px;overflow:hidden;"
+                src="https://delivery.wowsbar.com/banners/01HDRV5VBPRY0DMEED42JGFGX4" ></iframe>
+        </div>
+
+        <div class="px-12">
+            <h1 class="text-4xl font-bold text-center pt-8"
+                :style="{
+                    fontFamily: `'Space Mono', 'monospace'`,
+                    fontWeight: 700,
+                    fontStyle: 'normal',
+                }"
+            >
+                AW Fulfilment ensure seamless operations.
+
+            </h1>
+            <h2 class="text-xl font-medium text-center pb-8">Boost efficiency, reduce costs, and leave your customers
+                amazed.</h2>
+
+            <div>
+                <p>As a leading UK fulfilment center, we are committed to streamlining your supply chain and ensuring
+                    seamless operations. Our state-of-the-art fulfilment warehouse UK in Sheffield's Affinity Park is
+                    strategically positioned to cater to businesses across the United Kingdom. Whether you're a budding
+                    e-commerce startup or an established brand, our fulfilment services are tailored to meet your unique
+                    needs. Our comprehensive range of services encompasses everything you need for successful order
+                    fulfilment in the UK. We offer simple tariffs, transparent systems without hidden costs.</p>
+                <br>
+                <p>
+                    At AW Fulfilment we offer an affordable, flexible and efficient way to store your goods. Warehouse
+                    spaces available for immediate use. Your goods are stored directly within our 100 000 sq foot
+                    warehouse
+                    facility. Our heavy duty racking, trained staff and onsite security setup ensure your inventory is
+                    in
+                    safe hands.
+                    Pay only for the space and services you use. Expand as needed.
+                </p>
+                <br>
+                <p>Our Fulfillment as a service offers competitive prices without compromising on excellence. Whether
+                    you
+                    need simple short term storage or a full service pack to store, pick & pack and despatch - at AW
+                    Fulfilment Sheffield we can offer cost effective solutions. With rental rates from £2.00 / pallet
+                    space
+                    per week and picking, packing and despatch services to hand so we can solve your fulfilment issues.
+                </p>
+                <br>
+                <p>For European companies wishing to solve the Brexit distribution problem, we can help you open up the
+                    UK
+                    market. Multilingual staff available, we speak your language: French, Spanish, Italian, Czech,
+                    Slovak,
+                    German, Polish & Dutch.</p>
+                <br>
+            </div>
+        </div>
+
         <!-- Hero section -->
-        <div class="relative isolate overflow-hidden bg-gray-900 pb-16 pt-14 sm:pb-20">
-            <img src="https://wallpapers.com/images/hd/warehouse-background-pzkv8y7kvdmmnyej.jpg" alt="" class="absolute inset-0 -z-10 h-full w-full object-cover"
-                style="filter: brightness(0.4) blur(5px)" />
+        <div v-if="false" class="relative isolate overflow-hidden bg-gray-900 pb-16 pt-14 sm:pb-20">
+            <img src="https://wallpapers.com/images/hd/warehouse-background-pzkv8y7kvdmmnyej.jpg" alt=""
+                class="absolute inset-0 -z-10 h-full w-full object-cover" style="filter: brightness(0.4) blur(5px)" />
             <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
                 aria-hidden="true">
                 <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
@@ -116,7 +231,8 @@ const faqs = [
                             Secure Storage Solutions for Your Products.
                         </h1>
                         <p class="mt-6 leading-8 text-gray-300">
-                            Discover our warehouse facilities designed to safeguard your inventory with top-notch security and customizable storage options.
+                            Discover our warehouse facilities designed to safeguard your inventory with top-notch
+                            security and customizable storage options.
                             Streamline your operations with ease, whether you're a small business or a large enterprise.
                         </p>
                         <div class="mt-10 flex items-center justify-center gap-x-6">
@@ -156,8 +272,43 @@ const faqs = [
             </div>
         </div>
 
+        <div class="bg-white py-24 md:py-32 lg:py-40">
+            <div class="mx-auto grid max-w-7xl grid-cols-1 gap-x-8 gap-y-20 px-6 lg:px-8 xl:grid-cols-3">
+                <ul role="list"
+                    class="mx-auto grid max-w-2xl grid-cols-1 gap-x-6 gap-y-20 sm:grid-cols-3 lg:mx-0 lg:max-w-none lg:gap-x-8 xl:col-span-3">
+                    <li v-for="person in people" :key="person.name">
+                        <img class="aspect-[3/2] w-full rounded-2xl object-cover" :src="person.imageUrl" alt="" />
+                        <h3 class="mt-6 text-lg font-semibold leading-8 text-gray-900">{{ person.name }}</h3>
+                        <!-- <p class="text-base leading-7 text-gray-600">{{ person.role }}</p> -->
+                        <p class="mt-4 text-base leading-7 text-gray-600">{{ person.bio }}</p>
+                        <!-- <ul role="list" class="mt-6 flex gap-x-6">
+                            <li>
+                                <a :href="person.xUrl" class="text-gray-400 hover:text-gray-500">
+                                    <span class="sr-only">X</span>
+                                    <svg class="h-5 w-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+                                        <path
+                                            d="M11.4678 8.77491L17.2961 2H15.915L10.8543 7.88256L6.81232 2H2.15039L8.26263 10.8955L2.15039 18H3.53159L8.87581 11.7878L13.1444 18H17.8063L11.4675 8.77491H11.4678ZM9.57608 10.9738L8.95678 10.0881L4.02925 3.03974H6.15068L10.1273 8.72795L10.7466 9.61374L15.9156 17.0075H13.7942L9.57608 10.9742V10.9738Z" />
+                                    </svg>
+                                </a>
+                            </li>
+                            <li>
+                                <a :href="person.linkedinUrl" class="text-gray-400 hover:text-gray-500">
+                                    <span class="sr-only">LinkedIn</span>
+                                    <svg class="h-5 w-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.601 1.086-1.601 2.207v4.248H8.014v-8.59h2.559v1.174h.037c.356-.675 1.227-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.711zM5.005 6.575a1.548 1.548 0 11-.003-3.096 1.548 1.548 0 01.003 3.096zm-1.337 9.763H6.34v-8.59H3.667v8.59zM17.668 1H2.328C1.595 1 1 1.581 1 2.298v15.403C1 18.418 1.595 19 2.328 19h15.34c.734 0 1.332-.582 1.332-1.299V2.298C19 1.581 18.402 1 17.668 1z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </a>
+                            </li>
+                        </ul> -->
+                    </li>
+                </ul>
+            </div>
+        </div>
+
         <!-- Pricing section -->
-        <div class="relative isolate mt-32 bg-white px-6 sm:mt-56 lg:px-8">
+        <div v-if="false" class="relative isolate mt-32 bg-white px-6 sm:mt-56 lg:px-8">
             <div class="absolute inset-x-0 -top-3 -z-10 transform-gpu overflow-hidden px-36 blur-3xl"
                 aria-hidden="true">
                 <div class="mx-auto aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30"
@@ -173,16 +324,16 @@ const faqs = [
             <p class="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600">Qui iusto aut est earum eos
                 quae. Eligendi est at nam aliquid ad quo reprehenderit in aliquid fugiat dolorum voluptatibus.</p>
 
-            <div class="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
+            <div
+                class="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
                 <div v-for="(tier, tierIdx) in pricing" :key="tier.id"
                     :class="[tier.featured ? 'relative bg-gray-900 shadow-2xl' : 'bg-white/60 sm:mx-8 lg:mx-0', tier.featured ? '' : tierIdx === 0 ? 'rounded-t-3xl sm:rounded-b-none lg:rounded-tr-none lg:rounded-bl-3xl' : 'sm:rounded-t-none lg:rounded-tr-3xl lg:rounded-bl-none', 'rounded-3xl p-8 ring-1 ring-gray-900/10 sm:p-10']">
                     <h3 :id="tier.id"
                         :class="[tier.featured ? 'text-indigo-400' : 'text-indigo-600', 'text-base font-semibold leading-7']">
                         {{ tier.name }}</h3>
                     <p class="mt-4 flex items-baseline gap-x-2">
-                        <span
-                            :class="[tier.featured ? 'text-white' : '', 'text-5xl font-bold tracking-tight']">{{
-                                tier.priceMonthly }}</span>
+                        <span :class="[tier.featured ? 'text-white' : '', 'text-5xl font-bold tracking-tight']">{{
+                            tier.priceMonthly }}</span>
                         <span :class="[tier.featured ? 'text-gray-400' : 'text-gray-500', 'text-base']">/month</span>
                     </p>
                     <p :class="[tier.featured ? 'text-gray-300' : 'text-gray-600', 'mt-6 text-base leading-7']">{{
@@ -190,7 +341,9 @@ const faqs = [
                     <ul role="list"
                         :class="[tier.featured ? 'text-gray-300' : 'text-gray-600', 'mt-8 space-y-3 text-sm leading-6 sm:mt-10']">
                         <li v-for="feature in tier.features" :key="feature" class="flex gap-x-3">
-                            <FontAwesomeIcon icon='fal fa-check' class='h-6 aspect-square' :class="[tier.featured ? 'text-indigo-400' : 'text-indigo-600']" fixed-width aria-hidden='true' />
+                            <FontAwesomeIcon icon='fal fa-check' class='h-6 aspect-square'
+                                :class="[tier.featured ? 'text-indigo-400' : 'text-indigo-600']" fixed-width
+                                aria-hidden='true' />
                             {{ feature }}
                         </li>
                     </ul>
@@ -202,3 +355,7 @@ const faqs = [
         </div>
     </div>
 </template>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+</style>
