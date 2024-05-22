@@ -30,15 +30,14 @@ class EditProfile
         return $request->user();
     }
 
-    public function jsonResponse(User $user): ProfileResource
+    public function jsonResponse(User $user)
     {
-        return new ProfileResource($user);
+        return $this->generateBlueprint($user);
     }
 
-    public function htmlResponse(User $user): Response
+    public function generateBlueprint(User $user)
     {
-
-        return Inertia::render("EditModel", [
+        return [
             "title"       => __("Edit Profile"),
             "breadcrumbs" => $this->getBreadcrumbs(),
             "pageHead"    => [
@@ -179,7 +178,13 @@ class EditProfile
             'auth'          => [
                 'user' => LoggedUserResource::make($user)->getArray(),
             ],
-        ]);
+        ];
+    }
+
+    public function htmlResponse(User $user): Response
+    {
+
+        return Inertia::render("EditModel", $this->generateBlueprint($user));
     }
 
     public function getBreadcrumbs(): array
