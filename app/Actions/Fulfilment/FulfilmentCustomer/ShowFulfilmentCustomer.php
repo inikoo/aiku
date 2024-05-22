@@ -22,6 +22,7 @@ use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithWebUserMeta;
+use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatus;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\UI\Fulfilment\FulfilmentCustomerTabsEnum;
 use App\Http\Resources\Accounting\InvoicesResource;
@@ -104,6 +105,42 @@ class ShowFulfilmentCustomer extends OrgAction
                 }
         */
 
+        $additionalActions = [
+                    [
+                        'type'     => 'button',
+                        'style'    => 'create',
+                        'tooltip'  => __('Create Delivery'),
+                        'label'    => __('Delivery'),
+                        'disabled' => $fulfilmentCustomer->status == FulfilmentCustomerStatus::NO_RENTAL_AGREEMENT->value,
+                        'route'    => [
+                            'method'     => 'post',
+                            'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
+                            'parameters' => [
+                                'fulfilmentCustomer' => $fulfilmentCustomer->id
+                            ]
+                        ]
+                    ],
+        ];
+
+
+        if($fulfilmentCustomer->number_pallets_status_storing > 0) {
+            $additionalActions[] =
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('Create Return'),
+                            'label'   => __('Return'),
+                            'route'   => [
+                                'method'     => 'post',
+                                'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
+                                'parameters' => [
+                                    'fulfilmentCustomer' => $fulfilmentCustomer->id
+                                ]
+                            ]
+                        ];
+
+        }
+
         return Inertia::render(
             'Org/Fulfilment/FulfilmentCustomer',
             [
@@ -143,6 +180,7 @@ class ShowFulfilmentCustomer extends OrgAction
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],
+                        ...$additionalActions
                     ]
                 ],
 
