@@ -17,6 +17,7 @@ use App\Enums\UI\Manufacturing\ArtefactTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Http\Resources\Manufacturing\ArtefactResource;
+use App\Http\Resources\Manufacturing\ManufactureTasksResource;
 use App\Models\Inventory\Warehouse;
 use App\Models\Manufacturing\Artefact;
 use App\Models\Manufacturing\Production;
@@ -118,6 +119,10 @@ class ShowArtefact extends OrgAction
                 ArtefactTabsEnum::SHOWCASE->value => $this->tab == ArtefactTabsEnum::SHOWCASE->value ?
                     fn () => GetArtefactShowcase::run($artefact)
                     : Inertia::lazy(fn () => GetArtefactShowcase::run($artefact)),
+
+                ArtefactTabsEnum::MANUFACTURE_TASKS->value => $this->tab == ArtefactTabsEnum::MANUFACTURE_TASKS->value
+                    ? fn () => ManufactureTasksResource::collection(GetArtefactManufactureTasks::run($artefact, $request))
+                    : Inertia::lazy(fn () => ManufactureTasksResource::collection(GetArtefactManufactureTasks::run($artefact, $request))),
 
                 // ArtefactTabsEnum::LOCATIONS->value => $this->tab == ArtefactTabsEnum::LOCATIONS->value
                 //     ?
