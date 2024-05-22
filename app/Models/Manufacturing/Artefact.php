@@ -9,12 +9,14 @@ namespace App\Models\Manufacturing;
 
 use App\Enums\Manufacturing\Artefact\ArtefactStateEnum;
 use App\Models\SupplyChain\Stock;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InProduction;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -53,12 +55,13 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|Artefact withoutTrashed()
  * @mixin \Eloquent
  */
-class Artefact extends Model
+class Artefact extends Model implements Auditable
 {
     use SoftDeletes;
     use HasSlug;
     use HasUniversalSearch;
     use InProduction;
+    use HasHistory;
 
     protected $casts = [
         'data'                   => 'array',
