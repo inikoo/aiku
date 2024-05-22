@@ -17,6 +17,7 @@ use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateClockings;
 use App\Actions\Traits\WithBase64FileConverter;
 use App\Actions\Traits\WithUpdateModelImage;
 use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
+use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Http\Resources\HumanResources\ClockingResource;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
@@ -101,9 +102,12 @@ class StoreClocking extends OrgAction
         }
 
         if($request->user() instanceof ClockingMachine) {
-            $employeeWorkplace = $this->employee->workplaces()->wherePivot('workplace_id', $request->user()->workplace_id)->count() > 0;
+            $employeeWorkplace = $this->employee->workplaces()
+            ->wherePivot('workplace_id', $request->user()->workplace_id)
+            ->count() > 0;
 
-            return ($this->organisation->id === $request->user()->organisation_id) && $employeeWorkplace;
+            return ($this->organisation->id === $request->user()->organisation_id)
+            && $employeeWorkplace && $this->employee->state === EmployeeStateEnum::WORKING;
         }
 
         return $request->user()->hasPermissionTo("human-resources.workplaces.{$this->organisation->id}.edit");
@@ -160,7 +164,7 @@ class StoreClocking extends OrgAction
         }
 
         if ($this->has('photo')) {
-            $this->set('photo', $this->convertBase64ToFile($this->get('photo')));
+            $this->set('photo', $this->convertBase64ToFile($this->get('photo'), $this->employee));
         }
     }
 

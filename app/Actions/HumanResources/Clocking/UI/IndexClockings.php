@@ -63,10 +63,13 @@ class IndexClockings extends OrgAction
                     'clockings.type',
                     'workplaces.slug as workplace_slug',
                     'clocking_machines.slug as clocking_machine_slug',
-                    'clocking_machine_id'
+                    'clocking_machine_id',
+                    'media.slug as media_slug',
+                    'media.id as media_id'
                 ]
             )
             ->leftJoin('workplaces', 'clockings.workplace_id', 'workplaces.id')
+            ->leftJoin('media', 'clockings.photo_id', 'media.id')
             ->leftJoin('clocking_machines', 'clockings.clocking_machine_id', 'clocking_machines.id')
             ->allowedSorts(['clocked_at'])
             ->withPaginator($prefix)
@@ -94,6 +97,7 @@ class IndexClockings extends OrgAction
                             class_basename($parent) == 'ClockingMachine' ? $parent->humanResourcesStats?->number_clockings : $parent->stats?->number_clockings,
                     ]
                 )
+                ->column(key: 'media_slug', label: __('photo'), canBeHidden: false)
                 ->column(key: 'clocked_at', label: __('time'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('slug');
         };

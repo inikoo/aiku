@@ -7,13 +7,14 @@
 
 namespace App\Actions\Traits;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\File\File;
 
 trait WithBase64FileConverter
 {
-    public function convertBase64ToFile($base64File): UploadedFile
+    public function convertBase64ToFile($base64File, Model $model): UploadedFile
     {
         $fileData = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $base64File));
 
@@ -24,7 +25,7 @@ trait WithBase64FileConverter
 
         return new UploadedFile(
             $tmpFile->getPathname(),
-            $tmpFile->getFilename(),
+            $model->slug . '-' . now()->format('Y-m-d-H-i-s') . '.' . $tmpFile->getExtension(),
             $tmpFile->getMimeType(),
             0,
             false

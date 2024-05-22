@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
+use Str;
 
 class StoreClockingMachine extends OrgAction
 {
@@ -30,6 +31,7 @@ class StoreClockingMachine extends OrgAction
     {
         data_set($modelData, 'group_id', $workplace->group_id);
         data_set($modelData, 'organisation_id', $workplace->organisation_id);
+        data_set($modelData, 'qr_code', Str::random(8));
 
         if (Arr::get($modelData, 'type') == ClockingMachineTypeEnum::STATIC_NFC->value) {
             data_set($modelData, 'data.nfc_tag', $this->get('nfc_tag'));

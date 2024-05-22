@@ -5,6 +5,7 @@
   -->
 
 <script setup lang="ts">
+import { Link } from "@inertiajs/vue3";
 import Table from '@/Components/Table/Table.vue';
 import { useFormatTime } from "@/Composables/useFormatTime";
 
@@ -14,12 +15,16 @@ const props = defineProps<{
 }>()
 
 console.log(props.data)
-console.log(props.tab)
 
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+      <template #cell(media_slug)="{ item }">
+        <Link :href="route('grp.media.show', item.media_slug)" class="primaryLink">
+          {{ item.media_slug }}
+        </Link>
+      </template>
       <template #cell(clocked_at)="{ item }">
         <div class="text-gray-500">
           {{ useFormatTime(item.clocked_at, {formatTime: 'hms'}) }}

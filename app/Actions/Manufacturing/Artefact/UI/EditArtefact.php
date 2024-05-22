@@ -5,16 +5,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
- namespace App\Actions\Manufacturing\Artefact\UI;
+namespace App\Actions\Manufacturing\Artefact\UI;
 
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Manufacturing\Artefact\ArtefactStateEnum;
-use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
-use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
 use App\Models\Manufacturing\Artefact;
-use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

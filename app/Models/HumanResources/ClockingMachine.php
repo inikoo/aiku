@@ -7,6 +7,7 @@
 
 namespace App\Models\HumanResources;
 
+use App\Enums\HumanResources\ClockingMachine\ClockingMachineStatusEnum;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -72,7 +73,7 @@ class ClockingMachine extends Authenticatable implements Auditable
 
     protected $casts = [
         'data'        => 'array',
-        'status'      => 'boolean',
+        'status'      => ClockingMachineStatusEnum::class,
     ];
 
     protected $attributes = [
