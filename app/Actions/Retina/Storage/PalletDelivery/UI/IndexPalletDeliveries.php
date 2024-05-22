@@ -9,11 +9,12 @@ namespace App\Actions\Retina\Storage\PalletDelivery\UI;
 
 use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\RetinaAction;
-use App\Actions\UI\Retina\Storage\ShowStorageDashboard;
+use App\Actions\UI\Retina\Storage\UI\ShowStorageDashboard;
 use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -21,7 +22,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexPalletDeliveries extends RetinaAction
 {

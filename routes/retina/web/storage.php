@@ -18,7 +18,7 @@ use App\Actions\Retina\Storage\PalletReturn\UI\ShowPalletReturn;
 use App\Actions\Retina\Storage\StoredItemReturn\UI\IndexStoredItemReturns;
 use App\Actions\Retina\Storage\StoredItemReturn\UI\ShowStoredItemReturn;
 use App\Actions\Retina\Storage\StoredItems\UI\IndexStoredItems;
-use App\Actions\UI\Retina\Storage\ShowStorageDashboard;
+use App\Actions\UI\Retina\Storage\UI\ShowStorageDashboard;
 
 Route::get('/dashboard', ShowStorageDashboard::class)->name('dashboard');
 

@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 19 Sep 2023 14:12:54 Malaysia Time, Pantai Lembeng, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Wed, 22 May 2024 10:42:30 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Retina\Storage;
+namespace App\Actions\UI\Retina\Storage\UI;
 
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
@@ -24,7 +24,7 @@ class ShowStorageDashboard
 
     public function asController(ActionRequest $request): Response
     {
-        return Inertia::render('Storage/StorageDashboard', [
+        return Inertia::render('Storage/RetinaStorageDashboard', [
             'title'    => __('Storage'),
             'pieData'  => $this->getDashboardData($request->user()->customer->fulfilmentCustomer),
             'customer' => CustomersResource::make($request->user()->customer)->resolve()

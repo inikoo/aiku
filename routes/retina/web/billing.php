@@ -7,10 +7,10 @@
 
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Fulfilment\RecurringBill\UI\IndexRecurringBills;
-use App\Actions\UI\Retina\Storage\ShowStorageDashboard;
+use App\Actions\UI\Retina\Billing\UI\ShowBillingDashboard;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/dashboard', ShowStorageDashboard::class)->name('dashboard');
+Route::get('/dashboard', ShowBillingDashboard::class)->name('dashboard');
 
 Route::prefix('recurring')->as('recurring.')->group(function () {
     Route::get('/', IndexRecurringBills::class)->name('index');

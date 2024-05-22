@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\StoredItemReturn\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\UI\Retina\Storage\ShowStorageDashboard;
+use App\Actions\UI\Retina\Storage\UI\ShowStorageDashboard;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Fulfilment\StoredItemResource;
 use App\InertiaTable\InertiaTable;

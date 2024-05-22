@@ -21,6 +21,7 @@ class GetLayout
             return [];
         }
 
+
         return [
             'website'         => GroupResource::make($request->get('website'))->getArray(),
 
