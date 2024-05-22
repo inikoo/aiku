@@ -40,17 +40,17 @@ class EditProfile
             "breadcrumbs" => $this->getBreadcrumbs(),
             "pageHead"    => [
                 "title"        => __("Edit Profile"),
-                'actions'      => [
-                    [
-                        'type'  => 'button',
-                        'style' => 'exit',
-                        'label' => __('back to profile'),
-                        'route' => [
-                            'name'       => 'grp.profile.show',
-                            'parameters' => array_values(request()->route()->originalParameters())
-                        ],
-                    ]
-                ]
+                // 'actions'      => [
+                //     [
+                //         'type'  => 'button',
+                //         'style' => 'exit',
+                //         'label' => __('back to profile'),
+                //         'route' => [
+                //             'name'       => 'grp.profile.show',
+                //             'parameters' => array_values(request()->route()->originalParameters())
+                //         ],
+                //     ]
+                // ]
             ],
             "formData" => [
                 "blueprint" => [

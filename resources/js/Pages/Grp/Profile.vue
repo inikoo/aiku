@@ -3,9 +3,9 @@ import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import Tabs from "@/Components/Navigation/Tabs.vue"
 
-import { useTabChange } from "@/Composables/tab-change"
-import { capitalize } from "@/Composables/capitalize"
-import { computed, onMounted, ref } from 'vue'
+import LoadingText from "@/Components/Utils/LoadingText.vue"
+import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
+import { computed, defineAsyncComponent, inject, onMounted, ref, watch } from 'vue'
 import type { Component } from 'vue'
 
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
@@ -15,19 +15,29 @@ import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import TableTimesheets from "@/Components/Tables/Grp/Org/HumanResources/TableTimesheets.vue"
 import TableUserRequestLogs from "@/Components/Tables/Grp/SysAdmin/TableUserRequestLogs.vue"
 import ProfileShowcase from "@/Components/Profile/ProfileShowcase.vue"
+// import EditProfile from "@/Pages/Grp/EditProfile.vue"
+
+import axios from 'axios'
+import { trans } from 'laravel-vue-i18n'
+import { notify } from '@kyvg/vue3-notification'
+import Button from '@/Components/Elements/Buttons/Button.vue'
+import { layoutStructure } from '@/Composables/useLayoutStructure'
+
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faIdCard } from '@fal'
+import { faInfoCircle } from '@fas'
 import { faSpinnerThird } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import axios from 'axios'
-library.add(faIdCard, faSpinnerThird)
+library.add(faIdCard, faSpinnerThird, faInfoCircle)
+
+const EditProfile = defineAsyncComponent(() => import("@/Pages/Grp/EditProfile.vue"))
 
 
 const props = defineProps<{
-    title: string,
-    pageHead: TSPageHeading
-    tabs?: TSTabs
+    // title: string,
+    // pageHead: TSPageHeading
+    // tabs?: TSTabs
     history?: {}
     timesheets?: {}
     visit_logs?: {}
@@ -35,9 +45,12 @@ const props = defineProps<{
 
 }>()
 
-const currentTab = ref(props.tabs?.current || 'showcase')
-const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
+const layout = inject('layout', layoutStructure)
+
+
+// Section: Fetch Tab data
+const currentTab = ref('showcase')
 const component = computed(() => {
     const components: Component = {
         showcase: ProfileShowcase,
@@ -47,27 +60,77 @@ const component = computed(() => {
     }
 
     return components[currentTab.value]
-
 })
+const handleTabUpdate = (newTabSlug: string) => {
+    if (newTabSlug === currentTab.value) {
+        return
+    }
 
-const isLoading = ref(false)
-const dataProfile = ref(null)
-const fetchProfileData = async () => {
-    isLoading.value = true
+    fetchTabData(newTabSlug)
+}
+const isTabLoading = ref(false)
+const dataTab = ref(null)
+const fetchTabData = async (tabName: string) => {
+    isTabLoading.value = true
+    let routeName = ''
+
+    switch (tabName) {
+        case 'showcase':
+            routeName = 'grp.profile.showcase.show'
+            break
+        case 'timesheets':
+            routeName = 'grp.profile.timesheets.index'
+            break
+        case 'histories':
+            routeName = 'grp.profile.history.index'
+            break
+        case 'visit_logs':
+            routeName = 'grp.profile.visit-logs.index'
+            break
+    }
+
     try {
         const { data } = await axios.get(
             route('grp.profile.show'),
         )
-        dataProfile.value = data.data
-        console.log('response', dataProfile.value)
+        dataTab.value = data.data
+        currentTab.value = tabName
+        console.log('response', dataTab.value)
     } catch (error: any) {
-
+        dataTab.value = null
+        notify({
+            title: trans('Something went wrong.'),
+            text: trans('Failed to show this tab.'),
+            type: 'error',
+        })
     }
-    isLoading.value = false
+
+    isTabLoading.value = false
+}
+
+// Section: fetch PageHead and Tabs
+const dataProfile = ref<{ pageHead: TSPageHeading, tabs: TSTabs } | null>(null)
+const fetchPageHead = async () => {
+    try {
+        const { data } = await axios.get(
+            route('grp.profile.page-head-tabs.show'),
+        )
+        dataProfile.value = data
+        console.log('response pageHead', data)
+    } catch (error: any) {
+        dataProfile.value = null
+        notify({
+            title: trans('Something went wrong.'),
+            text: trans('Failed to show Profile page.'),
+            type: 'error',
+        })
+    }
 }
 
 onMounted(() => {
-    fetchProfileData()
+    console.log("On mounted currentTab")
+    fetchPageHead()
+    fetchTabData(currentTab.value)
 })
 
 </script>
@@ -75,11 +138,32 @@ onMounted(() => {
 
 <template>
 
-    <!-- <Head :title="capitalize(title)" /> -->
-    <!-- <PageHeading :data="pageHead" /> -->
-    <Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
-    <div v-if="isLoading" class="h-full w-full flex items-center justify-center">
-        <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin' size="4x" fixed-width aria-hidden='true' />
+    <Head :title="trans('Profile')" />
+    <PageHeading v-if="dataProfile?.pageHead" :data="dataProfile?.pageHead">
+        <template #button-edit-profile="{ action }">
+            <Button @click="() => layout.stackedComponents.push({ component: EditProfile })" :label="action.action.label"
+                :style="action.action.style" />
+        </template>
+    </PageHeading>
+
+    <template v-if="dataProfile?.tabs?.navigation">
+        <Tabs :current="currentTab" :navigation="dataProfile?.tabs?.navigation"
+            @update:tab="(tabSlug: string) => handleTabUpdate(tabSlug)" />
+
+        <!-- Loading: main content -->
+        <div v-if="isTabLoading" class="pt-32 w-full flex justify-center">
+            <LoadingIcon size="2x" :key="32"/>
+        </div>
+
+        <component v-else-if="dataTab" :is="component" :data="dataTab" :tab="currentTab" />
+
+        <div v-else class="h-full w-full flex items-center justify-center text-gray-400 italic">
+            {{ trans('No data to shown.') }}
+        </div>
+    </template>
+
+    <!-- Loading: Navigation -->
+    <div v-else class="pt-8 w-full flex items-center justify-center">
+        <LoadingIcon size="2x"/>
     </div>
-    <component v-else :is="ProfileShowcase" :data="dataProfile" tab="showcase" />
 </template>
