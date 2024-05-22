@@ -25,14 +25,14 @@ function getTranslateX(listLength: number, idxComponent: number) {
 
 <template>
     <div class="absolute top-0 left-0 h-screen w-screen flex justify-end isolate z-[100]">
-        <div @click="layout.stackedComponents.pop()" class="fixed inset-0 bg-black/20 z-10 cursor-pointer" />
+        <div @click="layout.stackedComponents.pop()" class="fixed inset-0 bg-black/40 z-10 cursor-pointer" />
 
-        <div class="z-20 absolute h-screen w-10/12 transition-all" :style="{
+        <div class="py-6 z-20 absolute h-screen w-10/12 transition-all" :style="{
             backgroundColor: '#fff',
             transform: `translateX(${getTranslateX(listLength, idxComponent)}px)`
         }">
             <!-- Button: close -->
-            <div @click="layout.stackedComponents.pop()" class="absolute right-4 top-2 text-gray-400 hover:text-gray-600 cursor-pointer">
+            <div @click="layout.stackedComponents.pop()" class="absolute right-4 top-1 text-gray-400 hover:text-gray-600 cursor-pointer">
                 <FontAwesomeIcon icon='fal fa-times' class='lg' l fixed-width aria-hidden='true' />
             </div>
             <!-- <span class="ml-4 text-gray-500">

@@ -11,17 +11,17 @@ const layout = inject('layout', layoutStructure)
 
 <template>
     <Transition name="stacked-component">
-        <div v-if="layout.stackedComponents.length" class="fixed top-0 left-0 h-screen w-screen flex justify-end isolate z-[100]">
-            <div class="flex gap-x-2 absolute bottom-24 left-1/2 z-[200]">
+        <div v-if="layout.stackedComponents.length" class="p-6 fixed top-0 left-0 h-screen w-screen flex justify-end isolate z-[100]">
+            <!-- <div class="flex gap-x-2 absolute bottom-24 left-1/2 z-[200]">
                 <Button @click="() => layout.stackedComponents.push(Profile)" label="Add component" class="">
                 </Button>
                 <Button @click="() => layout.stackedComponents.pop()" label="Delete component" type="negative" class="">
                 </Button>
-            </div>
+            </div> -->
             
             <TransitionGroup name="stacked-component">
                 <StackedComponent v-for="(component, idxComponent) in layout.stackedComponents"
-                    :component="component"
+                    :component="component.component"
                     :key="'stackedComponent' + idxComponent"
                     :idxComponent="idxComponent"
                     :listLength="layout.stackedComponents.length"
