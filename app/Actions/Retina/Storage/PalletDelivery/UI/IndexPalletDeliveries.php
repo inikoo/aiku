@@ -103,7 +103,7 @@ class IndexPalletDeliveries extends RetinaAction
                 ),
                 'title'    => __('pallet deliveries'),
                 'pageHead' => [
-                    'title'     => __('deliveries'),
+                    'title'     => __('Deliveries'),
                     'iconRight' => [
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => __('delivery')

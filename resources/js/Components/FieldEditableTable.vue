@@ -111,9 +111,9 @@ const onChange = (value : Any) => {
           :placeholder="placeholder"
           :options="options"
           @OnChange="onChange"
-           :required="required"
-        >
-        </PureMultiselect>
+          :required="required"
+          :caret="true"
+        />
     </div>
 
 
