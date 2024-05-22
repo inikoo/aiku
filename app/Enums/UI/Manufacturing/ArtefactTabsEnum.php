@@ -16,30 +16,35 @@ enum ArtefactTabsEnum: string
     use HasTabs;
 
     case SHOWCASE                = 'showcase';
-    case DASHBOARD               = 'dashboard';
-    case MANUFACTURE_TASKS       = 'manufacture_taskS';
+    // case DASHBOARD               = 'dashboard';
+    case MANUFACTURE_TASKS       = 'manufacture_tasks';
+    case RAW_MATERIALS           = 'raw_materials';
     case HISTORY                 = 'history';
-    case DATA                    = 'data';
+    // case DATA                    = 'data';
 
 
 
     public function blueprint(): array
     {
         return match ($this) {
-            ArtefactTabsEnum::DASHBOARD => [
-                'title' => __('stats'),
-                'icon'  => 'fal fa-chart-line',
-            ],
+            // ArtefactTabsEnum::DASHBOARD => [
+            //     'title' => __('stats'),
+            //     'icon'  => 'fal fa-chart-line',
+            // ],
             ArtefactTabsEnum::MANUFACTURE_TASKS => [
                 'title' => __('manufacture tasks'),
                 'icon'  => 'fal fa-hamsa',
             ],
-            ArtefactTabsEnum::DATA => [
-                'align' => 'right',
-                'type'  => 'icon',
-                'title' => __('data'),
-                'icon'  => 'fal fa-database',
+            ArtefactTabsEnum::RAW_MATERIALS => [
+                'title' => __('raw materials'),
+                'icon'  => 'fal fa-hamsa',
             ],
+            // ArtefactTabsEnum::DATA => [
+            //     'align' => 'right',
+            //     'type'  => 'icon',
+            //     'title' => __('data'),
+            //     'icon'  => 'fal fa-database',
+            // ],
             ArtefactTabsEnum::HISTORY => [
                 'align' => 'right',
                 'type'  => 'icon',

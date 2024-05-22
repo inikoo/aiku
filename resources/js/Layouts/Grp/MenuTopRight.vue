@@ -2,7 +2,7 @@
 import { trans } from 'laravel-vue-i18n'
 import { useLayoutStore } from '@/Stores/layout'
 import { router } from '@inertiajs/vue3'
-import { ref, onMounted, onUnmounted, inject } from 'vue'
+import { ref, onMounted, onUnmounted, inject, defineAsyncComponent } from 'vue'
 import { useLiveUsers } from '@/Stores/active-users'
 import SearchBar from "@/Components/SearchBar.vue"
 import Image from '@/Components/Image.vue'
@@ -11,12 +11,15 @@ import NotificationList from '@/Components/NotificationList/NotificationList.vue
 
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
-import Profile from '@/Pages/Grp/Profile.vue'
+// import Profile from '@/Pages/Grp/Profile.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faDoorOpen } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faDoorOpen)
+
+const Profile = defineAsyncComponent(() => import("@/Pages/Grp/Profile.vue"))
+
 
 const props = defineProps<{
     urlPrefix: string
@@ -122,7 +125,7 @@ const notifications = layoutStore.user.notifications
             </div>
 
             <!-- Button: Logout -->
-            <div @click="layout.stackedComponents.push(Profile)"
+            <div @click="layout.stackedComponents.push({ component: Profile})"
                 class="flex max-w-xs overflow-hidden items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 cursor-pointer">
                 <span class="sr-only">{{ trans("Open user menu") }}</span>
                 <Image class="h-8 w-8 rounded-full" :src="layoutStore.user.avatar_thumbnail" alt="" />

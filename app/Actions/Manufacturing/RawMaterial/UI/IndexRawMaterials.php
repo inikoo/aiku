@@ -162,12 +162,12 @@ class IndexRawMaterials extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('raw materials'),
+                'title'       => __('Raw Materials'),
                 'pageHead'    => [
-                    'title'     => __('raw materials'),
+                    'title'     => __('Raw Materials'),
                     'iconRight' => [
                         'icon'  => ['fal', 'fa-drone'],
-                        'title' => __('raw materials'),
+                        'title' => __('Raw Materials'),
                     ],
                     'actions'   => [
                         $this->canEdit && $this->parent instanceof Production ? [
@@ -190,7 +190,7 @@ class IndexRawMaterials extends OrgAction
 
                                     'type'  => 'button',
                                     'style' => 'create',
-                                    'label' => __('raw material'),
+                                    'label' => __('Raw Material'),
                                     'route' => [
                                         'name'       => 'grp.org.productions.show.crafts.raw_materials.create',
                                         'parameters' => $request->route()->originalParameters()
@@ -239,7 +239,7 @@ class IndexRawMaterials extends OrgAction
                             'name'       => 'grp.org.productions.show.crafts.raw_materials.index',
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('raw materials'),
+                        'label' => __('Raw materials'),
                         'icon'  => 'fal fa-bars',
                     ],
                     'suffix' => $suffix

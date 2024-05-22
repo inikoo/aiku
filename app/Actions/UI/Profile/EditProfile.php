@@ -10,7 +10,6 @@ namespace App\Actions\UI\Profile;
 use App\Actions\Assets\Language\UI\GetLanguagesOptions;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
-use App\Http\Resources\SysAdmin\UserResource;
 use App\Http\Resources\UI\LoggedUserResource;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
@@ -29,30 +28,29 @@ class EditProfile
         return $request->user();
     }
 
-    public function jsonResponse(User $user): UserResource
+    public function jsonResponse(User $user)
     {
-        return new UserResource($user);
+        return $this->generateBlueprint($user);
     }
 
-    public function htmlResponse(User $user): Response
+    public function generateBlueprint(User $user)
     {
-
-        return Inertia::render("EditModel", [
+        return [
             "title"       => __("Edit Profile"),
             "breadcrumbs" => $this->getBreadcrumbs(),
             "pageHead"    => [
                 "title"        => __("Edit Profile"),
-                'actions'      => [
-                    [
-                        'type'  => 'button',
-                        'style' => 'exit',
-                        'label' => __('back to profile'),
-                        'route' => [
-                            'name'       => 'grp.profile.show',
-                            'parameters' => array_values(request()->route()->originalParameters())
-                        ],
-                    ]
-                ]
+                // 'actions'      => [
+                //     [
+                //         'type'  => 'button',
+                //         'style' => 'exit',
+                //         'label' => __('back to profile'),
+                //         'route' => [
+                //             'name'       => 'grp.profile.show',
+                //             'parameters' => array_values(request()->route()->originalParameters())
+                //         ],
+                //     ]
+                // ]
             ],
             "formData" => [
                 "blueprint" => [
@@ -178,7 +176,13 @@ class EditProfile
             'auth'          => [
                 'user' => LoggedUserResource::make($user)->getArray(),
             ],
-        ]);
+        ];
+    }
+
+    public function htmlResponse(User $user): Response
+    {
+
+        return Inertia::render("EditModel", $this->generateBlueprint($user));
     }
 
     public function getBreadcrumbs(): array

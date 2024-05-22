@@ -73,6 +73,12 @@ const timeline = ref({ ...props.data.data })
 const dataModal = ref({ isModalOpen: false })
 const formAddPallet = useForm({ notes: '', customer_reference: '', type : 'pallet' })
 const formMultiplePallet = useForm({ number_pallets: 1, type : 'pallet' })
+const tableKey = ref(1)  // To re-render Table after click Confirm (so the Table retrieve the new props)
+const typePallet = [
+    { label : 'Pallet', value : 'pallet'},
+    { label : 'Box', value : 'box'},
+    { label : 'Oversize', value : 'oversize'}
+]
 
 // Method: Add single pallet
 const handleFormSubmitAddPallet = (data: {}, closedPopover: Function) => {
@@ -114,46 +120,19 @@ const handleFormSubmitAddMultiplePallet = (data: {}, closedPopover: Function) =>
     })
 }
 
-/* const updateState = async ({ step, options }) => {
 
-  const foundState = options.find((item) => item.key === timeline.value.state)
-  const set = step.key == timeline.state || step.index < foundState.index
-  if (!set) {
-    try {
-      const response = await axios.patch(
-        route(props.updateRoute.route.name, props.updateRoute.route?.parameters),
-        { state: get(step, 'key') }
-      )
-      console.log(response)
-      timeline.value = response.data.data
-    } catch (error) {
-      console.log('error', error)
-    }
-  }
-} */
-
-
-// Button: Confirm
-const handleClickConfirm = async (action: { method: any, name: string, parameters: { palletDelivery: number } }) => {
-    loading.value = true
-    router.post(route(action.name, action.parameters), {}, {
-        onError: (e) => {
-            console.warn('Error on confirm', e)
-        },
-        onSuccess: (e) => {
-            // console.log('on success', e)
-            changeTableKey()
-        },
-        onFinish: (e) => {
-            // console.log('11111', e)
-            loading.value = false
-        }
-    })
-}
-
-const tableKey = ref(1)  // To re-render Table after click Confirm (so the Table retrieve the new props)
 const changeTableKey = () => {
     tableKey.value = tableKey.value + 1
+}
+
+// Method: open modal Upload
+const onUploadOpen = (action) => {
+    dataModal.value.isModalOpen = true
+    dataModal.value.uploadRoutes = action.route
+}
+
+const changePalletType=(form,fieldName,value)=>{
+    form[fieldName] = value
 }
 
 const component = computed(() => {
@@ -164,12 +143,6 @@ const component = computed(() => {
     return components[currentTab.value]
 
 })
-
-// Method: open modal Upload
-const onUploadOpen = (action) => {
-    dataModal.value.isModalOpen = true
-    dataModal.value.uploadRoutes = action.route
-}
 
 watch(() => props.data, (newValue) => {
     timeline.value = newValue.data
@@ -183,19 +156,6 @@ onMounted(() => {
         displayValue: false
     });
 })
-
-
-const changePalletType=(form,fieldName,value)=>{
-    form[fieldName] = value
-}
-
-
-
-const typePallet = [
-    { label : 'Pallet', value : 'pallet'},
-    { label : 'Box', value : 'box'},
-    { label : 'Oversize', value : 'oversize'}
-]
 
 
 </script>
@@ -311,19 +271,6 @@ const typePallet = [
                         </div>
                     </template>
                 </Popover>
-            </div>
-        </template>
-
-        <!-- Button: Confirm -->
-        <template #button-confirm="{ action: action }">
-            <div>
-                <!-- <Link as="Button" :style="action.action.style"
-                    :label="action.action.label"
-                    :loading="loading" :href="route(action.action.route.name, action.action.route.parameters)" method="post">
-                    <font-awesome-icon class="text-red-600" :icon="['far', 'trash-alt']" />
-                </Link> -->
-                <Button @click="handleClickConfirm(action.action.route)" :style="action.action.style"
-                    :label="action.action.label" :loading="loading" />
             </div>
         </template>
     </PageHeading>

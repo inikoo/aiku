@@ -131,6 +131,13 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 <template>
 	<Table :resource="data" :name="tab" class="mt-5" :key="tableKey">
+
+		<!-- Column: type pallet icon -->
+		<template #cell(type_icon)="{ item: pallet }">
+			<Icon :data="pallet.type_icon" class="px-1" />
+			<Icon :data="pallet['state_icon']" class="px-1" />
+		</template>
+
 		<!-- Column: state-->
 		<template #cell(state)="{ item: palletDelivery }">
 			<Icon :data="palletDelivery['state_icon']" class="px-1" />
@@ -165,7 +172,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 				:storedItemsRoute="storedItemsRoute" :state="props.state" />
 		</template>
 
-		<!-- Column: Stored Items -->
+		<!-- Column: Set Loaction -->
 		<template #cell(location)="{ item: pallet }">
 			<div v-if="!pallet.location_id" class="flex gap-x-1 gap-y-2 items-center">
 				<LocationFieldDelivery :key="pallet.state" :pallet="pallet"
@@ -178,15 +185,8 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 		<!-- Column: type pallet -->
 		<template #cell(type)="{ item: pallet }">
-			<div>
 				<FieldEditableTable :data="pallet" @onSave="onSaved" :options="typePallet" :fieldType="'select'"
 					fieldName="type" placeholder="Enter customer type" />
-			</div>
-		</template>
-
-		<!-- Column: type pallet icon -->
-		<template #cell(type_icon)="{ item: pallet }">
-			<Icon :data="pallet.type_icon" class="px-1" />
 		</template>
 
 		<!-- Column: rental -->
@@ -218,23 +218,10 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 			</div>
 
 			<!-- State: Received -->
-			<div v-else-if="props.state == 'received' || props.state == 'booking-in' || props.state == 'not-received'"
-				class="flex">
+			<div v-else-if="(props.state == 'received' || props.state == 'booking-in' || props.state == 'not-received') && !pallet.location_id" class="flex">
 				<ButtonEditTable class="mx-2" :type="pallet.state == 'not-received' ? 'secondary' : 'negative'"
 					:icon="['fal', 'times']" tooltip="Set as not received" :size="'xs'" :key="pallet.index"
 					routeName="notReceivedRoute" :data="pallet" @onSuccess="() => emits('renderTableKey')" />
-
-				<!-- <ButtonEditTable
-                    :type="pallet.state == 'booked-in' ? 'primary' : 'tertiary'"
-                    :icon="['fal', 'inventory']"
-                    :tooltip="'Booked In'"
-                    :key="pallet.index"
-                    :size="'xs'"
-                    routeName="bookInRoute"
-                    :data="pallet"
-                    @onSuccess="() => emits('renderTableKey')"
-                    /> -->
-
 			</div>
 		</template>
 	</Table>

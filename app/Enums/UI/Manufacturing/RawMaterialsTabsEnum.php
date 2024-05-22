@@ -23,7 +23,7 @@ enum RawMaterialsTabsEnum: string
         return match ($this) {
             RawMaterialsTabsEnum::RAW_MATERIALS => [
                 'title' => __('raw materials'),
-                'icon'  => 'fal fa-drone',
+                'icon'  => 'fal fa-bars',
             ],
             RawMaterialsTabsEnum::RAW_MATERIALS_HISTORIES => [
                 'title' => __('history'),

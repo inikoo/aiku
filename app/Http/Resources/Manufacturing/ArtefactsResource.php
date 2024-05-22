@@ -21,6 +21,7 @@ class ArtefactsResource extends JsonResource
         return [
             'slug'    => $this->slug,
             'code'    => $this->code,
+            'name'    => $this->name
         ];
     }
 }
