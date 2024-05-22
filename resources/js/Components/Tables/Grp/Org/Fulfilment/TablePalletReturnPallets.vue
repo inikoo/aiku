@@ -42,18 +42,26 @@ function customerRoute(pallet: {}) {
 
         <!-- Column: Type Icon -->
 		<template #cell(type_icon)="{ item: palletDelivery }">
+
+         <!--    type icon -->
             <div v-if="app == 'retina'" class="px-3" />
-
             <FontAwesomeIcon v-else v-tooltip="palletDelivery.type_icon.tooltip" :icon='palletDelivery.type_icon.icon' :class='palletDelivery.type_icon.class' fixed-width aria-hidden='true' />
-		</template>
 
-        <!-- Column: State -->
-		<template #cell(state)="{ item: palletDelivery }">
+           <!--  state -->
             <div v-if="app == 'retina'" class="px-3">
                 <TagPallet :stateIcon="palletDelivery.state_icon" />
             </div>
 			<Icon v-else :data="palletDelivery['state_icon']" class="px-1" />
+
 		</template>
+
+        <!-- Column: State -->
+		<!-- <template #cell(state)="{ item: palletDelivery }">
+            <div v-if="app == 'retina'" class="px-3">
+                <TagPallet :stateIcon="palletDelivery.state_icon" />
+            </div>
+			<Icon v-else :data="palletDelivery['state_icon']" class="px-1" />
+		</template> -->
 
         <!-- Column: Stored Items -->
         <template #cell(stored_items)="{ item: pallet }">
