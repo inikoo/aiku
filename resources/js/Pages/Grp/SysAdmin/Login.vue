@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, useForm } from '@inertiajs/vue3'
+import { Head, Link, router, useForm } from '@inertiajs/vue3'
 import LoginPassword from '@/Components/Auth/LoginPassword.vue'
 import Checkbox from '@/Components/Checkbox.vue'
 import ValidationErrors from '@/Components/ValidationErrors.vue'
@@ -8,6 +8,7 @@ import { onMounted, ref } from 'vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 
 import Layout from '@/Layouts/GrpAuth.vue'
+import { useLayoutStore } from '@/Stores/layout'
 defineOptions({ layout: Layout })
 
 const form = useForm({
@@ -16,13 +17,20 @@ const form = useForm({
     remember: false,
 })
 
+
 const isLoading = ref(false)
 
 const submit = () => {
     isLoading.value = true
     form.post(route('grp.login.show'), {
         onError: () => isLoading.value = false,
-        onFinish: () => form.reset('password'),
+        onFinish: () => {
+            
+            form.reset('password'),
+            useLayoutStore().organisations.data.length === 1
+                ? router.get(route('grp.org.dashboard.show', useLayoutStore().organisations.data[0].slug))
+                : false
+        },
     })
 }
 
