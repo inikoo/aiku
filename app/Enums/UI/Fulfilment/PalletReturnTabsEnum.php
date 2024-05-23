@@ -15,7 +15,13 @@ enum PalletReturnTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case PALLETS = 'pallets';
+    case PALLETS      = 'pallets';
+    case STORED_ITEMS = 'stored_items';
+
+    case SERVICES       = 'services';
+    case PHYSICAL_GOODS = 'physical_goods';
+
+
     case HISTORY = 'history';
 
     public function blueprint(): array
@@ -31,6 +37,19 @@ enum PalletReturnTabsEnum: string
                 'title' => __('pallets'),
                 'icon'  => 'fal fa-bars',
             ],
+            PalletReturnTabsEnum::STORED_ITEMS => [
+                'title' => __('stored_items'),
+                'icon'  => 'fal fa-cube',
+            ],
+            PalletReturnTabsEnum::SERVICES => [
+                'title' => __('services'),
+                'icon'  => 'fal fa-concierge-bell',
+            ],
+            PalletReturnTabsEnum::PHYSICAL_GOODS => [
+                'title' => __('physical_goods'),
+                'icon'  => 'fal fa-cube',
+            ],
+
         };
     }
 }
