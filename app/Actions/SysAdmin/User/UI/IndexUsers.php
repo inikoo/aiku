@@ -141,12 +141,8 @@ class IndexUsers extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo('sysadmin.edit');
+        return  $request->user()->hasPermissionTo('sysadmin.view');
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('sysadmin.view')
-            );
     }
 
 
