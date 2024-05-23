@@ -13,7 +13,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import {
     faTerminal, faUserAlien, faCog, faGlobe, faWindowMaximize, faBriefcase, faPhotoVideo, faBrowser,
-    faSign,faChartNetwork,faThumbsUp
+    faSign,faChartNetwork,faThumbsUp,faShippingFast
 
 } from '@fal'
 import { useLayoutStore } from "@/Stores/retinaLayout"
@@ -21,7 +21,7 @@ import { useLayoutStore } from "@/Stores/retinaLayout"
 
 library.add(
     faTerminal, faUserAlien, faCog, faGlobe, faWindowMaximize, faBriefcase, faPhotoVideo,
-    faBrowser,faSign,faChartNetwork,faThumbsUp
+    faBrowser,faSign,faChartNetwork,faThumbsUp,faShippingFast
 )
 
 const layout = useLayoutStore()

@@ -82,6 +82,60 @@ class GetShopNavigation
                     ],
                 ],
             ];
+
+            $navigation["fees"] = [
+                "root"  => "grp.org.shops.show.fees.",
+                "icon"  => ["fal", "fa-charging-station"],
+                "label" => __("charges"),
+                "route" => [
+                    "name"       => 'grp.org.shops.show.fees.dashboard',
+                    "parameters" => [$shop->organisation->slug, $shop->slug],
+                ],
+                "topMenu" => [
+                    "subSections" => [
+                        [
+                            "tooltip" => __("shop"),
+                            "icon"    => ["fal", "fa-store-alt"],
+                            'root'    => 'grp.org.shops.show.fees.dashboard',
+                            "route"   => [
+                                "name"       => 'grp.org.shops.show.fees.dashboard',
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                        [
+                            "label"   => __("Shipping"),
+                            "tooltip" => __("Shipping"),
+                            "icon"    => ["fal", "fa-shipping-fast"],
+                            'root'    => 'grp.org.shops.show.fees.shipping.',
+                            "route"   => [
+                                "name"       => "grp.org.shops.show.fees.shipping.index",
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                        [
+                            "label"   => __("Charges"),
+                            "tooltip" => __("Charges"),
+                            "icon"    => ["fal", "fa-coins"],
+                            'root'    => 'grp.org.shops.show.fees.charges.',
+                            "route"   => [
+                                "name"       => "grp.org.shops.show.fees.charges.index",
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+                        [
+                            "label"   => __("Services"),
+                            "tooltip" => __("Services"),
+                            "icon"    => ["fal", "fa-concierge-bell"],
+                            'root'    => 'grp.org.shops.show.fees.services.',
+                            "route"   => [
+                                "name"       => "grp.org.shops.show.fees.services.index",
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
+
+                    ],
+                ],
+            ];
         }
         if ($user->hasPermissionTo("products.$shop->id.view")) {
             $navigation["offers"] = [

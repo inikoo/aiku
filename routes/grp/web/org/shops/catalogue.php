@@ -12,41 +12,64 @@ use App\Actions\Catalogue\Product\UI\EditProduct;
 use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\Product\UI\ShowProduct;
 use App\Actions\Catalogue\ProductCategory\UI\CreateDepartment;
-use App\Actions\Catalogue\ProductCategory\UI\CreateDepartments;
 use App\Actions\Catalogue\ProductCategory\UI\CreateFamily;
 use App\Actions\Catalogue\ProductCategory\UI\EditDepartment;
-use App\Actions\Catalogue\ProductCategory\UI\EditFamily;
 use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
 use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
 use App\Actions\Catalogue\ProductCategory\UI\ShowDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\ShowFamily;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
+use App\Actions\Devel\UI\CreateDummy;
+use App\Actions\Devel\UI\EditDummy;
+use Illuminate\Support\Facades\Route;
 
 Route::get('', ShowCatalogue::class)->name('dashboard');
 
-Route::get('products', IndexProducts::class)->name('products.index');
-Route::get('products/create', CreateProduct::class)->name('products.create');
 
-Route::get('products/{product}', ShowProduct::class)->name('products.show');
-Route::get('products/{product}/edit', EditProduct::class)->name('products.edit');
+Route::name("products.")->prefix('products')
+    ->group(function () {
+        Route::get('', IndexProducts::class)->name('index');
+        Route::get('create', CreateProduct::class)->name('create');
 
+        Route::prefix('{product}')->group(function () {
+            Route::get('', ShowProduct::class)->name('show');
+            Route::get('edit', EditProduct::class)->name('edit');
+        });
+    });
 
+Route::name("departments.")->prefix('departments')
+    ->group(function () {
+        Route::get('', IndexDepartments::class)->name('index');
+        Route::get('create', CreateDepartment::class)->name('create');
 
-Route::get('departments/create', [CreateDepartment::class, 'inShop'])->name('departments.create');
-Route::get('departments/create-multi', CreateDepartments::class)->name('departments.create-multi');
-Route::get('departments', IndexDepartments::class)->name('departments.index');
-Route::get('departments/{department}', ShowDepartment::class)->name('departments.show');
-Route::get('departments/{department}/edit', [EditDepartment::class, 'inShop'])->name('departments.edit');
+        Route::prefix('{department}')->group(function () {
+            Route::get('', ShowDepartment::class)->name('show');
+            Route::get('edit', EditDepartment::class)->name('edit');
+            Route::get('families/{family}', [ShowFamily::class, 'inDepartment'])->name('families.show');
+            Route::get('products/{product}', [ShowProduct::class, 'inDepartment'])->name('products.show');
+        });
+    });
 
-Route::get('departments/{department}/families/{family}', [ShowFamily::class, 'inDepartment'])->name('departments.show.families.show');
-Route::get('departments/{department}/products/{product}', [ShowProduct::class, 'inDepartment'])->name('departments.show.products.show');
+Route::name("families.")->prefix('families')
+    ->group(function () {
+        Route::get('', IndexFamilies::class)->name('index');
+        Route::get('create', CreateFamily::class)->name('create');
 
-Route::get('families/create', [CreateFamily::class, 'inShop'])->name('families.create');
-Route::get('families', IndexFamilies::class)->name('families.index');
-Route::get('families/{family}', [ShowFamily::class, 'inShop'])->name('families.show');
-Route::get('families/{family}/edit', [EditFamily::class, 'inShop'])->name('families.edit');
+        Route::prefix('{family}')->group(function () {
+            Route::get('', ShowDepartment::class)->name('show');
+            Route::get('edit', ShowFamily::class)->name('edit');
+            Route::get('products/{product}', [ShowProduct::class, 'inFamily'])->name('products.show');
+        });
+    });
 
-Route::get('collections', IndexCollection::class)->name('collections.index');
-Route::get('collections/create', CreateProduct::class)->name('collections.create');
+Route::name("collections.")->prefix('collections')
+    ->group(function () {
+        Route::get('', IndexCollection::class)->name('index');
+        Route::get('create', CreateDummy::class)->name('create');
 
-Route::get('collections/{collection}', ShowCollection::class)->name('collections.show');
+        Route::prefix('{collection}')->group(function () {
+            Route::get('', ShowCollection::class)->name('show');
+            Route::get('edit', EditDummy::class)->name('edit');
+            Route::get('products/{product}', [ShowProduct::class, 'inCollection'])->name('products.show');
+        });
+    });

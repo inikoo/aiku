@@ -79,6 +79,8 @@ class ShowCatalogue extends OrgAction
                 ],
 
 
+                /*
+
                 CatalogueTabsEnum::DEPARTMENTS->value => $this->tab == CatalogueTabsEnum::DEPARTMENTS->value
                     ?
                     fn () => DepartmentsResource::collection(
@@ -139,58 +141,63 @@ class ShowCatalogue extends OrgAction
                         )
                     )),
 
+                */
+
             ]
-        )->table(
-            IndexDepartments::make()->tableStructure(
-                parent: $shop,
-                modelOperations: [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'shops.show.departments.create',
-                            'parameters' => array_values([$shop->slug])
-                        ],
-                        'label' => __('department'),
-                        'style' => 'create'
-                    ] : false
-                ],
-                prefix: 'departments'
-            )
-        )->table(
-            IndexFamilies::make()->tableStructure(
-                parent: $shop,
-                modelOperations: [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'shops.show.families.create',
-                            'parameters' => array_values([$shop->slug])
-                        ],
-                        'label' => __('family'),
-                        'style' => 'create'
-                    ] : false
-                ],
-                prefix: 'families'
-            )
-        )->table(
-            IndexProducts::make()->tableStructure(
-                parent: $shop,
-                modelOperations: [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'shops.show.products.create',
-                            'parameters' => array_values([$shop->slug])
-                        ],
-                        'label' => __('product'),
-                        'style' => 'create'
-                    ] : false
-                ],
-                prefix: 'products'
-            )
-        )->table(
-            IndexCollection::make()->tableStructure(
-                parent: $shop,
-                prefix: 'collections'
-            )
         );
+        /*
+        ->table(
+        IndexDepartments::make()->tableStructure(
+            parent: $shop,
+            modelOperations: [
+                'createLink' => $this->canEdit ? [
+                    'route' => [
+                        'name'       => 'shops.show.departments.create',
+                        'parameters' => array_values([$shop->slug])
+                    ],
+                    'label' => __('department'),
+                    'style' => 'create'
+                ] : false
+            ],
+            prefix: 'departments'
+        )
+        )->table(
+        IndexFamilies::make()->tableStructure(
+            parent: $shop,
+            modelOperations: [
+                'createLink' => $this->canEdit ? [
+                    'route' => [
+                        'name'       => 'shops.show.families.create',
+                        'parameters' => array_values([$shop->slug])
+                    ],
+                    'label' => __('family'),
+                    'style' => 'create'
+                ] : false
+            ],
+            prefix: 'families'
+        )
+        )->table(
+        IndexProducts::make()->tableStructure(
+            parent: $shop,
+            modelOperations: [
+                'createLink' => $this->canEdit ? [
+                    'route' => [
+                        'name'       => 'shops.show.products.create',
+                        'parameters' => array_values([$shop->slug])
+                    ],
+                    'label' => __('product'),
+                    'style' => 'create'
+                ] : false
+            ],
+            prefix: 'products'
+        )
+        )->table(
+        IndexCollection::make()->tableStructure(
+            parent: $shop,
+            prefix: 'collections'
+        )
+        );
+        */
     }
 
 
@@ -251,7 +258,7 @@ class ShowCatalogue extends OrgAction
                                 'name'       => 'grp.org.shops.show.catalogue.dashboard',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('catalogue'),
+                            'label' => __('Catalogue'),
                         ]
                     ]
                 ]

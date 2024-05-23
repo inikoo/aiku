@@ -9,7 +9,7 @@ import { inject, onMounted } from "vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faBoxUsd, faUsersCog, faChartLine, faUserHardHat, faUser, faInventory, faConveyorBeltAlt,
     faChevronDown, faPalletAlt, faAbacus,faCloudRainbow,faShoppingCart,faMountains, faTasksAlt, faTruck,
-  faFlaskPotion,faFillDrip,faBullhorn,faBadgePercent
+  faFlaskPotion,faFillDrip,faBullhorn,faBadgePercent,faChargingStation
 } from "@fal"
 import NavigationSimple from '@/Layouts/Grp/NavigationSimple.vue'
 import { generateNavigationName, generateCurrentString } from '@/Composables/useConvertString'
@@ -23,7 +23,7 @@ import { layoutStructure } from "@/Composables/useLayoutStructure"
 import { trans } from "laravel-vue-i18n"
 
 library.add(faBoxUsd, faUsersCog, faChartLine, faUserHardHat, faUser, faUsersCog, faInventory, faConveyorBeltAlt, faChevronDown, faPalletAlt,
-faAbacus, faCloudRainbow,faShoppingCart,faMountains, faTasksAlt, faTruck, faFlaskPotion, faFillDrip, faBullhorn,faBadgePercent
+faAbacus, faCloudRainbow,faShoppingCart,faMountains, faTasksAlt, faTruck, faFlaskPotion, faFillDrip, faBullhorn,faBadgePercent,faChargingStation
 )
 
 const layout = inject('layout', layoutStructure)
