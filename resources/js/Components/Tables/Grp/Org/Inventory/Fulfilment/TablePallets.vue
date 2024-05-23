@@ -1,6 +1,6 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Sun, 19 May 2024 18:32:23 British Summer Time, Sheffield, UK
+  - Created: Thu, 23 May 2024 15:57:55 British Summer Time, Sheffield, UK
   - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
@@ -40,7 +40,10 @@ const props = defineProps<{
 const layout = useLayoutStore()
 
 function palletRoute(pallet: Pallet) {
+  console.log(route().current())
   switch (route().current()) {
+
+
 
     case "grp.org.warehouses.show.fulfilment.pallets.index":
       return route(
@@ -48,16 +51,6 @@ function palletRoute(pallet: Pallet) {
         [
           route().params["organisation"],
           route().params["warehouse"],
-          pallet.slug
-        ]);
-
-    case "grp.org.warehouses.show.infrastructure.locations.show":
-      return route(
-        "grp.org.warehouses.show.infrastructure.locations.show.pallets.show",
-        [
-          route().params["organisation"],
-          route().params["warehouse"],
-          route().params["location"],
           pallet.slug
         ]);
 
@@ -70,7 +63,7 @@ function palletRoute(pallet: Pallet) {
 function locationRoute(pallet: Pallet) {
 
   return route(
-    "grp.org.warehouses.show.infrastructure.locations.show",
+    "grp.org.warehouses.show.fulfilment.locations.show",
     [
       route().params["organisation"],
       route().params["warehouse"],
@@ -244,7 +237,7 @@ const onUpdateStatus=(routes,data)=>{
   </Table>
 </template>
 
-<style src="../../../../../../../node_modules/@vueform/multiselect/themes/default.css"></style>
+<style src="../../../../../../../../node_modules/@vueform/multiselect/themes/default.css"></style>
 
 <style lang="scss">
 .multiselect-tags-search {

@@ -103,6 +103,16 @@ class GetWarehouseNavigation
                             ],
                         ],
                         [
+                            "label"   => __("Locations"),
+                            "tooltip" => __("Locations allowed for fulfilment"),
+                            "icon"    => ["fal", "fa-inventory"],
+                            "root"    => "grp.org.warehouses.show.fulfilment.locations.",
+                            "route"   => [
+                                "name"       => "grp.org.warehouses.show.fulfilment.locations.index",
+                                "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
+                            ],
+                        ],
+                        [
                             "label"   => __("Pallets"),
                             "tooltip" => __("pallets"),
                             "icon"    => ["fal", "fa-pallet"],

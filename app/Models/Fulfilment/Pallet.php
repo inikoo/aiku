@@ -47,7 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $with_cartons
  * @property bool $with_stored_items
  * @property int|null $number_cartons
- * @property int $number_stored_items
+ * @property int|null $number_stored_items
  * @property int|null $current_recurring_bill_id
  * @property \Illuminate\Support\Carbon|null $received_at
  * @property \Illuminate\Support\Carbon|null $booking_in_at

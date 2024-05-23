@@ -7,12 +7,10 @@
 
 namespace App\Actions\Fulfilment\Pallet\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
+use App\Actions\UI\Fulfilment\ShowFulfilmentDashboard;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
-use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Inventory\Location;
@@ -197,10 +195,9 @@ class IndexPalletsInWarehouse extends OrgAction
     public function htmlResponse(LengthAwarePaginator $pallets, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Warehouse/Pallets',
+            'Org/Warehouse/Fulfilment/Pallets',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
                 'title'       => __('Pallets'),
@@ -233,52 +230,27 @@ class IndexPalletsInWarehouse extends OrgAction
         return $this->handle($location);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(array $routeParameters): array
     {
-        return match ($routeName) {
-            'grp.org.warehouses.show.fulfilment.pallets.index', 'grp.org.warehouses.show.fulfilment.pallets.show' =>
-            array_merge(
-                ShowWarehouse::make()->getBreadcrumbs($routeParameters),
+        return  array_merge(
+            ShowFulfilmentDashboard::make()->getBreadcrumbs($routeParameters),
+            [
                 [
-                    [
-                        'type'   => 'simple',
-                        'simple' => [
-                            'route' => [
-                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.index',
-                                'parameters' => [
-                                    'organisation' => $routeParameters['organisation'],
-                                    'warehouse'    => $routeParameters['warehouse'],
-                                ]
-                            ],
-                            'label' => __('Pallets'),
-                            'icon'  => 'fal fa-bars',
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => [
+                            'name'       => 'grp.org.warehouses.show.fulfilment.pallets.index',
+                            'parameters' => [
+                                'organisation' => $routeParameters['organisation'],
+                                'warehouse'    => $routeParameters['warehouse'],
+                            ]
                         ],
+                        'label' => __('Pallets'),
+                        'icon'  => 'fal fa-bars',
+                    ],
 
-                    ]
                 ]
-            ),
-
-            'grp.org.fulfilments.show.operations.pallets.index' =>
-            array_merge(
-                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
-                [
-                    [
-                        'type'   => 'simple',
-                        'simple' => [
-                            'route' => [
-                                'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
-                                'parameters' => [
-                                    'organisation' => $routeParameters['organisation'],
-                                    'fulfilment'   => $routeParameters['fulfilment'],
-                                ]
-                            ],
-                            'label' => __('pallets'),
-                            'icon'  => 'fal fa-bars',
-                        ],
-
-                    ]
-                ]
-            )
-        };
+            ]
+        );
     }
 }

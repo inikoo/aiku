@@ -15,15 +15,12 @@ enum LocationTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-
-    case SHOWCASE            = 'showcase';
-    case STOCKS              = 'stocks';
-
+    case SHOWCASE             = 'showcase';
+    case STOCKS               = 'stocks';
     case PALLETS              = 'pallets';
     case STOCK_MOVEMENTS      = 'stock_movements';
-
-    case HISTORY            = 'history';
-    case DATA               = 'data';
+    case HISTORY              = 'history';
+    case DATA                 = 'data';
 
 
 

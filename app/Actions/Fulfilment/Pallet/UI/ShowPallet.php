@@ -12,8 +12,8 @@ use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
+use App\Actions\UI\Fulfilment\ShowFulfilmentDashboard;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\UI\Fulfilment\PalletTabsEnum;
 use App\Http\Resources\Fulfilment\PalletResource;
@@ -197,8 +197,9 @@ class ShowPallet extends OrgAction
 
     public function getBreadcrumbsFromWarehouse(Pallet $pallet, $routeName, $suffix = null): array
     {
+
         return array_merge(
-            ShowWarehouse::make()->getBreadcrumbs(request()->route()->originalParameters()),
+            ShowFulfilmentDashboard::make()->getBreadcrumbs(request()->route()->originalParameters()),
             [
                 [
                     'type'           => 'modelWithIndex',
@@ -208,7 +209,7 @@ class ShowPallet extends OrgAction
                                 'name'       => 'grp.org.warehouses.show.fulfilment.pallets.index',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
-                            'label' => __('pallets')
+                            'label' => __('Pallets')
                         ],
                         'model' => [
                             'route' => [

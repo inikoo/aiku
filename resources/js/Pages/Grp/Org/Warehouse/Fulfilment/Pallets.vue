@@ -1,6 +1,6 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Sun, 19 May 2024 19:25:03 British Summer Time, Sheffield, UK
+  - Created: Thu, 23 May 2024 15:57:55 British Summer Time, Sheffield, UK
   - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
@@ -8,7 +8,7 @@
 import { Head } from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
 import { capitalize } from "@/Composables/capitalize"
-import TablePallets from "@/Components/Tables/Grp/Org/Inventory/TablePallets.vue";
+import TablePallets from "@/Components/Tables/Grp/Org/Inventory/Fulfilment/TablePallets.vue";
 import Action from "@/Components/Forms/Fields/Action.vue"
 import { useForm } from '@inertiajs/vue3';
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";

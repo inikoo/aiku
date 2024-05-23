@@ -34,7 +34,7 @@ class ShowFulfilmentDashboard extends OrgAction
     public function htmlResponse(ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Warehouse/FulfilmentDashboard',
+            'Org/Warehouse/Fulfilment/FulfilmentDashboard',
             [
                 'breadcrumbs'  => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'        => __('fulfilment'),
@@ -60,7 +60,7 @@ class ShowFulfilmentDashboard extends OrgAction
                                 'name'       => 'grp.org.warehouses.show.fulfilment.dashboard',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('fulfilment'),
+                            'label' => __('Fulfilment'),
                             'icon'  => 'fal fa-chart-network'
                         ]
                     ]

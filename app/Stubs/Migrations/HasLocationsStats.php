@@ -18,6 +18,12 @@ trait HasLocationsStats
         $table->unsignedSmallInteger('number_locations_status_broken')->default(0);
         $table->unsignedSmallInteger('number_empty_locations')->default(0);
         $table->unsignedSmallInteger('number_locations_no_stock_slots')->default(0);
+
+        $table->unsignedSmallInteger('number_locations_allow_stocks')->default(0);
+        $table->unsignedSmallInteger('number_locations_allow_fulfilment')->default(0);
+        $table->unsignedSmallInteger('number_locations_allow_dropshipping')->default(0);
+
+
         $table->decimal('stock_value', 16)->default(0);
 
         return $table;

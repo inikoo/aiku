@@ -8,6 +8,7 @@
 namespace App\Actions\Inventory\Location;
 
 use App\Actions\HydrateModel;
+use App\Actions\Inventory\Location\Hydrators\LocationHydratePallets;
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateStocks;
 use App\Actions\Inventory\Location\Hydrators\LocationHydrateStockValue;
 use App\Models\Inventory\Location;
@@ -15,13 +16,14 @@ use Illuminate\Support\Collection;
 
 class HydrateLocation extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:location {organisations?*} {--i|id=}';
+    public string $commandSignature = 'location:hydrate {organisations?*} {--s|slugs=}';
 
 
     public function handle(Location $location): void
     {
-        LocationHydrateStocks::dispatch($location);
-        LocationHydrateStockValue::dispatch($location);
+        LocationHydrateStocks::run($location);
+        LocationHydrateStockValue::run($location);
+        LocationHydratePallets::run($location);
     }
 
 
@@ -34,6 +36,6 @@ class HydrateLocation extends HydrateModel
 
     protected function getAllModels(): Collection
     {
-        return Location::withTrashed()->all();
+        return Location::withTrashed()->get();
     }
 }

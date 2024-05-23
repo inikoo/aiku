@@ -24,6 +24,9 @@ use Illuminate\Support\Carbon;
  * @property int $number_locations_status_broken
  * @property int $number_empty_locations
  * @property int $number_locations_no_stock_slots
+ * @property int $number_locations_allow_stocks
+ * @property int $number_locations_allow_fulfilment
+ * @property int $number_locations_allow_dropshipping
  * @property string $stock_value
  * @property int $number_fulfilments
  * @property int $number_customers_interest_pallets_storage
