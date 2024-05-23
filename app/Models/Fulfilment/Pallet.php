@@ -44,9 +44,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property PalletStatusEnum $status
  * @property PalletStateEnum $state
  * @property PalletTypeEnum $type
- * @property string|null $notes
- * @property int|null $current_recurring_bill_id
+ * @property bool $with_cartons
+ * @property bool $with_stored_items
+ * @property int|null $number_cartons
  * @property int $number_stored_items
+ * @property int|null $current_recurring_bill_id
  * @property \Illuminate\Support\Carbon|null $received_at
  * @property \Illuminate\Support\Carbon|null $booking_in_at
  * @property \Illuminate\Support\Carbon|null $set_as_not_received_at
@@ -57,6 +59,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $picked_at
  * @property \Illuminate\Support\Carbon|null $set_as_incident_at
  * @property \Illuminate\Support\Carbon|null $dispatched_at
+ * @property string|null $notes
  * @property array $data
  * @property array $incident_report
  * @property \Illuminate\Support\Carbon|null $created_at

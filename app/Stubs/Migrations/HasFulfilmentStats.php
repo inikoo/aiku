@@ -25,14 +25,24 @@ trait HasFulfilmentStats
     {
         $table->unsignedInteger('number_pallets')->default(0);
 
+
+        $table->unsignedInteger("number_pallets_with_cartons")->default(0);
+        $table->unsignedInteger("number_pallets_with_stored_items")->default(0);
+
+
         foreach (PalletTypeEnum::cases() as $type) {
             $table->unsignedInteger("number_pallets_type_{$type->snake()}")->default(0);
         }
         foreach (PalletStateEnum::cases() as $state) {
             $table->unsignedInteger("number_pallets_state_{$state->snake()}")->default(0);
+            $table->unsignedInteger("number_pallets_with_cartons_state_{$state->snake()}")->default(0);
+            $table->unsignedInteger("number_pallets_with_stored_items_state_{$state->snake()}")->default(0);
+
         }
         foreach (PalletStatusEnum::cases() as $status) {
             $table->unsignedInteger("number_pallets_status_{$status->snake()}")->default(0);
+            $table->unsignedInteger("number_pallets_with_cartons_status_{$status->snake()}")->default(0);
+            $table->unsignedInteger("number_pallets_with_stored_items_status_{$status->snake()}")->default(0);
         }
 
 
