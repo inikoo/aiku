@@ -84,7 +84,7 @@ class UpdateEmployee extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'worker_number'                         => [
                 'sometimes',
                 'max:64',
@@ -150,7 +150,10 @@ class UpdateEmployee extends OrgAction
             'positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->organisation->id)],
             'email'                                 => ['sometimes', 'nullable', 'email'],
             'source_id'                             => ['sometimes', 'string', 'max:64'],
-            'username'                              => [
+        ];
+
+        if ($this->employee->user) {
+            $rules['username']  = [
                 'sometimes',
                 'required',
                 'lowercase',
@@ -170,11 +173,13 @@ class UpdateEmployee extends OrgAction
                 ),
 
 
-            ],
-            'password'                              => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-            'auth_type'                             => ['sometimes', Rule::enum(UserAuthTypeEnum::class)],
+            ];
+            $rules['password']  = ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()];
+            $rules['auth_type'] = ['sometimes', Rule::enum(UserAuthTypeEnum::class)];
+        }
 
-        ];
+
+        return $rules;
     }
 
     public function action(Employee $employee, $modelData): Employee
