@@ -21,6 +21,14 @@ return new class () extends Migration {
             $table->unsignedInteger('product_id')->nullable();
             $table->foreign('product_id')->references('id')->on('products');
             $table->unsignedSmallInteger('number_historic_outerables')->default(0);
+
+            $table->string('auto_assign_action')->nullable()->comment('Used for auto assign this service to a action');
+            $table->string('auto_assign_action_type')->nullable()->comment('Used for auto assign this service to an action type');
+
+
+            $table->decimal('price', 18)->nullable();
+            $table->string('unit')->nullable();
+
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletes();

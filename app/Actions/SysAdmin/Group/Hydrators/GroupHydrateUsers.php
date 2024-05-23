@@ -32,6 +32,9 @@ class GroupHydrateUsers
 
     public function handle(Group $group): void
     {
+
+
+
         $numberUsers       = $group->users()->count();
         $numberActiveUsers = $group->users()->where('status', true)->count();
 
@@ -48,6 +51,8 @@ class GroupHydrateUsers
         foreach (UserTypeEnum::cases() as $userType) {
             $stats['number_users_type_'.$userType->snake()] = Arr::get($statusCounts, $userType->value, 0);
         }
+
+        print_r($stats);
 
         $group->sysadminStats()->update($stats);
     }

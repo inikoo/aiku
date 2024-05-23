@@ -59,11 +59,16 @@ class StoreService extends OrgAction
     public function rules(): array
     {
         return [
-            'status'      => ['required', 'boolean'],
-            'state'       => ['required', Rule::enum(ServiceStateEnum::class)],
-            'data'        => ['sometimes', 'array'],
-            'created_at'  => ['sometimes', 'date'],
-            'source_id'   => ['sometimes','string','max:63']
+            'status'                  => ['required', 'boolean'],
+            'state'                   => ['required', Rule::enum(ServiceStateEnum::class)],
+            'data'                    => ['sometimes', 'array'],
+            'created_at'              => ['sometimes', 'date'],
+            'source_id'               => ['sometimes','string','max:63'],
+            'auto_assign_action'      => ['nullable', 'string', 'in:Pallet,StoredItem'],
+            'auto_assign_action_type' => ['nullable', 'string', 'in:pallet,box,oversize'],
+
+            'price'                  => ['required', 'numeric', 'min:0'],
+            'unit'                   => ['sometimes','nullable', 'string'],
         ];
 
     }

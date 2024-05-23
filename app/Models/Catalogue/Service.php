@@ -25,6 +25,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $shop_id
  * @property int|null $product_id
  * @property int $number_historic_outerables
+ * @property string|null $auto_assign_action Used for auto assign this service to a action
+ * @property string|null $auto_assign_action_type Used for auto assign this service to an action type
+ * @property string|null $price
+ * @property string|null $unit
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

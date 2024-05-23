@@ -45,6 +45,7 @@ class StoreUser extends GrpAction
         $user->refresh();
         SetUserAvatar::dispatch(userable: $user, saveHistory: false);
         UserHydrateUniversalSearch::dispatch($user);
+
         GroupHydrateUsers::dispatch($user->group);
 
         if($parent instanceof Employee or  $parent instanceof Guest) {
