@@ -50,16 +50,7 @@ enum ServiceStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'discontinuing' => [
-                'tooltip' => __('Discontinuing'),
-                'icon'    => 'fal fa-exclamation-triangle',
-                'class'   => 'text-orange-500',
-                'color'   => 'orange',
-                'app'     => [
-                    'name' => 'exclamation-triangle',
-                    'type' => 'font-awesome-5'
-                ]
-            ],
+
             'discontinued' => [
                 'tooltip' => __('Discontinued'),
                 'icon'    => 'fal fa-times',

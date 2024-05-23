@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 08 Apr 2024 09:52:43 Central Indonesia Time, Bali Office , Indonesia
+ * Created: Thu, 23 May 2024 09:45:43 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -10,7 +10,7 @@ namespace App\Enums\Catalogue\Outer;
 use App\Enums\EnumHelperTrait;
 use App\Models\Catalogue\Shop;
 
-enum OuterStateEnum: string
+enum PhysicalGoodStateEnum: string
 {
     use EnumHelperTrait;
 

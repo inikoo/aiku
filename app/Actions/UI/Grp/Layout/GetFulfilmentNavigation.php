@@ -55,9 +55,9 @@ class GetFulfilmentNavigation
                         [
                             'label'   => __('goods'),
                             'icon'    => ['fal', 'fa-cube'],
-                            'root'    => 'grp.org.fulfilments.show.products.goods.',
+                            'root'    => 'grp.org.fulfilments.show.products.outers.',
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.products.goods.index',
+                                'name'       => 'grp.org.fulfilments.show.products.outers.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ],
                         ],

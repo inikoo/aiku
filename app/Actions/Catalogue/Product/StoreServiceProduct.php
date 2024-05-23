@@ -59,15 +59,11 @@ class StoreServiceProduct extends OrgAction
         $product->salesIntervals()->create();
 
 
-        $price=Arr::get($modelData, 'price');
-        data_forget($modelData, 'price');
-        data_set($modelData, 'price', $price);
+        data_set($modelData, 'price', $product->main_outerable_price);
+        data_set($modelData, 'unit', $product->main_outerable_unit);
 
 
         StoreService::make()->action($product, $modelData);
-
-
-
 
         ShopHydrateProducts::dispatch($product->shop);
         OrganisationHydrateProducts::dispatch($product->organisation);

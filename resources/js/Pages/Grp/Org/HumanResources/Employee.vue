@@ -62,8 +62,7 @@ const props = defineProps<{
     job_positions?: Table
 
 }>()
-// console.log('xxstring',props.job_positions);
- 
+
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 
