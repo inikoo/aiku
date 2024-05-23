@@ -199,7 +199,7 @@ class IndexFulfilmentCustomers extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('customers'),
+                        'label' => __('Customers'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],

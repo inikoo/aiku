@@ -36,7 +36,6 @@ class IndexReturnedPalletsInWarehouse extends OrgAction
     private Warehouse|Location $parent;
 
 
-
     public function handle(Warehouse|Location $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -109,43 +108,29 @@ class IndexReturnedPalletsInWarehouse extends OrgAction
             }
 
 
-
-
             $emptyStateData = [
                 'icons' => ['fal fa-pallet'],
                 'title' => '',
-                'count' => match (class_basename($parent)) {
-                    'FulfilmentCustomer' => $parent->number_pallets,
-                    default              => $parent->stats->number_pallets
-                }
+                'count' => $parent->stats->number_pallets
             ];
 
-
-            if ($parent instanceof Fulfilment) {
-                $emptyStateData['description'] = __("There is not pallets in this fulfilment shop");
-            }
             if ($parent instanceof Warehouse) {
                 $emptyStateData['description'] = __("There isn't any fulfilment pallet in this warehouse");
-            }
-            if ($parent instanceof FulfilmentCustomer) {
-                $emptyStateData['description'] = __("This customer don't have any pallets");
+            } else {
+                $emptyStateData['description'] = __("This location don't have any pallets");
             }
 
-            if (!$parent instanceof PalletDelivery and !$parent instanceof PalletReturn) {
-                $table->withGlobalSearch();
-            }
+
+            $table->withGlobalSearch();
 
             $table->withEmptyState($emptyStateData)
                 ->withModelOperations($modelOperations);
 
-            $table->column(key: 'type_icon', label: ['fal', 'fa-yin-yang'], type: 'icon');
+            if ($parent instanceof Warehouse) {
+                $table->column(key: 'fulfilment_customer_name', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true);
+            }
 
-
-            $table->column(key: 'fulfilment_customer_name', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true);
-
-            $customersReferenceLabel = __("Pallet reference (customer's), notes");
-
-            $table->column(key: 'customer_reference', label: $customersReferenceLabel, canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'customer_reference', label: __("Pallet reference (customer's), notes"), canBeHidden: false, sortable: true, searchable: true);
 
 
             $table->defaultSort('reference');
@@ -159,7 +144,6 @@ class IndexReturnedPalletsInWarehouse extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $pallets, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'Org/Fulfilment/Pallets',
             [
@@ -199,9 +183,6 @@ class IndexReturnedPalletsInWarehouse extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-
-
-
         return match ($routeName) {
             'grp.org.warehouses.show.fulfilment.returned_pallets.index', 'grp.org.warehouses.show.fulfilment.returned_pallets.show' =>
             array_merge(
@@ -224,7 +205,6 @@ class IndexReturnedPalletsInWarehouse extends OrgAction
                     ]
                 ]
             ),
-
         };
     }
 }

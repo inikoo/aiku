@@ -144,6 +144,7 @@ class IndexPalletsInWarehouse extends OrgAction
                 }
             }
 
+            $table->withGlobalSearch();
 
             $emptyStateData = [
                 'icons' => ['fal fa-pallet'],
@@ -163,11 +164,6 @@ class IndexPalletsInWarehouse extends OrgAction
             $table->withEmptyState($emptyStateData)
                 ->withModelOperations($modelOperations);
 
-            if ($parent->state == PalletDeliveryStateEnum::IN_PROCESS) {
-                $table->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
-            } else {
-                $table->column(key: 'type_icon', label: ['fal', 'fa-yin-yang'], type: 'icon');
-            }
 
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
@@ -180,9 +176,9 @@ class IndexPalletsInWarehouse extends OrgAction
                 $table->column(key: 'location_code', label: __('Location'), canBeHidden: false, sortable: true, searchable: true);
             }
 
-            $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
 
-
+            $table->column(key: 'contents', label: __('Contents'), canBeHidden: false, searchable: true);
+            $table->column(key: 'actions', label: __('Actions'), canBeHidden: false, searchable: true);
             $table->defaultSort('reference');
         };
     }

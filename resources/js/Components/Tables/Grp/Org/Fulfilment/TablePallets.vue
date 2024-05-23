@@ -87,7 +87,7 @@ const  showCheckboxes= false
 
 <template>
   <!-- <pre>{{ props.data.data[0] }}</pre> -->
-  <Table :resource="data" :name="tab" class="mt-5" is-check-box="showCheckboxes">
+  <Table :resource="data" :name="tab" class="mt-5" >
     <!-- Column: Reference -->
     <template #cell(reference)="{ item: pallet }">
       <component :is="pallet.slug ? Link : 'div'" :href="pallet.slug ? palletRoute(pallet) : undefined" :class="pallet.slug ? 'primaryLink' : ''">

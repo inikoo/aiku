@@ -15,13 +15,10 @@ use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
-use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
-use App\Models\Fulfilment\PalletDelivery;
-use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -42,7 +39,7 @@ class IndexPallets extends OrgAction
 
     private bool $selectStoredPallets = false;
 
-    protected function getElementGroups(FulfilmentCustomer|Fulfilment|PalletDelivery $parent): array
+    protected function getElementGroups(FulfilmentCustomer|Fulfilment $parent): array
     {
         return [
             'status' => [
@@ -61,7 +58,7 @@ class IndexPallets extends OrgAction
         ];
     }
 
-    public function handle(FulfilmentCustomer|Fulfilment|PalletDelivery $parent, $prefix = null): LengthAwarePaginator
+    public function handle(FulfilmentCustomer|Fulfilment $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -140,7 +137,7 @@ class IndexPallets extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(FulfilmentCustomer|Fulfilment|PalletDelivery $parent, $prefix = null, $modelOperations = []): Closure
+    public function tableStructure(FulfilmentCustomer|Fulfilment $parent, $prefix = null, $modelOperations = []): Closure
     {
         return function (InertiaTable $table) use ($prefix, $modelOperations, $parent) {
             if ($prefix) {
@@ -149,14 +146,12 @@ class IndexPallets extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            if (!$parent instanceof PalletDelivery and !$parent instanceof PalletReturn) {
-                foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                    $table->elementGroup(
-                        key: $key,
-                        label: $elementGroup['label'],
-                        elements: $elementGroup['elements']
-                    );
-                }
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
             }
 
 
@@ -188,40 +183,15 @@ class IndexPallets extends OrgAction
                 $table->column(key: 'type_icon', label: ['fal', 'fa-yin-yang'], type: 'icon');
             }
 
-            if (!($parent instanceof PalletDelivery and $parent->state == PalletDeliveryStateEnum::IN_PROCESS)) {
-                $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
-            }
+            $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
+
 
             if ($parent instanceof Organisation || $parent instanceof Fulfilment) {
                 $table->column(key: 'fulfilment_customer_name', label: __('Customer'), canBeHidden: false, sortable: true, searchable: true);
             }
-
-            if (!($parent instanceof PalletDelivery and $parent->state == PalletDeliveryStateEnum::IN_PROCESS)) {
-                $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
-            }
-
-
-            $customersReferenceLabel = __("Pallet reference (customer's), notes");
-            if (
-                ($parent instanceof PalletDelivery and $parent->state == PalletDeliveryStateEnum::IN_PROCESS) or ($parent instanceof PalletReturn and $parent->state == PalletReturnStateEnum::IN_PROCESS)
-            ) {
-                $customersReferenceLabel = __('Customer Reference');
-            }
-
-
-            $table->column(key: 'customer_reference', label: $customersReferenceLabel, canBeHidden: false, sortable: true, searchable: true);
-
-
-            if (
-                ($parent instanceof PalletDelivery and $parent->state == PalletDeliveryStateEnum::IN_PROCESS) or ($parent instanceof PalletReturn and $parent->state == PalletReturnStateEnum::IN_PROCESS)
-            ) {
-                $table->column(key: 'notes', label: __('Notes'), canBeHidden: false, searchable: true);
-            }
-
-
-            //$table->column(key: 'location', label: __('Location'), canBeHidden: false, searchable: true);
-            //$table->column(key: 'rental', label: __('Rental'), canBeHidden: false, searchable: true);
-            //$table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
+            $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'customer_reference', label: __("Pallet reference (customer's), notes"), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'contents', label: __('Contents'), canBeHidden: false, searchable: true);
 
 
             $table->defaultSort('reference');
@@ -237,16 +207,14 @@ class IndexPallets extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $pallets, ActionRequest $request): Response
     {
+        $subNavigation = [];
 
-        $subNavigation=[];
-
-        if($this->parent instanceof  Fulfilment) {
+        if ($this->parent instanceof Fulfilment) {
             $stats = $this->parent->stats;
         } else {
-            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
-            $stats        = $this->parent;
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $stats         = $this->parent;
         }
-
 
 
         return Inertia::render(
@@ -258,13 +226,13 @@ class IndexPallets extends OrgAction
                 ),
                 'title'       => __('pallets'),
                 'pageHead'    => [
-                    'title'   => $this->parent instanceof  Fulfilment ? __('pallets') : __('customer pallets'),
-                    'icon'    => [
-                        'icon'  => ['fal', 'fa-pallet'],
+                    'title' => $this->parent instanceof Fulfilment ? __('pallets') : __('customer pallets'),
+                    'icon'  => [
+                        'icon' => ['fal', 'fa-pallet'],
                     ],
 
-                    'subNavigation'=> $subNavigation,
-                    'actions'      => [
+                    'subNavigation' => $subNavigation,
+                    'actions'       => [
                         [
                             'type'  => 'button',
                             'style' => 'create',
@@ -335,11 +303,10 @@ class IndexPallets extends OrgAction
     }
 
 
-
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return match($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show.pallets.index'=>
+        return match ($routeName) {
+            'grp.org.fulfilments.show.crm.customers.show.pallets.index' =>
             array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
                 [
@@ -357,7 +324,7 @@ class IndexPallets extends OrgAction
                     ]
                 ]
             ),
-            default=> array_merge(
+            default => array_merge(
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                 [
                     [
@@ -370,7 +337,7 @@ class IndexPallets extends OrgAction
                                     'fulfilment'   => $routeParameters['fulfilment'],
                                 ]
                             ],
-                            'label' => __('pallets'),
+                            'label' => __('Pallets'),
                             'icon'  => 'fal fa-bars',
                         ],
 
@@ -378,7 +345,5 @@ class IndexPallets extends OrgAction
                 ]
             )
         };
-
-
     }
 }

@@ -7,16 +7,9 @@
 
 namespace App\Actions\Fulfilment\FulfilmentCustomer;
 
-use App\Actions\Accounting\Invoice\UI\IndexInvoices;
-use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\UI\GetFulfilmentCustomerShowcase;
-use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
-use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
-use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
-use App\Actions\Fulfilment\RecurringBill\UI\IndexRecurringBills;
 use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItems;
-use App\Actions\Fulfilment\StoredItemReturn\UI\IndexStoredItemReturns;
 use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
 use App\Actions\Helpers\History\IndexHistory;
@@ -25,17 +18,8 @@ use App\Actions\Traits\WithWebUserMeta;
 use App\Enums\Fulfilment\FulfilmentCustomer\FulfilmentCustomerStatus;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\UI\Fulfilment\FulfilmentCustomerTabsEnum;
-use App\Http\Resources\Accounting\InvoicesResource;
 use App\Http\Resources\CRM\CustomersResource;
-use App\Http\Resources\CRM\WebUsersResource;
-use App\Http\Resources\Fulfilment\RecurringBillsResource;
-use App\Http\Resources\Fulfilment\PalletDeliveriesResource;
-use App\Http\Resources\Fulfilment\PalletReturnsResource;
-use App\Http\Resources\Fulfilment\PalletsResource;
-use App\Http\Resources\Fulfilment\StoredItemResource;
-use App\Http\Resources\Fulfilment\StoredItemReturnsResource;
 use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\Inventory\WarehouseResource;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -198,66 +182,6 @@ class ShowFulfilmentCustomer extends OrgAction
                     fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)
                     : Inertia::lazy(fn () => GetFulfilmentCustomerShowcase::run($fulfilmentCustomer, $request)),
 
-/*
-                FulfilmentCustomerTabsEnum::PALLETS->value => $this->tab == FulfilmentCustomerTabsEnum::PALLETS->value ?
-                    fn () => PalletsResource::collection(IndexPallets::run($fulfilmentCustomer, 'pallets'))
-                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($fulfilmentCustomer, 'pallets'))),
-
-                FulfilmentCustomerTabsEnum::STORED_ITEMS->value => $this->tab == FulfilmentCustomerTabsEnum::STORED_ITEMS->value ?
-                    fn () => StoredItemResource::collection(
-                        IndexStoredItems::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::STORED_ITEMS->value)
-                    )
-                    : Inertia::lazy(
-                        fn () => StoredItemResource::collection(
-                            IndexStoredItems::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::STORED_ITEMS->value)
-                        )
-                    ),
-
-                FulfilmentCustomerTabsEnum::STORED_ITEM_RETURNS->value => $this->tab == FulfilmentCustomerTabsEnum::STORED_ITEM_RETURNS->value ?
-                    fn () => StoredItemReturnsResource::collection(IndexStoredItemReturns::run($fulfilmentCustomer))
-                    : Inertia::lazy(
-                        fn () => StoredItemReturnsResource::collection(IndexStoredItemReturns::run($fulfilmentCustomer))
-                    ),
-
-                FulfilmentCustomerTabsEnum::PALLET_DELIVERIES->value => $this->tab == FulfilmentCustomerTabsEnum::PALLET_DELIVERIES->value ?
-                    fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::PALLET_DELIVERIES->value))
-                    : Inertia::lazy(
-                        fn () => PalletDeliveriesResource::collection(IndexPalletDeliveries::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::PALLET_DELIVERIES->value))
-                    ),
-
-                FulfilmentCustomerTabsEnum::RECURRING_BILLS->value => $this->tab == FulfilmentCustomerTabsEnum::RECURRING_BILLS->value ?
-                    fn () => RecurringBillsResource::collection(IndexRecurringBills::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::RECURRING_BILLS->value))
-                    : Inertia::lazy(
-                        fn () => RecurringBillsResource::collection(IndexRecurringBills::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::RECURRING_BILLS->value))
-                    ),
-
-                FulfilmentCustomerTabsEnum::INVOICES->value => $this->tab == FulfilmentCustomerTabsEnum::INVOICES->value ?
-                    fn () => InvoicesResource::collection(IndexInvoices::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::INVOICES->value))
-                    : Inertia::lazy(
-                        fn () => InvoicesResource::collection(IndexInvoices::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::INVOICES->value))
-                    ),
-
-                FulfilmentCustomerTabsEnum::PALLET_RETURNS->value => $this->tab == FulfilmentCustomerTabsEnum::PALLET_RETURNS->value ?
-                    fn () => PalletReturnsResource::collection(
-                        IndexPalletReturns::run($fulfilmentCustomer, FulfilmentCustomerTabsEnum::PALLET_RETURNS->value)
-                    )
-                    : Inertia::lazy(
-                        fn () => PalletReturnsResource::collection(
-                            IndexPalletReturns::run(
-                                $fulfilmentCustomer,
-                                FulfilmentCustomerTabsEnum::PALLET_RETURNS->value
-                            )
-                        )
-                    ),
-
-
-
-                FulfilmentCustomerTabsEnum::WEB_USERS->value => $this->tab == FulfilmentCustomerTabsEnum::WEB_USERS->value ?
-                    fn () => WebUsersResource::collection(IndexWebUsers::run($fulfilmentCustomer->customer))
-                    : Inertia::lazy(
-                        fn () => WebUsersResource::collection(IndexWebUsers::run($fulfilmentCustomer->customer))
-                    ),
-*/
                 FulfilmentCustomerTabsEnum::HISTORY->value => $this->tab == FulfilmentCustomerTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($fulfilmentCustomer->customer))),
@@ -266,162 +190,6 @@ class ShowFulfilmentCustomer extends OrgAction
             ]
         )
             ->table(IndexStoredItems::make()->tableStructure($fulfilmentCustomer->storedItems))
-          /*
-            ->table(
-                IndexPalletDeliveries::make()->tableStructure(
-                    $fulfilmentCustomer,
-                    modelOperations: [
-                        'createLink' => [
-                            [
-                                'type'     => 'button',
-                                'style'    => 'create',
-                                'tooltip'  => __('Create new delivery order'),
-                                'label'    => __('New pallet delivery'),
-                                'disabled' => !$this->hasRentalAgreement($fulfilmentCustomer),
-                                'options'  => [
-                                    'warehouses' => WarehouseResource::collection(
-                                        $fulfilmentCustomer->fulfilment->warehouses
-                                    )
-                                ],
-                                'route' => [
-                                    'method'     => 'post',
-                                    'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
-                                    'parameters' => [$fulfilmentCustomer->id]
-                                ],
-                            ]
-                        ]
-                    ],
-                    prefix: FulfilmentCustomerTabsEnum::PALLET_DELIVERIES->value,
-                )
-            )
-            ->table(
-                IndexPalletReturns::make()->tableStructure(
-                    $fulfilmentCustomer,
-                    modelOperations: [
-                        'createLink' => [
-                            [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('Create new pallet return'),
-                                'label'   => __('Pallet return'),
-                                'route'   => [
-                                    'method'     => 'post',
-                                    'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
-                                    'parameters' => [$fulfilmentCustomer->id]
-                                ]
-                            ]
-                        ],
-                    ],
-                    prefix: FulfilmentCustomerTabsEnum::PALLET_RETURNS->value
-                )
-            )
-            ->table(
-                IndexPallets::make()->tableStructure(
-                    parent: $fulfilmentCustomer,
-                    prefix: FulfilmentCustomerTabsEnum::PALLETS->value,
-                    modelOperations: [
-                        'bulk' => [
-                            [
-                                'type'  => 'button',
-                                'label' => __('return'),
-                                'route' => [
-                                    'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
-                                    'parameters' => [
-                                        'fulfilmentCustomer'   => $fulfilmentCustomer->id
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                )
-            )
-            ->table(
-                IndexStoredItems::make()->tableStructure(
-                    parent: $fulfilmentCustomer->storedItems,
-                    prefix: FulfilmentCustomerTabsEnum::STORED_ITEMS->value
-                )
-            )
-            ->table(
-                IndexStoredItemReturns::make()->tableStructure(
-                    parent: $fulfilmentCustomer,
-                    modelOperations: [
-                        'createLink' => [
-                            [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('Return new stored item return'),
-                                'label'   => __('Stored Item Return'),
-                                'route'   => [
-                                    'method'     => 'post',
-                                    'name'       => 'grp.models.fulfilment-customer.stored-item-return.store',
-                                    'parameters' => [$fulfilmentCustomer->id]
-                                ]
-                            ]
-                        ],
-                    ],
-                    prefix: FulfilmentCustomerTabsEnum::STORED_ITEM_RETURNS->value,
-                )
-            )
-            ->table(
-                IndexPalletReturns::make()->tableStructure(
-                    $fulfilmentCustomer,
-                    modelOperations: [
-                        'createLink' => [
-                            [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('Create new pallet return'),
-                                'label'   => __('Pallet return'),
-                                'route'   => [
-                                    'method'     => 'post',
-                                    'name'       => 'grp.models.fulfilment-customer.pallet-return.store',
-                                    'parameters' => [$fulfilmentCustomer->id]
-                                ]
-                            ]
-                        ],
-                    ],
-                    prefix: FulfilmentCustomerTabsEnum::PALLET_RETURNS->value
-                )
-            )
-            ->table(
-                IndexWebUsers::make()->tableStructure(
-                    parent: $fulfilmentCustomer,
-                    modelOperations: [
-                        'createLink' => [
-                            [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('Create new web user'),
-                                'label'   => __('Create Web User'),
-                                'route'   => [
-                                    'method'     => 'get',
-                                    'name'       => 'grp.org.fulfilments.show.crm.customers.show.web-users.create',
-                                    'parameters' => [
-                                        $fulfilmentCustomer->organisation->slug,
-                                        $fulfilmentCustomer->fulfilment->slug,
-                                        $fulfilmentCustomer->customer->slug
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ],
-                    prefix: FulfilmentCustomerTabsEnum::WEB_USERS->value,
-                    canEdit: $this->canEdit
-                )
-            )
-            ->table(
-                IndexRecurringBills::make()->tableStructure(
-                    parent: $fulfilmentCustomer,
-                    prefix: FulfilmentCustomerTabsEnum::RECURRING_BILLS->value,
-                )
-            )
-            ->table(
-                IndexInvoices::make()->tableStructure(
-                    parent: $fulfilmentCustomer,
-                    prefix: FulfilmentCustomerTabsEnum::INVOICES->value,
-                )
-            )
-          */
             ->table(IndexHistory::make()->tableStructure(prefix: FulfilmentCustomerTabsEnum::HISTORY->value));
     }
 
@@ -441,7 +209,7 @@ class ShowFulfilmentCustomer extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('customers')
+                            'label' => __('Customers')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],

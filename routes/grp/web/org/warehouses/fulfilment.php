@@ -14,6 +14,8 @@ use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
 use App\Actions\Fulfilment\PalletReturn\UI\ShowPalletReturn;
+use App\Actions\Inventory\Location\UI\IndexFulfilmentLocations;
+use App\Actions\Inventory\Location\UI\ShowFulfilmentLocation;
 use App\Actions\UI\Fulfilment\ShowFulfilmentDashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -26,7 +28,21 @@ Route::get('lost-pallets', IndexDummies::class)->name('lost_pallets.index');
 Route::prefix('pallets')->as('pallets.')->group(function () {
     Route::get('', IndexPalletsInWarehouse::class)->name('index');
     Route::get('{pallet}', [ShowPallet::class, 'inWarehouse'])->name('show');
-    Route::get('/pallets/{pallet}/edit', [EditPallet::class, 'inWarehouse'])->name('edit');
+    Route::get('{pallet}/edit', [EditPallet::class, 'inWarehouse'])->name('edit');
+});
+
+Route::prefix('locations')->as('locations.')->group(function () {
+    Route::get('', IndexFulfilmentLocations::class)->name('index');
+    Route::get('{location}', ShowFulfilmentLocation::class)->name('show');
+
+    Route::prefix('{location}')->as('show.')->group(function () {
+        Route::prefix('pallets')->as('pallets.')->group(function () {
+            Route::get('', IndexPalletsInWarehouse::class)->name('index');
+            Route::get('{pallet}', [ShowPallet::class, 'inLocation'])->name('show');
+            Route::get('{pallet}/edit', [EditPallet::class, 'inLocation'])->name('edit');
+        });
+    });
+
 });
 
 
