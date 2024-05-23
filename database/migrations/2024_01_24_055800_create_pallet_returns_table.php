@@ -23,7 +23,7 @@ return new class () extends Migration {
         if(!Schema::hasTable('pallet_returns')) {
             Schema::create('pallet_returns', function (Blueprint $table) {
                 $table->increments('id');
-                $table = $this->delivery($table);
+                $table = $this->getPalletIOFields($table);
                 $table->string('state')->default(PalletReturnStateEnum::IN_PROCESS->value);
 
                 foreach (PalletReturnStateEnum::cases() as $state) {

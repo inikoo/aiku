@@ -45,7 +45,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $not_received_at
  * @property \Illuminate\Support\Carbon|null $booking_in_at
  * @property \Illuminate\Support\Carbon|null $booked_in_at
- * @property string|null $date
+ * @property \Illuminate\Support\Carbon|null $estimated_delivery_date
+ * @property \Illuminate\Support\Carbon|null $date
  * @property string|null $customer_notes
  * @property string|null $public_notes
  * @property string|null $internal_notes
@@ -79,16 +80,18 @@ class PalletDelivery extends Model
 
     protected $guarded = [];
     protected $casts   = [
-        'state'               => PalletDeliveryStateEnum::class,
-        'in_process_at'       => 'datetime',
-        'submitted_at'        => 'datetime',
-        'confirmed_at'        => 'datetime',
-        'received_at'         => 'datetime',
-        'not_received_at'     => 'datetime',
-        'booked_in_at'        => 'datetime',
-        'booking_in_at'       => 'datetime',
-        'dispatched_at'       => 'datetime',
-        'data'                => 'array'
+        'state'                   => PalletDeliveryStateEnum::class,
+        'in_process_at'           => 'datetime',
+        'submitted_at'            => 'datetime',
+        'confirmed_at'            => 'datetime',
+        'received_at'             => 'datetime',
+        'not_received_at'         => 'datetime',
+        'booked_in_at'            => 'datetime',
+        'booking_in_at'           => 'datetime',
+        'dispatched_at'           => 'datetime',
+        'date'                    => 'datetime',
+        'estimated_delivery_date' => 'datetime:Y-m-d',
+        'data'                    => 'array'
     ];
 
     public function getRouteKeyName(): string
@@ -118,6 +121,7 @@ class PalletDelivery extends Model
     {
         return $this->belongsTo(Organisation::class);
     }
+
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);

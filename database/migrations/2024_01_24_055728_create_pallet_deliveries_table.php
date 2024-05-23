@@ -22,17 +22,19 @@ return new class () extends Migration {
     {
         Schema::create('pallet_deliveries', function (Blueprint $table) {
             $table->increments('id');
-            $table = $this->delivery($table);
+            $table = $this->getPalletIOFields($table);
 
             $table->string('state')->default(PalletDeliveryStateEnum::IN_PROCESS->value);
 
             foreach (PalletDeliveryStateEnum::cases() as $state) {
                 $table->dateTimeTz("{$state->snake()}_at")->nullable();
             }
+            $table->date('estimated_delivery_date')->nullable();
             $table->dateTimeTz('date')->nullable();
             $table->text('customer_notes')->nullable();
             $table->text('public_notes')->nullable();
             $table->text('internal_notes')->nullable();
+
             $table->jsonb('data')->nullable();
             $table->timestampsTz();
             $this->softDeletes($table);

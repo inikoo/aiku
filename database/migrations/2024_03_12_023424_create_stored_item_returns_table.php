@@ -17,7 +17,7 @@ return new class () extends Migration {
     {
         Schema::create('stored_item_returns', function (Blueprint $table) {
             $table->increments('id');
-            $table = $this->delivery($table);
+            $table = $this->getPalletIOFields($table);
             $table->string('state')->default(StoredItemReturnStateEnum::IN_PROCESS->value);
 
             foreach (StoredItemReturnStateEnum::cases() as $state) {
