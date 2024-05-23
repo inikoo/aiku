@@ -33,13 +33,12 @@ class StorePhysicalGood extends OrgAction
 {
     use IsStoreProduct;
 
-    private ProductStateEnum|null $state=null;
+    private ProductStateEnum|null $state = null;
     private ProductCategory|Shop $parent;
 
     public function handle(Shop|ProductCategory $parent, array $modelData): Product
     {
-
-        $modelData=$this->setDataFromParent($parent, $modelData);
+        $modelData = $this->setDataFromParent($parent, $modelData);
 
         $tradeUnits = $modelData['trade_units'];
         data_forget($modelData, 'trade_units');
@@ -47,17 +46,14 @@ class StorePhysicalGood extends OrgAction
         data_set($modelData, 'unit_relationship_type', $this->getUnitRelationshipType($tradeUnits));
         data_set($modelData, 'outerable_type', 'Outer');
 
-        $price=Arr::get($modelData, 'price');
-        data_forget($modelData, 'price');
-
 
         /** @var Product $product */
         $product = $parent->products()->create($modelData);
         $product->stats()->create();
         $product->salesIntervals()->create();
 
-        foreach ($tradeUnits as $tradeUnitId=>$tradeUnitData) {
-            $tradeUnit=TradeUnit::find($tradeUnitId);
+        foreach ($tradeUnits as $tradeUnitId => $tradeUnitData) {
+            $tradeUnit = TradeUnit::find($tradeUnitId);
             $product->tradeUnits()->attach(
                 $tradeUnit,
                 [
@@ -65,20 +61,19 @@ class StorePhysicalGood extends OrgAction
                     'notes'                => Arr::get($tradeUnitData, 'notes'),
                 ]
             );
-
-
         }
 
-        $outer=StoreOuter::run(
+        $outer = StoreOuter::run(
             product: $product,
             modelData: [
-                'code'              => $product->code,
-                'price'             => $price,
-                'name'              => $product->name,
-                'is_main'           => true,
-                'main_outer_ratio'  => 1,
-                'source_id'         => $product->source_id,
-                'historic_source_id'=> $product->historic_source_id
+                'code'               => $product->code,
+                'price'              => $product->main_outerable_price,
+                'unit'               => $product->main_outerable_unit,
+                'name'               => $product->name,
+                'is_main'            => true,
+                'main_outer_ratio'   => 1,
+                'source_id'          => $product->source_id,
+                'historic_source_id' => $product->historic_source_id
             ]
         );
 
@@ -101,25 +96,23 @@ class StorePhysicalGood extends OrgAction
 
     public function getUnitRelationshipType(array $tradeUnits): ?ProductUnitRelationshipType
     {
-        if(count($tradeUnits)==1) {
+        if (count($tradeUnits) == 1) {
             return ProductUnitRelationshipType::SINGLE;
-        } elseif(count($tradeUnits)>1) {
+        } elseif (count($tradeUnits) > 1) {
             return ProductUnitRelationshipType::MULTIPLE;
         }
-        return null;
 
+        return null;
     }
 
     public function rules(): array
     {
-
-
-        if($this->state==ProductStateEnum::DISCONTINUED or !$this->strict) {
-            $tradeUnitRules=[
-                'trade_units' => ['sometimes','nullable', 'array'],
+        if ($this->state == ProductStateEnum::DISCONTINUED or !$this->strict) {
+            $tradeUnitRules = [
+                'trade_units' => ['sometimes', 'nullable', 'array'],
             ];
         } else {
-            $tradeUnitRules=[
+            $tradeUnitRules = [
                 'trade_units' => ['required', 'array'],
             ];
         }
@@ -133,7 +126,6 @@ class StorePhysicalGood extends OrgAction
 
             ]
         );
-
     }
 
     public function prepareForValidation(ActionRequest $request): void
@@ -141,12 +133,10 @@ class StorePhysicalGood extends OrgAction
         $this->set('type', ProductTypeEnum::PHYSICAL_GOOD);
         $this->prepareProductForValidation();
 
-        if(!$this->has('state')) {
+        if (!$this->has('state')) {
             $this->set('state', ProductStateEnum::IN_PROCESS);
         }
-
     }
-
 
 
     public function inShop(Shop $shop, ActionRequest $request): RedirectResponse

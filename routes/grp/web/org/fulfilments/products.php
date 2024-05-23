@@ -7,6 +7,7 @@
 
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentProducts;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentRentals;
+use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
 use App\Actions\Fulfilment\Rental\UI\CreateRental;
 use App\Actions\Catalogue\Product\UI\ShowProduct;
 
