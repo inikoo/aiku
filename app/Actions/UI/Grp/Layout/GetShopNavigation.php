@@ -185,7 +185,7 @@ class GetShopNavigation
             $navigation["marketing"] = [
                 "root"  => "grp.org.shops.show.marketing.",
                 "icon"  => ["fal", "fa-bullhorn"],
-                "label" => __("Deals"),
+                "label" => __("Marketing"),
                 "route" => [
                     "name"       => 'grp.org.shops.show.marketing.dashboard',
                     "parameters" => [$shop->organisation->slug, $shop->slug],
