@@ -13,6 +13,7 @@ use App\Enums\Dispatch\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
 use App\Models\Catalogue\Shop;
+use App\Models\Inventory\Warehouse;
 use App\Models\Ordering\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -42,6 +44,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
+ * @property int $warehouse_id
  * @property int $shop_id
  * @property int $customer_id
  * @property string $number
@@ -82,6 +85,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Shop $shop
  * @property-read \App\Models\Dispatch\DeliveryNoteStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
+ * @property-read Warehouse $warehouse
  * @method static \Database\Factories\Dispatch\DeliveryNoteFactory factory($count = null, $state = [])
  * @method static Builder|DeliveryNote newModelQuery()
  * @method static Builder|DeliveryNote newQuery()
@@ -155,5 +159,10 @@ class DeliveryNote extends Model
     public function shipments(): BelongsToMany
     {
         return $this->belongsToMany(Shipment::class);
+    }
+
+    public function warehouse(): BelongsTo
+    {
+        return $this->belongsTo(Warehouse::class);
     }
 }

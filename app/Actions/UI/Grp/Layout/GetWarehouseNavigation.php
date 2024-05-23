@@ -20,6 +20,45 @@ class GetWarehouseNavigation
         $navigation = [];
 
 
+        if ($user->hasPermissionTo("dispatching.$warehouse->id.view")) {
+            $navigation["dispatching"] = [
+                "root"    => "grp.org.warehouses.show.dispatching.",
+                "label"   => __("dispatching"),
+                "icon"    => ["fal", "fa-conveyor-belt-alt"],
+                "route"   => [
+                    "name"       => "grp.org.warehouses.show.dispatching.backlog",
+                    "parameters" => [
+                        $warehouse->organisation->slug,
+                        $warehouse->slug
+                    ],
+                ],
+                "topMenu" => [
+                    'subSections' => [
+                        [
+                            'icon'  => ['fal', 'fa-tasks-alt'],
+                            'route' => [
+                                "name"       => "grp.org.warehouses.show.dispatching.backlog",
+                                "parameters" => [
+                                    $warehouse->organisation->slug,
+                                    $warehouse->slug
+                                ],
+                            ]
+                        ],
+                        [
+                            'label' => __('delivery notes'),
+                            'icon'  => ['fal', 'fa-truck'],
+                            'route' => [
+                                "name"       => "grp.org.warehouses.show.dispatching.delivery-notes",
+                                "parameters" => [
+                                    $warehouse->organisation->slug,
+                                    $warehouse->slug
+                                ],
+                            ]
+                        ],
+                    ]
+                ],
+            ];
+        }
 
 
         if ($user->hasPermissionTo("inventory.$warehouse->id.view")) {

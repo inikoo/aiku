@@ -22,6 +22,9 @@ Route::prefix('{warehouse}')
             ->group(function () {
 
 
+                Route::prefix('dispatching')->name('.dispatching.')
+                    ->group(__DIR__."/dispatching.php");
+
                 Route::name('.infrastructure.')
                     ->group(__DIR__."/infrastructure.php");
 

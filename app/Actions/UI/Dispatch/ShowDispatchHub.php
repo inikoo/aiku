@@ -70,7 +70,7 @@ class ShowDispatchHub extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.dispatch.backlog',
+                            'name'       => 'grp.org.warehouses.show.dispatching.backlog',
                             'parameters' => $routeParameters
                         ],
                         'label' => __('dispatch'),

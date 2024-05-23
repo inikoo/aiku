@@ -47,9 +47,6 @@ Route::prefix("reports")
     ->name("reports.")
     ->group(__DIR__."/reports.php");
 
-Route::prefix("dispatch")
-    ->name("dispatch.")
-    ->group(__DIR__ . "/dispatch.php");
 
 
 /*

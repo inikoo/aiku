@@ -25,27 +25,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_invoices
  * @property int $number_invoices_type_invoice
  * @property int $number_invoices_type_refund
- * @property int $number_deliveries
- * @property int $number_deliveries_type_order
- * @property int $number_deliveries_type_replacement
- * @property int $number_deliveries_state_submitted
- * @property int $number_deliveries_state_in_queue
- * @property int $number_deliveries_state_picker_assigned
- * @property int $number_deliveries_state_picking
- * @property int $number_deliveries_state_picked
- * @property int $number_deliveries_state_packing
- * @property int $number_deliveries_state_packed
- * @property int $number_deliveries_state_finalised
- * @property int $number_deliveries_state_settled
- * @property int $number_deliveries_cancelled_at_state_submitted
- * @property int $number_deliveries_cancelled_at_state_in_queue
- * @property int $number_deliveries_cancelled_at_state_picker_assigned
- * @property int $number_deliveries_cancelled_at_state_picking
- * @property int $number_deliveries_cancelled_at_state_picked
- * @property int $number_deliveries_cancelled_at_state_packing
- * @property int $number_deliveries_cancelled_at_state_packed
- * @property int $number_deliveries_cancelled_at_state_finalised
- * @property int $number_deliveries_cancelled_at_state_settled
+ * @property int $number_delivery_notes
+ * @property int $number_delivery_notes_type_order
+ * @property int $number_delivery_notes_type_replacement
+ * @property int $number_delivery_notes_state_submitted
+ * @property int $number_delivery_notes_state_in_queue
+ * @property int $number_delivery_notes_state_picker_assigned
+ * @property int $number_delivery_notes_state_picking
+ * @property int $number_delivery_notes_state_picked
+ * @property int $number_delivery_notes_state_packing
+ * @property int $number_delivery_notes_state_packed
+ * @property int $number_delivery_notes_state_finalised
+ * @property int $number_delivery_notes_state_settled
+ * @property int $number_delivery_notes_cancelled_at_state_submitted
+ * @property int $number_delivery_notes_cancelled_at_state_in_queue
+ * @property int $number_delivery_notes_cancelled_at_state_picker_assigned
+ * @property int $number_delivery_notes_cancelled_at_state_picking
+ * @property int $number_delivery_notes_cancelled_at_state_picked
+ * @property int $number_delivery_notes_cancelled_at_state_packing
+ * @property int $number_delivery_notes_cancelled_at_state_packed
+ * @property int $number_delivery_notes_cancelled_at_state_finalised
+ * @property int $number_delivery_notes_cancelled_at_state_settled
  * @property int|null $currency_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

@@ -22,8 +22,6 @@ return new class () extends Migration {
             $table->string('slug')->unique()->collation('und_ns');
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
-
-
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
 

@@ -23,6 +23,7 @@ class FetchAuroraDeliveryNote extends FetchAurora
         }
 
         $this->parsedData["order"] = $this->parseOrder($this->organisation->id.':'.$this->auroraModelData->{'Delivery Note Order Key'});
+        $warehouse                 = $this->parseWarehouse($this->organisation->id.':'.$this->auroraModelData->{'Delivery Note Warehouse Key'});
 
 
         if (!$this->parsedData["order"]) {
@@ -116,6 +117,7 @@ class FetchAuroraDeliveryNote extends FetchAurora
             'email'            => $this->auroraModelData->{'Delivery Note Email'},
             'phone'            => $this->auroraModelData->{'Delivery Note Telephone'},
             'delivery_address' => $deliveryAddress,
+            'warehouse_id'     => $warehouse->id,
         ];
 
         if ($cancelled_at) {

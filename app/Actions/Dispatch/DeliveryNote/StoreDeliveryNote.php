@@ -17,9 +17,11 @@ use App\Models\Dispatch\DeliveryNote;
 use App\Models\Ordering\Order;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
+use Illuminate\Database\Query\Builder;
 
 class StoreDeliveryNote extends OrgAction
 {
@@ -82,6 +84,14 @@ class StoreDeliveryNote extends OrgAction
             'created_at'       => ['sometimes', 'date'],
             'cancelled_at'     => ['sometimes', 'date'],
             'source_id'        => ['sometimes', 'string'],
+            'warehouse_id'     => [
+                'required',
+                Rule::exists('staff')->where(function (Builder $query) {
+                    return $query->where('organisation_id', $this->organisation->id);
+                }),
+
+
+            ],
         ];
 
         if (!$this->strict) {

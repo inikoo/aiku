@@ -28,6 +28,27 @@ use Illuminate\Support\Carbon;
  * @property int $number_locations_allow_fulfilment
  * @property int $number_locations_allow_dropshipping
  * @property string $stock_value
+ * @property int $number_delivery_notes
+ * @property int $number_delivery_notes_type_order
+ * @property int $number_delivery_notes_type_replacement
+ * @property int $number_delivery_notes_state_submitted
+ * @property int $number_delivery_notes_state_in_queue
+ * @property int $number_delivery_notes_state_picker_assigned
+ * @property int $number_delivery_notes_state_picking
+ * @property int $number_delivery_notes_state_picked
+ * @property int $number_delivery_notes_state_packing
+ * @property int $number_delivery_notes_state_packed
+ * @property int $number_delivery_notes_state_finalised
+ * @property int $number_delivery_notes_state_settled
+ * @property int $number_delivery_notes_cancelled_at_state_submitted
+ * @property int $number_delivery_notes_cancelled_at_state_in_queue
+ * @property int $number_delivery_notes_cancelled_at_state_picker_assigned
+ * @property int $number_delivery_notes_cancelled_at_state_picking
+ * @property int $number_delivery_notes_cancelled_at_state_picked
+ * @property int $number_delivery_notes_cancelled_at_state_packing
+ * @property int $number_delivery_notes_cancelled_at_state_packed
+ * @property int $number_delivery_notes_cancelled_at_state_finalised
+ * @property int $number_delivery_notes_cancelled_at_state_settled
  * @property int $number_fulfilments
  * @property int $number_customers_interest_pallets_storage
  * @property int $number_customers_interest_items_storage

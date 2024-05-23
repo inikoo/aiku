@@ -7,31 +7,32 @@
 
 namespace App\Actions\Dispatch\DeliveryNote;
 
-use App\Actions\InertiaAction;
-use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\OrgAction;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Catalogue\Shop;
+use App\Models\Inventory\Warehouse;
+use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 use Inertia\Response;
 
-class IndexDeliveryNotes extends InertiaAction
+class IndexDeliveryNotes extends OrgAction
 {
-    public function handle($parent, $prefix = null): LengthAwarePaginator
+    private Warehouse|Shop|Order $parent;
+
+    public function handle(Warehouse|Shop|Order $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('delivery_notes.date', '~*', "\y$value\y")
-                    ->orWhere('delivery_notes.number', '=', $value);
+                $query->whereStartsWith('delivery_notes.number', $value);
             });
         });
 
@@ -39,30 +40,25 @@ class IndexDeliveryNotes extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(DeliveryNote::class)
-            ->defaultSort('delivery_notes.number')
+        $query = QueryBuilder::for(DeliveryNote::class);
+
+        if ($parent instanceof Warehouse) {
+            $query->where('delivery_notes.warehouse_id', $parent->id);
+        }
+
+
+        return $query->defaultSort('delivery_notes.number')
             ->select(['delivery_notes.number', 'delivery_notes.date', 'delivery_notes.state', 'delivery_notes.created_at', 'delivery_notes.updated_at', 'delivery_notes.slug', 'shops.slug as shop_slug'])
             ->leftJoin('delivery_note_stats', 'delivery_notes.id', 'delivery_note_stats.delivery_note_id')
             ->leftJoin('shops', 'delivery_notes.shop_id', 'shops.id')
-            ->when($parent, function ($query) use ($parent) {
-                if (class_basename($parent) == 'Shop') {
-                    $query->where('delivery_notes.shop_id', $parent->id);
-                } elseif (class_basename($parent) == 'Order') {
-                    $query->leftJoin(
-                        'delivery_noteables',
-                        function ($leftJoin) {
-                            $leftJoin->on('delivery_noteables.delivery_note_id', 'delivery_notes.id');
-                            $leftJoin->on(DB::raw('delivery_noteables.delivery_noteable_type'), DB::raw("'Order'"));
-                        }
-                    );
-                    $query->where('delivery_noteables.delivery_noteable_id', $parent->id);
-                }
-            })
             ->allowedSorts(['number', 'date'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
+
+
     }
+
 
     public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
     {
@@ -80,11 +76,7 @@ class IndexDeliveryNotes extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('shops.products.view')
-            );
+        return $request->user()->hasPermissionTo("dispatching.{$this->warehouse->id}.view");
     }
 
 
@@ -96,40 +88,48 @@ class IndexDeliveryNotes extends InertiaAction
 
     public function htmlResponse(LengthAwarePaginator $delivery_notes, ActionRequest $request): Response
     {
-        $parent = $request->route()->originalParameters()() == [] ? app('currentTenant') : last($request->route()->originalParameters()());
         return Inertia::render(
             'Org/Dispatching/DeliveryNotes',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(
+                'breadcrumbs'    => $this->getBreadcrumbs(
                     $request->route()->getName(),
-                    $parent
+                    $request->route()->originalParameters(),
                 ),
-                'title'       => __('delivery notes'),
-                'pageHead'    => [
+                'title'          => __('delivery notes'),
+                'pageHead'       => [
                     'title' => __('delivery notes'),
                 ],
                 'delivery_notes' => DeliveryNoteResource::collection($delivery_notes),
 
 
             ]
-        )->table($this->tableStructure($parent));
+        )->table($this->tableStructure($this->parent));
     }
 
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $warehouse;
+        $this->initialisationFromWarehouse($warehouse, $request);
 
-        $this->initialisation($request);
-        return $this->handle(app('currentTenant'));
+        return $this->handle($warehouse);
     }
 
-    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisation($request);
+        $this->initialisationFromShop($shop, $request);
+
         return $this->handle($shop);
     }
 
-    public function getBreadcrumbs(string $routeName, Shop|Organisation $parent): array
+    public function inOrder(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle($shop);
+    }
+
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
@@ -144,14 +144,6 @@ class IndexDeliveryNotes extends InertiaAction
         };
 
         return match ($routeName) {
-            'delivery-notes.index'            => $headCrumb(),
-            'shops.show.delivery-notes.index' =>
-            array_merge(
-                (new ShowShop())->getBreadcrumbs([
-                    'shop' => $parent
-                ]),
-                $headCrumb([$parent->slug])
-            ),
             default => []
         };
     }
