@@ -16,7 +16,6 @@ import { ref } from "vue";
 import type { Meta, Links } from "@/types/Table";
 import { Pallet } from "@/types/Pallet";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import pallet from "@/Pages/Grp/Org/Fulfilment/Pallet.vue";
 
 library.add(faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp,
   faStickyNote

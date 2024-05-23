@@ -28,7 +28,7 @@ library.add(faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDou
 
 const isMovePallet = inject("isMovePallet", false);
 
-const props = defineProps<{
+defineProps<{
   data: {
     data: {}[]
     links: Links
@@ -44,16 +44,23 @@ function palletRoute(pallet: Pallet) {
   switch (route().current()) {
 
 
-
-    case "grp.org.warehouses.show.fulfilment.pallets.index":
+    case 'grp.org.warehouses.show.fulfilment.pallets.index':
       return route(
-        "grp.org.warehouses.show.fulfilment.pallets.show",
+        'grp.org.warehouses.show.fulfilment.pallets.show',
         [
           route().params["organisation"],
           route().params["warehouse"],
           pallet.slug
         ]);
-
+    case 'grp.org.warehouses.show.fulfilment.locations.show' :
+      return route(
+        'grp.org.warehouses.show.fulfilment.locations.show.pallets.show',
+        [
+          route().params["organisation"],
+          route().params["warehouse"],
+          route().params["location"],
+          pallet.slug
+        ]);
 
     default:
       return [];
