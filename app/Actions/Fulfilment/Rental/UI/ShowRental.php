@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
- namespace App\Actions\Fulfilment\Rental\UI;
+namespace App\Actions\Fulfilment\Rental\UI;
 
 use App\Actions\Catalogue\Product\UI\GetProductRental;
 use App\Actions\Catalogue\Product\UI\GetProductService;
@@ -23,7 +23,6 @@ use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Sales\OrderResource;
-use App\Models\Catalogue\Outer;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;

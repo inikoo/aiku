@@ -84,6 +84,14 @@ class ShowEmployee extends OrgAction
                             ]
                         ],
 
+                        [
+                            'label'    => Arr::get(explode(':', $employee->pin), 1),
+                            'leftIcon' => [
+                                'icon'    => 'fal fa-key',
+                                'tooltip' => __('Pin')
+                            ]
+                        ],
+
                         $employee->user ?
                             [
                                 'label'    => $employee->user->username,

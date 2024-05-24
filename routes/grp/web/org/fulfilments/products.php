@@ -36,4 +36,3 @@ Route::get('services/{service}', [ShowService::class, 'inFulfilment'])->name('se
 
 Route::get('physical-goods', IndexFulfilmentPhysicalGoods::class)->name('outers.index');
 Route::get('physical-goods/create', CreatePhysicalGoods::class)->name('outers.create');
-
