@@ -177,9 +177,9 @@ watch(() => props.data, (newValue) => {
     timeline.value = newValue.data
 }, { deep: true })
 
-watch(() => props.data?.data.estimated_delivery_date, (newValue) => {
+watch(() => props.data.data.estimated_delivery_date, (newValue) => {
     onChangeEstimateDate()
-}, { deep: true })
+}, { })
 
 onMounted(() => {
     JsBarcode('#palletDeliveryBarcode', 'pad-' + route().v().params.palletDelivery, {

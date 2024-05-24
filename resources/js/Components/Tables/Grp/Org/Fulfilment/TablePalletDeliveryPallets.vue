@@ -44,6 +44,7 @@ const props = defineProps<{
 }>()
 
 
+
 const emits = defineEmits<{
 	(e: 'renderTableKey'): void
 }>()
@@ -203,10 +204,12 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
                 :options="props.rentalList"
 				:data="pallet"
 				@onSave="onSavedRental" 
-				fieldType="selectQuery"
-				:urlRoute="route(rentalRoute?.name, rentalRoute?.parameters)" 
+				fieldType="select"
 				fieldName="rental_id"
-				placeholder="Enter rental" :label="'name'" :valueProp="'id'" />
+				placeholder="Enter rental" 
+				label="name"
+				value-prop="id"
+			 />
 		</template>
 
 

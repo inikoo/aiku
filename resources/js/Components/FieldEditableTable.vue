@@ -112,14 +112,16 @@ const onChange = (value : Any) => {
         </PureInput>
     </div>
 
-    <div v-else-if="fieldType == 'select'">
+    <div v-else-if="fieldType == 'select'" class="w-60 sm:w-24 md:w-24 lg:w-60 xl:w-60">
         <PureMultiselect
             :modelValue="pallet.form[fieldName]"
             :placeholder="placeholder"
             :options="options"
             @OnChange="onChange"
             :required="required"
-            :caret="true"
+            :label="label"
+            :valueProp="valueProp"
+            :mode="'single'"
         />
     </div>
 

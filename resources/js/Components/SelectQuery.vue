@@ -15,6 +15,7 @@ const props = withDefaults(defineProps<{
     // options?: string[] | object
     urlRoute: string
     placeholder?: string
+    required?: boolean
     mode?: "single" | "multiple" | "tags" | undefined
     searchable?: boolean
     label?: string
@@ -26,17 +27,26 @@ const props = withDefaults(defineProps<{
     onChange?: Function
     canClear?: boolean
     filterOptions? : Function
+    caret?: boolean
+    trackBy?: string
+    closeOnDeselect?: boolean
+    createOption?: boolean
+    onCreate?: any
+    isSelected?: Function
 }>(), {
+    required: false,
     placeholder: 'select',
     mode: 'single',
     searchable: true,
     valueProp: 'id',
     label: 'name',
+    caret: true,
     closeOnSelect: false,
     clearOnSearch: true,
     object: false,
     value: null,
     fieldName: '',
+    createOption: false,
     onChange: () => null,
     canClear: false
 
@@ -47,7 +57,7 @@ const emits = defineEmits<{
 }>()
 
 let timeoutId: any
-// const optionData = ref([])
+const optionData = ref([])
 const q = ref('')
 const page = ref(1)
 const loading = ref(false)
@@ -83,7 +93,7 @@ const getOptions = async () => {
 const onGetOptionsSuccess = (response) => {
     const newData = response?.data?.data ?? [];
     const updatedOptions = q.value && q.value !== '' ? [...newData] : page.value > 1 ? [...optionData.value, ...newData] : [...newData];
-    // optionData.value = props.filterOptions ? props.filterOptions(updatedOptions) : updatedOptions;
+    optionData.value = props.filterOptions ? props.filterOptions(updatedOptions) : updatedOptions;
     lastPage.value = response?.data?.meta?.last_page ?? lastPage.value;
 }
 
@@ -139,21 +149,21 @@ onUnmounted(() => {
 
 defineExpose({
     _multiselectRef,
-    // optionData
+    optionData
 })
 
 
 </script>
 
 <template>
-    <Multiselect ref="_multiselectRef" v-model="value[fieldName]" @update:modelValue="emits('updateVModel')"
-        :placeholder="props.placeholder" :label="props.label" :valueProp="props.valueProp"
+     <Multiselect ref="_multiselectRef" v-model="value[fieldName]" @update:modelValue="emits('updateVModel')"
+        :placeholder="props.placeholder" :trackBy="props.trackBy" :label="props.label" :valueProp="props.valueProp"
         :object="props.object" :clearOnSearch="props.clearOnSearch" :close-on-select="props.closeOnSelect"
-        :searchable="props.searchable" :canClear="props.canClear"
-        
-        :mode="props.mode"
+        :searchable="props.searchable" :caret="props.caret" :canClear="props.canClear" :options="optionData"
+        :mode="props.mode" :on-create="props.onCreate" :create-option="props.createOption"
+
         :noResultsText="loading ? 'loading...' : 'No Result'" @open="getOptions()" @search-change="SearchChange"
-        @change="props.onChange"
+        @change="props.onChange" :closeOnDeselect="closeOnDeselect" :isSelected="isSelected"
         >
         <template
             #tag="{ option, handleTagRemove, disabled }: { option: tag, handleTagRemove: Function, disabled: boolean }">
