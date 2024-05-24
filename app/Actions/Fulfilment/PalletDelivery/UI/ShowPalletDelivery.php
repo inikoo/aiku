@@ -390,6 +390,15 @@ class ShowPalletDelivery extends OrgAction
                         'field'           => 'internal_notes'
                     ],
                 ],
+                'date_data'             => [
+                    [
+                        'label'           => __('Estimated Delivery Date'),
+                        'note'            => $palletDelivery->estimated_delivery_date ?? '',
+                        'editable'        => false,
+                        'bgColor'         => 'blue',
+                        'field'           => 'estimated_delivery_date'
+                    ]
+                    ],
 
 
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
