@@ -5,9 +5,8 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
- namespace App\Actions\Catalogue\Service\UI;
+namespace App\Actions\Catalogue\Service\UI;
 
-use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Service;
 use Lorisleiva\Actions\Concerns\AsObject;
 

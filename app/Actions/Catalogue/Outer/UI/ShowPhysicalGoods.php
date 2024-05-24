@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Fulfilment\Rental\UI;
+namespace App\Actions\Catalogue\Outer\UI;
 
 use App\Actions\Catalogue\Product\UI\GetProductRental;
 use App\Actions\Catalogue\Product\UI\GetProductService;
@@ -23,6 +23,7 @@ use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Sales\OrderResource;
+use App\Models\Catalogue\Outer;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;
@@ -34,7 +35,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowRental extends OrgAction
+class ShowPhysicalGoods extends OrgAction
 {
     private Organisation|Shop|Fulfilment|ProductCategory $parent;
 
@@ -84,11 +85,11 @@ class ShowRental extends OrgAction
         return $this->handle($product);
     }
 
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Rental $rental, ActionRequest $request): Product
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Outer $outer, ActionRequest $request): Product
     {
         $this->parent= $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(ProductTabsEnum::values());
-        return $this->handle($rental->product);
+        return $this->handle($outer->product);
     }
 
     public function htmlResponse(Product $product, ActionRequest $request): Response
@@ -206,7 +207,7 @@ class ShowRental extends OrgAction
             ];
         };
 
-        $rental = Rental::where('id', $routeParameters['rental'])->first();
+        $outer = Outer::where('slug', $routeParameters['outer'])->first();
 
         return match ($routeName) {
             'shops.products.show' =>
@@ -231,7 +232,7 @@ class ShowRental extends OrgAction
             array_merge(
                 ShowCatalogue::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
-                    $rental,
+                    $outer,
                     [
                         'index' => [
                             'name'       => 'grp.org.shops.show.catalogue.products.index',
@@ -249,7 +250,7 @@ class ShowRental extends OrgAction
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
-                    $rental,
+                    $outer,
                     [
                         'index' => [
                             'name'       => 'grp.org.fulfilments.show.products.index',

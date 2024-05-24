@@ -7,7 +7,23 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import {library} from '@fortawesome/fontawesome-svg-core';
-import { faEnvelope, faIdCard, faPhone, faSignature, faUser, faBirthdayCake, faVenusMars, faHashtag, faHeading, faHospitalUser, faClock, faPaperclip, faTimes, faCameraRetro} from '@fal';
+import {
+    faEnvelope,
+    faIdCard,
+    faPhone,
+    faSignature,
+    faUser,
+    faBirthdayCake,
+    faVenusMars,
+    faHashtag,
+    faHeading,
+    faHospitalUser,
+    faClock,
+    faPaperclip,
+    faTimes,
+    faCameraRetro,
+    faKey
+} from '@fal';
 import {faCheckCircle} from '@fas';
 import { router } from '@inertiajs/vue3'
 import { capitalize } from "@/Composables/capitalize"
@@ -40,7 +56,8 @@ library.add(
     faClock,
     faPaperclip,
     faTimes,
-    faCameraRetro
+    faCameraRetro,
+    faKey
 )
 
 const createEmployeeUser = () =>{
