@@ -390,9 +390,9 @@ class ShowPalletDelivery extends OrgAction
                         'field'           => 'internal_notes'
                     ],
                 ],
-                'rental_list' => RentalsResource::collection(
-                    IndexFulfilmentRentals::run($palletDelivery->fulfilment, 'rentals')
-                )->toArray($request),
+                'rental_list' => in_array($palletDelivery->fulfilment->status, [PalletDeliveryStateEnum::BOOKING_IN->value, PalletDeliveryStateEnum::BOOKED_IN->value]) ?
+                RentalsResource::collection(IndexFulfilmentRentals::run($palletDelivery->fulfilment, 'rentals'))->toArray($request)
+                : null,
 
 
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
