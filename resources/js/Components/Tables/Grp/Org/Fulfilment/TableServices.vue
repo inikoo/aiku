@@ -17,28 +17,20 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 library.add(faRobot)
 
 
-defineProps<{
+const props = defineProps<{
     data: object
     tab?: string,
 }>()
 
-
-function serviceRoute(product: Product) {
+console.log(props.data)
+function serviceRoute(service: {}) {
     console.log(route().current())
     switch (route().current()) {
 
-        case "grp.org.shops.show.catalogue.products.index":
+        case "grp.org.fulfilments.show.products.services.index":
             return route(
-                'grp.org.shops.show.catalogue.products.show',
-                [route().params['organisation'], route().params['shop'], product.slug])
-        case 'grp.org.shops.index':
-            return route(
-                'grp.org.shops.show.catalogue.products.show',
-                [route().params['organisation'], product.shop_slug, product.slug])
-        case 'grp.org.fulfilments.show.products.index':
-            return route(
-                'grp.org.fulfilments.show.products.show',
-                [route().params['organisation'], route().params['fulfilment'], product.slug])
+                'grp.org.fulfilments.show.products.services.show',
+                [route().params['organisation'], route().params['fulfilment'], service.id])
         default:
             return null
     }
@@ -47,7 +39,7 @@ function serviceRoute(product: Product) {
 
 </script>
 
-<template>
+<template>{{ data.data[10] }}
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Code -->
         <template #cell(code)="{ item: service }">
