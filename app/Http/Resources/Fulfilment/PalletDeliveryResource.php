@@ -40,14 +40,14 @@ class PalletDeliveryResource extends JsonResource
         // dd(PalletDeliveryStateEnum::stateIcon()[$palletDelivery->state->value]);
 
         return [
-            'id'               => $palletDelivery->id,
-            'customer_name'    => $palletDelivery->fulfilmentCustomer->customer->name,
-            'reference'        => $palletDelivery->reference,
-            'state'            => $palletDelivery->state->value,
-            'timeline'         => $finalTimeline,
-            'number_pallets'   => $palletDelivery->number_pallets,
-            'state_label'      => $palletDelivery->state->labels()[$palletDelivery->state->value],
-            'state_icon'       => $palletDelivery->state->stateIcon()[$palletDelivery->state->value],
+            'id'                      => $palletDelivery->id,
+            'customer_name'           => $palletDelivery->fulfilmentCustomer->customer->name,
+            'reference'               => $palletDelivery->reference,
+            'state'                   => $palletDelivery->state->value,
+            'timeline'                => $finalTimeline,
+            'number_pallets'          => $palletDelivery->number_pallets,
+            'state_label'             => $palletDelivery->state->labels()[$palletDelivery->state->value],
+            'state_icon'              => $palletDelivery->state->stateIcon()[$palletDelivery->state->value],
             'estimated_delivery_date' => $palletDelivery->estimated_delivery_date
         ];
     }

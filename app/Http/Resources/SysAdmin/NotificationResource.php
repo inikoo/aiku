@@ -8,10 +8,23 @@
 namespace App\Http\Resources\SysAdmin;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Arr;
 
 /**
-* @property string $uuid
+* @property array $data
  */
 class NotificationResource extends JsonResource
 {
+    public function toArray($request): array
+    {
+        $data = $this->data;
+
+        return [
+            'title' => Arr::get($data, 'title'),
+            'body'  => Arr::get($data, 'body'),
+            'type'  => Arr::get($data, 'type'),
+            'slug'  => Arr::get($data, 'slug'),
+            'route' => Arr::get($data, 'route')
+        ];
+    }
 }
