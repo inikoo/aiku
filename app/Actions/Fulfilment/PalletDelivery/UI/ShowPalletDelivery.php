@@ -251,6 +251,12 @@ class ShowPalletDelivery extends OrgAction
 
         $palletLimitLeft = ($palletLimits - ($totalPallets + $numberStoredPallets));
 
+        $rentalList = null;
+
+        if (in_array($palletDelivery->state, [PalletDeliveryStateEnum::BOOKING_IN, PalletDeliveryStateEnum::BOOKED_IN])) {
+            $rentalList = RentalsResource::collection(IndexFulfilmentRentals::run($palletDelivery->fulfilment, 'rentals'))->toArray($request);
+        }
+
         return Inertia::render(
             'Org/Fulfilment/PalletDelivery',
             [
@@ -390,15 +396,15 @@ class ShowPalletDelivery extends OrgAction
                         'field'           => 'internal_notes'
                     ],
                 ],
+                'rental_list' => $rentalList,
+
 
 
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))),
 
-                'rentals' => RentalsResource::collection(
-                    IndexFulfilmentRentals::run($palletDelivery->fulfilment, 'rentals')
-                )
+                
             ]
         )->table(
             IndexPalletsInDelivery::make()->tableStructure(
