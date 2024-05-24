@@ -253,7 +253,7 @@ class ShowPalletDelivery extends OrgAction
 
         $rentalList = null;
 
-        if (in_array($palletDelivery->fulfilment->status, [PalletDeliveryStateEnum::BOOKING_IN, PalletDeliveryStateEnum::BOOKED_IN])) {
+        if (in_array($palletDelivery->state, [PalletDeliveryStateEnum::BOOKING_IN, PalletDeliveryStateEnum::BOOKED_IN])) {
             $rentalList = RentalsResource::collection(IndexFulfilmentRentals::run($palletDelivery->fulfilment, 'rentals'))->toArray($request);
         }
 
