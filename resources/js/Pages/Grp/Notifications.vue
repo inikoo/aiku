@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3'
+import {Head, Link} from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 
@@ -20,8 +20,12 @@ const props = defineProps<{
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
 
-    <Table :resource="data" class="mt-5">
-
+    <Table :resource="data" :name="'notifications'" class="mt-5">
+        <template #cell(title)="{ item: notification }">
+            <Link :href="notification.route" class="primaryLink">
+                {{ notification.title }}
+            </Link>
+        </template>
     </Table>
 
 </template>
