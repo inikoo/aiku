@@ -28,8 +28,8 @@ const props = withDefaults(defineProps<{
     type?: string
     min?: number
     max?: number
-    fieldType?: String
-    options:Array
+    fieldType?: string
+    options?: []
     required?:boolean
     urlRoute?:string
     label?:string,
@@ -38,11 +38,11 @@ const props = withDefaults(defineProps<{
     type: 'text',
     min: 0,
     max: 0,
-    options:[],
+    options: () => [],
     fieldType: 'input',
-    required:true,
-    label:'label',
-    valueProp:'id'
+    required: true,
+    label: 'label',
+    valueProp: 'id'
 })
 
 const emits = defineEmits<{
@@ -82,9 +82,15 @@ const onChange = (value : Any) => {
 
 <template>
     <div v-if="fieldType == 'input'">
-        <PureInput v-model="pallet.form[fieldName]" @blur="(value) => onSaveInput(value)"
-            @onEnter="(value) => onSaveInput(value)" @input="onInput" :suffix="true" :placeholder="placeholder"
-            :type="type" :minValue="min" :maxValue="max">
+        <PureInput v-model="pallet.form[fieldName]"
+            @blur="(value) => onSaveInput(value)"
+            @onEnter="(value) => onSaveInput(value)"
+            @input="onInput" :suffix="true"
+            :placeholder="placeholder"
+            :type="type"
+            :minValue="min"
+            :maxValue="max"
+        >
             <template #suffix>
                 <div class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer">
                     <span v-if="get(pallet, ['form', 'processing'], false)">
@@ -105,29 +111,31 @@ const onChange = (value : Any) => {
             </template>
         </PureInput>
     </div>
+
     <div v-else-if="fieldType == 'select'">
         <PureMultiselect
-          :modelValue="pallet.form[fieldName]"
-          :placeholder="placeholder"
-          :options="options"
-          @OnChange="onChange"
-          :required="required"
-          :caret="true"
+            :modelValue="pallet.form[fieldName]"
+            :placeholder="placeholder"
+            :options="options"
+            @OnChange="onChange"
+            :required="required"
+            :caret="true"
         />
     </div>
 
 
     <div v-else-if="fieldType == 'selectQuery'" class="w-60 sm:w-24 md:w-24 lg:w-60 xl:w-60">
         <SelectQuery
-          :fieldName="fieldName"
-          :placeholder="placeholder"
-          :required="required"
-          :urlRoute="urlRoute"
-          :value="pallet.form"
-          :label="label"
-          :valueProp="valueProp"
-          :on-change="onChange"
-          :closeOnSelect="true"
+            :fieldName="fieldName"
+            :placeholder="placeholder"
+            :required="required"
+            :urlRoute="urlRoute"
+            :value="pallet.form"
+            :label="label"
+            :valueProp="valueProp"
+            :on-change="onChange"
+            :closeOnSelect="true"
+            :options="props.options"
         >
         </SelectQuery>
     </div>
