@@ -19,5 +19,33 @@ enum TimeTrackerStatusEnum: string
 
     case ERROR = 'error';
 
+    public function labels(): array
+    {
+        return [
+            'open'   => __('Open'),
+            'closed' => __('Closed'),
+            'error'  => __('Error')
+        ];
+    }
 
+    public function statusIcon(): array
+    {
+        return [
+            'open' => [
+                'tooltip' => __('Open'),
+                'icon'    => 'fal fa-door-open',
+                'class'   => 'text-green-500'
+            ],
+            'closed' => [
+                'tooltip' => __('Closed'),
+                'icon'    => 'fal fa-door-closed',
+                'class'   => 'text-red-500'
+            ],
+            'error' => [
+                'tooltip' => __('Error'),
+                'icon'    => 'fal fa-times',
+                'class'   => 'text-red-500'
+            ]
+        ];
+    }
 }

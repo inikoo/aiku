@@ -1,25 +1,24 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 27 Apr 2024 08:53:02 British Summer Time, Sheffield, UK
+ * Created: Mon, 08 Apr 2024 09:52:43 Central Indonesia Time, Bali Office , Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\Rental\UI;
+namespace App\Actions\Catalogue\Outer\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentRentals;
+use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentPhysicalGoods;
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\Rental\RentalStateEnum;
+use App\Enums\Catalogue\Outer\OuterStateEnum;
 use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
-use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
-class CreateRental extends OrgAction
+class CreatePhysicalGoods extends OrgAction
 {
     /**
      * @throws Exception
@@ -32,17 +31,27 @@ class CreateRental extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'title'    => __('new rental'),
+                'title'    => __('new goods'),
                 'pageHead' => [
-                    'title' => __('new rental')
+                    'title' => __('new goods')
                 ],
                 'formData' => [
                     'fullLayout' => true,
                     'blueprint'  =>
                         [
                             [
-                                'title'  => __('name'),
+                                'title'  => __('Create Goods'),
                                 'fields' => [
+                                    'code' => [
+                                        'type'       => 'input',
+                                        'label'      => __('code'),
+                                        'required'   => true
+                                    ],
+                                    'name' => [
+                                        'type'       => 'input',
+                                        'label'      => __('name'),
+                                        'required'   => true
+                                    ],
                                     'price' => [
                                         'type'       => 'input',
                                         'label'      => __('price'),
@@ -58,7 +67,7 @@ class CreateRental extends OrgAction
                                         'type'     => 'select',
                                         'label'    => __('state'),
                                         'required' => true,
-                                        'options'  => Options::forEnum(RentalStateEnum::class)
+                                        'options'  => Options::forEnum(OuterStateEnum::class)
                                     ]
                                 ]
                             ]
@@ -94,14 +103,14 @@ class CreateRental extends OrgAction
     public function getBreadcrumbs(array $routeParameters): array
     {
         return array_merge(
-            IndexFulfilmentRentals::make()->getBreadcrumbs(
+            IndexFulfilmentPhysicalGoods::make()->getBreadcrumbs(
                 routeParameters: $routeParameters,
             ),
             [
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating rental'),
+                        'label' => __('creating goods'),
                     ]
                 ]
             ]
