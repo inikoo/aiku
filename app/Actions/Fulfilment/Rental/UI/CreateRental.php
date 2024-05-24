@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\Rental\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentRentals;
 use App\Actions\OrgAction;
+use App\Enums\Fulfilment\Rental\RentalStateEnum;
 use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -52,6 +53,12 @@ class CreateRental extends OrgAction
                                         'label'    => __('unit'),
                                         'required' => true,
                                         'options'  => Options::forEnum(RentalUnitEnum::class)
+                                    ],
+                                    'state' => [
+                                        'type'     => 'select',
+                                        'label'    => __('state'),
+                                        'required' => true,
+                                        'options'  => Options::forEnum(RentalStateEnum::class)
                                     ]
                                 ]
                             ]
