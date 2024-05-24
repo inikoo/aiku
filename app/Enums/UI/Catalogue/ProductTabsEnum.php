@@ -25,11 +25,11 @@ enum ProductTabsEnum: string
 
     case HISTORY = 'history';
 
-    case DATA   = 'data';
-    case IMAGES = 'images';
-    case PARTS  = 'parts';
+    case DATA     = 'data';
+    case IMAGES   = 'images';
+    case PARTS    = 'parts';
     case SERVICE  = 'service';
-    case RENTAL  = 'rental';
+    case RENTAL   = 'rental';
 
 
 

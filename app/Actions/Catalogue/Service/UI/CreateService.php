@@ -7,12 +7,10 @@
 
 namespace App\Actions\Catalogue\Service\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentRentals;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Enums\Fulfilment\Rental\RentalUnitEnum;
-use App\Models\Catalogue\Product;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use Exception;
