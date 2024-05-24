@@ -56,6 +56,8 @@ class IndexTimesheets extends OrgAction
             $query->whereDate('date', now()->format('Y-m-d'));
         }
 
+        $query->withFilterPeriod('created_at');
+
         return $query
             ->defaultSort('date')
             ->allowedSorts(['date', 'subject_name','working_duration','breaks_duration'])
@@ -131,7 +133,28 @@ class IndexTimesheets extends OrgAction
                         'label' => __('timesheets')
                     ] : false,
                 ],
-                'data'        => TimesheetsResource::collection($timesheets),
+                'data'          => TimesheetsResource::collection($timesheets),
+                'period_filter' => [
+                    [
+                        'type'  => 'today',
+                        'label' => 'today',
+                    ],
+                    [
+                        'type'  => 'week',
+                        'label' => 'Week',
+                        'value' => now()->format('Ymd')
+                    ],
+                    [
+                        'type'  => 'month',
+                        'label' => 'month',
+                        'value' => now()->format('Ym')
+                    ],
+                    [
+                        'type'  => 'year',
+                        'label' => 'year',
+                        'value' => now()->format('Y')
+                    ]
+                ]
             ]
         )->table($this->tableStructure($this->parent));
     }

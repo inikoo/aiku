@@ -7,6 +7,8 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Carbon;
+
 class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 {
     public function whereElementGroup(
@@ -35,6 +37,65 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
         }
 
         return $this;
+    }
+
+    public function withFilterPeriod($column, ?string $prefix = null): static
+    {
+        $periodType = request()->input(($prefix ? $prefix . '_' : '') . 'period.type');
+
+        if ($periodType) {
+            $periodData = $this->validatePeriod($periodType, $prefix);
+
+            if ($periodData) {
+                $this->whereBetween($column, [$periodData['start'], $periodData['end']]);
+            }
+        }
+
+        return $this;
+    }
+
+    protected function validatePeriod(string $periodType, ?string $prefix = null): ?array
+    {
+        $period = request()->input(($prefix ? $prefix . '_' : '') . 'period.date');
+
+        switch ($periodType) {
+            case 'today':
+                $start = now()->startOfDay()->toDateTimeString();
+                $end   = now()->endOfDay()->toDateTimeString();
+                break;
+            case 'yesterday':
+                $start = now()->subDay()->startOfDay()->toDateTimeString();
+                $end   = now()->subDay()->endOfDay()->toDateTimeString();
+                break;
+            case 'week':
+                if ($period && preg_match('/^\d{8}$/', $period)) {
+                    $start = Carbon::createFromFormat('Ymd', $period)->startOfWeek()->toDateTimeString();
+                    $end   = Carbon::createFromFormat('Ymd', $period)->endOfWeek()->toDateTimeString();
+                } else {
+                    return null;
+                }
+                break;
+            case 'month':
+                if (preg_match('/^\d{4}\d{2}$/', $period)) {
+                    $start = Carbon::createFromFormat('Ym', $period)->startOfMonth()->toDateTimeString();
+                    $end   = Carbon::createFromFormat('Ym', $period)->endOfMonth()->toDateTimeString();
+                } else {
+                    return null;
+                }
+                break;
+            case 'year':
+                if (preg_match('/^\d{4}$/', $period)) {
+                    $start = Carbon::createFromFormat('Y', $period)->startOfYear()->toDateTimeString();
+                    $end   = Carbon::createFromFormat('Y', $period)->endOfYear()->toDateTimeString();
+                } else {
+                    return null;
+                }
+                break;
+            default:
+                return null;
+        }
+
+        return ['start' => $start, 'end' => $end];
     }
 
     public function withPaginator($prefix): \Illuminate\Contracts\Pagination\LengthAwarePaginator
