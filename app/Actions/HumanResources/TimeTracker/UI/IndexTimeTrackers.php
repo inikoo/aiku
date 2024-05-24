@@ -60,6 +60,7 @@ class IndexTimeTrackers extends OrgAction
                     'ends_at',
                     'duration',
                     'time_trackers.id',
+                    'status'
                 ]
             )
             ->allowedSorts(['starts_at'])
@@ -89,6 +90,8 @@ class IndexTimeTrackers extends OrgAction
                 )
                 ->column(key: 'starts_at', label: __('clocked in'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'ends_at', label: __('clocked out'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'status', label: 'status', type: 'icon')
+                ->column(key: 'action', label: 'action', type: 'icon')
                 ->defaultSort('starts_at');
         };
     }

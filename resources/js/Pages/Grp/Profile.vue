@@ -137,7 +137,6 @@ onMounted(() => {
 
 
 <template>
-
     <Head :title="trans('Profile')" />
     <PageHeading v-if="dataProfile?.pageHead" :data="dataProfile?.pageHead">
         <template #button-edit-profile="{ action }">

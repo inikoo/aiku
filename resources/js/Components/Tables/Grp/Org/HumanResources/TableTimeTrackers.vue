@@ -8,11 +8,17 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Clocking} from "@/types/clocking";
+import Icon from "@/Components/Icon.vue";
+import {library} from "@fortawesome/fontawesome-svg-core";
+import {faPlus} from "@fas";
+import {faClock, faDoorClosed, faDoorOpen} from "@fal";
 
 const props = defineProps<{
     data: object,
     tab?: string
 }>()
+
+library.add(faClock, faDoorOpen, faDoorClosed)
 
 function clockingRoute(clocking: Clocking) {
     switch (route().current()) {
@@ -55,7 +61,11 @@ function clockingRoute(clocking: Clocking) {
                 {{ clocking['slug'] }}
             </Link>
         </template>
+        <template #cell(status)="{ item: clocking }">
+            <Icon :data="clocking['status']" class="px-1"/>
+        </template>
+        <template #cell(action)="{ item: clocking }">
+            <Icon :data="clocking['action']" class="px-1"/>
+        </template>
     </Table>
 </template>
-
-

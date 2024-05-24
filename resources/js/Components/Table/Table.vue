@@ -884,7 +884,7 @@ const periodFilter = [
                                                     column.className
                                                 ]">
                                                 <slot :name="`cell(${column.key})`"
-                                                    :item="{ ...item, index: index, rowIndex : key, editingIndicator: { loading: false, isSucces: false, isFailed: false } }"
+                                                    :item="{ ...item, index: index, rowIndex : key, editingIndicator: { loading: false, isSucces: false, isFailed: false, editMode: false } }"
                                                     :tabName="name" class="">
                                                     {{ item[column.key] }}
                                                 </slot>
