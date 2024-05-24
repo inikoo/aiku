@@ -14,19 +14,23 @@ use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
 use App\Actions\Fulfilment\Rental\UI\CreateRental;
 use App\Actions\Catalogue\Product\UI\ShowProduct;
 use App\Actions\Catalogue\Service\UI\ShowService;
+use App\Actions\Fulfilment\Rental\UI\ShowRental;
 
 Route::get('products', IndexFulfilmentProducts::class)->name('index');
 Route::get('products/{product}', [ShowProduct::class, 'inFulfilment'])->name('show');
 
 Route::get('rentals', IndexFulfilmentRentals::class)->name('rentals.index');
-Route::get('services', IndexFulfilmentProducts::class)->name('services.index');
-Route::get('goods', IndexFulfilmentProducts::class)->name('goods.index');
-
 Route::get('rentals/create', CreateRental::class)->name('rentals.create');
+Route::get('rentals/{rental}', [ShowRental::class, 'inFulfilment'])->name('rentals.show');
+// Route::get('services', IndexFulfilmentProducts::class)->name('services.index');
+// Route::get('goods', IndexFulfilmentProducts::class)->name('goods.index');
+
+
 
 Route::get('services', IndexFulfilmentServices::class)->name('services.index');
-Route::get('services/{service}', [ShowService::class, 'inFulfilment'])->name('services.show');
 Route::get('services/create', CreateService::class)->name('services.create');
+Route::get('services/{service}', [ShowService::class, 'inFulfilment'])->name('services.show');
+
 
 
 
