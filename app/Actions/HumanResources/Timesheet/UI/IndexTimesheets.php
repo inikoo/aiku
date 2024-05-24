@@ -9,6 +9,7 @@ namespace App\Actions\HumanResources\Timesheet\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
+use App\Enums\Helpers\Period\PeriodEnum;
 use App\Http\Resources\HumanResources\TimesheetsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\HumanResources\Employee;
@@ -66,6 +67,21 @@ class IndexTimesheets extends OrgAction
             ->withQueryString();
     }
 
+    protected function getPeriodFilters(): array
+    {
+        $elements = array_merge_recursive(
+            PeriodEnum::labels(),
+            PeriodEnum::date()
+        );
+
+        return [
+            'period' => [
+                'label'    => __('Period'),
+                'elements' => $elements
+            ],
+        ];
+    }
+
     public function tableStructure(Organisation|Employee|Guest $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
@@ -84,6 +100,9 @@ class IndexTimesheets extends OrgAction
                 $table->column(key: 'subject_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
             }
 
+            foreach ($this->getPeriodFilters() as $periodFilter) {
+                $table->periodFilters($periodFilter['elements']);
+            }
 
             $table->column(key: 'working_duration', label: __('working'), canBeHidden: false, sortable: true)
                 ->column(key: 'breaks_duration', label: __('breaks'), canBeHidden: false, sortable: true)
@@ -134,27 +153,6 @@ class IndexTimesheets extends OrgAction
                     ] : false,
                 ],
                 'data'          => TimesheetsResource::collection($timesheets),
-                'period_filter' => [
-                    [
-                        'type'  => 'today',
-                        'label' => 'today',
-                    ],
-                    [
-                        'type'  => 'week',
-                        'label' => 'Week',
-                        'value' => now()->format('Ymd')
-                    ],
-                    [
-                        'type'  => 'month',
-                        'label' => 'month',
-                        'value' => now()->format('Ym')
-                    ],
-                    [
-                        'type'  => 'year',
-                        'label' => 'year',
-                        'value' => now()->format('Y')
-                    ]
-                ]
             ]
         )->table($this->tableStructure($this->parent));
     }

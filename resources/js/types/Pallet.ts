@@ -97,6 +97,7 @@ export interface PalletDelivery {
     reference: string
     state: string
     timeline: Timeline[]
+    estimated_delivery_date : String
 }
 
 // Box Stats in Pallet Delivery

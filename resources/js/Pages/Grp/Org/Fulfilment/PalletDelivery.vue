@@ -32,6 +32,8 @@ import { Tabs as TSTabs } from '@/types/Tabs'
 import DatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import { useFormatTime } from '@/Composables/useFormatTime';
+import axios from 'axios'
+import { notify } from '@kyvg/vue3-notification'
 
 import '@/Composables/Icon/PalletDeliveryStateEnum'
 
@@ -84,6 +86,21 @@ const typePallet = [
     { label : 'Box', value : 'box'},
     { label : 'Oversize', value : 'oversize'}
 ]
+
+
+const onChangeEstimateDate = async () => {
+    try {
+        const response = await axios.patch(route(props.updateRoute.name, props.updateRoute.parameters), {
+            estimated_delivery_date : props.data.data.estimated_delivery_date
+        })
+    } catch (error) {
+        notify({
+			title: "Failed",
+			text: "Failed to update the Delivery date, try again.",
+			type: "error",
+		})
+    }
+}
 
 // Method: Add single pallet
 const handleFormSubmitAddPallet = (data: {}, closedPopover: Function) => {
@@ -158,6 +175,10 @@ const disableBeforeToday=(date)=>{
 
 watch(() => props.data, (newValue) => {
     timeline.value = newValue.data
+}, { deep: true })
+
+watch(() => props.data?.data.estimated_delivery_date, (newValue) => {
+    onChangeEstimateDate()
 }, { deep: true })
 
 onMounted(() => {
@@ -396,15 +417,18 @@ console.log(props)
                         fixed-width aria-hidden='true' />
                 </dt>
                 <div v-if="(box_stats.delivery_status.tooltip == 'Received' || box_stats.delivery_status.tooltip == 'Booking in' || box_stats.delivery_status.tooltip == 'Booked In')">
-                     <dd class="text-xs text-gray-500">{{ estimatedDate ? useFormatTime(estimatedDate) : 'Not Set' }}</dd>
+                     <dd class="text-xs text-gray-500">{{ data.data.estimated_delivery_date ? useFormatTime(data.data.estimated_delivery_date) : 'Not Set' }}</dd>
                 </div>
                 <Popover v-else position="">
                     <template #button>
-                        <dd class="text-xs text-gray-500">{{ estimatedDate ? useFormatTime(estimatedDate) : 'Not Set' }}</dd>
+                        <dd class="text-xs text-gray-500">{{ data.data.estimated_delivery_date ? useFormatTime(data.data.estimated_delivery_date) : 'Not Set' }}</dd>
                     </template>
                     <template #content="{ close: closed }">
                         <div>
-                            <DatePicker v-model="estimatedDate" inline auto-apply  :disabled-dates="disableBeforeToday"  :enable-time-picker="false"/>
+                            <DatePicker v-model="data.data.estimated_delivery_date" 
+                                inline auto-apply  :disabled-dates="disableBeforeToday"  
+                                :enable-time-picker="false"
+                            />
                         </div>
                     </template>
                 </Popover>

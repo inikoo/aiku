@@ -23,6 +23,8 @@ import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.v
 import DatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import { useFormatTime } from '@/Composables/useFormatTime';
+import axios from 'axios'
+import { notify } from '@kyvg/vue3-notification'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -61,7 +63,6 @@ const timeline = ref({ ...props.data.data })
 const dataModal = ref({ isModalOpen: false })
 const formAddPallet = useForm({ notes: '', customer_reference: '', type : 'pallet' })
 const formMultiplePallet = useForm({ number_pallets: 1, type : 'pallet' })
-const estimatedDate = ref(null);
 
 
 // Method: Add single pallet
@@ -83,6 +84,24 @@ const onAddPallet = (data: {}, closedPopover: Function) => {
         },
     })
 }
+
+
+
+const onChangeEstimateDate = async () => {
+    try {
+        const response = await axios.patch(route(props.updateRoute.route.name, props.updateRoute.route.parameters), {
+            estimated_delivery_date : props.data.data.estimated_delivery_date
+        })
+    } catch (error) {
+        console.log(error)
+        notify({
+			title: "Failed",
+			text: "Failed to update the Delivery date, try again.",
+			type: "error",
+		})
+    }
+}
+
 
 // Method: Add multiple pallet
 const onAddMultiplePallet = (data: {}, closedPopover: Function) => {
@@ -158,6 +177,10 @@ const disableBeforeToday=(date)=>{
 
 watch(() => props.data, (newValue) => {
     timeline.value = newValue.data
+}, { deep: true })
+
+watch(() => props.data?.data.estimated_delivery_date, (newValue) => {
+    onChangeEstimateDate()
 }, { deep: true })
 
 const typePallet = [
@@ -309,15 +332,18 @@ const typePallet = [
                         fixed-width aria-hidden='true' />
                 </dt>
                 <div v-if="(box_stats.delivery_status.tooltip == 'Received' || box_stats.delivery_status.tooltip == 'Booking in' || box_stats.delivery_status.tooltip == 'Booked In')">
-                     <dd class="text-xs text-gray-500">{{ estimatedDate ? useFormatTime(estimatedDate) : 'Not Set' }}</dd>
+                     <dd class="text-xs text-gray-500">{{ data.data.estimated_delivery_date ? useFormatTime(data.data.estimated_delivery_date) : 'Not Set' }}</dd>
                 </div>
                 <Popover v-else position="">
                     <template #button>
-                        <dd class="text-xs text-gray-500">{{ estimatedDate ? useFormatTime(estimatedDate) : 'Not Set' }}</dd>
+                        <dd class="text-xs text-gray-500">{{ data.data.estimated_delivery_date ? useFormatTime(data.data.estimated_delivery_date) : 'Not Set' }}</dd>
                     </template>
                     <template #content="{ close: closed }">
                         <div>
-                            <DatePicker v-model="estimatedDate" inline auto-apply  :disabled-dates="disableBeforeToday"  :enable-time-picker="false"/>
+                            <DatePicker v-model="data.data.estimated_delivery_date" 
+                                inline auto-apply  :disabled-dates="disableBeforeToday"  
+                                :enable-time-picker="false"
+                            />
                         </div>
                     </template>
                 </Popover>
