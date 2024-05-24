@@ -23,22 +23,13 @@ defineProps<{
 }>()
 
 
-function serviceRoute(product: Product) {
+function serviceRoute(outer: {}) {
     console.log(route().current())
     switch (route().current()) {
-
-        case "grp.org.shops.show.catalogue.products.index":
+        case 'grp.org.fulfilments.show.products.outers.index': 
             return route(
-                'grp.org.shops.show.catalogue.products.show',
-                [route().params['organisation'], route().params['shop'], product.slug])
-        case 'grp.org.shops.index':
-            return route(
-                'grp.org.shops.show.catalogue.products.show',
-                [route().params['organisation'], product.shop_slug, product.slug])
-        case 'grp.org.fulfilments.show.products.index':
-            return route(
-                'grp.org.fulfilments.show.products.show',
-                [route().params['organisation'], route().params['fulfilment'], product.slug])
+                'grp.org.fulfilments.show.products.outers.show',
+                [route().params['organisation'], route().params['fulfilment'], outer.id])
         default:
             return null
     }
