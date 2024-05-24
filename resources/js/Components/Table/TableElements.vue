@@ -17,14 +17,9 @@ const props = defineProps<{
             [key: string]: number[] | string[]
         }
     }
-    title: {
-        title: string
-        leftIcon: any
-    }
-    name: string
+    tableName: string
 }>()
 
-console.log('prorprops', props)
 const emits = defineEmits<{
     (e: 'checkboxChanged', value: SelectedElement): void
 }>()
@@ -92,7 +87,7 @@ const onDoubleClickCheckbox = (elementName: string, scope: string) => {
 onMounted(() => {
     // console.log('fff', props.elements)
     // To handle selected checkbox on hard-refresh
-    const prefix = props.name === 'default' ? 'elements' : props.name + '_' + 'elements'  // To handle banners_elements, users_elements, etc
+    const prefix = props.tableName === 'default' ? 'elements' : props.tableName + '_' + 'elements'  // To handle banners_elements, users_elements, etc
     const searchParams = new URLSearchParams(window.location.search)
     const stateParam = searchParams.get(`${prefix}[${selectedGroup.value}]`)
     stateParam ? selectedElement[selectedGroup.value] = stateParam.split(",") : false

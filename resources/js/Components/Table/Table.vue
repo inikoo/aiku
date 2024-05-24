@@ -1,31 +1,32 @@
 <!--suppress JSUnresolvedReference, JSIncompatibleTypesComparison -->
 <script setup lang="ts">
-import Pagination from '@/Components/Table/Pagination.vue';
-import HeaderCell from '@/Components/Table/HeaderCell.vue';
-import TableFilterSearch from '@/Components/Table/TableFilterSearch.vue';
-import TableElements from '@/Components/Table/TableElements.vue';
-import TableWrapper from '@/Components/Table/TableWrapper.vue';
+import Pagination from '@/Components/Table/Pagination.vue'
+import HeaderCell from '@/Components/Table/HeaderCell.vue'
+import TableFilterSearch from '@/Components/Table/TableFilterSearch.vue'
+import TableElements from '@/Components/Table/TableElements.vue'
+import TablePeriodFilter from '@/Components/Table/TablePeriodFilter.vue'
+import TableWrapper from '@/Components/Table/TableWrapper.vue'
 // import TableFilterColumn from '@/Components/Table/TableFilterColumn.vue';
 // import TableColumns from '@/Components/Table/TableColumns.vue';
 // import TableAdvancedFilter from '@/Components/Table/TableAdvancedFilter.vue';
 // import TableSearchRows from '@/Components/Table/TableSearchRows.vue';
 // import SearchReset from '@/Components/Table/SearchReset.vue';
-import Button from '@/Components/Elements/Buttons/Button.vue';
+import Button from '@/Components/Elements/Buttons/Button.vue'
 import EmptyState from '@/Components/Utils/EmptyState.vue'
-import {Link, useForm} from "@inertiajs/vue3"
-import {trans} from 'laravel-vue-i18n'
+import { Link } from "@inertiajs/vue3"
+import { trans } from 'laravel-vue-i18n'
 
-import {computed, getCurrentInstance, onMounted, onUnmounted, ref, Transition, watch, reactive } from 'vue';
-import qs from 'qs';
-import clone from 'lodash-es/clone';
-import filter from 'lodash-es/filter';
-import findKey from 'lodash-es/findKey';
-import forEach from 'lodash-es/forEach';
-import isEqual from 'lodash-es/isEqual';
-import map from 'lodash-es/map';
-import { kebabCase  } from 'lodash'
-import {useLocaleStore} from '@/Stores/locale';
-import CountUp from 'vue-countup-v3';
+import { computed, getCurrentInstance, onMounted, onUnmounted, ref, Transition, watch, reactive } from 'vue'
+import qs from 'qs'
+import clone from 'lodash-es/clone'
+import filter from 'lodash-es/filter'
+import findKey from 'lodash-es/findKey'
+import forEach from 'lodash-es/forEach'
+import isEqual from 'lodash-es/isEqual'
+import map from 'lodash-es/map'
+import { kebabCase } from 'lodash'
+import { useLocaleStore } from '@/Stores/locale'
+import CountUp from 'vue-countup-v3'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheckSquare, faCheck } from '@fal'
@@ -166,6 +167,10 @@ const queryBuilderData = ref(queryBuilderProps.value);
 queryBuilderData.value.elementFilter = {
     // 'state': ['left'],
     // 'type': ['volunteer', 'employee']
+}
+queryBuilderData.value.periodFilter = {
+    // 'type': 'today',
+    // 'date': 202405
 }
 
 
@@ -398,6 +403,7 @@ function getColumnsForQuery() {
     return visibleColumnKeys;
 }
 
+// To generate query in url (?period[type]=year&period[date]=2024&sort=slug)
 function dataForNewQueryString() {
     const filterForQuery = getFilterForQuery();
     const columnsForQuery = getColumnsForQuery();
@@ -411,11 +417,13 @@ function dataForNewQueryString() {
         queryData.columns = columnsForQuery;
     }
 
-    const cursor = queryBuilderData.value.cursor;
-    const page = queryBuilderData.value.page;
-    const sort = queryBuilderData.value.sort;
+    const cursor = queryBuilderData.value.cursor
+    const page = queryBuilderData.value.page
+    const sort = queryBuilderData.value.sort
     const perPage = queryBuilderData.value.perPage;
     const elementFilter = queryBuilderData.value.elementFilter
+    const period = queryBuilderData.value.periodFilter
+
 
     if (cursor) {
         queryData.cursor = cursor;
@@ -433,8 +441,12 @@ function dataForNewQueryString() {
         queryData.sort = sort;
     }
     if (elementFilter) {
-        queryData.elements = elementFilter // the beginning of add new filter
+        queryData.elements = elementFilter // elements[state] = working
     }
+    if (period) {
+        queryData.period = period // period[type]=year&period[date]=2024
+    }
+
     return queryData;
 }
 
@@ -585,10 +597,6 @@ function header(key) {
     return columnData;
 }
 
-const handleElementsChange = (data) => {
-    queryBuilderData.value.elementFilter = data
-}
-
 // const {name} = toRefs(props)
 
 watch(() => props.name, () => {
@@ -616,6 +624,28 @@ const onClickSelectAll = (state: boolean) => {
 watch(selectRow, () => {
     emits('onSelectRow', selectRow)
 }, {deep: true})
+
+const periodFilter = [
+    {
+        type: 'today',
+        label: 'today',
+    },
+    {
+        type: 'weeks',
+        label: 'Weeks',
+        date: 20240501
+    },
+    {
+        type: 'month',
+        label: 'month',
+        date: 202405
+    },
+    {
+        type: 'year',
+        label: 'year',
+        date: 2022
+    },
+]
 
 </script>
 
@@ -733,12 +763,22 @@ watch(selectRow, () => {
                             </slot>
                         </div> -->
 
-                        <!-- Element Filter -->
+                        <!-- Filter: Period -->
+                        <div v-if="queryBuilderProps?.period_filter?.length" class="w-fit flex gap-x-2">
+                            <TablePeriodFilter 
+                                :periodData="queryBuilderProps.period_filter"
+                                @periodChanged="(data) => queryBuilderData.periodFilter = data"
+                                :tableName="props.name"
+                            />
+                        </div>
+
+                        <!-- Filter: Element -->
                         <div class="w-fit">
-                                <template v-if="queryBuilderProps?.elementGroups">
+                            <template v-if="queryBuilderProps?.elementGroups">
                                 <TableElements v-if="Object.keys(queryBuilderProps?.elementGroups)?.length"
-                                :elements="queryBuilderProps.elementGroups" @checkboxChanged="handleElementsChange"
-                                :title="queryBuilderData.title" :name="props.name" />
+                                :elements="queryBuilderProps.elementGroups"
+                                @checkboxChanged="(data) => queryBuilderData.elementFilter = data"
+                                :tableName="props.name" />
                             </template>
                         </div>
 

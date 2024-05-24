@@ -8,14 +8,15 @@
 
 import LeftSidebarNavigation from "@/Layouts/Grp/LeftSidebarNavigation.vue"
 import LeftSidebarBottomNav from "@/Layouts/Grp/LeftSidebarBottomNav.vue"
-import { useLayoutStore } from "@/Stores/layout"
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faChevronLeft } from "@far"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { inject } from "vue"
+import { layoutStructure } from "@/Composables/useLayoutStructure"
 library.add(faChevronLeft)
 
-const layout = useLayoutStore()
+const layout = inject('layout', layoutStructure)
 
 // Set LeftSidebar value to local storage
 const handleToggleLeftBar = () => {
