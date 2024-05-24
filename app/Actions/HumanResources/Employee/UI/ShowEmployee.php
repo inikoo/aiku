@@ -14,6 +14,7 @@ use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
+use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\UI\HumanResources\EmployeeTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
@@ -33,6 +34,11 @@ class ShowEmployee extends OrgAction
     use WithActionButtons;
     use WithEmployeeSubNavigation;
 
+    /**
+     * @var array|\ArrayAccess|mixed
+     */
+    private Employee $employee;
+
     public function handle(Employee $employee): Employee
     {
         return $employee;
@@ -41,7 +47,12 @@ class ShowEmployee extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($request->user() instanceof ClockingMachine) {
-            return true;
+            $employeeWorkplace = $this->employee->workplaces()
+                    ->wherePivot('workplace_id', $request->user()->workplace_id)
+                    ->count() > 0;
+
+            return ($this->organisation->id === $request->user()->organisation_id)
+                && $employeeWorkplace && $this->employee->state === EmployeeStateEnum::WORKING;
         }
 
         $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
@@ -185,11 +196,12 @@ class ShowEmployee extends OrgAction
     {
         $workplace = $request->user()->workplace;
 
-        $this->initialisation($workplace->organisation, $request);
-
         $employee = $workplace
             ->employees()
             ->where('pin', $request->input('pin'))->firstOrFail();
+
+        $this->employee = $employee;
+        $this->initialisation($workplace->organisation, $request);
 
         return $this->handle($employee);
     }
