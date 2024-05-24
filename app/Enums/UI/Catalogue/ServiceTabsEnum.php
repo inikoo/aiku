@@ -10,14 +10,14 @@ namespace App\Enums\UI\Catalogue;
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum ProductTabsEnum: string
+enum ServiceTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
 
     case SHOWCASE   = 'showcase';
-    case VARIATIONS = 'variations';
-    case WEBPAGES   = 'webpages';
+    // case VARIATIONS = 'variations';
+    // case WEBPAGES   = 'webpages';
     case SALES      = 'sales';
     case ORDERS     = 'orders';
     case CUSTOMERS  = 'customers';
@@ -25,81 +25,79 @@ enum ProductTabsEnum: string
 
     case HISTORY = 'history';
 
-    case DATA     = 'data';
-    case IMAGES   = 'images';
-    case PARTS    = 'parts';
-    case SERVICE  = 'service';
-    case RENTAL   = 'rental';
+    case DATA   = 'data';
+    case IMAGES = 'images';
+    case PARTS  = 'parts';
 
 
 
     public function blueprint(): array
     {
         return match ($this) {
-            ProductTabsEnum::SHOWCASE => [
+            ServiceTabsEnum::SHOWCASE => [
                 'title' => __('product'),
                 'icon'  => 'fas fa-info-circle',
             ],
-            ProductTabsEnum::VARIATIONS => [
-                'title' => __('variations'),
-                'icon'  => 'fal fa-stream',
-            ],
-            ProductTabsEnum::WEBPAGES => [
-                'title' => __('webpages'),
-                'icon'  => 'fal fa-globe',
-            ],
-            ProductTabsEnum::SALES => [
+            // ServiceTabsEnum::VARIATIONS => [
+            //     'title' => __('variations'),
+            //     'icon'  => 'fal fa-stream',
+            // ],
+            // ServiceTabsEnum::WEBPAGES => [
+            //     'title' => __('webpages'),
+            //     'icon'  => 'fal fa-globe',
+            // ],
+            ServiceTabsEnum::SALES => [
                 'title' => __('sales'),
                 'icon'  => 'fal fa-money-bill-wave',
             ],
-            ProductTabsEnum::ORDERS => [
+            ServiceTabsEnum::ORDERS => [
                 'title' => __('orders'),
                 'icon'  => 'fal fa-shopping-cart',
             ],
-            ProductTabsEnum::CUSTOMERS => [
+            ServiceTabsEnum::CUSTOMERS => [
                 'title' => __('customers'),
                 'icon'  => 'fal fa-users',
 
             ],
-            ProductTabsEnum::MAILSHOTS => [
+            ServiceTabsEnum::MAILSHOTS => [
                 'title' => __('mailshots'),
                 'icon'  => 'fal fa-bullhorn',
 
             ],
 
 
-            ProductTabsEnum::HISTORY => [
+            ServiceTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            ProductTabsEnum::DATA => [
+            ServiceTabsEnum::DATA => [
                 'title' => __('data'),
                 'icon'  => 'fal fa-database',
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            ProductTabsEnum::PARTS => [
+            ServiceTabsEnum::PARTS => [
                 'title' => __('parts'),
                 'icon'  => 'fal fa-box',
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            ProductTabsEnum::SERVICE => [
-                'title' => __('service'),
-                'icon'  => 'fal fa-box',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
-            ProductTabsEnum::RENTAL => [
-                'title' => __('rental'),
-                'icon'  => 'fal fa-box',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
+            // ServiceTabsEnum::SERVICE => [
+            //     'title' => __('service'),
+            //     'icon'  => 'fal fa-box',
+            //     'type'  => 'icon',
+            //     'align' => 'right',
+            // ],
+            // ServiceTabsEnum::RENTAL => [
+            //     'title' => __('rental'),
+            //     'icon'  => 'fal fa-box',
+            //     'type'  => 'icon',
+            //     'align' => 'right',
+            // ],
 
-            ProductTabsEnum::IMAGES => [
+            ServiceTabsEnum::IMAGES => [
                 'title' => __('images'),
                 'icon'  => 'fal fa-camera-retro',
                 'type'  => 'icon',

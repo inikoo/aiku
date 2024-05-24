@@ -24,22 +24,14 @@ const props = defineProps<{
 }>()
 
 
-function rentalRoute(product: Product) {
+function rentalRoute(rental: {}) {
     console.log(route().current())
     switch (route().current()) {
 
-        case "grp.org.shops.show.catalogue.products.index":
+        case "grp.org.fulfilments.show.products.rentals.index":
             return route(
-                'grp.org.shops.show.catalogue.products.show',
-                [route().params['organisation'], route().params['shop'], product.slug])
-        case 'grp.org.shops.index':
-            return route(
-                'grp.org.shops.show.catalogue.products.show',
-                [route().params['organisation'], product.shop_slug, product.slug])
-        case 'grp.org.fulfilments.show.products.index':
-            return route(
-                'grp.org.fulfilments.show.products.show',
-                [route().params['organisation'], route().params['fulfilment'], product.slug])
+                'grp.org.fulfilments.show.products.rentals.show',
+                [route().params['organisation'], route().params['fulfilment'], rental.id])
         default:
             return null
     }

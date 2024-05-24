@@ -131,7 +131,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                             'icon'  => 'fal fa-plus',
                             'label' => __('create good'),
                             'route' => [
-                                'name'       => 'grp.org.fulfilments.show.products.physical_goods.create',
+                                'name'       => 'grp.org.fulfilments.show.products.outers.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],
@@ -216,7 +216,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('services'),
+                        'label' => __('goods'),
                         'icon'  => 'fal fa-bars'
                     ],
                     'suffix' => $suffix
@@ -229,7 +229,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                 IndexFulfilmentProducts::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-cube'),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.products.services.index',
+                        'name'       => 'grp.org.fulfilments.show.products.outers.index',
                         'parameters' => $routeParameters
                     ]
                 )
