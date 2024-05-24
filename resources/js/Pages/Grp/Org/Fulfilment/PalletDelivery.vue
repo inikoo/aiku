@@ -29,13 +29,16 @@ import JsBarcode from 'jsbarcode'
 import { PalletDelivery, BoxStats, PDRNotes } from '@/types/Pallet'
 import { Table } from '@/types/Table'
 import { Tabs as TSTabs } from '@/types/Tabs'
+import DatePicker from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
+import { useFormatTime } from '@/Composables/useFormatTime';
 
 import '@/Composables/Icon/PalletDeliveryStateEnum'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone, faConciergeBell, faCube } from '@fal'
+import { faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone, faConciergeBell, faCube, faCalendarDay } from '@fal'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone,faExclamationTriangle, faConciergeBell, faCube)
+library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone,faExclamationTriangle, faConciergeBell, faCube, faCalendarDay)
 
 const props = defineProps<{
     title: string
@@ -74,6 +77,7 @@ const dataModal = ref({ isModalOpen: false })
 const formAddPallet = useForm({ notes: '', customer_reference: '', type : 'pallet' })
 const formMultiplePallet = useForm({ number_pallets: 1, type : 'pallet' })
 const tableKey = ref(1)  // To re-render Table after click Confirm (so the Table retrieve the new props)
+const estimatedDate = ref(null);
 const typePallet = [
     { label : 'Pallet', value : 'pallet'},
     { label : 'Box', value : 'box'},
@@ -144,6 +148,13 @@ const component = computed(() => {
 
 })
 
+const disableBeforeToday=(date)=>{
+      const today = new Date();
+      // Set time to 00:00:00 for comparison purposes
+      today.setHours(0, 0, 0, 0);
+      return date < today;
+    }
+
 watch(() => props.data, (newValue) => {
     timeline.value = newValue.data
 }, { deep: true })
@@ -157,6 +168,7 @@ onMounted(() => {
     });
 })
 
+console.log(props)
 
 </script>
 
@@ -369,15 +381,36 @@ onMounted(() => {
         </BoxStatsPalletDelivery>
 
         <!-- Box: Status -->
-        <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" :tooltip="trans('Status')" :label="capitalize(data?.data.state)"
-            icon="fal fa-truck-couch">
-            <div class="flex items-center w-full flex-none gap-x-2">
+        <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" :tooltip="trans('Status')" :label="capitalize(data?.data.state)" icon="fal fa-truck-couch">
+            <div class="flex items-center w-full flex-none gap-x-2 mb-2">
                 <dt class="flex-none">
                     <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
                     <FontAwesomeIcon :icon='box_stats.delivery_status.icon' :class='box_stats.delivery_status.class'
                         fixed-width aria-hidden='true' />
                 </dt>
                 <dd class="text-xs text-gray-500">{{ box_stats.delivery_status.tooltip }}</dd>
+            </div>
+
+        
+            <div  class="flex items-center w-full flex-none gap-x-2">
+                <dt class="flex-none">
+                    <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
+                    <FontAwesomeIcon :icon="['fal', 'calendar-day']"  :class='box_stats.delivery_status.class'
+                        fixed-width aria-hidden='true' />
+                </dt>
+                <div v-if="(box_stats.delivery_status.tooltip == 'Received' || box_stats.delivery_status.tooltip == 'Booking in' || box_stats.delivery_status.tooltip == 'Booked In')">
+                     <dd class="text-xs text-gray-500">{{ estimatedDate ? useFormatTime(estimatedDate) : 'Not Set' }}</dd>
+                </div>
+                <Popover v-else position="">
+                    <template #button>
+                        <dd class="text-xs text-gray-500">{{ estimatedDate ? useFormatTime(estimatedDate) : 'Not Set' }}</dd>
+                    </template>
+                    <template #content="{ close: closed }">
+                        <div>
+                            <DatePicker v-model="estimatedDate" inline auto-apply  :disabled-dates="disableBeforeToday"  :enable-time-picker="false"/>
+                        </div>
+                    </template>
+                </Popover>
             </div>
         </BoxStatsPalletDelivery>
 
