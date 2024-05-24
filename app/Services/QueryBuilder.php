@@ -68,9 +68,9 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
                 $end   = now()->subDay()->endOfDay()->toDateTimeString();
                 break;
             case 'month':
-                if (preg_match('/^\d{4}-\d{2}$/', $period)) {
-                    $start = Carbon::createFromFormat('Y-m', $period)->startOfMonth()->toDateTimeString();
-                    $end   = Carbon::createFromFormat('Y-m', $period)->endOfMonth()->toDateTimeString();
+                if (preg_match('/^\d{4}\d{2}$/', $period)) {
+                    $start = Carbon::createFromFormat('Ym', $period)->startOfMonth()->toDateTimeString();
+                    $end   = Carbon::createFromFormat('Ym', $period)->endOfMonth()->toDateTimeString();
                 } else {
                     return null;
                 }
