@@ -19,12 +19,7 @@ import { routeType } from '@/types/route'
 library.add(faSync)
 
 const props = defineProps<{
-    form: any
-    fieldName: string
-    options?: any
-    fieldData: {
-        route: routeType
-    }
+    route: routeType
 }>()
 
 const isQrCode = ref(false)
@@ -37,7 +32,7 @@ const qrValue = ref('')
 // Method: Fetch value for QR
 const fetchQrCode = async () => {
     try {
-        const response = await axios.get(route(props.fieldData.route.name, props.fieldData.route.parameters),)
+        const response = await axios.get(route(props.route.name, props.route.parameters),)
         // console.log(response.data)
         qrValue.value = response.data.code.toString()
         setCountdown(120)
@@ -90,7 +85,7 @@ const setCountdown = (duration: number) => {
 
 <template>
     <div class="relative flex justify-center">
-        <div v-if="!isQrCode" class="mt-10 ml-6">
+        <div v-if="!isQrCode" class="mt-10">
             <Button label="Show QR code" :style="isLoading ? 'disabled' : 'rainbow'" :key="isLoading.toString()" @click="onGenerateQr" :loading="isLoading" size="xl" />
         </div>
         <div v-else class="">

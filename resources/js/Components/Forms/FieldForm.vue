@@ -34,7 +34,6 @@ import InputWithAddOn from '@/Components/Forms/Fields/InputWithAddOn.vue'
 import Checkbox from '@/Components/Forms/Fields/Checkbox.vue'
 import EmployeePosition from '@/Components/Forms/Fields/EmployeePosition.vue'
 import EmployeeState from '@/Components/Forms/Fields/Employee/EmployeeState.vue'
-import AppLogin from '@/Components/Forms/Fields/AppLogin.vue'
 import AppTheme from '@/Components/Forms/Fields/AppTheme.vue'
 import Interest from '@/Components/Forms/Fields/Interest.vue'
 import WebRegistrations from '@/Components/Forms/Fields/WebRegistrations.vue'
@@ -97,7 +96,6 @@ const components: {[key: string]: Component} = {
     'permissions': Permissions,
     'checkbox': Checkbox,
     'employeePosition': EmployeePosition,
-    'app_login': AppLogin,
     'app_theme': AppTheme,
     'interest': Interest,
     'webRegistrations': WebRegistrations,
