@@ -48,6 +48,7 @@ class PalletDeliveryResource extends JsonResource
             'number_pallets'   => $palletDelivery->number_pallets,
             'state_label'      => $palletDelivery->state->labels()[$palletDelivery->state->value],
             'state_icon'       => $palletDelivery->state->stateIcon()[$palletDelivery->state->value],
+            'estimated_delivery_date' => $palletDelivery->estimated_delivery_date
         ];
     }
 }
