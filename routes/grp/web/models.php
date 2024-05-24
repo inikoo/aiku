@@ -82,6 +82,8 @@ use App\Actions\Manufacturing\JobOrder\UpdateJobOrder;
 use App\Actions\Catalogue\Product\DeleteProduct;
 use App\Actions\Catalogue\Product\StorePhysicalGood;
 use App\Actions\Catalogue\Product\UpdatePhysicalGood;
+use App\Actions\Catalogue\Service\StoreService;
+use App\Actions\Catalogue\Service\UpdateService;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\SyncPaymentAccountToShop;
 use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
@@ -135,6 +137,10 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::prefix('fulfilment/{fulfilment:id}/rentals')->name('fulfilment.rentals.')->group(function () {
         Route::post('/', StoreRental::class)->name('store');
         Route::patch('{rental:id}', UpdateRental::class)->name('update')->withoutScopedBindings();
+    });
+    Route::prefix('fulfilment/{fulfilment:id}/services')->name('fulfilment.services.')->group(function () {
+        Route::post('/', [StoreService::class,'inFulfilment'])->name('store');
+        Route::patch('{service:id}', UpdateService::class)->name('update')->withoutScopedBindings();
     });
 
     Route::post('/shop/{shop:id}/customer', StoreCustomer::class)->name('shop.customer.store');

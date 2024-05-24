@@ -8,8 +8,11 @@
 namespace App\Actions\Catalogue\Service\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentRentals;
+use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
 use App\Actions\OrgAction;
+use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Enums\Fulfilment\Rental\RentalUnitEnum;
+use App\Models\Catalogue\Product;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use Exception;
@@ -25,23 +28,30 @@ class CreateService extends OrgAction
      */
     public function handle(Fulfilment $fulfilment, ActionRequest $request): Response
     {
+        $organisation = $fulfilment->organisation;
         return Inertia::render(
             'CreateModel',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'title'    => __('new rental'),
+                'title'    => __('new service'),
                 'pageHead' => [
-                    'title' => __('new rental')
+                    'title' => __('new service')
                 ],
                 'formData' => [
                     'fullLayout' => true,
                     'blueprint'  =>
                         [
                             [
-                                'title'  => __('name'),
+                                'title'  => __('New Service'),
                                 'fields' => [
+                                    'products' => [
+                                        'type'     => 'select',
+                                        'label'    => __('product_id'),
+                                        'required' => true,
+                                        'options'  => Options::forModels(Product::class)
+                                    ],
                                     'price' => [
                                         'type'       => 'input',
                                         'label'      => __('price'),
@@ -52,12 +62,19 @@ class CreateService extends OrgAction
                                         'label'    => __('unit'),
                                         'required' => true,
                                         'options'  => Options::forEnum(RentalUnitEnum::class)
+                                    ],
+                                    'state' => [
+                                        'type'     => 'select',
+                                        'label'    => __('state'),
+                                        'required' => true,
+                                        'options'  => Options::forEnum(ServiceStateEnum::class)
                                     ]
+
                                 ]
                             ]
                         ],
                     'route' => [
-                        'name'       => 'grp.models.org.fulfilment.rentals.store',
+                        'name'       => 'grp.models.org.fulfilment.services.store',
                         'parameters' => [
                             'organisation' => $fulfilment->organisation_id,
                             'fulfilment'   => $fulfilment->id,
@@ -87,14 +104,14 @@ class CreateService extends OrgAction
     public function getBreadcrumbs(array $routeParameters): array
     {
         return array_merge(
-            IndexFulfilmentRentals::make()->getBreadcrumbs(
+            IndexFulfilmentServices::make()->getBreadcrumbs(
                 routeParameters: $routeParameters,
             ),
             [
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating rental'),
+                        'label' => __('creating service'),
                     ]
                 ]
             ]
