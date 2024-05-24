@@ -56,6 +56,8 @@ class IndexTimesheets extends OrgAction
             $query->whereDate('date', now()->format('Y-m-d'));
         }
 
+        $query->withFilterPeriod('created_at');
+
         return $query
             ->defaultSort('date')
             ->allowedSorts(['date', 'subject_name','working_duration','breaks_duration'])
