@@ -392,7 +392,7 @@ class ShowPalletDelivery extends OrgAction
                 ],
                 'rental_list' => RentalsResource::collection(
                     IndexFulfilmentRentals::run($palletDelivery->fulfilment, 'rentals')
-                ),
+                )->toArray($request),
 
 
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
