@@ -28,7 +28,6 @@ class CreateService extends OrgAction
      */
     public function handle(Fulfilment $fulfilment, ActionRequest $request): Response
     {
-        $organisation = $fulfilment->organisation;
         return Inertia::render(
             'CreateModel',
             [
@@ -46,12 +45,6 @@ class CreateService extends OrgAction
                             [
                                 'title'  => __('New Service'),
                                 'fields' => [
-                                    'products' => [
-                                        'type'     => 'select',
-                                        'label'    => __('product_id'),
-                                        'required' => true,
-                                        'options'  => Options::forModels(Product::class)
-                                    ],
                                     'price' => [
                                         'type'       => 'input',
                                         'label'      => __('price'),
