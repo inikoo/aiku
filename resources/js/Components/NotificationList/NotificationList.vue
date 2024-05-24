@@ -33,7 +33,7 @@ const props = defineProps<{
                     :class="['h-8 w-8 flex-none m-auto', message.read && 'text-gray-400']" />
                 <div class="min-w-0 flex-auto relative">
                     <div :class="['text-sm font-semibold leading-6', message.read ? 'text-gray-400' : '']">
-                        <component :is="message.route?.name ? Link : 'div'" :href="message.route?.name ? route(message.route.name, message.route?.parameters) : '#'">
+                        <component :is="message.href ? Link : 'div'" :href="message.href">
                             <span :class="['absolute inset-x-0 -top-px bottom-0']"></span>
                             {{ message.title }}
                         </component>
