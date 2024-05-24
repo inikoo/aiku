@@ -147,6 +147,18 @@ class ShowProduct extends OrgAction
                     fn () => MailshotResource::collection(IndexMailshots::run($product))
                     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($product))),
 
+                ProductTabsEnum::SERVICE->value => $this->tab == ProductTabsEnum::SERVICE->value ?
+                    fn () => GetProductService::run($product)
+                    : Inertia::lazy(fn () => GetProductService::run($product)),
+
+                ProductTabsEnum::RENTAL->value => $this->tab == ProductTabsEnum::RENTAL->value ?
+                    fn () => GetProductRental::run($product)
+                    : Inertia::lazy(fn () => GetProductRental::run($product)),
+
+                // ProductTabsEnum::SERVICE->value => $this->tab == ProductTabsEnum::SERVICE->value ?
+                //     fn () => MailshotResource::collection(IndexMailshots::run($product))
+                //     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($product))),
+
                 /*
                 ProductTabsEnum::IMAGES->value => $this->tab == ProductTabsEnum::IMAGES->value ?
                     fn () => ImagesResource::collection(IndexImages::run($product))

@@ -28,6 +28,8 @@ enum ProductTabsEnum: string
     case DATA   = 'data';
     case IMAGES = 'images';
     case PARTS  = 'parts';
+    case SERVICE  = 'service';
+    case RENTAL  = 'rental';
 
 
 
@@ -80,6 +82,18 @@ enum ProductTabsEnum: string
             ],
             ProductTabsEnum::PARTS => [
                 'title' => __('parts'),
+                'icon'  => 'fal fa-box',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
+            ProductTabsEnum::SERVICE => [
+                'title' => __('service'),
+                'icon'  => 'fal fa-box',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
+            ProductTabsEnum::RENTAL => [
+                'title' => __('rental'),
                 'icon'  => 'fal fa-box',
                 'type'  => 'icon',
                 'align' => 'right',

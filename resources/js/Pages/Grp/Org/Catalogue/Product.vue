@@ -18,6 +18,9 @@ import Tabs from "@/Components/Navigation/Tabs.vue"
 import TableMailshots from "@/Components/Tables/TableMailshots.vue"
 import TableCustomers from "@/Components/Tables/Grp/Org/CRM/TableCustomers.vue"
 import ProductShowcase from "@/Components/Showcases/Grp/ProductShowcase.vue"
+import ProductService from "@/Components/Showcases/Grp/ProductService.vue"
+import ProductRental from "@/Components/Showcases/Grp/ProductRental.vue"
+
 import { capitalize } from "@/Composables/capitalize"
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
 
@@ -48,6 +51,8 @@ const props = defineProps<{
     customers?: {}
     mailshots?: {}
     showcase?: {}
+    service: {}
+    rental: {}
 }>()
 
 
@@ -61,6 +66,8 @@ const component = computed(() => {
         customers: TableCustomers,
         orders: TableOrders,
         details: ModelDetails,
+        service: ProductService,
+        rental: ProductRental,
         history: ModelChangelog,
     }
 
