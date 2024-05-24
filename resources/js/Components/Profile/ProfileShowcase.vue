@@ -6,6 +6,8 @@ import { faAndroid } from "@fortawesome/free-brands-svg-icons"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
 
+import AppLogin from "@/Components/Forms/Fields/AppLogin.vue"
+
 library.add(faAndroid)
 
 const props = defineProps<{
@@ -30,39 +32,38 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="px-6 py-6 ">
-        <div class="ring-1 ring-gray-300 shadow rounded-2xl p-6 grid grid-cols-9">
-            <div class="col-span-2 aspect-square rounded-full overflow-hidden md:h-56" :src="'person.imageUrl'" alt="">
-                <Image :src="data?.avatar" />
-            </div>
-
-            <div class="col-span-4">
-                <div class="flex items-end gap-x-2">
-                    <div class="font-semibold text-2xl">{{ data?.contact_name }}</div>
-                    <div class="text-gray-400">
-                        #{{data?.id}} {{ data?.username }}
-                    </div>
-
+    <div class="px-6 py-6 grid grid-cols-9 gap-x-8">
+        <div class="col-span-6 ring-1 ring-gray-300 shadow rounded-2xl py-6 grid grid-cols-2 gap-y-4">
+            <div class="flex flex-col gap-y-4 px-8">
+                <div class="mx-auto w-fit aspect-square rounded-full overflow-hidden md:h-56" :src="'person.imageUrl'" alt="">
+                    <Image :src="data?.avatar" />
                 </div>
-                <div class="mt-4">
-                    <div class="font-medium">
-                        Description
+                
+                <div class="col-span-4">
+                    <div class="flex items-end gap-x-2">
+                        <div class="font-semibold text-2xl">{{ data?.contact_name }}</div>
+                        <div class="text-gray-400">
+                            #{{ data?.id }} {{ data?.username }}
+                        </div>
                     </div>
-
-                    <div v-if="data?.about" class="text-gray-500">
-                        {{ data?.about }}
-                    </div>
-
-                    <div v-else class="text-gray-400 italic">
-                        {{ 'No description yet' }}
+                    <div class="mt-4">
+                        <div class="font-medium">
+                            Description
+                        </div>
+                        <div v-if="data?.about" class="text-gray-500">
+                            {{ data?.about }}
+                        </div>
+                        <div v-else class="text-gray-400 italic">
+                            {{ 'No description yet' }}
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Section: Contact Information -->
-            <div class="border-l border-gray-300 pl-6 col-span-3 space-y-3">
+            <div class="mt-6 border-l border-gray-300 pl-6 space-y-3">
                 <div class="font-semibold">Contact Information</div>
-                
+
                 <div class="space-y-2">
                     <div class="grid grid-cols-3 gap-x-5 text-sm">
                         <div class="text-gray-400">
@@ -90,7 +91,7 @@ const props = defineProps<{
                             {{ useFormatTime(data?.created_at) }}
                         </div>
                     </div>
-                    
+
                     <div class="grid grid-cols-3 gap-x-5 text-sm">
                         <div class="text-gray-400">
                             Email
@@ -119,20 +120,26 @@ const props = defineProps<{
                     </div>
                 </div>
             </div>
-        </div>   
+        </div>
 
-        <div class="ring-1 ring-gray-300 shadow rounded-2xl p-6 mt-2 w-1/3">
-            <div class="font-semibold">Download  App</div>
-            <a href="https://github.com/inikoo/maya/releases/tag/v0.0.6"  target="_blank"  class="flex items-end gap-x-2 mt-2">
-                <font-awesome-icon :icon="['fab', 'android']" />
-                    <div class="text-gray-400 text-sm leading-4">
-                        Android
+        <div class="h-fit grid col-span-3 ring-1 ring-gray-300 shadow rounded-2xl p-6 gap-y-6">
+            <AppLogin :route="{ name: 'grp.models.profile.app-login-qrcode' }" />
+
+            <div class="mt-8 flex flex-col items-center gap-y-1">
+                <div class="text-gray-400 italic">Don't have the app?</div>
+                <a href="https://github.com/inikoo/maya/releases/tag/v0.0.6" target="_blank"
+                    class="text-blue-700 hover:underline flex items-center gap-x-2">
+                    <FontAwesomeIcon icon='fab fa-android' class='' size="xl" fixed-width aria-hidden='true' />
+
+                    <div class="text-lg font-semibold leading-5">
+                        Download Android App
                     </div>
                 </a>
+            </div>
         </div>
-            
+
 
     </div>
 
-    
+
 </template>

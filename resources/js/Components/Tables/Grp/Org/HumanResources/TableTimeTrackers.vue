@@ -12,6 +12,7 @@ import Icon from "@/Components/Icon.vue";
 import {library} from "@fortawesome/fontawesome-svg-core";
 import {faPlus} from "@fas";
 import {faClock, faDoorClosed, faDoorOpen} from "@fal";
+import { useFormatTime } from '@/Composables/useFormatTime'
 
 const props = defineProps<{
     data: object,
@@ -60,6 +61,20 @@ function clockingRoute(clocking: Clocking) {
             <Link :href="clockingRoute(clocking)">
                 {{ clocking['slug'] }}
             </Link>
+        </template>
+
+        <!-- Column: Clocked In -->
+        <template #cell(starts_at)="{ item: clocking }">
+            <div :href="'x'">
+                {{ useFormatTime(clocking.starts_at, {formatTime: 'hm'}) }}
+            </div>
+        </template>
+
+        <!-- Column: Clocked Out -->
+        <template #cell(ends_at)="{ item: clocking }">
+            <div :href="'x'">
+                {{ useFormatTime(clocking.ends_at, {formatTime: 'hm'}) }}
+            </div>
         </template>
         <template #cell(status)="{ item: clocking }">
             <Icon :data="clocking['status']" class="px-1"/>

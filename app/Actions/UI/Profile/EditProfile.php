@@ -150,22 +150,22 @@ class EditProfile
 
                     //     ],
                     // ],
-                    [
-                        'label'  => __('App'),
-                        'icon'   => 'fal fa-mobile-android-alt',
-                        'fields' => [
-                            "app_login" => [
-                                "type"          => "app_login",
-                                "label"         => __("App login"),
-                                "route"         => [
-                                    "name"  => "grp.models.profile.app-login-qrcode",
-                                ],
-                                "noSaveButton"  => true,
-                                "noTitle"       => true,
-                                "full"          => true
-                            ],
-                        ]
-                    ]
+                    // [
+                    //     'label'  => __('App'),
+                    //     'icon'   => 'fal fa-mobile-android-alt',
+                    //     'fields' => [
+                    //         "app_login" => [
+                    //             "type"          => "app_login",
+                    //             "label"         => __("App login"),
+                    //             "route"         => [
+                    //                 "name"  => "grp.models.profile.app-login-qrcode",
+                    //             ],
+                    //             "noSaveButton"  => true,
+                    //             "noTitle"       => true,
+                    //             "full"          => true
+                    //         ],
+                    //     ]
+                    // ]
                 ],
                 "args"      => [
                     "updateRoute" => [
