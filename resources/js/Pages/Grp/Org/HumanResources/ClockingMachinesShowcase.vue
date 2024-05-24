@@ -6,6 +6,12 @@
 
 <script setup lang="ts">
 import QrcodeVue from 'qrcode.vue'
+import { faAndroid } from "@fortawesome/free-brands-svg-icons"
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
+
+library.add(faAndroid)
+
 
 const props = defineProps<{
     data: {
@@ -24,6 +30,7 @@ console.log(props.data)
 
 
 <template>
+    <div class="flex">
     <div v-if="data.status === 'disconnected'" class="relative w-fit p-4 bg-white shadow rounded-lg flex flex-col items-center gap-y-2">
         <QrcodeVue :value="data.qr_code" :size="200" level="L" render-as="svg" foreground="#334155"
             class="p-2 bg-gray-100 rounded-md" />
@@ -33,5 +40,16 @@ console.log(props.data)
     </div>
     <div class="m-4" v-else>
         You connected using device: {{ data.device_name }}
+    </div>
+
+    <div class="ring-1 ring-gray-300 shadow rounded-2xl p-6 m-2 w-1/3 h-fit">
+            <div class="font-semibold">Download  App</div>
+            <a href="https://github.com/inikoo/han/releases/tag/V0.0.1"  target="_blank"  class="flex items-end gap-x-2 mt-2">
+                <font-awesome-icon :icon="['fab', 'android']" />
+                    <div class="text-gray-400 text-sm leading-4">
+                        Android
+                    </div>
+                </a>
+        </div>
     </div>
 </template>
