@@ -33,9 +33,9 @@ import { Tabs as TSTabs } from '@/types/Tabs'
 import '@/Composables/Icon/PalletDeliveryStateEnum'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone } from '@fal'
+import { faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone, faConciergeBell, faCube } from '@fal'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone,faExclamationTriangle)
+library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone,faExclamationTriangle, faConciergeBell, faCube)
 
 const props = defineProps<{
     title: string
@@ -382,15 +382,34 @@ onMounted(() => {
         </BoxStatsPalletDelivery>
 
         <!-- Box: Pallet -->
-        <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" :tooltip="trans('Pallets')" :percentage="0">
-            <div class="flex items-end gap-x-3">
+        <BoxStatsPalletDelivery class="pb-2 py-5 px-3" :tooltip="trans('Pallets')" :percentage="0">
+            <div class="flex items-end gap-x-3 mb-1">
                 <dt class="flex-none">
                     <span class="sr-only">Total pallet</span>
                     <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-gray-600 leading-none text-3xl font-medium">{{ data?.data.number_pallets }}</dd>
+                <dd class="text-gray-600 leading-6 text-lg font-medium ">{{ data?.data.number_pallets }}</dd>
             </div>
+
+            <div class="flex items-end gap-x-3 mb-1">
+                <dt class="flex-none">
+                    <span class="sr-only">Services</span>
+                    <FontAwesomeIcon icon='fal fa-concierge-bell' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
+                </dt>
+                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ data?.data.number_pallets }}</dd>
+            </div>
+
+            <div class="flex items-end gap-x-3 mb-1">
+                <dt class="flex-none">
+                    <span class="sr-only">Physical Goods</span>
+                    <FontAwesomeIcon icon='fal fa-cube' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
+                </dt>
+                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ data?.data.number_pallets }}</dd>
+            </div>
+            
         </BoxStatsPalletDelivery>
 
         <!-- Box: Barcode -->

@@ -29,6 +29,7 @@ import { BoxStats, PDRNotes } from '@/types/Pallet'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { trans } from "laravel-vue-i18n"
 library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt )
 
 const layout = inject('layout', {})
@@ -82,6 +83,8 @@ onMounted(() => {
         displayValue: false
     })
 })
+
+console.log(props)
 
 </script>
 
@@ -167,6 +170,51 @@ onMounted(() => {
                 <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer?.customer.location.join(", ") }}</dd>
             </div>
         </BoxStatsPalletDelivery>
+
+
+        <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" :tooltip="trans('Status')" :label="capitalize(data?.data.state)"
+            icon="fal fa-truck-couch">
+            <div class="flex items-center w-full flex-none gap-x-2">
+                <dt class="flex-none">
+                    <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
+                    <FontAwesomeIcon :icon='box_stats.delivery_status.icon' :class='box_stats.delivery_status.class'
+                        fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="text-xs text-gray-500">{{ box_stats.delivery_status.tooltip }}</dd>
+            </div>
+        </BoxStatsPalletDelivery>
+
+        <!-- Box: Pallet -->
+        <BoxStatsPalletDelivery class="pb-2 py-5 px-3" :tooltip="trans('Pallets')" :percentage="0">
+            <div class="flex items-end gap-x-3 mb-1">
+                <dt class="flex-none">
+                    <span class="sr-only">Total pallet</span>
+                    <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
+                </dt>
+                <dd class="text-gray-600 leading-6 text-lg font-medium ">{{ data?.data.number_pallets }}</dd>
+            </div>
+
+            <div class="flex items-end gap-x-3 mb-1">
+                <dt class="flex-none">
+                    <span class="sr-only">Services</span>
+                    <FontAwesomeIcon icon='fal fa-concierge-bell' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
+                </dt>
+                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ data?.data.number_pallets }}</dd>
+            </div>
+
+            <div class="flex items-end gap-x-3 mb-1">
+                <dt class="flex-none">
+                    <span class="sr-only">Physical Goods</span>
+                    <FontAwesomeIcon icon='fal fa-cube' size="xs" class='text-gray-400' fixed-width
+                        aria-hidden='true' />
+                </dt>
+                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ data?.data.number_pallets }}</dd>
+            </div>
+            
+        </BoxStatsPalletDelivery>
+
 
         <!-- Box: Barcode -->
         <BoxStatsPalletDelivery>
