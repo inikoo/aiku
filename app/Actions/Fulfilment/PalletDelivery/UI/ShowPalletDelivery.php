@@ -390,15 +390,16 @@ class ShowPalletDelivery extends OrgAction
                         'field'           => 'internal_notes'
                     ],
                 ],
+                'rental_list' => RentalsResource::collection(
+                    IndexFulfilmentRentals::run($palletDelivery->fulfilment, 'rentals')
+                )->toArray($request),
 
 
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))),
 
-                'rentals' => RentalsResource::collection(
-                    IndexFulfilmentRentals::run($palletDelivery->fulfilment, 'rentals')
-                )
+                
             ]
         )->table(
             IndexPalletsInDelivery::make()->tableStructure(
