@@ -8,6 +8,7 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Clocking} from "@/types/clocking";
+import { useFormatTime } from '@/Composables/useFormatTime'
 
 const props = defineProps<{
     data: object,
@@ -54,6 +55,20 @@ function clockingRoute(clocking: Clocking) {
             <Link :href="clockingRoute(clocking)">
                 {{ clocking['slug'] }}
             </Link>
+        </template>
+
+        <!-- Column: Clocked In -->
+        <template #cell(starts_at)="{ item: clocking }">
+            <div :href="'x'">
+                {{ useFormatTime(clocking.starts_at, {formatTime: 'hm'}) }}
+            </div>
+        </template>
+
+        <!-- Column: Clocked Out -->
+        <template #cell(ends_at)="{ item: clocking }">
+            <div :href="'x'">
+                {{ useFormatTime(clocking.ends_at, {formatTime: 'hm'}) }}
+            </div>
         </template>
     </Table>
 </template>
