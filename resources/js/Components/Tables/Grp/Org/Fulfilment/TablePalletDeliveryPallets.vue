@@ -15,10 +15,9 @@ import { Link } from "@inertiajs/vue3"
 import Icon from "@/Components/Icon.vue"
 import { faTimesSquare } from "@fas"
 import { faTrashAlt, faPaperPlane, faInventory } from "@far"
-import { faTruckLoading, faStickyNote, faPallet, faBox, faBoxes, faSortSizeUp } from "@fal"
+import { faTruckLoading, faStickyNote, faPallet, faBox, faSortSizeUp } from "@fal"
 import FieldEditableTable from "@/Components/FieldEditableTable.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import { ref, watch } from "vue"
 import ButtonEditTable from "@/Components/ButtonEditTable.vue"
 import LocationFieldDelivery from "@/Components/LocationFieldDelivery.vue"
 import StoredItemProperty from '@/Components/StoredItemsProperty.vue'
@@ -26,23 +25,25 @@ import { routeType } from "@/types/route"
 import { Table as TSTable } from "@/types/Table"
 
 import '@/Composables/Icon/PalletStateEnum'
-import { trans } from "laravel-vue-i18n";
+import { trans } from "laravel-vue-i18n"
 
 library.add(faTrashAlt, faPaperPlane, faInventory, faTruckLoading, faStickyNote, faTimesSquare, faPallet, faBox, faSortSizeUp)
 
 const props = defineProps<{
-	data: TSTable
-	tab?: string
-	state?: string
-	tableKey: number
-	locationRoute: routeType
-	rentalRoute: routeType
-
-	storedItemsRoute: {
-		index: routeType
-		store: routeType
-	}
+    data: TSTable
+    tab?: string
+    state?: string
+    tableKey: number
+    locationRoute: routeType
+    rentalRoute: routeType
+    rentalList?: []
+    storedItemsRoute: {
+        index: routeType
+        store: routeType
+    }
 }>()
+
+
 
 const emits = defineEmits<{
 	(e: 'renderTableKey'): void
@@ -138,10 +139,12 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 			<Icon :data="pallet['state_icon']" class="px-1" />
 		</template>
 
+
 		<!-- Column: state-->
 		<template #cell(state)="{ item: palletDelivery }">
 			<Icon :data="palletDelivery['state_icon']" class="px-1" />
 		</template>
+
 
 		<!-- Column: Customer Reference -->
 		<template #cell(customer_reference)="{ item: item }">
@@ -158,6 +161,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 			</div>
 		</template>
 
+
 		<!-- Column: Notes -->
 		<template #cell(notes)="{ item: item }">
 			<div v-if="state == 'in-process'" class="">
@@ -166,39 +170,48 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 			<div v-else>{{ item["notes"] }}</div>
 		</template>
 
+
 		<!-- Column: Stored Items -->
 		<template #cell(stored_items)="{ item: item }">
 			<StoredItemProperty :pallet="item" @renderTable="() => emits('renderTableKey')"
 				:storedItemsRoute="storedItemsRoute" :state="props.state" />
 		</template>
 
-		<!-- Column: Set Loaction -->
+
+		<!-- Column: Set Location -->
 		<template #cell(location)="{ item: pallet }">
 			<div v-if="pallet.state == 'booked-in' || pallet.state == 'booking-in'" class="flex gap-x-1 gap-y-2 items-center">
 				<LocationFieldDelivery :key="pallet.state" :pallet="pallet"
 					@renderTableKey="() => emits('renderTableKey')" :locationRoute="locationRoute" />
 			</div>
-      <template v-else>
-        {{pallet.location_code}}
-      </template>
+            
+            <template v-else>
+                {{ pallet.location_code }}
+            </template>
 		</template>
+
 
 		<!-- Column: type pallet -->
 		<template #cell(type)="{ item: pallet }">
-				<FieldEditableTable :data="pallet" @onSave="onSaved" :options="typePallet" :fieldType="'select'"
-					fieldName="type" placeholder="Enter customer type" />
+            <FieldEditableTable :data="pallet" @onSave="onSaved" :options="typePallet" :fieldType="'select'"
+                fieldName="type" placeholder="Enter customer type" />
 		</template>
 
-		<!-- Column: rental -->
+
+		<!-- Column: Rental -->
 		<template #cell(rental)="{ item: pallet }">
 			<FieldEditableTable 
+                :options="props.rentalList"
 				:data="pallet"
 				@onSave="onSavedRental" 
-				fieldType="selectQuery"
-				:urlRoute="route(rentalRoute?.name, rentalRoute?.parameters)" 
+				fieldType="select"
 				fieldName="rental_id"
-				placeholder="Enter rental" :label="'name'" :valueProp="'id'" />
+				placeholder="Enter rental" 
+				label="name"
+				value-prop="id"
+			 />
 		</template>
+
 
 		<!-- Column: Actions -->
 		<template #cell(actions)="{ item: pallet }">
@@ -210,12 +223,14 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 				</Link>
 			</div>
 
+
 			<!-- State: not received -->
 			<div v-else-if="pallet.state == 'not-received'">
 				<ButtonEditTable class="mx-2" type="secondary" label="Undo" :capitalize="false" :size="'xs'"
 					:key="pallet.index" routeName="undoNotReceivedRoute" :data="pallet"
 					@onSuccess="() => emits('renderTableKey')" />
 			</div>
+
 
 			<!-- State: Received -->
 			<div v-else-if="(props.state == 'received' || props.state == 'booking-in' || props.state == 'not-received') && !pallet.location_id" class="flex">

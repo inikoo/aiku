@@ -7,6 +7,7 @@
 
 namespace App\Actions\UI\Notification;
 
+use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\SysAdmin\NotificationResource;
 use App\InertiaTable\InertiaTable;
@@ -70,20 +71,26 @@ class IndexNotification
         return Inertia::render(
             'Notifications',
             [
-                // 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
-                'title'       => __('Notifications'),
-                'pageHead'    => [
+                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName()),
+                'title'        => __('Notifications'),
+                'pageHead'     => [
                     'title'   => __('Notifications'),
 
                 ],
                 'data'        => NotificationResource::collection($notifications),
             ]
-        )->table($this->tableStructure(request()->user(), modelOperations: null, prefix: null));
+        )->table($this->tableStructure(request()->user(), prefix: 'notifications'));
     }
 
     public function tableStructure($user, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $user) {
+            if ($prefix) {
+                $table
+                    ->name($prefix)
+                    ->pageName($prefix.'Page');
+            }
+
             $table
                 ->withModelOperations($modelOperations)
                 ->withGlobalSearch()
@@ -94,7 +101,40 @@ class IndexNotification
                         // 'count'       => $user->crmStats->number_prospects
                     ]
                 )
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'title', label: __('title'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'body', label: __('body'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
+        };
+    }
+
+    public function getBreadcrumbs(string $routeName): array
+    {
+        $headCrumb = function (array $routeParameters = []) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('notifications'),
+                        'icon'  => 'fal fa-bars'
+                    ],
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'grp.notifications' =>
+            array_merge(
+                ShowDashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name' => 'grp.notifications',
+                        null
+                    ]
+                ),
+            ),
+
+            default => []
         };
     }
 }

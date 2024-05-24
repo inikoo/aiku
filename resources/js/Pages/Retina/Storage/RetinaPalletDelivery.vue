@@ -85,12 +85,11 @@ const onAddPallet = (data: {}, closedPopover: Function) => {
     })
 }
 
-console.log(props)
 
 
 const onChangeEstimateDate = async () => {
     try {
-        const response = await axios.patch(route(props.updateRoute.name, props.updateRoute.parameters), {
+        const response = await axios.patch(route(props.updateRoute.route.name, props.updateRoute.route.parameters), {
             estimated_delivery_date : props.data.data.estimated_delivery_date
         })
     } catch (error) {

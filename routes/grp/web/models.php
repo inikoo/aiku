@@ -77,6 +77,7 @@ use App\Actions\Inventory\Location\Tags\SyncTagsLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\ImportWarehouseArea;
+use App\Actions\Manufacturing\Artefact\ImportArtefact;
 use App\Actions\Manufacturing\JobOrder\StoreJobOrder;
 use App\Actions\Manufacturing\JobOrder\UpdateJobOrder;
 use App\Actions\Catalogue\Product\DeleteProduct;
@@ -302,6 +303,7 @@ Route::name('production.')->prefix('production/{production:id}')->group(function
     Route::patch('manufacture-tasks/{manufactureTask:id}', UpdateManufactureTask::class)->name('manufacture_tasks.update');
     Route::post('artefacts', StoreArtefact::class)->name('artefacts.store');
     Route::patch('artefacts/{artefact:id}', UpdateArtefact::class)->name('artefacts.update');
+    Route::post('artefact-upload', ImportArtefact::class)->name('artefact.import');
 
 });
 

@@ -61,7 +61,7 @@ class UpdatePalletDelivery extends OrgAction
         }
 
         return [
-            'customer_notes'=> ['sometimes','nullable','string','max:4000'],
+            'customer_notes'          => ['sometimes','nullable','string','max:4000'],
             'estimated_delivery_date' => ['sometimes', 'date'],
             ...$rules
         ];

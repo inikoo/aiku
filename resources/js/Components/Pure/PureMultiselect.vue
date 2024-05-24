@@ -1,4 +1,5 @@
 <script setup lang='ts'>
+import { ListboxLabel } from "@headlessui/vue";
 import Multiselect from "@vueform/multiselect"
 
 const props = defineProps<{
@@ -12,7 +13,10 @@ const props = defineProps<{
     }[] | string[]
     caret?: boolean
     object?: boolean
+    label?:String
+    valueProp?:String
 }>()
+
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: {}): void
@@ -43,6 +47,8 @@ const onInput = (keyOption : any) => {
             :object="object"
             :searchable="!!searchable"
             :caret="caret ?? true"
+            :label="label"
+            :valueProp="valueProp"
         >
             <!-- <template #singlelabel :option="{ option }">{{option}}</template> -->
         </Multiselect>

@@ -404,7 +404,7 @@ class ShowPalletDelivery extends OrgAction
                     fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))),
 
-                
+
             ]
         )->table(
             IndexPalletsInDelivery::make()->tableStructure(

@@ -56,18 +56,19 @@ const props = defineProps<{
         download: routeType
         history: routeType
     }
-    locationRoute : routeType
-    rentalRoute : routeType
-    storedItemsRoute : {
+    locationRoute: routeType
+    rentalRoute: routeType
+    storedItemsRoute: {
         index: routeType
         store: routeType
     }
     box_stats: BoxStats
     notes_data: PDRNotes[]
-    pallet_limits : {
-        status : String,
-        message : String
+    pallet_limits?: {
+        status: string
+        message: string
     }
+    rental_list?: []
 }>()
 
 
@@ -176,9 +177,9 @@ watch(() => props.data, (newValue) => {
     timeline.value = newValue.data
 }, { deep: true })
 
-watch(() => props.data?.data.estimated_delivery_date, (newValue) => {
+watch(() => props.data.data.estimated_delivery_date, (newValue) => {
     onChangeEstimateDate()
-}, { deep: true })
+}, { })
 
 onMounted(() => {
     JsBarcode('#palletDeliveryBarcode', 'pad-' + route().v().params.palletDelivery, {
@@ -217,14 +218,12 @@ console.log(props)
                     <div class="w-[350px]">
                         <span class="text-xs  my-2">{{ trans('Type') }}: </span>
                         <div class="flex items-center">
-                            <div v-for="(typeData, typeIdx) in typePallet" :key="typeIdx" class="relative py-3 mr-4">
-                                <div>
+                            <div v-for="(typeData, typeIdx) in typePallet" :key="typeIdx" class="relative py-3 mr-4 flex items-center">
                                     <input type="checkbox" :id="typeData.value" :value="typeData.value"
                                         :checked="formMultiplePallet.type == typeData.value"
                                         @input="changePalletType(formMultiplePallet,'type',typeData.value)"
-                                        class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4">
-                                    <label :for="typeData.value" class="ml-2">{{ typeData.label }}</label>
-                                </div>
+                                        class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer">
+                                    <label :for="typeData.value" class="ml-2 cursor-pointer">{{ typeData.label }}</label>
                             </div>
                         </div>
                         <span class="text-xs  my-2">Number of pallets: </span>
@@ -266,14 +265,12 @@ console.log(props)
 
                             <div class="flex items-center">
                                 <div v-for="(typeData, typeIdx) in typePallet" :key="typeIdx"
-                                    class="relative py-3 mr-4">
-                                    <div>
+                                    class="relative py-3 mr-4 flex items-center">
                                         <input type="checkbox" :id="typeData.value" :value="typeData.value"
                                             :checked="formAddPallet.type == typeData.value"
                                             @input="changePalletType(formAddPallet,'type',typeData.value)"
-                                            class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4">
-                                        <label :for="typeData.value" class="ml-2">{{ typeData.label }}</label>
-                                    </div>
+                                            class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer">
+                                        <label :for="typeData.value" class="ml-2 cursor-pointer">{{ typeData.label }}</label>
                                 </div>
                             </div>
                             <span class="text-xs px-1 my-2">{{ trans('Reference') }}: </span>
@@ -309,7 +306,7 @@ console.log(props)
     </PageHeading>
 
     <!-- Section: Warning -->
-    <div v-if="pallet_limits && pallet_limits.status == 'exceeded'">
+    <div v-if="pallet_limits?.status == 'exceeded'">
         <div class="rounded-md bg-yellow-50 p-4">
             <div class="flex">
                 <div class="flex-shrink-0">
@@ -317,9 +314,9 @@ console.log(props)
                         aria-hidden="true" />
                 </div>
                 <div class="ml-3">
-                    <h3 class="text-sm font-medium text-yellow-800">Attention needed</h3>
+                    <h3 class="text-sm font-medium text-yellow-800">{{ trans('Attention needed') }}</h3>
                     <div class="mt-2 text-sm text-yellow-700">
-                        <p>{{ pallet_limits.message }}</p>
+                        <p>{{ pallet_limits?.message }}</p>
                     </div>
                 </div>
             </div>
@@ -481,9 +478,20 @@ console.log(props)
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :key="timeline.state" :data="props[currentTab]" :state="timeline.state" :tab="currentTab"
-        :tableKey="tableKey" @renderTableKey="changeTableKey" :locationRoute="locationRoute"
-        :storedItemsRoute="storedItemsRoute" :rentalRoute="rentalRoute" />
+    
+    <component
+        :is="component"
+        :key="timeline.state"
+        :data="props[currentTab]"
+        :state="timeline.state"
+        :tab="currentTab"
+        :tableKey="tableKey"
+        @renderTableKey="changeTableKey"
+        :locationRoute="locationRoute"
+        :storedItemsRoute="storedItemsRoute"
+        :rentalRoute="rentalRoute"
+        :rentalList="props.rental_list"    
+    />
 
     <UploadExcel information="The list of column file: customer_reference, notes, stored_items"
         :propName="'pallet deliveries'" description="Adding Pallet Deliveries" :routes="{

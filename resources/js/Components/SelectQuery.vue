@@ -12,35 +12,35 @@ library.add(faTimes)
 
 const props = withDefaults(defineProps<{
     fieldName?: string
-    options?: string[] | object
+    // options?: string[] | object
     urlRoute: string
     placeholder?: string
     required?: boolean
-    mode?: string
+    mode?: "single" | "multiple" | "tags" | undefined
     searchable?: boolean
-    caret?: boolean
-    trackBy?: string
     label?: string
     valueProp?: string
     closeOnSelect?: boolean
-    closeOnDeselect?: boolean
     clearOnSearch?: boolean
     object?: boolean
     value: any
-    createOption?: boolean
-    onCreate?: any
     onChange?: Function
     canClear?: boolean
-    isSelected?: Function
     filterOptions? : Function
+    caret?: boolean
+    trackBy?: string
+    closeOnDeselect?: boolean
+    createOption?: boolean
+    onCreate?: any
+    isSelected?: Function
 }>(), {
-    placeholder: 'select',
     required: false,
+    placeholder: 'select',
     mode: 'single',
     searchable: true,
-    caret: true,
     valueProp: 'id',
     label: 'name',
+    caret: true,
     closeOnSelect: false,
     clearOnSearch: true,
     object: false,
@@ -109,7 +109,7 @@ const SearchChange = (value: any) => {
 }
 
 
-const handleScroll = () => {
+const onScrollMultiselect = () => {
     const dropdown = document.querySelector('.multiselect-dropdown')
     if (!dropdown) return
 
@@ -132,7 +132,7 @@ onMounted(() => {
      } */
     const dropdown = document.querySelector('.multiselect-dropdown')
     if (dropdown) {
-        dropdown.addEventListener('scroll', handleScroll)
+        dropdown.addEventListener('scroll', onScrollMultiselect)
     }
     getOptions()
 
@@ -142,7 +142,7 @@ onMounted(() => {
 onUnmounted(() => {
     const dropdown = document.querySelector('.multiselect-dropdown')
     if (dropdown) {
-        dropdown.removeEventListener('scroll', handleScroll)
+        dropdown.removeEventListener('scroll', onScrollMultiselect)
     }
 })
 
@@ -156,11 +156,12 @@ defineExpose({
 </script>
 
 <template>
-    <Multiselect ref="_multiselectRef" v-model="value[fieldName]" @update:modelValue="emits('updateVModel')"
+     <Multiselect ref="_multiselectRef" v-model="value[fieldName]" @update:modelValue="emits('updateVModel')"
         :placeholder="props.placeholder" :trackBy="props.trackBy" :label="props.label" :valueProp="props.valueProp"
         :object="props.object" :clearOnSearch="props.clearOnSearch" :close-on-select="props.closeOnSelect"
         :searchable="props.searchable" :caret="props.caret" :canClear="props.canClear" :options="optionData"
         :mode="props.mode" :on-create="props.onCreate" :create-option="props.createOption"
+
         :noResultsText="loading ? 'loading...' : 'No Result'" @open="getOptions()" @search-change="SearchChange"
         @change="props.onChange" :closeOnDeselect="closeOnDeselect" :isSelected="isSelected"
         >
