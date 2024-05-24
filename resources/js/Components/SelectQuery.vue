@@ -12,33 +12,24 @@ library.add(faTimes)
 
 const props = withDefaults(defineProps<{
     fieldName?: string
-    options?: string[] | object
+    // options?: string[] | object
     urlRoute: string
     placeholder?: string
-    required?: boolean
-    mode?: string
+    mode?: "single" | "multiple" | "tags" | undefined
     searchable?: boolean
-    caret?: boolean
-    trackBy?: string
     label?: string
     valueProp?: string
     closeOnSelect?: boolean
-    closeOnDeselect?: boolean
     clearOnSearch?: boolean
     object?: boolean
     value: any
-    createOption?: boolean
-    onCreate?: any
     onChange?: Function
     canClear?: boolean
-    isSelected?: Function
     filterOptions? : Function
 }>(), {
     placeholder: 'select',
-    required: false,
     mode: 'single',
     searchable: true,
-    caret: true,
     valueProp: 'id',
     label: 'name',
     closeOnSelect: false,
@@ -46,7 +37,6 @@ const props = withDefaults(defineProps<{
     object: false,
     value: null,
     fieldName: '',
-    createOption: false,
     onChange: () => null,
     canClear: false
 
@@ -57,7 +47,7 @@ const emits = defineEmits<{
 }>()
 
 let timeoutId: any
-const optionData = ref([])
+// const optionData = ref([])
 const q = ref('')
 const page = ref(1)
 const loading = ref(false)
@@ -93,7 +83,7 @@ const getOptions = async () => {
 const onGetOptionsSuccess = (response) => {
     const newData = response?.data?.data ?? [];
     const updatedOptions = q.value && q.value !== '' ? [...newData] : page.value > 1 ? [...optionData.value, ...newData] : [...newData];
-    optionData.value = props.filterOptions ? props.filterOptions(updatedOptions) : updatedOptions;
+    // optionData.value = props.filterOptions ? props.filterOptions(updatedOptions) : updatedOptions;
     lastPage.value = response?.data?.meta?.last_page ?? lastPage.value;
 }
 
@@ -109,7 +99,7 @@ const SearchChange = (value: any) => {
 }
 
 
-const handleScroll = () => {
+const onScrollMultiselect = () => {
     const dropdown = document.querySelector('.multiselect-dropdown')
     if (!dropdown) return
 
@@ -132,7 +122,7 @@ onMounted(() => {
      } */
     const dropdown = document.querySelector('.multiselect-dropdown')
     if (dropdown) {
-        dropdown.addEventListener('scroll', handleScroll)
+        dropdown.addEventListener('scroll', onScrollMultiselect)
     }
     getOptions()
 
@@ -142,14 +132,14 @@ onMounted(() => {
 onUnmounted(() => {
     const dropdown = document.querySelector('.multiselect-dropdown')
     if (dropdown) {
-        dropdown.removeEventListener('scroll', handleScroll)
+        dropdown.removeEventListener('scroll', onScrollMultiselect)
     }
 })
 
 
 defineExpose({
     _multiselectRef,
-    optionData
+    // optionData
 })
 
 
@@ -157,12 +147,13 @@ defineExpose({
 
 <template>
     <Multiselect ref="_multiselectRef" v-model="value[fieldName]" @update:modelValue="emits('updateVModel')"
-        :placeholder="props.placeholder" :trackBy="props.trackBy" :label="props.label" :valueProp="props.valueProp"
+        :placeholder="props.placeholder" :label="props.label" :valueProp="props.valueProp"
         :object="props.object" :clearOnSearch="props.clearOnSearch" :close-on-select="props.closeOnSelect"
-        :searchable="props.searchable" :caret="props.caret" :canClear="props.canClear" :options="optionData"
-        :mode="props.mode" :on-create="props.onCreate" :create-option="props.createOption"
+        :searchable="props.searchable" :canClear="props.canClear"
+        
+        :mode="props.mode"
         :noResultsText="loading ? 'loading...' : 'No Result'" @open="getOptions()" @search-change="SearchChange"
-        @change="props.onChange" :closeOnDeselect="closeOnDeselect" :isSelected="isSelected"
+        @change="props.onChange"
         >
         <template
             #tag="{ option, handleTagRemove, disabled }: { option: tag, handleTagRemove: Function, disabled: boolean }">
