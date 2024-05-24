@@ -765,7 +765,7 @@ const periodFilter = [
 
                         <!-- Filter: Period -->
                         <div v-if="queryBuilderProps?.period_filter?.length" class="w-fit flex gap-x-2">
-                            <TablePeriodFilter 
+                            <TablePeriodFilter
                                 :periodData="queryBuilderProps.period_filter"
                                 @periodChanged="(data) => queryBuilderData.periodFilter = data"
                                 :tableName="props.name"
@@ -894,7 +894,7 @@ const periodFilter = [
                                         <tr v-if="useExpandTable">
                                             <td :colspan="queryBuilderProps.columns?.length + (isCheckBox ? 1 : 0)" style="padding: 0;">
                                                 <slot name="expandRow" :item="{ rowIndex: key }">
-                                                
+
                                                 </slot>
                                             </td>
                                         </tr>

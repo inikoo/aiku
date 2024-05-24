@@ -4,6 +4,7 @@ namespace App\InertiaTable;
 
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Inertia\Response;
@@ -17,6 +18,7 @@ class InertiaTable
     private Collection $columns;
     private Collection $searchInputs;
     private Collection $elementGroups;
+    private array $periodFilters;
     private Collection $filters;
     private string $defaultSort = '';
 
@@ -32,6 +34,7 @@ class InertiaTable
     public function __construct(Request $request)
     {
         $this->request         = $request;
+        $this->periodFilters   = [];
         $this->columns         = new Collection();
         $this->searchInputs    = new Collection();
         $this->elementGroups   = new Collection();
@@ -134,6 +137,7 @@ class InertiaTable
             'pageName'                        => $this->pageName,
             'perPageOptions'                  => $this->perPageOptions,
             'elementGroups'                   => $this->transformElementGroups(),
+            'period_filter'                   => $this->transformPeriodFilters(),
             'modelOperations'                 => $this->modelOperations,
             'exportLinks'                     => $this->exportLinks,
             'emptyState'                      => $this->emptyState,
@@ -245,6 +249,40 @@ class InertiaTable
         return $this;
     }
 
+    public function periodFilters(array $elements): self
+    {
+        $result = [];
+
+        foreach ($elements as $elementKey => $value) {
+            $result[] = new PeriodFilter(
+                key: $elementKey,
+                label: Arr::get($value, 0),
+                date: Arr::get($value, 1)
+            );
+        }
+
+        $this->periodFilters = $result;
+
+        return $this;
+    }
+
+    protected function transformPeriodFilters(): Collection
+    {
+        $periodFilters = collect($this->periodFilters);
+        $queryFilter   = $this->query('period', []);
+
+        if (empty($queryFilter)) {
+            return $periodFilters;
+        }
+
+        return $periodFilters->map(function (PeriodFilter $periodFilter) use ($queryFilter) {
+            if (array_key_exists($periodFilter->key, $queryFilter)) {
+                $periodFilter->values = explode(',', $queryFilter[$periodFilter->key]);
+            }
+
+            return $periodFilter;
+        });
+    }
 
     public function column(
         string $key,
