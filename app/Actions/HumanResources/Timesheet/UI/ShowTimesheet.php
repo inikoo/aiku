@@ -89,6 +89,7 @@ class ShowTimesheet extends OrgAction
                     'navigation' => TimesheetTabsEnum::navigation()
                 ],
 
+                'timesheet' => GetTimesheetShowcase::run($timesheet),
 
                 TimesheetTabsEnum::TIME_TRACKERS->value => $this->tab == TimesheetTabsEnum::TIME_TRACKERS->value ?
                     fn () => TimeTrackersResource::collection(IndexTimeTrackers::run($timesheet, TimesheetTabsEnum::TIME_TRACKERS->value))
