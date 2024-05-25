@@ -36,6 +36,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -297,4 +298,10 @@ class Customer extends Model implements HasMedia, Auditable
     {
         return (bool)$this->webUsers->count();
     }
+
+    public function deliveryAddress(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
+    }
+
 }

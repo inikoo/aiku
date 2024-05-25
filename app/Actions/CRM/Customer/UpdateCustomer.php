@@ -8,7 +8,6 @@
 namespace App\Actions\CRM\Customer;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateUniversalSearch;
-use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Helpers\TaxNumber\DeleteTaxNumber;
 use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
@@ -36,30 +35,20 @@ class UpdateCustomer extends OrgAction
             $contactAddressData = Arr::get($modelData, 'contact_address');
             Arr::forget($modelData, 'contact_address');
 
-            $contactAddress=$customer->getAddress('contact');
-            if($contactAddress) {
-                UpdateAddress::run($contactAddress, $contactAddressData);
-            } else {
-                StoreAddressAttachToModel::run($customer, $contactAddressData, ['scope' => 'contact']);
-            }
 
-            $customer->location = $customer->getLocation();
-            $customer->save();
+            UpdateAddress::run($customer->address, $contactAddressData);
+            $customer->updateQuietly(
+                [
+                    'location' => $customer->address->getLocation()
+                ]
+            );
+
         }
         if (Arr::has($modelData, 'delivery_address')) {
             $deliveryAddressData = Arr::get($modelData, 'delivery_address');
             Arr::forget($modelData, 'delivery_address');
-            $deliveryAddress = $customer->getAddress('delivery');
-            if ($deliveryAddressData) {
-                if ($deliveryAddress) {
-                    UpdateAddress::run($deliveryAddress, $deliveryAddressData);
-                } else {
-                    StoreAddressAttachToModel::run($customer, $deliveryAddressData, ['scope' => 'delivery']);
-                }
-            } elseif ($deliveryAddress) {
-                $customer->addresses()->detach($deliveryAddress->id);
-                $deliveryAddress->delete();
-            }
+            UpdateAddress::run($customer->deliveryAddress, $deliveryAddressData);
+
         }
 
         if (Arr::has($modelData, 'tax_number')) {
@@ -129,7 +118,7 @@ class UpdateCustomer extends OrgAction
                     table: 'customers',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
-                        ['column' => 'deleted_at', 'operator'=>'notNull'],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
                         ['column' => 'id', 'value' => $this->customer->id, 'operator' => '!=']
                     ]
                 ),
@@ -155,7 +144,7 @@ class UpdateCustomer extends OrgAction
                         table: 'customers',
                         extraConditions: [
                             ['column' => 'shop_id', 'value' => $this->shop->id],
-                            ['column' => 'deleted_at', 'operator'=>'notNull'],
+                            ['column' => 'deleted_at', 'operator' => 'notNull'],
                             ['column' => 'id', 'value' => $this->customer->id, 'operator' => '!=']
                         ]
                     ),
@@ -176,7 +165,7 @@ class UpdateCustomer extends OrgAction
         return $this->handle($customer, $this->validatedData);
     }
 
-    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict=true): Customer
+    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Customer
     {
         $this->asAction       = true;
         $this->customer       = $customer;

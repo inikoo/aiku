@@ -95,7 +95,7 @@ class StoreCustomer extends OrgAction
         );
 
 
-        if (Arr::get($shop->settings, 'delivery_address_link', )) {
+        if (Arr::get($shop->settings, 'delivery_address_link' )) {
             $customer = $this->addLinkedAddress(
                 model:$customer,
                 scope: 'delivery',
@@ -105,7 +105,7 @@ class StoreCustomer extends OrgAction
         } elseif($deliveryAddressData) {
             $customer = $this->addAddressToModel(
                 model: $customer,
-                addressData: $contactAddressData,
+                addressData: $deliveryAddressData,
                 scope: 'delivery',
                 updateLocation: false,
                 updateAddressField: 'delivery_address_id'
