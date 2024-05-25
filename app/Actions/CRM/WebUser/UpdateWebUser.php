@@ -35,7 +35,7 @@ class UpdateWebUser extends OrgAction
 
         $webUser = $this->update($webUser, $modelData, ['data', 'settings']);
 
-        if ($webUser->wasChanged('status')) {
+        if (Arr::hasAny($webUser->getChanges(), ['status'])) {
             CustomerHydrateWebUsers::dispatch($webUser->customer);
         }
 
@@ -48,13 +48,11 @@ class UpdateWebUser extends OrgAction
             return true;
         }
 
-        if($this->shop->type==ShopTypeEnum::FULFILMENT) {
+        if ($this->shop->type == ShopTypeEnum::FULFILMENT) {
             return $request->user()->hasPermissionTo("fulfilment.{$this->shop->fulfilment->id}.edit");
         } else {
             return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
-
         }
-
     }
 
     public function rules(): array
@@ -69,7 +67,7 @@ class UpdateWebUser extends OrgAction
                     table: 'web_users',
                     extraConditions: [
                         ['column' => 'website_id', 'value' => $this->shop->website->id],
-                        ['column' => 'deleted_at', 'operator'=>'notNull'],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
                         ['column' => 'id', 'value' => $this->webUser->id, 'operator' => '!='],
                     ]
                 ),
@@ -82,7 +80,7 @@ class UpdateWebUser extends OrgAction
                     table: 'web_users',
                     extraConditions: [
                         ['column' => 'website_id', 'value' => $this->shop->website->id],
-                        ['column' => 'deleted_at', 'operator'=>'notNull'],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
                         ['column' => 'id', 'value' => $this->webUser->id, 'operator' => '!='],
                     ]
                 ),
@@ -103,7 +101,7 @@ class UpdateWebUser extends OrgAction
                         table: 'web_users',
                         extraConditions: [
                             ['column' => 'website_id', 'value' => $this->shop->website->id],
-                            ['column' => 'deleted_at', 'operator'=>'notNull'],
+                            ['column' => 'deleted_at', 'operator' => 'notNull'],
                             ['column' => 'id', 'value' => $this->webUser->id, 'operator' => '!='],
 
                         ]

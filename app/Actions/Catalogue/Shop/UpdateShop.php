@@ -29,14 +29,13 @@ class UpdateShop extends OrgAction
 
     public function handle(Shop $shop, array $modelData): Shop
     {
-
-        if(Arr::exists($modelData, 'address')) {
+        if (Arr::exists($modelData, 'address')) {
             $addressData = Arr::get($modelData, 'address');
             Arr::forget($modelData, 'address');
             $shop = $this->updateModelAddress($shop, $addressData);
         }
 
-        if(Arr::exists($modelData, 'collection_address')) {
+        if (Arr::exists($modelData, 'collection_address')) {
             $collectionAddressData = Arr::get($modelData, 'collection_address');
             Arr::forget($modelData, 'collection_address');
 
@@ -52,8 +51,8 @@ class UpdateShop extends OrgAction
 
 
         ShopHydrateUniversalSearch::dispatch($shop);
-        if ($shop->wasChanged(['type', 'state'])) {
-            OrganisationHydrateMarket::dispatch(app('currentTenant'));
+        if (Arr::hasAny($shop->getChanges(), ['type', 'state'])) {
+            OrganisationHydrateMarket::dispatch($shop->organisation);
         }
 
         return $shop;

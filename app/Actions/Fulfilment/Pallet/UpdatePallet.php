@@ -27,6 +27,7 @@ use App\Models\Fulfilment\Pallet;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -41,12 +42,12 @@ class UpdatePallet extends OrgAction
     {
         $pallet = $this->update($pallet, $modelData, ['data']);
 
-        if($pallet->wasChanged('state')) {
 
-            if($pallet->pallet_delivery_id) {
+        if (Arr::hasAny($pallet->getChanges(), ['state'])) {
+            if ($pallet->pallet_delivery_id) {
                 UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
             }
-            if($pallet->pallet_return_id) {
+            if ($pallet->pallet_return_id) {
                 UpdatePalletReturnStateFromItems::run($pallet->palletReturn);
             }
 
@@ -109,7 +110,7 @@ class UpdatePallet extends OrgAction
                 Rule::enum(PalletTypeEnum::class)
             ],
             'rental_id'          => ['nullable', 'exists:rentals,id'],
-            'notes'              => ['nullable', 'string','max:1024'],
+            'notes'              => ['nullable', 'string', 'max:1024'],
             'received_at'        => ['nullable', 'nullable', 'date'],
         ];
     }
@@ -122,6 +123,7 @@ class UpdatePallet extends OrgAction
         $this->pallet       = $pallet;
 
         $this->initialisation($request->get('website')->organisation, $request);
+
         return $this->handle($pallet, $this->validatedData);
     }
 
