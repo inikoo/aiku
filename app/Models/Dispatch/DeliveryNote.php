@@ -79,6 +79,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Address|null $address
+ * @property-read Collection<int, Address> $addresses
  * @property-read Customer $customer
  * @property-read Address|null $deliveryAddress
  * @property-read Collection<int, \App\Models\Dispatch\DeliveryNoteItem> $deliveryNoteItems
@@ -146,9 +147,9 @@ class DeliveryNote extends Model
         return 'slug';
     }
 
-    public function orders(): MorphToMany
+    public function orders(): BelongsToMany
     {
-        return $this->morphedByMany(Order::class, 'delivery_noteable');
+        return $this->belongsToMany(Order::class)->withTimestamps();
     }
 
     public function stats(): HasOne

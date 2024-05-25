@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -51,7 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $customer_number Customers own order number
  * @property OrderStateEnum $state
  * @property OrderStatusEnum $status
- * @property string $handing_type
+ * @property OrderHandingTypeEnum $handing_type
  * @property bool $customer_locked
  * @property bool $billing_locked
  * @property bool $delivery_locked
@@ -86,6 +87,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property-read Collection<int, Address> $addresses
  * @property-read Address|null $billingAddress
  * @property-read Address|null $collectionAddress
  * @property-read \App\Models\CRM\Customer $customer
@@ -158,9 +160,9 @@ class Order extends Model
         return $this->hasMany(Transaction::class);
     }
 
-    public function deliveryNotes(): MorphToMany
+    public function deliveryNotes(): BelongsToMany
     {
-        return $this->morphToMany(DeliveryNote::class, 'delivery_noteable')->withTimestamps();
+        return $this->belongsToMany(DeliveryNote::class)->withTimestamps();
     }
 
     public function payments(): MorphToMany

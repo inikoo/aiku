@@ -97,7 +97,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property-read \App\Models\SysAdmin\OrganisationAccountingStats|null $accountingStats
- * @property-read Address|null $address
  * @property-read LaravelCollection<int, Address> $addresses
  * @property-read Agent|null $agent
  * @property-read LaravelCollection<int, Artefact> $artefacts
