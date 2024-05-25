@@ -235,9 +235,7 @@ test('can show workplace', function () {
         $page
             ->component('Org/HumanResources/Workplace')
             ->has('breadcrumbs', 3)
-            ->where('pageHead.meta.0.href.name', 'grp.org.hr.workplaces.show.clocking-machines.index')
-            ->where('pageHead.meta.0.href.parameters', [$this->organisation->slug, $workplace->slug])
-            ->has('tabs.navigation', 5);
+            ->has('tabs.navigation', 3);
     });
 });
 

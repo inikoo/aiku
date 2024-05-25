@@ -8,6 +8,7 @@
 namespace App\Stubs\Migrations;
 
 use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
+use App\Enums\HumanResources\ClockingMachine\ClockingMachineStatusEnum;
 use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
@@ -63,6 +64,10 @@ trait HasHumanResourcesStats
 
         foreach (ClockingMachineTypeEnum::cases() as $case) {
             $table->unsignedSmallInteger('number_clocking_machines_type_'.$case->snake())->default(0);
+        }
+
+        foreach (ClockingMachineStatusEnum::cases() as $case) {
+            $table->unsignedSmallInteger('number_clocking_machines_status_'.$case->snake())->default(0);
         }
 
         return $this->getClockingsFieldStats($table);

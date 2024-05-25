@@ -149,7 +149,7 @@ class StoreClocking extends OrgAction
                 $clocking->slug
             ]);
         } else {
-            return Redirect::route('grp.org.hr.workplaces.show.clocking-machines.show.clockings.show', [
+            return Redirect::route('grp.org.hr.workplaces.show.clocking_machines.show.clockings.show', [
                 $clocking->workplace->slug,
                 $clocking->clockingMachine->slug,
                 $clocking->slug

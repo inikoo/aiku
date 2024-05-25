@@ -33,7 +33,7 @@ class CreateClockingMachine extends OrgAction
                     'title'        => __('new clocking machine'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'grp.org.hr.workplaces.show.clocking-machines.index',
+                            'name'       => 'grp.org.hr.workplaces.show.clocking_machines.index',
                             'parameters' => $request->route()->originalParameters()
                         ],
                     ]
@@ -57,7 +57,7 @@ class CreateClockingMachine extends OrgAction
                         ],
                     ],
                     'route'     => [
-                        'name'       => 'grp.models.org.workplaces.clocking-machines.store',
+                        'name'       => 'grp.models.org.workplaces.clocking_machines.store',
                         'parameters' => [
                             'organisation' => $request->route()->parameter('organisation')->id,
                             'workplace'    => $request->route()->parameter('workplace')->id

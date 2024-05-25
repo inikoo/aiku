@@ -110,11 +110,11 @@ class RemoveClocking extends OrgAction
                             'name'       => 'grp.models.working-place.clocking.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
-                        'grp.org.hr.clocking-machines.show.clockings.remove' => [
+                        'grp.org.hr.clocking_machines.show.clockings.remove' => [
                             'name'       => 'grp.models.clocking-machine.clocking.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
-                        'grp.org.hr.workplaces.show.clocking-machines.show.clockings.remove' => [
+                        'grp.org.hr.workplaces.show.clocking_machines.show.clockings.remove' => [
                             'name'       => 'grp.models.working-place.clocking-machine.clocking.delete',
                             'parameters' => $request->route()->originalParameters()
                         ]

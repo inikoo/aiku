@@ -41,17 +41,13 @@ class ShowClockingMachine extends OrgAction
 
     public function inApi(string $qr): ClockingMachine
     {
-        $decodedSlug = base64_decode($qr);
-
+        $decodedSlug     = base64_decode($qr);
         $clockingMachine = ClockingMachine::where('slug', $decodedSlug)->first();
 
         if ($clockingMachine) {
-
             return $clockingMachine;
-
         } else {
-
-            throw new \Exception('ClockingMachine not found');
+            abort('ClockingMachine not found');
         }
     }
 
@@ -98,7 +94,7 @@ class ShowClockingMachine extends OrgAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'grp.org.hr.workplaces.show.clocking-machines.remove',
+                                'name'       => 'grp.org.hr.workplaces.show.clocking_machines.remove',
                                 'parameters' => $request->route()->originalParameters()
                             ]
 
@@ -110,12 +106,12 @@ class ShowClockingMachine extends OrgAction
                             'number'   => 0/*$clockingMachine->stats->number_clockings*/,
                             'href'     =>
                                 match ($request->route()->getName()) {
-                                    'grp.org.hr.workplaces.show.clocking-machines.show' => [
-                                        'grp.org.hr.workplaces.show.clocking-machines.show.clockings.index',
+                                    'grp.org.hr.workplaces.show.clocking_machines.show' => [
+                                        'grp.org.hr.workplaces.show.clocking_machines.show.clockings.index',
                                         [$this->organisation->slug, $clockingMachine->workplace->slug, $clockingMachine->slug]
                                     ],
                                     default => [
-                                        'grp.org.hr.clocking-machines.show.clockings.index',
+                                        'grp.org.hr.clocking_machines.show.clockings.index',
                                         [
                                             $this->organisation->slug,
                                             $clockingMachine->slug,
@@ -165,7 +161,6 @@ class ShowClockingMachine extends OrgAction
         $headCrumb = function ($clockingMachine, array $routeParameters, $suffix) {
 
             $clockingMachine = ClockingMachine::where('slug', $routeParameters['index']['parameters']['clockingMachine'])->first();
-            // dd($routeParameters);
 
             return [
                 [
@@ -173,7 +168,7 @@ class ShowClockingMachine extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('clocking machines')
+                            'label' => __('Clocking machines')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
@@ -186,36 +181,36 @@ class ShowClockingMachine extends OrgAction
             ];
         };
         return match ($routeName) {
-            'grp.org.hr.clocking-machines.show' =>
+            'grp.org.hr.clocking_machines.show' =>
             array_merge(
                 (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['clockingMachine'],
                     [
                         'index' => [
-                            'name'       => 'grp.org.hr.clocking-machines.index',
+                            'name'       => 'grp.org.hr.clocking_machines.index',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'grp.org.hr.clocking-machines.show',
+                            'name'       => 'grp.org.hr.clocking_machines.show',
                             'parameters' => $routeParameters
                         ]
                     ],
                     $suffix
                 )
             ),
-            'grp.org.hr.workplaces.show.clocking-machines.show' =>
+            'grp.org.hr.workplaces.show.clocking_machines.show' =>
             array_merge(
                 (new ShowWorkplace())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['clockingMachine'],
                     [
                         'index' => [
-                            'name'       => 'grp.org.hr.workplaces.show.clocking-machines.index',
+                            'name'       => 'grp.org.hr.workplaces.show.clocking_machines.index',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'grp.org.hr.workplaces.show.clocking-machines.show',
+                            'name'       => 'grp.org.hr.workplaces.show.clocking_machines.show',
                             'parameters' => $routeParameters
 
 
@@ -249,8 +244,8 @@ class ShowClockingMachine extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.hr.clocking-machines.show' => [
-                'label' => $clockingMachine->code,
+            'grp.org.hr.clocking_machines.show' => [
+                'label' => $clockingMachine->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
@@ -259,8 +254,8 @@ class ShowClockingMachine extends OrgAction
                     ]
                 ]
             ],
-            'grp.org.hr.workplaces.show.clocking-machines.show' => [
-                'label' => $clockingMachine->code,
+            'grp.org.hr.workplaces.show.clocking_machines.show' => [
+                'label' => $clockingMachine->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [

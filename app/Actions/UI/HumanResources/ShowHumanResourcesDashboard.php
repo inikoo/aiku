@@ -71,6 +71,14 @@ class ShowHumanResourcesDashboard
                             'name'       => 'grp.org.hr.workplaces.index',
                             'parameters' => $request->route()->originalParameters()
                         ]
+                    ],
+                    [
+                        'name' => __('job positions'),
+                        'stat' => $this->organisation->humanResourcesStats->number_job_positions,
+                        'href' => [
+                            'name'       => 'grp.org.hr.job_positions.index',
+                            'parameters' => $request->route()->originalParameters()
+                        ]
                     ]
                 ]
 
@@ -91,7 +99,7 @@ class ShowHumanResourcesDashboard
                                 'name'       => 'grp.org.hr.dashboard',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('human resources'),
+                            'label' => __('Human resources'),
                         ]
                     ]
                 ]

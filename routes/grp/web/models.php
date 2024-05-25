@@ -133,7 +133,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('/shop/', StoreShop::class)->name('shop.store');
     Route::post('/fulfilment/', StoreFulfilment::class)->name('fulfilment.store');
 
-    Route::post('/workplaces/{workplace:id}/clocking-machines', StoreClockingMachine::class)->name('workplaces.clocking-machines.store');
+    Route::post('/workplaces/{workplace:id}/clocking-machines', StoreClockingMachine::class)->name('workplaces.clocking_machines.store');
 
     Route::prefix('fulfilment/{fulfilment:id}/rentals')->name('fulfilment.rentals.')->group(function () {
         Route::post('/', StoreRental::class)->name('store');

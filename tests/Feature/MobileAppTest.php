@@ -122,7 +122,7 @@ test('get clocking machines list (empty)', function () {
         ['*']
     );
 
-    $response = getJson(route('api.org.hr.clocking-machines.index', $this->organisation->id));
+    $response = getJson(route('api.org.hr.clocking_machines.index', $this->organisation->id));
 
     $response->assertOk();
     expect($response->json('data'))->toBeArray()
@@ -168,7 +168,7 @@ test('get clocking machines list in workplace', function () {
     );
     $response = getJson(
         route(
-            'api.org.hr.workplaces.show.clocking-machines.index',
+            'api.org.hr.workplaces.show.clocking_machines.index',
             [
                 $this->organisation->id,
                 $this->workplace->id
@@ -187,7 +187,7 @@ test('create clocking machine in workplace', function () {
         $this->user,
         ['*']
     );
-    $response = postJson(route('api.org.hr.workplaces.show.clocking-machines.store', [
+    $response = postJson(route('api.org.hr.workplaces.show.clocking_machines.store', [
         $this->organisation,
         $this->workplace->id
     ]), [
@@ -222,7 +222,7 @@ test('get clocking machines list in working place', function () {
     );
     $response = getJson(
         route(
-            'api.org.hr.workplaces.show.clocking-machines.index',
+            'api.org.hr.workplaces.show.clocking_machines.index',
             [
                 $this->organisation->id,
                 $this->workplace->id

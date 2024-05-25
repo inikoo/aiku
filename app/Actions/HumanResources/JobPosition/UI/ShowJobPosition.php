@@ -68,7 +68,7 @@ class ShowJobPosition extends OrgAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'grp.org.hr.job-positions.remove',
+                                'name'       => 'grp.org.hr.job_positions.remove',
                                 'parameters' => $request->route()->originalParameters()
                             ]
 
@@ -143,14 +143,14 @@ class ShowJobPosition extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name'       => 'grp.org.hr.job-positions.index',
+                                'name'       => 'grp.org.hr.job_positions.index',
                                 'parameters' => ['organisation' => $this->organisation->slug]
                             ],
                             'label' => __('positions')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.org.hr.job-positions.show',
+                                'name'       => 'grp.org.hr.job_positions.show',
                                 'parameters' => [
                                     'organisation' => $this->organisation->slug,
                                     'jobPosition'  => $jobPosition->slug
@@ -191,7 +191,7 @@ class ShowJobPosition extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.hr.job-positions.show' => [
+            'grp.org.hr.job_positions.show' => [
                 'label' => $jobPosition->name,
                 'route' => [
                     'name'       => $routeName,

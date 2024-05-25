@@ -164,7 +164,7 @@ class IndexClockings extends OrgAction
                         $this->canEdit
                         && (
                             $request->route()->getName() == 'grp.org.hr.workplaces.show.clockings.index' or
-                            $request->route()->getName() == 'grp.org.hr.workplaces.show.clocking-machines.show.clockings.index'
+                            $request->route()->getName() == 'grp.org.hr.workplaces.show.clocking_machines.show.clockings.index'
                         )
                             ? [
                             'type'  => 'button',
@@ -177,7 +177,7 @@ class IndexClockings extends OrgAction
                                         'parameters' => $request->route()->originalParameters()
                                     ],
                                     default => [
-                                        'name'       => 'grp.org.hr.workplaces.show.clocking-machines.show.clockings.create',
+                                        'name'       => 'grp.org.hr.workplaces.show.clocking_machines.show.clockings.create',
                                         'parameters' => $request->route()->originalParameters()
                                     ]
                                 }
@@ -228,33 +228,33 @@ class IndexClockings extends OrgAction
                         ]
                 ])
             ),
-            'grp.org.hr.clocking-machines.show.clockings.index' =>
+            'grp.org.hr.clocking_machines.show.clockings.index' =>
             array_merge(
                 (new ShowClockingMachine())->getBreadcrumbs(
-                    'grp.org.hr.clocking-machines.show',
+                    'grp.org.hr.clocking_machines.show',
                     [
                         'clockingMachine' => $routeParameters['clockingMachine']
                     ]
                 ),
                 $headCrumb([
-                    'name'       => 'grp.org.hr.clocking-machines.show.clockings.index',
+                    'name'       => 'grp.org.hr.clocking_machines.show.clockings.index',
                     'parameters' =>
                         [
                             $routeParameters['clockingMachine']->slug
                         ]
                 ])
             ),
-            'grp.org.hr.workplaces.show.clocking-machines.show.clockings.index' =>
+            'grp.org.hr.workplaces.show.clocking_machines.show.clockings.index' =>
             array_merge(
                 (new ShowClockingMachine())->getBreadcrumbs(
-                    'grp.org.hr.workplaces.show.clocking-machines.show',
+                    'grp.org.hr.workplaces.show.clocking_machines.show',
                     [
                         'workplace'       => $routeParameters['workplace'],
                         'clockingMachine' => $routeParameters['clockingMachine']
                     ]
                 ),
                 $headCrumb([
-                    'name'       => 'grp.org.hr.workplaces.show.clocking-machines.show.clockings.index',
+                    'name'       => 'grp.org.hr.workplaces.show.clocking_machines.show.clockings.index',
                     'parameters' =>
                         [
                             $routeParameters['workplace']->slug,

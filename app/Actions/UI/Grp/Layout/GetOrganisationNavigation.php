@@ -107,8 +107,6 @@ class GetOrganisationNavigation
         }
 
 
-
-
         if ($user->hasPermissionTo("inventory.$organisation->id.view")) {
             $navigation["inventory"] = [
                 "root"    => "grp.org.inventory.",
@@ -148,7 +146,6 @@ class GetOrganisationNavigation
                 ],
             ];
         }
-
 
 
         if ($user->hasAnyPermission(['org-supervisor.'.$organisation->id, 'warehouses-view.'.$organisation->id])) {
@@ -255,7 +252,6 @@ class GetOrganisationNavigation
                     ];
                 }
         */
-
 
 
         if ($user->hasPermissionTo("procurement.$organisation->id.view")) {
@@ -373,16 +369,41 @@ class GetOrganisationNavigation
                 ],
                 'topMenu' => [
                     'subSections' => [
+
                         [
-                            'label' => __('job positions'),
-                            'icon'  => ['fal', 'fa-network-wired'],
-                            'root'  => 'grp.org.hr.job-positions.',
-                            'route' => [
-                                'name'       => 'grp.org.hr.job-positions.index',
+                            "tooltip" => __("Dashboard"),
+                            "icon"    => ["fal", "fa-chart-network"],
+                            "root"    => "grp.org.fulfilments.show.operations.dashboard",
+                            "route"   => [
+                                "name"       => "grp.org.hr.dashboard",
+                                'parameters' => [$organisation->slug],
+                            ],
+                        ],
+
+                        [
+                            'tooltip' => __('working place'),
+                            'icon'    => ['fal', 'fa-building'],
+                            'root'    => 'grp.org.hr.workplaces.',
+                            'route'   => [
+                                'name'       => 'grp.org.hr.workplaces.index',
                                 'parameters' => [$organisation->slug],
 
                             ]
                         ],
+
+
+                        [
+                            'tooltip' => __('job positions'),
+                            'icon'    => ['fal', 'fa-network-wired'],
+                            'root'    => 'grp.org.hr.job_positions.',
+                            'route'   => [
+                                'name'       => 'grp.org.hr.job_positions.index',
+                                'parameters' => [$organisation->slug],
+
+                            ]
+                        ],
+
+
                         [
                             'label' => __('employees'),
                             'icon'  => ['fal', 'fa-user-hard-hat'],
@@ -403,6 +424,17 @@ class GetOrganisationNavigation
 
                         //     ]
                         // ],
+
+                        [
+                            'label' => __('clocking machines'),
+                            'icon'  => ['fal', 'fa-chess-clock'],
+                            'root'  => 'grp.org.hr.clocking_machines.',
+                            'route' => [
+                                'name'       => 'grp.org.hr.clocking_machines.index',
+                                'parameters' => [$organisation->slug],
+
+                            ]
+                        ],
                         [
                             'label' => __('timesheets'),
                             'icon'  => ['fal', 'fa-stopwatch'],
@@ -413,16 +445,10 @@ class GetOrganisationNavigation
 
                             ]
                         ],
-                        [
-                            'label' => __('working place'),
-                            'icon'  => ['fal', 'fa-building'],
-                            'root'  => 'grp.org.hr.workplaces.',
-                            'route' => [
-                                'name'       => 'grp.org.hr.workplaces.index',
-                                'parameters' => [$organisation->slug],
 
-                            ]
-                        ]
+
+
+
                     ]
                 ]
             ];

@@ -16,6 +16,7 @@ use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -75,6 +76,7 @@ class Workplace extends Model implements Auditable
     use HasHistory;
     use HasAddress;
     use HasAddresses;
+    use InOrganisation;
 
     protected $casts = [
         'data'     => 'array',
@@ -119,10 +121,6 @@ class Workplace extends Model implements Auditable
         return $this->belongsTo(Timezone::class);
     }
 
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
 
     public function clockingMachines(): HasMany
     {

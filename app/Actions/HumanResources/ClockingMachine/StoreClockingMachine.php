@@ -10,6 +10,7 @@ namespace App\Actions\HumanResources\ClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\Hydrators\ClockingMachineHydrateUniversalSearch;
 use App\Actions\HumanResources\Workplace\Hydrators\WorkplaceHydrateClockingMachines;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateClockingMachines;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateClockingMachines;
 use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
@@ -43,6 +44,7 @@ class StoreClockingMachine extends OrgAction
         $clockingMachine->stats()->create();
 
         OrganisationHydrateClockingMachines::dispatch($workplace->organisation);
+        GroupHydrateClockingMachines::dispatch($clockingMachine->group);
         WorkplaceHydrateClockingMachines::dispatch($workplace);
 
         ClockingMachineHydrateUniversalSearch::dispatch($clockingMachine);
@@ -100,7 +102,7 @@ class StoreClockingMachine extends OrgAction
     public function htmlResponse(ClockingMachine $clockingMachine): RedirectResponse
     {
         return Redirect::route(
-            'grp.org.hr.workplaces.show.clocking-machines.show',
+            'grp.org.hr.workplaces.show.clocking_machines.show',
             [
                 'organisation'    => $this->organisation->slug,
                 'workplace'       => $clockingMachine->workplace->slug,
