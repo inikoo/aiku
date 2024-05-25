@@ -8,6 +8,7 @@
 namespace App\Actions\CRM\Prospect;
 
 use App\Actions\CRM\Prospect\Hydrators\ProspectHydrateUniversalSearch;
+use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithProspectPrepareForValidation;
@@ -16,7 +17,6 @@ use App\Enums\CRM\Prospect\ProspectFailStatusEnum;
 use App\Enums\CRM\Prospect\ProspectSuccessStatusEnum;
 use App\Http\Resources\Lead\ProspectResource;
 use App\Models\CRM\Prospect;
-use App\Models\Helpers\Address;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
@@ -34,7 +34,7 @@ class UpdateProspect extends OrgAction
 
     public function handle(Prospect $prospect, array $modelData): Prospect
     {
-        $contactAddressData = Arr::get($modelData, 'address');
+        $addressData = Arr::get($modelData, 'address');
         Arr::forget($modelData, 'address');
 
         if (Arr::has($modelData, 'email')) {
@@ -47,17 +47,14 @@ class UpdateProspect extends OrgAction
 
         $prospect = $this->update($prospect, $modelData, ['data']);
 
-        if ($contactAddressData) {
-            if ($prospect->address) {
-                $prospect->address()->update($contactAddressData);
-            } else {
-                data_set($contactAddressData, 'owner_type', 'Prospect');
-                data_set($contactAddressData, 'owner_id', $prospect->id);
-                $address = Address::create($contactAddressData);
-                $prospect->address()->associate($address);
-            }
-            $prospect->location = $prospect->address->getLocation();
-            $prospect->save();
+        if ($addressData) {
+            UpdateAddress::run($prospect->address,$addressData);
+            $prospect->update(
+                [
+                    'location' => $prospect->address->getLocation()
+                ]
+            );
+
         }
 
         ProspectHydrateUniversalSearch::dispatch($prospect);

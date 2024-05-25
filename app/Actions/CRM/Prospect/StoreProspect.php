@@ -15,13 +15,13 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProspects;
 use App\Actions\Traits\WithCheckCanContactByEmail;
 use App\Actions\Traits\WithCheckCanContactByPhone;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Actions\Traits\WithProspectPrepareForValidation;
 use App\Enums\CRM\Prospect\ProspectContactedStateEnum;
 use App\Enums\CRM\Prospect\ProspectFailStatusEnum;
 use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Enums\CRM\Prospect\ProspectSuccessStatusEnum;
 use App\Models\CRM\Prospect;
-use App\Models\Helpers\Address;
 use App\Models\Catalogue\Shop;
 use App\Rules\IUnique;
 use App\Rules\Phone;
@@ -38,6 +38,7 @@ class StoreProspect extends OrgAction
     use WithProspectPrepareForValidation;
     use WithCheckCanContactByEmail;
     use WithCheckCanContactByPhone;
+    use WithModelAddressActions;
 
 
     public function handle(Shop $shop, array $modelData): Prospect
@@ -45,7 +46,7 @@ class StoreProspect extends OrgAction
         $tags = Arr::get($modelData, 'tags', []);
         Arr::forget($modelData, 'tags');
 
-        $contactAddressData = Arr::get($modelData, 'address');
+        $addressData = Arr::get($modelData, 'address');
         Arr::forget($modelData, 'address');
 
         data_set($modelData, 'group_id', $shop->group_id);
@@ -74,18 +75,20 @@ class StoreProspect extends OrgAction
         /** @var Prospect $prospect */
         $prospect = $shop->prospects()->create($modelData);
 
-        $prospect->can_contact_by_email = $this->canContactByEmail($prospect);
-        $prospect->can_contact_by_phone = $this->canContactByPhone($prospect);
+        $prospect->updateQuietly(
+            [
+                'can_contact_by_email'=>$this->canContactByEmail($prospect),
+                'can_contact_by_phone'=>$this->canContactByPhone($prospect)
+            ]
 
-        $prospect->save();
+        );
 
-        if ($contactAddressData) {
-            data_set($contactAddressData, 'owner_type', 'Prospect');
-            data_set($contactAddressData, 'owner_id', $prospect->id);
-            $address=Address::create($contactAddressData);
-            $prospect->address()->associate($address);
-            $prospect->location = $prospect->address->getLocation();
-            $prospect->save();
+        if ($addressData) {
+            $prospect = $this->addAddressToModel(
+                model: $prospect,
+                addressData: $addressData,
+                scope: 'contact'
+            );
         }
 
         ProspectHydrateUniversalSearch::dispatch($prospect);

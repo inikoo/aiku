@@ -18,6 +18,8 @@ use App\Models\Catalogue\Shop;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InCustomer;
 use Eloquent;
@@ -106,6 +108,8 @@ class Prospect extends Model
     use HasFactory;
     use HasTags;
     use InCustomer;
+    use HasAddress;
+    use HasAddresses;
 
     protected $casts = [
         'data'                 => 'array',
@@ -190,8 +194,5 @@ class Prospect extends Model
     }
 
 
-    public function address(): BelongsTo
-    {
-        return $this->belongsTo(Address::class);
-    }
+
 }
