@@ -233,7 +233,7 @@ class ShowEmployee extends OrgAction
                                     Arr::only($routeParameters, 'organisation')
                                 )
                             ],
-                            'label' => __('employees')
+                            'label' => __('Employees')
                         ],
                         'model' => [
                             'route' => [

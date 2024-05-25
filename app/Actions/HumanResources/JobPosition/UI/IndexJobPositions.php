@@ -184,7 +184,7 @@ class IndexJobPositions extends OrgAction
                             'name'       => 'grp.org.hr.job_positions.index',
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('positions'),
+                        'label' => __('Positions'),
                         'icon'  => 'fal fa-bars',
                     ],
 

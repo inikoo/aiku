@@ -61,7 +61,7 @@ class IndexClockingMachines extends OrgAction
 
             ])
             ->leftJoin('workplaces', 'clocking_machines.workplace_id', '=', 'workplaces.id')
-            ->allowedSorts(['slug', 'name'])
+            ->allowedSorts(['name','type','workplace_name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();

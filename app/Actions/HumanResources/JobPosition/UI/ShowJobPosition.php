@@ -146,7 +146,7 @@ class ShowJobPosition extends OrgAction
                                 'name'       => 'grp.org.hr.job_positions.index',
                                 'parameters' => ['organisation' => $this->organisation->slug]
                             ],
-                            'label' => __('positions')
+                            'label' => __('Positions')
                         ],
                         'model' => [
                             'route' => [

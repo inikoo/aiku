@@ -35,6 +35,17 @@ function clockingMachineRoute(clockingMachine: ClockingMachine) {
         ]);
   }
 }
+
+function workplaceRoute(clockingMachine: ClockingMachine) {
+  return route(
+    "grp.org.hr.workplaces.show",
+    [
+      route().params.organisation,
+      clockingMachine.workplace_slug
+    ]);
+
+}
+
 </script>
 
 <template>
@@ -42,6 +53,11 @@ function clockingMachineRoute(clockingMachine: ClockingMachine) {
     <template #cell(name)="{ item: clockingMachine }">
       <Link :href="clockingMachineRoute(clockingMachine)" class="primaryLink">
         {{ clockingMachine["name"] }}
+      </Link>
+    </template>
+    <template #cell(workplace_name)="{ item: clockingMachine }">
+      <Link :href="workplaceRoute(clockingMachine)" class="secondaryLink">
+        {{ clockingMachine["workplace_name"] }}
       </Link>
     </template>
   </Table>

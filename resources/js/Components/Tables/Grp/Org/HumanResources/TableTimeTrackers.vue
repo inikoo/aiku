@@ -10,7 +10,6 @@ import Table from '@/Components/Table/Table.vue';
 import {Clocking} from "@/types/clocking";
 import Icon from "@/Components/Icon.vue";
 import {library} from "@fortawesome/fontawesome-svg-core";
-import {faPlus} from "@fas";
 import {faClock, faDoorClosed, faDoorOpen} from "@fal";
 import { useFormatTime } from '@/Composables/useFormatTime'
 

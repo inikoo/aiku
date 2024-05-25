@@ -195,7 +195,7 @@ class IndexTimeTrackers extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('clockings'),
+                        'label' => __('Clockings'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],
