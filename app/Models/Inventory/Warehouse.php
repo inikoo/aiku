@@ -17,6 +17,7 @@ use App\Models\Helpers\Issue;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Role;
+use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
@@ -87,6 +88,7 @@ class Warehouse extends Model implements Auditable
     use HasFactory;
     use HasHistory;
     use InOrganisation;
+    use HasAddresses;
 
     protected $casts = [
         'state'    => WarehouseStateEnum::class,

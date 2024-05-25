@@ -39,7 +39,6 @@ class FetchAuroraShop extends FetchAurora
             $this->parsedData['collectionAddress'] = $this->parseAddress(prefix: 'Store Collect', auAddressData: $this->auroraModelData);
         }
 
-
         $auroraSettings = json_decode($this->auroraModelData->{'Store Settings'}, true);
 
 
@@ -74,17 +73,15 @@ class FetchAuroraShop extends FetchAurora
             'open_at'     => $this->parseDate($this->auroraModelData->{'Store Valid From'}),
             'closed_at'   => $this->parseDate($this->auroraModelData->{'Store Valid To'}),
             'created_at'  => $this->parseDate($this->auroraModelData->{'Store Valid From'}),
-
-            'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Store Key'},
-            'settings'  => [
-                'can_collect' => $this->auroraModelData->{'Store Can Collect'} === 'Yes'
-            ]
+            'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Store Key'},
+            'settings'    => $settings
 
         ];
 
 
-        if($type=='fulfilment') {
-            $this->parsedData['shop']['warehouses']=[Warehouse::first()->id];
+
+        if ($type == 'fulfilment') {
+            $this->parsedData['shop']['warehouses'] = [Warehouse::first()->id];
         }
 
 

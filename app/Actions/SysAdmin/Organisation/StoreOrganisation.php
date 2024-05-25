@@ -11,6 +11,7 @@ use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvi
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\Procurement\OrgPartner\StoreOrgPartner;
 use App\Actions\SysAdmin\User\UserAddRoles;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
@@ -19,7 +20,6 @@ use App\Models\Assets\Country;
 use App\Models\Assets\Currency;
 use App\Models\Assets\Language;
 use App\Models\Assets\Timezone;
-use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
@@ -39,6 +39,7 @@ class StoreOrganisation
 {
     use AsAction;
     use WithAttributes;
+    use WithModelAddressActions;
 
     public function handle(Group $group, array $modelData): Organisation
     {
@@ -54,17 +55,9 @@ class StoreOrganisation
         SeedOrganisationPermissions::run($organisation);
         SeedJobPositions::run($organisation);
 
+        $organisation = $this->addAddressToModel($organisation, $addressData);
 
-        if ($addressData) {
-            data_set($addressData, 'owner_type', 'Organisation');
-            data_set($addressData, 'owner_id', $organisation->id);
-            $address = Address::create($addressData);
 
-            $organisation->address()->associate($address);
-
-            $organisation->location = $organisation->address->getLocation();
-            $organisation->save();
-        }
         $superAdmins = $group->users()->with('roles')->get()->filter(
             fn ($user) => $user->roles->where('name', 'super-admin')->toArray()
         );

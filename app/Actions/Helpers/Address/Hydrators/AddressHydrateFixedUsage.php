@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 06 Mar 2023 00:07:47 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sat, 25 May 2024 15:25:34 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Helpers\Address\Hydrators;
@@ -13,7 +13,7 @@ use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class AddressHydrateUsage implements ShouldBeUnique
+class AddressHydrateFixedUsage implements ShouldBeUnique
 {
     use AsAction;
 
@@ -31,9 +31,9 @@ class AddressHydrateUsage implements ShouldBeUnique
 
     public function handle(Address $address): void
     {
-        if (!$address->is_fixed) {
-            $usage = DB::table('model_has_addresses')->where('address_id', $address->id)->count();
-            $address->update(['usage' => $usage]);
+        if ($address->is_fixed) {
+            $fixedUsage = DB::table('model_has_fixed_addresses')->where('address_id', $address->id)->count();
+            $address->update(['fixed_usage' => $fixedUsage]);
         }
     }
 

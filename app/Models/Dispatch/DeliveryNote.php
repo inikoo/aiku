@@ -18,7 +18,6 @@ use App\Models\Ordering\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
-use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InCustomer;
 use Eloquent;
@@ -55,6 +54,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool|null $restocking
  * @property string|null $email
  * @property string|null $phone
+ * @property bool $delivery_locked
+ * @property int|null $address_id
+ * @property int|null $delivery_country_id
  * @property string|null $weight
  * @property int $number_stocks
  * @property int $number_picks
@@ -75,9 +77,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
- * @property-read Collection<int, Address> $addresses
+ * @property-read Address|null $address
  * @property-read Customer $customer
+ * @property-read Address|null $deliveryAddress
  * @property-read Collection<int, \App\Models\Dispatch\DeliveryNoteItem> $deliveryNoteItems
+ * @property-read Collection<int, Address> $fixedAddresses
  * @property-read Group $group
  * @property-read Collection<int, Order> $orders
  * @property-read Organisation $organisation
@@ -99,7 +103,6 @@ class DeliveryNote extends Model
 {
     use SoftDeletes;
     use HasSlug;
-    use HasAddresses;
     use HasUniversalSearch;
     use HasFactory;
     use InCustomer;
@@ -165,4 +168,20 @@ class DeliveryNote extends Model
     {
         return $this->belongsTo(Warehouse::class);
     }
+
+    public function address(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
+    }
+
+    public function deliveryAddress(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
+    }
+
+    public function fixedAddresses(): MorphToMany
+    {
+        return $this->morphToMany(Address::class, 'model', 'model_has_fixed_addresses')->withTimestamps();
+    }
+
 }

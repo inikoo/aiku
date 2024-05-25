@@ -17,7 +17,7 @@ trait HasAddresses
 
     public function addresses(): MorphToMany
     {
-        return $this->morphToMany(Address::class, 'addressable')->withTimestamps();
+        return $this->morphToMany(Address::class, 'model', 'model_has_addresses')->withTimestamps();
     }
 
 }

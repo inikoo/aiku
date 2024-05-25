@@ -11,6 +11,7 @@ use App\Actions\HumanResources\Workplace\Hydrators\WorkplaceHydrateUniversalSear
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWorkplaces;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Http\Resources\HumanResources\WorkplaceResource;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\Workplace;
@@ -23,7 +24,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateWorkplace extends OrgAction
 {
     use WithActionUpdate;
-
+    use WithModelAddressActions;
 
     private Workplace $workplace;
 

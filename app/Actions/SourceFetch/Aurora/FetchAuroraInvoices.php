@@ -9,8 +9,7 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
-use App\Actions\Helpers\Address\StoreHistoricAddress;
-use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
+use App\Actions\Traits\WithFixedAddressActions;
 use App\Models\Accounting\Invoice;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
@@ -19,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraInvoices extends FetchAuroraAction
 {
+    use WithFixedAddressActions;
     public string $commandSignature = 'fetch:invoices {organisations?*} {--s|source_id=} {--S|shop= : Shop slug}  {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions = false): ?Invoice
@@ -37,11 +37,22 @@ class FetchAuroraInvoices extends FetchAuroraAction
 
                     return null;
                 }
-                $currentBillingAddress = $invoice->getAddress('billing');
+
+
+                $currentBillingAddress = $invoice->address;
 
                 if ($currentBillingAddress->checksum != $invoiceData['invoice']['billing_address']->getChecksum()) {
-                    $billingAddress = StoreHistoricAddress::run($invoiceData['invoice']['billing_address']);
-                    UpdateHistoricAddressToModel::run($invoice, $currentBillingAddress, $billingAddress, ['scope' => 'billing']);
+
+                    $oldBillingAddressID=$invoice->address_id;
+                    $invoice            = $this->createFixedAddress($invoice, $currentBillingAddress, 'Invoice', 'billing', 'address_id');
+                    $invoice->updateQuietly(
+                        [
+                            'billing_country_id' => $invoice->address->country_id
+                        ]
+                    );
+
+                    $invoice->fixedAddresses()->dettach($oldBillingAddressID);
+
                 }
 
                 if (in_array('transactions', $this->with) or $forceWithTransactions) {

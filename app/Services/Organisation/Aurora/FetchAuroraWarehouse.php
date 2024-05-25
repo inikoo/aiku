@@ -22,6 +22,9 @@ class FetchAuroraWarehouse extends FetchAurora
                 'Active' => WarehouseStateEnum::OPEN->value,
                 default  => WarehouseStateEnum::CLOSED->value
             },
+            'settings'   => [
+                'address_link' => 'Organisation:default'
+            ],
             "source_id"  => $this->organisation->id.':'.$this->auroraModelData->{'Warehouse Key'},
             "created_at" =>
                 $this->auroraModelData->{'Warehouse Valid From'} ?? null,

@@ -16,7 +16,12 @@ return new class () extends Migration {
             'addresses',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->nullableMorphs('owner');
+                $table->unsignedInteger('usage')->default(0)->comment('usage by models/scopes');
+                $table->unsignedInteger('fixed_usage')->default(0)->comment('count usage by fixed models/fixed_scopes');
+                $table->unsignedInteger('multiplicity')->default(0)->comment('count address with same checksum');
+
+
+                // $table->nullableMorphs('owner');
                 $table->string('address_line_1', 255)->nullable();
                 $table->string('address_line_2', 255)->nullable();
                 $table->string('sorting_code')->nullable();
@@ -28,21 +33,41 @@ return new class () extends Migration {
                 $table->unsignedSmallInteger('country_id')->nullable()->index();
                 $table->foreign('country_id')->references('id')->on('countries');
                 $table->string('checksum')->index()->nullable();
-                $table->boolean('historic')->index()->default(false);
-                $table->unsignedInteger('usage')->default(0);
+                $table->boolean('is_fixed')->index()->default(false)->comment('Directly related to the model class, (no model_has_addresses entry)');
+                $table->string('fixed_scope')->index()->nullable()->comment('Key where address can be shared if have same checksum');
+
                 $table->timestampsTz();
             }
         );
 
-        Schema::create('addressables', function (Blueprint $table) {
+        Schema::create('model_has_addresses', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('address_id')->index();
             $table->foreign('address_id')->references('id')->on('addresses');
-            $table->morphs('addressable');
+            $table->string('model_type');
+            $table->unsignedInteger('model_id');
+            $table->string('scope')->nullable()->index();
+            $table->string('sub_scope')->nullable()->index();
+            $table->boolean('is_historic')->index()->default(false);
+            $table->dateTimeTz('valid_until')->nullable()->index();
+            $table->timestampsTz();
+            $table->index(['model_id', 'model_type']);
+
+        });
+
+        Schema::create('model_has_fixed_addresses', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('address_id')->index();
+            $table->foreign('address_id')->references('id')->on('addresses');
+            $table->string('model_type');
+            $table->unsignedInteger('model_id');
             $table->string('scope')->nullable()->index();
             $table->string('sub_scope')->nullable()->index();
             $table->timestampsTz();
+            $table->index(['model_id', 'model_type']);
+
         });
+
     }
 
 

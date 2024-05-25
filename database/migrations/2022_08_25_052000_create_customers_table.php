@@ -30,7 +30,11 @@ return new class () extends Migration {
             $table->string('reference')->nullable()->collation('und_ns')->index()->comment('customer public id');
             $table->string('name', 256)->nullable();
             $table = $this->contactFields(table: $table, withWebsite: true);
+            $table->unsignedInteger('address_id')->nullable()->index();
+            $table->foreign('address_id')->references('id')->on('addresses');
             $table->jsonb('location');
+            $table->unsignedInteger('delivery_address_id')->nullable()->index();
+            $table->foreign('delivery_address_id')->references('id')->on('addresses');
             $table->string('status')->index();
             $table->string('state')->index()->default(CustomerStateEnum::IN_PROCESS->value);
             $table->string('trade_state')->index()->default(CustomerTradeStateEnum::NONE->value)->comment('number of invoices');

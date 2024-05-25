@@ -24,7 +24,27 @@ class UpdateShop extends OrgAction
 
     public function handle(Shop $shop, array $modelData): Shop
     {
-        $shop =  $this->update($shop, $modelData, ['data', 'settings']);
+
+        if(Arr::exists($modelData, 'address')) {
+            $addressData = Arr::get($modelData, 'address');
+            Arr::forget($modelData, 'address');
+            $shop = $this->updateModelAddress($shop, $addressData);
+        }
+
+        if(Arr::exists($modelData, 'collection_address')) {
+            $collectionAddressData = Arr::get($modelData, 'collection_address');
+            Arr::forget($modelData, 'collection_address');
+
+
+
+        }
+
+
+
+
+        $shop = $this->update($shop, $modelData, ['data', 'settings']);
+
+
         ShopHydrateUniversalSearch::dispatch($shop);
         if ($shop->wasChanged(['type', 'state'])) {
             OrganisationHydrateMarket::dispatch(app('currentTenant'));

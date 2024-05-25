@@ -10,9 +10,9 @@ namespace App\Models\HumanResources;
 use App\Actions\Utils\Abbreviate;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Models\Assets\Timezone;
-use App\Models\Helpers\Address;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -44,10 +44,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $address_id
  * @property array $location
  * @property array $data
+ * @property array $settings
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property-read Address|null $address
+ * @property-read \App\Models\Helpers\Address|null $address
+ * @property-read Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\HumanResources\ClockingMachine> $clockingMachines
  * @property-read Collection<int, \App\Models\HumanResources\Clocking> $clockings
@@ -70,9 +72,11 @@ class Workplace extends Model implements Auditable
     use HasUniversalSearch;
     use SoftDeletes;
     use HasHistory;
+    use HasAddresses;
 
     protected $casts = [
         'data'     => 'array',
+        'settings' => 'array',
         'location' => 'array',
         'status'   => 'boolean',
         'type'     => WorkplaceTypeEnum::class
@@ -80,13 +84,15 @@ class Workplace extends Model implements Auditable
 
     protected $attributes = [
         'data'     => '{}',
+        'settings' => '{}',
         'location' => '{}',
     ];
 
     protected $guarded = [];
 
     protected array $auditExclude = [
-        'location','id'
+        'location',
+        'id'
     ];
 
     public function getRouteKeyName(): string
@@ -105,10 +111,6 @@ class Workplace extends Model implements Auditable
             ->slugsShouldBeNoLongerThan(8);
     }
 
-    public function address(): BelongsTo
-    {
-        return $this->belongsTo(Address::class);
-    }
 
     public function timezone(): BelongsTo
     {

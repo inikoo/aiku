@@ -7,7 +7,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Helpers\Address\StoreHistoricAddress;
+use App\Actions\Helpers\Address\StoreFixedAddress;
 use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
@@ -25,6 +25,7 @@ class FetchAuroraOrders extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions=false): ?Order
     {
         if ($orderData = $organisationSource->fetchOrder($organisationSourceId)) {
+
 
 
             $order=$this->processFetchOrder($orderData);
@@ -71,8 +72,6 @@ class FetchAuroraOrders extends FetchAuroraAction
 
 
 
-        } else {
-            print "Warning error fetching order $organisationSourceId\n";
         }
 
         return null;
@@ -85,20 +84,22 @@ class FetchAuroraOrders extends FetchAuroraAction
         if (!empty($orderData['order']['source_id']) and $order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])->first()) {
             $order = UpdateOrder::make()->action(order: $order, modelData: ['order'], strict: false);
 
+            /*
+
             $currentBillingAddress = $order->getAddress('billing');
 
             if ($currentBillingAddress->checksum != $orderData['order']['billing_address']->getChecksum()) {
-                $billingAddress = StoreHistoricAddress::run($orderData['order']['billing_address']);
+                $billingAddress = StoreFixedAddress::run($orderData['order']['billing_address']);
                 UpdateHistoricAddressToModel::run($order, $currentBillingAddress, $billingAddress, ['scope' => 'billing']);
             }
 
             $currentDeliveryAddress = $order->getAddress('delivery');
             if ($currentDeliveryAddress->checksum != $orderData['order']['delivery_address']->getChecksum()) {
-                $deliveryAddress = StoreHistoricAddress::run($orderData['order']['delivery_address']);
+                $deliveryAddress = StoreFixedAddress::run($orderData['order']['delivery_address']);
                 UpdateHistoricAddressToModel::run($order, $currentDeliveryAddress, $deliveryAddress, ['scope' => 'delivery']);
             }
 
-
+            */
 
 
 

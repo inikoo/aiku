@@ -9,8 +9,6 @@ namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
-use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
-use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateInvoices;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateSales;
@@ -19,6 +17,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInvoices;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSales;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateInvoices;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSales;
+use App\Actions\Traits\WithFixedAddressActions;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\CRM\Customer;
@@ -30,6 +29,9 @@ use Illuminate\Validation\Rule;
 
 class StoreInvoice extends OrgAction
 {
+    use WithFixedAddressActions;
+
+
     public function handle(
         Customer|Order $parent,
         array $modelData,
@@ -37,6 +39,7 @@ class StoreInvoice extends OrgAction
 
         $billingAddress = $modelData['billing_address'];
         data_forget($modelData, 'billing_address');
+
 
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
@@ -67,8 +70,14 @@ class StoreInvoice extends OrgAction
         $invoice = $parent->invoices()->create($modelData);
         $invoice->stats()->create();
 
-        $billingAddress = StoreHistoricAddress::run($billingAddress);
-        AttachHistoricAddressToModel::run($invoice, $billingAddress, ['scope' => 'billing']);
+
+        $invoice = $this->createFixedAddress($invoice, $billingAddress, 'Invoice', 'billing', 'address_id');
+        $invoice->updateQuietly(
+            [
+                'billing_country_id' => $invoice->address->country_id
+            ]
+        );
+
 
         CustomerHydrateInvoices::dispatch($invoice->customer)->delay($this->hydratorsDelay);
         ShopHydrateInvoices::dispatch($invoice->shop)->delay($this->hydratorsDelay);

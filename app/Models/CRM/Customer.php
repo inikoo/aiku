@@ -67,7 +67,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $identity_document_type
  * @property string|null $identity_document_number
  * @property string|null $contact_website
+ * @property int|null $address_id
  * @property array $location
+ * @property int|null $delivery_address_id
  * @property CustomerStatusEnum $status
  * @property CustomerStateEnum $state
  * @property CustomerTradeStateEnum $trade_state number of invoices
@@ -84,6 +86,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property array $migration_data
+ * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, \App\Models\CRM\Appointment> $appointments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits

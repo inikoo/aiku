@@ -51,6 +51,8 @@ use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Agent;
+use App\Models\Traits\HasAddresses;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasLogo;
 use App\Models\Traits\HasPhoto;
 use App\Models\Web\Webpage;
@@ -62,6 +64,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
@@ -95,8 +98,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $deleted_at
  * @property-read \App\Models\SysAdmin\OrganisationAccountingStats|null $accountingStats
  * @property-read Address|null $address
+ * @property-read LaravelCollection<int, Address> $addresses
  * @property-read Agent|null $agent
  * @property-read LaravelCollection<int, Artefact> $artefacts
+ * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\OrganisationAuthorisedModels> $authorisedModels
  * @property-read LaravelCollection<int, ClockingMachine> $clockingMachines
  * @property-read LaravelCollection<int, CollectionCategory> $collectionCategories
@@ -161,13 +166,15 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|Organisation query()
  * @mixin \Eloquent
  */
-class Organisation extends Model implements HasMedia
+class Organisation extends Model implements HasMedia, Auditable
 {
     use HasFactory;
     use HasSlug;
     use InteractsWithMedia;
     use HasLogo;
     use HasPhoto;
+    use HasAddresses;
+    use HasHistory;
 
     protected $casts = [
         'data'     => 'array',
@@ -186,6 +193,10 @@ class Organisation extends Model implements HasMedia
 
     protected $guarded = [];
 
+    protected array $auditExclude = [
+        'location','id'
+    ];
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -197,11 +208,6 @@ class Organisation extends Model implements HasMedia
     public function getRouteKeyName(): string
     {
         return 'slug';
-    }
-
-    public function address(): BelongsTo
-    {
-        return $this->belongsTo(Address::class);
     }
 
     public function employees(): HasMany

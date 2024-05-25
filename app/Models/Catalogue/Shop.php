@@ -77,6 +77,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $identity_document_number
  * @property int|null $address_id
  * @property array $location
+ * @property int|null $collection_address_id
  * @property ShopStateEnum $state
  * @property ShopTypeEnum $type
  * @property string|null $open_at
@@ -95,6 +96,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property-read \App\Models\Catalogue\ShopAccountingStats|null $accountingStats
+ * @property-read Address|null $address
  * @property-read LaravelCollection<int, Address> $addresses
  * @property-read LaravelCollection<int, Appointment> $appointments
  * @property-read LaravelCollection<int, \App\Models\Catalogue\CollectionCategory> $collectionCategories
@@ -362,6 +364,5 @@ class Shop extends Model
     {
         return $this->hasMany(Collection::class);
     }
-
 
 }

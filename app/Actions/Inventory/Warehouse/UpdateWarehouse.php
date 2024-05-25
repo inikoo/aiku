@@ -13,6 +13,7 @@ use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateUniversalSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouses;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouses;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Models\Inventory\Warehouse;
@@ -23,7 +24,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateWarehouse extends OrgAction
 {
     use WithActionUpdate;
-
+    use WithModelAddressActions;
 
     public function handle(Warehouse $warehouse, array $modelData): Warehouse
     {

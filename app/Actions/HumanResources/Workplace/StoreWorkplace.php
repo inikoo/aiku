@@ -71,8 +71,9 @@ class StoreWorkplace extends OrgAction
                 ),
             ],
             'type'        => ['required', new Enum(WorkplaceTypeEnum::class)],
-            'address'     => ['required', new ValidAddress()],
-            'timezone_id' => ['sometimes','nullable', 'exists:timezones,id']
+            'address'     => ['sometimes', 'required', new ValidAddress()],
+            'settings'    => ['sometimes', 'array'],
+            'timezone_id' => ['sometimes', 'nullable', 'exists:timezones,id']
         ];
     }
 

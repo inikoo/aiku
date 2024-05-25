@@ -7,7 +7,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Helpers\Address\StoreHistoricAddress;
+use App\Actions\Helpers\Address\StoreFixedAddress;
 use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
@@ -36,7 +36,7 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
                 $currentDeliveryAddress = $purchaseOrder->getAddress('delivery');
 
                 if ($currentDeliveryAddress and $currentDeliveryAddress->checksum != $purchaseOrderData['delivery_address']->getChecksum()) {
-                    $deliveryAddress = StoreHistoricAddress::run($purchaseOrderData['delivery_address']);
+                    $deliveryAddress = StoreFixedAddress::run($purchaseOrderData['delivery_address']);
                     UpdateHistoricAddressToModel::run($purchaseOrder, $currentDeliveryAddress, $deliveryAddress, ['scope' => 'delivery']);
                 }
 

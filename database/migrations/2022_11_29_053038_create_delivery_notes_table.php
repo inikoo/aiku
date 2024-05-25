@@ -37,6 +37,12 @@ return new class () extends Migration {
             $table->string('phone')->nullable();
 
 
+            $table->boolean('delivery_locked')->default(false);
+
+            $table->unsignedSmallInteger('address_id')->index()->nullable();
+            $table->foreign('address_id')->references('id')->on('addresses');
+            $table->unsignedSmallInteger('delivery_country_id')->index()->nullable();
+            $table->foreign('delivery_country_id')->references('id')->on('countries');
 
             $table->decimal('weight', 16)->nullable()->default(0);
             $table->unsignedSmallInteger('number_stocks')->default(0);

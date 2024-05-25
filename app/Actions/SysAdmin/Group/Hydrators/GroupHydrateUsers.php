@@ -52,7 +52,6 @@ class GroupHydrateUsers
             $stats['number_users_type_'.$userType->snake()] = Arr::get($statusCounts, $userType->value, 0);
         }
 
-        print_r($stats);
 
         $group->sysadminStats()->update($stats);
     }

@@ -12,7 +12,7 @@ use App\Actions\Dispatch\DeliveryNote\UpdateDeliveryNote;
 use App\Actions\Dispatch\Shipment\StoreShipment;
 use App\Actions\Dispatch\Shipment\UpdateShipment;
 use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
-use App\Actions\Helpers\Address\StoreHistoricAddress;
+use App\Actions\Helpers\Address\StoreFixedAddress;
 use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dispatch\Shipment;
@@ -34,11 +34,11 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
                 UpdateDeliveryNote::make()->action($deliveryNote, $deliveryNoteData['delivery_note']);
                 if ($currentDeliveryAddress = $deliveryNote->getAddress('delivery')) {
                     if ($currentDeliveryAddress->checksum != $deliveryNoteData['delivery_note']['delivery_address']->getChecksum()) {
-                        $deliveryAddress = StoreHistoricAddress::run($deliveryNoteData['delivery_note']['delivery_address']);
+                        $deliveryAddress = StoreFixedAddress::run($deliveryNoteData['delivery_note']['delivery_address']);
                         UpdateHistoricAddressToModel::run($deliveryNote, $currentDeliveryAddress, $deliveryAddress, ['scope' => 'delivery']);
                     }
                 } else {
-                    $deliveryAddress = StoreHistoricAddress::run($deliveryNoteData['delivery_note']['delivery_address']);
+                    $deliveryAddress = StoreFixedAddress::run($deliveryNoteData['delivery_note']['delivery_address']);
                     AttachHistoricAddressToModel::run($deliveryNote, $deliveryAddress, ['scope' => 'delivery']);
                 }
 

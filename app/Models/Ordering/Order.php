@@ -80,6 +80,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\CRM\Customer $customer
  * @property-read CustomerClient|null $customerClient
  * @property-read Collection<int, DeliveryNote> $deliveryNotes
+ * @property-read Collection<int, Address> $fixedAddresses
  * @property-read Group $group
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Organisation $organisation
@@ -100,7 +101,6 @@ use Spatie\Sluggable\SlugOptions;
 class Order extends Model
 {
     use HasSlug;
-    use HasAddresses;
     use SoftDeletes;
     use HasUniversalSearch;
     use HasFactory;
@@ -162,6 +162,28 @@ class Order extends Model
     {
         return $this->hasOne(OrderStats::class);
     }
+
+    public function fixedAddresses(): MorphToMany
+    {
+        return $this->morphToMany(Address::class, 'model', 'model_has_fixed_addresses')->withTimestamps();
+    }
+
+    public function billingAddress(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
+    }
+
+    public function deliveryAddress(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
+    }
+
+    public function collectionAddress(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
+    }
+
+
 
 
 }

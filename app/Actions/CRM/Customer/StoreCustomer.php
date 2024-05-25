@@ -10,13 +10,13 @@ namespace App\Actions\CRM\Customer;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateUniversalSearch;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomerFromCustomer;
 use App\Actions\Helpers\Address\ParseCountryID;
-use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
 use App\Actions\OrgAction;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCustomerInvoices;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCustomers;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCustomers;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
@@ -40,7 +40,7 @@ use Lorisleiva\Actions\Concerns\AsCommand;
 class StoreCustomer extends OrgAction
 {
     use AsCommand;
-
+    use WithModelAddressActions;
 
 
     public function handle(Shop $shop, array $modelData): Customer
@@ -88,13 +88,30 @@ class StoreCustomer extends OrgAction
         }
 
 
-        StoreAddressAttachToModel::run($customer, $contactAddressData, ['scope' => 'contact']);
-        $customer->location = $customer->getLocation();
-        $customer->save();
+        $customer = $this->addAddressToModel(
+            model: $customer,
+            addressData: $contactAddressData,
+            scope: 'contact'
+        );
 
-        if ($deliveryAddressData) {
-            StoreAddressAttachToModel::run($customer, $deliveryAddressData, ['scope' => 'delivery']);
+
+        if (Arr::get($shop->settings, 'delivery_address_link', )) {
+            $customer = $this->addLinkedAddress(
+                model:$customer,
+                scope: 'delivery',
+                updateLocation: false,
+                updateAddressField: 'delivery_address_id'
+            );
+        } elseif($deliveryAddressData) {
+            $customer = $this->addAddressToModel(
+                model: $customer,
+                addressData: $contactAddressData,
+                scope: 'delivery',
+                updateLocation: false,
+                updateAddressField: 'delivery_address_id'
+            );
         }
+
 
 
         if ($taxNumberData) {
@@ -148,7 +165,7 @@ class StoreCustomer extends OrgAction
                     table: 'customers',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
-                        ['column' => 'deleted_at', 'operator'=>'notNull'],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
                     ]
                 ),
             ],
@@ -185,7 +202,7 @@ class StoreCustomer extends OrgAction
                         table: 'customers',
                         extraConditions: [
                             ['column' => 'shop_id', 'value' => $this->shop->id],
-                            ['column' => 'deleted_at', 'operator'=>'notNull'],
+                            ['column' => 'deleted_at', 'operator' => 'notNull'],
                         ]
                     ),
                 ],
@@ -198,7 +215,7 @@ class StoreCustomer extends OrgAction
 
     public function afterValidator(Validator $validator): void
     {
-        if (!$this->get('contact_name') and !$this->get('company_name')  and !$this->get('email')) {
+        if (!$this->get('contact_name') and !$this->get('company_name') and !$this->get('email')) {
             $validator->errors()->add('company_name', 'At least one of contact_name, company_name or email must be provided');
         }
     }

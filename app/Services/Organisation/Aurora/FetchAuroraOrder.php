@@ -17,6 +17,10 @@ class FetchAuroraOrder extends FetchAurora
 {
     protected function parseModel(): void
     {
+
+
+
+
         $deliveryData = [];
 
         if ($this->auroraModelData->{'Order For Collection'} == 'Yes') {
@@ -45,6 +49,10 @@ class FetchAuroraOrder extends FetchAurora
             );
         }
 
+        if($parent->deleted_at and $this->auroraModelData->{'Order State'} == "Cancelled") {
+            return;
+        }
+
         $this->parsedData["parent"] = $parent;
         if (!$parent) {
             return;
@@ -57,7 +65,6 @@ class FetchAuroraOrder extends FetchAurora
             "Dispatched" => OrderStateEnum::SETTLED,
             default      => OrderStateEnum::SUBMITTED,
         };
-
 
 
         $status = match ($this->auroraModelData->{'Order State'}) {
@@ -91,7 +98,7 @@ class FetchAuroraOrder extends FetchAurora
             } elseif (
                 $this->auroraModelData->{'Order Send to Warehouse Date'} != ""
             ) {
-                $stateWhenCancelled =OrderStateEnum::HANDLING;
+                $stateWhenCancelled = OrderStateEnum::HANDLING;
             } else {
                 $stateWhenCancelled = OrderStateEnum::SUBMITTED;
             }
@@ -112,14 +119,14 @@ class FetchAuroraOrder extends FetchAurora
 
 
             "number"          => $this->auroraModelData->{'Order Public ID'},
-            'customer_number' => (string) $this->auroraModelData->{'Order Customer Purchase Order ID'},
+            'customer_number' => (string)$this->auroraModelData->{'Order Customer Purchase Order ID'},
             "state"           => $state,
             "status"          => $status,
             "source_id"       => $this->organisation->id.':'.$this->auroraModelData->{'Order Key'},
 
-            "created_at"      => $this->auroraModelData->{'Order Created Date'},
-            "cancelled_at"    => $cancelled_at,
-            "data"            => $data
+            "created_at"   => $this->auroraModelData->{'Order Created Date'},
+            "cancelled_at" => $cancelled_at,
+            "data"         => $data
         ];
 
         $deliveryAddressData                  = $this->parseAddress(

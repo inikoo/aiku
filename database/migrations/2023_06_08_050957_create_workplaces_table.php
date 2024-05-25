@@ -29,6 +29,7 @@ return new class () extends Migration {
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->jsonb('location');
             $table->jsonb('data');
+            $table->jsonb('settings');
             $table->timestamps();
             $table->softDeletesTz();
             $table->unique(['group_id', 'slug']);

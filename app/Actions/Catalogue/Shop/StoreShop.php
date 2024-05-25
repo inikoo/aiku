@@ -51,6 +51,18 @@ class StoreShop extends OrgAction
 
         /** @var Shop $shop */
         $shop = $organisation->shops()->create($modelData);
+
+        if (Arr::get($shop->settings, 'address_link')) {
+            $shop = $this->addLinkedAddress($shop);
+        } else {
+            $shop = $this->addAddressToModel($shop, $addressData);
+        }
+
+        if (Arr::get($shop->settings, 'collect_address_link', )) {
+            $shop = $this->addLinkedAddress(model:$shop, scope: 'collection', updateLocation: false, updateAddressField: 'collection_address_id');
+        }
+
+
         $shop->stats()->create();
         $shop->accountingStats()->create();
         $shop->mailStats()->create();
@@ -59,8 +71,6 @@ class StoreShop extends OrgAction
         $shop->salesIntervals()->create();
         $shop->orderIntervals()->create();
         $shop->mailshotsIntervals()->create();
-
-
 
 
         $shop->serialReferences()->create(

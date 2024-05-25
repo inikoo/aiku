@@ -44,30 +44,30 @@ trait IsAddress
 
     public function getChecksum(): string
     {
-        return md5(
-            json_encode(
-                array_filter(
-                    array_map(
-                        'strtolower',
-                        array_diff_key(
-                            $this->toArray(),
-                            array_flip(
-                                [
-                                    'id',
-                                    'country_code',
-                                    'checksum',
-                                    'created_at',
-                                    'updated_at',
-                                    'historic',
-                                    'usage',
-                                    'pivot'
-                                ]
-                            )
+
+        $json= json_encode(
+            array_filter(
+                array_map(
+                    'strtolower',
+                    array_diff_key(
+                        $this->toArray(),
+                        array_flip(
+                            [
+                                'id',
+                                'usage',
+                                'country_code',
+                                'checksum',
+                                'created_at',
+                                'updated_at',
+                                'is_fixed',
+                                'fixed_scope'
+                            ]
                         )
                     )
                 )
             )
         );
+        return md5($json);
     }
 
     public function getCountryName(): string

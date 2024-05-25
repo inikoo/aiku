@@ -16,7 +16,6 @@ use App\Models\Ordering\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
-use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InCustomer;
 use Eloquent;
@@ -28,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -45,6 +45,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $shop_id
  * @property int $customer_id
  * @property int|null $order_id
+ * @property int|null $address_id
+ * @property int|null $billing_country_id
  * @property InvoiceTypeEnum $type
  * @property int $currency_id
  * @property string $group_exchange
@@ -62,9 +64,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
- * @property-read Collection<int, Address> $addresses
+ * @property-read Address|null $address
+ * @property-read Address|null $billingAddress
  * @property-read Currency $currency
  * @property-read Customer $customer
+ * @property-read Collection<int, Address> $fixedAddresses
  * @property-read Group $group
  * @property-read Collection<int, \App\Models\Accounting\InvoiceTransaction> $invoiceTransactions
  * @property-read Order|null $order
@@ -86,7 +90,6 @@ class Invoice extends Model
 {
     use SoftDeletes;
     use HasSlug;
-    use HasAddresses;
     use HasUniversalSearch;
     use HasFactory;
     use InCustomer;
@@ -149,5 +152,21 @@ class Invoice extends Model
     {
         return 'slug';
     }
+
+    public function address(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
+    }
+
+    public function billingAddress(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
+    }
+
+    public function fixedAddresses(): MorphToMany
+    {
+        return $this->morphToMany(Address::class, 'model', 'model_has_fixed_addresses')->withTimestamps();
+    }
+
 
 }

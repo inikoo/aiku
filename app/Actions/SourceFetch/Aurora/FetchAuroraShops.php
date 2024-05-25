@@ -7,8 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Helpers\Address\StoreAddressAttachToModel;
-use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Helpers\TaxNumber\DeleteTaxNumber;
 use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
 use App\Actions\Helpers\TaxNumber\UpdateTaxNumber;
@@ -47,10 +45,9 @@ class FetchAuroraShops extends FetchAuroraAction
                     } else {
                         UpdateTaxNumber::run($shop->taxNumber, $shopData['tax_number']);
                     }
-                } else {
-                    if ($shop->taxNumber) {
-                        DeleteTaxNumber::run($shop->taxNumber);
-                    }
+                } elseif ($shop->taxNumber) {
+                    DeleteTaxNumber::run($shop->taxNumber);
+
                 }
 
 
