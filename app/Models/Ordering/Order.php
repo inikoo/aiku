@@ -7,6 +7,7 @@
 
 namespace App\Models\Ordering;
 
+use App\Enums\Ordering\Order\OrderHandingTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Models\Accounting\Invoice;
@@ -18,6 +19,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InCustomer;
 use Eloquent;
@@ -115,12 +117,15 @@ class Order extends Model
     use HasUniversalSearch;
     use HasFactory;
     use InCustomer;
+    use HasAddresses;
+
 
     protected $casts = [
-        'data'   => 'array',
-        'date'   => 'datetime',
-        'state'  => OrderStateEnum::class,
-        'status' => OrderStatusEnum::class
+        'data'         => 'array',
+        'date'         => 'datetime',
+        'state'        => OrderStateEnum::class,
+        'status'       => OrderStatusEnum::class,
+        'handing_type' => OrderHandingTypeEnum::class
     ];
 
     protected $attributes = [
@@ -160,7 +165,7 @@ class Order extends Model
 
     public function payments(): MorphToMany
     {
-        return $this->morphToMany(Payment::class, 'paymentable')->withTimestamps()->withPivot(['amount','share']);
+        return $this->morphToMany(Payment::class, 'paymentable')->withTimestamps()->withPivot(['amount', 'share']);
     }
 
     public function invoices(): HasMany
@@ -193,7 +198,10 @@ class Order extends Model
         return $this->belongsTo(Address::class);
     }
 
-
+    public function addresses(): MorphToMany
+    {
+        return $this->morphToMany(Address::class, 'model', 'model_has_addresses')->withTimestamps();
+    }
 
 
 }

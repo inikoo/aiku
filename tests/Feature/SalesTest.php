@@ -49,7 +49,7 @@ beforeEach(function () {
         $this->organisation,
         $this->user,
         $this->shop
-        ) = createShop();
+    ) = createShop();
 });
 
 
@@ -278,7 +278,7 @@ test('update invoice from customer', function ($invoice) {
 
 test('create invoice from order', function (Order $order) {
     $invoiceData = Invoice::factory()->definition();
-    data_set($invoiceData, 'billing_address',new Address(Address::factory()->definition()));
+    data_set($invoiceData, 'billing_address', new Address(Address::factory()->definition()));
     data_set($invoiceData, 'number', '00002');
     $invoice  = StoreInvoice::make()->action($order, $invoiceData);
     $customer = $invoice->customer;
@@ -287,7 +287,8 @@ test('create invoice from order', function (Order $order) {
         ->and($customer)->toBeInstanceOf(Customer::class)
         ->and($invoice->number)->toBe('00002')
         ->and($customer->stats->number_invoices)->toBe(2)
-        ->and($this->shop->salesStats->number_invoices)->toBe(2);;
+        ->and($this->shop->salesStats->number_invoices)->toBe(2);
+    ;
 
 
     return $invoice;

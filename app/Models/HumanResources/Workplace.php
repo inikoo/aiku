@@ -12,6 +12,7 @@ use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Models\Assets\Timezone;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
@@ -72,6 +73,7 @@ class Workplace extends Model implements Auditable
     use HasUniversalSearch;
     use SoftDeletes;
     use HasHistory;
+    use HasAddress;
     use HasAddresses;
 
     protected $casts = [

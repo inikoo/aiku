@@ -27,6 +27,7 @@ use App\Models\Search\UniversalSearch;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
@@ -121,6 +122,7 @@ use Spatie\Sluggable\SlugOptions;
 class Customer extends Model implements HasMedia, Auditable
 {
     use SoftDeletes;
+    use HasAddress;
     use HasAddresses;
     use HasSlug;
     use HasUniversalSearch;

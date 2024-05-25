@@ -48,7 +48,7 @@ class UpdateProspect extends OrgAction
         $prospect = $this->update($prospect, $modelData, ['data']);
 
         if ($addressData) {
-            UpdateAddress::run($prospect->address,$addressData);
+            UpdateAddress::run($prospect->address, $addressData);
             $prospect->update(
                 [
                     'location' => $prospect->address->getLocation()

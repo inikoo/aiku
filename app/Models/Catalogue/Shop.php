@@ -39,6 +39,7 @@ use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
+use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
@@ -145,6 +146,7 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Shop extends Model
 {
+    use HasAddress;
     use HasAddresses;
     use SoftDeletes;
     use HasSlug;

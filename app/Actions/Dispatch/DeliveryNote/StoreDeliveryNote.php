@@ -100,9 +100,8 @@ class StoreDeliveryNote extends OrgAction
             'source_id'        => ['sometimes', 'string'],
             'warehouse_id'     => [
                 'required',
-                Rule::exists('staff')->where(function (Builder $query) {
-                    return $query->where('organisation_id', $this->organisation->id);
-                }),
+                Rule::exists('warehouses', 'id')
+                    ->where('organisation_id', $this->organisation->id),
 
 
             ],

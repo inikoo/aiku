@@ -17,21 +17,23 @@ class FetchAuroraDeliveryNote extends FetchAurora
     protected function parseModel(): void
     {
         if (!$this->auroraModelData->{'Delivery Note Order Key'}) {
-            print "Warning delivery without order";
+            print "Warning delivery without order ".$this->auroraModelData->{'Delivery Note Key'}."  \n";
 
             return;
         }
 
-        $this->parsedData["order"] = $this->parseOrder($this->organisation->id.':'.$this->auroraModelData->{'Delivery Note Order Key'});
-        $warehouse                 = $this->parseWarehouse($this->organisation->id.':'.$this->auroraModelData->{'Delivery Note Warehouse Key'});
+        $order     = $this->parseOrder($this->organisation->id.':'.$this->auroraModelData->{'Delivery Note Order Key'});
+        $warehouse = $this->parseWarehouse($this->organisation->id.':'.$this->auroraModelData->{'Delivery Note Warehouse Key'});
 
 
-        if (!$this->parsedData["order"]) {
-            print "Warning delivery without invalid order key (not found) ".$this->auroraModelData->{'Delivery Note Order Key'}."\n";
+        if (!$order) {
+            print "Delivery without invalid order key (not found) ".$this->auroraModelData->{'Delivery Note Order Key'}." - ".$this->auroraModelData->{'Delivery Note Key'}."  \n";
 
             return;
         }
 
+
+        $this->parsedData["order"] = $order;
 
         $state = match ($this->auroraModelData->{'Delivery Note State'}) {
             'Picker Assigned' => DeliveryNoteStateEnum::IN_QUEUE,

@@ -12,12 +12,14 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWorkplaces;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithModelAddressActions;
+use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Http\Resources\HumanResources\WorkplaceResource;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateWorkplace extends OrgAction
@@ -34,11 +36,13 @@ class UpdateWorkplace extends OrgAction
 
         $workplace = $this->update($workplace, $modelData, ['data']);
 
-        $workplace = $this->updateModelAddress($workplace, $addressData);
-
-        if ($workplace->wasChanged('type')) {
+        if(Arr::hasAny($workplace->getChanges(), ['type'])) {
             OrganisationHydrateWorkplaces::run($workplace->organisation);
         }
+        $workplace = $this->updateModelAddress($workplace, $addressData);
+
+
+
 
         WorkplaceHydrateUniversalSearch::dispatch($workplace);
 
@@ -74,7 +78,7 @@ class UpdateWorkplace extends OrgAction
                     ]
                 ),
             ],
-            'type'    => ['sometimes', 'required'],
+            'type'    => ['sometimes', Rule::Enum(WorkplaceTypeEnum::class)],
             'address' => ['sometimes', 'required', new ValidAddress()]
         ];
     }

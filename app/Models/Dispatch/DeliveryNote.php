@@ -18,6 +18,7 @@ use App\Models\Ordering\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InCustomer;
 use Eloquent;
@@ -106,6 +107,7 @@ class DeliveryNote extends Model
     use HasUniversalSearch;
     use HasFactory;
     use InCustomer;
+    use HasAddresses;
 
     protected $casts = [
         'data'   => 'array',
@@ -183,5 +185,7 @@ class DeliveryNote extends Model
     {
         return $this->morphToMany(Address::class, 'model', 'model_has_fixed_addresses')->withTimestamps();
     }
+
+
 
 }

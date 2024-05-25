@@ -20,6 +20,7 @@ use App\Actions\Dispatch\ShippingEvent\StoreShippingEvent;
 use App\Actions\Dispatch\ShippingEvent\UpdateShippingEvent;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Catalogue\Shop\StoreShop;
+use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
@@ -42,6 +43,19 @@ beforeAll(function () {
 beforeEach(function () {
     $this->organisation = createOrganisation();
     $this->group        = $this->organisation->group;
+
+    $warehouse = $this->organisation->warehouses()->first();
+    if (!$warehouse) {
+        $warehouse = StoreWarehouse::make()->action(
+            $this->organisation,
+            [
+                'code' => 'ts12',
+                'name' => 'testName',
+            ]
+        );
+    }
+    $this->warehouse=$warehouse;
+
 });
 
 test('create shipper', function () {
@@ -109,7 +123,8 @@ test('create delivery note', function ($createdOrder) {
         'email'            => 'test@email.com',
         'phone'            => '+62081353890000',
         'date'             => date('Y-m-d'),
-        'delivery_address' => new Address(Address::factory()->definition())
+        'delivery_address' => new Address(Address::factory()->definition()),
+        'warehouse_id'     => $this->warehouse->id
     ];
 
     $deliveryNote = StoreDeliveryNote::make()->action($createdOrder, $arrayData);

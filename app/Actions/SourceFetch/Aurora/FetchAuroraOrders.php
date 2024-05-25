@@ -30,6 +30,7 @@ class FetchAuroraOrders extends FetchAuroraAction
 
             $order=$this->processFetchOrder($orderData);
 
+
             if(!$order) {
                 print "Error order could not process $organisationSourceId\n";
                 return null;
@@ -71,6 +72,7 @@ class FetchAuroraOrders extends FetchAuroraAction
             }
 
 
+            return $order;
 
         }
 

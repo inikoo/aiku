@@ -14,6 +14,7 @@ use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\SupplierDelivery;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
+use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
@@ -89,6 +90,8 @@ use Spatie\Sluggable\SlugOptions;
 class Supplier extends Model implements HasMedia, Auditable
 {
     use SoftDeletes;
+    use HasAddress;
+    use HasAddress;
     use HasAddresses;
     use HasSlug;
     use HasUniversalSearch;

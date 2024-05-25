@@ -70,7 +70,8 @@ test('create working place successful', function () {
     $workplace = StoreWorkplace::make()->action($this->organisation, $modelData);
     expect($workplace)->toBeInstanceOf(Workplace::class)
         ->and($this->organisation->humanResourcesStats->number_workplaces)->toBe(1)
-        ->and($this->organisation->humanResourcesStats->number_workplaces_type_branch)->toBe(1);
+        ->and($this->organisation->humanResourcesStats->number_workplaces_type_branch)->toBe(1)
+        ->and($this->organisation->humanResourcesStats->number_workplaces_type_home)->toBe(0);
 
 
     return $workplace;
@@ -83,9 +84,10 @@ test('update working place successful', function ($createdWorkplace) {
         'address' => Address::factory()->definition()
     ];
 
-    $updatedWorkplace = UpdateWorkplace::run($createdWorkplace, $arrayData);
+    $workplace = UpdateWorkplace::run($createdWorkplace, $arrayData);
+    $this->organisation->refresh();
 
-    expect($updatedWorkplace->name)->toBe($arrayData['name'])
+    expect($workplace->name)->toBe($arrayData['name'])
         ->and($this->organisation->humanResourcesStats->number_workplaces_type_branch)->toBe(0)
         ->and($this->organisation->humanResourcesStats->number_workplaces_type_home)->toBe(1);
 })->depends('create working place successful');

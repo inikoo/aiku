@@ -69,6 +69,7 @@ class StoreOrder extends OrgAction
 
         /** @var Order $order */
         $order = Order::create($modelData);
+        $order->refresh();
         $order->stats()->create();
 
         if ($order->billing_locked) {
@@ -79,7 +80,7 @@ class StoreOrder extends OrgAction
                 addressData: $billingAddress->toArray(),
                 scope: 'billing',
                 updateLocation: false,
-                updateAddressField: null
+                updateAddressField: 'billing_address_id'
             );
         }
 
@@ -88,6 +89,8 @@ class StoreOrder extends OrgAction
                 'billing_country_id' => $order->billingAddress->country_id
             ]
         );
+
+
 
         if ($order->handing_type == OrderHandingTypeEnum::SHIPPING) {
             if ($order->delivery_locked) {
@@ -155,7 +158,7 @@ class StoreOrder extends OrgAction
             'customer_number' => ['sometimes', 'string', 'max:64'],
             'state'           => ['sometimes', Rule::enum(OrderStateEnum::class)],
             'status'          => ['sometimes', Rule::enum(OrderStatusEnum::class)],
-            'handing_type'    => ['required', Rule::enum(OrderHandingTypeEnum::class)],
+            'handing_type'    => ['sometimes','required', Rule::enum(OrderHandingTypeEnum::class)],
 
             'created_at'   => ['sometimes', 'required', 'date'],
             'cancelled_at' => ['sometimes', 'nullable', 'date'],

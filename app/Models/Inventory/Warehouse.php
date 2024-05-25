@@ -18,6 +18,7 @@ use App\Models\Helpers\Issue;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Role;
+use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
@@ -94,6 +95,7 @@ class Warehouse extends Model implements Auditable
     use HasFactory;
     use HasHistory;
     use InOrganisation;
+    use HasAddress;
     use HasAddresses;
 
     protected $casts = [

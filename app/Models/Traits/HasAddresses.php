@@ -13,8 +13,6 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 trait HasAddresses
 {
-    use HasAddress;
-
     public function addresses(): MorphToMany
     {
         return $this->morphToMany(Address::class, 'model', 'model_has_addresses')->withTimestamps();
