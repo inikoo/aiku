@@ -92,6 +92,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\CRM\Appointment> $appointments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, CustomerClient> $clients
+ * @property-read Address|null $deliveryAddress
  * @property-read FulfilmentCustomer|null $fulfilmentCustomer
  * @property-read Group $group
  * @property-read Collection<int, Invoice> $invoices
@@ -153,7 +154,6 @@ class Customer extends Model implements HasMedia, Auditable
         if ($this->is_fulfilment) {
             $tags[] = 'fulfilment';
         }
-
         return $tags;
     }
 
@@ -223,7 +223,6 @@ class Customer extends Model implements HasMedia, Auditable
         'email',
         'phone',
         'contact_website'
-
     ];
 
     public function clients(): HasMany

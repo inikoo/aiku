@@ -42,7 +42,7 @@ class FetchAuroraCustomerClient extends FetchAurora
                 'source_id'        => $this->organisation->id.':'.$this->auroraModelData->{'Customer Client Key'},
                 'created_at'       => $this->auroraModelData->{'Customer Client Creation Date'},
                 'deactivated_at'   => $deactivated_at,
-                'delivery_address' => $this->parseAddress(prefix: 'Customer Client Contact', auAddressData: $this->auroraModelData)
+                'address'          => $this->parseAddress(prefix: 'Customer Client Contact', auAddressData: $this->auroraModelData)
             ];
     }
 

@@ -9,8 +9,8 @@ namespace App\Actions\Dropshipping\CustomerClient;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
 use App\Actions\Dropshipping\CustomerClient\Hydrators\CustomerClientHydrateUniversalSearch;
-use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\OrgAction;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
 use App\Rules\ValidAddress;
@@ -19,10 +19,12 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreCustomerClient extends OrgAction
 {
+    use WithModelAddressActions;
+
     public function handle(Customer $customer, array $modelData): CustomerClient
     {
-        $deliveryAddressData = Arr::get($modelData, 'delivery_address');
-        Arr::forget($modelData, 'delivery_address');
+        $address = Arr::get($modelData, 'address');
+        Arr::forget($modelData, 'address');
 
 
         data_set($modelData, 'group_id', $customer->group_id);
@@ -33,8 +35,11 @@ class StoreCustomerClient extends OrgAction
         /** @var CustomerClient $customerClient */
         $customerClient = $customer->clients()->create($modelData);
 
+        $customerClient = $this->addAddressToModel(
+            model: $customerClient,
+            addressData: $address,
+        );
 
-        StoreAddressAttachToModel::run($customerClient, $deliveryAddressData, ['scope' => 'delivery']);
         CustomerClientHydrateUniversalSearch::dispatch($customerClient);
         CustomerHydrateClients::dispatch($customer);
 
@@ -59,7 +64,7 @@ class StoreCustomerClient extends OrgAction
             'company_name'     => ['nullable', 'string', 'max:255'],
             'email'            => ['nullable', 'string', 'max:255'],
             'phone'            => ['nullable', 'string', 'max:255'],
-            'delivery_address' => ['required', new ValidAddress()],
+            'address'          => ['required', new ValidAddress()],
             'source_id'        => 'sometimes|nullable|string|max:255',
             'created_at'       => 'sometimes|nullable|date',
             'deactivated_at'   => 'sometimes|nullable|date',

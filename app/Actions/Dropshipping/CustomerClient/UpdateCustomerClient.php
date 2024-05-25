@@ -8,7 +8,6 @@
 namespace App\Actions\Dropshipping\CustomerClient;
 
 use App\Actions\Dropshipping\CustomerClient\Hydrators\CustomerClientHydrateUniversalSearch;
-use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -26,19 +25,14 @@ class UpdateCustomerClient extends OrgAction
 
     public function handle(CustomerClient $customerClient, array $modelData): CustomerClient
     {
-        if (Arr::has($modelData, 'delivery_address')) {
-            $deliveryAddressData = Arr::get($modelData, 'delivery_address');
-            Arr::forget($modelData, 'delivery_address');
-
-            $deliveryAddress = $customerClient->getAddress('delivery');
-            if($deliveryAddress) {
-                UpdateAddress::run($deliveryAddress, $deliveryAddressData);
-            } else {
-                StoreAddressAttachToModel::run($customerClient, $deliveryAddressData, ['scope' => 'delivery']);
-            }
-
-            $customerClient->location = $customerClient->getLocation();
-            $customerClient->save();
+        if (Arr::has($modelData, 'address')) {
+            $AddressData = Arr::get($modelData, 'address');
+            UpdateAddress::run($customerClient->address, $AddressData);
+            $customerClient->updateQuietly(
+                [
+                    'location' => $customerClient->address->getLocation()
+                ]
+            );
         }
 
         $customerClient = $this->update($customerClient, $modelData, ['data']);
@@ -64,7 +58,7 @@ class UpdateCustomerClient extends OrgAction
             'company_name'     => ['sometimes', 'nullable', 'string', 'max:255'],
             'phone'            => ['sometimes', 'nullable', 'string', 'max:255'],
             'email'            => ['sometimes', 'nullable', 'string', 'max:255'],
-            'delivery_address' => ['sometimes', new ValidAddress()],
+            'address'          => ['sometimes', new ValidAddress()],
             'source_id'        => 'sometimes|nullable|string|max:255',
             'status'           => ['sometimes', 'boolean'],
         ];

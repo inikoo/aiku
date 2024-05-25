@@ -15,6 +15,7 @@ use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddresses;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InCustomer;
 use Eloquent;
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -44,6 +46,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $company_name
  * @property string|null $email
  * @property string|null $phone
+ * @property int|null $address_id
  * @property array $location
  * @property Carbon|null $deactivated_at
  * @property Carbon|null $created_at
@@ -52,6 +55,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
+ * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Customer|null $customer
  * @property-read Group $group
  * @property-read Organisation $organisation
@@ -66,7 +70,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|CustomerClient withoutTrashed()
  * @mixin Eloquent
  */
-class CustomerClient extends Model
+class CustomerClient extends Model implements Auditable
 {
     use SoftDeletes;
     use HasSlug;
@@ -74,6 +78,7 @@ class CustomerClient extends Model
     use HasUniversalSearch;
     use HasFactory;
     use InCustomer;
+    use HasHistory;
 
     protected $casts = [
         'location'       => 'array',
@@ -86,6 +91,18 @@ class CustomerClient extends Model
     ];
 
     protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        return ['crm'];
+    }
+
+    protected array $auditInclude = [
+        'contact_name',
+        'company_name',
+        'email',
+        'phone',
+    ];
 
     public function getSlugOptions(): SlugOptions
     {
