@@ -18,7 +18,6 @@ use App\Models\Catalogue\Shop;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
-use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InCustomer;
 use Eloquent;
@@ -50,6 +49,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $customer_number Customers own order number
  * @property OrderStateEnum $state
  * @property OrderStatusEnum $status
+ * @property string $handing_type
+ * @property bool $customer_locked
+ * @property bool $billing_locked
+ * @property bool $delivery_locked
+ * @property int|null $billing_address_id
+ * @property int|null $delivery_address_id
+ * @property int|null $collection_address_id
+ * @property int|null $billing_country_id
+ * @property int|null $delivery_country_id
  * @property Carbon $date
  * @property string|null $submitted_at
  * @property string|null $in_warehouse_at
@@ -76,9 +84,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
- * @property-read Collection<int, Address> $addresses
+ * @property-read Address|null $billingAddress
+ * @property-read Address|null $collectionAddress
  * @property-read \App\Models\CRM\Customer $customer
  * @property-read CustomerClient|null $customerClient
+ * @property-read Address|null $deliveryAddress
  * @property-read Collection<int, DeliveryNote> $deliveryNotes
  * @property-read Collection<int, Address> $fixedAddresses
  * @property-read Group $group

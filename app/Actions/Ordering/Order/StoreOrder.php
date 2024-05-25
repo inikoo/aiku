@@ -20,9 +20,11 @@ use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Catalogue\Shop;
+use App\Models\Helpers\Address;
 use App\Models\Ordering\Order;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -41,11 +43,11 @@ class StoreOrder extends OrgAction
         array $modelData,
     ): Order {
         $billingAddress = $modelData['billing_address'];
-
-
         data_forget($modelData, 'billing_address');
-        $deliveryAddress = $modelData['delivery_address'];
+        /** @var Address $deliveryAddress */
+        $deliveryAddress = Arr::get($modelData, 'delivery_address');
         data_forget($modelData, 'delivery_address');
+
 
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
@@ -104,13 +106,13 @@ class StoreOrder extends OrgAction
                     'delivery_country_id' => $order->deliveryAddress->country_id
                 ]
             );
-        } else { // order for collection
+        } else {
 
-            $order = $this->createFixedAddress($order, $deliveryAddress, 'Order', 'collection', 'collection_address_id');
 
             $order->updateQuietly(
                 [
-                    'delivery_country_id' => $order->collectionAddress->country_id
+                    'collection_address_id' => $order->shop->collection_address_id,
+                    'delivery_country_id'   => $order->shop->collectionAddress->country_id
                 ]
             );
         }
@@ -158,8 +160,8 @@ class StoreOrder extends OrgAction
             'created_at'   => ['sometimes', 'required', 'date'],
             'cancelled_at' => ['sometimes', 'nullable', 'date'],
 
-            'delivery_address' => ['required', new ValidAddress()],
             'billing_address'  => ['required', new ValidAddress()],
+            'delivery_address' => ['sometimes', 'required', new ValidAddress()],
             'source_id'        => ['sometimes', 'string', 'max:64'],
             'billing_locked'   => ['sometimes', 'boolean'],
             'delivery_locked'  => ['sometimes', 'boolean']

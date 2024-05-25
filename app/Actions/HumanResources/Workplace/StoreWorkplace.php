@@ -10,8 +10,8 @@ namespace App\Actions\HumanResources\Workplace;
 use App\Actions\HumanResources\Workplace\Hydrators\WorkplaceHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWorkplaces;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
-use App\Models\Helpers\Address;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
@@ -21,27 +21,31 @@ use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Enum;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreWorkplace extends OrgAction
 {
+    use WithModelAddressActions;
+
     public function handle(Organisation $organisation, array $modelData): Workplace
     {
         data_set($modelData, 'group_id', $organisation->group_id);
         $addressData = Arr::get($modelData, 'address');
         Arr::forget($modelData, 'address');
+
         /** @var Workplace $workplace */
         $workplace = $organisation->workplaces()->create($modelData);
-
-        data_set($addressData, 'owner_type', 'Workplace');
-        data_set($addressData, 'owner_id', $workplace->id);
-        $address=Address::create($addressData);
-        $workplace->address()->associate($address);
-        $workplace->location = $workplace->address->getLocation();
-
-        $workplace->save();
         $workplace->stats()->create();
+
+
+        if (Arr::get($workplace->settings, 'address_link')) {
+            $workplace = $this->addLinkedAddress($workplace);
+        } else {
+            $workplace = $this->addAddressToModel($workplace, $addressData);
+        }
+
         OrganisationHydrateWorkplaces::run($organisation);
         WorkplaceHydrateUniversalSearch::dispatch($workplace);
 
@@ -100,7 +104,7 @@ class StoreWorkplace extends OrgAction
         return $this->handle($organisation, $this->validatedData);
     }
 
-    public string $commandSignature = 'workplace:create {organisation} {name} {type}';
+    public string $commandSignature = 'workplace:create {organisation} {name} {type} {--settings= : Settings} {--address= : Address}';
 
     public function asCommand(Command $command): int
     {
@@ -114,15 +118,36 @@ class StoreWorkplace extends OrgAction
             return 1;
         }
 
-        try {
-            $this->initialisation($organisation, [
-                'address' => [
-                    'country_id' => $organisation->country_id
-                ],
-                'name'    => $command->argument('name'),
-                'type'    => $command->argument('type'),
 
-            ]);
+        $data=[
+            'name'    => $command->argument('name'),
+            'type'    => $command->argument('type'),
+        ];
+
+
+        if ($command->option('address')) {
+            if (Str::isJson($command->option('address'))) {
+                $address         = json_decode($command->option('address'), true);
+                $data['address'] = $address;
+            } else {
+                $command->error('Address data is not a valid json');
+
+                return 1;
+            }
+        }
+
+        if ($command->option('settings')) {
+            if (Str::isJson($command->option('settings'))) {
+                $settings         = json_decode($command->option('settings'), true);
+                $data['settings'] = $settings;
+            } else {
+                $command->error('Settings data is not a valid json');
+                return 1;
+            }
+        }
+
+        try {
+            $this->initialisation($organisation, $data);
         } catch (Exception $e) {
             $command->error($e->getMessage());
 

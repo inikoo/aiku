@@ -13,6 +13,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Search\UniversalSearch;
@@ -26,6 +27,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -48,6 +50,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property string $name
  * @property WarehouseStateEnum $state
+ * @property int|null $address_id
+ * @property array $location
  * @property array $settings
  * @property array $data
  * @property bool $allow_stocks
@@ -57,6 +61,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property-read Address|null $address
+ * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, DeliveryNote> $deliveryNotes
  * @property-read Collection<int, Fulfilment> $fulfilments
@@ -93,15 +99,21 @@ class Warehouse extends Model implements Auditable
     protected $casts = [
         'state'    => WarehouseStateEnum::class,
         'data'     => 'array',
-        'settings' => 'array'
+        'settings' => 'array',
+        'location' => 'array',
     ];
 
     protected $attributes = [
         'data'     => '{}',
         'settings' => '{}',
+        'location' => '{}'
     ];
 
     protected $guarded = [];
+
+    protected array $auditExclude = [
+        'location','id'
+    ];
 
     public function getSlugOptions(): SlugOptions
     {
@@ -110,6 +122,16 @@ class Warehouse extends Model implements Auditable
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(4);
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    public function address(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
     }
 
     public function warehouseAreas(): HasMany
@@ -125,11 +147,6 @@ class Warehouse extends Model implements Auditable
     public function stats(): HasOne
     {
         return $this->hasOne(WarehouseStats::class);
-    }
-
-    public function getRouteKeyName(): string
-    {
-        return 'slug';
     }
 
     public function issues(): MorphToMany

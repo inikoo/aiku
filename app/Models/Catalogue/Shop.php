@@ -99,6 +99,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Address|null $address
  * @property-read LaravelCollection<int, Address> $addresses
  * @property-read LaravelCollection<int, Appointment> $appointments
+ * @property-read Address|null $collectionAddress
  * @property-read LaravelCollection<int, \App\Models\Catalogue\CollectionCategory> $collectionCategories
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Collection> $collections
  * @property-read Country $country
@@ -363,6 +364,11 @@ class Shop extends Model
     public function collections(): HasMany
     {
         return $this->hasMany(Collection::class);
+    }
+
+    public function collectionAddress(): BelongsTo
+    {
+        return $this->belongsTo(Address::class, 'collection_address_id');
     }
 
 }

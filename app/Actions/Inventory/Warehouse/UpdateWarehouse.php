@@ -18,6 +18,8 @@ use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Models\Inventory\Warehouse;
 use App\Rules\IUnique;
+use App\Rules\ValidAddress;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -28,7 +30,13 @@ class UpdateWarehouse extends OrgAction
 
     public function handle(Warehouse $warehouse, array $modelData): Warehouse
     {
+        $addressData = Arr::get($modelData, 'address');
+        Arr::forget($modelData, 'address');
+
         $warehouse = $this->update($warehouse, $modelData, ['data', 'settings']);
+
+        $warehouse=$this->updateModelAddress($warehouse, $addressData);
+
         if ($warehouse->wasChanged('state')) {
             GroupHydrateWarehouses::run($warehouse->group);
             OrganisationHydrateWarehouses::dispatch($warehouse->organisation);
@@ -67,7 +75,8 @@ class UpdateWarehouse extends OrgAction
             'state'              => ['sometimes', Rule::enum(WarehouseStateEnum::class)],
             'allow_stock'        => ['sometimes', 'required', 'boolean'],
             'allow_fulfilment'   => ['sometimes', 'required', 'boolean'],
-            'allow_dropshipping' => ['sometimes', 'required', 'boolean']
+            'allow_dropshipping' => ['sometimes', 'required', 'boolean'],
+            'address'            => ['sometimes', 'required', new ValidAddress()]
         ];
     }
 

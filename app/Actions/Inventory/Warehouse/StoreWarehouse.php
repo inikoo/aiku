@@ -13,6 +13,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouses;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouses;
 use App\Actions\SysAdmin\Organisation\SeedJobPositions;
 use App\Actions\SysAdmin\User\UserAddRoles;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\SysAdmin\Organisation;
@@ -98,6 +99,8 @@ class StoreWarehouse extends OrgAction
             'state'      => ['sometimes', Rule::enum(WarehouseStateEnum::class)],
             'source_id'  => ['sometimes', 'string'],
             'created_at' => ['sometimes', 'date'],
+            'address'    => ['sometimes', 'required', new ValidAddress()],
+            'settings'   => ['sometimes', 'array'],
         ];
     }
 

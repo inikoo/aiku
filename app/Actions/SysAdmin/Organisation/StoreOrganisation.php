@@ -166,7 +166,7 @@ class StoreOrganisation
 
     public function getCommandSignature(): string
     {
-        return 'org:create {group} {type} {code} {email} {name} {country_code} {currency_code} {--l|language_code= : Language code} {--tz|timezone= : Timezone}
+        return 'org:create {group} {type} {code} {email} {name} {country_code} {currency_code} {--l|language_code= : Language code} {--tz|timezone= : Timezone} {--a|address= : Address}
         {--s|source= : source for migration from other system}';
     }
 
@@ -192,6 +192,7 @@ class StoreOrganisation
             $currency = Currency::where('code', $command->argument('currency_code'))->firstOrFail();
         } catch (Exception $e) {
             $command->error($e->getMessage());
+
             return 1;
         }
 
@@ -231,7 +232,18 @@ class StoreOrganisation
             }
         }
 
-        $this->setRawAttributes([
+        $address = null;
+        if ($command->option('address')) {
+            if (Str::isJson($command->option('address'))) {
+                $address = json_decode($command->option('address'), true);
+            } else {
+                $command->error('Address data is not a valid json');
+
+                return 1;
+            }
+        }
+
+        $data = [
             'type'        => $command->argument('type'),
             'code'        => $command->argument('code'),
             'name'        => $command->argument('name'),
@@ -240,8 +252,15 @@ class StoreOrganisation
             'currency_id' => $currency->id,
             'language_id' => $language->id,
             'timezone_id' => $timezone->id,
-            'source'      => $source
-        ]);
+            'source'      => $source,
+        ];
+
+        if ($address) {
+            $data['address'] = $address;
+        }
+
+        $this->setRawAttributes($data);
+
 
         try {
             $validatedData = $this->validateAttributes();

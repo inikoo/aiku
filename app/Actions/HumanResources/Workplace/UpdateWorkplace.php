@@ -13,7 +13,6 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWorkplaces;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Http\Resources\HumanResources\WorkplaceResource;
-use App\Models\Helpers\Address;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
@@ -35,18 +34,7 @@ class UpdateWorkplace extends OrgAction
 
         $workplace = $this->update($workplace, $modelData, ['data']);
 
-        if($addressData) {
-            if($workplace->address) {
-                $workplace->address()->update($addressData);
-            } else {
-                data_set($addressData, 'owner_type', 'Workplace');
-                data_set($addressData, 'owner_id', $workplace->id);
-                $address = Address::create($addressData);
-                $workplace->address()->associate($address);
-            }
-            $workplace->location = $workplace->address->getLocation();
-            $workplace->save();
-        }
+        $workplace = $this->updateModelAddress($workplace, $addressData);
 
         if ($workplace->wasChanged('type')) {
             OrganisationHydrateWorkplaces::run($workplace->organisation);

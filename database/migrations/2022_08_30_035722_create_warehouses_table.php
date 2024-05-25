@@ -22,6 +22,9 @@ return new class () extends Migration {
             $table->string('code')->index()->collation('und_ns');
             $table->string('name');
             $table->string('state')->index()->default(WarehouseStateEnum::IN_PROCESS->value);
+            $table->unsignedInteger('address_id')->nullable()->index();
+            $table->foreign('address_id')->references('id')->on('addresses');
+            $table->jsonb('location');
             $table->jsonb('settings');
             $table->jsonb('data');
             $table->boolean('allow_stocks')->default(true);

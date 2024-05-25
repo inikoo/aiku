@@ -8,6 +8,7 @@
 namespace App\Services\Organisation\Aurora;
 
 use App\Actions\SourceFetch\Aurora\FetchAuroraCustomerClients;
+use App\Enums\Ordering\Order\OrderHandingTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Models\Helpers\Address;
@@ -103,9 +104,22 @@ class FetchAuroraOrder extends FetchAurora
                 $stateWhenCancelled = OrderStateEnum::SUBMITTED;
             }
 
+
             $data['cancelled'] = [
                 'state' => $stateWhenCancelled
             ];
+        }
+
+        $handingType = OrderHandingTypeEnum::SHIPPING;
+        if ($this->auroraModelData->{'Order For Collection'} == 'Yes') {
+            $handingType = OrderHandingTypeEnum::COLLECTION;
+        }
+
+        $deliveryLocked = false;
+        $billingLocked  = false;
+        if (in_array($this->auroraModelData->{'Order State'}, ['Cancelled', 'Approved', 'Dispatched'])) {
+            $deliveryLocked = true;
+            $billingLocked  = true;
         }
 
 
@@ -116,7 +130,9 @@ class FetchAuroraOrder extends FetchAurora
             'packed_at'       => $this->parseDate($this->auroraModelData->{'Order Packed Date'}),
             'finalised_at'    => $this->parseDate($this->auroraModelData->{'Order Packed Done Date'}),
             'dispatched_at'   => $this->parseDate($this->auroraModelData->{'Order Dispatched Date'}),
-
+            'handing_type'    => $handingType,
+            'billing_locked'  => $billingLocked,
+            'delivery_locked' => $deliveryLocked,
 
             "number"          => $this->auroraModelData->{'Order Public ID'},
             'customer_number' => (string)$this->auroraModelData->{'Order Customer Purchase Order ID'},
@@ -129,19 +145,21 @@ class FetchAuroraOrder extends FetchAurora
             "data"         => $data
         ];
 
-        $deliveryAddressData                  = $this->parseAddress(
-            prefix: "Order Delivery",
-            auAddressData: $this->auroraModelData,
-        );
-        $this->parsedData['order']["delivery_address"] = new Address(
-            $deliveryAddressData,
-        );
-
-        $billingAddressData                  = $this->parseAddress(
+        $billingAddressData                           = $this->parseAddress(
             prefix: "Order Invoice",
             auAddressData: $this->auroraModelData,
         );
         $this->parsedData['order']["billing_address"] = new Address($billingAddressData);
+
+        if ($handingType == OrderHandingTypeEnum::SHIPPING) {
+            $deliveryAddressData                           = $this->parseAddress(
+                prefix: "Order Delivery",
+                auAddressData: $this->auroraModelData,
+            );
+            $this->parsedData['order']["delivery_address"] = new Address(
+                $deliveryAddressData,
+            );
+        }
     }
 
     protected function fetchData($id): object|null

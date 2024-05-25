@@ -18,6 +18,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
 use App\Actions\SysAdmin\Organisation\SeedJobPositions;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\Traits\Rules\WithShopRules;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
@@ -41,11 +42,14 @@ use Lorisleiva\Actions\ActionRequest;
 class StoreShop extends OrgAction
 {
     use WithShopRules;
+    use WithModelAddressActions;
 
     public function handle(Organisation $organisation, array $modelData): Shop
     {
         $warehouses = Arr::get($modelData, 'warehouses', []);
         Arr::forget($modelData, 'warehouses');
+        $addressData = Arr::get($modelData, 'address');
+        Arr::forget($modelData, 'address');
 
         data_set($modelData, 'group_id', $organisation->group_id);
 

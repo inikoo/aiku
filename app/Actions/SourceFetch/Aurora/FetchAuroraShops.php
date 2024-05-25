@@ -51,13 +51,7 @@ class FetchAuroraShops extends FetchAuroraAction
                 }
 
 
-                if (!empty($shopData['collectionAddress'])) {
-                    if ($collectionAddress = $shop->getAddress('collection')) {
-                        UpdateAddress::run($collectionAddress, $shopData['collectionAddress']);
-                    } else {
-                        StoreAddressAttachToModel::run($shop, $shopData['collectionAddress'], ['scope' => 'collection']);
-                    }
-                }
+
             } else {
 
 
@@ -74,11 +68,6 @@ class FetchAuroraShops extends FetchAuroraAction
                 }
 
 
-
-
-                if (!empty($shopData['collectionAddress'])) {
-                    StoreAddressAttachToModel::run($shop, $shopData['collectionAddress'], ['scope' => 'collection']);
-                }
             }
 
 
