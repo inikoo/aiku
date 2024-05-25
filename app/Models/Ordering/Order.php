@@ -154,7 +154,6 @@ class Order extends Model
         return $this->belongsTo(CustomerClient::class);
     }
 
-
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
@@ -167,7 +166,7 @@ class Order extends Model
 
     public function payments(): MorphToMany
     {
-        return $this->morphToMany(Payment::class, 'paymentable')->withTimestamps()->withPivot(['amount', 'share']);
+        return $this->morphToMany(Payment::class, 'model', 'model_has_payments')->withTimestamps()->withPivot(['amount', 'share']);
     }
 
     public function invoices(): HasMany

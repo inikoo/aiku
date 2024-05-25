@@ -168,5 +168,10 @@ class Invoice extends Model
         return $this->morphToMany(Address::class, 'model', 'model_has_fixed_addresses')->withTimestamps();
     }
 
+    public function payments(): MorphToMany
+    {
+        return $this->morphToMany(Payment::class, 'model', 'model_has_payments')->withTimestamps()->withPivot(['amount', 'share']);
+    }
+
 
 }

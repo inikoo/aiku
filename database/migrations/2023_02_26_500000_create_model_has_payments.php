@@ -10,23 +10,24 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
-        Schema::create('paymentables', function (Blueprint $table) {
+        Schema::create('model_has_payments', function (Blueprint $table) {
             $table->unsignedInteger('payment_id');
             $table->foreign('payment_id')->references('id')->on('payments');
-            $table->string('paymentable_type');
-            $table->unsignedInteger('paymentable_id');
+            $table->string('model_type');
+            $table->unsignedInteger('model_type_id');
             $table->decimal('amount', 12);
             $table->float('share')->default(1);
             $table->timestampsTz();
-            $table->unique(['payment_id','paymentable_type','paymentable_id']);
+            $table->index(['model_type','model_type_id']);
+            $table->unique(['payment_id','model_type','model_type_id']);
         });
     }
 
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('paymentables');
+        Schema::dropIfExists('model_has_payments');
     }
 };
