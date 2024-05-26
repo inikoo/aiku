@@ -147,7 +147,7 @@ class EditWorkplace extends OrgAction
                     'blueprint' => $sections,
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'grp.org.models.working-place.update',
+                            'name'       => 'grp.org.models.workplace.update',
                             'parameters' => $request->route()->originalParameters()
                         ],
                     ]

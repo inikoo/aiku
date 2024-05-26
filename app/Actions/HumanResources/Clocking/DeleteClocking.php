@@ -67,7 +67,7 @@ class DeleteClocking extends OrgAction
     {
         if (class_basename($parent::class) == 'ClockingMachine') {
             return Redirect::route(
-                route: 'grp.org.hr.working-place.show.clocking_machines.show.clockings.index',
+                route: 'grp.org.hr.workplace.show.clocking_machines.show.clockings.index',
                 parameters: [
                     'organisation'      => $parent->organisation->slug,
                     'workplace'         => $parent->workplace->slug,

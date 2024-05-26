@@ -62,6 +62,8 @@ use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemReturn;
 use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemToStoredItemReturn;
 use App\Actions\Fulfilment\StoredItemReturn\UpdateStateStoredItemReturn;
 use App\Actions\Helpers\Tag\StoreTag;
+use App\Actions\HumanResources\ClockingMachine\DeleteClockingMachine;
+use App\Actions\HumanResources\ClockingMachine\UpdateClockingMachine;
 use App\Actions\HumanResources\Employee\DeleteEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
@@ -117,30 +119,61 @@ Route::patch('/user/{user:id}', UpdateUser::class)->name('user.update');
 
 Route::post('/agent/', StoreAgent::class)->name('agent.store');
 
-Route::patch('/employees/{employee:id}', UpdateEmployee::class)->name('employee.update');
-Route::delete('/employee/{employee:id}', DeleteEmployee::class)->name('employee.delete');
-Route::patch('/working-place/{workplace:id}', UpdateWorkplace::class)->name('working-place.update');
-Route::delete('/working-place/{workplace:id}', DeleteWorkplace::class)->name('working-place.delete');
 
-Route::patch('/position/{jobPosition:id}', UpdateJobPosition::class)->name('job-position.update');
-Route::delete('/position/{jobPosition:id}', DeleteJobPosition::class)->name('job-position.delete');
+Route::prefix('employee/{employee:id}')->name('employee.')->group(function () {
+    Route::patch('', UpdateEmployee::class)->name('update');
+    Route::delete('', DeleteEmployee::class)->name('.delete');
+});
+
+Route::prefix('workplace/{workplace:id}')->name('workplace.')->group(function () {
+    Route::patch('', UpdateWorkplace::class)->name('update');
+    Route::delete('', DeleteWorkplace::class)->name('delete');
+    Route::post('clocking-machine', StoreClockingMachine::class)->name('clocking_machine.store');
+});
+
+
+Route::prefix('position/{workplace:id}')->name('jon_position.')->group(function () {
+    Route::patch('', UpdateJobPosition::class)->name('update');
+    Route::delete('', DeleteJobPosition::class)->name('delete');
+});
+
+Route::prefix('clocking-machine/{clockingMachine:id}')->name('clocking_machine..')->group(function () {
+    Route::patch('', UpdateClockingMachine::class)->name('update');
+    Route::delete('', DeleteClockingMachine::class)->name('delete');
+});
+
+
+
+/*
+
+Route::patch('/clocking/{clocking:id}', UpdateClocking::class)->name('clocking.update');
+Route::post('/clocking', StoreClocking::class)->name('clocking.store');
+Route::post('/working-place/{workplace:id}/clocking', StoreClocking::class)->name('workplace.clocking.store');
+Route::post('/clocking-machine/{clockingMachine:id}/clocking', [StoreClocking::class, 'inClockingMachine'])->name('clocking-machine.clocking.store');
+Route::post('/working-place/{workplace:id}/clocking-machine/{clockingMachine:id}/clocking', StoreClocking::class)->name('workplace.clocking-machine.clocking.store');
+Route::delete('/working-place/{workplace:id}/clocking/{clocking:id}', [ DeleteClocking::class, 'inWorkplace'])->name('workplace.clocking.delete');
+Route::delete('/clocking-machine/{clockingMachine:id}/clocking/{clocking:id}', [ DeleteClocking::class, 'inClockingMachine'])->name('clocking-machine.clocking.delete');
+Route::delete('/working-place/{workplace:id}/clocking-machine/{clockingMachine:id}/clocking/{clocking:id}', [ DeleteClocking::class, 'inWorkplaceInClockingMachine'])->name('workplace.clocking-machine.clocking.delete');
+*/
 
 Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
-    Route::post('/employee/', StoreEmployee::class)->name('employee.store');
-    Route::post('/position/', StoreJobPosition::class)->name('job-position.store');
 
-    Route::post('/working-place/', StoreWorkplace::class)->name('working-place.store');
-    Route::post('/shop/', StoreShop::class)->name('shop.store');
-    Route::post('/fulfilment/', StoreFulfilment::class)->name('fulfilment.store');
+    Route::post('employee', StoreEmployee::class)->name('employee.store');
+    Route::post('position', StoreJobPosition::class)->name('jon_position.store');
+    Route::post('working-place', StoreWorkplace::class)->name('workplace.store');
+    Route::post('clocking-machine', [StoreClockingMachine::class, 'inOrganisation'])->name('clocking-machine.store');
 
-    Route::post('/workplaces/{workplace:id}/clocking-machines', StoreClockingMachine::class)->name('workplaces.clocking_machines.store');
+
+    Route::post('shop', StoreShop::class)->name('shop.store');
+    Route::post('fulfilment', StoreFulfilment::class)->name('fulfilment.store');
+
 
     Route::prefix('fulfilment/{fulfilment:id}/rentals')->name('fulfilment.rentals.')->group(function () {
         Route::post('/', StoreRental::class)->name('store');
         Route::patch('{rental:id}', UpdateRental::class)->name('update')->withoutScopedBindings();
     });
     Route::prefix('fulfilment/{fulfilment:id}/services')->name('fulfilment.services.')->group(function () {
-        Route::post('/', [StoreService::class,'inFulfilment'])->name('store');
+        Route::post('/', [StoreService::class, 'inFulfilment'])->name('store');
         Route::patch('{service:id}', UpdateService::class)->name('update')->withoutScopedBindings();
     });
 
@@ -171,19 +204,15 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('booked-in', SetPalletDeliveryAsBookedIn::class)->name('booked-in');
 
 
-    Route::post('pallet-upload', [ImportPallet::class,'fromGrp'])->name('pallet.upload');
+    Route::post('pallet-upload', [ImportPallet::class, 'fromGrp'])->name('pallet.upload');
     Route::post('pallet', StorePalletFromDelivery::class)->name('pallet.store');
     Route::post('multiple-pallet', StoreMultiplePalletsFromDelivery::class)->name('multiple-pallets.store');
     Route::get('pdf', PdfPalletDelivery::class)->name('pdf');
-
-
 });
 
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
-
     Route::patch('/', UpdatePalletReturn::class)->name('update');
     Route::get('pdf', PdfPalletReturn::class)->name('pdf');
-
 });
 
 Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
@@ -201,7 +230,6 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
 
     Route::patch('damaged', SetPalletAsDamaged::class)->name('damaged');
     Route::patch('lost', SetPalletAsLost::class)->name('lost');
-
 });
 
 Route::patch('{storedItem:id}/stored-items', MoveStoredItem::class)->name('stored-items.move');
@@ -217,7 +245,7 @@ Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCust
     Route::get('pallet-delivery/{palletDelivery:id}/export', PdfPalletDelivery::class)->name('pallet-delivery.export');
     Route::patch('pallet-delivery/{palletDelivery:id}/timeline', UpdatePalletDeliveryTimeline::class)->name('pallet-delivery.timeline.update');
     Route::post('pallet-return', StorePalletReturn::class)->name('pallet-return.store');
-    Route::post('', [StoreWebUser::class,'inFulfilmentCustomer'])->name('web-user.store');
+    Route::post('', [StoreWebUser::class, 'inFulfilmentCustomer'])->name('web-user.store');
 
     Route::prefix('pallet-return/{palletReturn:id}')->name('pallet-return.')->group(function () {
         Route::delete('pallet/{pallet:id}', DeletePalletFromReturn::class)->name('pallet.delete');
@@ -251,7 +279,7 @@ Route::name('shop.')->prefix('shop/{shop:id}')->group(function () {
 });
 
 Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function () {
-    Route::post('website', [StoreWebsite::class,'inFulfilment'])->name('website.store');
+    Route::post('website', [StoreWebsite::class, 'inFulfilment'])->name('website.store');
 });
 
 Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function () {
@@ -262,11 +290,9 @@ Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function ()
 
     Route::post('location/upload', [ImportLocation::class, 'inWarehouse'])->name('location.upload');
     Route::post('location', [StoreLocation::class, 'inWarehouse'])->name('location.store');
-
 });
 
 Route::patch('location/{location:id}', UpdateLocation::class)->name('location.update');
-
 Route::patch('location/{location:id}/tags', SyncTagsLocation::class)->name('location.tag.attach');
 Route::post('location/{location:id}/tags', [StoreTag::class, 'inLocation'])->name('location.tag.store');
 
@@ -286,7 +312,7 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
 Route::patch('/web-user/{webUser:id}', UpdateWebUser::class)->name('web-user.update');
 
 Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
-    Route::post('', [StoreWebUser::class,'inCustomer'])->name('web-user.store');
+    Route::post('', [StoreWebUser::class, 'inCustomer'])->name('web-user.store');
 });
 
 Route::post('/supplier', StoreSupplier::class)->name('supplier.store');
@@ -304,7 +330,6 @@ Route::name('production.')->prefix('production/{production:id}')->group(function
     Route::post('artefacts', StoreArtefact::class)->name('artefacts.store');
     Route::patch('artefacts/{artefact:id}', UpdateArtefact::class)->name('artefacts.update');
     Route::post('artefact-upload', ImportArtefact::class)->name('artefact.import');
-
 });
 
 Route::patch('/job-order/{jobOrder:id}', UpdateJobOrder::class)->name('job-order.update');
@@ -351,22 +376,6 @@ Route::patch('/order/{order:id}', UpdateOrder::class)->name('order.update');
 
 
 
-
-
-Route::patch('/clocking-machine/{clockingMachine:id}', UpdateClockingMachine::class)->name('clocking-machine.update');
-Route::post('/clocking-machine', StoreClockingMachine::class)->name('clocking-machine.store');
-Route::delete('/clocking-machine/{workplace:id}', DeleteWorkplace::class)->name('clocking-machine.delete');
-Route::post('/working-place/{workplace:id}/clocking-machine', StoreClockingMachine::class)->name('working-place.clocking-machine.store');
-Route::delete('/working-place/{workplace:id}/clocking-machine/{clockingMachine:id}', [ DeleteClockingMachine::class, 'inWorkplace'])->name('working-place.clocking-machine.delete');
-
-Route::patch('/clocking/{clocking:id}', UpdateClocking::class)->name('clocking.update');
-Route::post('/clocking', StoreClocking::class)->name('clocking.store');
-Route::post('/working-place/{workplace:id}/clocking', StoreClocking::class)->name('working-place.clocking.store');
-Route::post('/clocking-machine/{clockingMachine:id}/clocking', [StoreClocking::class, 'inClockingMachine'])->name('clocking-machine.clocking.store');
-Route::post('/working-place/{workplace:id}/clocking-machine/{clockingMachine:id}/clocking', StoreClocking::class)->name('working-place.clocking-machine.clocking.store');
-Route::delete('/working-place/{workplace:id}/clocking/{clocking:id}', [ DeleteClocking::class, 'inWorkplace'])->name('working-place.clocking.delete');
-Route::delete('/clocking-machine/{clockingMachine:id}/clocking/{clocking:id}', [ DeleteClocking::class, 'inClockingMachine'])->name('clocking-machine.clocking.delete');
-Route::delete('/working-place/{workplace:id}/clocking-machine/{clockingMachine:id}/clocking/{clocking:id}', [ DeleteClocking::class, 'inWorkplaceInClockingMachine'])->name('working-place.clocking-machine.clocking.delete');
 
 Route::post('/warehouse/', StoreWarehouse::class)->name('warehouse.store');
 Route::patch('/warehouse/{warehouse:id}', UpdateWarehouse::class)->name('warehouse.update');

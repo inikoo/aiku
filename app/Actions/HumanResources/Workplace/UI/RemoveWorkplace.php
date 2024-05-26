@@ -73,7 +73,7 @@ class RemoveWorkplace extends OrgAction
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name'       => 'grp.org.models.working-place.delete',
+                        'name'       => 'grp.org.models.workplace.delete',
                         'parameters' => $request->route()->originalParameters()
                     ]
                 )

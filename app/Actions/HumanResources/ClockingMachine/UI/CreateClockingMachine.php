@@ -18,9 +18,8 @@ use Spatie\LaravelOptions\Options;
 
 class CreateClockingMachine extends OrgAction
 {
-    public function handle(ActionRequest $request): Response
+    public function handle(Organisation|Workplace $parent, ActionRequest $request): Response
     {
-        // dd($request->route()->parameter('workplace')->id);
         return Inertia::render(
             'CreateModel',
             [
@@ -32,21 +31,29 @@ class CreateClockingMachine extends OrgAction
                 'pageHead'    => [
                     'title'        => __('new clocking machine'),
                     'cancelCreate' => [
-                        'route' => [
-                            'name'       => 'grp.org.hr.workplaces.show.clocking_machines.index',
-                            'parameters' => $request->route()->originalParameters()
-                        ],
+                        'route' =>
+                            match (class_basename($parent)) {
+                                'Workplace' => [
+                                    'name'       => 'grp.org.hr.workplaces.show.clocking_machines.index',
+                                    'parameters' => $request->route()->originalParameters()
+                                ],
+                                default => [
+                                    'name'       => 'grp.org.hr.clocking_machines.index',
+                                    'parameters' => $request->route()->originalParameters()
+                                ]
+                            }
+
+
                     ]
 
                 ],
                 'formData'    => [
                     'blueprint' => [
                         [
-                            'title'  => __('create clocking machine'),
                             'fields' => [
                                 'name' => [
-                                    'type'        => 'input',
-                                    'label'       => __('name'),
+                                    'type'  => 'input',
+                                    'label' => __('name'),
                                 ],
                                 'type' => [
                                     'type'        => 'select',
@@ -56,13 +63,21 @@ class CreateClockingMachine extends OrgAction
                             ]
                         ],
                     ],
-                    'route'     => [
-                        'name'       => 'grp.models.org.workplaces.clocking_machines.store',
-                        'parameters' => [
-                            'organisation' => $request->route()->parameter('organisation')->id,
-                            'workplace'    => $request->route()->parameter('workplace')->id
-                        ]
-                    ]
+                    'route'     =>
+                        match (class_basename($parent)) {
+                            'Workplace' =>
+                            [
+                                'name'       => 'grp.models.org.workplace.clocking_machines.store',
+                                'parameters' => $parent->id
+                            ],
+                            default =>
+                            [
+                                'name'       => 'grp.models.org.clocking_machine.store',
+                                'parameters' => $parent->id
+                            ]
+                        }
+
+
                 ],
 
             ]
@@ -71,7 +86,6 @@ class CreateClockingMachine extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        // for testing
         $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
         $this->canDelete = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
 
@@ -79,18 +93,23 @@ class CreateClockingMachine extends OrgAction
     }
 
 
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): Response
+    {
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($organisation, $request);
+    }
+
     public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): Response
     {
         $this->initialisation($organisation, $request);
 
-        return $this->handle($request);
+        return $this->handle($workplace, $request);
     }
-
 
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-
         return array_merge(
             IndexClockingMachines::make()->getBreadcrumbs(
                 routeName: preg_replace('/create$/', 'index', $routeName),
@@ -100,7 +119,7 @@ class CreateClockingMachine extends OrgAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating clocking machines'),
+                        'label' => __('Creating clocking machines'),
                     ]
                 ]
             ]

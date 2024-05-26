@@ -28,8 +28,18 @@ use Str;
 
 class StoreClockingMachine extends OrgAction
 {
-    public function handle(Workplace $workplace, array $modelData): ClockingMachine
+    private Organisation|StoreClockingMachine $parent;
+
+    public function handle(Organisation|Workplace $parent, array $modelData): ClockingMachine
     {
+
+        if($parent instanceof Organisation) {
+            $workplace = $parent->workplaces()->where(Arr::get($modelData, 'workplace_id'))->firstOrFail();
+        } else {
+            $workplace = $parent;
+        }
+
+
         data_set($modelData, 'group_id', $workplace->group_id);
         data_set($modelData, 'organisation_id', $workplace->organisation_id);
         data_set($modelData, 'qr_code', Str::random(8));
@@ -63,7 +73,7 @@ class StoreClockingMachine extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules= [
             'name'  => ['required', 'max:64', 'string',
                         new IUnique(
                             table: 'clocking_machines',
@@ -77,6 +87,12 @@ class StoreClockingMachine extends OrgAction
             'source_id'  => 'sometimes|string|max:255',
             'created_at' => 'sometimes|date',
         ];
+
+        if($this->parent instanceof Organisation) {
+            $rules['workplace_id'] = ['required', Rule::Exists('workplaces', 'id')->where('organisation_id', $this->organisation->id)];
+        }
+
+        return $rules;
     }
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
@@ -86,8 +102,16 @@ class StoreClockingMachine extends OrgAction
         }
     }
 
+    public function inOrganisation(Organisation $organisation, ActionRequest $request): ClockingMachine
+    {
+        $this->parent=$organisation;
+        $this->initialisation($organisation, $request);
+        return $this->handle($organisation, $this->validatedData);
+    }
+
     public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): ClockingMachine
     {
+        $this->parent=#workplace;
         $this->initialisation($organisation, $request);
         return $this->handle($workplace, $this->validatedData);
     }

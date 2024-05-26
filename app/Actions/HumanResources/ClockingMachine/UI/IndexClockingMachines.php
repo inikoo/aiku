@@ -61,7 +61,7 @@ class IndexClockingMachines extends OrgAction
 
             ])
             ->leftJoin('workplaces', 'clocking_machines.workplace_id', '=', 'workplaces.id')
-            ->allowedSorts(['name','type','workplace_name'])
+            ->allowedSorts(['name', 'type', 'workplace_name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -139,14 +139,14 @@ class IndexClockingMachines extends OrgAction
     {
         $actions = null;
         if ($this->canEdit) {
-            $actions=[
+            $actions = [
                 match ($request->route()->getName()) {
                     'grp.org.hr.workplaces.show.clocking_machines.index' => [
                         'type'  => 'button',
                         'style' => 'create',
                         'label' => __('clocking machine'),
                         'route' => [
-                            'name'       => 'grp.org.hr.workplaces.show.clocking_machines.index',
+                            'name'       => 'grp.org.hr.workplaces.show.clocking_machines.create',
                             'parameters' => $request->route()->originalParameters()
                         ]
                     ],
@@ -180,7 +180,7 @@ class IndexClockingMachines extends OrgAction
                 'data'        => ClockingMachinesResource::collection($clockingMachines)
 
             ]
-        )->table($this->tableStructure($this->organisation));
+        )->table($this->tableStructure($this->parent));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

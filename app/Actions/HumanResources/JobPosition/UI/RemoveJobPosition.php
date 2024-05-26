@@ -73,7 +73,7 @@ class RemoveJobPosition extends OrgAction
                 ],
                 'data'      => $this->getAction(
                     route:[
-                        'name'       => 'grp.models.job-position.delete',
+                        'name'       => 'grp.models.jon_position.delete',
                         'parameters' => $request->route()->originalParameters()
                     ]
                 )

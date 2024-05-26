@@ -92,7 +92,7 @@ class EditJobPosition extends OrgAction
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'grp.models.job-position.update',
+                            'name'       => 'grp.models.jon_position.update',
                             'parameters' => $jobPosition->slug
 
                         ],

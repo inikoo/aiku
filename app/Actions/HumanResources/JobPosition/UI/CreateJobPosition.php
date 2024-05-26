@@ -71,7 +71,7 @@ class CreateJobPosition extends OrgAction
 
                     ],
                     'route'     => [
-                        'name'       => 'grp.models.org.job-position.store',
+                        'name'       => 'grp.models.org.jon_position.store',
                         'parameters' => [$this->organisation->id]
 
                     ]
