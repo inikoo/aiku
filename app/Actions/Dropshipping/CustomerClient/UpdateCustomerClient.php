@@ -27,6 +27,8 @@ class UpdateCustomerClient extends OrgAction
     {
         if (Arr::has($modelData, 'address')) {
             $AddressData = Arr::get($modelData, 'address');
+            Arr::forget($modelData, 'address');
+
             UpdateAddress::run($customerClient->address, $AddressData);
             $customerClient->updateQuietly(
                 [
