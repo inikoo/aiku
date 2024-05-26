@@ -160,7 +160,7 @@ class Invoice extends Model
 
     public function billingAddress(): BelongsTo
     {
-        return $this->belongsTo(Address::class);
+        return $this->belongsTo(Address::class, 'address_id');
     }
 
     public function fixedAddresses(): MorphToMany

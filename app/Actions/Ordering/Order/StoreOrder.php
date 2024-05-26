@@ -73,7 +73,7 @@ class StoreOrder extends OrgAction
         $order->stats()->create();
 
         if ($order->billing_locked) {
-            $order = $this->createFixedAddress($order, $billingAddress, 'Order', 'billing', 'billing_address_id');
+            $order = $this->createFixedAddress($order, $billingAddress, 'Ordering', 'billing', 'billing_address_id');
         } else {
             $order = $this->addAddressToModel(
                 model: $order,
@@ -91,10 +91,9 @@ class StoreOrder extends OrgAction
         );
 
 
-
         if ($order->handing_type == OrderHandingTypeEnum::SHIPPING) {
             if ($order->delivery_locked) {
-                $order = $this->createFixedAddress($order, $deliveryAddress, 'Order', 'delivery', 'delivery_address_id');
+                $order = $this->createFixedAddress($order, $deliveryAddress, 'Ordering', 'delivery', 'delivery_address_id');
             } else {
                 $order = $this->addAddressToModel(
                     model: $order,
@@ -110,8 +109,6 @@ class StoreOrder extends OrgAction
                 ]
             );
         } else {
-
-
             $order->updateQuietly(
                 [
                     'collection_address_id' => $order->shop->collection_address_id,
@@ -158,16 +155,19 @@ class StoreOrder extends OrgAction
             'customer_number' => ['sometimes', 'string', 'max:64'],
             'state'           => ['sometimes', Rule::enum(OrderStateEnum::class)],
             'status'          => ['sometimes', Rule::enum(OrderStatusEnum::class)],
-            'handing_type'    => ['sometimes','required', Rule::enum(OrderHandingTypeEnum::class)],
+            'handing_type'    => ['sometimes', 'required', Rule::enum(OrderHandingTypeEnum::class)],
 
             'created_at'   => ['sometimes', 'required', 'date'],
             'cancelled_at' => ['sometimes', 'nullable', 'date'],
 
             'billing_address'  => ['required', new ValidAddress()],
             'delivery_address' => ['sometimes', 'required', new ValidAddress()],
-            'source_id'        => ['sometimes', 'string', 'max:64'],
             'billing_locked'   => ['sometimes', 'boolean'],
-            'delivery_locked'  => ['sometimes', 'boolean']
+            'delivery_locked'  => ['sometimes', 'boolean'],
+
+            'source_id' => ['sometimes', 'string', 'max:64'],
+
+
         ];
 
         if (!$this->strict) {

@@ -8,25 +8,61 @@
 namespace App\Actions\Dispatch\DeliveryNote;
 
 use App\Actions\Dispatch\DeliveryNote\Hydrators\DeliveryNoteHydrateUniversalSearch;
+use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithFixedAddressActions;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\Models\Dispatch\DeliveryNote;
 use App\Rules\IUnique;
+use App\Rules\ValidAddress;
 use Illuminate\Validation\Rules\Enum;
 
 class UpdateDeliveryNote extends OrgAction
 {
     use WithActionUpdate;
+    use WithFixedAddressActions;
 
 
     private DeliveryNote $deliveryNote;
 
     public function handle(DeliveryNote $deliveryNote, array $modelData): DeliveryNote
     {
+        $deliveryAddressData = $modelData['delivery_address'];
+        data_forget($modelData, 'delivery_address');
+
         $deliveryNote = $this->update($deliveryNote, $modelData, ['data']);
+
+        if ($deliveryNote->delivery_locked) {
+
+
+            if($deliveryNote->deliveryAddress->is_fixed) {
+                $deliveryNote = $this->updateFixedAddress(
+                    $deliveryNote,
+                    $deliveryNote->deliveryAddress,
+                    $deliveryAddressData,
+                    'Ordering',
+                    'delivery',
+                    'address_id'
+                );
+            } else {
+                // todo remove non fixed address
+                $deliveryNote = $this->createFixedAddress(
+                    $deliveryNote,
+                    $deliveryAddressData,
+                    'Ordering',
+                    'delivery',
+                    'address_id'
+                );
+            }
+
+
+        } else {
+            UpdateAddress::run($deliveryNote->deliveryAddress, $deliveryAddressData->toArray());
+        }
+
         DeliveryNoteHydrateUniversalSearch::dispatch($deliveryNote);
 
         return $deliveryNote;
@@ -35,7 +71,7 @@ class UpdateDeliveryNote extends OrgAction
     public function rules(): array
     {
         return [
-            'number' => [
+            'number'           => [
                 'sometimes',
                 'string',
                 'max:64',
@@ -47,11 +83,12 @@ class UpdateDeliveryNote extends OrgAction
                     ]
                 ),
             ],
-            'state'  => ['sometimes', 'required', new Enum(DeliveryNoteStateEnum::class)],
-            'status' => ['sometimes', 'required', new Enum(DeliveryNoteStatusEnum::class)],
-            'email'  => ['sometimes', 'nullable', 'string', 'email'],
-            'phone'  => ['sometimes', 'nullable', 'string'],
-            'date'   => ['sometimes', 'date']
+            'state'            => ['sometimes', 'required', new Enum(DeliveryNoteStateEnum::class)],
+            'status'           => ['sometimes', 'required', new Enum(DeliveryNoteStatusEnum::class)],
+            'email'            => ['sometimes', 'nullable', 'string', 'email'],
+            'phone'            => ['sometimes', 'nullable', 'string'],
+            'date'             => ['sometimes', 'date'],
+            'delivery_address' => ['sometimes', 'required', new ValidAddress()],
         ];
     }
 

@@ -102,6 +102,13 @@ class FetchAuroraDeliveryNote extends FetchAurora
             $deliveryAddressData,
         );
 
+
+
+        $deliveryLocked = false;
+        if (in_array($this->auroraModelData->{'Delivery Note State'}, ['Cancelled', 'Approved', 'Dispatched','Cancelled to Restock'])) {
+            $deliveryLocked = true;
+        }
+
         $this->parsedData["delivery_note"] = [
             "number"           => $this->auroraModelData->{'Delivery Note ID'},
             'date'             => $this->auroraModelData->{'Delivery Note Date Created'},
@@ -120,6 +127,7 @@ class FetchAuroraDeliveryNote extends FetchAurora
             'phone'            => $this->auroraModelData->{'Delivery Note Telephone'},
             'delivery_address' => $deliveryAddress,
             'warehouse_id'     => $warehouse->id,
+            'delivery_locked'  => $deliveryLocked,
         ];
 
         if ($cancelled_at) {

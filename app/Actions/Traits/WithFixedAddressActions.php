@@ -44,4 +44,16 @@ trait WithFixedAddressActions
         return $model;
     }
 
+    protected function updateFixedAddress($model, Address $currentAddress, Address $addressData, string $fixedScope, $scope, $addressField)
+    {
+        if ($currentAddress->checksum != $addressData->getChecksum()) {
+            $model->fixedAddresses()->detach($currentAddress->id);
+            AddressHydrateFixedUsage::dispatch($currentAddress);
+
+            return $this->createFixedAddress($model, $addressData, $fixedScope, $scope, $addressField);
+        }
+
+        return $model;
+    }
+
 }

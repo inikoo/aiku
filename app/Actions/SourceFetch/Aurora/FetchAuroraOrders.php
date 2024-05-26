@@ -7,8 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Helpers\Address\StoreFixedAddress;
-use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
 use App\Enums\Ordering\Transaction\TransactionTypeEnum;
@@ -85,26 +83,6 @@ class FetchAuroraOrders extends FetchAuroraAction
         $order=null;
         if (!empty($orderData['order']['source_id']) and $order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])->first()) {
             $order = UpdateOrder::make()->action(order: $order, modelData: ['order'], strict: false);
-
-            /*
-
-            $currentBillingAddress = $order->getAddress('billing');
-
-            if ($currentBillingAddress->checksum != $orderData['order']['billing_address']->getChecksum()) {
-                $billingAddress = StoreFixedAddress::run($orderData['order']['billing_address']);
-                UpdateHistoricAddressToModel::run($order, $currentBillingAddress, $billingAddress, ['scope' => 'billing']);
-            }
-
-            $currentDeliveryAddress = $order->getAddress('delivery');
-            if ($currentDeliveryAddress->checksum != $orderData['order']['delivery_address']->getChecksum()) {
-                $deliveryAddress = StoreFixedAddress::run($orderData['order']['delivery_address']);
-                UpdateHistoricAddressToModel::run($order, $currentDeliveryAddress, $deliveryAddress, ['scope' => 'delivery']);
-            }
-
-            */
-
-
-
 
         } elseif ($orderData['parent']) {
             $order = StoreOrder::make()->action(

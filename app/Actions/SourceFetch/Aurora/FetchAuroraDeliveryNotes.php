@@ -11,9 +11,6 @@ use App\Actions\Dispatch\DeliveryNote\StoreDeliveryNote;
 use App\Actions\Dispatch\DeliveryNote\UpdateDeliveryNote;
 use App\Actions\Dispatch\Shipment\StoreShipment;
 use App\Actions\Dispatch\Shipment\UpdateShipment;
-use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
-use App\Actions\Helpers\Address\StoreFixedAddress;
-use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
 use App\Models\Dispatch\DeliveryNote;
 use App\Models\Dispatch\Shipment;
 use App\Services\Organisation\SourceOrganisationService;
@@ -32,16 +29,6 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
 
             if (!empty($deliveryNoteData['delivery_note']['source_id']) and $deliveryNote = DeliveryNote::withTrashed()->where('source_id', $deliveryNoteData['delivery_note']['source_id'])->first()) {
                 UpdateDeliveryNote::make()->action($deliveryNote, $deliveryNoteData['delivery_note']);
-                if ($currentDeliveryAddress = $deliveryNote->getAddress('delivery')) {
-                    if ($currentDeliveryAddress->checksum != $deliveryNoteData['delivery_note']['delivery_address']->getChecksum()) {
-                        $deliveryAddress = StoreFixedAddress::run($deliveryNoteData['delivery_note']['delivery_address']);
-                        UpdateHistoricAddressToModel::run($deliveryNote, $currentDeliveryAddress, $deliveryAddress, ['scope' => 'delivery']);
-                    }
-                } else {
-                    $deliveryAddress = StoreFixedAddress::run($deliveryNoteData['delivery_note']['delivery_address']);
-                    AttachHistoricAddressToModel::run($deliveryNote, $deliveryAddress, ['scope' => 'delivery']);
-                }
-
 
                 if (in_array('transactions', $this->with) or $forceWithTransactions) {
                     $this->fetchDeliveryNoteTransactions($organisationSource, $deliveryNote);
@@ -52,10 +39,7 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
                 return $deliveryNote;
             } else {
                 if ($deliveryNoteData['order']) {
-                    $deliveryNote = StoreDeliveryNote::make()->action(
-                        $deliveryNoteData['order'],
-                        $deliveryNoteData['delivery_note'],
-                    );
+
                     try {
                         $deliveryNote = StoreDeliveryNote::make()->action(
                             $deliveryNoteData['order'],

@@ -37,7 +37,7 @@ class StoreInvoice extends OrgAction
         array $modelData,
     ): Invoice {
 
-        $billingAddress = $modelData['billing_address'];
+        $billingAddressData = $modelData['billing_address'];
         data_forget($modelData, 'billing_address');
 
 
@@ -71,7 +71,7 @@ class StoreInvoice extends OrgAction
         $invoice->stats()->create();
 
 
-        $invoice = $this->createFixedAddress($invoice, $billingAddress, 'Invoice', 'billing', 'address_id');
+        $invoice = $this->createFixedAddress($invoice, $billingAddressData, 'Ordering', 'billing', 'address_id');
         $invoice->updateQuietly(
             [
                 'billing_country_id' => $invoice->address->country_id

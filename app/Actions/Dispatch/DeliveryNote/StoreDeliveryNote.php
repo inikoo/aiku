@@ -45,8 +45,14 @@ class StoreDeliveryNote extends OrgAction
         $deliveryNote = $order->deliveryNotes()->create($modelData);
         $deliveryNote->stats()->create();
 
-        if ($order->delivery_locked) {
-            $deliveryNote = $this->createFixedAddress($deliveryNote, $deliveryAddress, 'DeliveryNote', 'delivery', 'address_id');
+        if ($deliveryNote->delivery_locked) {
+            $deliveryNote = $this->createFixedAddress(
+                $deliveryNote,
+                $deliveryAddress,
+                'Ordering',
+                'delivery',
+                'address_id'
+            );
         } else {
             $deliveryNote = $this->addAddressToModel(
                 model: $deliveryNote,
@@ -102,9 +108,8 @@ class StoreDeliveryNote extends OrgAction
                 'required',
                 Rule::exists('warehouses', 'id')
                     ->where('organisation_id', $this->organisation->id),
-
-
             ],
+            'delivery_locked'  => ['sometimes', 'boolean'],
         ];
 
         if (!$this->strict) {
