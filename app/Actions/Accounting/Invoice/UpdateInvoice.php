@@ -15,6 +15,7 @@ use App\Http\Resources\Accounting\InvoicesResource;
 use App\Models\Accounting\Invoice;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
+use Illuminate\Support\Arr;
 
 class UpdateInvoice extends OrgAction
 {
@@ -26,7 +27,7 @@ class UpdateInvoice extends OrgAction
 
     public function handle(Invoice $invoice, array $modelData): Invoice
     {
-        $billingAddressData = $modelData['billing_address'];
+        $billingAddressData =  Arr::get($modelData, 'billing_address');
         data_forget($modelData, 'billing_address');
 
         $invoice = $this->update($invoice, $modelData, ['data']);

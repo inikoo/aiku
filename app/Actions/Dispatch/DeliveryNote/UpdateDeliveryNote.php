@@ -16,8 +16,10 @@ use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Http\Resources\Delivery\DeliveryNoteResource;
 use App\Models\Dispatch\DeliveryNote;
+use App\Models\Helpers\Address;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rules\Enum;
 
 class UpdateDeliveryNote extends OrgAction
@@ -30,37 +32,36 @@ class UpdateDeliveryNote extends OrgAction
 
     public function handle(DeliveryNote $deliveryNote, array $modelData): DeliveryNote
     {
-        $deliveryAddressData = $modelData['delivery_address'];
+        /** @var Address $deliveryAddressData */
+        $deliveryAddressData = Arr::get($modelData, 'delivery_address');
         data_forget($modelData, 'delivery_address');
 
         $deliveryNote = $this->update($deliveryNote, $modelData, ['data']);
 
-        if ($deliveryNote->delivery_locked) {
-
-
-            if($deliveryNote->deliveryAddress->is_fixed) {
-                $deliveryNote = $this->updateFixedAddress(
-                    $deliveryNote,
-                    $deliveryNote->deliveryAddress,
-                    $deliveryAddressData,
-                    'Ordering',
-                    'delivery',
-                    'address_id'
-                );
+        if($deliveryAddressData) {
+            if ($deliveryNote->delivery_locked) {
+                if ($deliveryNote->deliveryAddress->is_fixed) {
+                    $deliveryNote = $this->updateFixedAddress(
+                        $deliveryNote,
+                        $deliveryNote->deliveryAddress,
+                        $deliveryAddressData,
+                        'Ordering',
+                        'delivery',
+                        'address_id'
+                    );
+                } else {
+                    // todo remove non fixed address
+                    $deliveryNote = $this->createFixedAddress(
+                        $deliveryNote,
+                        $deliveryAddressData,
+                        'Ordering',
+                        'delivery',
+                        'address_id'
+                    );
+                }
             } else {
-                // todo remove non fixed address
-                $deliveryNote = $this->createFixedAddress(
-                    $deliveryNote,
-                    $deliveryAddressData,
-                    'Ordering',
-                    'delivery',
-                    'address_id'
-                );
+                UpdateAddress::run($deliveryNote->deliveryAddress, $deliveryAddressData->toArray());
             }
-
-
-        } else {
-            UpdateAddress::run($deliveryNote->deliveryAddress, $deliveryAddressData->toArray());
         }
 
         DeliveryNoteHydrateUniversalSearch::dispatch($deliveryNote);
