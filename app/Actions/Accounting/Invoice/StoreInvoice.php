@@ -36,7 +36,6 @@ class StoreInvoice extends OrgAction
         Customer|Order $parent,
         array $modelData,
     ): Invoice {
-
         $billingAddressData = $modelData['billing_address'];
         data_forget($modelData, 'billing_address');
 
@@ -61,7 +60,7 @@ class StoreInvoice extends OrgAction
         data_set($modelData, 'org_net_amount', Arr::get($modelData, 'net') * $orgExchange, overwrite: false);
         data_set($modelData, 'group_net_amount', Arr::get($modelData, 'net') * $groupExchange, overwrite: false);
 
-        $date=now();
+        $date = now();
         data_set($modelData, 'date', $date, overwrite: false);
         data_set($modelData, 'tax_liability_at', $date, overwrite: false);
 
@@ -71,7 +70,13 @@ class StoreInvoice extends OrgAction
         $invoice->stats()->create();
 
 
-        $invoice = $this->createFixedAddress($invoice, $billingAddressData, 'Ordering', 'billing', 'address_id');
+        $invoice = $this->createFixedAddress(
+            $invoice,
+            $billingAddressData,
+            'Ordering',
+            'billing',
+            'address_id'
+        );
         $invoice->updateQuietly(
             [
                 'billing_country_id' => $invoice->address->country_id
@@ -109,20 +114,20 @@ class StoreInvoice extends OrgAction
                     ]
                 ),
             ],
-            'currency_id'             => ['required', 'exists:currencies,id'],
-            'billing_address'         => ['required', new ValidAddress()],
-            'type'                    => ['required', Rule::enum(InvoiceTypeEnum::class)],
-            'net_amount'              => ['required', 'numeric'],
-            'total_amount'            => ['required', 'numeric'],
-            'date'                    => ['sometimes', 'date'],
-            'tax_liability_at'        => ['sometimes', 'date'],
-            'created_at'              => ['sometimes', 'date'],
-            'data'                    => ['sometimes', 'array'],
-            'org_exchange'            => ['sometimes', 'numeric'],
-            'group_exchange'          => ['sometimes', 'numeric'],
-            'org_net_amount'          => ['sometimes', 'numeric'],
-            'group_net_amount'        => ['sometimes', 'numeric'],
-            'source_id'               => ['sometimes', 'string'],
+            'currency_id'      => ['required', 'exists:currencies,id'],
+            'billing_address'  => ['required', new ValidAddress()],
+            'type'             => ['required', Rule::enum(InvoiceTypeEnum::class)],
+            'net_amount'       => ['required', 'numeric'],
+            'total_amount'     => ['required', 'numeric'],
+            'date'             => ['sometimes', 'date'],
+            'tax_liability_at' => ['sometimes', 'date'],
+            'created_at'       => ['sometimes', 'date'],
+            'data'             => ['sometimes', 'array'],
+            'org_exchange'     => ['sometimes', 'numeric'],
+            'group_exchange'   => ['sometimes', 'numeric'],
+            'org_net_amount'   => ['sometimes', 'numeric'],
+            'group_net_amount' => ['sometimes', 'numeric'],
+            'source_id'        => ['sometimes', 'string'],
         ];
 
         if (!$this->strict) {
@@ -139,6 +144,7 @@ class StoreInvoice extends OrgAction
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($parent->shop, $modelData);
+
         return $this->handle($parent, $this->validatedData);
     }
 }
