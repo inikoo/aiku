@@ -15,7 +15,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Illuminate\Validation\Validator;
 
-class StoreUserApiTokenFromCredentials
+class ConnectMayaWithCredentials
 {
     use AsAction;
     use WithAttributes;

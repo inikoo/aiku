@@ -5,12 +5,9 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Fulfilment\Pallet\ReturnPalletToCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInReturn;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
-use App\Actions\Fulfilment\Pallet\UpdatePallet;
-use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\UI\ShowPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
@@ -33,14 +30,11 @@ Route::prefix("{warehouse:id}")->name("warehouses.")
         Route::get('locations', [IndexLocations::class, 'inWarehouse'])->name('locations.index');
         Route::get('areas/{warehouseArea:id}/locations', [IndexLocations::class, 'inWarehouseArea'])->name('areas.locations.index')->withoutScopedBindings();
         Route::get('locations/{location:id}', [ShowLocation::class, 'inWarehouse'])->name('locations.show')->withoutScopedBindings();
-        Route::patch('locations/{location:id}/pallets/{pallet:id}', UpdatePalletLocation::class)->name('pallets.location.update')->withoutScopedBindings();
 
         Route::prefix("fulfilments/{fulfilment:id}")->name("fulfilments.")->group(function () {
             Route::get('locations/{location:id}/pallets', [IndexPallets::class, 'inLocation'])->name('locations.pallets.index')->withoutScopedBindings();
             Route::get('pallets', IndexPallets::class)->name('pallets.index');
             Route::get('pallets/{pallet:id}', ShowPallet::class)->name('pallets.show')->withoutScopedBindings();
-            Route::patch('pallets/{pallet:id}/return', ReturnPalletToCustomer::class)->name('pallets.return')->withoutScopedBindings();
-            Route::patch('pallets/{pallet:id}', [UpdatePallet::class, 'fromApi'])->name('pallets.update')->withoutScopedBindings();
         });
 
         Route::prefix('pallet-deliveries')->name('pallet-delivery.')->group(function () {

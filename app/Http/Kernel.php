@@ -75,6 +75,12 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
         ],
 
+        'maya'      => [
+            ForceJsonResponse::class,
+            EnsureFrontendRequestsAreStateful::class,
+            SubstituteBindings::class,
+        ],
+
         'api'      => [
             ForceJsonResponse::class,
             EnsureFrontendRequestsAreStateful::class,

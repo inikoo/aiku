@@ -35,14 +35,13 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware('han')
             ->domain(config('app.domain'))
             ->prefix('han')
-            ->group(base_path('routes/han/han-root.php'));
+            ->group(base_path('routes/han/han-app.php'));
 
-        /*
-                Route::middleware('api')
-                    ->domain(config('app.domain'))
-                    ->prefix('api')
-                    ->group(base_path('routes/grp/api/han-root.php'));
-        */
+        Route::middleware('maya')
+            ->domain(config('app.domain'))
+            ->prefix('maya')
+            ->group(base_path('routes/maya/maya-app.php'));
+
         Route::middleware('aiku-public')
             ->domain(config('app.domain'))
             ->name('aiku-public.')
@@ -56,7 +55,6 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware('iris')
             ->name('iris.')
             ->group(base_path('routes/iris/root.php'));
-
     }
 
     protected function configureRateLimiting(): void
@@ -65,7 +63,7 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(600)->by($request->user()?->id ?: $request->ip());
         });
 
-        RateLimiter::for('api', function (Request $request) {
+        RateLimiter::for('maya', function (Request $request) {
             return Limit::perMinute(600)->by($request->user()?->id ?: $request->ip());
         });
     }

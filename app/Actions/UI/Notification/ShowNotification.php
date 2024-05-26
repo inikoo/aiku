@@ -19,7 +19,7 @@ class ShowNotification
 
     public function asController(Notification $notification): Notification
     {
-        $notification = ReadNotification::run($notification);
+        $notification = MarkNotificationAsRead::run($notification);
 
         $notification->refresh();
 

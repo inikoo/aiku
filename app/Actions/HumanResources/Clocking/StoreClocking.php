@@ -93,7 +93,7 @@ class StoreClocking extends OrgAction
 
     public function jsonResponse(Clocking $clocking): ClockingResource|ClockingHanResource
     {
-        if($this->han){
+        if($this->han) {
             return ClockingHanResource::make($clocking);
         }
 
