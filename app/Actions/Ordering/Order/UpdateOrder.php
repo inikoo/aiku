@@ -96,7 +96,7 @@ class UpdateOrder extends OrgAction
                 ),
             ],
             'date'             => ['sometimes','required', 'date'],
-            'billing_address'  => ['required', new ValidAddress()],
+            'billing_address'  => ['sometimes', 'required', new ValidAddress()],
             'delivery_address' => ['sometimes', 'required', new ValidAddress()],
             'billing_locked'   => ['sometimes', 'boolean'],
             'delivery_locked'  => ['sometimes', 'boolean'],
