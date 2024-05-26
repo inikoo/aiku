@@ -103,14 +103,22 @@ class FetchAuroraDeliveryNote extends FetchAurora
         );
 
 
-
         $deliveryLocked = false;
-        if (in_array($this->auroraModelData->{'Delivery Note State'}, ['Cancelled', 'Approved', 'Dispatched','Cancelled to Restock'])) {
+        if (in_array($this->auroraModelData->{'Delivery Note State'}, ['Cancelled', 'Approved', 'Dispatched', 'Cancelled to Restock'])) {
             $deliveryLocked = true;
         }
 
+        $number = $this->auroraModelData->{'Delivery Note ID'};
+
+        if ($this->auroraModelData->{'Delivery Note State'} == "Cancelled") {
+            $count = DB::connection('aurora')->table('Delivery Note Dimension')->where('Delivery Note ID', $number)->count();
+            if ($count > 1) {
+                $number = $number.'-cancelled';
+            }
+        }
+
         $this->parsedData["delivery_note"] = [
-            "number"           => $this->auroraModelData->{'Delivery Note ID'},
+            "number"           => $number,
             'date'             => $this->auroraModelData->{'Delivery Note Date Created'},
             "state"            => $state,
             "status"           => $status,
