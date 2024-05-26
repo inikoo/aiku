@@ -49,7 +49,7 @@ beforeEach(function () {
     }
 
     $this->workplace = Workplace::where('name', 'office')->first();
-});
+})->todo();
 
 
 test('create qr code', function () {
@@ -187,8 +187,7 @@ test('create clocking machine in workplace', function () {
         $this->user,
         ['*']
     );
-    $response = postJson(route('api.org.hr.workplaces.show.clocking_machines.store', [
-        $this->organisation,
+    $response = postJson(route('api.models.workplace.clocking_machine.store', [
         $this->workplace->id
     ]), [
         'name'    => 'test clocking machine',

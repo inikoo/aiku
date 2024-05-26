@@ -67,7 +67,7 @@ class CreateClockingMachine extends OrgAction
                         match (class_basename($parent)) {
                             'Workplace' =>
                             [
-                                'name'       => 'grp.models.org.workplace.clocking_machines.store',
+                                'name'       => 'grp.models.workplace.clocking_machine.store',
                                 'parameters' => $parent->id
                             ],
                             default =>

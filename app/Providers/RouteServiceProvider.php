@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
-    public const HOME = '/dashboard';
+    public const string HOME = '/dashboard';
 
 
     public function boot(): void
@@ -32,11 +32,17 @@ class RouteServiceProvider extends ServiceProvider
             ->prefix('webhooks')
             ->group(base_path('routes/grp/webhooks/webhooks.php'));
 
-        Route::middleware('api')
+        Route::middleware('han')
             ->domain(config('app.domain'))
-            ->prefix('api')
-            ->group(base_path('routes/grp/api/api.php'));
+            ->prefix('han')
+            ->group(base_path('routes/han/han-root.php'));
 
+        /*
+                Route::middleware('api')
+                    ->domain(config('app.domain'))
+                    ->prefix('api')
+                    ->group(base_path('routes/grp/api/han-root.php'));
+        */
         Route::middleware('aiku-public')
             ->domain(config('app.domain'))
             ->name('aiku-public.')
@@ -55,6 +61,10 @@ class RouteServiceProvider extends ServiceProvider
 
     protected function configureRateLimiting(): void
     {
+        RateLimiter::for('han', function (Request $request) {
+            return Limit::perMinute(600)->by($request->user()?->id ?: $request->ip());
+        });
+
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(600)->by($request->user()?->id ?: $request->ip());
         });

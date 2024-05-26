@@ -61,7 +61,7 @@ class ShowClockingMachine extends OrgAction
 
     public function htmlResponse(ClockingMachine $clockingMachine, ActionRequest $request): Response
     {
-        // dd($clockingMachine);
+
         return Inertia::render(
             'Org/HumanResources/ClockingMachine',
             [

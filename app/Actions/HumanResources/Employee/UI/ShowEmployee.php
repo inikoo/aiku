@@ -17,6 +17,7 @@ use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\UI\HumanResources\EmployeeTabsEnum;
 use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\HumanResources\EmployeeHanResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Http\Resources\HumanResources\JobPositionsResource;
 use App\Http\Resources\HumanResources\TimesheetsResource;
@@ -34,9 +35,7 @@ class ShowEmployee extends OrgAction
     use WithActionButtons;
     use WithEmployeeSubNavigation;
 
-    /**
-     * @var array|\ArrayAccess|mixed
-     */
+
     private Employee $employee;
 
     public function handle(Employee $employee): Employee
@@ -192,22 +191,26 @@ class ShowEmployee extends OrgAction
         return $rules;
     }
 
-    public function inApi(ActionRequest $request): Employee
+    public function han(Employee $employee, ActionRequest $request): Employee
     {
-        $workplace = $request->user()->workplace;
+        $this->han=true;
 
-        $employee = $workplace
-            ->employees()
-            ->where('pin', $request->input('pin'))->firstOrFail();
-
-        $this->employee = $employee;
-        $this->initialisation($workplace->organisation, $request);
+        if($request->user()->organisation_id !== $employee->organisation_id) {
+            abort(404);
+        }
+        if(in_array($employee->state, [EmployeeStateEnum::HIRED,EmployeeStateEnum::LEFT])) {
+            abort(405);
+        }
 
         return $this->handle($employee);
     }
 
-    public function jsonResponse(Employee $employee): EmployeeResource
+    public function jsonResponse(Employee $employee): EmployeeResource|EmployeeHanResource
     {
+        if($this->han) {
+            return new EmployeeHanResource($employee);
+        }
+
         return new EmployeeResource($employee);
     }
 

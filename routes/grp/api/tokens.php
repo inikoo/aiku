@@ -5,8 +5,8 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Actions\SysAdmin\User\UI\DeleteClockingMachineApiToken;
-use App\Actions\SysAdmin\User\UI\StoreClockingMachineApiTokenFromQRCode;
+use App\Actions\HumanResources\ClockingMachine\DisconnectClockingMachineFromHan;
+use App\Actions\HumanResources\ClockingMachine\ConnectClockingMachineToHan;
 use App\Actions\SysAdmin\User\UI\StoreUserApiTokenFromCredentials;
 use App\Actions\SysAdmin\User\UI\StoreUserApiTokenFromQRCode;
 use App\Actions\SysAdmin\User\UpdateFcmTokenUser;
@@ -17,8 +17,8 @@ Route::name('mobile-app.tokens.')->group(function () {
     Route::post('tokens/credentials', StoreUserApiTokenFromCredentials::class)->name('credentials.store');
 
     Route::prefix('clocking-machines')->name('clocking-machine.')->group(function () {
-        Route::post('tokens/qr-code', StoreClockingMachineApiTokenFromQRCode::class)->name('qr-code.store');
-        Route::delete('tokens/qr-code', DeleteClockingMachineApiToken::class)->name('qr-code.delete')->middleware(['auth:sanctum','bind_group']);
+        Route::post('tokens/qr-code', ConnectClockingMachineToHan::class)->name('qr-code.store');
+        Route::delete('tokens/qr-code', DisconnectClockingMachineFromHan::class)->name('qr-code.delete')->middleware(['auth:sanctum', 'bind_group']);
     });
 });
 

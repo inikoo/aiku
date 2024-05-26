@@ -30,12 +30,14 @@ class OrgAction
     protected Warehouse $warehouse;
     protected Production $production;
 
-    protected bool $asAction         = false;
-    protected bool $canEdit          = false;
-    protected bool $canDelete        = false;
-    protected bool $isSupervisor     = false;
-    public int $hydratorsDelay       = 0;
-    protected bool $strict           = true;
+    protected bool $asAction     = false;
+    protected bool $canEdit      = false;
+    protected bool $canDelete    = false;
+    protected bool $isSupervisor = false;
+    public int $hydratorsDelay   = 0;
+    protected bool $strict       = true;
+    protected bool $han          = false;
+    protected bool $maya         = false;
 
     protected array $validatedData;
 
@@ -69,9 +71,9 @@ class OrgAction
 
     public function initialisationFromFulfilment(Fulfilment $fulfilment, ActionRequest|array $request): static
     {
-        $this->fulfilment         = $fulfilment;
-        $this->shop               = $fulfilment->shop;
-        $this->organisation       = $fulfilment->organisation;
+        $this->fulfilment   = $fulfilment;
+        $this->shop         = $fulfilment->shop;
+        $this->organisation = $fulfilment->organisation;
         if (is_array($request)) {
             $this->setRawAttributes($request);
         } else {
@@ -98,8 +100,8 @@ class OrgAction
 
     public function initialisationFromProduction(Production $production, ActionRequest|array $request): static
     {
-        $this->production    = $production;
-        $this->organisation  = $production->organisation;
+        $this->production   = $production;
+        $this->organisation = $production->organisation;
         if (is_array($request)) {
             $this->setRawAttributes($request);
         } else {

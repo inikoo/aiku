@@ -8,6 +8,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\ApiBindGroupInstance;
+use App\Http\Middleware\SetHanAsAppScope;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\BindGroupInstance;
 use App\Http\Middleware\CheckWebsiteState;
@@ -66,6 +67,14 @@ class Kernel extends HttpKernel
             EnsureFrontendRequestsAreStateful::class,
             SubstituteBindings::class,
         ],
+
+        'han'      => [
+            ForceJsonResponse::class,
+            EnsureFrontendRequestsAreStateful::class,
+            SetHanAsAppScope::class,
+            SubstituteBindings::class,
+        ],
+
         'api'      => [
             ForceJsonResponse::class,
             EnsureFrontendRequestsAreStateful::class,
@@ -132,7 +141,7 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
         ],
 
-        'broadcast'   => [
+        'broadcast' => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
             StartSession::class,

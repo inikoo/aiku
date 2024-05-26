@@ -28,7 +28,7 @@ use Str;
 
 class StoreClockingMachine extends OrgAction
 {
-    private Organisation|StoreClockingMachine $parent;
+    private Organisation|Workplace $parent;
 
     public function handle(Organisation|Workplace $parent, array $modelData): ClockingMachine
     {
@@ -42,7 +42,6 @@ class StoreClockingMachine extends OrgAction
 
         data_set($modelData, 'group_id', $workplace->group_id);
         data_set($modelData, 'organisation_id', $workplace->organisation_id);
-        data_set($modelData, 'qr_code', Str::random(8));
 
         if (Arr::get($modelData, 'type') == ClockingMachineTypeEnum::STATIC_NFC->value) {
             data_set($modelData, 'data.nfc_tag', $this->get('nfc_tag'));
@@ -52,6 +51,12 @@ class StoreClockingMachine extends OrgAction
         /** @var ClockingMachine $clockingMachine */
         $clockingMachine =  $workplace->clockingMachines()->create($modelData);
         $clockingMachine->stats()->create();
+
+        $clockingMachine->updateQuietly(
+            [
+                'qr_code'=> base_convert($clockingMachine->id, 10, 36).Str::random(6)
+            ]
+        );
 
         OrganisationHydrateClockingMachines::dispatch($workplace->organisation);
         GroupHydrateClockingMachines::dispatch($clockingMachine->group);
@@ -109,16 +114,27 @@ class StoreClockingMachine extends OrgAction
         return $this->handle($organisation, $this->validatedData);
     }
 
-    public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): ClockingMachine
+    public function asController(Workplace $workplace, ActionRequest $request): ClockingMachine
     {
-        $this->parent=#workplace;
-        $this->initialisation($organisation, $request);
+        $this->parent=$workplace;
+        $this->initialisation($workplace->organisation, $request);
         return $this->handle($workplace, $this->validatedData);
     }
+
+    public function api(Workplace $workplace, ActionRequest $request): ClockingMachine
+    {
+        // todo we might need to make a proper authorisation check here
+        $this->asAction = true;
+        $this->parent   =$workplace;
+        $this->initialisation($workplace->organisation, $request);
+        return $this->handle($workplace, $this->validatedData);
+    }
+
 
     public function action(Workplace $workplace, array $modelData): ClockingMachine
     {
         $this->asAction = true;
+        $this->parent   =$workplace;
         $this->initialisation($workplace->organisation, $modelData);
         return $this->handle($workplace, $this->validatedData);
     }
