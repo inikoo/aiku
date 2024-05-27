@@ -41,7 +41,7 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 
     public function withFilterPeriod($column, ?string $prefix = null): static
     {
-        $periodType = request()->input(($prefix ? $prefix . '_' : '') . 'period.type');
+        $periodType = array_key_first(request()->input(($prefix ? $prefix . '_' : '') . 'period'));
 
         if ($periodType) {
             $periodData = $this->validatePeriod($periodType, $prefix);
@@ -56,7 +56,7 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 
     protected function validatePeriod(string $periodType, ?string $prefix = null): ?array
     {
-        $period = request()->input(($prefix ? $prefix . '_' : '') . 'period.date');
+        $period = request()->input(($prefix ? $prefix . '_' : '') . 'period.'.$periodType);
 
         switch ($periodType) {
             case 'today':
@@ -87,6 +87,15 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
                 if (preg_match('/^\d{4}$/', $period)) {
                     $start = Carbon::createFromFormat('Y', $period)->startOfYear()->toDateTimeString();
                     $end   = Carbon::createFromFormat('Y', $period)->endOfYear()->toDateTimeString();
+                } else {
+                    return null;
+                }
+                break;
+            case 'quarter':
+                if ($period && preg_match('/^\d{8}$/', $period)) {
+                    $date  = Carbon::createFromFormat('Ymd', $period);
+                    $start = $date->startOfQuarter()->toDateTimeString();
+                    $end   = $date->endOfQuarter()->toDateTimeString();
                 } else {
                     return null;
                 }
