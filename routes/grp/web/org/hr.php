@@ -114,7 +114,7 @@ Route::scopeBindings()->group(function () {
 
 Route::prefix('clocking-machines')->as('clocking_machines.')->group(function () {
     Route::get('', [IndexClockingMachines::class, 'inOrganisation'])->name('index');
-    Route::get('create', CreateClockingMachine::class)->name('create');
+    Route::get('create', [CreateClockingMachine::class, 'inOrganisation'])->name('create');
     Route::get('{clockingMachine}', [ShowClockingMachine::class,'inOrganisation'])->name('show');
     Route::get('{clockingMachine}/edit', EditClockingMachine::class)->name('edit');
 });
