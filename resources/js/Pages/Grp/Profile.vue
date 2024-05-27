@@ -41,7 +41,7 @@ const props = defineProps<{
     history?: {}
     timesheets?: {}
     visit_logs?: {}
-    showcase?: {}
+    my_data?: {}
 
 }>()
 
@@ -53,7 +53,7 @@ const layout = inject('layout', layoutStructure)
 const currentTab = ref('showcase')
 const component = computed(() => {
     const components: Component = {
-        showcase: ProfileShowcase,
+      my_data: ProfileShowcase,
         visit_logs: TableUserRequestLogs,
         timesheets: TableTimesheets,
         history: TableHistories,
