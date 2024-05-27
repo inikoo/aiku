@@ -34,7 +34,8 @@ class StoreClockingMachine extends OrgAction
     {
 
         if($parent instanceof Organisation) {
-            $workplace = $parent->workplaces()->where(Arr::get($modelData, 'workplace_id'))->firstOrFail();
+            $workplaceId = Arr::get($modelData, 'workplace_id');
+            $workplace   = $parent->workplaces()->where('id', $workplaceId)->firstOrFail();
         } else {
             $workplace = $parent;
         }

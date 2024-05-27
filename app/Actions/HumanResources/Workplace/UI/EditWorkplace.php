@@ -8,6 +8,7 @@
 namespace App\Actions\HumanResources\Workplace\UI;
 
 use App\Actions\Assets\Country\UI\GetAddressData;
+use App\Actions\Assets\TimeZone\UI\GetTimeZonesOptions;
 use App\Actions\OrgAction;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
@@ -67,6 +68,15 @@ class EditWorkplace extends OrgAction
                     'value'       => $workplace->type,
                     'required'    => true,
                     'searchable'  => true
+                ],
+                'timezone_id' => [
+                    'type'        => 'select',
+                    'label'       => __('timezone'),
+                    'placeholder' => __('Select a timezone'),
+                    'options'     => GetTimeZonesOptions::run(),
+                    'value'       => $workplace->timezone_id,
+                    'required'    => true,
+                    'mode'        => 'single'
                 ],
                 'address'      => [
                     'type'    => 'address',
@@ -147,8 +157,8 @@ class EditWorkplace extends OrgAction
                     'blueprint' => $sections,
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'grp.org.models.workplace.update',
-                            'parameters' => $request->route()->originalParameters()
+                            'name'       => 'grp.models.workplace.update',
+                            'parameters' => $workplace->id
                         ],
                     ]
                 ],
@@ -182,7 +192,7 @@ class EditWorkplace extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.hr.workplaces.show' => [
+            'grp.org.hr.workplaces.edit' => [
                 'label' => $workplace->name,
                 'route' => [
                     'name'       => $routeName,

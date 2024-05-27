@@ -13,28 +13,31 @@ enum PeriodEnum: string
 {
     use EnumHelperTrait;
 
-    case TODAY = 'today';
-    case WEEK  = 'week';
-    case MONTH = 'month';
-    case YEAR  = 'year';
+    case Day     = 'day';
+    case WEEK    = 'week';
+    case MONTH   = 'month';
+    case QUARTER = 'quarter';
+    case YEAR    = 'year';
 
     public static function labels(): array
     {
         return [
-            'today' => __('Today'),
-            'week'  => __('Week'),
-            'month' => __('Month'),
-            'year'  => __('Year')
+            'day'     => __('Day'),
+            'week'    => __('Week'),
+            'month'   => __('Month'),
+            'quarter' => __('Quarter'),
+            'year'    => __('Year')
         ];
     }
 
     public static function date(): array
     {
         return [
-            'today' => null,
-            'week'  => now()->format('Ymd'),
-            'month' => now()->format('Ym'),
-            'year'  => now()->format('Y')
+            'day'     => null,
+            'week'    => now()->format('Ymd'),
+            'month'   => now()->format('Ym'),
+            'quarter' => now()->format('Ymd'),
+            'year'    => now()->format('Y')
         ];
     }
 }
