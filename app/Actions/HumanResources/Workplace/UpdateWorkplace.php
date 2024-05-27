@@ -88,7 +88,7 @@ class UpdateWorkplace extends OrgAction
     {
         $this->workplace = $workplace;
         $this->initialisation($workplace->organisation, $request);
-   
+
         return $this->handle(workplace: $workplace, modelData: $this->validatedData);
     }
 
