@@ -1,4 +1,4 @@
-import { format, formatDuration, intervalToDuration, addSeconds, formatDistanceToNowStrict, isPast } from 'date-fns'
+import { format, formatDuration, intervalToDuration, addSeconds, formatDistanceToNowStrict, isPast, parseISO } from 'date-fns'
 import formatDistanceToNow from 'date-fns/formatDistanceToNow'
 import { zhCN, enUS, fr, de, id, ja, sk, es } from 'date-fns/locale'
 
@@ -93,7 +93,7 @@ export const useIsFutureIsAPast = (dateIso: Date | string, additionalSeconds: nu
 
 
 // Method: Convert from '28359' (in seconds) to '7h 52m 39s'
-export const useSecondsToMS = (seconds: number) => {
+export const useSecondsToMS = (seconds?: number) => {
     if (!seconds) return '00:00'
 
     // Create a duration object with only seconds
@@ -105,4 +105,12 @@ export const useSecondsToMS = (seconds: number) => {
     const strSeconds = duration.seconds?.toString().padStart(2, '0')
 
     return strHour + ':' + strMinutes + ':' + strSeconds
+}
+
+// Method: Convert date to '08:30 am'
+export const useHMAP = (date?: string) => {
+    if(!date) {
+        return '-'
+    }
+    return format(parseISO(date), 'hh:mm a')
 }

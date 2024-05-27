@@ -23,14 +23,17 @@ const isLoading = ref(false)
 const submit = () => {
     isLoading.value = true
     form.post(route('grp.login.show'), {
-        onError: () => isLoading.value = false,
+        onError: () => (
+            isLoading.value = false
+        ),
         onFinish: () => {
-            
-            form.reset('password'),
             useLayoutStore().organisations.data.length === 1
                 ? router.get(route('grp.org.dashboard.show', useLayoutStore().organisations.data[0].slug))
                 : false
         },
+        onSuccess: () => {
+            form.reset('password')
+        }
     })
 }
 

@@ -19,21 +19,31 @@ import TableClockings from "@/Components/Tables/Grp/Org/HumanResources/TableCloc
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faVoteYea, faArrowsH } from '@fal'
+import { format, parseISO } from 'date-fns'
+import { useSecondsToMS, useHMAP } from '@/Composables/useFormatTime'
+import { trans } from 'laravel-vue-i18n'
 
-library.add(
-    faVoteYea, faArrowsH
-)
+library.add( faVoteYea, faArrowsH )
 
 const props = defineProps<{
     title: string,
-    pageHead: PageHeadingTypes,
+    pageHead: PageHeadingTypes
     tabs: {
         current: string
         navigation: Navigation
     },
-    history?: object,
-    time_trackers?: object,
-    clockings?: object,
+    history?: {}
+    time_trackers?: {}
+    clockings?: {}
+    timesheet: {
+        work_start_at?: string    
+        work_end_at?: string
+        work_duration?: string
+        breaks_duration?: string
+        total_duration?: number
+        overtime?: number
+        about?: string
+    }
 
 }>()
 
@@ -41,24 +51,21 @@ const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
-
     const components: Component = {
         time_trackers: TableTimeTrackers,
         clockings: TableClockings,
         history: TableHistories
     }
+
     return components[currentTab.value]
-
-});
-
+})
 
 </script>
 
 
 <template>
-
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead" />
 
     <div class="grid grid-cols-2 divide-x divide-gray-200 px-3 py-5">
         <div>
@@ -75,29 +82,30 @@ const component = computed(() => {
                 <dl class="divide-y divide-gray-100">
                     <div class="bg-gray-50 px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
                         <dt class="text-sm text-gray-500">Start</dt>
-                        <dd class="mt-1 text-sm  font-medium sm:col-span-2 sm:mt-0">7 am</dd>
+                        <dd class="mt-1 text-sm  font-medium sm:col-span-2 sm:mt-0">{{ useHMAP(timesheet.work_start_at) }}</dd>
                     </div>
                     <div class="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
                         <dt class="text-sm text-gray-500">End</dt>
-                        <dd class="mt-1 text-sm  font-medium sm:col-span-2 sm:mt-0">4 pm</dd>
+                        <dd class="mt-1 text-sm  font-medium sm:col-span-2 sm:mt-0">{{ useHMAP(timesheet.work_end_at) || '-'}}</dd>
                     </div>
                     <div class="bg-gray-50 px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
                         <dt class="text-sm text-gray-500">Breaks</dt>
-                        <dd class="mt-1 text-sm  font-medium sm:col-span-2 sm:mt-0">50m:49s</dd>
+                        <dd class="mt-1 text-sm  font-medium sm:col-span-2 sm:mt-0">{{ timesheet.breaks_duration || '-'}}</dd>
                     </div>
                     <div class="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
                         <dt class="text-sm text-gray-500">Total worktime</dt>
-                        <dd class="mt-1 text-sm  font-medium sm:col-span-2 sm:mt-0">7:59:25</dd>
+                        <dd class="mt-1 text-sm  font-medium sm:col-span-2 sm:mt-0">{{ useSecondsToMS(timesheet.total_duration) }}</dd>
                     </div>
                     <div class="bg-gray-50 px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
                         <dt class="text-sm text-gray-500">Overtime</dt>
-                        <dd class="mt-1 text-sm  font-medium sm:col-span-2 sm:mt-0">-</dd>
+                        <dd class="mt-1 text-sm  font-medium sm:col-span-2 sm:mt-0">{{ timesheet.overtime ? useSecondsToMS(timesheet.overtime) : '-'}}</dd>
                     </div>
 
                     <div class="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-3">
                         <dt class="text-sm text-gray-500">About</dt>
                         <dd class="mt-1 text-sm  font-medium sm:col-span-2 sm:mt-0">
-                            Sleepy all day.
+                            <span v-if="timesheet.about">{{ timesheet.about }}</span>
+                            <span v-else class="text-gray-400 italic font-light">{{ trans('No note.') }}</span>
                         </dd>
                     </div>
                     
