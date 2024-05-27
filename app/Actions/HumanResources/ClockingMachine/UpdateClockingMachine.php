@@ -85,7 +85,7 @@ class UpdateClockingMachine extends OrgAction
     public function asController(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
     {
         $this->clockingMachine = $clockingMachine;
-        $this->initialisation($organisation, $request);
+        $this->initialisation($clockingMachine->organisation, $request);
 
         return $this->handle($clockingMachine, $this->validatedData);
     }
