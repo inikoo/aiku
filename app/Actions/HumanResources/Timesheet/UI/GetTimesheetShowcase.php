@@ -20,7 +20,9 @@ class GetTimesheetShowcase
             'work_start'      => $timesheet->start_at,
             'work_duration'   => $timesheet->working_duration,
             'breaks_duration' => $timesheet->breaks_duration,
-            'work_end_at'     => $timesheet->end_at
+            'work_end_at'     => $timesheet->end_at,
+            'overtime'        => $timesheet->overtime,
+            'about'           => $timesheet->about
         ];
     }
 }
