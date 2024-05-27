@@ -16,11 +16,11 @@ enum ProfileTabsEnum: string
     use HasTabs;
 
 
-    case TODO = 'todo';
+    case TODO          = 'todo';
     case NOTIFICATIONS = 'notifications';
-    case KPI = 'kpi';
+    case KPI           = 'kpi';
 
-    case HISTORY = 'history';
+    case HISTORY    = 'history';
     case VISIT_LOGS = 'visit_logs';
     case TIMESHEETS = 'timesheets';
 
@@ -41,9 +41,9 @@ enum ProfileTabsEnum: string
             ],
 
             ProfileTabsEnum::KPI => [
-                'title' => __('KPIs'),
+                'title'   => __('KPIs'),
                 'tooltip' => __('key performance indicators'),
-                'icon'  => 'fal fa-rabbit-fast',
+                'icon'    => 'fal fa-rabbit-fast',
             ],
 
             ProfileTabsEnum::VISIT_LOGS => [

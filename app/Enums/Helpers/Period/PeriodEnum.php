@@ -13,11 +13,11 @@ enum PeriodEnum: string
 {
     use EnumHelperTrait;
 
-    case Day = 'day';
-    case WEEK = 'week';
-    case MONTH = 'month';
+    case Day     = 'day';
+    case WEEK    = 'week';
+    case MONTH   = 'month';
     case QUARTER = 'quarter';
-    case YEAR = 'year';
+    case YEAR    = 'year';
 
     public static function labels(): array
     {

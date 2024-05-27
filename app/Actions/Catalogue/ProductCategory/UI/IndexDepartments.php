@@ -165,23 +165,6 @@ class IndexDepartments extends OrgAction
                         ],
                         default => null
                     }
-                    /*
-                    [
-                        'title'       => __('no departments'),
-                        'description' => $canEdit ? __('Get started by creating a new department.') : null,
-                        'count'       => app('currentTenant')->stats->number_shops,
-                        'action'      => $canEdit ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new department'),
-                            'label'   => __('department'),
-                            'route'   => [
-                                'name'       => 'shops.departments.create',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ] : null
-                    ]
-                    */
                 );
 
             if($parent instanceof Organisation) {
