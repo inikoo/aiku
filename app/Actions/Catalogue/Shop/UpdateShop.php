@@ -7,27 +7,52 @@
 
 namespace App\Actions\Catalogue\Shop;
 
+use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateUniversalSearch;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\Catalogue\ShopResource;
 use App\Models\Catalogue\Shop;
 use App\Rules\IUnique;
+use App\Rules\ValidAddress;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateShop extends OrgAction
 {
     use WithActionUpdate;
+    use WithModelAddressActions;
 
     public function handle(Shop $shop, array $modelData): Shop
     {
-        $shop =  $this->update($shop, $modelData, ['data', 'settings']);
+        if (Arr::exists($modelData, 'address')) {
+            $addressData = Arr::get($modelData, 'address');
+            Arr::forget($modelData, 'address');
+            $shop = $this->updateModelAddress($shop, $addressData);
+        }
+
+        if (Arr::exists($modelData, 'collection_address')) {
+            $collectionAddressData = Arr::get($modelData, 'collection_address');
+            Arr::forget($modelData, 'collection_address');
+
+            if ($shop->collection_address_id) {
+                UpdateAddress::run($shop->collectionAddress, $collectionAddressData);
+            } else {
+                return $this->addAddressToModel(model: $shop, addressData: $collectionAddressData, updateLocation: false, updateAddressField: 'collection_address_id');
+            }
+        }
+
+
+        $shop = $this->update($shop, $modelData, ['data', 'settings']);
+
+
         ShopHydrateUniversalSearch::dispatch($shop);
-        if ($shop->wasChanged(['type', 'state'])) {
-            OrganisationHydrateMarket::dispatch(app('currentTenant'));
+        if (Arr::hasAny($shop->getChanges(), ['type', 'state'])) {
+            OrganisationHydrateMarket::dispatch($shop->organisation);
         }
 
         return $shop;
@@ -46,31 +71,38 @@ class UpdateShop extends OrgAction
     {
         return [
             'name'                     => ['sometimes', 'required', 'string', 'max:255'],
-            'code'                     => ['sometimes', 'required', 'between:2,4', 'alpha_dash',
-                                           new IUnique(
-                                               table: 'shops',
-                                               extraConditions: [
+            'code'                     => [
+                'sometimes',
+                'required',
+                'between:2,4',
+                'alpha_dash',
+                new IUnique(
+                    table: 'shops',
+                    extraConditions: [
 
-                                                   ['column' => 'group_id', 'value' => $this->organisation->group_id],
-                                                   [
-                                                       'column'   => 'id',
-                                                       'operator' => '!=',
-                                                       'value'    => $this->shop->id
-                                                   ],
-                                               ]
-                                           ),
+                        ['column' => 'group_id', 'value' => $this->organisation->group_id],
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->shop->id
+                        ],
+                    ]
+                ),
 
-                ],
+            ],
             'contact_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
             'company_name'             => ['sometimes', 'nullable', 'string', 'max:255'],
             'email'                    => ['sometimes', 'nullable', 'email'],
-            'phone'                    => ['sometimes','nullable'],
+            'phone'                    => ['sometimes', 'nullable'],
             'identity_document_number' => ['sometimes', 'nullable', 'string'],
             'identity_document_type'   => ['sometimes', 'nullable', 'string'],
             'type'                     => ['sometimes', 'required', Rule::in(ShopTypeEnum::values())],
             'currency_id'              => ['sometimes', 'required', 'exists:currencies,id'],
             'language_id'              => ['sometimes', 'required', 'exists:languages,id'],
             'timezone_id'              => ['sometimes', 'required', 'exists:timezones,id'],
+            'address'                  => ['sometimes', 'required', new ValidAddress()],
+            'collection_address'       => ['sometimes', 'required', new ValidAddress()]
+
         ];
     }
 

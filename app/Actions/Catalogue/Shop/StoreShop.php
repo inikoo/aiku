@@ -18,6 +18,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
 use App\Actions\SysAdmin\Organisation\SeedJobPositions;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\Traits\Rules\WithShopRules;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
@@ -41,16 +42,31 @@ use Lorisleiva\Actions\ActionRequest;
 class StoreShop extends OrgAction
 {
     use WithShopRules;
+    use WithModelAddressActions;
 
     public function handle(Organisation $organisation, array $modelData): Shop
     {
         $warehouses = Arr::get($modelData, 'warehouses', []);
         Arr::forget($modelData, 'warehouses');
+        $addressData = Arr::get($modelData, 'address');
+        Arr::forget($modelData, 'address');
 
         data_set($modelData, 'group_id', $organisation->group_id);
 
         /** @var Shop $shop */
         $shop = $organisation->shops()->create($modelData);
+
+        if (Arr::get($shop->settings, 'address_link')) {
+            $shop = $this->addLinkedAddress($shop);
+        } else {
+            $shop = $this->addAddressToModel($shop, $addressData);
+        }
+
+        if (Arr::get($shop->settings, 'collect_address_link', )) {
+            $shop = $this->addLinkedAddress(model:$shop, scope: 'collection', updateLocation: false, updateAddressField: 'collection_address_id');
+        }
+
+
         $shop->stats()->create();
         $shop->accountingStats()->create();
         $shop->mailStats()->create();
@@ -59,8 +75,6 @@ class StoreShop extends OrgAction
         $shop->salesIntervals()->create();
         $shop->orderIntervals()->create();
         $shop->mailshotsIntervals()->create();
-
-
 
 
         $shop->serialReferences()->create(

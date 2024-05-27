@@ -39,6 +39,7 @@ use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
+use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
@@ -77,6 +78,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $identity_document_number
  * @property int|null $address_id
  * @property array $location
+ * @property int|null $collection_address_id
  * @property ShopStateEnum $state
  * @property ShopTypeEnum $type
  * @property string|null $open_at
@@ -95,8 +97,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property-read \App\Models\Catalogue\ShopAccountingStats|null $accountingStats
+ * @property-read Address|null $address
  * @property-read LaravelCollection<int, Address> $addresses
  * @property-read LaravelCollection<int, Appointment> $appointments
+ * @property-read Address|null $collectionAddress
  * @property-read LaravelCollection<int, \App\Models\Catalogue\CollectionCategory> $collectionCategories
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Collection> $collections
  * @property-read Country $country
@@ -142,6 +146,7 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Shop extends Model
 {
+    use HasAddress;
     use HasAddresses;
     use SoftDeletes;
     use HasSlug;
@@ -363,5 +368,9 @@ class Shop extends Model
         return $this->hasMany(Collection::class);
     }
 
+    public function collectionAddress(): BelongsTo
+    {
+        return $this->belongsTo(Address::class, 'collection_address_id');
+    }
 
 }

@@ -13,27 +13,44 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouses;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouses;
 use App\Actions\SysAdmin\Organisation\SeedJobPositions;
 use App\Actions\SysAdmin\User\UserAddRoles;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Role;
 use App\Rules\IUnique;
+use App\Rules\ValidAddress;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreWarehouse extends OrgAction
 {
+    use WithModelAddressActions;
+
     public function handle(Organisation $organisation, $modelData): Warehouse
     {
         data_set($modelData, 'group_id', $organisation->group_id);
+
+        $addressData = Arr::get($modelData, 'address');
+        Arr::forget($modelData, 'address');
+
         /** @var Warehouse $warehouse */
         $warehouse = $organisation->warehouses()->create($modelData);
         $warehouse->stats()->create();
+
+
+        if (Arr::get($warehouse->settings, 'address_link')) {
+            $warehouse = $this->addLinkedAddress($warehouse);
+        } else {
+            $warehouse = $this->addDirectAddress($warehouse, $addressData);
+        }
+
 
         SeedWarehousePermissions::run($warehouse);
 
@@ -82,6 +99,8 @@ class StoreWarehouse extends OrgAction
             'state'      => ['sometimes', Rule::enum(WarehouseStateEnum::class)],
             'source_id'  => ['sometimes', 'string'],
             'created_at' => ['sometimes', 'date'],
+            'address'    => ['sometimes', 'required', new ValidAddress()],
+            'settings'   => ['sometimes', 'array'],
         ];
     }
 

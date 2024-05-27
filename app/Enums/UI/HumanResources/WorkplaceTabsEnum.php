@@ -16,8 +16,7 @@ enum WorkplaceTabsEnum: string
     use HasTabs;
 
     case SHOWCASE           = 'showcase';
-    case CLOCKING_MACHINES  = 'clocking_machines';
-    case CLOCKINGS          = 'clockings';
+
     case HISTORY            = 'history';
     case DATA               = 'data';
 
@@ -25,14 +24,7 @@ enum WorkplaceTabsEnum: string
     public function blueprint(): array
     {
         return match ($this) {
-            WorkplaceTabsEnum::CLOCKING_MACHINES => [
-                'title' => __('clocking machines'),
-                'icon'  => 'fal fa-chess-clock',
-            ],
-            WorkplaceTabsEnum::CLOCKINGS => [
-                'title' => __('clocking'),
-                'icon'  => 'fal fa-clock',
-            ],
+
             WorkplaceTabsEnum::DATA => [
                 'title' => __('database'),
                 'icon'  => 'fal fa-database',

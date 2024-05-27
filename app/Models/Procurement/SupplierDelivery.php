@@ -11,6 +11,7 @@ use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
 use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStatusEnum;
 use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\InOrganisation;
 use Eloquent;
@@ -62,6 +63,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Collection<int, \App\Models\Procurement\SupplierDeliveryItem> $items
@@ -80,6 +82,7 @@ use Spatie\Sluggable\SlugOptions;
 class SupplierDelivery extends Model
 {
     use SoftDeletes;
+    use HasAddress;
     use HasAddresses;
     use HasSlug;
     use HasFactory;

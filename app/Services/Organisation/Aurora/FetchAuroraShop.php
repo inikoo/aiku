@@ -35,10 +35,6 @@ class FetchAuroraShop extends FetchAurora
         $this->parsedData['source_department_key'] = $this->auroraModelData->{'Store Department Category Key'};
         $this->parsedData['source_family_key']     = $this->auroraModelData->{'Store Family Category Key'};
 
-        if ($this->auroraModelData->{'Store Can Collect'} and $this->auroraModelData->{'Store Collect Address Country 2 Alpha Code'}) {
-            $this->parsedData['collectionAddress'] = $this->parseAddress(prefix: 'Store Collect', auAddressData: $this->auroraModelData);
-        }
-
 
         $auroraSettings = json_decode($this->auroraModelData->{'Store Settings'}, true);
 
@@ -49,7 +45,17 @@ class FetchAuroraShop extends FetchAurora
         );
 
 
-        $type=strtolower($this->auroraModelData->{'Store Type'});
+        $type = strtolower($this->auroraModelData->{'Store Type'});
+
+
+        $settings= [
+            'can_collect'          => $this->auroraModelData->{'Store Can Collect'} === 'Yes',
+            'address_link'         => 'Organisation:default'
+        ];
+
+        if($this->auroraModelData->{'Store Can Collect'} === 'Yes') {
+            $settings['collect_address_link'] = 'Organisation:default';
+        }
 
 
         $this->parsedData['shop'] = [
@@ -65,7 +71,7 @@ class FetchAuroraShop extends FetchAurora
             'identity_document_number' => $this->auroraModelData->{'Store Company Number'},
             'state'                    => Str::snake($this->auroraModelData->{'Store Status'} == 'Normal' ? 'Open' : $this->auroraModelData->{'Store Status'}, '-'),
 
-            'type'  => $type,
+            'type' => $type,
 
             'country_id'  => $this->parseCountryID($this->auroraModelData->{'Store Home Country Code 2 Alpha'}),
             'language_id' => $this->parseLanguageID($this->auroraModelData->{'Store Locale'}),
@@ -74,20 +80,16 @@ class FetchAuroraShop extends FetchAurora
             'open_at'     => $this->parseDate($this->auroraModelData->{'Store Valid From'}),
             'closed_at'   => $this->parseDate($this->auroraModelData->{'Store Valid To'}),
             'created_at'  => $this->parseDate($this->auroraModelData->{'Store Valid From'}),
-
-            'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Store Key'},
-            'settings'  => [
-                'can_collect' => $this->auroraModelData->{'Store Can Collect'} === 'Yes'
-            ]
+            'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Store Key'},
+            'settings'    => $settings
 
         ];
 
 
-        if($type=='fulfilment') {
-            $this->parsedData['shop']['warehouses']=[Warehouse::first()->id];
+
+        if ($type == 'fulfilment') {
+            $this->parsedData['shop']['warehouses'] = [Warehouse::first()->id];
         }
-
-
     }
 
 

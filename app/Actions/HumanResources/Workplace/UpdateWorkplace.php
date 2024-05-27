@@ -11,19 +11,21 @@ use App\Actions\HumanResources\Workplace\Hydrators\WorkplaceHydrateUniversalSear
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWorkplaces;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithModelAddressActions;
+use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Http\Resources\HumanResources\WorkplaceResource;
-use App\Models\Helpers\Address;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateWorkplace extends OrgAction
 {
     use WithActionUpdate;
-
+    use WithModelAddressActions;
 
     private Workplace $workplace;
 
@@ -34,22 +36,13 @@ class UpdateWorkplace extends OrgAction
 
         $workplace = $this->update($workplace, $modelData, ['data']);
 
-        if($addressData) {
-            if($workplace->address) {
-                $workplace->address()->update($addressData);
-            } else {
-                data_set($addressData, 'owner_type', 'Workplace');
-                data_set($addressData, 'owner_id', $workplace->id);
-                $address = Address::create($addressData);
-                $workplace->address()->associate($address);
-            }
-            $workplace->location = $workplace->address->getLocation();
-            $workplace->save();
-        }
-
-        if ($workplace->wasChanged('type')) {
+        if(Arr::hasAny($workplace->getChanges(), ['type'])) {
             OrganisationHydrateWorkplaces::run($workplace->organisation);
         }
+        $workplace = $this->updateModelAddress($workplace, $addressData);
+
+
+
 
         WorkplaceHydrateUniversalSearch::dispatch($workplace);
 
@@ -85,7 +78,7 @@ class UpdateWorkplace extends OrgAction
                     ]
                 ),
             ],
-            'type'    => ['sometimes', 'required'],
+            'type'    => ['sometimes', Rule::Enum(WorkplaceTypeEnum::class)],
             'address' => ['sometimes', 'required', new ValidAddress()]
         ];
     }

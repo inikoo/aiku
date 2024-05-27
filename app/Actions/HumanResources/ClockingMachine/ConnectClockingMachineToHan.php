@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 21 Sep 2023 11:36:36 Malaysia Time, Pantai Lembeng, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sun, 26 May 2024 15:37:54 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\User\UI;
+namespace App\Actions\HumanResources\ClockingMachine;
 
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\HumanResources\ClockingMachine\ClockingMachineStatusEnum;
@@ -16,7 +16,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreClockingMachineApiTokenFromQRCode
+class ConnectClockingMachineToHan
 {
     use AsAction;
     use WithAttributes;
@@ -56,6 +56,7 @@ class StoreClockingMachineApiTokenFromQRCode
 
     public function asController(ActionRequest $request): array
     {
+
         $this->fillFromRequest($request);
 
         $validatedData = $this->validateAttributes();

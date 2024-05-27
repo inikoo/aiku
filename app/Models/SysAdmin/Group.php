@@ -16,6 +16,7 @@ use App\Models\Assets\Currency;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Goods\TradeUnit;
+use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Location;
@@ -386,6 +387,11 @@ class Group extends Model implements HasMedia
     public function artefacts(): HasMany
     {
         return $this->hasMany(Artefact::class);
+    }
+
+    public function clockingMachines(): HasMany
+    {
+        return $this->hasMany(ClockingMachine::class);
     }
 
 }

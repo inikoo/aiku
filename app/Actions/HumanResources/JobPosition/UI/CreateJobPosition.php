@@ -36,7 +36,7 @@ class CreateJobPosition extends OrgAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.org.hr.job-positions.index',
+                                'name'       => 'grp.org.hr.job_positions.index',
                                 'parameters' => ['organisation' => $this->organisation->slug]
                             ],
                         ]
@@ -71,7 +71,7 @@ class CreateJobPosition extends OrgAction
 
                     ],
                     'route'     => [
-                        'name'       => 'grp.models.org.job-position.store',
+                        'name'       => 'grp.models.org.jon_position.store',
                         'parameters' => [$this->organisation->id]
 
                     ]

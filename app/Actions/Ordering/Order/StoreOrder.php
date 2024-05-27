@@ -7,21 +7,24 @@
 
 namespace App\Actions\Ordering\Order;
 
-use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
-use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOrders;
 use App\Actions\Ordering\Order\Hydrators\OrderHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrders;
+use App\Actions\Traits\WithFixedAddressActions;
+use App\Actions\Traits\WithModelAddressActions;
+use App\Enums\Ordering\Order\OrderHandingTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Catalogue\Shop;
+use App\Models\Helpers\Address;
 use App\Models\Ordering\Order;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -30,6 +33,8 @@ class StoreOrder extends OrgAction
 {
     use AsAction;
     use WithAttributes;
+    use WithFixedAddressActions;
+    use WithModelAddressActions;
 
     public int $hydratorsDelay = 0;
 
@@ -39,8 +44,10 @@ class StoreOrder extends OrgAction
     ): Order {
         $billingAddress = $modelData['billing_address'];
         data_forget($modelData, 'billing_address');
-        $delivery_address = $modelData['delivery_address'];
+        /** @var Address $deliveryAddress */
+        $deliveryAddress = Arr::get($modelData, 'delivery_address');
         data_forget($modelData, 'delivery_address');
+
 
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
@@ -60,15 +67,55 @@ class StoreOrder extends OrgAction
         data_set($modelData, 'organisation_id', $parent->organisation_id);
 
 
-        /** @var \App\Models\Ordering\Order $order */
+        /** @var Order $order */
         $order = Order::create($modelData);
+        $order->refresh();
         $order->stats()->create();
 
-        $billingAddress  = StoreHistoricAddress::run($billingAddress);
-        $deliveryAddress = StoreHistoricAddress::run($delivery_address);
+        if ($order->billing_locked) {
+            $order = $this->createFixedAddress($order, $billingAddress, 'Ordering', 'billing', 'billing_address_id');
+        } else {
+            $order = $this->addAddressToModel(
+                model: $order,
+                addressData: $billingAddress->toArray(),
+                scope: 'billing',
+                updateLocation: false,
+                updateAddressField: 'billing_address_id'
+            );
+        }
 
-        AttachHistoricAddressToModel::run($order, $billingAddress, ['scope' => 'billing']);
-        AttachHistoricAddressToModel::run($order, $deliveryAddress, ['scope' => 'delivery']);
+        $order->updateQuietly(
+            [
+                'billing_country_id' => $order->billingAddress->country_id
+            ]
+        );
+
+
+        if ($order->handing_type == OrderHandingTypeEnum::SHIPPING) {
+            if ($order->delivery_locked) {
+                $order = $this->createFixedAddress($order, $deliveryAddress, 'Ordering', 'delivery', 'delivery_address_id');
+            } else {
+                $order = $this->addAddressToModel(
+                    model: $order,
+                    addressData: $deliveryAddress->toArray(),
+                    scope: 'delivery',
+                    updateLocation: false,
+                    updateAddressField: 'delivery_address_id'
+                );
+            }
+            $order->updateQuietly(
+                [
+                    'delivery_country_id' => $order->deliveryAddress->country_id
+                ]
+            );
+        } else {
+            $order->updateQuietly(
+                [
+                    'collection_address_id' => $order->shop->collection_address_id,
+                    'delivery_country_id'   => $order->shop->collectionAddress->country_id
+                ]
+            );
+        }
 
 
         HydrateOrder::make()->originalItems($order);
@@ -108,13 +155,19 @@ class StoreOrder extends OrgAction
             'customer_number' => ['sometimes', 'string', 'max:64'],
             'state'           => ['sometimes', Rule::enum(OrderStateEnum::class)],
             'status'          => ['sometimes', Rule::enum(OrderStatusEnum::class)],
+            'handing_type'    => ['sometimes', 'required', Rule::enum(OrderHandingTypeEnum::class)],
 
             'created_at'   => ['sometimes', 'required', 'date'],
             'cancelled_at' => ['sometimes', 'nullable', 'date'],
 
-            'delivery_address' => ['required', new ValidAddress()],
             'billing_address'  => ['required', new ValidAddress()],
-            'source_id'        => ['sometimes', 'string', 'max:64']
+            'delivery_address' => ['sometimes', 'required', new ValidAddress()],
+            'billing_locked'   => ['sometimes', 'boolean'],
+            'delivery_locked'  => ['sometimes', 'boolean'],
+
+            'source_id' => ['sometimes', 'string', 'max:64'],
+
+
         ];
 
         if (!$this->strict) {
@@ -143,7 +196,7 @@ class StoreOrder extends OrgAction
 
         $this->initialisationFromShop($shop, $modelData);
 
-        return $this->handle($parent, $this->validatedData, );
+        return $this->handle($parent, $this->validatedData);
     }
 
 

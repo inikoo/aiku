@@ -8,12 +8,10 @@
 
 use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
-use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Models\Assets\Timezone;
 use App\Models\Helpers\Address;
 use App\Models\HumanResources\Workplace;
-use App\Models\SysAdmin\Organisation;
 use Laravel\Sanctum\Sanctum;
 
 use function Pest\Laravel\{actingAs};
@@ -76,7 +74,7 @@ test('create api token from qr code', function () {
         ->with('profile-app-qr-code:'.$this->qrCode);
 
 
-    $response = postJson(route('api.mobile-app.tokens.qr-code.store', [
+    $response = postJson(route('maya.connect.qr_code', [
         'code'        => $this->qrCode,
         'device_name' => 'test device'
     ]));
@@ -89,7 +87,7 @@ test('create api token from qr code', function () {
 })->depends('create qr code');
 
 test('create api token from credentials', function () {
-    $response = postJson(route('api.mobile-app.tokens.credentials.store', [
+    $response = postJson(route('maya.connect.credentials', [
         'username'    => $this->user->username,
         'password'    => 'password',
         'device_name' => 'test device'
@@ -105,7 +103,7 @@ test('get profile data', function () {
         $this->user,
         ['*']
     );
-    $response = getJson(route('api.profile.show'));
+    $response = getJson(route('maya.profile.show'));
     $response->assertOk();
     expect($response->json('data'))->toBeArray()
         ->and($response->json('data'))
@@ -122,7 +120,7 @@ test('get clocking machines list (empty)', function () {
         ['*']
     );
 
-    $response = getJson(route('api.org.hr.clocking-machines.index', $this->organisation->id));
+    $response = getJson(route('maya.org.hr.clocking_machines.index', $this->organisation->id));
 
     $response->assertOk();
     expect($response->json('data'))->toBeArray()
@@ -136,7 +134,7 @@ test('get working places list', function () {
         $this->user,
         ['*']
     );
-    $response = getJson(route('api.org.hr.workplaces.index', $this->organisation->id));
+    $response = getJson(route('maya.org.hr.workplaces.index', $this->organisation->id));
 
     $response->assertOk();
     expect($response->json('data'))->toBeArray()
@@ -149,7 +147,7 @@ test('get workplace data', function () {
         $this->user,
         ['*']
     );
-    $response = getJson(route('api.org.hr.workplaces.show', [
+    $response = getJson(route('maya.org.hr.workplaces.show', [
         $this->organisation->id,
         $this->workplace->id
     ]));
@@ -168,7 +166,7 @@ test('get clocking machines list in workplace', function () {
     );
     $response = getJson(
         route(
-            'api.org.hr.workplaces.show.clocking-machines.index',
+            'maya.org.hr.workplaces.show.clocking_machines.index',
             [
                 $this->organisation->id,
                 $this->workplace->id
@@ -180,58 +178,4 @@ test('get clocking machines list in workplace', function () {
     expect($response->json('data'))->toBeArray()
         ->and($response->json('data'))
         ->toHaveCount(0);
-});
-
-test('create clocking machine in workplace', function () {
-    Sanctum::actingAs(
-        $this->user,
-        ['*']
-    );
-    $response = postJson(route('api.org.hr.workplaces.show.clocking-machines.store', [
-        $this->organisation,
-        $this->workplace->id
-    ]), [
-        'name'    => 'test clocking machine',
-        'type'    => ClockingMachineTypeEnum::STATIC_NFC->value,
-        'nfc_tag' => 'test-nfc-tag'
-    ]);
-
-    $response->assertStatus(201);
-
-    expect($response->json('data'))->toBeArray()
-        ->and($response->json('data'))
-        ->name->toBe('test clocking machine')->nfc_tag->toBe('test-nfc-tag');
-
-    /** @var Organisation $organisation */
-    $organisation = $this->organisation;
-    $organisation->refresh();
-    expect($organisation->humanResourcesStats->number_clocking_machines)->toBe(1)
-        ->and($organisation->humanResourcesStats->number_clocking_machines_type_static_nfc)->toBe(1);
-
-    /** @var Workplace $workplace */
-    $workplace = $this->workplace;
-    $workplace->refresh();
-    expect($workplace->stats->number_clocking_machines)->toBe(1)
-        ->and($workplace->stats->number_clocking_machines_type_static_nfc)->toBe(1);
-});
-
-test('get clocking machines list in working place', function () {
-    Sanctum::actingAs(
-        $this->user,
-        ['*']
-    );
-    $response = getJson(
-        route(
-            'api.org.hr.workplaces.show.clocking-machines.index',
-            [
-                $this->organisation->id,
-                $this->workplace->id
-            ]
-        )
-    );
-
-    $response->assertOk();
-    expect($response->json('data'))->toBeArray()
-        ->and($response->json('data'))
-        ->toHaveCount(1);
 });

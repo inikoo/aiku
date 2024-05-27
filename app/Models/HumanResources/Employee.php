@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
@@ -125,6 +126,19 @@ class Employee extends Model implements HasMedia, Auditable
 
 
     protected $guarded = [];
+
+    public static function boot(): void
+    {
+        parent::boot();
+
+        if (app('app.scope')=='han') {
+            static::addGlobalScope('han', function ($builder) {
+                /** @var ClockingMachine $clockingMachine */
+                $clockingMachine= Auth::user();
+                $builder->where('organisation_id', $clockingMachine->organisation_id);
+            });
+        }
+    }
 
 
     public function getSlugOptions(): SlugOptions

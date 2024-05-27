@@ -126,12 +126,12 @@ class IndexWorkplaces extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('working places'),
                 'pageHead'    => [
-                    'title'  => __('working places'),
+                    'title'  => __('Working places'),
                     'actions'=> [
                         $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'create',
-                            'label' => __('working place'),
+                            'label' => __('Working place'),
                             'route' => [
                                 'name'       => 'grp.org.hr.workplaces.create',
                                 'parameters' => array_values($request->route()->originalParameters())
@@ -166,7 +166,7 @@ class IndexWorkplaces extends OrgAction
                             'name'       => 'grp.org.hr.workplaces.index',
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('working places'),
+                        'label' => __('Working places'),
                         'icon'  => 'fal fa-bars',
                     ],
 

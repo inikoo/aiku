@@ -18,6 +18,8 @@ use App\Models\Catalogue\Shop;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InCustomer;
 use Eloquent;
@@ -25,7 +27,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
@@ -78,6 +79,7 @@ use Spatie\Tags\Tag;
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property-read Address|null $address
+ * @property-read Collection<int, Address> $addresses
  * @property-read \App\Models\CRM\Customer|null $customer
  * @property-read Group $group
  * @property-read Organisation $organisation
@@ -106,6 +108,8 @@ class Prospect extends Model
     use HasFactory;
     use HasTags;
     use InCustomer;
+    use HasAddress;
+    use HasAddresses;
 
     protected $casts = [
         'data'                 => 'array',
@@ -190,8 +194,5 @@ class Prospect extends Model
     }
 
 
-    public function address(): BelongsTo
-    {
-        return $this->belongsTo(Address::class);
-    }
+
 }

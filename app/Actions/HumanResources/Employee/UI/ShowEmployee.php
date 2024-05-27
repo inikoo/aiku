@@ -14,8 +14,10 @@ use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
+use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\UI\HumanResources\EmployeeTabsEnum;
 use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\HumanResources\EmployeeHanResource;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Http\Resources\HumanResources\JobPositionsResource;
 use App\Http\Resources\HumanResources\TimesheetsResource;
@@ -33,6 +35,9 @@ class ShowEmployee extends OrgAction
     use WithActionButtons;
     use WithEmployeeSubNavigation;
 
+
+    private Employee $employee;
+
     public function handle(Employee $employee): Employee
     {
         return $employee;
@@ -41,7 +46,12 @@ class ShowEmployee extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($request->user() instanceof ClockingMachine) {
-            return true;
+            $employeeWorkplace = $this->employee->workplaces()
+                    ->wherePivot('workplace_id', $request->user()->workplace_id)
+                    ->count() > 0;
+
+            return ($this->organisation->id === $request->user()->organisation_id)
+                && $employeeWorkplace && $this->employee->state === EmployeeStateEnum::WORKING;
         }
 
         $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
@@ -181,21 +191,26 @@ class ShowEmployee extends OrgAction
         return $rules;
     }
 
-    public function inApi(ActionRequest $request): Employee
+    public function han(Employee $employee, ActionRequest $request): Employee
     {
-        $workplace = $request->user()->workplace;
+        $this->han=true;
 
-        $this->initialisation($workplace->organisation, $request);
-
-        $employee = $workplace
-            ->employees()
-            ->where('pin', $request->input('pin'))->firstOrFail();
+        if($request->user()->organisation_id !== $employee->organisation_id) {
+            abort(404);
+        }
+        if(in_array($employee->state, [EmployeeStateEnum::HIRED,EmployeeStateEnum::LEFT])) {
+            abort(405);
+        }
 
         return $this->handle($employee);
     }
 
-    public function jsonResponse(Employee $employee): EmployeeResource
+    public function jsonResponse(Employee $employee): EmployeeResource|EmployeeHanResource
     {
+        if($this->han) {
+            return new EmployeeHanResource($employee);
+        }
+
         return new EmployeeResource($employee);
     }
 
@@ -221,7 +236,7 @@ class ShowEmployee extends OrgAction
                                     Arr::only($routeParameters, 'organisation')
                                 )
                             ],
-                            'label' => __('employees')
+                            'label' => __('Employees')
                         ],
                         'model' => [
                             'route' => [

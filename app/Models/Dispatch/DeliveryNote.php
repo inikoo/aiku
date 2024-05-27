@@ -55,6 +55,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool|null $restocking
  * @property string|null $email
  * @property string|null $phone
+ * @property bool $delivery_locked
+ * @property int|null $address_id
+ * @property int|null $delivery_country_id
  * @property string|null $weight
  * @property int $number_stocks
  * @property int $number_picks
@@ -75,9 +78,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read Customer $customer
+ * @property-read Address|null $deliveryAddress
  * @property-read Collection<int, \App\Models\Dispatch\DeliveryNoteItem> $deliveryNoteItems
+ * @property-read Collection<int, Address> $fixedAddresses
  * @property-read Group $group
  * @property-read Collection<int, Order> $orders
  * @property-read Organisation $organisation
@@ -99,10 +105,10 @@ class DeliveryNote extends Model
 {
     use SoftDeletes;
     use HasSlug;
-    use HasAddresses;
     use HasUniversalSearch;
     use HasFactory;
     use InCustomer;
+    use HasAddresses;
 
     protected $casts = [
         'data'   => 'array',
@@ -141,9 +147,9 @@ class DeliveryNote extends Model
         return 'slug';
     }
 
-    public function orders(): MorphToMany
+    public function orders(): BelongsToMany
     {
-        return $this->morphedByMany(Order::class, 'delivery_noteable');
+        return $this->belongsToMany(Order::class)->withTimestamps();
     }
 
     public function stats(): HasOne
@@ -165,4 +171,22 @@ class DeliveryNote extends Model
     {
         return $this->belongsTo(Warehouse::class);
     }
+
+    public function address(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
+    }
+
+    public function deliveryAddress(): BelongsTo
+    {
+        return $this->belongsTo(Address::class, 'address_id');
+    }
+
+    public function fixedAddresses(): MorphToMany
+    {
+        return $this->morphToMany(Address::class, 'model', 'model_has_fixed_addresses')->withTimestamps();
+    }
+
+
+
 }

@@ -8,6 +8,7 @@
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
+use App\Enums\HumanResources\ClockingMachine\ClockingMachineStatusEnum;
 use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\SysAdmin\Organisation;
@@ -29,6 +30,19 @@ class OrganisationHydrateClockingMachines
                 model: 'clocking_machines',
                 field: 'type',
                 enum: ClockingMachineTypeEnum::class,
+                models: ClockingMachine::class,
+                where: function ($q) use ($organisation) {
+                    $q->where('organisation_id', $organisation->id);
+                }
+            )
+        );
+
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'clocking_machines',
+                field: 'status',
+                enum: ClockingMachineStatusEnum::class,
                 models: ClockingMachine::class,
                 where: function ($q) use ($organisation) {
                     $q->where('organisation_id', $organisation->id);

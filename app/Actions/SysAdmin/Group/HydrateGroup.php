@@ -9,6 +9,7 @@ namespace App\Actions\SysAdmin\Group;
 
 use App\Actions\HydrateModel;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAgents;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateClockingMachines;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateCollectionCategories;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateCollections;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
@@ -68,6 +69,7 @@ class HydrateGroup extends HydrateModel
         GroupHydrateProductions::run($group);
         GroupHydrateRawMaterials::run($group);
         GroupHydrateEmployees::run($group);
+        GroupHydrateClockingMachines::run($group);
 
     }
 

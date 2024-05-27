@@ -87,7 +87,7 @@ class CreateWorkplace extends OrgAction
 
                     ],
                     'route' => [
-                        'name'       => 'grp.models.org.working-place.store',
+                        'name'       => 'grp.models.org.workplace.store',
                         'parameters' => [$this->organisation->id]
                     ]
 

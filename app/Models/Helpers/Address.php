@@ -19,20 +19,21 @@ use Illuminate\Support\Carbon;
  * App\Models\Helpers\Address
  *
  * @property int $id
- * @property string|null $owner_type
- * @property int|null $owner_id
+ * @property int $usage usage by models/scopes
+ * @property int $fixed_usage count usage by fixed models/fixed_scopes
+ * @property int $multiplicity count address with same checksum
  * @property string|null $address_line_1
  * @property string|null $address_line_2
  * @property string|null $sorting_code
  * @property string|null $postal_code
- * @property string|null $locality
  * @property string|null $dependant_locality
+ * @property string|null $locality
  * @property string|null $administrative_area
  * @property string|null $country_code
  * @property int|null $country_id
  * @property string|null $checksum
- * @property bool $historic
- * @property int $usage
+ * @property bool $is_fixed Directly related to the model class, (no model_has_addresses entry)
+ * @property string|null $fixed_scope Key where address can be shared if have same checksum
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Country|null $country
@@ -59,8 +60,13 @@ class Address extends Model
             function (Address $address) {
                 if ($country = (new Country())->firstWhere('id', $address->country_id)) {
                     $address->country_code = $country->code;
+                    $address->checksum     = $address->getChecksum();
                     $address->save();
                 }
+
+
+
+
             }
         );
     }

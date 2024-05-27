@@ -118,11 +118,11 @@ class ShowClocking extends OrgAction
                                         'parameters' => $request->route()->originalParameters()
                                     ],
                                 ],
-                                'grp.org.hr.workplaces.show.clocking-machines.show.clockings.show' => [
+                                'grp.org.hr.workplaces.show.clocking_machines.show.clockings.show' => [
                                     'type'  => 'button',
                                     'style' => 'delete',
                                     'route' => [
-                                        'name'       => 'grp.org.hr.workplaces.show.clocking-machines.show.clockings.remove',
+                                        'name'       => 'grp.org.hr.workplaces.show.clocking_machines.show.clockings.remove',
                                         'parameters' => $request->route()->originalParameters()
                                     ]
                                 ]
@@ -215,9 +215,9 @@ class ShowClocking extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.hr.clocking-machines.show.clockings.show' => array_merge(
+            'grp.org.hr.clocking_machines.show.clockings.show' => array_merge(
                 (new ShowClockingMachine())->getBreadcrumbs(
-                    'grp.org.hr.clocking-machines.show',
+                    'grp.org.hr.clocking_machines.show',
                     [
                        'clockingMachine' => $routeParameters['clockingMachine']
                     ]
@@ -226,13 +226,13 @@ class ShowClocking extends OrgAction
                     $routeParameters['clocking'],
                     [
                         'index' => [
-                            'name'       => 'grp.org.hr.clocking-machines.show.clockings.index',
+                            'name'       => 'grp.org.hr.clocking_machines.show.clockings.index',
                             'parameters' => [
                                 $routeParameters['clockingMachine']->slug,
                             ]
                         ],
                         'model' => [
-                            'name'       => 'grp.org.hr.clocking-machines.show.clockings.show',
+                            'name'       => 'grp.org.hr.clocking_machines.show.clockings.show',
                             'parameters' => [
                                 $routeParameters['clockingMachine']->slug,
                                 $routeParameters['clocking']->slug
@@ -242,9 +242,9 @@ class ShowClocking extends OrgAction
                     $suffix
                 ),
             ),
-            'grp.org.hr.workplaces.show.clocking-machines.show.clockings.show' => array_merge(
+            'grp.org.hr.workplaces.show.clocking_machines.show.clockings.show' => array_merge(
                 (new ShowClockingMachine())->getBreadcrumbs(
-                    'grp.org.hr.workplaces.show.clocking-machines.show',
+                    'grp.org.hr.workplaces.show.clocking_machines.show',
                     [
                       'workplace'       => $routeParameters['workplace'],
                       'clockingMachine' => $routeParameters['clockingMachine'],
@@ -254,14 +254,14 @@ class ShowClocking extends OrgAction
                     $routeParameters['clocking'],
                     [
                         'index' => [
-                            'name'       => 'grp.org.hr.workplaces.show.clocking-machines.show.clockings.index',
+                            'name'       => 'grp.org.hr.workplaces.show.clocking_machines.show.clockings.index',
                             'parameters' => [
                                 $routeParameters['workplace']->slug,
                                 $routeParameters['clockingMachine']->slug,
                             ]
                         ],
                         'model' => [
-                            'name'       => 'grp.org.hr.workplaces.show.clocking-machines.show.clockings.show',
+                            'name'       => 'grp.org.hr.workplaces.show.clocking_machines.show.clockings.show',
                             'parameters' => [
                                 $routeParameters['workplace']->slug,
                                 $routeParameters['clockingMachine']->slug,
@@ -284,8 +284,8 @@ class ShowClocking extends OrgAction
                 case 'grp.org.hr.workplaces.show.clockings.show':
                     $query->where('clockings.workplace_id', $clocking->workplace_id);
                     break;
-                case 'grp.org.hr.workplaces.show.clocking-machines.show.clockings.show':
-                case 'grp.org.hr.clocking-machines.show.clockings.show':
+                case 'grp.org.hr.workplaces.show.clocking_machines.show.clockings.show':
+                case 'grp.org.hr.clocking_machines.show.clockings.show':
                     $query->where('clockings.clocking_machine_id', $clocking->clocking_machine_id);
                     break;
 
@@ -303,8 +303,8 @@ class ShowClocking extends OrgAction
                 case 'grp.org.hr.workplaces.show.clockings.show':
                     $query->where('clockings.workplace_id', $clocking->workplace_id);
                     break;
-                case 'grp.org.hr.workplaces.show.clocking-machines.show.clockings.show':
-                case 'grp.org.hr.clocking-machines.show.clockings.show':
+                case 'grp.org.hr.workplaces.show.clocking_machines.show.clockings.show':
+                case 'grp.org.hr.clocking_machines.show.clockings.show':
                     $query->where('clockings.clocking_machine_id', $clocking->clocking_machine_id);
                     break;
 
@@ -330,7 +330,7 @@ class ShowClocking extends OrgAction
 
                 ]
             ],
-            'grp.org.hr.clocking-machines.show.clockings.show' => [
+            'grp.org.hr.clocking_machines.show.clockings.show' => [
                 'label'=> $clocking->slug,
                 'route'=> [
                     'name'      => $routeName,
@@ -352,7 +352,7 @@ class ShowClocking extends OrgAction
 
                 ]
             ],
-            'grp.org.hr.workplaces.show.clocking-machines.show.clockings.show' => [
+            'grp.org.hr.workplaces.show.clocking_machines.show.clockings.show' => [
                 'label'=> $clocking->slug,
                 'route'=> [
                     'name'      => $routeName,

@@ -37,7 +37,6 @@ class OrganisationHydrateWorkplaces implements ShouldBeUnique
             )
         );
 
-
         $organisation->humanResourcesStats()->update($stats);
     }
 }

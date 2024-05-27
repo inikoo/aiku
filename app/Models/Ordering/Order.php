@@ -7,6 +7,7 @@
 
 namespace App\Models\Ordering;
 
+use App\Enums\Ordering\Order\OrderHandingTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Models\Accounting\Invoice;
@@ -27,6 +28,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -50,6 +52,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $customer_number Customers own order number
  * @property OrderStateEnum $state
  * @property OrderStatusEnum $status
+ * @property OrderHandingTypeEnum $handing_type
+ * @property bool $customer_locked
+ * @property bool $billing_locked
+ * @property bool $delivery_locked
+ * @property int|null $billing_address_id
+ * @property int|null $delivery_address_id
+ * @property int|null $collection_address_id
+ * @property int|null $billing_country_id
+ * @property int|null $delivery_country_id
  * @property Carbon $date
  * @property string|null $submitted_at
  * @property string|null $in_warehouse_at
@@ -77,9 +88,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Collection<int, Address> $addresses
+ * @property-read Address|null $billingAddress
+ * @property-read Address|null $collectionAddress
  * @property-read \App\Models\CRM\Customer $customer
  * @property-read CustomerClient|null $customerClient
+ * @property-read Address|null $deliveryAddress
  * @property-read Collection<int, DeliveryNote> $deliveryNotes
+ * @property-read Collection<int, Address> $fixedAddresses
  * @property-read Group $group
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Organisation $organisation
@@ -100,17 +115,19 @@ use Spatie\Sluggable\SlugOptions;
 class Order extends Model
 {
     use HasSlug;
-    use HasAddresses;
     use SoftDeletes;
     use HasUniversalSearch;
     use HasFactory;
     use InCustomer;
+    use HasAddresses;
+
 
     protected $casts = [
-        'data'   => 'array',
-        'date'   => 'datetime',
-        'state'  => OrderStateEnum::class,
-        'status' => OrderStatusEnum::class
+        'data'         => 'array',
+        'date'         => 'datetime',
+        'state'        => OrderStateEnum::class,
+        'status'       => OrderStatusEnum::class,
+        'handing_type' => OrderHandingTypeEnum::class
     ];
 
     protected $attributes = [
@@ -137,20 +154,19 @@ class Order extends Model
         return $this->belongsTo(CustomerClient::class);
     }
 
-
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
     }
 
-    public function deliveryNotes(): MorphToMany
+    public function deliveryNotes(): BelongsToMany
     {
-        return $this->morphToMany(DeliveryNote::class, 'delivery_noteable')->withTimestamps();
+        return $this->belongsToMany(DeliveryNote::class)->withTimestamps();
     }
 
     public function payments(): MorphToMany
     {
-        return $this->morphToMany(Payment::class, 'paymentable')->withTimestamps()->withPivot(['amount','share']);
+        return $this->morphToMany(Payment::class, 'model', 'model_has_payments')->withTimestamps()->withPivot(['amount', 'share']);
     }
 
     public function invoices(): HasMany
@@ -161,6 +177,31 @@ class Order extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(OrderStats::class);
+    }
+
+    public function fixedAddresses(): MorphToMany
+    {
+        return $this->morphToMany(Address::class, 'model', 'model_has_fixed_addresses')->withTimestamps();
+    }
+
+    public function billingAddress(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
+    }
+
+    public function deliveryAddress(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
+    }
+
+    public function collectionAddress(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
+    }
+
+    public function addresses(): MorphToMany
+    {
+        return $this->morphToMany(Address::class, 'model', 'model_has_addresses')->withTimestamps();
     }
 
 

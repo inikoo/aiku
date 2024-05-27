@@ -14,12 +14,14 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Inventory\OrgStockFamiliesResource;
 use App\Models\SupplyChain\StockFamily;
 use App\Rules\IUnique;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateStockFamily extends GrpAction
 {
     use WithActionUpdate;
+
     private StockFamily $stockFamily;
 
 
@@ -28,7 +30,7 @@ class UpdateStockFamily extends GrpAction
         $stockFamily = $this->update($stockFamily, $modelData, ['data']);
         StockFamilyHydrateUniversalSearch::dispatch($stockFamily);
 
-        if ($stockFamily->wasChanged('state')) {
+        if (Arr::hasAny($stockFamily->getChanges(), ['state'])) {
             GroupHydrateInventory::dispatch(group());
         }
 

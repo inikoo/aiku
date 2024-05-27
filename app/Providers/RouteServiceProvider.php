@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
-    public const HOME = '/dashboard';
+    public const string HOME = '/dashboard';
 
 
     public function boot(): void
@@ -32,10 +32,15 @@ class RouteServiceProvider extends ServiceProvider
             ->prefix('webhooks')
             ->group(base_path('routes/grp/webhooks/webhooks.php'));
 
-        Route::middleware('api')
+        Route::middleware('han')
             ->domain(config('app.domain'))
-            ->prefix('api')
-            ->group(base_path('routes/grp/api/api.php'));
+            ->prefix('han')
+            ->group(base_path('routes/han/han-app.php'));
+
+        Route::middleware('maya')
+            ->domain(config('app.domain'))
+            ->prefix('maya')
+            ->group(base_path('routes/maya/maya-app.php'));
 
         Route::middleware('aiku-public')
             ->domain(config('app.domain'))
@@ -50,12 +55,15 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware('iris')
             ->name('iris.')
             ->group(base_path('routes/iris/root.php'));
-
     }
 
     protected function configureRateLimiting(): void
     {
-        RateLimiter::for('api', function (Request $request) {
+        RateLimiter::for('han', function (Request $request) {
+            return Limit::perMinute(600)->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('maya', function (Request $request) {
             return Limit::perMinute(600)->by($request->user()?->id ?: $request->ip());
         });
     }

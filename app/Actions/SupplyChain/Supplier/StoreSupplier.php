@@ -9,11 +9,11 @@ namespace App\Actions\SupplyChain\Supplier;
 
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\GrpAction;
-use App\Actions\Helpers\Address\StoreAddressAttachToModel;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplierFromSupplierInAgent;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateUniversalSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSuppliers;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Group;
@@ -31,6 +31,7 @@ class StoreSupplier extends GrpAction
 {
     use AsAction;
     use WithAttributes;
+    use WithModelAddressActions;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -58,9 +59,9 @@ class StoreSupplier extends GrpAction
         $supplier->stats()->create();
         SetCurrencyHistoricFields::run($supplier->currency, $supplier->created_at);
 
-        StoreAddressAttachToModel::run($supplier, $addressData, ['scope' => 'contact']);
-        $supplier->location = $supplier->getLocation();
-        $supplier->save();
+        $supplier=$this->addAddressToModel($supplier, $addressData, 'contact');
+
+
         $supplier->refresh();
 
         GroupHydrateSuppliers::run($group);

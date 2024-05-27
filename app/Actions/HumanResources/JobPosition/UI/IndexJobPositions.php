@@ -140,7 +140,7 @@ class IndexJobPositions extends OrgAction
                             'style' => 'create',
                             'label' => __('job position'),
                             'route' => [
-                                'name'       => 'grp.org.hr.job-positions.create',
+                                'name'       => 'grp.org.hr.job_positions.create',
                                 'parameters' => [
                                     'organisation' => $this->organisation->slug
                                 ]
@@ -181,10 +181,10 @@ class IndexJobPositions extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name'       => 'grp.org.hr.job-positions.index',
+                            'name'       => 'grp.org.hr.job_positions.index',
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('positions'),
+                        'label' => __('Positions'),
                         'icon'  => 'fal fa-bars',
                     ],
 

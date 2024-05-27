@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Enums\Ordering\Order\OrderHandingTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
@@ -14,17 +15,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasGroupOrganisationRelationship;
+
     public function up(): void
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->increments('id');
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
-
 
             $table->unsignedInteger('customer_client_id')->nullable()->index();
             $table->foreign('customer_client_id')->references('id')->on('customer_clients');
@@ -35,7 +36,25 @@ return new class () extends Migration {
 
             $table->string('state')->default(OrderStateEnum::CREATING->value)->index();
             $table->string('status')->default(OrderStatusEnum::PROCESSING->value)->index();
+            $table->string('handing_type')->default(OrderHandingTypeEnum::SHIPPING->value)->index();
 
+            $table->boolean('customer_locked')->default(false);
+            $table->boolean('billing_locked')->default(false);
+            $table->boolean('delivery_locked')->default(false);
+
+
+            $table->unsignedSmallInteger('billing_address_id')->index()->nullable();
+            $table->foreign('billing_address_id')->references('id')->on('addresses');
+            $table->unsignedSmallInteger('delivery_address_id')->index()->nullable();
+            $table->foreign('delivery_address_id')->references('id')->on('addresses');
+            $table->unsignedSmallInteger('collection_address_id')->index()->nullable();
+            $table->foreign('collection_address_id')->references('id')->on('addresses');
+
+
+            $table->unsignedSmallInteger('billing_country_id')->index()->nullable();
+            $table->foreign('billing_country_id')->references('id')->on('countries');
+            $table->unsignedSmallInteger('delivery_country_id')->index()->nullable();
+            $table->foreign('delivery_country_id')->references('id')->on('countries');
 
             $table->dateTimeTz('date');
 
@@ -48,7 +67,6 @@ return new class () extends Migration {
             $table->dateTimeTz('settled_at')->nullable();
 
             $table->dateTimeTz('cancelled_at')->nullable();
-
 
             $table->boolean('is_invoiced')->default('false');
             $table->boolean('is_picking_on_hold')->nullable();

@@ -10,20 +10,39 @@ namespace App\Actions\Accounting\Invoice;
 use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithFixedAddressActions;
 use App\Http\Resources\Accounting\InvoicesResource;
 use App\Models\Accounting\Invoice;
 use App\Rules\IUnique;
+use App\Rules\ValidAddress;
+use Illuminate\Support\Arr;
 
 class UpdateInvoice extends OrgAction
 {
     use WithActionUpdate;
+    use WithFixedAddressActions;
 
 
     private Invoice $invoice;
 
     public function handle(Invoice $invoice, array $modelData): Invoice
     {
+        $billingAddressData =  Arr::get($modelData, 'billing_address');
+        data_forget($modelData, 'billing_address');
+
         $invoice = $this->update($invoice, $modelData, ['data']);
+
+        if ($billingAddressData) {
+            $invoice = $this->updateFixedAddress(
+                $invoice,
+                $invoice->billingAddress,
+                $billingAddressData,
+                'Ordering',
+                'billing',
+                'address_id'
+            );
+        }
+
         InvoiceHydrateUniversalSearch::dispatch($invoice);
 
         return $invoice;
@@ -44,11 +63,13 @@ class UpdateInvoice extends OrgAction
                     ]
                 ),
             ],
-            'currency_id'             => ['sometimes', 'required', 'exists:currencies,id'],
-            'net_amount'              => ['sometimes', 'required', 'numeric'],
-            'total_amount'            => ['sometimes', 'required', 'numeric'],
-            'date'                    => ['sometimes', 'date'],
-            'tax_liability_at'        => ['sometimes', 'date'],
+            'currency_id'      => ['sometimes', 'required', 'exists:currencies,id'],
+            'net_amount'       => ['sometimes', 'required', 'numeric'],
+            'total_amount'     => ['sometimes', 'required', 'numeric'],
+            'date'             => ['sometimes', 'date'],
+            'tax_liability_at' => ['sometimes', 'date'],
+            'billing_address'  => ['sometimes', 'required', new ValidAddress()],
+
         ];
     }
 

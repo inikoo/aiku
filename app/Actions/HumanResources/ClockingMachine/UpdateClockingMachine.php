@@ -8,7 +8,10 @@
 namespace App\Actions\HumanResources\ClockingMachine;
 
 use App\Actions\HumanResources\ClockingMachine\Hydrators\ClockingMachineHydrateUniversalSearch;
+use App\Actions\HumanResources\Workplace\Hydrators\WorkplaceHydrateClockingMachines;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateClockingMachines;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateClockingMachines;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\HumanResources\ClockingMachineResource;
 use App\Models\HumanResources\ClockingMachine;
@@ -26,7 +29,16 @@ class UpdateClockingMachine extends OrgAction
     public function handle(ClockingMachine $clockingMachine, array $modelData): ClockingMachine
     {
         $clockingMachine = $this->update($clockingMachine, $modelData, ['data']);
+
+        if ($clockingMachine->wasChanged(['type', 'status'])) {
+            OrganisationHydrateClockingMachines::dispatch($clockingMachine->organisation);
+            GroupHydrateClockingMachines::dispatch($clockingMachine->group);
+            WorkplaceHydrateClockingMachines::dispatch($clockingMachine->workplace);
+        }
+
+
         ClockingMachineHydrateUniversalSearch::dispatch($clockingMachine);
+
 
         return $clockingMachine;
     }
@@ -34,16 +46,17 @@ class UpdateClockingMachine extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
     }
 
     public function rules(): array
     {
         return [
-            'name' => [
+            'name'      => [
                 'sometimes',
                 'required',
                 'max:255',
@@ -64,7 +77,7 @@ class UpdateClockingMachine extends OrgAction
                 ),
 
             ],
-            'source_id'  => 'sometimes|string|max:255',
+            'source_id' => 'sometimes|string|max:255',
 
         ];
     }
@@ -79,7 +92,7 @@ class UpdateClockingMachine extends OrgAction
 
     public function action(ClockingMachine $clockingMachine, array $modelData): ClockingMachine
     {
-        $this->asAction        =true;
+        $this->asAction        = true;
         $this->clockingMachine = $clockingMachine;
         $this->initialisation($clockingMachine->organisation, $modelData);
 

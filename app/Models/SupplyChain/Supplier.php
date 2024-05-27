@@ -14,6 +14,7 @@ use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\SupplierDelivery;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
+use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
@@ -63,6 +64,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
+ * @property-read \App\Models\Helpers\Address|null $address
  * @property-read Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read \App\Models\SupplyChain\Agent|null $agent
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
@@ -88,6 +90,8 @@ use Spatie\Sluggable\SlugOptions;
 class Supplier extends Model implements HasMedia, Auditable
 {
     use SoftDeletes;
+    use HasAddress;
+    use HasAddress;
     use HasAddresses;
     use HasSlug;
     use HasUniversalSearch;

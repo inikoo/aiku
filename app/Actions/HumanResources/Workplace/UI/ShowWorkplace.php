@@ -8,15 +8,12 @@
 namespace App\Actions\HumanResources\Workplace\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\HumanResources\Clocking\UI\IndexClockings;
-use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
+use App\Actions\HumanResources\WithWorkplaceSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\HumanResources\WorkplaceTabsEnum;
 use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\HumanResources\ClockingMachinesResource;
-use App\Http\Resources\HumanResources\ClockingResource;
 use App\Http\Resources\HumanResources\WorkplaceResource;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
@@ -27,6 +24,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowWorkplace extends OrgAction
 {
     use WithActionButtons;
+    use WithWorkplaceSubNavigation;
 
     public function handle(Workplace $workplace): Workplace
     {
@@ -44,12 +42,12 @@ class ShowWorkplace extends OrgAction
     public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): Workplace
     {
         $this->initialisation($organisation, $request)->withTab(WorkplaceTabsEnum::values());
+
         return $this->handle($workplace);
     }
 
     public function htmlResponse(Workplace $workplace, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'Org/HumanResources/Workplace',
             [
@@ -72,32 +70,8 @@ class ShowWorkplace extends OrgAction
                     ],
 
 
-                    'meta' => [
-                        [
-                            'label'    => trans_choice('clocking machine|clocking machines', $workplace->stats->number_clocking_machines),
-                            'number'   => $workplace->stats->number_clocking_machines,
-                            'href'     => [
-                                'name'       => 'grp.org.hr.workplaces.show.clocking-machines.index',
-                                'parameters' => [$this->organisation->slug, $workplace->slug]
-                            ],
-                            'leftIcon' => [
-                                'icon'    => ['fal', 'chess-clock'],
-                                'tooltip' => __('clocking machines')
-                            ]
-                        ],
-                        [
-                            'label'    => trans_choice('clocking|clockings', $workplace->stats->number_clockings),
-                            'number'   => $workplace->stats->number_clockings,
-                            'href'     => [
-                                'name'       => 'grp.org.hr.workplaces.show.clockings.index',
-                                'parameters' => [$this->organisation->slug, $workplace->slug]
-                            ],
-                            'leftIcon' => [
-                                'icon'    => ['fal', 'clock'],
-                                'tooltip' => __('clockings')
-                            ]
-                        ]
-                    ]
+                    'subNavigation' => $this->getWorkplaceSubNavigation($workplace)
+
 
                 ],
                 'tabs'                             => [
@@ -110,70 +84,12 @@ class ShowWorkplace extends OrgAction
                     fn () => GetWorkplaceShowcase::run($workplace)
                     : Inertia::lazy(fn () => GetWorkplaceShowcase::run($workplace)),
 
-                WorkplaceTabsEnum::CLOCKINGS->value         => $this->tab == WorkplaceTabsEnum::CLOCKINGS->value
-                    ?
-                    fn () => ClockingResource::collection(
-                        IndexClockings::run(
-                            parent: $workplace,
-                            prefix: 'clockings'
-                        )
-                    )
-                    : Inertia::lazy(fn () => ClockingResource::collection(
-                        IndexClockings::run(
-                            parent: $workplace,
-                            prefix: 'clockings'
-                        )
-                    )),
-                WorkplaceTabsEnum::CLOCKING_MACHINES->value => $this->tab == WorkplaceTabsEnum::CLOCKING_MACHINES->value
-                    ?
-                    fn () => ClockingMachinesResource::collection(
-                        IndexClockingMachines::run(
-                            parent: $workplace,
-                            prefix: 'clocking_machines'
-                        )
-                    )
-                    : Inertia::lazy(fn () => ClockingMachinesResource::collection(
-                        IndexClockingMachines::run(
-                            parent: $workplace,
-                            prefix: 'clocking_machines'
-                        )
-                    )),
 
                 WorkplaceTabsEnum::HISTORY->value => $this->tab == WorkplaceTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($workplace))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($workplace)))
             ]
-        )->table(
-            IndexClockings::make()->tableStructure(
-                parent: $workplace,
-                /* modelOperations:[
-                        'createLink' => $this->canEdit ? [
-                            'route' => [
-                                'name'       => 'grp.org.hr.workplaces.show.clockings.create',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ],
-                            'label' => __('clocking')
-                        ] : false,
-                    ],
-                prefix: 'clockings' */
-            )
-        )->table(
-            IndexClockingMachines::make()->tableStructure(
-                parent: $workplace,
-                modelOperations: [
-                        'createLink' => [
-                            [
-                            'route' => [
-                                'name'       => 'grp.org.hr.workplaces.show.clocking-machines.create',
-                                'parameters' => array_values(request()->route()->originalParameters())
-                            ],
-                            'label' => __('create clocking machine')
-                            ]
-                        ]
-                    ],
-                prefix: 'clocking_machines'
-            )
-        )->table(IndexHistory::make()->tableStructure('hst'));
+        )->table(IndexHistory::make()->tableStructure(WorkplaceTabsEnum::HISTORY->value));
     }
 
     public function jsonResponse(Workplace $workplace): WorkplaceResource
@@ -183,8 +99,8 @@ class ShowWorkplace extends OrgAction
 
     public function getBreadcrumbs($routeParameters, $suffix = null): array
     {
-        // dd($routeParameters['workplace']);
         $workplace = Workplace::where('slug', $routeParameters['workplace'])->first();
+
         return array_merge(
             (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
             [
@@ -196,7 +112,7 @@ class ShowWorkplace extends OrgAction
                                 'name'       => 'grp.org.hr.workplaces.index',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('working place'),
+                            'label' => __('Working places'),
                             'icon'  => 'fal fa-bars'
                         ],
                         'model' => [

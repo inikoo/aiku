@@ -32,8 +32,7 @@ class FetchAuroraCustomerClients extends FetchAuroraAction
                     );
                     $this->recordChange($organisationSource, $customerClient->wasChanged());
                 } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $customerClient['customer_client'], 'CustomerClient', 'update');
-
+                    $this->recordError($organisationSource, $e, $customerClientData['customer_client'], 'CustomerClient', 'update');
                     return null;
                 }
             } else {

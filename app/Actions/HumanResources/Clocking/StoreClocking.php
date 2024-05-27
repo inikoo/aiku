@@ -18,6 +18,7 @@ use App\Actions\Traits\WithBase64FileConverter;
 use App\Actions\Traits\WithUpdateModelImage;
 use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Http\Resources\HumanResources\ClockingHanResource;
 use App\Http\Resources\HumanResources\ClockingResource;
 use App\Models\HumanResources\Clocking;
 use App\Models\HumanResources\ClockingMachine;
@@ -90,14 +91,18 @@ class StoreClocking extends OrgAction
         return $clocking;
     }
 
-    public function jsonResponse(Clocking $clocking): ClockingResource
+    public function jsonResponse(Clocking $clocking): ClockingResource|ClockingHanResource
     {
+        if($this->han) {
+            return ClockingHanResource::make($clocking);
+        }
+
         return ClockingResource::make($clocking);
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->asAction) {
+        if ($this->asAction || $this->han) {
             return true;
         }
 
@@ -131,13 +136,22 @@ class StoreClocking extends OrgAction
         return $this->handle($request->user(), $parent, $subject, $this->validatedData);
     }
 
-    public function inApi(Employee $employee, ActionRequest $request): Clocking
+    public function han(Employee $employee, ActionRequest $request): Clocking
     {
-        $this->employee  = $employee;
+
+        $this->han=true;
+
+
+        if($request->user()->organisation_id !== $employee->organisation_id) {
+            abort(404);
+        }
+        if(in_array($employee->state, [EmployeeStateEnum::HIRED,EmployeeStateEnum::LEFT])) {
+            abort(405);
+        }
+
         $clockingMachine = $request->user();
-
-        $this->initialisation($clockingMachine->organisation, $request);
-
+        $this->employee  = $employee;
+        $this->initialisation($clockingMachine->organisation, $request->only(['photo']));
         return $this->handle($employee, $clockingMachine, $employee, $this->validatedData);
     }
 
@@ -146,13 +160,13 @@ class StoreClocking extends OrgAction
         if (!$clocking->clocking_machine_id) {
             return Redirect::route('grp.org.hr.workplaces.show.clockings.show', [
                 $clocking->workplace->slug,
-                $clocking->slug
+                $clocking->id
             ]);
         } else {
-            return Redirect::route('grp.org.hr.workplaces.show.clocking-machines.show.clockings.show', [
+            return Redirect::route('grp.org.hr.workplaces.show.clocking_machines.show.clockings.show', [
                 $clocking->workplace->slug,
                 $clocking->clockingMachine->slug,
-                $clocking->slug
+                $clocking->id
             ]);
         }
     }
@@ -174,6 +188,6 @@ class StoreClocking extends OrgAction
         $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($generator, $parent, $subject, $validatedData, null);
+        return $this->handle($generator, $parent, $subject, $validatedData);
     }
 }

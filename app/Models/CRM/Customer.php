@@ -27,6 +27,7 @@ use App\Models\Search\UniversalSearch;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasPhoto;
@@ -36,6 +37,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -67,7 +69,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $identity_document_type
  * @property string|null $identity_document_number
  * @property string|null $contact_website
+ * @property int|null $address_id
  * @property array $location
+ * @property int|null $delivery_address_id
  * @property CustomerStatusEnum $status
  * @property CustomerStateEnum $state
  * @property CustomerTradeStateEnum $trade_state number of invoices
@@ -84,10 +88,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property array $migration_data
+ * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, \App\Models\CRM\Appointment> $appointments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, CustomerClient> $clients
+ * @property-read Address|null $deliveryAddress
  * @property-read FulfilmentCustomer|null $fulfilmentCustomer
  * @property-read Group $group
  * @property-read Collection<int, Invoice> $invoices
@@ -116,6 +122,7 @@ use Spatie\Sluggable\SlugOptions;
 class Customer extends Model implements HasMedia, Auditable
 {
     use SoftDeletes;
+    use HasAddress;
     use HasAddresses;
     use HasSlug;
     use HasUniversalSearch;
@@ -149,7 +156,6 @@ class Customer extends Model implements HasMedia, Auditable
         if ($this->is_fulfilment) {
             $tags[] = 'fulfilment';
         }
-
         return $tags;
     }
 
@@ -219,7 +225,6 @@ class Customer extends Model implements HasMedia, Auditable
         'email',
         'phone',
         'contact_website'
-
     ];
 
     public function clients(): HasMany
@@ -294,4 +299,10 @@ class Customer extends Model implements HasMedia, Auditable
     {
         return (bool)$this->webUsers->count();
     }
+
+    public function deliveryAddress(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
+    }
+
 }

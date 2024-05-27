@@ -17,7 +17,7 @@ import Image from "@/Components/Image.vue"
 import { faChevronDown } from "@far"
 import { faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus, faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows,
   faConciergeBell,faGarage,faHamsa,faCodeMerge,faSortShapesDownAlt, faHatChef, faTags, faCommentDollar, faNewspaper, faMailBulk, faBell, faLaptopHouse,faHandHoldingBox,faStream,
-  faShippingFast
+  faShippingFast,faChessClock
 } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import MenuTopRight from "@/Layouts/Grp/MenuTopRight.vue"
@@ -27,7 +27,7 @@ import { layoutStructure } from '@/Composables/useLayoutStructure'
 library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus,
     faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows,faStream,
     faConciergeBell,faGarage,faHamsa,faCodeMerge,faSortShapesDownAlt, faHatChef,faTags, faCommentDollar, faNewspaper, faMailBulk, faBell, faLaptopHouse,faHandHoldingBox,
-  faShippingFast
+  faShippingFast,faChessClock
 );
 
 defineProps<{

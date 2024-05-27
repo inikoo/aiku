@@ -8,6 +8,7 @@
 namespace App\Models\Traits;
 
 use App\Models\Helpers\Address;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 trait HasAddress
 {
@@ -21,8 +22,15 @@ trait HasAddress
         return $location;
     }
 
+    public function address(): BelongsTo
+    {
+        return $this->belongsTo(Address::class);
+    }
+
     public function getAddress($scope): ?Address
     {
-        return $this->addresses()->where('scope', '=', $scope)->first();
+        /** @var Address $address */
+        $address= $this->addresses()->where('scope', '=', $scope)->first();
+        return $address;
     }
 }

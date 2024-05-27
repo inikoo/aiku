@@ -17,21 +17,23 @@ class FetchAuroraDeliveryNote extends FetchAurora
     protected function parseModel(): void
     {
         if (!$this->auroraModelData->{'Delivery Note Order Key'}) {
-            print "Warning delivery without order";
+            print "Warning delivery without order ".$this->auroraModelData->{'Delivery Note Key'}."  \n";
 
             return;
         }
 
-        $this->parsedData["order"] = $this->parseOrder($this->organisation->id.':'.$this->auroraModelData->{'Delivery Note Order Key'});
-        $warehouse                 = $this->parseWarehouse($this->organisation->id.':'.$this->auroraModelData->{'Delivery Note Warehouse Key'});
+        $order     = $this->parseOrder($this->organisation->id.':'.$this->auroraModelData->{'Delivery Note Order Key'});
+        $warehouse = $this->parseWarehouse($this->organisation->id.':'.$this->auroraModelData->{'Delivery Note Warehouse Key'});
 
 
-        if (!$this->parsedData["order"]) {
-            print "Warning delivery without invalid order key (not found) ".$this->auroraModelData->{'Delivery Note Order Key'}."\n";
+        if (!$order) {
+            print "Delivery without invalid order key (not found) ".$this->auroraModelData->{'Delivery Note Order Key'}." - ".$this->auroraModelData->{'Delivery Note Key'}."  \n";
 
             return;
         }
 
+
+        $this->parsedData["order"] = $order;
 
         $state = match ($this->auroraModelData->{'Delivery Note State'}) {
             'Picker Assigned' => DeliveryNoteStateEnum::IN_QUEUE,
@@ -100,8 +102,23 @@ class FetchAuroraDeliveryNote extends FetchAurora
             $deliveryAddressData,
         );
 
+
+        $deliveryLocked = false;
+        if (in_array($this->auroraModelData->{'Delivery Note State'}, ['Cancelled', 'Approved', 'Dispatched', 'Cancelled to Restock'])) {
+            $deliveryLocked = true;
+        }
+
+        $number = $this->auroraModelData->{'Delivery Note ID'};
+
+        if ($this->auroraModelData->{'Delivery Note State'} == "Cancelled") {
+            $count = DB::connection('aurora')->table('Delivery Note Dimension')->where('Delivery Note ID', $number)->count();
+            if ($count > 1) {
+                $number = $number.'-cancelled';
+            }
+        }
+
         $this->parsedData["delivery_note"] = [
-            "number"           => $this->auroraModelData->{'Delivery Note ID'},
+            "number"           => $number,
             'date'             => $this->auroraModelData->{'Delivery Note Date Created'},
             "state"            => $state,
             "status"           => $status,
@@ -118,6 +135,7 @@ class FetchAuroraDeliveryNote extends FetchAurora
             'phone'            => $this->auroraModelData->{'Delivery Note Telephone'},
             'delivery_address' => $deliveryAddress,
             'warehouse_id'     => $warehouse->id,
+            'delivery_locked'  => $deliveryLocked,
         ];
 
         if ($cancelled_at) {

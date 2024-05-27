@@ -8,9 +8,9 @@
 namespace App\Actions\Dispatch\DeliveryNote;
 
 use App\Actions\Dispatch\DeliveryNote\Hydrators\DeliveryNoteHydrateUniversalSearch;
-use App\Actions\Helpers\Address\AttachHistoricAddressToModel;
-use App\Actions\Helpers\Address\StoreHistoricAddress;
 use App\Actions\OrgAction;
+use App\Actions\Traits\WithFixedAddressActions;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Models\Dispatch\DeliveryNote;
@@ -21,18 +21,19 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
-use Illuminate\Database\Query\Builder;
 
 class StoreDeliveryNote extends OrgAction
 {
     use AsAction;
     use WithAttributes;
+    use WithFixedAddressActions;
+    use WithModelAddressActions;
 
     public function handle(
         Order $order,
         array $modelData,
     ): DeliveryNote {
-        $delivery_address = $modelData['delivery_address'];
+        $deliveryAddress = $modelData['delivery_address'];
         data_forget($modelData, 'delivery_address');
 
         data_set($modelData, 'shop_id', $order->shop_id);
@@ -44,9 +45,28 @@ class StoreDeliveryNote extends OrgAction
         $deliveryNote = $order->deliveryNotes()->create($modelData);
         $deliveryNote->stats()->create();
 
+        if ($deliveryNote->delivery_locked) {
+            $deliveryNote = $this->createFixedAddress(
+                $deliveryNote,
+                $deliveryAddress,
+                'Ordering',
+                'delivery',
+                'address_id'
+            );
+        } else {
+            $deliveryNote = $this->addAddressToModel(
+                model: $deliveryNote,
+                addressData: $deliveryAddress->toArray(),
+                scope: 'delivery',
+                updateLocation: false,
+            );
+        }
 
-        $deliveryAddress = StoreHistoricAddress::run($delivery_address);
-        AttachHistoricAddressToModel::run($deliveryNote, $deliveryAddress, ['scope' => 'delivery']);
+        $deliveryNote->updateQuietly(
+            [
+                'delivery_country_id' => $deliveryNote->address->country_id
+            ]
+        );
 
         DeliveryNoteHydrateUniversalSearch::dispatch($deliveryNote);
 
@@ -86,12 +106,10 @@ class StoreDeliveryNote extends OrgAction
             'source_id'        => ['sometimes', 'string'],
             'warehouse_id'     => [
                 'required',
-                Rule::exists('staff')->where(function (Builder $query) {
-                    return $query->where('organisation_id', $this->organisation->id);
-                }),
-
-
+                Rule::exists('warehouses', 'id')
+                    ->where('organisation_id', $this->organisation->id),
             ],
+            'delivery_locked'  => ['sometimes', 'boolean'],
         ];
 
         if (!$this->strict) {

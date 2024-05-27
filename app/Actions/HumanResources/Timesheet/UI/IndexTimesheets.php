@@ -197,7 +197,7 @@ class IndexTimesheets extends OrgAction
                             'name'       => 'grp.org.hr.timesheets.index',
                             'parameters' => Arr::only($routeParameters, 'organisation')
                         ],
-                        'label' => __('timesheets'),
+                        'label' => __('Timesheets'),
                         'icon'  => 'fal fa-bars',
                     ],
                 ]

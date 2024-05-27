@@ -7,7 +7,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Helpers\Address\StoreHistoricAddress;
+use App\Actions\Helpers\Address\StoreFixedAddress;
 use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
 use App\Actions\Procurement\SupplierDelivery\StoreSupplierDelivery;
 use App\Actions\Procurement\SupplierDelivery\UpdateSupplierDelivery;
@@ -30,7 +30,7 @@ class FetchAuroraSupplierDeliveries extends FetchAuroraAction
                 $currentDeliveryAddress = $order->getAddress('delivery');
 
                 if ($currentDeliveryAddress and $currentDeliveryAddress->checksum != $orderData['delivery_address']->getChecksum()) {
-                    $deliveryAddress = StoreHistoricAddress::run($orderData['delivery_address']);
+                    $deliveryAddress = StoreFixedAddress::run($orderData['delivery_address']);
                     UpdateHistoricAddressToModel::run($order, $currentDeliveryAddress, $deliveryAddress, ['scope' => 'delivery']);
                 }
 

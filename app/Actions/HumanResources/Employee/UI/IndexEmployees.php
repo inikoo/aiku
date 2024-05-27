@@ -251,7 +251,7 @@ class IndexEmployees extends OrgAction
                                 $routeParameters
                             )
                         ],
-                        'label' => __('employees'),
+                        'label' => __('Employees'),
                         'icon'  => 'fal fa-bars',
                     ],
 

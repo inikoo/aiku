@@ -5,6 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Enums\HumanResources\ClockingMachine\ClockingMachineStatusEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -22,6 +23,10 @@ return new class () extends Migration {
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('name')->index()->collation('und_ns');
             $table->string('type')->index();
+            $table->string('status')->default(ClockingMachineStatusEnum::DISCONNECTED->value);
+            $table->string('device_name')->nullable();
+            $table->string('device_uuid')->index()->unique()->nullable();
+            $table->string('qr_code')->nullable()->index()->unique();
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletes();

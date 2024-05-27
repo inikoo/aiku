@@ -10,6 +10,7 @@ namespace App\Actions\Traits\Rules;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Rules\IUnique;
+use App\Rules\ValidAddress;
 use Illuminate\Validation\Rule;
 
 trait WithShopRules
@@ -50,6 +51,8 @@ trait WithShopRules
             'source_id'                => ['sometimes', 'string'],
             'warehouses'               => ['sometimes', 'array'],
             'warehouses.*'             => ['exists:warehouses,id'],
+            'address'                  => ['sometimes','required', new ValidAddress()],
+
         ];
     }
 }

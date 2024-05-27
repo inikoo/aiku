@@ -9,8 +9,6 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
-use App\Actions\Helpers\Address\StoreHistoricAddress;
-use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
 use App\Models\Accounting\Invoice;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
@@ -37,12 +35,8 @@ class FetchAuroraInvoices extends FetchAuroraAction
 
                     return null;
                 }
-                $currentBillingAddress = $invoice->getAddress('billing');
 
-                if ($currentBillingAddress->checksum != $invoiceData['invoice']['billing_address']->getChecksum()) {
-                    $billingAddress = StoreHistoricAddress::run($invoiceData['invoice']['billing_address']);
-                    UpdateHistoricAddressToModel::run($invoice, $currentBillingAddress, $billingAddress, ['scope' => 'billing']);
-                }
+
 
                 if (in_array('transactions', $this->with) or $forceWithTransactions) {
                     $this->fetchInvoiceTransactions($organisationSource, $invoice);

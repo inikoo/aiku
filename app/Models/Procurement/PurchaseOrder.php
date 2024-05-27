@@ -12,6 +12,7 @@ use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Assets\Currency;
 use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\InOrganisation;
@@ -70,6 +71,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
@@ -89,6 +91,7 @@ use Spatie\Sluggable\SlugOptions;
 class PurchaseOrder extends Model implements Auditable
 {
     use SoftDeletes;
+    use HasAddress;
     use HasAddresses;
     use HasSlug;
     use HasFactory;

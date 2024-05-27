@@ -109,14 +109,14 @@ test('update shipping zone', function ($shippingZone) {
 
 
 test('create order', function ($customer) {
-    $billingAddress  = Address::first();
-    $deliveryAddress = Address::latest()->first();
+    $billingAddress  = new Address(Address::factory()->definition());
+    $deliveryAddress = new Address(Address::factory()->definition());
 
-    $modelData=Order::factory()->definition();
+    $modelData = Order::factory()->definition();
     data_set($modelData, 'billing_address', $billingAddress);
     data_set($modelData, 'delivery_address', $deliveryAddress);
 
-    $order           = StoreOrder::make()->action($customer, $modelData);
+    $order = StoreOrder::make()->action($customer, $modelData);
     expect($order)->toBeInstanceOf(Order::class);
 
     return $order;
@@ -258,7 +258,7 @@ test('update customer client', function ($customerClient) {
 
 test('create invoice from customer', function ($customer) {
     $invoiceData = Invoice::factory()->definition();
-    data_set($invoiceData, 'billing_address', Address::first());
+    data_set($invoiceData, 'billing_address', new Address(Address::factory()->definition()));
     $invoice = StoreInvoice::make()->action($customer, $invoiceData);
     expect($invoice)->toBeInstanceOf(Invoice::class)
         ->and($invoice->customer)->toBeInstanceOf(Customer::class)
@@ -278,10 +278,10 @@ test('update invoice from customer', function ($invoice) {
 
 test('create invoice from order', function (Order $order) {
     $invoiceData = Invoice::factory()->definition();
-    data_set($invoiceData, 'billing_address', Address::first());
+    data_set($invoiceData, 'billing_address', new Address(Address::factory()->definition()));
     data_set($invoiceData, 'number', '00002');
-    $invoice = StoreInvoice::make()->action($order, $invoiceData);
-    $customer=$invoice->customer;
+    $invoice  = StoreInvoice::make()->action($order, $invoiceData);
+    $customer = $invoice->customer;
     $this->shop->refresh();
     expect($invoice)->toBeInstanceOf(Invoice::class)
         ->and($customer)->toBeInstanceOf(Customer::class)

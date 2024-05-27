@@ -94,7 +94,7 @@ class StoreJobPosition extends OrgAction
 
     public function htmlResponse(JobPosition $jobPosition): RedirectResponse
     {
-        return Redirect::route('grp.org.hr.job-positions.show', [
+        return Redirect::route('grp.org.hr.job_positions.show', [
             $this->organisation->slug,
             $jobPosition->slug
         ]);

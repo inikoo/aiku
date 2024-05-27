@@ -32,6 +32,8 @@ return new class () extends Migration {
             $table->unsignedInteger('address_id')->nullable()->index();
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->jsonb('location');
+            $table->unsignedInteger('collection_address_id')->nullable()->index();
+            $table->foreign('collection_address_id')->references('id')->on('addresses');
             $table->string('state')->index()->default(ShopStateEnum::IN_PROCESS->value);
             $table->string('type')->index();
             $table->date('open_at')->nullable();

@@ -1,0 +1,18 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 25 May 2024 19:45:40 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+namespace App\Enums\Ordering\Order;
+
+use App\Enums\EnumHelperTrait;
+
+enum OrderHandingTypeEnum: string
+{
+    use EnumHelperTrait;
+    case COLLECTION = 'collection';
+    case SHIPPING   = 'shipping';
+
+}

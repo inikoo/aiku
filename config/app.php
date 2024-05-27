@@ -235,7 +235,6 @@ return [
 
 
     'domain'                => env('APP_DOMAIN'),
-    'media_domain'          => env('MEDIA_DOMAIN'),
     'cloudflare_api_token'  => env('CLOUDFLARE_API_TOKEN'),
     'cloudflare_api_url'    => env('CLOUDFLARE_API_URL'),
     'cloudflare_account_id' => env('CLOUDFLARE_ACCOUNT_ID'),

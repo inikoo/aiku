@@ -37,7 +37,7 @@ class DeleteJobPosition extends OrgAction
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('grp.org.hr.job-positions.index', [
+        return Redirect::route('grp.org.hr.job_positions.index', [
             'organisation' => $this->organisation->slug
         ]);
     }

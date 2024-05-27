@@ -55,12 +55,11 @@ class UpdateEmployee extends OrgAction
 
         $employee = $this->update($employee, $modelData, ['data', 'salary']);
 
-
-        if ($employee->wasChanged(['worker_number', 'worker_number', 'contact_name', 'work_email', 'job_title', 'email'])) {
+        if (Arr::hasAny($employee->getChanges(), ['worker_number', 'worker_number', 'contact_name', 'work_email', 'job_title', 'email'])) {
             EmployeeHydrateUniversalSearch::dispatch($employee);
         }
 
-        if ($employee->wasChanged(['state'])) {
+        if (Arr::hasAny($employee->getChanges(), ['state'])) {
             GroupHydrateEmployees::dispatch($employee->group);
             OrganisationHydrateEmployees::dispatch($employee->organisation);
         }
