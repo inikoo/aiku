@@ -41,7 +41,7 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
 
     public function withFilterPeriod($column, ?string $prefix = null): static
     {
-        $periodType = array_key_first(request()->input(($prefix ? $prefix . '_' : '') . 'period'));
+        $periodType = array_key_first(request()->input(($prefix ? $prefix . '_' : '') . 'period') ?? []);
 
         if ($periodType) {
             $periodData = $this->validatePeriod($periodType, $prefix);
