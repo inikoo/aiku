@@ -68,8 +68,26 @@ class ShowWorkplace extends OrgAction
                         $this->canDelete ? $this->getDeleteActionIcon($request) : null,
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
                     ],
+                    'actions' => [
+                        $this->canEdit ? [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'route' => [
+                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ] : false,
+                        $this->canDelete ? [
+                            'type'  => 'button',
+                            'style' => 'delete',
+                            'route' => [
+                                'name'       => 'grp.models.workplace.delete',
+                                'parameters' => $workplace->id
+                            ]
 
-
+                        ] : false
+                    ],
+                    
                     'subNavigation' => $this->getWorkplaceSubNavigation($workplace)
 
 

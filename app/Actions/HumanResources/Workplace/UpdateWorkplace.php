@@ -78,17 +78,17 @@ class UpdateWorkplace extends OrgAction
                     ]
                 ),
             ],
-            'type'    => ['sometimes', Rule::Enum(WorkplaceTypeEnum::class)],
-            'address' => ['sometimes', 'required', new ValidAddress()]
+            'type'        => ['sometimes', Rule::Enum(WorkplaceTypeEnum::class)],
+            'timezone_id' => ['sometimes'],
+            'address'     => ['sometimes', 'required', new ValidAddress()]
         ];
     }
 
     public function asController(Organisation $organisation, Workplace $workplace, ActionRequest $request): Workplace
     {
-        $this->initialisation($organisation, $request);
         $this->workplace = $workplace;
-
-
+        $this->initialisation($workplace->organisation, $request);
+   
         return $this->handle(workplace: $workplace, modelData: $this->validatedData);
     }
 
