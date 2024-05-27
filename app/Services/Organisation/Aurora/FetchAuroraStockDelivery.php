@@ -7,24 +7,66 @@
 
 namespace App\Services\Organisation\Aurora;
 
+use App\Actions\SourceFetch\Aurora\FetchAuroraDeletedSuppliers;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Helpers\Address;
+use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgSupplier;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class FetchAuroraStockDelivery extends FetchAurora
 {
     protected function parseModel(): void
     {
 
+        if ($this->auroraModelData->{'Supplier Delivery Parent'} == 'Agent') {
+            $agentData = DB::connection("aurora")
+                ->table("Agent Dimension")
+                ->where("Agent Key", $this->auroraModelData->{'Supplier Delivery Parent Key'})
+                ->first();
 
-        $parent = match ($this->auroraModelData->{'Supplier Delivery Parent'}) {
-            'Agent' => $this->parseAgent($this->auroraModelData->{'Supplier Delivery Parent Key'}),
-            default => $this->parseSupplier($this->auroraModelData->{'Supplier Delivery Parent Key'})
-        };
+            $agentSourceSlug = Str::kebab(strtolower($agentData->{'Agent Code'}));
+            $parent          = $this->parseAgent(
+                $agentSourceSlug,
+                $this->organisation->id.':'.$this->auroraModelData->{'Supplier Delivery Parent Key'}
+            );
+
+            $orgParent = OrgAgent::where('organisation_id', $this->organisation->id)
+                ->where('agent_id', $parent->id)->first();
+
+        }
+        else {
+            $supplierData = DB::connection("aurora")
+                ->table("Supplier Dimension")
+                ->where("Supplier Key", $this->auroraModelData->{'Supplier Delivery Parent Key'})
+                ->first();
+
+            if ($supplierData) {
+
+                if($supplierData->aiku_ignore) {
+                    return;
+                }
+
+                $supplierSourceSlug = Str::kebab(strtolower($supplierData->{'Supplier Code'}));
+                $parent             = $this->parseSupplier(
+                    $supplierSourceSlug,
+                    $this->organisation->id.':'.$this->auroraModelData->{'Supplier Delivery Parent Key'}
+                );
+            } else {
+                $parent = FetchAuroraDeletedSuppliers::run($this->organisationSource, $this->auroraModelData->{'Supplier Delivery Parent Key'});
+            }
+
+            $orgParent = OrgSupplier::where('organisation_id', $this->organisation->id)
+                ->where('supplier_id', $parent->id)->first();
+
+        }
 
 
-        $this->parsedData["parent"] = $parent;
+        $this->parsedData["org_parent"] = $orgParent;
+
+
 
 
         //print ">>".$this->auroraModelData->{'Supplier Delivery State'}."\n";

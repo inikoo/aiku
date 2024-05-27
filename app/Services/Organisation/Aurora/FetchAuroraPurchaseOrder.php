@@ -48,7 +48,8 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             $orgParent = OrgAgent::where('organisation_id', $this->organisation->id)
                 ->where('agent_id', $parent->id)->first();
 
-        } else {
+        }
+        else {
             $supplierData = DB::connection("aurora")
                 ->table("Supplier Dimension")
                 ->where("Supplier Key", $this->auroraModelData->{'Purchase Order Parent Key'})
@@ -73,11 +74,6 @@ class FetchAuroraPurchaseOrder extends FetchAurora
                 ->where('supplier_id', $parent->id)->first();
 
         }
-
-
-        //enum('Cancelled','NoReceived','InProcess','Submitted',
-        //'Confirmed','Manufactured','QC_Pass','Inputted','Dispatched','Received',
-        //'Checked','Placed','Costing','InvoiceChecked')
 
 
         $this->parsedData["org_parent"] = $orgParent;
