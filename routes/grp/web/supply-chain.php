@@ -85,12 +85,12 @@ Route::get('/purchase-orders/{purchaseOrder}/edit', EditPurchaseOrder::class)->n
 
 
 
-Route::get('/supplier-deliveries/export', ExportSupplierDeliveries::class)->name('supplier-deliveries.export');
+Route::get('/stock-deliveries/export', ExportStockDeliveries::class)->name('stock-deliveries.export');
 
-Route::get('/supplier-deliveries', IndexSupplierDeliveries::class)->name('supplier-deliveries.index');
-Route::get('/supplier-deliveries/create', CreateSupplierDelivery::class)->name('supplier-deliveries.create');
-Route::get('/supplier-deliveries/{supplierDelivery}', ShowSupplierDelivery::class)->name('supplier-deliveries.show');
-Route::get('/supplier-deliveries/{supplierDelivery}/edit', EditSupplierDelivery::class)->name('supplier-deliveries.edit');
+Route::get('/stock-deliveries', IndexStockDeliveries::class)->name('stock-deliveries.index');
+Route::get('/stock-deliveries/create', CreateStockDelivery::class)->name('stock-deliveries.create');
+Route::get('/stock-deliveries/{stockDelivery}', ShowStockDelivery::class)->name('stock-deliveries.show');
+Route::get('/stock-deliveries/{stockDelivery}/edit', EditStockDelivery::class)->name('stock-deliveries.edit');
 
 
 Route::prefix("marketplace")

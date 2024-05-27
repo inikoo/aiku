@@ -17,11 +17,11 @@ use App\Actions\Procurement\PurchaseOrder\UI\CreatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\EditPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\ShowPurchaseOrder;
-use App\Actions\Procurement\SupplierDelivery\ExportSupplierDeliveries;
-use App\Actions\Procurement\SupplierDelivery\UI\CreateSupplierDelivery;
-use App\Actions\Procurement\SupplierDelivery\UI\EditSupplierDelivery;
-use App\Actions\Procurement\SupplierDelivery\UI\IndexSupplierDeliveries;
-use App\Actions\Procurement\SupplierDelivery\UI\ShowSupplierDelivery;
+use App\Actions\Procurement\StockDelivery\ExportStockDeliveries;
+use App\Actions\Procurement\StockDelivery\UI\CreateStockDelivery;
+use App\Actions\Procurement\StockDelivery\UI\EditStockDelivery;
+use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
+use App\Actions\Procurement\StockDelivery\UI\ShowStockDelivery;
 use App\Actions\Procurement\SupplierProduct\ExportSupplierProducts;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\Procurement\SupplierProduct\UI\ShowSupplierProduct;
@@ -70,9 +70,9 @@ Route::get('/purchase-orders/{purchaseOrder}', ShowPurchaseOrder::class)->name('
 Route::get('/purchase-orders/{purchaseOrder}/edit', EditPurchaseOrder::class)->name('purchase-orders.edit');
 
 
-Route::get('/supplier-deliveries/export', ExportSupplierDeliveries::class)->name('supplier-deliveries.export');
+Route::get('/stock-deliveries/export', ExportStockDeliveries::class)->name('stock-deliveries.export');
 
-Route::get('/supplier-deliveries', IndexSupplierDeliveries::class)->name('supplier-deliveries.index');
-Route::get('/supplier-deliveries/create', CreateSupplierDelivery::class)->name('supplier-deliveries.create');
-Route::get('/supplier-deliveries/{supplierDelivery}', ShowSupplierDelivery::class)->name('supplier-deliveries.show');
-Route::get('/supplier-deliveries/{supplierDelivery}/edit', EditSupplierDelivery::class)->name('supplier-deliveries.edit');
+Route::get('/stock-deliveries', IndexStockDeliveries::class)->name('stock-deliveries.index');
+Route::get('/stock-deliveries/create', CreateStockDelivery::class)->name('stock-deliveries.create');
+Route::get('/stock-deliveries/{stockDelivery}', ShowStockDelivery::class)->name('stock-deliveries.show');
+Route::get('/stock-deliveries/{stockDelivery}/edit', EditStockDelivery::class)->name('stock-deliveries.edit');

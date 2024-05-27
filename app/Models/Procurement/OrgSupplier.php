@@ -36,8 +36,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\OrgSupplierProduct> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\Procurement\OrgSupplierStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\StockDelivery> $stockDeliveries
  * @property-read Supplier $supplier
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierDelivery> $supplierDeliveries
  * @method static Builder|OrgSupplier newModelQuery()
  * @method static Builder|OrgSupplier newQuery()
  * @method static Builder|OrgSupplier query()
@@ -66,9 +66,9 @@ class OrgSupplier extends Model
         return $this->morphMany(PurchaseOrder::class, 'parent');
     }
 
-    public function supplierDeliveries(): MorphMany
+    public function stockDeliveries(): MorphMany
     {
-        return $this->morphMany(SupplierDelivery::class, 'parent');
+        return $this->morphMany(StockDelivery::class, 'parent');
     }
 
 

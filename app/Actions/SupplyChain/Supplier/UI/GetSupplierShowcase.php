@@ -37,7 +37,7 @@ class GetSupplierShowcase
                 ],
                 [
                     'label' => __('deliveries'),
-                    'value' => $supplier->stats->number_supplier_deliveries
+                    'value' => $supplier->stats->number_stock_deliveries
                 ],
 
             ]

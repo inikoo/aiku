@@ -23,7 +23,7 @@ return new class () extends Migration {
             $table = $this->suppliersStats($table);
             $table = $this->supplierProductsStats($table);
             $table = $this->purchaseOrdersStats($table);
-            $table = $this->supplierDeliveriesStats($table);
+            $table = $this->stockDeliveriesStats($table);
             $table->timestampsTz();
         });
     }

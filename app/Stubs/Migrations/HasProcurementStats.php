@@ -9,8 +9,8 @@ namespace App\Stubs\Migrations;
 
 use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStateEnum;
 use App\Enums\Procurement\PurchaseOrderItem\PurchaseOrderItemStatusEnum;
-use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
-use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStatusEnum;
+use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
+use App\Enums\Procurement\StockDelivery\StockDeliveryStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductQuantityStatusEnum;
 use App\Enums\Procurement\SupplierProduct\SupplierProductStateEnum;
 
@@ -83,17 +83,17 @@ trait HasProcurementStats
         return $table;
     }
 
-    public function supplierDeliveriesStats(Blueprint $table): Blueprint
+    public function stockDeliveriesStats(Blueprint $table): Blueprint
     {
-        $table->unsignedInteger('number_supplier_deliveries')->default(0)->comment('Number supplier deliveries');
-        $table->unsignedInteger('number_supplier_deliveries_except_cancelled')->default(0)->comment('Number supplier deliveries');
+        $table->unsignedInteger('number_stock_deliveries')->default(0)->comment('Number supplier deliveries');
+        $table->unsignedInteger('number_stock_deliveries_except_cancelled')->default(0)->comment('Number supplier deliveries');
 
-        foreach (SupplierDeliveryStateEnum::cases() as $supplierDeliveryState) {
-            $table->unsignedInteger('number_supplier_deliveries_state_'.$supplierDeliveryState->snake())->default(0);
+        foreach (StockDeliveryStateEnum::cases() as $case) {
+            $table->unsignedInteger('number_stock_deliveries_state_'.$case->snake())->default(0);
         }
 
-        foreach (SupplierDeliveryStatusEnum::cases() as $supplierDeliveryStatus) {
-            $table->unsignedInteger('number_supplier_deliveries_status_'.$supplierDeliveryStatus->snake())->default(0);
+        foreach (StockDeliveryStatusEnum::cases() as $case) {
+            $table->unsignedInteger('number_stock_deliveries_status_'.$case->snake())->default(0);
         }
 
         return $table;

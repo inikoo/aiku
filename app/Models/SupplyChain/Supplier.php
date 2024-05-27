@@ -11,7 +11,7 @@ use App\Models\Assets\Currency;
 use App\Models\Helpers\Issue;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
-use App\Models\Procurement\SupplierDelivery;
+use App\Models\Procurement\StockDelivery;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasAddress;
@@ -76,7 +76,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\SupplyChain\SupplierProduct> $products
  * @property-read Collection<int, PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\SupplyChain\SupplierStats|null $stats
- * @property-read Collection<int, SupplierDelivery> $supplierDeliveries
+ * @property-read Collection<int, StockDelivery> $stockDeliveries
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\SupplyChain\SupplierFactory factory($count = null, $state = [])
  * @method static Builder|Supplier newModelQuery()
@@ -180,9 +180,9 @@ class Supplier extends Model implements HasMedia, Auditable
         return $this->hasMany(PurchaseOrder::class);
     }
 
-    public function supplierDeliveries(): HasMany
+    public function stockDeliveries(): HasMany
     {
-        return $this->hasMany(SupplierDelivery::class);
+        return $this->hasMany(StockDelivery::class);
     }
 
     public function orgSuppliers(): HasMany

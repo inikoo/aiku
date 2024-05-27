@@ -11,13 +11,13 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
-use App\Actions\Procurement\SupplierDelivery\UI\IndexSupplierDeliveries;
+use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\SupplyChain\SupplierTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
-use App\Http\Resources\Procurement\SupplierDeliveryResource;
+use App\Http\Resources\Procurement\StockDeliveryResource;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\Procurement\OrgAgent;
@@ -162,8 +162,8 @@ class ShowOrgSupplier extends OrgAction
                     : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($orgSupplier))),
 
                 SupplierTabsEnum::DELIVERIES->value => $this->tab == SupplierTabsEnum::DELIVERIES->value ?
-                    fn () => SupplierDeliveryResource::collection(IndexSupplierDeliveries::run($orgSupplier))
-                    : Inertia::lazy(fn () => SupplierDeliveryResource::collection(IndexSupplierDeliveries::run($orgSupplier))),
+                    fn () => StockDeliveryResource::collection(IndexStockDeliveries::run($orgSupplier))
+                    : Inertia::lazy(fn () => StockDeliveryResource::collection(IndexStockDeliveries::run($orgSupplier))),
 
                 SupplierTabsEnum::HISTORY->value => $this->tab == SupplierTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($orgSupplier))
@@ -172,7 +172,7 @@ class ShowOrgSupplier extends OrgAction
         )->table(IndexSupplierProducts::make()->tableStructure())
             ->table(IndexSupplierProducts::make()->tableStructure())
             ->table(IndexPurchaseOrders::make()->tableStructure())
-            ->table(IndexSupplierDeliveries::make()->tableStructure())
+            ->table(IndexStockDeliveries::make()->tableStructure())
             ->table(IndexHistory::make()->tableStructure(prefix: SupplierTabsEnum::HISTORY->value));
     }
 
@@ -204,7 +204,7 @@ class ShowOrgSupplier extends OrgAction
         return match ($routeName) {
             'grp.procurement.suppliers.show' =>
             array_merge(
-                ProcurementDashboard::make()->getBreadcrumbs(),
+                ProcurementDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $routeParameters['supplier'],
                     [

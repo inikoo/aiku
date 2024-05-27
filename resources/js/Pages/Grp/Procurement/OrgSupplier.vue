@@ -22,7 +22,7 @@ import { computed, defineAsyncComponent, ref } from "vue";
 import { useTabChange } from "@/Composables/tab-change";
 import TableSupplierProducts from "@/Components/Tables/Grp/SupplyChain/TableSupplierProducts.vue";
 import ModelDetails from "@/Components/ModelDetails.vue";
-import TableSupplierDeliveries from "@/Components/Tables/Grp/SupplyChain/TableSupplierDeliveries.vue";
+import TableStockDeliveries from "@/Components/Tables/Grp/Org/Procurement/TableStockDeliveries.vue";
 import TablePurchaseOrders from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrders.vue";
 import SupplierShowcase from "@/Components/Showcases/Grp/SupplierShowcase.vue";
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
@@ -71,7 +71,7 @@ const component = computed(() => {
         sales: TableSupplierProducts,
         supplier_products: TableSupplierProducts,
         purchase_orders: TablePurchaseOrders,
-        deliveries: TableSupplierDeliveries,
+        deliveries: TableStockDeliveries,
         details: ModelDetails,
         history: TableHistories
     };

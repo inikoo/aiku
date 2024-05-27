@@ -11,13 +11,13 @@ use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
-use App\Actions\Procurement\SupplierDelivery\UI\IndexSupplierDeliveries;
+use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
 use App\Enums\UI\SupplyChain\SupplierTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
-use App\Http\Resources\Procurement\SupplierDeliveryResource;
+use App\Http\Resources\Procurement\StockDeliveryResource;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\Http\Resources\Procurement\SupplierResource;
 use App\Models\SupplyChain\Agent;
@@ -26,9 +26,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-/**
- * @property Supplier $supplier
- */
 class ShowSupplier extends GrpAction
 {
     public function handle(Supplier $supplier): Supplier
@@ -52,10 +49,10 @@ class ShowSupplier extends GrpAction
         return $this->handle($supplier);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
+
     public function inAgent(Agent $agent, Supplier $supplier, ActionRequest $request): Supplier
     {
-        $this->initialisation($request)->withTab(SupplierTabsEnum::values());
+        $this->initialisation($supplier->group, $request)->withTab(SupplierTabsEnum::values());
 
         return $this->handle($supplier);
     }
@@ -162,8 +159,8 @@ class ShowSupplier extends GrpAction
                     : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($supplier))),
 
                 SupplierTabsEnum::DELIVERIES->value => $this->tab == SupplierTabsEnum::DELIVERIES->value ?
-                    fn () => SupplierDeliveryResource::collection(IndexSupplierDeliveries::run($supplier))
-                    : Inertia::lazy(fn () => SupplierDeliveryResource::collection(IndexSupplierDeliveries::run($supplier))),
+                    fn () => StockDeliveryResource::collection(IndexStockDeliveries::run($supplier))
+                    : Inertia::lazy(fn () => StockDeliveryResource::collection(IndexStockDeliveries::run($supplier))),
 
                 SupplierTabsEnum::HISTORY->value => $this->tab == SupplierTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($supplier))
@@ -172,7 +169,7 @@ class ShowSupplier extends GrpAction
         )->table(IndexSupplierProducts::make()->tableStructure())
         ->table(IndexSupplierProducts::make()->tableStructure())
         ->table(IndexPurchaseOrders::make()->tableStructure())
-        ->table(IndexSupplierDeliveries::make()->tableStructure())
+        ->table(IndexStockDeliveries::make()->tableStructure())
         ->table(IndexHistory::make()->tableStructure(prefix: SupplierTabsEnum::HISTORY->value));
     }
 

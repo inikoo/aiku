@@ -26,7 +26,7 @@ class GetOrgSupplierShowcase
                 'contact'  => $supplier->contact_name,
                 'email'    => $supplier->email,
                 'phone'    => $supplier->phone,
-                'address'  => AddressResource::make($supplier->getAddress())->getArray(),
+                'address'  => AddressResource::make($supplier->address)->getArray(),
                 'image_id' => $supplier->image_id
             ],
             'stats'       => [
@@ -40,7 +40,7 @@ class GetOrgSupplierShowcase
                 ],
                 [
                     'label' => __('deliveries'),
-                    'value' => $supplier->stats->number_supplier_deliveries
+                    'value' => $supplier->stats->number_stock_deliveries
                 ],
 
             ]

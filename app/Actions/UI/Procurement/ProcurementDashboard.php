@@ -126,7 +126,7 @@ class ProcurementDashboard extends OrgAction
                         [
                             'name'  => __('supplier deliveries'),
                             'icon'  => ['fal', 'fa-truck-container'],
-                            'href'  => ['name' => 'grp.org.procurement.supplier-deliveries.index', 'parameters' => ['organisation' => $this->organisation->slug]],
+                            'href'  => ['name' => 'grp.org.procurement.stock-deliveries.index', 'parameters' => ['organisation' => $this->organisation->slug]],
                             'index' => [
                                 'number' => $this->organisation->procurementStats->number_deliveries
                             ]

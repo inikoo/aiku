@@ -22,7 +22,7 @@ return new class () extends Migration {
             $table->foreign('supplier_id')->references('id')->on('suppliers');
             $table = $this->supplierProductsStats($table);
             $table = $this->purchaseOrdersStats($table);
-            $table = $this->supplierDeliveriesStats($table);
+            $table = $this->stockDeliveriesStats($table);
             $table->timestampsTz();
         });
     }

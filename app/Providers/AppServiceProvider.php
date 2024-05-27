@@ -188,8 +188,8 @@ class AppServiceProvider extends ServiceProvider
                 'OrgSupplierProduct'                        => 'App\Models\Procurement\OrgSupplierProduct',
                 'PurchaseOrder'                             => 'App\Models\Procurement\PurchaseOrder',
                 'PurchaseOrderItem'                         => 'App\Models\Procurement\PurchaseOrderItem',
-                'SupplierDelivery'                          => 'App\Models\Procurement\SupplierDelivery',
-                'SupplierDeliveryItem'                      => 'App\Models\Procurement\SupplierDeliveryItem',
+                'StockDelivery'                             => 'App\Models\Procurement\StockDelivery',
+                'StockDeliveryItem'                         => 'App\Models\Procurement\StockDeliveryItem',
                 'SupplierProductTradeUnit'                  => 'App\Models\Procurement\SupplierProductTradeUnit',
 
                 // Search
