@@ -87,7 +87,7 @@ class ShowWorkplace extends OrgAction
 
                         ] : false
                     ],
-                    
+
                     'subNavigation' => $this->getWorkplaceSubNavigation($workplace)
 
 
