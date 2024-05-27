@@ -8,12 +8,18 @@
 
 import LeftSidebarNavigation from "@/Layouts/Grp/LeftSidebarNavigation.vue"
 import LeftSidebarBottomNav from "@/Layouts/Grp/LeftSidebarBottomNav.vue"
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 
+import { router } from '@inertiajs/vue3'
+import { useLiveUsers } from '@/Stores/active-users'
+import { trans } from 'laravel-vue-i18n'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faChevronLeft } from "@far"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { inject } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+// import Popover from "@/Components/Popover.vue"
 library.add(faChevronLeft)
 
 const layout = inject('layout', layoutStructure)
@@ -22,6 +28,26 @@ const layout = inject('layout', layoutStructure)
 const handleToggleLeftBar = () => {
     localStorage.setItem('leftSideBar', (!layout.leftSidebar.show).toString())
     layout.leftSidebar.show = !layout.leftSidebar.show
+}
+
+
+const logoutAuth = () => {
+    router.post(route('grp.logout'))
+
+    const dataActiveUser = {
+        ...layout.user,
+        name: null,
+        last_active: new Date(),
+        action: 'logout',
+        current_page: {
+            label: trans('Logout'),
+            url: null,
+            icon_left: null,
+            icon_right: null,
+        },
+    }
+    window.Echo.join(`grp.live.users`).whisper('otherIsNavigating', dataActiveUser)
+    useLiveUsers().unsubscribe()  // Unsubscribe from Laravel Echo
 }
 </script>
 
@@ -54,6 +80,33 @@ const handleToggleLeftBar = () => {
 
         <div class="flex flex-grow flex-col h-full overflow-y-auto custom-hide-scrollbar pb-4">
             <LeftSidebarNavigation />
+        </div>
+
+        <!-- Section: Logout -->
+        <div class="absolute bottom-20 w-full">
+            <div class="flex justify-center">
+                <Popover class="relative " v-slot="{ open }">
+                    <PopoverButton class="focus:outline-none focus:ring-0 focus:border-none">
+                        <Button icon="far fa-door-open" label="Logout" type="tertiary">
+                            <div class="text-gray-100">
+                                <FontAwesomeIcon icon="far fa-door-open" fixed-width aria-hidden='true' size="lg" />
+                                Logout
+                            </div>
+                        </Button>
+                    </PopoverButton>
+                    
+                    <transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 scale-95" enter-to-class="opacity-100 scale-100" leave-active-class="transition duration-150 ease-in" leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95" >
+                        <PopoverPanel class="absolute -top-3 left-1/2 -translate-y-full bg-white rounded-md px-4 py-3 border border-gray-200 shadow">
+                            <div class="min-w-32 flex flex-col justify-center gap-y-2">
+                                <div class="whitespace-nowrap text-gray-500 text-xs">Are you sure want to logout?</div>
+                                <div class="mx-auto">
+                                    <Button @click="logoutAuth()" label="Yes, Logout" type="red" />
+                                </div>
+                            </div>
+                        </PopoverPanel>
+                    </transition>
+                </Popover>
+            </div>
         </div>
 
         <div v-if="false" class="absolute bottom-[68px] w-full">
