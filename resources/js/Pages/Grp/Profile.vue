@@ -15,6 +15,9 @@ import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import TableTimesheets from "@/Components/Tables/Grp/Org/HumanResources/TableTimesheets.vue"
 import TableUserRequestLogs from "@/Components/Tables/Grp/SysAdmin/TableUserRequestLogs.vue"
 import ProfileShowcase from "@/Components/Profile/ProfileShowcase.vue"
+import TableNotifications from "@/Components/Profile/TableNotifications.vue"
+import ProfileKPIs from "@/Components/Profile/ProfileKPIs.vue"
+import ProfileTodo from "@/Components/Profile/ProfileTodo.vue"
 // import EditProfile from "@/Pages/Grp/EditProfile.vue"
 
 import axios from 'axios'
@@ -25,37 +28,57 @@ import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faIdCard } from '@fal'
+import { faIdCard, faClipboardListCheck, faRabbitFast } from '@fal'
 import { faInfoCircle } from '@fas'
 import { faSpinnerThird } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faIdCard, faSpinnerThird, faInfoCircle)
+library.add(faIdCard, faClipboardListCheck, faRabbitFast, faSpinnerThird, faInfoCircle)
 
 const EditProfile = defineAsyncComponent(() => import("@/Pages/Grp/EditProfile.vue"))
 
 
-const props = defineProps<{
-    // title: string,
-    // pageHead: TSPageHeading
-    // tabs?: TSTabs
-    history?: {}
-    timesheets?: {}
-    visit_logs?: {}
-    my_data?: {}
+// const props = defineProps<{
+//     // title: string,
+//     // pageHead: TSPageHeading
+//     // tabs?: TSTabs
 
-}>()
+// }>()
 
 
 const layout = inject('layout', layoutStructure)
 
 
+// Section: fetch PageHead and Tabs list
+const dataProfile = ref<{ pageHead: TSPageHeading, tabs: TSTabs } | null>(null)
+const fetchPageHead = async () => {
+    try {
+        const { data } = await axios.get(
+            route('grp.profile.page-head-tabs.show')
+        )
+        dataProfile.value = data
+        currentTab.value = data.tabs.current
+        // console.log('response pageHead', data)
+    } catch (error: any) {
+        dataProfile.value = null
+        notify({
+            title: trans('Something went wrong.'),
+            text: trans('Failed to show Profile page.'),
+            type: 'error',
+        })
+    }
+}
+
+
 // Section: Fetch Tab data
-const currentTab = ref('showcase')
+const currentTab = ref('')
 const component = computed(() => {
     const components: Component = {
-      my_data: ProfileShowcase,
+        todo: ProfileTodo,
+        notifications: TableNotifications,
+        kpi: ProfileKPIs,
         visit_logs: TableUserRequestLogs,
         timesheets: TableTimesheets,
+        my_data: ProfileShowcase,
         history: TableHistories,
     }
 
@@ -70,37 +93,48 @@ const handleTabUpdate = (newTabSlug: string) => {
 }
 const isTabLoading = ref(false)
 const dataTab = ref(null)
-const fetchTabData = async (tabName: string) => {
+const fetchTabData = async (tabSlug: string) => {
     isTabLoading.value = true
     let routeName = ''
 
-    switch (tabName) {
-        case 'showcase':
-            routeName = 'grp.profile.showcase.show'
+    switch (tabSlug) {
+        case 'todo':
+            routeName = 'grp.profile.visit-logs.index'
             break
-        case 'timesheets':
-            routeName = 'grp.profile.timesheets.index'
+        case 'notifications':
+            routeName = 'grp.profile.notifications.index'
             break
-        case 'histories':
-            routeName = 'grp.profile.history.index'
+        case 'kpi':
+            routeName = 'grp.profile.visit-logs.index'
             break
         case 'visit_logs':
             routeName = 'grp.profile.visit-logs.index'
             break
+        case 'timesheets':
+            routeName = 'grp.profile.timesheets.index'
+            break
+        case 'my_data':
+            routeName = 'grp.profile.showcase.show'
+            break
+        case 'histories':
+            routeName = 'grp.profile.history.index'
+            break
     }
 
     try {
+        console.log('tab', tabSlug, route(routeName))
         const { data } = await axios.get(
-            route('grp.profile.show'),
+            route(routeName),
         )
-        dataTab.value = data.data
-        currentTab.value = tabName
+        dataTab.value = data
+        console.log('daaataaa', dataTab.value)
+        currentTab.value = tabSlug
         // console.log('response', dataTab.value)
     } catch (error: any) {
         dataTab.value = null
         notify({
             title: trans('Something went wrong.'),
-            text: trans('Failed to show this tab.'),
+            text: `Failed to show ${dataProfile.value?.tabs.navigation[tabSlug].title} tab.`,
             type: 'error',
         })
     }
@@ -108,29 +142,11 @@ const fetchTabData = async (tabName: string) => {
     isTabLoading.value = false
 }
 
-// Section: fetch PageHead and Tabs
-const dataProfile = ref<{ pageHead: TSPageHeading, tabs: TSTabs } | null>(null)
-const fetchPageHead = async () => {
-    try {
-        const { data } = await axios.get(
-            route('grp.profile.page-head-tabs.show'),
-        )
-        dataProfile.value = data
-        // console.log('response pageHead', data)
-    } catch (error: any) {
-        dataProfile.value = null
-        notify({
-            title: trans('Something went wrong.'),
-            text: trans('Failed to show Profile page.'),
-            type: 'error',
-        })
-    }
-}
 
-onMounted(() => {
+onMounted(async () => {
     // console.log("On mounted currentTab")
-    fetchPageHead()
-    fetchTabData(currentTab.value)
+    await fetchPageHead()
+    await fetchTabData(currentTab.value)
 })
 
 </script>
@@ -151,11 +167,9 @@ onMounted(() => {
 
         <!-- Loading: main content -->
         <div v-if="isTabLoading" class="pt-32 w-full flex justify-center">
-            <LoadingIcon size="2x" :key="32"/>
+            <LoadingIcon size="2x" />
         </div>
-
         <component v-else-if="dataTab" :is="component" :data="dataTab" :tab="currentTab" />
-
         <div v-else class="h-full w-full flex items-center justify-center text-gray-400 italic">
             {{ trans('No data to shown.') }}
         </div>
@@ -163,6 +177,6 @@ onMounted(() => {
 
     <!-- Loading: Navigation -->
     <div v-else class="pt-8 w-full flex items-center justify-center">
-        <LoadingIcon size="2x"/>
+        <LoadingIcon size="2x" />
     </div>
 </template>

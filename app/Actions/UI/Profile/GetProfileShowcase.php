@@ -38,16 +38,16 @@ class GetProfileShowcase
                     'class'   => 'text-red-500'
                 ]
             },
-            'parent_type'   => $user->parent_type,
-            'contact_name'  => $user->contact_name,
-            'parent'        => match ($user->parent_type) {
-                'Employee' => new EmployeeResource($user->parent),
-                'Guest'    => new GuestResource($user->parent),
-                default    => [],
-            },
-            'group'         => GroupResource::make($user->group),
-            'organisations' => UserOrganisationResource::collectionForUser($user->authorisedOrganisations, $user),
-            'created_at'    => $user->created_at,
+            // 'parent_type'   => $user->parent_type,
+            // 'contact_name'  => $user->contact_name,
+            // 'parent'        => match ($user->parent_type) {
+            //     'Employee' => new EmployeeResource($user->parent),
+            //     'Guest'    => new GuestResource($user->parent),
+            //     default    => [],
+            // },
+            // 'group'         => GroupResource::make($user->group),
+            // 'organisations' => UserOrganisationResource::collectionForUser($user->authorisedOrganisations, $user),
+            // 'created_at'    => $user->created_at,
             // 'updated_at'    => $user->updated_at,
             'roles'         => $user->getRoleNames()->toArray(),
             'permissions'   => $user->getAllPermissions()->pluck('name')->toArray()

@@ -4,6 +4,10 @@
   - Copyright (c) 2023, Raul A Perusquia Flores
   -->
 
+
+<!--
+    TODO: Icon loading is unlimited if change tabs is failed
+-->
 <script setup lang="ts">
 import { inject, ref, watch } from "vue"
 import { capitalize } from "@/Composables/capitalize"
