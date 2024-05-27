@@ -15,7 +15,7 @@ use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
-use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\Group;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -27,12 +27,12 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexMarketplaceSupplierProducts extends InertiaAction
 {
-    public function handle(Organisation|Agent|Supplier $parent, $prefix=null): LengthAwarePaginator
+    public function handle(Group|Agent|Supplier $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('supplier_products.code', 'ILIKE', "%$value%")
-                    ->orWhere('supplier_products.name', 'ILIKE', "%$value%");
+                $query->whereStartWith('supplier_products.code', $value)
+                    ->orWhereAnyWordStartWith('supplier_products.name', $value);
             });
         });
 
@@ -59,9 +59,8 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
                     $query->leftJoin('agents', 'supplier_products.agent_id', 'agents.id');
                     $query->addSelect('agents.slug as agent_slug');
                     $query->where('supplier_products.agent_id', $parent->id);
-                } elseif (class_basename($parent) == 'Organisation') {
-                    $query->leftJoin('supplier_product_tenant', 'supplier_product_tenant.supplier_product_id', 'supplier_products.id');
-                    $query->where('supplier_product_tenant.organisation_id', $parent->id);
+                } elseif (class_basename($parent) == 'Group') {
+                    $query->where('supplier_products.group_id', $parent->id);
                 } elseif (class_basename($parent) == 'Supplier') {
                     $query->leftJoin('suppliers', 'supplier_products.supplier_id', 'suppliers.id');
                     if ($parent->agent) {

@@ -29,7 +29,7 @@ trait WithFormattedUserHistories
                     'url'            => $result['_source']['route']['url'],
                     'datetime'       => $result['_source']['datetime'],
                     'type'           => $result['_source']['type'],
-                    'tenant'         => app('currentTenant')->slug,
+                    'group'          => app('group')->slug,
                     'old_values'     => $result['_source']['old_values'],
                     'new_values'     => $result['_source']['new_values'],
                     'event'          => $result['_source']['event'],
@@ -46,7 +46,6 @@ trait WithFormattedUserHistories
             return collect(array_reverse($results))->paginate(
                 perPage: \request()->get('perPage') ?? config('ui.table.records_per_page')
             )->withQueryString();
-
         } catch (\Exception $e) {
             return [];
         }

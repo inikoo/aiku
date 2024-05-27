@@ -10,7 +10,6 @@ namespace App\Actions\SysAdmin\User\UI;
 use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\SysAdmin\UserRequest\ShowUserRequestLogs;
-use App\Actions\Traits\WithElasticsearch;
 use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
 use App\Enums\UI\SysAdmin\UserTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -24,8 +23,6 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowUser extends GrpAction
 {
-    use WithElasticsearch;
-
     public function asController(User $user, ActionRequest $request): User
     {
         $this->initialisation(app('group'), $request)->withTab(UserTabsEnum::values());

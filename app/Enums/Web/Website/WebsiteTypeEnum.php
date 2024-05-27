@@ -8,6 +8,7 @@
 namespace App\Enums\Web\Website;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\SysAdmin\Organisation;
 
 enum WebsiteTypeEnum: string
 {
@@ -31,9 +32,9 @@ enum WebsiteTypeEnum: string
         ];
     }
 
-    public static function count(): array
+    public static function count(Organisation $parent): array
     {
-        $webStats = app('currentTenant')->webStats;
+        $webStats = $parent->webStats;
 
         return [
             'info'         => $webStats->number_websites_type_info,
