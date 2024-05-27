@@ -28,10 +28,12 @@ class UpdateStockDelivery
     public function rules(): array
     {
         return [
-            'number'        => ['required', 'numeric', 'unique:stock_deliveries'],
-            'date'          => ['required', 'date'],
-            'currency_id'   => ['required', 'exists:currencies,id'],
-            'exchange'      => ['required', 'numeric']
+            'number'          => ['required', 'numeric', 'unique:stock_deliveries'],
+            'date'            => ['required', 'date'],
+            'currency_id'     => ['required', 'exists:currencies,id'],
+            'exchange'        => ['required', 'numeric'],
+            'parent_code'     => ['sometimes', 'required', 'string', 'max:256'],
+            'parent_name'     => ['sometimes', 'required', 'string', 'max:256'],
         ];
     }
 

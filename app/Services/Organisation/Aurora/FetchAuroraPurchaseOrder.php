@@ -130,8 +130,8 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             'checked_at'      => $this->parseDate($this->auroraModelData->{'Purchase Order Checked Date'}),
             'settled_at'      => $this->parseDate($this->auroraModelData->{'Purchase Order Consolidated Date'}),
 
-            'parent_label'=> $this->auroraModelData->{'Purchase Order Parent Name'},
-
+            'parent_code'=> $this->auroraModelData->{'Purchase Order Parent Code'},
+            'parent_name'=> $this->auroraModelData->{'Purchase Order Parent Name'},
 
             "number" => (string) $this->auroraModelData->{'Purchase Order Public ID'} ?? $this->auroraModelData->{'Purchase Order Key'},
             "state"  => $state,

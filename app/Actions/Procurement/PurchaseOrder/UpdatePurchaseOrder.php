@@ -60,8 +60,9 @@ class UpdatePurchaseOrder extends OrgAction
                     ]
                 ) : null,
             ],
-            'date'         => ['sometimes', 'date'],
-            'parent_label' => ['sometimes', 'required', 'string', 'max:256'],
+            'date'            => ['sometimes', 'date'],
+            'parent_code'     => ['sometimes', 'required', 'string', 'max:256'],
+            'parent_name'     => ['sometimes', 'required', 'string', 'max:256'],
         ];
     }
 

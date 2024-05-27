@@ -65,6 +65,8 @@ class FetchAuroraStockDelivery extends FetchAurora
             'received_at'        => $this->parseDate($this->auroraModelData->{'Supplier Delivery Received Date'}),
             'cancelled_at'       => $this->parseDate($this->auroraModelData->{'Supplier Delivery Checked Date'}),
 
+            'parent_code'=> $this->auroraModelData->{'Supplier Delivery Parent Code'},
+            'parent_name'=> $this->auroraModelData->{'Supplier Delivery Parent Name'},
 
             "number" => $this->auroraModelData->{'Supplier Delivery Public ID'} ?? $this->auroraModelData->{'Supplier Delivery Key'},
             "state"  => $state,

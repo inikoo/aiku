@@ -40,6 +40,9 @@ class StoreStockDelivery extends OrgAction
             data_set($modelData, 'partner_id', $parent->organisation_id);
         }
 
+        data_set($modelData, 'parent_code', $parent->code, false);
+        data_set($modelData, 'parent_name', $parent->name, false);
+
         /** @var StockDelivery $stockDelivery */
         $stockDelivery = $parent->stockDeliveries()->create($modelData);
 
@@ -60,7 +63,7 @@ class StoreStockDelivery extends OrgAction
     public function rules(): array
     {
         return [
-            'number'          => [
+            'number'      => [
                 'sometimes',
                 'required',
                 $this->strict ? 'alpha_dash' : 'string',
@@ -71,7 +74,11 @@ class StoreStockDelivery extends OrgAction
                     ]
                 ) : null,
             ],
-            'date'   => ['required', 'date']
+            'date'        => ['required', 'date'],
+            'parent_code' => ['sometimes', 'required', 'string', 'max:256'],
+            'parent_name' => ['sometimes', 'required', 'string', 'max:256'],
+            'source_id'   => ['sometimes', 'required', 'string', 'max:64'],
+
         ];
     }
 

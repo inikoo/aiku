@@ -13,7 +13,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $number
  * @property string $slug
  * @property string $date
- * @property mixed $parent_label
+ * @property mixed $parent_name
  */
 class PurchaseOrdersResource extends JsonResource
 {
@@ -23,7 +23,7 @@ class PurchaseOrdersResource extends JsonResource
             'number'       => $this->number,
             'slug'         => $this->slug,
             'date'         => $this->date,
-            'parent_label' => $this->parent_label,
+            'parent_name'  => $this->parent_name,
         ];
     }
 
