@@ -317,7 +317,7 @@ class IndexPallets extends OrgAction
                                 'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
                                 'parameters' => $routeParameters,
                             ],
-                            'label' => __('pallets'),
+                            'label' => __('Pallets'),
                             'icon'  => 'fal fa-bars',
                         ],
 

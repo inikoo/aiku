@@ -165,7 +165,7 @@ class IndexFulfilmentCustomers extends OrgAction
                 'title'       => __('customers'),
                 'pageHead'    => [
                     'title'     => __('customers'),
-                    'iconRight' => [
+                    'icon' => [
                         'icon'  => ['fal', 'fa-user'],
                         'title' => __('customer')
                     ],

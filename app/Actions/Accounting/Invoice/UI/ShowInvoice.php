@@ -102,6 +102,11 @@ class ShowInvoice extends OrgAction
                 ],
                 'pageHead'    => [
                     'title' => $invoice->number,
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-file-invoice-dollar'],
+                        'title' => $invoice->number
+                    ],
+                    'model'     => __('invoice'),
 
 
                 ],

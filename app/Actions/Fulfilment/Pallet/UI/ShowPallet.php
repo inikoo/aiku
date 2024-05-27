@@ -43,15 +43,18 @@ class ShowPallet extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->parent instanceof FulfilmentCustomer) {
+        if ($this->parent instanceof FulfilmentCustomer) {
             $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.edit");
+
             return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.view");
         } elseif ($this->parent instanceof Warehouse) {
             $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.edit");
+
             return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.view");
         }
 
         $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->organisation->id}.stored-items.edit");
+
         return $request->user()->hasPermissionTo("fulfilment.{$this->organisation->id}.stored-items.view");
     }
 
@@ -98,31 +101,30 @@ class ShowPallet extends OrgAction
 
     public function htmlResponse(Pallet $pallet, ActionRequest $request): Response
     {
+        $subNavigation = [];
 
-
-        $subNavigation=[];
-
-        if($this->parent instanceof  FulfilmentCustomer) {
-            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
         }
 
 
         return Inertia::render(
             'Org/Fulfilment/Pallet',
             [
-                'title'       => __('pallets'),
-                'breadcrumbs' => $this->getBreadcrumbs(
+                'title'                         => __('pallets'),
+                'breadcrumbs'                   => $this->getBreadcrumbs(
                     $this->parent,
                     request()->route()->getName(),
                     request()->route()->originalParameters()
                 ),
-                'pageHead'    => [
+                'pageHead'                      => [
                     'icon'          =>
                         [
                             'icon'  => ['fal', 'fa-pallet'],
                             'title' => __('pallets')
                         ],
                     'title'         => $this->pallet->reference,
+                    'model'         => __('Pallet'),
                     'subNavigation' => $subNavigation,
                     'actions'       => [
                         // [
@@ -159,20 +161,20 @@ class ShowPallet extends OrgAction
                         // ],
                     ],
                 ],
-                'tabs'        => [
+                'tabs'                          => [
                     'current'    => $this->tab,
                     'navigation' => PalletTabsEnum::navigation(),
                 ],
                 PalletTabsEnum::SHOWCASE->value => $this->tab == PalletTabsEnum::SHOWCASE->value ?
-                    fn () => $this->jsonResponse($pallet) : Inertia::lazy(fn () => $this->jsonResponse($pallet)),
+                    fn() => $this->jsonResponse($pallet) : Inertia::lazy(fn() => $this->jsonResponse($pallet)),
 
                 PalletTabsEnum::STORED_ITEMS->value => $this->tab == PalletTabsEnum::STORED_ITEMS->value ?
-                fn () => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer, PalletTabsEnum::STORED_ITEMS->value))
-                : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer, PalletTabsEnum::STORED_ITEMS->value))),
+                    fn() => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer, PalletTabsEnum::STORED_ITEMS->value))
+                    : Inertia::lazy(fn() => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer, PalletTabsEnum::STORED_ITEMS->value))),
 
                 PalletTabsEnum::HISTORY->value => $this->tab == PalletTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistory::run($this->pallet))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($this->pallet)))
+                    fn() => HistoryResource::collection(IndexHistory::run($this->pallet))
+                    : Inertia::lazy(fn() => HistoryResource::collection(IndexHistory::run($this->pallet)))
 
             ]
         )->table(IndexHistory::make()->tableStructure(prefix: PalletTabsEnum::HISTORY->value))
@@ -187,19 +189,48 @@ class ShowPallet extends OrgAction
 
     public function getBreadcrumbs(Organisation|Warehouse|Fulfilment $parent, string $routeName, array $routeParameters, string $suffix = ''): array
     {
-        $pallet=Pallet::where('slug', $routeParameters['pallet'])->first();
+        $pallet = Pallet::where('slug', $routeParameters['pallet'])->first();
+
         return match (class_basename($parent)) {
-            'Warehouse'    => $this->getBreadcrumbsFromWarehouse($pallet, $routeName, $suffix),
+            'Warehouse' => $this->getBreadcrumbsFromWarehouse($pallet, $routeName, $suffix),
             'Organisation' => $this->getBreadcrumbsFromFulfilment($pallet, $routeName, $suffix),
-            default        => $this->getBreadcrumbsFromFulfilmentCustomer($pallet, $routeName, $suffix),
+            default => $this->getBreadcrumbsFromFulfilmentCustomer($pallet, $routeName, $suffix),
         };
     }
 
     public function getBreadcrumbsFromWarehouse(Pallet $pallet, $routeName, $suffix = null): array
     {
-
         return array_merge(
             ShowFulfilmentDashboard::make()->getBreadcrumbs(request()->route()->originalParameters()),
+            [
+                [
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => [
+                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.index',
+                                'parameters' => array_values(request()->route()->originalParameters())
+                            ],
+                            'label' => __('Pallet')
+                        ],
+                        'model' => [
+                            'route' => [
+                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.show',
+                                'parameters' => array_values(request()->route()->originalParameters())
+                            ],
+                            'label' => $pallet->reference,
+                        ],
+                    ],
+                    'suffix'         => $suffix,
+                ],
+            ]
+        );
+    }
+
+    public function getBreadcrumbsFromFulfilment(Pallet $pallet, $routeName, $suffix = null): array
+    {
+        return array_merge(
+            ShowFulfilment::make()->getBreadcrumbs(request()->route()->originalParameters()),
             [
                 [
                     'type'           => 'modelWithIndex',
@@ -219,36 +250,7 @@ class ShowPallet extends OrgAction
                             'label' => $pallet->reference,
                         ],
                     ],
-                    'suffix' => $suffix,
-                ],
-            ]
-        );
-    }
-
-    public function getBreadcrumbsFromFulfilment(Pallet $pallet, $routeName, $suffix = null): array
-    {
-        return array_merge(
-            ShowFulfilment::make()->getBreadcrumbs(request()->route()->originalParameters()),
-            [
-                [
-                    'type'           => 'modelWithIndex',
-                    'modelWithIndex' => [
-                        'index' => [
-                            'route' => [
-                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.index',
-                                'parameters' => array_values(request()->route()->originalParameters())
-                            ],
-                            'label' => __('pallets')
-                        ],
-                        'model' => [
-                            'route' => [
-                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.show',
-                                'parameters' => array_values(request()->route()->originalParameters())
-                            ],
-                            'label' => $pallet->reference,
-                        ],
-                    ],
-                    'suffix' => $suffix,
+                    'suffix'         => $suffix,
                 ],
             ]
         );
@@ -267,7 +269,7 @@ class ShowPallet extends OrgAction
                                 'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
-                            'label' => __('pallets')
+                            'label' => __('Pallets')
                         ],
                         'model' => [
                             'route' => [
@@ -277,7 +279,7 @@ class ShowPallet extends OrgAction
                             'label' => $pallet->reference,
                         ],
                     ],
-                    'suffix' => $suffix,
+                    'suffix'         => $suffix,
                 ],
             ]
         );
