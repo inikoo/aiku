@@ -34,6 +34,7 @@ class IndexClockingMachines extends OrgAction
 
     public function handle(Workplace|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
+        // dd($parent);
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->whereStartWith('clocking_machines.name', $value);
         });
@@ -45,9 +46,9 @@ class IndexClockingMachines extends OrgAction
         $query = QueryBuilder::for(ClockingMachine::class);
 
         if ($parent instanceof Organisation) {
-            $query->where('clocking_machines.workplace_id', $parent->id);
-        } else {
             $query->where('clocking_machines.organisation_id', $parent->id);
+        } else {
+            $query->where('clocking_machines.workplace_id', $parent->id);
         }
 
         return $query->defaultSort('name')

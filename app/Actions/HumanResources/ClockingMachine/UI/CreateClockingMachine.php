@@ -23,6 +23,33 @@ class CreateClockingMachine extends OrgAction
 
       //  dd(Options::forEnum(ClockingMachineTypeEnum::class),);
 
+        // dd($parent);
+        $workplaces = [];
+        if ($parent instanceof Organisation) {
+            $workplaces = $parent->workplaces()->get()->map(function ($workplace) {
+                return ['value' => $workplace->id, 'label' => $workplace->name];
+            })->toArray();
+        }
+
+        $fields = [
+            'name' => [
+                'type'  => 'input',
+                'label' => __('name'),
+            ],
+            'type' => [
+                'type'    => 'select',
+                'options' => Options::forEnum(ClockingMachineTypeEnum::class),
+                'label'   => __('type'),
+            ],
+        ];
+
+        if ($parent instanceof Organisation) {
+            $fields['workplace_id'] = [
+                'type'    => 'select',
+                'options' => $workplaces,
+                'label'   => __('workplace'),
+            ];
+        }
         return Inertia::render(
             'CreateModel',
             [
@@ -53,17 +80,7 @@ class CreateClockingMachine extends OrgAction
                 'formData'    => [
                     'blueprint' => [
                         [
-                            'fields' => [
-                                'name' => [
-                                    'type'  => 'input',
-                                    'label' => __('name'),
-                                ],
-                                'type' => [
-                                    'type'        => 'select',
-                                    'options'     => Options::forEnum(ClockingMachineTypeEnum::class),
-                                    'label'       => __('type'),
-                                ],
-                            ]
+                            'fields' => $fields
                         ],
                     ],
                     'route'     =>
@@ -75,7 +92,7 @@ class CreateClockingMachine extends OrgAction
                             ],
                             default =>
                             [
-                                'name'       => 'grp.models.org.clocking_machine.store',
+                                'name'       => 'grp.models.org.clocking-machine.store',
                                 'parameters' => $parent->id
                             ]
                         }
