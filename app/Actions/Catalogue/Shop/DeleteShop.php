@@ -25,9 +25,9 @@ class DeleteShop
         $shop->website()->delete();
         $shop->prospects()->delete();
         $shop->products()->delete();
-        $shop->departments()->delete();
+        $shop->productCategories()->delete();
         $shop->delete();
-        OrganisationHydrateMarket::dispatch(app('currentTenant'));
+        OrganisationHydrateMarket::dispatch($shop->organisation);
         return $shop;
     }
 

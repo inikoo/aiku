@@ -69,14 +69,7 @@ class IndexNotification
     public function htmlResponse(LengthAwarePaginator $notifications, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Notifications',
             [
-                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName()),
-                'title'        => __('Notifications'),
-                'pageHead'     => [
-                    'title'   => __('Notifications'),
-
-                ],
                 'data'        => NotificationResource::collection($notifications),
             ]
         )->table($this->tableStructure(request()->user(), prefix: 'notifications'));
@@ -104,37 +97,6 @@ class IndexNotification
                 ->column(key: 'title', label: __('title'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'body', label: __('body'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
-        };
-    }
-
-    public function getBreadcrumbs(string $routeName): array
-    {
-        $headCrumb = function (array $routeParameters = []) {
-            return [
-                [
-                    'type'   => 'simple',
-                    'simple' => [
-                        'route' => $routeParameters,
-                        'label' => __('notifications'),
-                        'icon'  => 'fal fa-bars'
-                    ],
-                ],
-            ];
-        };
-
-        return match ($routeName) {
-            'grp.notifications' =>
-            array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
-                $headCrumb(
-                    [
-                        'name' => 'grp.notifications',
-                        null
-                    ]
-                ),
-            ),
-
-            default => []
         };
     }
 }

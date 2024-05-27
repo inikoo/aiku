@@ -10,6 +10,7 @@ namespace App\Actions\Ordering\Order;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOrders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrders;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Ordering\Order;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -22,10 +23,10 @@ class SubmitOrder
     public function handle(Order $order): Order
     {
         $order = $this->update($order, [
-            'state' => \App\Enums\Ordering\Order\OrderStateEnum::SUBMITTED
+            'state' => OrderStateEnum::SUBMITTED
         ]);
 
-        OrganisationHydrateOrders::run(app('currentTenant'));
+        OrganisationHydrateOrders::run($order->organisation);
         ShopHydrateOrders::run($order->shop);
 
         return $order;

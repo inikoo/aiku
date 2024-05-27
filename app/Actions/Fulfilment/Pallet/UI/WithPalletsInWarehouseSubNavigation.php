@@ -43,17 +43,16 @@ trait WithPalletsInWarehouseSubNavigation
                 'label'    => __('Damaged pallets'),
                 'number'   => $parent->stats->number_pallets_state_damaged,
                 'href'     => [
-                    'name'       => 'grp.org.warehouses.show.fulfilment.returned_pallets.index',
+                    'name'       => 'grp.org.warehouses.show.fulfilment.damaged_pallets.index',
                     'parameters' => $request->route()->originalParameters()
                 ],
                 'leftIcon' => PalletStateEnum::stateIcon()[PalletStateEnum::DAMAGED->value]
             ],
-
             [
                 'label'    => __('Lost pallets'),
                 'number'   => $parent->stats->number_pallets_state_lost,
                 'href'     => [
-                    'name'       => 'grp.org.warehouses.show.fulfilment.returned_pallets.index',
+                    'name'       => 'grp.org.warehouses.show.fulfilment.lost_pallets.index',
                     'parameters' => $request->route()->originalParameters()
                 ],
                 'leftIcon' => PalletStateEnum::stateIcon()[PalletStateEnum::LOST->value]

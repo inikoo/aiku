@@ -11,6 +11,6 @@ trait WithTokenPath
 {
     public function getTokenPath(): string
     {
-        return base_path('resources/private/google/'.app('currentTenant')->slug.'-token.json');
+        return base_path('resources/private/google/'.app('group')->slug.'-token.json');
     }
 }

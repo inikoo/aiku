@@ -7,8 +7,6 @@
 
 namespace App\Actions\CRM\Customer\Hydrators;
 
-use App\Actions\Traits\WithElasticsearch;
-
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
@@ -20,7 +18,6 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class CustomerHydrateInvoices
 {
     use AsAction;
-    use WithElasticsearch;
     use WithEnumStats;
     private Customer $customer;
 

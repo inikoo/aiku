@@ -24,9 +24,9 @@ class EditClockingMachine extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("human-resources.clocking_machines.{$this->organisation->id}.edit");
+        $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
 
-        return $request->user()->hasPermissionTo("human-resources.clocking_machines.{$this->organisation->id}.edit");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
     }
 
     public function asController(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
@@ -80,10 +80,10 @@ class EditClockingMachine extends OrgAction
                         [
                             'title'  => __('edit clocking machine'),
                             'fields' => [
-                                'code' => [
+                                'name' => [
                                     'type'  => 'input',
-                                    'label' => __('code'),
-                                    'value' => $clockingMachine->code
+                                    'label' => __('name'),
+                                    'value' => $clockingMachine->name
                                 ]
                             ]
                         ]
@@ -91,8 +91,8 @@ class EditClockingMachine extends OrgAction
                     ],
                     'args' => [
                         'updateRoute' => [
-                            'name'      => 'grp.models.clocking-machine.update',
-                            'parameters'=> $clockingMachine->slug
+                            'name'      => 'grp.models.clocking_machine..update',
+                            'parameters'=> $clockingMachine->id
 
                         ],
                     ]
