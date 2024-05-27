@@ -74,6 +74,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Order|null $order
  * @property-read Collection<int, Order> $orders
  * @property-read Organisation $organisation
+ * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read Shop $shop
  * @property-read \App\Models\Accounting\InvoiceStats|null $stats
  * @property-read UniversalSearch|null $universalSearch

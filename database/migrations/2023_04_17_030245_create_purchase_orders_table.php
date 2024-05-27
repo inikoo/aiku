@@ -21,6 +21,7 @@ return new class () extends Migration {
             $table=$this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('parent_type')->comment('OrgAgent|OrgSupplier|Organisation(intra-group sales)')->index();
+            $table->string('parent_label')->index()->comment('Parent name on the time of consolidation');
             $table->unsignedInteger('parent_id')->index();
             $table->string('number');
             $table->jsonb('data');

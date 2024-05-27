@@ -79,7 +79,7 @@ class IndexPurchaseOrders extends OrgAction
                 ->withModelOperations($modelOperations)
                 ->column(key: 'state', label: __('state'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number', label: __('number'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'parent', label: __('supplier'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'parent_label', label: __('supplier'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'items', label: __('items'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'amount', label: __('amount'), canBeHidden: false, sortable: true, searchable: true)

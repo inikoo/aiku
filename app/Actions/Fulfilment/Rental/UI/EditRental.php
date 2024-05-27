@@ -5,13 +5,11 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
- namespace App\Actions\Fulfilment\Rental\UI;
-use App\Actions\InertiaAction;
+namespace App\Actions\Fulfilment\Rental\UI;
+
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Product\ProductTypeEnum;
-use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Models\Catalogue\Product;
-use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Rental;
@@ -32,8 +30,8 @@ class EditRental extends OrgAction
     {
         // dd($this->shop);
         $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-            $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
+        $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
+        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
     // public function inOrganisation(Product $product, ActionRequest $request): Product

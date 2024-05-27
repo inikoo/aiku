@@ -142,7 +142,7 @@ class ShowFulfilmentCustomer extends OrgAction
                         'icon'  => 'fal fa-user',
 
                     ],
-                    'model'=>__('Customer'),
+                    'model'        => __('Customer'),
                     'subNavigation'=> $this->getFulfilmentCustomerSubNavigation($fulfilmentCustomer, $request),
                     'meta'         => array_filter([
                         $webUsersMeta,

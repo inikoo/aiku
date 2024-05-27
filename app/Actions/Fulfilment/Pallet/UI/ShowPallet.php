@@ -166,15 +166,15 @@ class ShowPallet extends OrgAction
                     'navigation' => PalletTabsEnum::navigation(),
                 ],
                 PalletTabsEnum::SHOWCASE->value => $this->tab == PalletTabsEnum::SHOWCASE->value ?
-                    fn() => $this->jsonResponse($pallet) : Inertia::lazy(fn() => $this->jsonResponse($pallet)),
+                    fn () => $this->jsonResponse($pallet) : Inertia::lazy(fn () => $this->jsonResponse($pallet)),
 
                 PalletTabsEnum::STORED_ITEMS->value => $this->tab == PalletTabsEnum::STORED_ITEMS->value ?
-                    fn() => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer, PalletTabsEnum::STORED_ITEMS->value))
-                    : Inertia::lazy(fn() => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer, PalletTabsEnum::STORED_ITEMS->value))),
+                    fn () => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer, PalletTabsEnum::STORED_ITEMS->value))
+                    : Inertia::lazy(fn () => StoredItemResource::collection(IndexStoredItems::run($pallet->fulfilmentCustomer, PalletTabsEnum::STORED_ITEMS->value))),
 
                 PalletTabsEnum::HISTORY->value => $this->tab == PalletTabsEnum::HISTORY->value ?
-                    fn() => HistoryResource::collection(IndexHistory::run($this->pallet))
-                    : Inertia::lazy(fn() => HistoryResource::collection(IndexHistory::run($this->pallet)))
+                    fn () => HistoryResource::collection(IndexHistory::run($this->pallet))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($this->pallet)))
 
             ]
         )->table(IndexHistory::make()->tableStructure(prefix: PalletTabsEnum::HISTORY->value))
@@ -192,9 +192,9 @@ class ShowPallet extends OrgAction
         $pallet = Pallet::where('slug', $routeParameters['pallet'])->first();
 
         return match (class_basename($parent)) {
-            'Warehouse' => $this->getBreadcrumbsFromWarehouse($pallet, $routeName, $suffix),
+            'Warehouse'    => $this->getBreadcrumbsFromWarehouse($pallet, $routeName, $suffix),
             'Organisation' => $this->getBreadcrumbsFromFulfilment($pallet, $routeName, $suffix),
-            default => $this->getBreadcrumbsFromFulfilmentCustomer($pallet, $routeName, $suffix),
+            default        => $this->getBreadcrumbsFromFulfilmentCustomer($pallet, $routeName, $suffix),
         };
     }
 

@@ -42,6 +42,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_clocking_machines_type_static_nfc
  * @property int $number_clocking_machines_type_mobile_app
  * @property int $number_clocking_machines_type_legacy
+ * @property int $number_clocking_machines_status_disconnected
+ * @property int $number_clocking_machines_status_connected
+ * @property int $number_clocking_machines_status_decommissioned
  * @property string|null $last_clocking_at
  * @property int $number_clockings
  * @property int $number_clockings_type_clocking_machine

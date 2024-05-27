@@ -12,7 +12,6 @@ use App\Actions\SourceFetch\Aurora\FetchAuroraDeletedSuppliers;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Assets\Currency;
-use App\Models\Helpers\Address;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;
 use Illuminate\Support\Carbon;
@@ -131,6 +130,8 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             'checked_at'      => $this->parseDate($this->auroraModelData->{'Purchase Order Checked Date'}),
             'settled_at'      => $this->parseDate($this->auroraModelData->{'Purchase Order Consolidated Date'}),
 
+            'parent_label'=> $this->auroraModelData->{'Purchase Order Parent Name'},
+
 
             "number" => (string) $this->auroraModelData->{'Purchase Order Public ID'} ?? $this->auroraModelData->{'Purchase Order Key'},
             "state"  => $state,
@@ -150,19 +151,7 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             "data"           => $data
         ];
 
-        $deliveryAddressData                  = $this->parseAddress(
-            prefix: "Order Delivery",
-            auAddressData: $this->auroraModelData,
-        );
-        $this->parsedData["delivery_address"] = new Address(
-            $deliveryAddressData,
-        );
 
-        $billingAddressData                  = $this->parseAddress(
-            prefix: "Order Invoice",
-            auAddressData: $this->auroraModelData,
-        );
-        $this->parsedData["billing_address"] = new Address($billingAddressData);
     }
 
     protected function fetchData($id): object|null
