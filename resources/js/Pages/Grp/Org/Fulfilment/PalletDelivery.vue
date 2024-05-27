@@ -417,7 +417,7 @@ console.log(props)
                         fixed-width aria-hidden='true' />
                 </dt>
                 <div v-if="(box_stats.delivery_status.tooltip == 'Received' || box_stats.delivery_status.tooltip == 'Booking in' || box_stats.delivery_status.tooltip == 'Booked In')">
-                     <dd class="text-xs text-gray-500">{{ data.data.estimated_delivery_date ? useFormatTime(data.data.estimated_delivery_date) : 'Not Set' }}</dd>
+                    <dd class="text-xs text-gray-500">{{ data?.data.estimated_delivery_date ? useFormatTime(data?.data?.estimated_delivery_date) : 'Not Set' }}</dd>
                 </div>
                 <Popover v-else position="">
                     <template #button>
@@ -437,31 +437,31 @@ console.log(props)
 
         <!-- Box: Pallet -->
         <BoxStatsPalletDelivery class="pb-2 py-5 px-3" :tooltip="trans('Pallets')" :percentage="0">
-            <div class="flex items-end gap-x-3 mb-1">
+            <div v-tooltip="trans('Total Pallet')" class="flex items-end w-fit pr-2 gap-x-3 mb-1">
                 <dt class="flex-none">
                     <span class="sr-only">Total pallet</span>
                     <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-gray-600 leading-6 text-lg font-medium ">{{ data?.data.number_pallets }}</dd>
+                <dd class="text-gray-600 leading-6 text-lg font-medium ">{{ data?.data.number_pallets || 0 }}</dd>
             </div>
 
-            <div class="flex items-end gap-x-3 mb-1">
+            <div v-if="data?.data?.number_services" v-tooltip="trans('Total Services')" class="flex items-end w-fit pr-2 gap-x-3 mb-1">
                 <dt class="flex-none">
                     <span class="sr-only">Services</span>
                     <FontAwesomeIcon icon='fal fa-concierge-bell' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ data?.data.number_pallets }}</dd>
+                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ data?.data.number_services }}</dd>
             </div>
 
-            <div class="flex items-end gap-x-3 mb-1">
+            <div v-if="data?.data?.number_physical" v-tooltip="trans('Total Physical Goods')" class="flex items-end w-fit pr-2 gap-x-3 mb-1">
                 <dt class="flex-none">
                     <span class="sr-only">Physical Goods</span>
                     <FontAwesomeIcon icon='fal fa-cube' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ data?.data.number_pallets }}</dd>
+                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ data?.data.number_physical }}</dd>
             </div>
             
         </BoxStatsPalletDelivery>

@@ -44,5 +44,5 @@ export const layoutStructure = {
         }
     },
     stackedComponents: [] as StackedComponent[],
-    user: {} as { id: number, avatar_thumbnail: Image, email: string, username: string },
+    user: {} as { id: number, avatar_thumbnail: Image, email: string, username: string, notifications: {}[] },
 }

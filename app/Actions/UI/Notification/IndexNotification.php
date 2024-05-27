@@ -17,11 +17,11 @@ use Inertia\Response;
 use Inertia\Inertia;
 use Closure;
 use App\Services\QueryBuilder;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Spatie\QueryBuilder\AllowedFilter;
+use Illuminate\Http\JsonResponse;
 
 class IndexNotification
 {
@@ -61,9 +61,11 @@ class IndexNotification
         return $this->handle($request->user(), 'notifications');
     }
 
-    public function jsonResponse(LengthAwarePaginator $notifications): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $notifications): JsonResponse
     {
-        return NotificationResource::collection($notifications);
+        return response()->json([
+            'data' => NotificationResource::collection($notifications)
+        ]);
     }
 
     public function htmlResponse(LengthAwarePaginator $notifications, ActionRequest $request): Response

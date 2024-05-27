@@ -53,7 +53,7 @@ const notifications = layout.user.notifications
 <template>
     <!-- Avatar Group -->
     <div class="flex justify-between gap-x-2">
-        <div class="flex items-center gap-x-1">
+        <div class="flex items-center gap-x-8 divide-x divide-gray-200">
             <!-- Button: Search -->
             <button @click="showSearchDialog = !showSearchDialog" id="search"
                 class="h-7 w-fit flex items-center justify-center gap-x-3 ring-1 ring-gray-300 rounded-md px-3 text-gray-500 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
@@ -67,28 +67,29 @@ const notifications = layout.user.notifications
                 <SearchBar :isOpen="showSearchDialog" @close="(e) => showSearchDialog = e" />
             </button>
 
-            <!-- Button: Notifications -->
-            <div class="relative mx-2 flex items-center">
-                <Popover width="w-full">
-                    <template #button>
-                        <div class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                            <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
-                        </div>
-                    </template>
+            <div class="pl-6 flex items-center gap-x-1">
+                <!-- Button: Notifications -->
+                <div class="relative px-2 rounded-full flex items-center">
+                    <Popover width="w-full">
+                        <template #button>
+                            <div class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                                <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
+                            </div>
+                        </template>
+                        <template #content="{ close }">
+                            <div class="w-96">
+                                <NotificationList :messages="notifications" :close />
+                            </div>
+                        </template>
+                    </Popover>
+                </div>
 
-                    <template #content="{ close }">
-                        <div class="w-96">
-                            <NotificationList :messages="notifications" :close />
-                        </div>
-                    </template>
-                </Popover>
-            </div>
-
-            <!-- Button: Profile -->
-            <div @click="layout.stackedComponents.push({ component: Profile})"
-                class="flex max-w-xs overflow-hidden items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 cursor-pointer">
-                <span class="sr-only">{{ trans("Open user menu") }}</span>
-                <Image class="h-8 w-8 rounded-full" :src="layout.user.avatar_thumbnail" alt="" />
+                <!-- Button: Profile -->
+                <div @click="layout.stackedComponents.push({ component: Profile})"
+                    class="flex max-w-xs overflow-hidden items-center rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-gray-500 cursor-pointer">
+                    <span class="sr-only">{{ trans("Open user menu") }}</span>
+                    <Image class="h-8 w-8 rounded-full" :src="layout.user.avatar_thumbnail" alt="" />
+                </div>
             </div>
         </div>
 
