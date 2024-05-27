@@ -43,7 +43,7 @@ class MeasurementShareNotification extends Notification implements ShouldQueue
      * @param  mixed  $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage())
                     ->line('The introduction to the notification.')
@@ -51,7 +51,7 @@ class MeasurementShareNotification extends Notification implements ShouldQueue
                     ->line('Thank you for using our application!');
     }
 
-    public function toFcm($notifiable)
+    public function toFcm($notifiable): FcmMessage
     {
         $measurement = $this->measurement;
 
@@ -73,7 +73,7 @@ class MeasurementShareNotification extends Notification implements ShouldQueue
      * @param  mixed  $notifiable
      * @return array
      */
-    public function toArray($notifiable)
+    public function toArray($notifiable): array
     {
         $measurement = $this->measurement;
 

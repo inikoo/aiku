@@ -15,61 +15,57 @@ enum ProfileTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE                       = 'showcase';
-    case HISTORY                        = 'history';
-    case VISIT_LOGS                     = 'visit_logs';
-    // case DATA                           = 'data';
-    case TIMESHEETS                     = 'timesheets';
-    // case ATTACHMENTS                    = 'attachments';
-    // case IMAGES                         = 'images';
-    // case JOB_POSITIONS                  = 'job_positions';
+
+    case TODO = 'todo';
+    case NOTIFICATIONS = 'notifications';
+    case KPI = 'kpi';
+
+    case HISTORY = 'history';
+    case VISIT_LOGS = 'visit_logs';
+    case TIMESHEETS = 'timesheets';
+
+    case MY_DATA = 'my_data';
 
 
     public function blueprint(): array
     {
         return match ($this) {
 
+            ProfileTabsEnum::TODO => [
+                'title' => __('to do'),
+                'icon'  => 'fal fa-clipboard-list-check',
+            ],
+            ProfileTabsEnum::NOTIFICATIONS => [
+                'title' => __('notifications'),
+                'icon'  => 'fal fa-bell',
+            ],
+
+            ProfileTabsEnum::KPI => [
+                'title' => __('KPIs'),
+                'tooltip' => __('key performance indicators'),
+                'icon'  => 'fal fa-rabbit-fast',
+            ],
+
             ProfileTabsEnum::VISIT_LOGS => [
                 'title' => __('visit logs'),
                 'icon'  => 'fal fa-eye',
             ],
-            // EmployeeTabsEnum::IMAGES => [
-            //     'title' => __('images'),
-            //     'icon'  => 'fal fa-camera-retro',
-            //     'type'  => 'icon',
-            //     'align' => 'right',
-            // ],
-            // EmployeeTabsEnum::ATTACHMENTS => [
-            //     'title' => __('attachments'),
-            //     'icon'  => 'fal fa-paperclip',
-            //     'type'  => 'icon',
-            //     'align' => 'right',
-            // ],
             ProfileTabsEnum::TIMESHEETS => [
                 'title' => __('timesheets'),
                 'icon'  => 'fal fa-stopwatch',
             ],
-            // EmployeeTabsEnum::JOB_POSITIONS => [
-            //     'title' => __('job positions'),
-            //     'icon'  => 'fal fa-network-wired',
-            //     'type'  => 'icon',
-            //     'align' => 'right',
-            // ],
-            // EmployeeTabsEnum::DATA => [
-            //     'title' => __('database'),
-            //     'icon'  => 'fal fa-database',
-            //     'type'  => 'icon',
-            //     'align' => 'right',
-            // ],
+
             ProfileTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            ProfileTabsEnum::SHOWCASE => [
-                'title' => __('Showcase'),
+            ProfileTabsEnum::MY_DATA => [
+                'title' => __('My data'),
                 'icon'  => 'fas fa-info-circle',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
         };
     }
