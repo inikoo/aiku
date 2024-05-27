@@ -39,6 +39,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
+ * @property string $code mirror of organisation
+ * @property string $name mirror of organisation
  * @property bool $status
  * @property string $slug
  * @property Carbon|null $created_at

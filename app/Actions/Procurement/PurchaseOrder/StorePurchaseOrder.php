@@ -100,7 +100,7 @@ class StorePurchaseOrder extends OrgAction
             'org_exchange'    => ['sometimes', 'required', 'numeric', 'min:0'],
             'group_exchange'  => ['sometimes', 'required', 'numeric', 'min:0'],
             'source_id'       => ['sometimes', 'required', 'string', 'max:64'],
-            'parent_label'    => ['required', 'string', 'max:256'],
+            'parent_label'    => ['sometimes','required', 'string', 'max:256'],
         ];
     }
 

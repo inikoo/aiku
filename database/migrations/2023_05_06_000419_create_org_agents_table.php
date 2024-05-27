@@ -17,6 +17,8 @@ return new class () extends Migration {
         Schema::create('org_agents', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table = $this->groupOrgRelationship($table);
+            $table->string('code')->index()->collation('und_ns')->comment('mirror of parent');
+            $table->string('name')->index()->comment('mirror of parent');
             $table->unsignedSmallInteger('agent_id');
             $table->foreign('agent_id')->references('id')->on('agents');
             $table->boolean('status')->default(true)->index();

@@ -27,15 +27,36 @@ class UpdateSupplier extends GrpAction
 
     public function handle(Supplier $supplier, array $modelData): Supplier
     {
-        $addressData = Arr::get($modelData, 'address');
-        Arr::forget($modelData, 'address');
+        if (Arr::has($modelData, 'address')) {
+            $addressData = Arr::get($modelData, 'address');
+            Arr::forget($modelData, 'address');
+            UpdateAddress::run($supplier->address, $addressData);
+            $supplier->updateQuietly(
+                [
+                    'location' => $supplier->address->getLocation()
+                ]
+            );
+        }
+
+
         $supplier = $this->update($supplier, $modelData, ['data', 'settings']);
 
-        if ($addressData) {
-            UpdateAddress::run($supplier->getAddress('contact'), $addressData);
-            $supplier->location = $supplier->getLocation();
-            $supplier->save();
+        if ($supplier->wasChanged(['name', 'code'])) {
+            foreach ($supplier->orgSuppliers as $orgSupplier) {
+                $orgSupplier->update(
+                    [
+                        'code' => $supplier->code,
+                        'name' => $supplier->name
+                    ]
+                );
+            }
         }
+
+
+
+
+
+
 
         SupplierHydrateUniversalSearch::dispatch($supplier);
 

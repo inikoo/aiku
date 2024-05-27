@@ -33,7 +33,6 @@ class StoreAgent extends GrpAction
 
     public function handle(Group $group, array $modelData): Agent
     {
-
         data_set($modelData, 'group_id', $group->id);
 
         $organisationData = [
@@ -61,7 +60,7 @@ class StoreAgent extends GrpAction
 
 
         /** @var Agent $agent */
-        $agent = $organisation->agent()->create(Arr::only($modelData, ['created_at', 'source_id', 'source_slug', 'group_id']));
+        $agent = $organisation->agent()->create(Arr::only($modelData, ['name', 'code', 'created_at', 'source_id', 'source_slug', 'group_id']));
         $agent->stats()->create();
 
 

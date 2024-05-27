@@ -25,6 +25,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
+ * @property string $code mirror of parent
+ * @property string $name mirror of parent
  * @property int $supplier_id
  * @property int|null $agent_id
  * @property int|null $org_agent_id

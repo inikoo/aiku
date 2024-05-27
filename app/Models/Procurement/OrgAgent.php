@@ -23,6 +23,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
+ * @property string $code mirror of parent
+ * @property string $name mirror of parent
  * @property int $agent_id
  * @property bool $status
  * @property \Illuminate\Support\Carbon|null $created_at
