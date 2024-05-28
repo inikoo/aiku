@@ -72,6 +72,7 @@ class ShowDepartment extends OrgAction
                 ],
                 'pageHead'    => [
                     'title'   => $department->name,
+                    'model'     => __('department'),
                     'icon'    => [
                         'icon'  => ['fal', 'fa-folder-tree'],
                         'title' => __('department')
