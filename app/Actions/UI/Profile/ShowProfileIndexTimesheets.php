@@ -14,6 +14,7 @@ use App\Actions\UI\WithInertia;
 use App\Enums\UI\SysAdmin\ProfileTabsEnum;
 use App\Http\Resources\HumanResources\TimesheetsResource;
 use App\Models\SysAdmin\User;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -30,7 +31,7 @@ class ShowProfileIndexTimesheets extends GrpAction
         return $request->user();
     }
 
-    public function jsonResponse(User $user)
+    public function jsonResponse(User $user): AnonymousResourceCollection
     {
         return TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TIMESHEETS->value));
     }
