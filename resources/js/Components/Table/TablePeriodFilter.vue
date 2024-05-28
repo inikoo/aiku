@@ -29,45 +29,45 @@ const emits = defineEmits<{
 
 const selectedPeriodType = ref<string | null>('')  // 'quarter' | 'year | etc
 const onClickPeriodType = (period: Period) => {
-    // If the click on selected period
+    // If click on active period, then clear the period
     if(selectedPeriodType.value === period.type) {
         emits('periodChanged', {})
         selectedPeriodType.value = null
     }
-
     else {
         emits('periodChanged', { [period.type]: period.date })  // { quarter: "2024Q2" }
         selectedPeriodType.value = period.type
+        if(period.type === 'year') {
+            datePickerValue.value = new Date().getFullYear()  // 2024
+
+        } else {
+            datePickerValue.value = new Date()
+        }
     }
 
-    datePickerValue.value = new Date()
+    
 }
-const onSelectDate = (date: Date | string) => {
+const onSelectDate = (date: string | number | string[]) => {
     datePickerValue.value = date
     
     emits('periodChanged', { [selectedPeriodType.value]: generateDateToQuery(date) })
 }
 
-onMounted(() => {
-    // To handle selected period on hard-refresh
-    const prefix = props.tableName === 'default' ? 'period' : props.tableName + '_' + 'period'  // To handle banners_elements, users_elements, etc
-    selectedPeriodType.value = Object.keys(route().params[prefix] || [])[0]  // 'quarter' || 'year' || etc
-})
-
 const datePickerValue = ref()
 
 const generateDateToQuery = (date: Date | string | string[] | number | {year: string, month: string}) => {
     if (!date) return false
+
     if(selectedPeriodType.value === 'day') {
-        return format(date, 'yyyyMMdd')
+        return format(date, 'yyyyMMdd')  // 20240528
     }
 
     if(selectedPeriodType.value === 'week') {
-        return format(date[0], 'yyyyww')
+        return format(date[0], 'yyyyww')  // 202438
     }
 
     if(selectedPeriodType.value === 'month') {
-        return date.year + (date.month + 1).toString().padStart(2, 0)
+        return date.year + (date.month + 1).toString().padStart(2, 0)  // 202405
     }
 
     if(selectedPeriodType.value === 'quarter') {
@@ -86,25 +86,77 @@ const generateDateToQuery = (date: Date | string | string[] | number | {year: st
             quarter = 4
         }
 
-        return `${year}Q${quarter}`
+        return `${year}Q${quarter}`  // 2024Q3
     }
 
     if(selectedPeriodType.value === 'year') {
-        return format(date, 'yyyy')
+        return date  // 2024
+    }
+}
+
+const generateQueryReverse = (query) => {
+    if (!query) return false;
+
+    if (selectedPeriodType.value === 'day') {
+        const year = query.slice(0, 4);
+        const month = query.slice(4, 6) - 1;  // JavaScript months are 0-based
+        const day = query.slice(6, 8);
+        return new Date(year, month, day).toISOString();  // '2024-05-28T00:00:00.000Z'
     }
 
-}
+    if (selectedPeriodType.value === 'week') {
+        const year = query.slice(0, 4);
+        const week = query.slice(4, 6);
+        const firstDayOfYear = new Date(year, 0, 1);
+        const days = (week - 1) * 7;
+        const resultDate = new Date(firstDayOfYear.setDate(firstDayOfYear.getDate() + days));
+        // Adjust to start of the week (Monday)
+        const dayOfWeek = resultDate.getUTCDay();
+        const startOfWeek = resultDate.getUTCDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+        return [new Date(resultDate.setUTCDate(startOfWeek)).toISOString()];  // '2024-09-15T00:00:00.000Z'
+    }
+
+    if (selectedPeriodType.value === 'month') {
+        const year = query.slice(0, 4);
+        const month = query.slice(4, 6) - 1;  // JavaScript months are 0-based
+        return {
+            month: month,
+            year: year
+        }
+    }
+
+    if (selectedPeriodType.value === 'quarter') {
+        const year = query.slice(0, 4);
+        const quarter = query.slice(5, 6);
+        const month = (quarter - 1) * 3;  // Calculate the start month of the quarter
+        return new Date(year, month, 1).toISOString();  // '2024-07-01T00:00:00.000Z' for Q3
+    }
+
+    if (selectedPeriodType.value === 'year') {
+        const year = query;
+        return new Date(year, 0, 1).toISOString();  // '2024-01-01T00:00:00.000Z'
+    }
+};
+
+
+onMounted(() => {
+    // To preserve active period on hard-refresh
+    const prefix = props.tableName === 'default' ? 'period' : props.tableName + '_' + 'period'  // To handle banners_elements, users_elements, etc
+    if(route().params[prefix]) {
+        selectedPeriodType.value = Object.keys(route().params[prefix] || [])[0]  // 'quarter' || 'year' || etc
+        datePickerValue.value = generateQueryReverse(route().params[prefix][selectedPeriodType.value])
+    }
+})
 
 </script>
 
 <template>
-
     <div class="shadow border border-gray-300 flex rounded-md">
         <div v-for="period, idxPeriod in periodList"
             :key="'datePickerPeriod' + idxPeriod"
             @click="() => onClickPeriodType(period)"
             class="px-3 py-1 cursor-pointer capitalize flex items-center gap-x-2"
-            :class="[selectedPeriodType === period.type ? '' : 'bg-white hover:bg-gray-50']"
+            :class="[selectedPeriodType === period.type ? '' : 'rounded-lg bg-white hover:bg-gray-50']"
             :style="{
                 backgroundColor: selectedPeriodType === period.type ? layout?.app?.theme[4] + '22' : '' 
             }"
