@@ -74,7 +74,7 @@ class ShowSysAdminDashboard
                             'route' => [
                                 'name' => 'grp.sysadmin.dashboard'
                             ],
-                            'label'  => __('system administration'),
+                            'label'  => __('System administration'),
                         ]
                     ]
                 ]

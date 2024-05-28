@@ -206,7 +206,7 @@ class IndexUsers extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('users'),
+                        'label' => __('Users'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],

@@ -108,7 +108,7 @@ class ShowUser extends GrpAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('users')
+                            'label' => __('Users')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],

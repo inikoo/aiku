@@ -122,7 +122,7 @@ class CreateGuest extends InertiaAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating guest'),
+                        'label' => __('Creating guest'),
                     ]
                 ]
             ]

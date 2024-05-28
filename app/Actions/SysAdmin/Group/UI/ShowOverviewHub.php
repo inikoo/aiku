@@ -71,7 +71,7 @@ class ShowOverviewHub extends GrpAction
                             'route' => [
                                 'name' => 'grp.overview.hub'
                             ],
-                            'label'  => __('overview'),
+                            'label'  => __('Overview'),
                         ]
                     ]
                 ]

@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\Profile;
 
-use App\Actions\SysAdmin\User\UI\SetUserAvatarFromImage;
+use App\Actions\SysAdmin\User\SetUserAvatarFromImage;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\SysAdmin\User\SynchronisableUserFieldsEnum;
 use App\Models\SysAdmin\User;

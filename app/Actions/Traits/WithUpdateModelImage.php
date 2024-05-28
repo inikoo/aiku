@@ -34,6 +34,11 @@ trait WithUpdateModelImage
         $checksum = md5_file($imagePath);
 
 
+        if(!$extension){
+            $extension=pathinfo($imagePath, PATHINFO_EXTENSION);
+        }
+
+
         if ($model->getMedia($collection, ['checksum' => $checksum])->count() == 0) {
             $model->update([$field => null]);
 
@@ -50,7 +55,7 @@ trait WithUpdateModelImage
                     )
                 )
                 ->usingName($originalFilename)
-                ->usingFileName($checksum.".".$extension ?? pathinfo($imagePath, PATHINFO_EXTENSION))
+                ->usingFileName($checksum.'.'.$extension)
                 ->toMediaCollection($collection);
             $media->refresh();
             UpdateIsAnimatedMedia::run($media, $imagePath);
