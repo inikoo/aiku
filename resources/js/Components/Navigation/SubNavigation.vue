@@ -29,7 +29,7 @@ const props = defineProps<{
         <div class="flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-3 gap-y-1 items-end text-gray-400 text-xs">
             <div v-for="subNav, itemIdx in dataNavigation" class="flex items-center -ml-1 first:text-indigo-500"
                 :class="[
-                    layout.currentRoute.includes(subNav.href.name) ? `text-gray-500` : ``
+                    layout.currentRoute.includes(subNav.href?.name) ? `text-gray-500` : ``
                 ]"
             >
                 <Link v-if="subNav.href?.name"

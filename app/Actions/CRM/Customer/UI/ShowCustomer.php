@@ -113,6 +113,7 @@ class ShowCustomer extends OrgAction
                 ],
                 'pageHead' => [
                     'title' => $customer->name,
+                    'model'     => __('customer'),
                     'icon'  => [
                         'icon'  => ['fal', 'fa-user'],
                         'title' => __('customer')
