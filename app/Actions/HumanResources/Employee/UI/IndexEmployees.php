@@ -204,6 +204,10 @@ class IndexEmployees extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('employees'),
                 'pageHead'    => [
+                    'icon'    => [
+                        'title' => __('Employee'),
+                        'icon'  => 'fal fa-user-hard-hat'
+                    ],
                     'title'   => __('employees'),
                     'actions' => [
                         $this->canEdit ? [

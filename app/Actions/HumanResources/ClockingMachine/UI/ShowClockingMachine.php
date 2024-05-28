@@ -81,6 +81,7 @@ class ShowClockingMachine extends OrgAction
                             'title' => __('clocking machines')
                         ],
                     'title'   => $clockingMachine->name,
+                    'model'     => __('clocking machine'),
                     'actions' => [
                         $this->canEdit ? [
                             'type'  => 'button',

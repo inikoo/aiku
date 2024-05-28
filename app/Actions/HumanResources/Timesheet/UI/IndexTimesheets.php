@@ -141,6 +141,11 @@ class IndexTimesheets extends OrgAction
                 ),
                 'title'       => __('timesheets'),
                 'pageHead'    => [
+                    'icon'  =>
+                    [
+                        'icon'  => ['fal', 'fa-stopwatch'],
+                        'title' => __('timesheets')
+                    ],
                     'title'  => __('timesheets'),
                     'create' => $this->canEdit ? [
                         'route' => [

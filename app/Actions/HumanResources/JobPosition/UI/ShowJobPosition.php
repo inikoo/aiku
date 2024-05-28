@@ -55,6 +55,8 @@ class ShowJobPosition extends OrgAction
                 ],
                 'pageHead'    => [
                     'title'   => $jobPosition->name,
+                    'icon'      => ['fal', 'fa-network-wired'],
+                    'model'     => __('job position'),
                     'actions' => [
                         $this->canEdit ? [
                             'type'  => 'button',
