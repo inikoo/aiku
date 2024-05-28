@@ -174,6 +174,11 @@ class IndexClockingMachines extends OrgAction
                 ),
                 'title'       => __('clocking machines'),
                 'pageHead'    => [
+                    'icon'  =>
+                        [
+                            'icon'  => ['fal', 'fa-chess-clock'],
+                            'title' => __('clocking machines')
+                        ],
                     'title'         => __('Clocking machines'),
                     'actions'       => $actions,
                     'subNavigation' => $this->parent instanceof Workplace ? $this->getWorkplaceSubNavigation($this->parent) : null

@@ -64,6 +64,7 @@ class ShowWorkplace extends OrgAction
                             'title' => __('working place')
                         ],
                     'title'       => $workplace->name,
+                    'model'     => __('workplace'),
                     'iconActions' => [
                         $this->canDelete ? $this->getDeleteActionIcon($request) : null,
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
