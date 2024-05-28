@@ -13,15 +13,12 @@ use App\Http\Resources\SysAdmin\NotificationResource;
 use App\InertiaTable\InertiaTable;
 // use App\Models\CRM\WebUser;
 use App\Models\SysAdmin\User;
-use Inertia\Response;
-use Inertia\Inertia;
-use Closure;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use App\Services\QueryBuilder;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Spatie\QueryBuilder\AllowedFilter;
-use Illuminate\Http\JsonResponse;
 
 class IndexNotification
 {
@@ -61,52 +58,9 @@ class IndexNotification
         return $this->handle($request->user(), 'notifications');
     }
 
-    public function jsonResponse(LengthAwarePaginator $notifications): JsonResponse
+    public function jsonResponse(LengthAwarePaginator $notifications): AnonymousResourceCollection
     {
-        return response()->json([
-            'data' => NotificationResource::collection($notifications)
-        ]);
-    }
-
-    public function htmlResponse(LengthAwarePaginator $notifications, ActionRequest $request): Response
-    {
-        return Inertia::render(
-            'Notifications',
-            [
-                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName()),
-                'title'        => __('Notifications'),
-                'pageHead'     => [
-                    'title'   => __('Notifications'),
-
-                ],
-                'data'        => NotificationResource::collection($notifications),
-            ]
-        )->table($this->tableStructure(request()->user(), prefix: 'notifications'));
-    }
-
-    public function tableStructure($user, ?array $modelOperations = null, $prefix = null): Closure
-    {
-        return function (InertiaTable $table) use ($modelOperations, $prefix, $user) {
-            if ($prefix) {
-                $table
-                    ->name($prefix)
-                    ->pageName($prefix.'Page');
-            }
-
-            $table
-                ->withModelOperations($modelOperations)
-                ->withGlobalSearch()
-                ->withEmptyState(
-                    [
-                        'title'       => __('You have no notification yet.'),
-                        'description' => null,
-                        // 'count'       => $user->crmStats->number_prospects
-                    ]
-                )
-                ->column(key: 'title', label: __('title'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'body', label: __('body'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
-        };
+        return NotificationResource::collection($notifications);
     }
 
     public function getBreadcrumbs(string $routeName): array
