@@ -192,7 +192,7 @@ class IndexFamilies extends OrgAction
                 'pageHead'    => [
                     'title'        => __('families'),
                     'container'    => $container,
-                    'icon'    => [
+                    'icon'         => [
                         'icon'  => ['fal', 'fa-folder'],
                         'title' => __('family')
                     ],

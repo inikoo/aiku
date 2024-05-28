@@ -165,7 +165,7 @@ class IndexRawMaterials extends OrgAction
                 'title'       => __('Raw Materials'),
                 'pageHead'    => [
                     'title'     => __('Raw Materials'),
-                    'icon' => [
+                    'icon'      => [
                         'icon'  => ['fal', 'fa-drone'],
                         'title' => __('Raw Materials'),
                     ],

@@ -166,7 +166,7 @@ class IndexManufactureTasks extends OrgAction
                 'title'       => __('Manufacture tasks'),
                 'pageHead'    => [
                     'title'     => __('Manufacture tasks'),
-                    'icon' => [
+                    'icon'      => [
                         'icon'  => ['fal', 'fa-code-merge'],
                         'title' => __('manufacture_tasks'),
                     ],

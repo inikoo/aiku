@@ -166,7 +166,7 @@ class IndexArtefacts extends OrgAction
                 'title'       => __('artefacts'),
                 'pageHead'    => [
                     'title'     => __('artefacts'),
-                    'icon' => [
+                    'icon'      => [
                         'icon'  => ['fal', 'fa-hamsa'],
                         'title' => __('artefacts'),
                     ],

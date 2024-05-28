@@ -13,8 +13,8 @@ use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\SysAdmin\ProfileTabsEnum;
 use App\Http\Resources\HumanResources\TimesheetsResource;
-use App\Models\SysAdmin\User;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -24,15 +24,15 @@ class ShowProfileIndexTimesheets extends GrpAction
     use WithInertia;
     use WithActionButtons;
 
-    public function asController(ActionRequest $request): User
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation(group(), $request)->withTab(ProfileTabsEnum::values());
 
-        return $request->user();
+        return IndexTimesheets::run($request->user()->parent, ProfileTabsEnum::TIMESHEETS->value);
     }
 
-    public function jsonResponse(User $user): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $timesheets): AnonymousResourceCollection
     {
-        return TimesheetsResource::collection(IndexTimesheets::run($user->parent, ProfileTabsEnum::TIMESHEETS->value));
+        return TimesheetsResource::collection($timesheets);
     }
 }

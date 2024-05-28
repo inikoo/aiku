@@ -100,9 +100,9 @@ class ShowProduct extends OrgAction
                     'next'     => $this->getNext($product, $request),
                 ],
                 'pageHead'    => [
-                    'title'   => $product->code,
+                    'title'     => $product->code,
                     'model'     => __('product'),
-                    'icon'    =>
+                    'icon'      =>
                         [
                             'icon'  => ['fal', 'fa-cube'],
                             'title' => __('product')

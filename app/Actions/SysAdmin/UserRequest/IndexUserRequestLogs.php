@@ -38,8 +38,7 @@ class IndexUserRequestLogs
                             'bool' => [
                                 'must' => [
                                     ['match' => ['type' => $filter]],
-                                    // ['match' => ['type' => ElasticsearchUserRequestTypeEnum::VISIT->value]],
-
+                                     ['match' => ['type' => ElasticsearchUserRequestTypeEnum::VISIT->value]],
                                 ],
                             ],
                         ],
