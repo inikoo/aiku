@@ -187,7 +187,7 @@ class ShowPallet extends OrgAction
         return new PalletResource($pallet);
     }
 
-    public function getBreadcrumbs(Organisation|Warehouse|Fulfilment $parent, string $routeName, array $routeParameters, string $suffix = ''): array
+    public function getBreadcrumbs(Organisation|Warehouse|Fulfilment|FulfilmentCustomer $parent, string $routeName, array $routeParameters, string $suffix = ''): array
     {
         $pallet = Pallet::where('slug', $routeParameters['pallet'])->first();
 
