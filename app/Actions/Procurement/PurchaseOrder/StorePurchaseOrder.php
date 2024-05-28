@@ -43,6 +43,10 @@ class StorePurchaseOrder extends OrgAction
         }
 
 
+        data_set($modelData, 'parent_code', $parent->code, false);
+        data_set($modelData, 'parent_name', $parent->name, false);
+
+
         /** @var PurchaseOrder $purchaseOrder */
         $purchaseOrder = $parent->purchaseOrders()->create($modelData);
 
@@ -99,7 +103,10 @@ class StorePurchaseOrder extends OrgAction
             'currency_id'     => ['sometimes', 'required', 'exists:currencies,id'],
             'org_exchange'    => ['sometimes', 'required', 'numeric', 'min:0'],
             'group_exchange'  => ['sometimes', 'required', 'numeric', 'min:0'],
+            'parent_code'     => ['sometimes', 'required', 'string', 'max:256'],
+            'parent_name'     => ['sometimes', 'required', 'string', 'max:256'],
             'source_id'       => ['sometimes', 'required', 'string', 'max:64'],
+
         ];
     }
 

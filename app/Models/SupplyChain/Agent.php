@@ -11,7 +11,7 @@ use App\Models\Assets\Currency;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
-use App\Models\Procurement\SupplierDelivery;
+use App\Models\Procurement\StockDelivery;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -39,6 +39,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
+ * @property string $code mirror of organisation
+ * @property string $name mirror of organisation
  * @property bool $status
  * @property string $slug
  * @property Carbon|null $created_at
@@ -56,7 +58,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\SupplyChain\SupplierProduct> $products
  * @property-read Collection<int, PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\SupplyChain\AgentStats|null $stats
- * @property-read Collection<int, SupplierDelivery> $supplierDeliveries
+ * @property-read Collection<int, StockDelivery> $stockDeliveries
  * @property-read Collection<int, \App\Models\SupplyChain\Supplier> $suppliers
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\SupplyChain\AgentFactory factory($count = null, $state = [])
@@ -136,9 +138,9 @@ class Agent extends Model implements Auditable
         return $this->hasMany(PurchaseOrder::class);
     }
 
-    public function supplierDeliveries(): HasMany
+    public function stockDeliveries(): HasMany
     {
-        return $this->hasMany(SupplierDelivery::class);
+        return $this->hasMany(StockDelivery::class);
     }
 
     public function orgAgents(): HasMany

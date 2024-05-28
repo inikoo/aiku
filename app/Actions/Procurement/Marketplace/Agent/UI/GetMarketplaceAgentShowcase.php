@@ -41,7 +41,7 @@ class GetMarketplaceAgentShowcase
                 ],
                 [
                     'label' => __('deliveries'),
-                    'value' => $agent->stats->number_supplier_deliveries
+                    'value' => $agent->stats->number_stock_deliveries
                 ],
 
             ]

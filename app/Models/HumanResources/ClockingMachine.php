@@ -40,15 +40,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property string $name
  * @property string $type
+ * @property ClockingMachineStatusEnum $status
+ * @property string|null $device_name
+ * @property string|null $device_uuid
+ * @property string|null $qr_code
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
- * @property ClockingMachineStatusEnum $status
- * @property string|null $device_name
- * @property string|null $device_uuid
- * @property string|null $qr_code
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\HumanResources\Clocking> $clockings
  * @property-read Group $group

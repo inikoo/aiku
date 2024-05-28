@@ -33,7 +33,7 @@ class UpdateAgent extends GrpAction
     {
         UpdateOrganisation::run($agent->organisation, Arr::except($modelData, ['source_id', 'source_slug', 'status']));
 
-        $agent = $this->update($agent, Arr::only($modelData, 'status'));
+        $agent = $this->update($agent, Arr::only($modelData, ['status', 'code', 'name']));
         if ($agent->wasChanged('status')) {
             foreach ($agent->orgAgents as $orgAgent) {
                 if (!$agent->status) {
@@ -41,8 +41,20 @@ class UpdateAgent extends GrpAction
                 }
                 OrganisationHydratePurchaseOrders::dispatch($orgAgent->organisation);
             }
-
             GroupHydrateAgents::run($this->group);
+        }
+
+        if ($agent->wasChanged(['name', 'code'])) {
+            foreach ($agent->orgAgents as $orgAgent) {
+
+                $orgAgent->update(
+                    [
+                        'code' => $agent->code,
+                        'name' => $agent->name
+                    ]
+                );
+
+            }
         }
 
         AgentHydrateUniversalSearch::dispatch($agent);

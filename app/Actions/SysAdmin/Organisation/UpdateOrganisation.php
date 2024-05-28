@@ -8,8 +8,8 @@
 namespace App\Actions\SysAdmin\Organisation;
 
 use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
+use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
@@ -23,28 +23,22 @@ class UpdateOrganisation
 
     public function handle(Organisation $organisation, array $modelData): Organisation
     {
-        $addressData = Arr::get($modelData, 'address');
-        Arr::forget($modelData, 'address');
+        if (Arr::has($modelData, 'address')) {
+            $addressData = Arr::get($modelData, 'address');
+            Arr::forget($modelData, 'address');
+            UpdateAddress::run($organisation->address, $addressData);
+            $organisation->updateQuietly(
+                [
+                    'location' => $organisation->address->getLocation()
+                ]
+            );
+        }
 
         $organisation = $this->update($organisation, $modelData, ['data', 'settings']);
-
-        if ($addressData) {
-            if ($organisation->address) {
-                $organisation->address()->update($addressData);
-            } else {
-                data_set($addressData, 'owner_type', 'Organisation');
-                data_set($addressData, 'owner_id', $organisation->id);
-                $address = Address::create($addressData);
-                $organisation->address()->associate($address);
-            }
-            $organisation->location = $organisation->address->getLocation();
-            $organisation->save();
-        }
 
         if ($organisation->wasChanged('created_at')) {
             SetCurrencyHistoricFields::run($organisation->currency, $organisation->created_at);
         }
-
 
         return $organisation;
     }

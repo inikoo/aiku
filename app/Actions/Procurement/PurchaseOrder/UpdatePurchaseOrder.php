@@ -41,7 +41,7 @@ class UpdatePurchaseOrder extends OrgAction
     public function rules(): array
     {
         return [
-            'number' => [
+            'number'       => [
                 'sometimes',
                 'required',
                 $this->strict ? 'alpha_dash' : 'string',
@@ -60,7 +60,9 @@ class UpdatePurchaseOrder extends OrgAction
                     ]
                 ) : null,
             ],
-            'date'   => ['sometimes', 'date'],
+            'date'            => ['sometimes', 'date'],
+            'parent_code'     => ['sometimes', 'required', 'string', 'max:256'],
+            'parent_name'     => ['sometimes', 'required', 'string', 'max:256'],
         ];
     }
 

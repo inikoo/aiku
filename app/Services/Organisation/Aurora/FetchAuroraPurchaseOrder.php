@@ -12,7 +12,6 @@ use App\Actions\SourceFetch\Aurora\FetchAuroraDeletedSuppliers;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Assets\Currency;
-use App\Models\Helpers\Address;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;
 use Illuminate\Support\Carbon;
@@ -49,7 +48,8 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             $orgParent = OrgAgent::where('organisation_id', $this->organisation->id)
                 ->where('agent_id', $parent->id)->first();
 
-        } else {
+        }
+        else {
             $supplierData = DB::connection("aurora")
                 ->table("Supplier Dimension")
                 ->where("Supplier Key", $this->auroraModelData->{'Purchase Order Parent Key'})
@@ -74,11 +74,6 @@ class FetchAuroraPurchaseOrder extends FetchAurora
                 ->where('supplier_id', $parent->id)->first();
 
         }
-
-
-        //enum('Cancelled','NoReceived','InProcess','Submitted',
-        //'Confirmed','Manufactured','QC_Pass','Inputted','Dispatched','Received',
-        //'Checked','Placed','Costing','InvoiceChecked')
 
 
         $this->parsedData["org_parent"] = $orgParent;
@@ -131,6 +126,8 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             'checked_at'      => $this->parseDate($this->auroraModelData->{'Purchase Order Checked Date'}),
             'settled_at'      => $this->parseDate($this->auroraModelData->{'Purchase Order Consolidated Date'}),
 
+            'parent_code'=> $this->auroraModelData->{'Purchase Order Parent Code'},
+            'parent_name'=> $this->auroraModelData->{'Purchase Order Parent Name'},
 
             "number" => (string) $this->auroraModelData->{'Purchase Order Public ID'} ?? $this->auroraModelData->{'Purchase Order Key'},
             "state"  => $state,
@@ -150,19 +147,7 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             "data"           => $data
         ];
 
-        $deliveryAddressData                  = $this->parseAddress(
-            prefix: "Order Delivery",
-            auAddressData: $this->auroraModelData,
-        );
-        $this->parsedData["delivery_address"] = new Address(
-            $deliveryAddressData,
-        );
 
-        $billingAddressData                  = $this->parseAddress(
-            prefix: "Order Invoice",
-            auAddressData: $this->auroraModelData,
-        );
-        $this->parsedData["billing_address"] = new Address($billingAddressData);
     }
 
     protected function fetchData($id): object|null

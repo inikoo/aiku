@@ -101,6 +101,7 @@ class IndexPaymentServiceProviders extends GrpAction
                 'title'       => __('Payment Service Providers'),
                 'pageHead'    => [
                     'title' => __('Payment Service Providers'),
+                    'icon'  => ['fal', 'fa-cash-register'],
                 ],
                 'data'        => PaymentServiceProvidersResource::collection($paymentServiceProviders),
 

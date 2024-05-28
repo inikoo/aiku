@@ -67,6 +67,7 @@ class ShowOrgPaymentServiceProvider extends OrgAction
                             'title' => __('payment service provider')
                         ],
                     'title' => $orgPaymentServiceProvider->slug,
+                    'model'     => __('payment service provider'),
                     'meta'  => [
                         [
                             'name'     => trans_choice('account | accounts', $orgPaymentServiceProvider->stats->number_payment_accounts),

@@ -73,6 +73,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupAccountingStats|null $accountingStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Artefact> $artefacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ClockingMachine> $clockingMachines
  * @property-read \Illuminate\Database\Eloquent\Collection<int, CollectionCategory> $collectionCategories
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Collection> $collections
  * @property-read \App\Models\SysAdmin\GroupCRMStats|null $crmStats

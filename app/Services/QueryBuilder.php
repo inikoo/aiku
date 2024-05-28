@@ -59,9 +59,13 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
         $period = request()->input(($prefix ? $prefix . '_' : '') . 'period.'.$periodType);
 
         switch ($periodType) {
-            case 'today':
-                $start = now()->startOfDay()->toDateTimeString();
-                $end   = now()->endOfDay()->toDateTimeString();
+            case 'day':
+                if ($period && preg_match('/^\d{8}$/', $period)) {
+                    $start = Carbon::createFromFormat('Ymd', $period)->startOfDay()->toDateTimeString();
+                    $end   = Carbon::createFromFormat('Ymd', $period)->endOfDay()->toDateTimeString();
+                } else {
+                    return null;
+                }
                 break;
             case 'yesterday':
                 $start = now()->subDay()->startOfDay()->toDateTimeString();
@@ -92,10 +96,28 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
                 }
                 break;
             case 'quarter':
-                if ($period && preg_match('/^\d{8}$/', $period)) {
-                    $date  = Carbon::createFromFormat('Ymd', $period);
-                    $start = $date->startOfQuarter()->toDateTimeString();
-                    $end   = $date->endOfQuarter()->toDateTimeString();
+                if ($period && preg_match('/^\d{4}Q[1-4]$/', $period)) {
+                    $year    = substr($period, 0, 4);
+                    $quarter = substr($period, 5, 1);
+
+                    switch ($quarter) {
+                        case '1':
+                            $start = Carbon::create($year)->startOfQuarter()->toDateTimeString();
+                            $end   = Carbon::create($year)->endOfQuarter()->toDateTimeString();
+                            break;
+                        case '2':
+                            $start = Carbon::create($year, 4)->startOfQuarter()->toDateTimeString();
+                            $end   = Carbon::create($year, 4)->endOfQuarter()->toDateTimeString();
+                            break;
+                        case '3':
+                            $start = Carbon::create($year, 7)->startOfQuarter()->toDateTimeString();
+                            $end   = Carbon::create($year, 7)->endOfQuarter()->toDateTimeString();
+                            break;
+                        case '4':
+                            $start = Carbon::create($year, 10)->startOfQuarter()->toDateTimeString();
+                            $end   = Carbon::create($year, 10)->endOfQuarter()->toDateTimeString();
+                            break;
+                    }
                 } else {
                     return null;
                 }

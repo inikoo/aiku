@@ -211,7 +211,7 @@ class IndexFulfilmentProducts extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('products'),
+                        'label' => __('Products'),
                         'icon'  => $icon
                     ],
                     'suffix' => $suffix

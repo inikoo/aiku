@@ -10,7 +10,7 @@ namespace App\Actions\SupplyChain\Supplier;
 use App\Actions\HydrateModel;
 
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydratePurchaseOrders;
-use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateSupplierDeliveries;
+use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateStockDeliveries;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Models\SupplyChain\Supplier;
 use Illuminate\Support\Collection;
@@ -23,7 +23,7 @@ class HydrateSupplier extends HydrateModel
     {
         SupplierHydrateSupplierProducts::run($supplier);
         SupplierHydratePurchaseOrders::run($supplier);
-        SupplierHydrateSupplierDeliveries::run($supplier);
+        SupplierHydrateStockDeliveries::run($supplier);
     }
 
 

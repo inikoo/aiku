@@ -21,24 +21,24 @@ use App\Actions\Procurement\PurchaseOrder\UpdateStateToManufacturedPurchaseOrder
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToReceivedPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToSettledPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
-use App\Actions\Procurement\SupplierDelivery\StoreSupplierDelivery;
-use App\Actions\Procurement\SupplierDelivery\UpdateStateToCheckedSupplierDelivery;
-use App\Actions\Procurement\SupplierDelivery\UpdateStateToDispatchSupplierDelivery;
-use App\Actions\Procurement\SupplierDelivery\UpdateSupplierDeliveryStateToReceived;
-use App\Actions\Procurement\SupplierDelivery\UpdateStateToSettledSupplierDelivery;
-use App\Actions\Procurement\SupplierDeliveryItem\StoreSupplierDeliveryItem;
-use App\Actions\Procurement\SupplierDeliveryItem\StoreSupplierDeliveryItemBySelectedPurchaseOrderItem;
-use App\Actions\Procurement\SupplierDeliveryItem\UpdateStateToCheckedSupplierDeliveryItem;
+use App\Actions\Procurement\StockDelivery\StoreStockDelivery;
+use App\Actions\Procurement\StockDelivery\UpdateStateToCheckedStockDelivery;
+use App\Actions\Procurement\StockDelivery\UpdateStateToDispatchStockDelivery;
+use App\Actions\Procurement\StockDelivery\UpdateStockDeliveryStateToReceived;
+use App\Actions\Procurement\StockDelivery\UpdateStateToSettledStockDelivery;
+use App\Actions\Procurement\StockDeliveryItem\StoreStockDeliveryItem;
+use App\Actions\Procurement\StockDeliveryItem\StoreStockDeliveryItemBySelectedPurchaseOrderItem;
+use App\Actions\Procurement\StockDeliveryItem\UpdateStateToCheckedStockDeliveryItem;
 use App\Actions\Procurement\SupplierProduct\StoreSupplierProduct;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
-use App\Enums\Procurement\SupplierDelivery\SupplierDeliveryStateEnum;
+use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderItem;
-use App\Models\Procurement\SupplierDelivery;
-use App\Models\Procurement\SupplierDeliveryItem;
+use App\Models\Procurement\StockDelivery;
+use App\Models\Procurement\StockDeliveryItem;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use Illuminate\Validation\ValidationException;
@@ -311,81 +311,81 @@ test('create supplier delivery', function (OrgSupplier $orgSupplier) {
         'date'   => date('Y-m-d')
     ];
 
-    $supplierDelivery = StoreSupplierDelivery::make()->action($this->organisation, $orgSupplier, $arrayData);
-    $supplierDelivery->refresh();
-    expect($supplierDelivery)->toBeInstanceOf(SupplierDelivery::class)
-        ->and($supplierDelivery->organisation_id)->toBe($this->organisation->id)
-        ->and($supplierDelivery->group_id)->toBe($this->organisation->group_id)
-        ->and($supplierDelivery->supplier_id)->toBe($orgSupplier->supplier_id)
-        ->and($supplierDelivery->agent_id)->toBeNull()
-        ->and($supplierDelivery->partner_id)->toBeNull()
-        ->and($supplierDelivery->parent_type)->toBe('OrgSupplier')
-        ->and($supplierDelivery->parent_id)->toBe($orgSupplier->id)
-        ->and($supplierDelivery->number)->toBeNumeric($arrayData['number']);
-    return $supplierDelivery;
+    $stockDelivery = StoreStockDelivery::make()->action($this->organisation, $orgSupplier, $arrayData);
+    $stockDelivery->refresh();
+    expect($stockDelivery)->toBeInstanceOf(StockDelivery::class)
+        ->and($stockDelivery->organisation_id)->toBe($this->organisation->id)
+        ->and($stockDelivery->group_id)->toBe($this->organisation->group_id)
+        ->and($stockDelivery->supplier_id)->toBe($orgSupplier->supplier_id)
+        ->and($stockDelivery->agent_id)->toBeNull()
+        ->and($stockDelivery->partner_id)->toBeNull()
+        ->and($stockDelivery->parent_type)->toBe('OrgSupplier')
+        ->and($stockDelivery->parent_id)->toBe($orgSupplier->id)
+        ->and($stockDelivery->number)->toBeNumeric($arrayData['number']);
+    return $stockDelivery;
 })->depends('attach supplier to organisation');
 
 
-test('create supplier delivery items', function (SupplierDelivery $supplierDelivery) {
-    $supplier = StoreSupplierDeliveryItem::run($supplierDelivery, SupplierDeliveryItem::factory()->definition());
+test('create supplier delivery items', function (StockDelivery $stockDelivery) {
+    $supplier = StoreStockDeliveryItem::run($stockDelivery, StockDeliveryItem::factory()->definition());
 
-    expect($supplier->supplier_delivery_id)->toBe($supplierDelivery->id);
+    expect($supplier->stock_delivery_id)->toBe($stockDelivery->id);
 
     return $supplier;
 })->depends('create supplier delivery')->todo();
 
-test('create supplier delivery items by selected purchase order', function (SupplierDelivery $supplierDelivery, $items) {
-    $supplier = StoreSupplierDeliveryItemBySelectedPurchaseOrderItem::run($supplierDelivery, $items->pluck('id')->toArray());
+test('create supplier delivery items by selected purchase order', function (StockDelivery $stockDelivery, $items) {
+    $supplier = StoreStockDeliveryItemBySelectedPurchaseOrderItem::run($stockDelivery, $items->pluck('id')->toArray());
     expect($supplier)->toBeArray();
 
     return $supplier;
 })->depends('create supplier delivery', 'add items to purchase order')->todo();
 
-test('change supplier delivery state to dispatch from creating', function (SupplierDelivery $supplierDelivery) {
+test('change supplier delivery state to dispatch from creating', function (StockDelivery $stockDelivery) {
 
-    expect($supplierDelivery)->toBeInstanceOf(SupplierDelivery::class)
-        ->and($supplierDelivery->state)->toBe(SupplierDeliveryStateEnum::CREATING);
-    $supplierDelivery = UpdateStateToDispatchSupplierDelivery::make()->action($supplierDelivery);
-    expect($supplierDelivery->state)->toBe(SupplierDeliveryStateEnum::DISPATCHED);
+    expect($stockDelivery)->toBeInstanceOf(StockDelivery::class)
+        ->and($stockDelivery->state)->toBe(StockDeliveryStateEnum::CREATING);
+    $stockDelivery = UpdateStateToDispatchStockDelivery::make()->action($stockDelivery);
+    expect($stockDelivery->state)->toBe(StockDeliveryStateEnum::DISPATCHED);
 })->depends('create supplier delivery');
 
-test('change state to received from dispatch supplier delivery', function (SupplierDelivery $supplierDelivery) {
-    $supplierDelivery = UpdateSupplierDeliveryStateToReceived::make()->action($supplierDelivery);
-    expect($supplierDelivery->state)->toEqual(SupplierDeliveryStateEnum::RECEIVED);
+test('change state to received from dispatch supplier delivery', function (StockDelivery $stockDelivery) {
+    $stockDelivery = UpdateStockDeliveryStateToReceived::make()->action($stockDelivery);
+    expect($stockDelivery->state)->toEqual(StockDeliveryStateEnum::RECEIVED);
 })->depends('create supplier delivery');
 
-test('change state to checked from dispatch supplier delivery', function (SupplierDelivery $supplierDelivery) {
-    $supplierDelivery = UpdateStateToCheckedSupplierDelivery::make()->action($supplierDelivery);
-    expect($supplierDelivery->state)->toEqual(SupplierDeliveryStateEnum::CHECKED);
+test('change state to checked from dispatch supplier delivery', function (StockDelivery $stockDelivery) {
+    $stockDelivery = UpdateStateToCheckedStockDelivery::make()->action($stockDelivery);
+    expect($stockDelivery->state)->toEqual(StockDeliveryStateEnum::CHECKED);
 })->depends('create supplier delivery');
 
-test('change state to settled from checked supplier delivery', function (SupplierDelivery $supplierDelivery) {
-    $supplierDelivery = UpdateStateToSettledSupplierDelivery::make()->action($supplierDelivery);
-    expect($supplierDelivery->state)->toEqual(SupplierDeliveryStateEnum::SETTLED);
+test('change state to settled from checked supplier delivery', function (StockDelivery $stockDelivery) {
+    $stockDelivery = UpdateStateToSettledStockDelivery::make()->action($stockDelivery);
+    expect($stockDelivery->state)->toEqual(StockDeliveryStateEnum::SETTLED);
 })->depends('create supplier delivery');
 
-test('change state to checked from settled supplier delivery', function (SupplierDelivery $supplierDelivery) {
-    $supplierDelivery = UpdateStateToCheckedSupplierDelivery::make()->action($supplierDelivery);
-    expect($supplierDelivery->state)->toEqual(SupplierDeliveryStateEnum::CHECKED);
+test('change state to checked from settled supplier delivery', function (StockDelivery $stockDelivery) {
+    $stockDelivery = UpdateStateToCheckedStockDelivery::make()->action($stockDelivery);
+    expect($stockDelivery->state)->toEqual(StockDeliveryStateEnum::CHECKED);
 })->depends('create supplier delivery');
 
-test('change state to received from checked supplier delivery', function ($supplierDelivery) {
-    $supplierDelivery = UpdateSupplierDeliveryStateToReceived::make()->action($supplierDelivery);
-    expect($supplierDelivery->state)->toEqual(SupplierDeliveryStateEnum::RECEIVED);
+test('change state to received from checked supplier delivery', function ($stockDelivery) {
+    $stockDelivery = UpdateStockDeliveryStateToReceived::make()->action($stockDelivery);
+    expect($stockDelivery->state)->toEqual(StockDeliveryStateEnum::RECEIVED);
 })->depends('create supplier delivery');
 
-test('check supplier delivery items not correct', function ($supplierDeliveryItem) {
-    $supplierDeliveryItem = UpdateStateToCheckedSupplierDeliveryItem::make()->action($supplierDeliveryItem, [
+test('check supplier delivery items not correct', function ($stockDeliveryItem) {
+    $stockDeliveryItem = UpdateStateToCheckedStockDeliveryItem::make()->action($stockDeliveryItem, [
         'unit_quantity_checked' => 2
     ]);
-    expect($supplierDeliveryItem->supplierDelivery->state)->toEqual(SupplierDeliveryStateEnum::RECEIVED);
+    expect($stockDeliveryItem->stockDelivery->state)->toEqual(StockDeliveryStateEnum::RECEIVED);
 })->depends('create supplier delivery items');
 
-test('check supplier delivery items all correct', function ($supplierDeliveryItems) {
-    foreach ($supplierDeliveryItems as $supplierDeliveryItem) {
-        UpdateStateToCheckedSupplierDeliveryItem::make()->action($supplierDeliveryItem, [
+test('check supplier delivery items all correct', function ($stockDeliveryItems) {
+    foreach ($stockDeliveryItems as $stockDeliveryItem) {
+        UpdateStateToCheckedStockDeliveryItem::make()->action($stockDeliveryItem, [
             'unit_quantity_checked' => 6
         ]);
     }
-    expect($supplierDeliveryItems[0]->supplierDelivery->fresh()->state)->toEqual(SupplierDeliveryStateEnum::CHECKED);
+    expect($stockDeliveryItems[0]->stockDelivery->fresh()->state)->toEqual(StockDeliveryStateEnum::CHECKED);
 })->depends('create supplier delivery items by selected purchase order');

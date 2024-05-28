@@ -48,16 +48,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_purchase_orders_status_settled_placed
  * @property int $number_purchase_orders_status_settled_no_received
  * @property int $number_purchase_orders_status_settled_cancelled
- * @property int $number_supplier_deliveries Number supplier deliveries
- * @property int $number_supplier_deliveries_except_cancelled Number supplier deliveries
- * @property int $number_supplier_deliveries_state_creating
- * @property int $number_supplier_deliveries_state_dispatched
- * @property int $number_supplier_deliveries_state_received
- * @property int $number_supplier_deliveries_state_checked
- * @property int $number_supplier_deliveries_state_settled
- * @property int $number_supplier_deliveries_status_processing
- * @property int $number_supplier_deliveries_status_settled_placed
- * @property int $number_supplier_deliveries_status_settled_cancelled
+ * @property int $number_stock_deliveries Number supplier deliveries
+ * @property int $number_stock_deliveries_except_cancelled Number supplier deliveries
+ * @property int $number_stock_deliveries_state_creating
+ * @property int $number_stock_deliveries_state_dispatched
+ * @property int $number_stock_deliveries_state_received
+ * @property int $number_stock_deliveries_state_checked
+ * @property int $number_stock_deliveries_state_settled
+ * @property int $number_stock_deliveries_status_processing
+ * @property int $number_stock_deliveries_status_settled_placed
+ * @property int $number_stock_deliveries_status_settled_cancelled
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Procurement\OrgAgent $orgAgent

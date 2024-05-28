@@ -436,8 +436,8 @@ Route::patch('/outbox/{outbox:id}', UpdateOutbox::class)->name('outbox.update');
 
 Route::patch('/purchase-order/{purchaseOrder:id}', UpdatePurchaseOrder::class)->name('purchase-order.update');
 
-Route::patch('/supplier-delivery/{supplierDelivery:id}', UpdateSupplierDelivery::class)->name('supplier-delivery.update');
-Route::post('/supplier-delivery/', StoreSupplierDelivery::class)->name('supplier-delivery.store');
+Route::patch('/supplier-delivery/{stockDelivery:id}', UpdateStockDelivery::class)->name('supplier-delivery.update');
+Route::post('/supplier-delivery/', StoreStockDelivery::class)->name('supplier-delivery.store');
 Route::patch('/marketplace-agent/{marketplaceAgent:id}', UpdateMarketplaceAgent::class)->name('marketplace-agent.update');
 Route::delete('/marketplace-agent/{marketplaceAgent:id}', DeleteMarketplaceAgent::class)->name('marketplace-agent.delete');
 

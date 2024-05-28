@@ -23,6 +23,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
+ * @property string $code mirror of parent
+ * @property string $name mirror of parent
  * @property int $agent_id
  * @property bool $status
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -35,7 +37,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\OrgSupplierProduct> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\Procurement\OrgAgentStats|null $stats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\SupplierDelivery> $supplierDeliveries
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\StockDelivery> $stockDeliveries
  * @method static \Illuminate\Database\Eloquent\Builder|OrgAgent newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgAgent newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgAgent query()
@@ -68,9 +70,9 @@ class OrgAgent extends Model
         return $this->morphMany(PurchaseOrder::class, 'parent');
     }
 
-    public function supplierDeliveries(): MorphMany
+    public function stockDeliveries(): MorphMany
     {
-        return $this->morphMany(SupplierDelivery::class, 'parent');
+        return $this->morphMany(StockDelivery::class, 'parent');
     }
 
     public function products(): HasMany

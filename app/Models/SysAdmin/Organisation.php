@@ -51,6 +51,7 @@ use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Agent;
+use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasLogo;
@@ -97,6 +98,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
  * @property-read \App\Models\SysAdmin\OrganisationAccountingStats|null $accountingStats
+ * @property-read Address|null $address
  * @property-read LaravelCollection<int, Address> $addresses
  * @property-read Agent|null $agent
  * @property-read LaravelCollection<int, Artefact> $artefacts
@@ -172,6 +174,7 @@ class Organisation extends Model implements HasMedia, Auditable
     use InteractsWithMedia;
     use HasLogo;
     use HasPhoto;
+    use HasAddress;
     use HasAddresses;
     use HasHistory;
 

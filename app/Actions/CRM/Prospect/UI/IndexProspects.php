@@ -181,6 +181,7 @@ class IndexProspects extends OrgAction
                 ),
                 'title'        => __('prospects'),
                 'pageHead'     => [
+                    'icon'  => ['fal', 'fa-user-plus'],
                     'title'   => __('prospects'),
                     'actions' => [
                         $this->canEdit ? [

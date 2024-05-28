@@ -19,6 +19,8 @@ return new class () extends Migration {
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('organisation_id')->index();
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
+            $table->string('code')->index()->collation('und_ns')->comment('mirror of organisation');
+            $table->string('name')->index()->comment('mirror of organisation');
             $table->boolean('status')->default(true)->index();
             $table->string('slug')->unique()->collation('und_ns');
             $table->timestampsTz();
