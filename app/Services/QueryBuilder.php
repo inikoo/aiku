@@ -72,9 +72,13 @@ class QueryBuilder extends \Spatie\QueryBuilder\QueryBuilder
                 $end   = now()->subDay()->endOfDay()->toDateTimeString();
                 break;
             case 'week':
-                if ($period && preg_match('/^\d{8}$/', $period)) {
-                    $start = Carbon::createFromFormat('Ymd', $period)->startOfWeek()->toDateTimeString();
-                    $end   = Carbon::createFromFormat('Ymd', $period)->endOfWeek()->toDateTimeString();
+                if ($period && preg_match('/^\d{4}\d{2}$/', $period)) {
+                    $year = substr($period, 0, 4);
+                    $week = substr($period, 4, 2);
+                    $date = Carbon::now()->setISODate($year, $week);
+
+                    $start = $date->startOfWeek()->toDateTimeString();
+                    $end   = $date->endOfWeek()->toDateTimeString();
                 } else {
                     return null;
                 }

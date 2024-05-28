@@ -84,7 +84,7 @@ class ShowEmployee extends OrgAction
                         'icon'  => 'fal fa-user-hard-hat'
                     ],
                     'title'         => $employee->contact_name,
-                    'model'     => __('employee'),
+                    'model'         => __('employee'),
                     'subNavigation' => $this->getEmployeeSubNavigation($employee, $request),
                     'meta'          => [
                         [

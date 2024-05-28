@@ -59,7 +59,7 @@ class ShowWarehouseArea extends OrgAction
                 ],
                 'pageHead'                             => [
                     'model'     => __('warehouse area'),
-                    'icon'    =>
+                    'icon'      =>
                         [
                             'icon'  => ['fal', 'fa-map-signs'],
                             'title' => __('warehouse area')

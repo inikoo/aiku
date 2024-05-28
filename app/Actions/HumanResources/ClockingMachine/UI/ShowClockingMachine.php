@@ -80,9 +80,9 @@ class ShowClockingMachine extends OrgAction
                             'icon'  => ['fal', 'fa-chess-clock'],
                             'title' => __('clocking machines')
                         ],
-                    'title'   => $clockingMachine->name,
+                    'title'     => $clockingMachine->name,
                     'model'     => __('clocking machine'),
-                    'actions' => [
+                    'actions'   => [
                         $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'edit',

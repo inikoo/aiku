@@ -54,10 +54,10 @@ class ShowJobPosition extends OrgAction
                     'next'     => $this->getNext($jobPosition, $request),
                 ],
                 'pageHead'    => [
-                    'title'   => $jobPosition->name,
+                    'title'     => $jobPosition->name,
                     'icon'      => ['fal', 'fa-network-wired'],
                     'model'     => __('job position'),
-                    'actions' => [
+                    'actions'   => [
                         $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'edit',
