@@ -29,7 +29,7 @@ class PalletResource extends JsonResource
     {
         /** @var Pallet $pallet */
         $pallet=$this;
-
+        
         return [
             'id'                    => $this->id,
             'reference'             => $pallet->reference,
@@ -43,7 +43,14 @@ class PalletResource extends JsonResource
                     'parameters' => [$pallet->organisation->slug, $pallet->fulfilment->slug, $pallet->fulfilmentCustomer->slug]
                                     ]
                 ],
-            'location'              => LocationResource::make($this->location),
+           
+            'location'              => [
+                                        'resource' => LocationResource::make($this->location),
+                                        'route' => $request->user()->hasPermissionTo("locations.{$pallet->warehouse_id}.view")? [
+                                            'name' => 'grp.org.warehouses.show.fulfilment.locations.show',
+                                            'parameters' => [$pallet->organisation->slug, $pallet->warehouse->slug, $pallet->location->slug]
+                                            ] : null
+                                        ],
             'state'                 => $this->state,
             'status'                => $this->status,
             'notes'                 => $this->notes,
