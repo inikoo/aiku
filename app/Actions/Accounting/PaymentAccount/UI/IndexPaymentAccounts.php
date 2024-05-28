@@ -187,6 +187,7 @@ class IndexPaymentAccounts extends OrgAction
                 ),
                 'title'       => __('Payment Accounts'),
                 'pageHead'    => [
+                    'icon'      => ['fal', 'fa-money-check-alt'],
                     'title'     => __('Payment Accounts'),
                     'actions'   => [
                         $this->canEdit ? [

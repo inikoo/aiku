@@ -130,6 +130,7 @@ class IndexPurchaseOrders extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('purchase orders'),
                 'pageHead'    => [
+                    'icon'  => ['fal', 'fa-clipboard-list'],
                     'title' => __('purchase orders'),
                 ],
                 'data'        => PurchaseOrdersResource::collection($purchaseOrders),

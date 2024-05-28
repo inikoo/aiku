@@ -177,6 +177,7 @@ class IndexOrgSuppliers extends OrgAction
                 ),
                 'title'       => __('suppliers'),
                 'pageHead'    => [
+                    'icon'  => ['fal', 'fa-person-dolly'],
                     'title' => __('suppliers'),
                 ],
                 'data'        => SupplierResource::collection($suppliers),

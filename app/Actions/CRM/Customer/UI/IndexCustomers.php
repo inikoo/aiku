@@ -230,7 +230,7 @@ class IndexCustomers extends OrgAction
                 'pageHead'    => [
                     'title'     => __('customers'),
                     'container' => $container,
-                    'iconRight' => [
+                    'icon' => [
                         'icon'  => ['fal', 'fa-user'],
                         'title' => __('customer')
                     ]

@@ -105,6 +105,7 @@ class ShowPayment extends InertiaAction
                     'next'     => $this->getNext($payment, $request),
                 ],
                 'pageHead'    => [
+                    'model'     => __('payment'),
                     'icon'  => 'fal fa-coins',
                     'title' => $payment->slug,
                     'edit'  => $this->canEdit ? [
