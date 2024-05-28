@@ -166,7 +166,7 @@ class IndexArtefacts extends OrgAction
                 'title'       => __('artefacts'),
                 'pageHead'    => [
                     'title'     => __('artefacts'),
-                    'iconRight' => [
+                    'icon' => [
                         'icon'  => ['fal', 'fa-hamsa'],
                         'title' => __('artefacts'),
                     ],
@@ -180,12 +180,12 @@ class IndexArtefacts extends OrgAction
                                     'style' => 'primary',
                                     'icon'  => ['fal', 'fa-upload'],
                                     'label' => 'upload',
-                                    'route' => [
-                                        'name'       => 'grp.models.production.artefacts.upload',
-                                        'parameters' => [
-                                            $this->parent->id
-                                        ]
-                                    ]
+                                    // 'route' => [
+                                    //     'name'       => 'grp.models.production.artefacts.upload',
+                                    //     'parameters' => [
+                                    //         $this->parent->id
+                                    //     ]
+                                    // ]
                                 ],
                                 [
 
