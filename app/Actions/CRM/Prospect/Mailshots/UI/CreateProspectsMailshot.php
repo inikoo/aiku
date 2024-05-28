@@ -139,7 +139,7 @@ class CreateProspectsMailshot extends InertiaAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __("creating mailshot"),
+                        'label' => __("Creating mailshot"),
                     ]
                 ]
             ]

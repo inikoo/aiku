@@ -87,7 +87,7 @@ class RemoveCustomer extends InertiaAction
         return ShowCustomer::make()->getBreadcrumbs(
             routeName: preg_replace('/remove$/', 'show', $routeName),
             routeParameters: $routeParameters,
-            suffix: '('.__('deleting').')'
+            suffix: '('.__('Deleting').')'
         );
     }
 }

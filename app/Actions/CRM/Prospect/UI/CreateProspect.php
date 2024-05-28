@@ -118,7 +118,7 @@ class CreateProspect extends InertiaAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating prospect'),
+                        'label' => __('Creating prospect'),
                     ]
                 ]
             ]

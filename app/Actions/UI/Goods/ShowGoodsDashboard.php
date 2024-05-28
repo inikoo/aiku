@@ -93,7 +93,7 @@ class ShowGoodsDashboard extends GrpAction
                             'route' => [
                                 'name' => 'grp.goods.dashboard'
                             ],
-                            'label' => __('goods'),
+                            'label' => __('Goods'),
                         ]
                     ]
                 ]

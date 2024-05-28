@@ -204,7 +204,7 @@ class ShowCustomer extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('customers')
+                            'label' => __('Customers')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],

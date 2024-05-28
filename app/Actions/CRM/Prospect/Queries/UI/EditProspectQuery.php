@@ -120,7 +120,7 @@ class EditProspectQuery extends InertiaAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('editing prospect list'),
+                        'label' => __('Editing prospect list'),
                     ]
                 ]
             ]

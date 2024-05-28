@@ -115,7 +115,7 @@ class CreateCustomer extends InertiaAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating customer'),
+                        'label' => __('Creating customer'),
                     ]
                 ]
             ]

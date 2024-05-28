@@ -65,7 +65,7 @@ class ShowProductionOperations extends OrgAction
         return Inertia::render(
             'Org/Manufacturing/Production',
             [
-                'title'                            => __('production'),
+                'title'                            => __('Factory operations'),
                 'breadcrumbs'                      => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'navigation'                       => [
                     'previous' => $this->getPrevious($production, $request),
@@ -75,7 +75,7 @@ class ShowProductionOperations extends OrgAction
                     'icon'    =>
                         [
                             'icon'  => ['fal', 'industry'],
-                            'title' => __('production')
+                            'title' => __('Factory operations')
                         ],
                     'title'   => $production->name,
                     'actions' => [
@@ -141,7 +141,7 @@ class ShowProductionOperations extends OrgAction
                                 'name'       => 'grp.org.productions.index',
                                 'parameters' => $routeParameters['organisation']
                             ],
-                            'label' => __('production'),
+                            'label' => __('Factories'),
                             'icon'  => 'fal fa-bars'
                         ],
                         'model' => [

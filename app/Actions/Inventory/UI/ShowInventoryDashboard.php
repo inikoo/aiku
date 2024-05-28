@@ -47,7 +47,7 @@ class ShowInventoryDashboard extends OrgAction
                 'breadcrumbs'    => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'          => __('Inventory'),
                 'pageHead'       => [
-                    'title' => __('Inventory'),
+                    'title'          => __('Inventory'),
                     'icon'           => [
                         'icon' => 'fal fa-pallet-alt'
                     ],
