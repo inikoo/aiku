@@ -101,6 +101,7 @@ class ShowInvoice extends OrgAction
                     'next'     => $this->getNext($invoice, $request),
                 ],
                 'pageHead'    => [
+                    'model'     => __('invoice'),
                     'title'     => $invoice->number,
                     'icon'      => [
                         'icon'  => ['fal', 'fa-file-invoice-dollar'],

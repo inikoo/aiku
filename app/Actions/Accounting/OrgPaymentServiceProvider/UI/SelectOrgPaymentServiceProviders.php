@@ -123,6 +123,7 @@ class SelectOrgPaymentServiceProviders extends OrgAction
                 'title'       => __('Payment Service Providers'),
                 'pageHead'    => [
                     'title' => __('Payment Service Providers'),
+                    'icon'  => ['fal', 'fa-cash-register'],
 
                 ],
                 'data'                => SelectOrgPaymentServiceProvidersResource::collection($paymentServiceProviders),

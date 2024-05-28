@@ -80,6 +80,7 @@ class ShowPaymentAccount extends OrgAction
                     'next'     => $this->getNext($paymentAccount, $request),
                 ],
                 'pageHead'    => [
+                    'model'     => __('payment account'),
                     'icon'   =>
                         [
                             'icon'  => ['fal', 'fa-money-check-alt'],
