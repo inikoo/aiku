@@ -108,7 +108,7 @@ class ShowAgent extends GrpAction
                             ],
                         ],
                         [
-                            'href'     => ['grp.org.procurement.marketplace.agents.show.supplier-products.index', $agent->slug],
+                            'href'     => ['grp.org.procurement.marketplace.agents.show.supplier_products.index', $agent->slug],
                             'name'     => trans_choice('product|products', $agent->stats->number_supplier_products),
                             'number'   => $agent->stats->number_supplier_products,
                             'leftIcon' => [
@@ -168,7 +168,7 @@ class ShowAgent extends GrpAction
                     /* modelOperations: [
                         'createLink' => $this->canEdit ? [
                             'route' => [
-                                'name'       => 'grp.org.procurement.marketplace.agents.show.supplier-products.create',
+                                'name'       => 'grp.org.procurement.marketplace.agents.show.supplier_products.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                             'label' => __('product')

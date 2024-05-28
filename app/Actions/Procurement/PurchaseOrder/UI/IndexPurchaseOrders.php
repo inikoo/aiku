@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\UI\Procurement\ProcurementDashboard;
+use App\Actions\Procurement\UI\ProcurementDashboard;
 use App\Http\Resources\Procurement\PurchaseOrdersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\OrgAgent;
@@ -16,6 +16,7 @@ use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -24,7 +25,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexPurchaseOrders extends OrgAction
 {
@@ -148,7 +148,7 @@ class IndexPurchaseOrders extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.org.procurement.purchase-orders.index',
+                                'name'       => 'grp.org.procurement.purchase_orders.index',
                                 'parameters' => ['organisation' => $routeParameters['organisation']]
 
                             ],

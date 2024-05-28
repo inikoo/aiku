@@ -131,7 +131,7 @@ class EditOrgAgent extends InertiaAction
                                     'component' => 'removeModelAction',
                                     'data'      => RemoveAgent::make()->getAction(
                                         route:[
-                                            'name'       => 'grp.models.agent.delete',
+                                            'name'       => 'grp.models.org_agent.delete',
                                             'parameters' => array_values($request->route()->originalParameters())
                                         ]
                                     )
@@ -185,7 +185,7 @@ class EditOrgAgent extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.org.procurement.agents.edit' => [
+            'grp.org.procurement.org_agents.edit' => [
                 'label' => $agent->name,
                 'route' => [
                     'name'       => $routeName,

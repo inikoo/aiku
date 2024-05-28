@@ -10,7 +10,7 @@ namespace App\Actions\Procurement\PurchaseOrder\UI;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\PurchaseOrderItem\UI\IndexPurchaseOrderItems;
-use App\Actions\UI\Procurement\ProcurementDashboard;
+use App\Actions\Procurement\UI\ProcurementDashboard;
 use App\Enums\UI\Procurement\PurchaseOrderTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\PurchaseOrderItemResource;
@@ -105,13 +105,13 @@ class ShowPurchaseOrder extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.org.procurement.purchase-orders.index',
+                                'name' => 'grp.org.procurement.purchase_orders.index',
                             ],
                             'label' => __('purchaseOrder')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.org.procurement.purchase-orders.show',
+                                'name'       => 'grp.org.procurement.purchase_orders.show',
                                 'parameters' => [$purchaseOrder->slug]
                             ],
                             'label' => $purchaseOrder->number,
@@ -144,7 +144,7 @@ class ShowPurchaseOrder extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.org.procurement.purchase-orders.show'=> [
+            'grp.org.procurement.purchase_orders.show'=> [
                 'label'=> $purchaseOrder->number,
                 'route'=> [
                     'name'      => $routeName,

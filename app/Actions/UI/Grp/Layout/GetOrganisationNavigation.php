@@ -268,9 +268,9 @@ class GetOrganisationNavigation
                         [
                             'label' => __('agents'),
                             'icon'  => ['fal', 'fa-people-arrows'],
-                            'root'  => 'grp.org.procurement.agents.',
+                            'root'  => 'grp.org.procurement.org_agents.',
                             'route' => [
-                                'name'       => 'grp.org.procurement.agents.index',
+                                'name'       => 'grp.org.procurement.org_agents.index',
                                 'parameters' => [$organisation->slug],
 
                             ]
@@ -278,18 +278,18 @@ class GetOrganisationNavigation
                         [
                             'label' => __('suppliers'),
                             'icon'  => ['fal', 'fa-person-dolly'],
-                            'root'  => 'grp.org.procurement.suppliers.',
+                            'root'  => 'grp.org.procurement.org_suppliers.',
                             'route' => [
-                                'name'       => 'grp.org.procurement.suppliers.index',
+                                'name'       => 'grp.org.procurement.org_suppliers.index',
                                 'parameters' => [$organisation->slug],
                             ]
                         ],
                         [
                             'label' => __('purchase orders'),
                             'icon'  => ['fal', 'fa-clipboard-list'],
-                            'root'  => 'grp.org.procurement.purchase-orders.',
+                            'root'  => 'grp.org.procurement.purchase_orders.',
                             'route' => [
-                                'name'       => 'grp.org.procurement.purchase-orders.index',
+                                'name'       => 'grp.org.procurement.purchase_orders.index',
                                 'parameters' => [$organisation->slug],
                             ]
                         ],

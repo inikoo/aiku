@@ -16,13 +16,13 @@ defineProps<{
 
 function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
     switch (route().current()) {
-        case 'grp.org.procurement.purchase-orders.index':
+        case 'grp.org.procurement.purchase_orders.index':
             return route(
-                'grp.org.procurement.purchase-orders.show',
+                'grp.org.procurement.purchase_orders.show',
                 [route().params['organisation'],purchaseOrder.slug]);
         case 'grp.org.procurement.agents.show':
             return route(
-                'grp.org.procurement.agents.show.purchase-orders.show',
+                'grp.org.procurement.agents.show.purchase_orders.show',
                 [route().params['organisation'],route().params['agent'],purchaseOrder.slug]);
     }
 }

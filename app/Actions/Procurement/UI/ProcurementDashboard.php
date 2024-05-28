@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 06 Mar 2023 18:47:05 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 28 May 2024 12:08:07 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Procurement;
+namespace App\Actions\Procurement\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
@@ -54,7 +54,7 @@ class ProcurementDashboard extends OrgAction
                             'name'         => __('agents'),
                             'icon'         => ['fal', 'fa-people-arrows'],
                             'href'         => [
-                                'name'       => 'grp.org.procurement.agents.index',
+                                'name'       => 'grp.org.procurement.org_agents.index',
                                 'parameters' => ['organisation' => $this->organisation->slug]
                             ],
                             'index'        => [
@@ -65,7 +65,7 @@ class ProcurementDashboard extends OrgAction
 //                                'icon'       => ['fal', 'fa-store'],
 //                                'labelStyle' => 'bordered',
 //                                'href'       => [
-//                                    'name'       => 'grp.org.procurement.marketplace.agents.index',
+//                                    'name'       => 'grp.org.procurement.marketplace.org_agents.index',
 //                                    'parameters' => ['organisation' => $this->organisation->slug]
 //                                ],
 //
@@ -76,7 +76,7 @@ class ProcurementDashboard extends OrgAction
                             'name'         => __('suppliers'),
                             'icon'         => ['fal', 'fa-person-dolly'],
                             'href'         => [
-                                'name'       => 'grp.org.procurement.suppliers.index',
+                                'name'       => 'grp.org.procurement.org_suppliers.index',
                                 'parameters' => ['organisation' => $this->organisation->slug]
                             ],
                             'index'        => [
@@ -87,7 +87,7 @@ class ProcurementDashboard extends OrgAction
 //                                'icon'       => ['fal', 'fa-store'],
 //                                'labelStyle' => 'bordered',
 //                                'href'       => [
-//                                    'name'       => 'grp.org.procurement.marketplace.suppliers.index',
+//                                    'name'       => 'grp.org.procurement.marketplace.org_suppliers.index',
 //                                    'parameters' => ['organisation' => $this->organisation->slug]
 //                                ],
 //
@@ -98,7 +98,7 @@ class ProcurementDashboard extends OrgAction
                             'name'         => __('supplier products'),
                             'shortName'    => __('products'),
                             'icon'         => ['fal', 'fa-box-usd'],
-                            'href'         => ['name' => 'grp.org.procurement.supplier-products.index', 'parameters' => ['organisation' => $this->organisation->slug]],
+                            'href'         => ['name' => 'grp.org.procurement.org_supplier_products.index', 'parameters' => ['organisation' => $this->organisation->slug]],
                             'index'        => [
                                 'number' => $this->organisation->procurementStats->number_supplier_products
                             ],
@@ -106,7 +106,7 @@ class ProcurementDashboard extends OrgAction
 //                                'tooltip'    => __('marketplace suppliers'),
 //                                'icon'       => ['fal', 'fa-store'],
 //                                'labelStyle' => 'bordered',
-//                                'href'       => ['name' => 'grp.org.procurement.marketplace.supplier-products.index', 'parameters' => ['organisation' => $this->organisation->slug]],
+//                                'href'       => ['name' => 'grp.org.procurement.marketplace.org_supplier_products.index', 'parameters' => ['organisation' => $this->organisation->slug]],
 //
 //                            ]
 
@@ -117,7 +117,7 @@ class ProcurementDashboard extends OrgAction
                         [
                             'name'  => __('purchase orders'),
                             'icon'  => ['fal', 'fa-clipboard-list'],
-                            'href'  => ['name' => 'grp.org.procurement.purchase-orders.index', 'parameters' => ['organisation' => $this->organisation->slug]],
+                            'href'  => ['name' => 'grp.org.procurement.purchase_orders.index', 'parameters' => ['organisation' => $this->organisation->slug]],
                             'index' => [
                                 'number' => $this->organisation->procurementStats->number_purchase_orders
                             ]
@@ -126,7 +126,7 @@ class ProcurementDashboard extends OrgAction
                         [
                             'name'  => __('supplier deliveries'),
                             'icon'  => ['fal', 'fa-truck-container'],
-                            'href'  => ['name' => 'grp.org.procurement.stock-deliveries.index', 'parameters' => ['organisation' => $this->organisation->slug]],
+                            'href'  => ['name' => 'grp.org.procurement.stock_deliveries.index', 'parameters' => ['organisation' => $this->organisation->slug]],
                             'index' => [
                                 'number' => $this->organisation->procurementStats->number_deliveries
                             ]

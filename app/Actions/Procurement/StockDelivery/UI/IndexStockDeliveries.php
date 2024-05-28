@@ -8,18 +8,18 @@
 namespace App\Actions\Procurement\StockDelivery\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Procurement\ProcurementDashboard;
+use App\Actions\Procurement\UI\ProcurementDashboard;
 use App\Http\Resources\Procurement\StockDeliveryResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\StockDelivery;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexStockDeliveries extends InertiaAction
 {
@@ -95,9 +95,9 @@ class IndexStockDeliveries extends InertiaAction
                 'title'       => __('supplier deliveries'),
                 'pageHead'    => [
                     'title'  => __('supplier deliveries'),
-                    'create' => $this->canEdit && $request->route()->getName() == 'grp.org.procurement.stock-deliveries.index' ? [
+                    'create' => $this->canEdit && $request->route()->getName() == 'grp.org.procurement.stock_deliveries.index' ? [
                         'route' => [
-                            'name'       => 'grp.org.procurement.stock-deliveries.create',
+                            'name'       => 'grp.org.procurement.stock_deliveries.create',
                             'parameters' => array_values($request->route()->originalParameters())
                         ],
                         'label' => __('supplier deliveries')
@@ -120,7 +120,7 @@ class IndexStockDeliveries extends InertiaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'grp.org.procurement.stock-deliveries.index'
+                                'name' => 'grp.org.procurement.stock_deliveries.index'
                             ],
                             'label' => __('supplier deliveries'),
                             'icon'  => 'fal fa-bars'

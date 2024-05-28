@@ -6,12 +6,15 @@
  */
 
 
+use App\Actions\Procurement\OrgAgent\ExportOrgAgents;
 use App\Actions\Procurement\OrgAgent\UI\EditOrgAgent;
 use App\Actions\Procurement\OrgAgent\UI\IndexOrgAgents;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
+use App\Actions\Procurement\OrgSupplier\ExportOrgSuppliers;
 use App\Actions\Procurement\OrgSupplier\UI\EditOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UI\IndexOrgSuppliers;
 use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
+use App\Actions\Procurement\OrgSupplierProducts\UI\ShowOrgSupplierProduct;
 use App\Actions\Procurement\PurchaseOrder\ExportPurchaseOrders;
 use App\Actions\Procurement\PurchaseOrder\UI\CreatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UI\EditPurchaseOrder;
@@ -25,54 +28,52 @@ use App\Actions\Procurement\StockDelivery\UI\ShowStockDelivery;
 use App\Actions\Procurement\SupplierProduct\ExportSupplierProducts;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\Procurement\SupplierProduct\UI\ShowSupplierProduct;
-
-use App\Actions\SupplyChain\Agent\ExportAgents;
-use App\Actions\SupplyChain\Agent\UI\CreateAgent;
-use App\Actions\SupplyChain\Agent\UI\RemoveAgent;
-use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
-use App\Actions\UI\Procurement\ProcurementDashboard;
+use App\Actions\Procurement\UI\ProcurementDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ProcurementDashboard::class)->name('dashboard');
 
-//Route::get('/suppliers/export', ExportSuppliers::class)->name('suppliers.export');
+Route::prefix('agents')->as('org_agents.')->group(function () {
+    Route::get('', IndexOrgAgents::class)->name('index');
+    Route::get('export', ExportOrgAgents::class)->name('export');
+    Route::get('{orgAgent}/edit', EditOrgAgent::class)->name('edit');
 
-Route::get('/suppliers', IndexOrgSuppliers::class)->name('suppliers.index');
-Route::get('/suppliers/{orgSupplier}', ShowOrgSupplier::class)->name('suppliers.show');
-Route::get('/suppliers/{orgSupplier}/edit', EditOrgSupplier::class)->name('suppliers.edit');
+    Route::prefix('{orgAgent}')->as('show.')->group(function () {
+        Route::get('', ShowOrgAgent::class);
+        Route::get('suppliers', [IndexOrgSuppliers::class, 'inOrgAgent'])->name('suppliers.index');
+        Route::get('suppliers/{orgSupplier}', [ShowOrgSupplier::class, 'inOrgAgent'])->name('suppliers.show');
+        Route::get('suppliers/{orgSupplier}/edit', [EditOrgSupplier::class, 'inOrgAgent'])->name('suppliers.edit');
+        Route::get('supplier-products', [IndexSupplierProducts::class, 'inOrgAgent'])->name('supplier_products.index');
+        Route::get('supplier-products/{orfSupplierProduct}', [ShowOrgSupplierProduct::class, 'inOrgAgent'])->name('supplier_products.show');
+    });
+});
 
-Route::get('/agents/export', ExportAgents::class)->name('agents.export');
+Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
+    Route::get('', IndexOrgSuppliers::class)->name('index');
+    Route::get('export', ExportOrgSuppliers::class)->name('export');
+    Route::get('{orgSupplier}', ShowOrgSupplier::class)->name('show');
+    Route::get('{orgSupplier}/edit', EditOrgSupplier::class)->name('edit');
+    Route::get('{orgSupplier}/purchase-orders/create', [CreatePurchaseOrder::class, 'inOrgSupplier'])->name('show.purchase_orders.create');
 
-Route::get('/agents', IndexOrgAgents::class)->name('agents.index');
-Route::get('/agents/create', CreateAgent::class)->name('agents.create');
+});
 
-Route::get('/agents/{orgAgent}', ShowOrgAgent::class)->name('agents.show');
-Route::get('/agents/{orgAgent}/edit', EditOrgAgent::class)->name('agents.edit');
-Route::get('/agents/{orgAgent}/delete', RemoveAgent::class)->name('agents.remove');
+Route::prefix('supplier-products')->as('org_supplier_products.')->group(function () {
+    Route::get('', IndexSupplierProducts::class)->name('index');
+    Route::get('export', ExportSupplierProducts::class)->name('export');
+    Route::get('{supplierProduct}', ShowSupplierProduct::class)->name('show');
+});
 
-Route::get('/agents/{orgAgent}/suppliers', [IndexSuppliers::class, 'inOrgAgent'])->name('agents.show.suppliers.index');
-//Route::get('/agents/{orgAgent}/suppliers/{orgSupplier}', [ShowSupplier::class, 'inOrgAgent'])->name('agents.show.suppliers.show');
-//Route::get('/agents/{orgAgent}/suppliers/{orgSupplier}/edit', [EditOrgSupplier::class, 'inOrgAgent'])->name('agents.show.suppliers.edit');
-Route::get('/agents/{orgAgent}/supplier-products', [IndexSupplierProducts::class, 'inOrgAgent'])->name('agents.show.supplier-products.index');
-Route::get('/agents/{orgAgent}/supplier-products/{supplierProduct}', [ShowSupplierProduct::class, 'inOrgAgent'])->name('agents.show.supplier-products.show');
-
-Route::get('/supplier-products/export', ExportSupplierProducts::class)->name('supplier-products.export');
-
-Route::get('/supplier-products', IndexSupplierProducts::class)->name('supplier-products.index');
-Route::get('/supplier-products/{supplierProduct}', ShowSupplierProduct::class)->name('supplier-products.show');
-
-Route::get('/purchase-orders/export', ExportPurchaseOrders::class)->name('purchase-orders.export');
-
-Route::get('/purchase-orders', IndexPurchaseOrders::class)->name('purchase-orders.index');
-Route::get('/purchase-orders/create', CreatePurchaseOrder::class)->name('purchase-orders.create');
-Route::get('/suppliers/{orgSupplier}/purchase-orders/create', [CreatePurchaseOrder::class, 'inSupplier'])->name('suppliers.show.purchase-orders.create');
-Route::get('/purchase-orders/{purchaseOrder}', ShowPurchaseOrder::class)->name('purchase-orders.show');
-Route::get('/purchase-orders/{purchaseOrder}/edit', EditPurchaseOrder::class)->name('purchase-orders.edit');
-
-
-Route::get('/stock-deliveries/export', ExportStockDeliveries::class)->name('stock-deliveries.export');
-
-Route::get('/stock-deliveries', IndexStockDeliveries::class)->name('stock-deliveries.index');
-Route::get('/stock-deliveries/create', CreateStockDelivery::class)->name('stock-deliveries.create');
-Route::get('/stock-deliveries/{stockDelivery}', ShowStockDelivery::class)->name('stock-deliveries.show');
-Route::get('/stock-deliveries/{stockDelivery}/edit', EditStockDelivery::class)->name('stock-deliveries.edit');
+Route::prefix('purchase-orders')->as('purchase_orders.')->group(function () {
+    Route::get('', IndexPurchaseOrders::class)->name('index');
+    Route::get('export', ExportPurchaseOrders::class)->name('export');
+    Route::get('create', CreatePurchaseOrder::class)->name('create');
+    Route::get('{purchaseOrder}', ShowPurchaseOrder::class)->name('show');
+    Route::get('{purchaseOrder}/edit', EditPurchaseOrder::class)->name('edit');
+});
+Route::prefix('stock-deliveries')->as('stock_deliveries.')->group(function () {
+    Route::get('', IndexStockDeliveries::class)->name('index');
+    Route::get('export', ExportStockDeliveries::class)->name('export');
+    Route::get('create', CreateStockDelivery::class)->name('create');
+    Route::get('{stockDelivery}', ShowStockDelivery::class)->name('show');
+    Route::get('{stockDelivery}/edit', EditStockDelivery::class)->name('edit');
+});

@@ -100,7 +100,7 @@ class ShowSupplier extends GrpAction
                             'type'  => 'button',
                             'style' => 'create',
                             'route' => [
-                                'name'       => 'grp.procurement.suppliers.show.purchase-orders.create',
+                                'name'       => 'grp.procurement.suppliers.show.purchase_orders.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                             'label' => __('purchase order')
@@ -111,7 +111,7 @@ class ShowSupplier extends GrpAction
                             'name'     => trans_choice('Purchases|Sales', $supplier->stats->number_open_purchase_orders),
                             'number'   => $supplier->stats->number_open_purchase_orders,
                             'href'     => [
-                                'grp.procurement.supplier-products.show',
+                                'grp.procurement.supplier_products.show',
                                 $supplier->slug
                             ],
                             'leftIcon' => [
@@ -123,7 +123,7 @@ class ShowSupplier extends GrpAction
                             'name'     => trans_choice('product|products', $supplier->stats->number_supplier_products),
                             'number'   => $supplier->stats->number_supplier_products,
                             'href'     => [
-                                'grp.procurement.supplier-products.show',
+                                'grp.procurement.supplier_products.show',
                                 $supplier->slug
                             ],
                             'leftIcon' => [

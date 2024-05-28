@@ -11,7 +11,7 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\OrgAgent\UI\GetAgentShowcase;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
-use App\Actions\UI\Procurement\ProcurementDashboard;
+use App\Actions\Procurement\UI\ProcurementDashboard;
 use App\Enums\UI\SupplyChain\SupplierProductTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
@@ -34,7 +34,7 @@ class ShowSupplierProduct extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('procurement.suppliers.edit');
+        $this->canEdit = $request->user()->hasPermissionTo('procurement.org_suppliers.edit');
 
         return $request->user()->hasPermissionTo("procurement.view");
     }
@@ -123,13 +123,13 @@ class ShowSupplierProduct extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.org.procurement.supplier-products.index',
+                                'name' => 'grp.org.procurement.org_supplier_products.index',
                             ],
                             'label' => __('supplierProduct')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.org.procurement.supplier-products.show',
+                                'name'       => 'grp.org.procurement.org_supplier_products.show',
                                 'parameters' => [$supplierProduct->slug]
                             ],
                             'label' => $supplierProduct->name,
@@ -147,9 +147,9 @@ class ShowSupplierProduct extends InertiaAction
         $query = SupplierProduct::where('code', '<', $supplierProduct->code);
 
         $query = match ($request->route()->getName()) {
-            'grp.org.procurement.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
-            'grp.org.procurement.agents.show.show.supplier.supplier-products.show',
-            'grp.org.procurement.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->originalParameters()['supplier']->id),
+            'grp.org.procurement.org_agents.show.org_supplier_products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
+            'grp.org.procurement.org_agents.show.show.supplier.org_supplier_products.show',
+            'grp.org.procurement.supplier.org_supplier_products.show' => $query->where('supplier_products.supplier_id', $request->route()->originalParameters()['supplier']->id),
 
             default => $query
         };
@@ -165,9 +165,9 @@ class ShowSupplierProduct extends InertiaAction
         $query = SupplierProduct::where('code', '>', $supplierProduct->code);
 
         $query = match ($request->route()->getName()) {
-            'grp.org.procurement.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
-            'grp.org.procurement.agents.show.show.supplier.supplier-products.show',
-            'grp.org.procurement.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->originalParameters()['supplier']->id),
+            'grp.org.procurement.org_agents.show.org_supplier_products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
+            'grp.org.procurement.org_agents.show.show.supplier.org_supplier_products.show',
+            'grp.org.procurement.supplier.org_supplier_products.show' => $query->where('supplier_products.supplier_id', $request->route()->originalParameters()['supplier']->id),
 
             default => $query
         };
@@ -184,7 +184,7 @@ class ShowSupplierProduct extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.org.procurement.supplier-products.show' => [
+            'grp.org.procurement.org_supplier_products.show' => [
                 'label' => $supplierProduct->code,
                 'route' => [
                     'name'       => $routeName,
@@ -194,7 +194,7 @@ class ShowSupplierProduct extends InertiaAction
 
                 ]
             ],
-            'grp.org.procurement.agents.show.supplier-products.show' => [
+            'grp.org.procurement.org_agents.show.org_supplier_products.show' => [
                 'label' => $supplierProduct->code,
                 'route' => [
                     'name'       => $routeName,

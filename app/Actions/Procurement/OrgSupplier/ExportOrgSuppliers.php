@@ -1,20 +1,20 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 24 Apr 2023 20:23:18 Malaysia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 28 May 2024 11:45:14 British Summer Time, Plane Manchester-Malaga
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SupplyChain\Supplier\UI;
+namespace App\Actions\Procurement\OrgSupplier;
 
 use App\Actions\Traits\WithExportData;
-use App\Exports\Procurement\SuppliersExport;
+use App\Exports\Procurement\OrgSuppliersExport;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
-class ExportSuppliers
+class ExportOrgSuppliers
 {
     use AsAction;
     use WithAttributes;
@@ -27,7 +27,7 @@ class ExportSuppliers
     {
         $type = $modelData['type'];
 
-        return $this->export(new SuppliersExport(), 'suppliers', $type);
+        return $this->export(new OrgSuppliersExport(), 'org-suppliers', $type);
     }
 
     /**

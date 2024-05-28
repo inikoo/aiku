@@ -71,7 +71,7 @@ class ShowSupplyChainDashboard extends GrpAction
                             'name'      => __('supplier products'),
                             'shortName' => __('products'),
                             'icon'      => ['fal', 'fa-box-usd'],
-                            'href'      => ['name' => 'grp.supply-chain.supplier-products.index'],
+                            'href'      => ['name' => 'grp.supply-chain.supplier_products.index'],
                             'index'     => [
                                 'number' => $this->group->supplyChainStats->number_supplier_products
                             ],
