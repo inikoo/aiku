@@ -210,14 +210,7 @@ class IndexCustomers extends OrgAction
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
         $scope     = $this->parent;
-        $container = null;
-        if (class_basename($scope) == 'Shop') {
-            $container = [
-                'icon'    => ['fal', 'fa-store-alt'],
-                'tooltip' => __('Shop'),
-                'label'   => Str::possessive($scope->name)
-            ];
-        }
+
 
         return Inertia::render(
             'Org/Shop/CRM/Customers',
@@ -229,7 +222,6 @@ class IndexCustomers extends OrgAction
                 'title'       => __('customers'),
                 'pageHead'    => [
                     'title'     => __('customers'),
-                    'container' => $container,
                     'icon'      => [
                         'icon'  => ['fal', 'fa-user'],
                         'title' => __('customer')
@@ -249,7 +241,7 @@ class IndexCustomers extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('customers'),
+                        'label' => __('Customers'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],

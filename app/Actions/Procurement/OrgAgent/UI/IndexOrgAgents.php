@@ -150,7 +150,7 @@ class IndexOrgAgents extends OrgAction
                                 'name'       => 'grp.org.procurement.org_agents.index',
                                 'parameters' => ['organisation' => $routeParameters['organisation']]
                             ],
-                            'label' => __('agents'),
+                            'label' => __('Agents'),
                             'icon'  => 'fal fa-bars'
                         ]
                     ]

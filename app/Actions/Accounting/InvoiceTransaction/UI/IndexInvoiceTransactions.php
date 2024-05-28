@@ -172,7 +172,7 @@ class IndexInvoiceTransactions extends OrgAction
                             'name'       => $routeName,
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('invoices'),
+                        'label' => __('Invoices'),
                         'icon'  => 'fal fa-bars',
 
                     ],

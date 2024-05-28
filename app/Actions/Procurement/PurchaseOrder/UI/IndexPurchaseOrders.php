@@ -152,7 +152,7 @@ class IndexPurchaseOrders extends OrgAction
                                 'parameters' => ['organisation' => $routeParameters['organisation']]
 
                             ],
-                            'label' => __('purchase orders'),
+                            'label' => __('Purchase orders'),
                             'icon'  => 'fal fa-bars'
                         ]
                     ]

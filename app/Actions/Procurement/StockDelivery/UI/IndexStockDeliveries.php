@@ -122,7 +122,7 @@ class IndexStockDeliveries extends InertiaAction
                             'route' => [
                                 'name' => 'grp.org.procurement.stock_deliveries.index'
                             ],
-                            'label' => __('supplier deliveries'),
+                            'label' => __('Stock deliveries'),
                             'icon'  => 'fal fa-bars'
                         ]
                     ]

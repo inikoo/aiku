@@ -216,7 +216,7 @@ class IndexFulfilmentRentals extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('rentals'),
+                        'label' => __('Rentals'),
                         'icon'  => 'fal fa-bars'
                     ],
                     'suffix' => $suffix

@@ -170,7 +170,7 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('supplier products marketplaces'),
+                        'label' => __('Supplier products marketplaces'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],

@@ -128,7 +128,7 @@ class IndexPaymentServiceProviders extends GrpAction
                             'name'       => 'grp.overview.accounting.payment-service-providers.index',
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('providers'),
+                        'label' => __('Providers'),
                         'icon'  => 'fal fa-bars',
                     ],
                     'suffix' => $suffix

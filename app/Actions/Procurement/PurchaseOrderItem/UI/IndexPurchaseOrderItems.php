@@ -98,7 +98,7 @@ class IndexPurchaseOrderItems extends InertiaAction
                             'route' => [
                                 'name' => 'grp.org.procurement.purchase_orders.index'
                             ],
-                            'label' => __('purchase orders'),
+                            'label' => __('Purchase orders'),
                             'icon'  => 'fal fa-bars'
                         ]
                     ]

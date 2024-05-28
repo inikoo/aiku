@@ -200,7 +200,7 @@ class IndexOrgSuppliers extends OrgAction
                                 'name'       => 'grp.org.procurement.org_suppliers.index',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('suppliers'),
+                            'label' => __('Suppliers'),
                             'icon'  => 'fal fa-bars'
                         ]
                     ]
@@ -216,7 +216,7 @@ class IndexOrgSuppliers extends OrgAction
                                 'name'       => 'grp.org.procurement.org_agents.show.org_suppliers.index',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('suppliers'),
+                            'label' => __('Suppliers'),
                             'icon'  => 'fal fa-bars'
                         ]
                     ]

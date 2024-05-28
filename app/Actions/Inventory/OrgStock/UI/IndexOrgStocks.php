@@ -8,8 +8,8 @@
 namespace App\Actions\Inventory\OrgStock\UI;
 
 use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
+use App\Actions\Inventory\UI\ShowInventoryDashboard;
 use App\Actions\OrgAction;
-use App\Actions\UI\Inventory\ShowInventoryDashboard;
 use App\Http\Resources\Inventory\OrgStocksResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Inventory\OrgStock;

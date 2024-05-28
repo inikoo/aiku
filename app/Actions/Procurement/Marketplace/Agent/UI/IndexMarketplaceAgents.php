@@ -178,7 +178,7 @@ class IndexMarketplaceAgents extends OrgAction
                                 'name'       => 'grp.org.procurement.marketplace.org_agents.index',
                                 'parameters' => array_values($routeParameters)
                             ],
-                            'label' => __("agent's marketplace"),
+                            'label' => __("Agent's marketplace"),
                             'icon'  => 'fal fa-bars'
                         ]
                     ]

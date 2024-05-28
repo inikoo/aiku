@@ -80,7 +80,7 @@ class IndexWebsitesHeader extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('websites header'),
+                        'label' => __('Websites header'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],

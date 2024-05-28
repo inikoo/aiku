@@ -1,17 +1,17 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 06 Mar 2023 16:34:04 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 28 May 2024 16:54:45 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Inventory;
+namespace App\Actions\Inventory\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
-use App\Models\SysAdmin\Organisation;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -30,7 +30,6 @@ class ShowInventoryDashboard extends OrgAction
 
     public function asController(Organisation $organisation, ActionRequest $request): ActionRequest
     {
-
         $this->initialisation($organisation, $request);
 
         return $request;
@@ -45,12 +44,15 @@ class ShowInventoryDashboard extends OrgAction
         return Inertia::render(
             'Org/Inventory/InventoryDashboard',
             [
-                'breadcrumbs'  => $this->getBreadcrumbs($request->route()->originalParameters()),
-                'title'        => __('inventory'),
-                'pageHead'     => [
-                    'title' => __('inventory'),
+                'breadcrumbs'    => $this->getBreadcrumbs($request->route()->originalParameters()),
+                'title'          => __('Inventory'),
+                'pageHead'       => [
+                    'title' => __('Inventory'),
+                    'icon'           => [
+                        'icon' => 'fal fa-pallet-alt'
+                    ],
                 ],
-                'flatTreeMaps' => [
+                'flatTreeMaps'   => [
                     [
                         [
                             'name'  => __('SKUs families'),
@@ -78,7 +80,7 @@ class ShowInventoryDashboard extends OrgAction
                         ]
                     ]
                 ],
-                'dashboardStats'     => $this->getDashboardStats(),
+                'dashboardStats' => $this->getDashboardStats(),
 
             ]
         );
@@ -119,7 +121,7 @@ class ShowInventoryDashboard extends OrgAction
                                 'name'       => 'grp.org.inventory.dashboard',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('inventory'),
+                            'label' => __('Inventory'),
                         ]
                     ]
                 ]
