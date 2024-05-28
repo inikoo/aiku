@@ -36,13 +36,13 @@ class PalletResource extends JsonResource
             'customer_reference'    => $pallet->customer_reference,
             'slug'                  => $pallet->slug,
             'customer'              => [
-                                        'name'         => $this->fulfilmentCustomer->customer->name,
-                                        'name'         => $this->fulfilmentCustomer->customer->contact_name,
-                                        'route'        => [
-                                            'name' => 'grp.org.fulfilments.show.crm.customers.show',
-                                            'parameter' => [$pallet->organisation, $pallet->fulfilment, $pallet->fulfilmentCustomer]
-                                                            ]
-                                        ],
+                'name'                 => $this->fulfilmentCustomer->customer->name,
+                'contact_name'         => $this->fulfilmentCustomer->customer->contact_name,
+                'route'                => [
+                    'name'       => 'grp.org.fulfilments.show.crm.customers.show',
+                    'parameters' => [$pallet->organisation->slug, $pallet->fulfilment->slug, $pallet->fulfilmentCustomer->slug]
+                                    ]
+                ],
             'location'              => LocationResource::make($this->location),
             'state'                 => $this->state,
             'status'                => $this->status,

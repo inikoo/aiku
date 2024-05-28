@@ -120,11 +120,16 @@ class ShowPallet extends OrgAction
                 'pageHead'                      => [
                     'icon'          =>
                         [
-                            'icon'  => ['fal', 'fa-pallet'],
-                            'title' => __('pallets')
+                            'icon'    => ['fal', 'fa-pallet'],
+                            'tooltip' => __('Pallet')
                         ],
                     'title'         => $this->pallet->reference,
                     'model'         => __('Pallet'),
+                    'noCapitalise'  => true,
+                    'after_title'   => [
+                        'label'     => '(' . $this->pallet->customer_reference . ')'
+                    ],
+                    'iconRight'     => 'xxx',
                     'subNavigation' => $subNavigation,
                     'actions'       => [
                         // [
