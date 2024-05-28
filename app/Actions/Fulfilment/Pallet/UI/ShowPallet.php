@@ -49,12 +49,12 @@ class ShowPallet extends OrgAction
             return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.view");
         } elseif ($this->parent instanceof Warehouse) {
             $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.edit");
-
+            $this->allowLocation = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.view");
             return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.view");
         }
 
         $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->organisation->id}.stored-items.edit");
-
+        
         return $request->user()->hasPermissionTo("fulfilment.{$this->organisation->id}.stored-items.view");
     }
 
@@ -101,6 +101,7 @@ class ShowPallet extends OrgAction
 
     public function htmlResponse(Pallet $pallet, ActionRequest $request): Response
     {
+        // dd($pallet->status->statusIcon()[$pallet->status->value]);
         $subNavigation = [];
 
         if ($this->parent instanceof FulfilmentCustomer) {
@@ -117,14 +118,23 @@ class ShowPallet extends OrgAction
                     request()->route()->getName(),
                     request()->route()->originalParameters()
                 ),
+                'navigation'                            => [
+                    'previous' => $this->getPrevious($pallet, $request),
+                    'next'     => $this->getNext($pallet, $request),
+                ],
                 'pageHead'                      => [
                     'icon'          =>
                         [
-                            'icon'  => ['fal', 'fa-pallet'],
-                            'title' => __('pallets')
+                            'icon'    => ['fal', 'fa-pallet'],
+                            'tooltip' => __('Pallet')
                         ],
                     'title'         => $this->pallet->reference,
                     'model'         => __('Pallet'),
+                    'iconRight' => $pallet->status->statusIcon()[$pallet->status->value],
+                    'noCapitalise'  => true,
+                    'after_title'   => [
+                        'label'     => '(' . $this->pallet->customer_reference . ')'
+                    ],
                     'subNavigation' => $subNavigation,
                     'actions'       => [
                         // [
@@ -283,5 +293,66 @@ class ShowPallet extends OrgAction
                 ],
             ]
         );
+    }
+
+    public function getPrevious(Pallet $pallet, ActionRequest $request): ?array
+    {
+        $previous = Pallet::where('id', '<', $pallet->id)->orderBy('id', 'desc')->first();
+        return $this->getNavigation($previous, $request->route()->getName());
+
+    }
+
+    public function getNext(Pallet $pallet, ActionRequest $request): ?array
+    {
+        $next = Pallet::where('id', '>', $pallet->id)->orderBy('id')->first();
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Pallet $pallet, string $routeName): ?array
+    {
+        if(!$pallet) {
+            return null;
+        }
+        return match ($routeName) {
+            'grp.org.fulfilments.show.crm.customers.show.pallets.show'=> [
+                'label'=> $pallet->slug,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'organisation'=> $pallet->organisation->slug,
+                        'fulfilment'  => $pallet->fulfilment->slug,
+                        'fulfilmentCustomer' => $pallet->fulfilmentCustomer->slug,
+                        'pallet'     => $pallet->slug
+                    ]
+                ]
+            ],
+
+            // 'grp.org.fulfilments.show.operations.pallets.show'=> [
+            //     'label'=> $pallet->number,
+            //     'route'=> [
+            //         'name'      => $routeName,
+            //         'parameters'=> [
+            //             'organisation'=> $pallet->organisation->slug,
+            //             'fulfilment'  => $this->parent->slug,
+            //             'pallet'     => $pallet->slug
+            //         ]
+
+            //     ]
+            // ],
+
+            // 'grp.org.fulfilments.show.crm.customers.show.invoices.show'=> [
+            //     'label'=> $invoice->number,
+            //     'route'=> [
+            //         'name'      => $routeName,
+            //         'parameters'=> [
+            //             'organisation'       => $invoice->organisation->slug,
+            //             'fulfilment'         => $this->parent->slug,
+            //             'fulfilmentCustomer' => $this->parent->slug,
+            //             'invoice'            => $invoice->slug
+            //         ]
+
+            //     ]
+            // ],
+        };
     }
 }

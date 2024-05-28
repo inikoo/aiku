@@ -6,8 +6,8 @@
 
 <script setup lang="ts">
 
-import {useLocaleStore} from "@/Stores/locale";
-import {capitalize} from "@/Composables/capitalize";
+import { useLocaleStore } from "@/Stores/locale"
+import { capitalize } from "@/Composables/capitalize"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faLevelUp } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -15,7 +15,11 @@ library.add(faLevelUp)
 
 
 const props = defineProps<{
-   data:object
+    data: {
+        icon: string | string[]
+        label: string
+        tooltip?: string
+    }
 }>()
 
 const locale = useLocaleStore()
@@ -23,8 +27,8 @@ const locale = useLocaleStore()
 </script>
 
 <template>
-    <FontAwesomeIcon v-if="data.icon" :title="capitalize(data.tooltip)"
-                     aria-hidden="true" :icon="data.icon" size="xs"/>
-    <span class="leading-none mr-1 ml-1">{{ data.label }}</span>
+    <FontAwesomeIcon v-if="data.icon" :icon="data.icon" v-tooltip="capitalize(data.tooltip)" aria-hidden="true"
+        size="xs" />
+    <span class="leading-none mx-1">{{ data.label }}</span>
     <FontAwesomeIcon flip="horizontal" :icon="'fal fa-level-up'" :class="'mr-2'" />
 </template>

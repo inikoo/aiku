@@ -5,6 +5,10 @@ import { Action } from './Action'
 export interface PageHeading {
     actions: Action[]
     actionActualMethod?: string
+    after_title?: {
+        label: string
+        class?: string
+    }
     container: {
         icon: string | string[]
         label: string
