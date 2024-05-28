@@ -671,9 +671,9 @@ watch(selectRow, () => {
                                         }" />
                                     </span>
                                     <!-- {{ locale.number(compResourceMeta.total) }} -->
-                                    <span class="font-light">{{
-                                        props.name
-                                        }}</span>
+                                    <span class="font-light">
+                                        {{ compResourceMeta.total > 1 ? trans('records') : trans('record') }}
+                                    </span>
                                 </div>
                                 <div v-else class="px-2 py-1.5">{{ locale.number(0) }} {{ trans('record') }}</div>
                             </div>
@@ -752,7 +752,7 @@ watch(selectRow, () => {
                         </div>
 
                         <!-- Filter: Element -->
-                        <div v-if="Object.keys(queryBuilderProps?.elementGroups)?.length" class="w-fit">
+                        <div v-if="Object.keys(queryBuilderProps?.elementGroups || [])?.length" class="w-fit">
                             <TableElements
                                 :elements="queryBuilderProps.elementGroups"
                                 @checkboxChanged="(data) => queryBuilderData.elementFilter = data"

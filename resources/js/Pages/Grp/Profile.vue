@@ -116,7 +116,7 @@ const fetchTabData = async (tabSlug: string) => {
         case 'my_data':
             routeName = 'grp.profile.showcase.show'
             break
-        case 'histories':
+        case 'history':
             routeName = 'grp.profile.history.index'
             break
     }
@@ -124,7 +124,11 @@ const fetchTabData = async (tabSlug: string) => {
     try {
         console.log('tab', tabSlug, route(routeName))
         const { data } = await axios.get(
-            route(routeName),
+            route(routeName), {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
         )
         dataTab.value = data
         console.log('daaataaa', dataTab.value)
