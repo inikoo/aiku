@@ -625,28 +625,6 @@ watch(selectRow, () => {
     emits('onSelectRow', selectRow)
 }, {deep: true})
 
-const periodFilter = [
-    {
-        type: 'today',
-        label: 'today',
-    },
-    {
-        type: 'weeks',
-        label: 'Weeks',
-        date: 20240501
-    },
-    {
-        type: 'month',
-        label: 'month',
-        date: 202405
-    },
-    {
-        type: 'year',
-        label: 'year',
-        date: 2022
-    },
-]
-
 </script>
 
 <template>
@@ -694,7 +672,7 @@ const periodFilter = [
                                     </span>
                                     <!-- {{ locale.number(compResourceMeta.total) }} -->
                                     <span class="font-light">{{
-                                        compResourceMeta.total > 1 ? trans('records') : trans('record')
+                                        props.name
                                         }}</span>
                                 </div>
                                 <div v-else class="px-2 py-1.5">{{ locale.number(0) }} {{ trans('record') }}</div>
@@ -753,7 +731,7 @@ const periodFilter = [
                     </div>
 
                     <!-- Search Group -->
-                    <div class="flex flex-row justify-end items-center flex-nowrap space-x-2">
+                    <div class="flex flex-row justify-end items-center flex-nowrap gap-x-2">
                         <!-- <div class="order-2 sm:order-1 mr-2 sm:mr-4" v-if="queryBuilderProps.hasFilters">
                             <slot name="tableAdvancedFilter" :has-filters="queryBuilderProps.hasFilters"
                                 :has-enabled-filters="queryBuilderProps.hasEnabledFilters" :filters="queryBuilderProps.filters"
@@ -765,21 +743,20 @@ const periodFilter = [
 
                         <!-- Filter: Period -->
                         <div v-if="queryBuilderProps?.period_filter?.length" class="w-fit flex gap-x-2">
+                        <!-- <pre>{{ queryBuilderProps?.period_filter }}</pre> -->
                             <TablePeriodFilter
-                                :periodData="queryBuilderProps.period_filter"
+                                :periodList="queryBuilderProps.period_filter"
                                 @periodChanged="(data) => queryBuilderData.periodFilter = data"
                                 :tableName="props.name"
                             />
                         </div>
 
                         <!-- Filter: Element -->
-                        <div class="w-fit">
-                            <template v-if="queryBuilderProps?.elementGroups">
-                                <TableElements v-if="Object.keys(queryBuilderProps?.elementGroups)?.length"
+                        <div v-if="Object.keys(queryBuilderProps?.elementGroups)?.length" class="w-fit">
+                            <TableElements
                                 :elements="queryBuilderProps.elementGroups"
                                 @checkboxChanged="(data) => queryBuilderData.elementFilter = data"
                                 :tableName="props.name" />
-                            </template>
                         </div>
 
                         <!-- Button: Reset -->
