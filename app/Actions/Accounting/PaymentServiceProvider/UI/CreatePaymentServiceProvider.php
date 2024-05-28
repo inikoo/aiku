@@ -43,7 +43,7 @@ class CreatePaymentServiceProvider extends InertiaAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('create payment service provider'),
+                            'title'  => __('Create payment service provider'),
                             'fields' => [
                                 'code' => [
                                     'type'     => 'input',
@@ -96,7 +96,7 @@ class CreatePaymentServiceProvider extends InertiaAction
                 [
                     'type'         => 'creatingModel',
                     'creatingModel'=> [
-                        'label'=> __('creating payment service provider'),
+                        'label'=> __('Creating payment service provider'),
                     ]
                 ]
             ]

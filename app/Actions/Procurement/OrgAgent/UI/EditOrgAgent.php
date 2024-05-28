@@ -160,7 +160,7 @@ class EditOrgAgent extends InertiaAction
     {
         return ShowOrgAgent::make()->getBreadcrumbs(
             routeParameters: $routeParameters,
-            suffix: '('.__('editing').')'
+            suffix: '('.__('Editing').')'
         );
     }
 

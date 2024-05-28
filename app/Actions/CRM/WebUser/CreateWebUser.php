@@ -177,7 +177,7 @@ class CreateWebUser extends OrgAction
                     [
                         'type'          => 'creatingModel',
                         'creatingModel' => [
-                            'label' => __('creating web user'),
+                            'label' => __('Creating web user'),
                         ]
                     ]
                 ]

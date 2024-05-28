@@ -162,7 +162,7 @@ class EditAgent extends InertiaAction
     {
         return ShowAgent::make()->getBreadcrumbs(
             routeParameters: $routeParameters,
-            suffix: '('.__('editing').')'
+            suffix: '('.__('Editing').')'
         );
     }
 

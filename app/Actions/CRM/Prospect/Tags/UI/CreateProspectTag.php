@@ -99,7 +99,7 @@ class CreateProspectTag extends InertiaAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating tag'),
+                        'label' => __('Creating tag'),
                     ]
                 ]
             ]

@@ -244,6 +244,6 @@ class EditEmployee extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters): array
     {
-        return ShowEmployee::make()->getBreadcrumbs(routeParameters:$routeParameters, suffix: '('.__('editing').')');
+        return ShowEmployee::make()->getBreadcrumbs(routeParameters:$routeParameters, suffix: '('.__('Editing').')');
     }
 }

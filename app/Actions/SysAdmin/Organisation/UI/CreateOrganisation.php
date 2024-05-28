@@ -135,7 +135,7 @@ class CreateOrganisation extends InertiaAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating organisation'),
+                        'label' => __('Creating organisation'),
                     ]
                 ]
             ]

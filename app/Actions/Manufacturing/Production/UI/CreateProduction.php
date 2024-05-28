@@ -27,7 +27,7 @@ class CreateProduction extends OrgAction
                 'pageHead'    => [
                     'title'        => __('new production'),
                     'icon'         => [
-                        'title' => __('create productions'),
+                        'title' => __('Create productions'),
                         'icon'  => 'fal fa-industry'
                     ],
                     'actions'      => [
@@ -45,7 +45,7 @@ class CreateProduction extends OrgAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('create production'),
+                            'title'  => __('Create production'),
                             'fields' => [
 
                                 'code' => [
@@ -94,7 +94,7 @@ class CreateProduction extends OrgAction
                 [
                     'type'         => 'creatingModel',
                     'creatingModel'=> [
-                        'label'=> __('creating production'),
+                        'label'=> __('Creating production'),
                     ]
                 ]
             ]

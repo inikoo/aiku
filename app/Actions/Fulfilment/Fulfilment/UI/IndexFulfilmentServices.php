@@ -129,7 +129,7 @@ class IndexFulfilmentServices extends OrgAction
                             'type'  => 'button',
                             'style' => 'primary',
                             'icon'  => 'fal fa-plus',
-                            'label' => __('create service'),
+                            'label' => __('Create service'),
                             'route' => [
                                 'name'       => 'grp.org.fulfilments.show.products.services.create',
                                 'parameters' => array_values($request->route()->originalParameters())

@@ -129,7 +129,7 @@ class CreateLocation extends OrgAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating location'),
+                        'label' => __('Creating location'),
                     ]
                 ]
             ]

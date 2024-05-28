@@ -192,7 +192,7 @@ class CreateEmployee extends OrgAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating employee'),
+                        'label' => __('Creating employee'),
                     ]
                 ]
             ]

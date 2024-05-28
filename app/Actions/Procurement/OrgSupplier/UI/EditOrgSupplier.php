@@ -277,7 +277,7 @@ class EditOrgSupplier extends OrgAction
         return ShowSupplier::make()->getBreadcrumbs(
             routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
-            suffix: '('.__('editing').')'
+            suffix: '('.__('Editing').')'
         );
     }
 

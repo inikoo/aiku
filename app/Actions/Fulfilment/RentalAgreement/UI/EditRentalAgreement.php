@@ -129,7 +129,7 @@ class EditRentalAgreement extends OrgAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating rental agreement'),
+                        'label' => __('Creating rental agreement'),
                     ]
                 ]
             ]

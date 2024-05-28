@@ -114,7 +114,7 @@ class EditWarehouseArea extends InertiaAction
     {
         return ShowWarehouseArea::make()->getBreadcrumbs(
             routeParameters: $routeParameters,
-            suffix: '('.__('editing').')'
+            suffix: '('.__('Editing').')'
         );
     }
 

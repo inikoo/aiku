@@ -98,7 +98,7 @@ class EditProduction extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters): array
     {
-        return ShowProduction::make()->getBreadcrumbs(routeParameters:$routeParameters, suffix: '('.__('editing').')');
+        return ShowProduction::make()->getBreadcrumbs(routeParameters:$routeParameters, suffix: '('.__('Editing').')');
     }
 
     public function getPrevious(Production $production, ActionRequest $request): ?array
