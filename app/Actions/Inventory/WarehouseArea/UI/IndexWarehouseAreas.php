@@ -191,7 +191,7 @@ class IndexWarehouseAreas extends OrgAction
                 'pageHead'    => [
                     'title'     => __('warehouse areas'),
                     'container' => $container,
-                    'iconRight' => [
+                    'icon' => [
                         'icon'  => ['fal', 'fa-map-signs'],
                         'title' => __('warehouse areas')
                     ],

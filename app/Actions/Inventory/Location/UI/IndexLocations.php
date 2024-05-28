@@ -229,7 +229,7 @@ class IndexLocations extends OrgAction
                 'pageHead'    => [
                     'title'     => __('locations'),
                     'container' => $container,
-                    'iconRight' => [
+                    'icon' => [
                         'icon'  => ['fal', 'fa-inventory'],
                         'title' => __('locations')
                     ],

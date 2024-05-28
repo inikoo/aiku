@@ -58,6 +58,7 @@ class ShowWarehouseArea extends OrgAction
                     'next'     => $this->getNext($warehouseArea, $request),
                 ],
                 'pageHead'                             => [
+                    'model'     => __('warehouse area'),
                     'icon'    =>
                         [
                             'icon'  => ['fal', 'fa-map-signs'],
