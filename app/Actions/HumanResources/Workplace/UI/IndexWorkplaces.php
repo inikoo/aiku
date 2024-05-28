@@ -126,7 +126,7 @@ class IndexWorkplaces extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('working places'),
                 'pageHead'    => [
-                    'icon'  => ['fal', 'building'],
+                    'icon'   => ['fal', 'building'],
                     'title'  => __('Working places'),
                     'actions'=> [
                         $this->canEdit ? [

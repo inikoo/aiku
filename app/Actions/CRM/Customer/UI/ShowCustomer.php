@@ -112,9 +112,9 @@ class ShowCustomer extends OrgAction
                     'next'     => $this->getNext($customer, $request),
                 ],
                 'pageHead' => [
-                    'title' => $customer->name,
+                    'title'     => $customer->name,
                     'model'     => __('customer'),
-                    'icon'  => [
+                    'icon'      => [
                         'icon'  => ['fal', 'fa-user'],
                         'title' => __('customer')
                     ],

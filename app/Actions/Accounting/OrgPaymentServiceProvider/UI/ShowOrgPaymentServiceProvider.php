@@ -66,9 +66,9 @@ class ShowOrgPaymentServiceProvider extends OrgAction
                             'icon'  => ['fal', 'fa-cash-register'],
                             'title' => __('payment service provider')
                         ],
-                    'title' => $orgPaymentServiceProvider->slug,
+                    'title'     => $orgPaymentServiceProvider->slug,
                     'model'     => __('payment service provider'),
-                    'meta'  => [
+                    'meta'      => [
                         [
                             'name'     => trans_choice('account | accounts', $orgPaymentServiceProvider->stats->number_payment_accounts),
                             'number'   => $orgPaymentServiceProvider->stats->number_payment_accounts,

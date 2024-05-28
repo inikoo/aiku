@@ -60,13 +60,16 @@ const originUrl = location.origin
 
                 </div>
                 <h2 :class="!data.noCapitalise? 'capitalize' : ''">
-                    <span v-if="data.model" class="text-gray-400 mr-2 font-medium">{{ data.model }}</span>{{ data.title }}
+                    <span v-if="data.model" class="text-gray-400 mr-2 font-medium">{{ data.model }}</span>
+                    {{ data.title }}
                 </h2>
                 <FontAwesomeIcon v-if="data.iconRight"
                     :title="data.iconRight.tooltip || ''"
                     :icon="data.iconRight.icon" class="h-4" :class="data.iconRight.class"
                     aria-hidden="true"
                 />
+
+                <slot name="afterTitle" />
             </div>
 
             <!-- Section: mini Tabs -->
@@ -104,9 +107,9 @@ const originUrl = location.origin
                             <div class="rounded-md flex" :class="[(action.button?.length || 0) > 1 ? 'shadow' : '']">
                                 <template v-if="action.button?.length">
                                     <slot v-for="(button, index) in action.button" :name="'button-group-' + kebabCase(button.label)" :action="{ button }">
-                                        <Link
-                                            :href="`${route(button.route.name, button.route.parameters)}`" class=""
-                                            :method="button.route.method || 'get'"
+                                        <component :is="button.route?.name ? Link : 'div'"
+                                            :href="button.route?.name ? route(button.route.name, button.route.parameters) : '#'" class=""
+                                            :method="button.route?.method || 'get'"
                                             :as="button.target ? 'a' : 'div'"
                                             :target="button.target"
                                         >
@@ -118,7 +121,7 @@ const originUrl = location.origin
                                                     :class="{'rounded-l-md': index === 0, 'rounded-r-md ': index === action.button?.length - 1}"
                                             >
                                             </Button>
-                                        </Link>
+                                        </component>
                                     </slot>
                                 </template>
                             </div>

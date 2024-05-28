@@ -106,9 +106,9 @@ class ShowPayment extends InertiaAction
                 ],
                 'pageHead'    => [
                     'model'     => __('payment'),
-                    'icon'  => 'fal fa-coins',
-                    'title' => $payment->slug,
-                    'edit'  => $this->canEdit ? [
+                    'icon'      => 'fal fa-coins',
+                    'title'     => $payment->slug,
+                    'edit'      => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                             'parameters' => array_values($request->route()->originalParameters())

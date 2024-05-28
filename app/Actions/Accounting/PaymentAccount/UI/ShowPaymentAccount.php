@@ -81,7 +81,7 @@ class ShowPaymentAccount extends OrgAction
                 ],
                 'pageHead'    => [
                     'model'     => __('payment account'),
-                    'icon'   =>
+                    'icon'      =>
                         [
                             'icon'  => ['fal', 'fa-money-check-alt'],
                             'title' => __('payment account')

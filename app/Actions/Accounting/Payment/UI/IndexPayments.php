@@ -188,7 +188,7 @@ class IndexPayments extends OrgAction
                 ),
                 'title'       => __('payments '),
                 'pageHead'    => [
-                    'icon'  => ['fal', 'fa-coins'],
+                    'icon'      => ['fal', 'fa-coins'],
                     'title'     => __('payments'),
                     'container' => match ($routeName) {
                         'grp.org.accounting.shops.show.payments.index' => [
