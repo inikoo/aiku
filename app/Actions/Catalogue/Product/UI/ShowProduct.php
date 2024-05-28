@@ -101,6 +101,7 @@ class ShowProduct extends OrgAction
                 ],
                 'pageHead'    => [
                     'title'   => $product->code,
+                    'model'     => __('product'),
                     'icon'    =>
                         [
                             'icon'  => ['fal', 'fa-cube'],

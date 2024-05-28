@@ -68,6 +68,7 @@ class ShowCollection extends OrgAction
                 ],
                 'pageHead'    => [
                     'title'   => $collection->code,
+                    'model'     => __('collection'),
                     'icon'    =>
                         [
                             'icon'  => ['fal', 'fa-cube'],

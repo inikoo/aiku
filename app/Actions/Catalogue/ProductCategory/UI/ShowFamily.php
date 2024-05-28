@@ -92,6 +92,7 @@ class ShowFamily extends OrgAction
                 ],
                 'pageHead'                           => [
                     'title' => $family->name,
+                    'model'     => __('family'),
                     'icon'  => [
                         'icon'  => ['fal', 'fa-folder'],
                         'title' => __('department')
