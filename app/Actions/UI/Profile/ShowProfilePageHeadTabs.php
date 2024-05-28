@@ -11,7 +11,6 @@ use App\Actions\GrpAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\SysAdmin\ProfileTabsEnum;
-use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -21,15 +20,10 @@ class ShowProfilePageHeadTabs extends GrpAction
     use WithInertia;
     use WithActionButtons;
 
-    public function asController(ActionRequest $request): User
+    public function asController(ActionRequest $request): array
     {
         $this->initialisation(group(), $request)->withTab(ProfileTabsEnum::values());
 
-        return $request->user();
-    }
-
-    public function jsonResponse(User $user): array
-    {
         return [
             "pageHead"                       => [
                 "title"        => __("My Profile"),
@@ -51,5 +45,10 @@ class ShowProfilePageHeadTabs extends GrpAction
             ],
 
         ];
+    }
+
+    public function jsonResponse(array $layouts): array
+    {
+        return $layouts;
     }
 }

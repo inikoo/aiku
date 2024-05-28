@@ -228,7 +228,7 @@ class IndexProducts extends OrgAction
                 'title'    => __('Products'),
                 'pageHead' => [
                     'title'     => __('products'),
-                    'icon' => [
+                    'icon'      => [
                         'icon'  => ['fal', 'fa-cube'],
                         'title' => __('product')
                     ],

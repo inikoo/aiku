@@ -91,9 +91,9 @@ class ShowFamily extends OrgAction
                     'next'     => $this->getNext($family, $request),
                 ],
                 'pageHead'                           => [
-                    'title' => $family->name,
+                    'title'     => $family->name,
                     'model'     => __('family'),
-                    'icon'  => [
+                    'icon'      => [
                         'icon'  => ['fal', 'fa-folder'],
                         'title' => __('department')
                     ],

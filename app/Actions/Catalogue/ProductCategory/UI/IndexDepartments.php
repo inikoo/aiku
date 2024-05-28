@@ -203,7 +203,7 @@ class IndexDepartments extends OrgAction
                 'pageHead'    => [
                     'title'     => __('departments'),
                     'container' => $container,
-                    'icon' => [
+                    'icon'      => [
                         'icon'  => ['fal', 'fa-folder-tree'],
                         'title' => __('department')
                     ],

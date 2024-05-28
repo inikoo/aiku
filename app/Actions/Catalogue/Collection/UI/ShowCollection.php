@@ -67,9 +67,9 @@ class ShowCollection extends OrgAction
                     'next'     => $this->getNext($collection, $request),
                 ],
                 'pageHead'    => [
-                    'title'   => $collection->code,
+                    'title'     => $collection->code,
                     'model'     => __('collection'),
-                    'icon'    =>
+                    'icon'      =>
                         [
                             'icon'  => ['fal', 'fa-cube'],
                             'title' => __('collection')

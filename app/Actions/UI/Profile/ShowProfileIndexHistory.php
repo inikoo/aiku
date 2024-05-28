@@ -13,7 +13,8 @@ use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\SysAdmin\ProfileTabsEnum;
 use App\Http\Resources\History\HistoryResource;
-use App\Models\SysAdmin\User;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -23,15 +24,15 @@ class ShowProfileIndexHistory extends GrpAction
     use WithInertia;
     use WithActionButtons;
 
-    public function asController(ActionRequest $request): User
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation(group(), $request)->withTab(ProfileTabsEnum::values());
 
-        return $request->user();
+        return IndexHistory::run($request->user(), ProfileTabsEnum::HISTORY->value);
     }
 
-    public function jsonResponse(User $user): GetProfileShowcase
+    public function jsonResponse(LengthAwarePaginator $histories): AnonymousResourceCollection
     {
-        return HistoryResource::run(IndexHistory::run($user, ProfileTabsEnum::HISTORY->value));
+        return HistoryResource::collection($histories);
     }
 }

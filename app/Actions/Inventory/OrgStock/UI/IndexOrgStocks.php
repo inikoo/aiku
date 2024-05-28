@@ -177,7 +177,7 @@ class IndexOrgStocks extends OrgAction
                 'pageHead'    => [
                     'title'      => __("SKUs"),
                     'container'  => $container,
-                    'icon'  => [
+                    'icon'       => [
                         'icon'  => ['fal', 'fa-box'],
                         'title' => __('SKU')
                     ],

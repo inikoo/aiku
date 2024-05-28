@@ -146,7 +146,7 @@ class IndexCollection extends OrgAction
                 'title'    => __('Collections'),
                 'pageHead' => [
                     'title'     => __('Collections'),
-                    'icon' => [
+                    'icon'      => [
                         'icon'  => ['fal', 'fa-cube'],
                         'title' => __('Collections')
                     ]
