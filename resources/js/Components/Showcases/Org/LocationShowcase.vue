@@ -60,7 +60,7 @@ const blueprint = [
 ]
 
 onMounted(() => {
-    JsBarcode('#locationBarcode', 'loc-' + route().v().params.location, {
+    JsBarcode('#locationBarcode', route().v().params.location, {
         lineColor: "rgb(41 37 36)",
         width: 2,
         height: 70,
