@@ -337,7 +337,7 @@ function changeSearchInputValue(key, value) {
     }, props.inputDebounceMs);
 }
 
-function changeGlobalSearchValue(value) {
+function changeGlobalSearchValue(value?: string) {
     changeSearchInputValue('global', value);
 }
 
@@ -654,28 +654,25 @@ watch(selectRow, () => {
             :class="{ 'opacity-75': isVisiting }">
             <div class="my-0">
                 <!-- Wrapper -->
-                <div class="grid grid-flow-col justify-between flex-nowrap pr-4">
+                <div class="grid grid-flow-col justify-between items-center flex-nowrap px-4">
 
-                    <!-- Left Section: Records, -->
-                    <div class="flex space-x-2">
+                    <!-- Left Section: Records, Model Operations, MO Bulk, Search -->
+                    <div class="h-fit flex gap-x-1 items-center">
                         <!-- Result Number -->
-                        <div class="flex gap-0 items-center">
-                            <div class="grid border-r rounded-md border-gray-300 justify-end items-center text-base font-normal text-gray-700"
-                                title="Results">
-                                <div v-if="compResourceMeta.total"
-                                    class="px-2 py-1.5 whitespace-nowrap flex gap-x-1 flex-nowrap">
+                        <div class="bg-gray-100 h-fit flex items-center border border-gray-300 overflow-hidden rounded">
+                            <div class="grid justify-end items-center text-base font-normal text-gray-700">
+                                <div class="px-2 py-0.5 whitespace-nowrap flex gap-x-1 flex-nowrap">
                                     <span class="font-semibold tabular-nums">
-                                        <CountUp :endVal="compResourceMeta.total" :duration="1.2" :scrollSpyOnce="true"
+                                        <CountUp :endVal="compResourceMeta?.total || 0" :duration="1.2" :scrollSpyOnce="true"
                                             :options="{
                                             formattingFn: (number) => locale.number(number)
                                         }" />
                                     </span>
-                                    <!-- {{ locale.number(compResourceMeta.total) }} -->
+                                    
                                     <span class="font-light">
                                         {{ compResourceMeta.total > 1 ? trans('records') : trans('record') }}
                                     </span>
                                 </div>
-                                <div v-else class="px-2 py-1.5">{{ locale.number(0) }} {{ trans('record') }}</div>
                             </div>
 
                             <!-- Button: Model Operations -->
@@ -688,14 +685,18 @@ watch(selectRow, () => {
                                         :href="route(linkButton?.route?.name, linkButton?.route?.parameters)"
                                         :method="linkButton.route?.method || 'get'" v-tooltip="linkButton.tooltip"
                                         :class="[queryBuilderProps.modelOperations?.createLink.length > 1 ? 'first:rounded-l last:rounded-r' : '']">
-                                        <Button :style="linkButton.style" :icon="linkButton.icon"
-                                            :label="linkButton.label" size="l" class="h-full border-none rounded-none"
-                                            :class="{'rounded-l-md': btnIndex === 0, 'rounded-r-md ': btnIndex === queryBuilderProps.modelOperations?.createLink.length - 1}" />
+                                        <Button
+                                            :style="linkButton.style"
+                                            :icon="linkButton.icon"
+                                            :label="linkButton.label"
+                                            size="s"
+                                            class="h-full border-none rounded-none"
+                                        />
                                     </component>
                                 </slot>
                             </div>
+                            <!-- Button: Model Operations Bulk -->
                             <div v-if="queryBuilderProps.modelOperations?.bulk" class="flex">
-
                                 <slot v-for="(linkButton, btnIndex) in queryBuilderProps.modelOperations?.bulk"
                                     :name="`button${linkButton.label}`" :linkButton="linkButton">
                                     <Link v-if="linkButton?.route?.name" as="div"
@@ -711,22 +712,19 @@ watch(selectRow, () => {
                                     </Link>
                                 </slot>
                             </div>
+                        </div>
 
-                            <slot v-if="queryBuilderProps.modelOperations?.uploadFile" name="uploadFile" id="uploadFile"
-                                :item="queryBuilderProps.modelOperations?.uploadFile" />
-
-                            <!-- Search Input Button -->
-                            <div v-if="queryBuilderProps.globalSearch" class="flex flex-row">
-                                <slot name="tableFilterSearch" :has-global-search="queryBuilderProps.globalSearch"
-                                    :label="queryBuilderProps.globalSearch ? queryBuilderProps.globalSearch.label : null"
-                                    :value="queryBuilderProps.globalSearch ? queryBuilderProps.globalSearch.value : null"
-                                    :on-change="changeGlobalSearchValue">
-                                    <TableFilterSearch v-if="queryBuilderProps.globalSearch" class=""
-                                        @resetSearch="() => resetQuery()" :label="queryBuilderProps.globalSearch.label"
-                                        :value="queryBuilderProps.globalSearch.value"
-                                        :on-change="changeGlobalSearchValue" />
-                                </slot>
-                            </div>
+                        <!-- Search Input Button -->
+                        <div v-if="queryBuilderProps.globalSearch" class="flex flex-row">
+                            <slot name="tableFilterSearch" :has-global-search="queryBuilderProps.globalSearch"
+                                :label="queryBuilderProps.globalSearch ? queryBuilderProps.globalSearch.label : null"
+                                :value="queryBuilderProps.globalSearch ? queryBuilderProps.globalSearch.value : null"
+                                :on-change="changeGlobalSearchValue">
+                                <TableFilterSearch v-if="queryBuilderProps.globalSearch" class=""
+                                    @resetSearch="() => resetQuery()" :label="queryBuilderProps.globalSearch.label"
+                                    :value="queryBuilderProps.globalSearch.value"
+                                    :on-change="changeGlobalSearchValue" />
+                            </slot>
                         </div>
                     </div>
 
