@@ -107,6 +107,7 @@ class ShowPhysicalGoods extends OrgAction
                     'next'     => $this->getNext($product, $request),
                 ],
                 'pageHead'    => [
+                    'model'   => __('outer'),
                     'title'   => $product->code,
                     'icon'    =>
                         [

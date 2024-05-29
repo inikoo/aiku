@@ -105,11 +105,12 @@ class ShowService extends OrgAction
                     'next'     => $this->getNext($product, $request),
                 ],
                 'pageHead'    => [
+                    'model'   => __('service'),
                     'title'   => $product->code,
                     'icon'    =>
                         [
-                            'icon'  => ['fal', 'fa-cube'],
-                            'title' => __('product')
+                            'icon'  => ['fal', 'fa-concierge-bell'],
+                            'title' => __('service')
                         ],
                     'actions' => [
                         $this->canEdit ? [

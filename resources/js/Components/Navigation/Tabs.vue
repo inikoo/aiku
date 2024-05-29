@@ -34,9 +34,6 @@ const emits = defineEmits<{
 
 const currentTab = ref(props.current)
 const tabLoading = ref<boolean | string>(false)
-// const changeTab = function (tabSlug: string) {
-//     currentTab.value = tabSlug
-// }
 
 // Method: click Tab
 const onChangeTab = async (tabSlug: string) => {

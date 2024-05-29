@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+// import { computed } from 'vue'
 import { useStringToHex } from '@/Composables/useStringToHex'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -44,16 +44,16 @@ const listTheme: any = {
     99: 'bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-500',
 }
 
-const compTheme = computed(() => {
+const compTheme = () => {
     return props.class || listTheme[props.theme] || listTheme[99]
-})
+}
 </script>
 
 <template>
     <div class="inline-flex items-center gap-x-1 rounded select-none px-1.5 py-1 w-fit font-medium border"
         :class="[
             `text-${size}`,
-            stringToColor ? false : compTheme  // If stringToColor false then take provided style
+            stringToColor ? false : compTheme()  // If stringToColor false then take provided style
         ]"
         :style="[
             stringToColor ? [  // if stringToColor true

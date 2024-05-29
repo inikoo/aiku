@@ -51,7 +51,7 @@ const blueprint = {
     },
     location: {
         label: 'Location',
-        value: props.data.data.location?.code || '-'
+        value: props.data.data.location || '-'
     },
     state: {
         label: 'State',
@@ -83,6 +83,7 @@ onMounted(() => {
 
 
 <template>
+    <!-- <pre>{{ data }}</pre> -->
     <div class="grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-7xl lg:grid-cols-2 lg:px-8 pt-4">
         <!-- Section: data -->
         <dl class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-8 lg:gap-x-8">
@@ -115,7 +116,12 @@ onMounted(() => {
 
             <div class="border-t border-gray-200 pt-4">
                 <dt class="font-medium">{{ blueprint.location.label }}</dt>
-                <dd class="mt-2 text-sm text-gray-500 text-justify">{{ blueprint.location.value }}</dd>
+                <dd class="mt-2 text-sm text-gray-500 text-justify">
+                    <Link v-if="blueprint.location.value.route?.name" :href="route(blueprint.location.value.route.name, blueprint.location.value.route.parameters)" class="primaryLink">
+                        {{ blueprint.location.value.resource.code }}
+                    </Link>
+                    <span v-else>{{ blueprint.location.value.resource.code }}</span>
+                </dd>
             </div>
 
             <div class="border-t border-gray-200 pt-4">

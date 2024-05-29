@@ -47,7 +47,8 @@ const logoutAuth = () => {
                     <div class="text-gray-700 text-lg">{{ layout?.customer?.company_name }}</div>
                     <span class="sr-only">{{ trans("Open user menu") }}</span>
                     <div class="h-8 aspect-square rounded-full overflow-hidden border border-gray-300">
-                        <Image :src="layout.user.avatar_thumbnail" alt="" />
+                        <Image v-if="layout.user.avatar_thumbnail" :src="layout.user.avatar_thumbnail" alt="" />
+                        <img v-else src="/retina-default-user.svg" alt="Retina default avatar" class="p-0.5">
                     </div>
                 </MenuButton>
                 

@@ -188,7 +188,11 @@ class IndexUsers extends InertiaAction
                 prefix: 'users'
             )
         )
-            ->table(IndexUserRequestLogs::make()->tableStructure());
+            ->table(IndexUserRequestLogs::make()->tableStructure())
+            ->table(IndexHistory::make()->tableStructure(
+                prefix:UsersTabsEnum::USERS_HISTORIES->value
+            ));
+            
     }
 
     public function asController(ActionRequest $request): LengthAwarePaginator

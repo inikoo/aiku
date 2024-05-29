@@ -192,7 +192,7 @@ class ShowPaymentAccount extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('payment accounts')
+                            'label' => __('Payment accounts')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
