@@ -173,7 +173,9 @@ onMounted(async () => {
         <div v-if="isTabLoading" class="pt-32 w-full flex justify-center">
             <LoadingIcon size="2x" />
         </div>
-        <component v-else-if="dataTab" :is="component" :data="dataTab" :tab="currentTab" />
+        <div v-else-if="dataTab" class="pb-16 h-full overflow-auto">
+            <component :is="component" :data="dataTab" :tab="currentTab" />
+        </div>
         <div v-else class="h-full w-full flex items-center justify-center text-gray-400 italic">
             {{ trans('No data to shown.') }}
         </div>

@@ -44,6 +44,7 @@ defineEmits<{
 const imageSkeleton: { [key: string]: boolean } = reactive({})
 
 const layoutStore = inject('layout', layoutStructure)
+console.log('dasd', layoutStore.group?.label)
 
 // For label
 const label = {
@@ -90,7 +91,11 @@ const label = {
                             <Image :src="layoutStore.organisations.data.find((item) => item.slug == (layoutStore.currentParams?.organisation || false))?.logo || layoutStore.group?.logo" class="aspect-square h-5" />
                             <Transition name="slide-to-left">
                                 <p v-if="layoutStore.leftSidebar.show" class="text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate">
-                                    Aiku
+                                    {{ layoutStore.currentParams?.organisation
+                                        ? layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
+                                            ?? layoutStore.agents.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
+                                            ?? layoutStore.group?.label
+                                        : layoutStore.group?.label }}
                                 </p>
                             </Transition>
                         </Link>
@@ -125,8 +130,8 @@ const label = {
                                         layoutStore.currentParams?.organisation
                                             ? layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
                                                 ?? layoutStore.agents.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
-                                                ?? 'Select organisation/agent'
-                                            : 'Select organisation/agent'
+                                                ?? layoutStore.group?.label
+                                            : layoutStore.group?.label
                                     "
                                 />
                                 <transition>

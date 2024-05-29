@@ -23,7 +23,7 @@ class ShowOrganisationDashboard extends OrgAction
         return Inertia::render(
             'Dashboard/OrganisationDashboard',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters(), __('dashboard')),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters(), __('Dashboard')),
             ]
         );
     }
