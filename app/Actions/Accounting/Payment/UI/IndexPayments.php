@@ -218,7 +218,7 @@ class IndexPayments extends OrgAction
                             'name'       => $routeName,
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('payments'),
+                        'label' => __('Payments'),
                         'icon'  => 'fal fa-bars',
 
                     ],

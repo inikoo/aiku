@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\Marketplace\Agent\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\UI\Procurement\ProcurementDashboard;
+use App\Actions\Procurement\UI\ProcurementDashboard;
 use App\Http\Resources\Procurement\MarketplaceAgentResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
@@ -93,7 +93,7 @@ class IndexMarketplaceAgents extends OrgAction
                             'tooltip' => __('new agent'),
                             'label'   => __('agent'),
                             'route'   => [
-                                'name'       => 'grp.supply-chain.agents.create',
+                                'name'       => 'grp.supply-chain.org_agents.create',
 
                             ]
                         ] : null
@@ -148,13 +148,13 @@ class IndexMarketplaceAgents extends OrgAction
                     'title'  => __("agent's marketplace"),
 
                     'actions'=> [
-                        $this->canEdit && $request->route()->getName() == 'grp.org.procurement.marketplace.agents.index' ? [
+                        $this->canEdit && $request->route()->getName() == 'grp.org.procurement.marketplace.org_agents.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new agent'),
                             'label'   => __('agent'),
                             'route'   => [
-                                'name'       => 'grp.org.procurement.marketplace.agents.create',
+                                'name'       => 'grp.org.procurement.marketplace.org_agents.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
@@ -175,10 +175,10 @@ class IndexMarketplaceAgents extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.org.procurement.marketplace.agents.index',
+                                'name'       => 'grp.org.procurement.marketplace.org_agents.index',
                                 'parameters' => array_values($routeParameters)
                             ],
-                            'label' => __("agent's marketplace"),
+                            'label' => __("Agent's marketplace"),
                             'icon'  => 'fal fa-bars'
                         ]
                     ]

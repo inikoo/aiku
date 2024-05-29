@@ -123,7 +123,7 @@ class CreateDepartment extends OrgAction
                 [
                     'type'         => 'creatingModel',
                     'creatingModel'=> [
-                        'label'=> __('creating department'),
+                        'label'=> __('Creating department'),
                     ]
                 ]
             ]

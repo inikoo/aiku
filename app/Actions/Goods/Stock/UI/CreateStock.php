@@ -102,7 +102,7 @@ class CreateStock extends InertiaAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating stock'),
+                        'label' => __('Creating stock'),
                     ]
                 ]
             ]

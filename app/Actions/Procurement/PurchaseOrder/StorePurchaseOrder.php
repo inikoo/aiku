@@ -148,7 +148,7 @@ class StorePurchaseOrder extends OrgAction
 
         $purchaseOrder = $this->handle($organisation, $orgAgent, $this->validatedData);
 
-        return redirect()->route('grp.org.procurement.purchase-orders.show', $purchaseOrder->slug);
+        return redirect()->route('grp.org.procurement.purchase_orders.show', $purchaseOrder->slug);
     }
 
     public function inOrgSupplier(Organisation $organisation, OrgSupplier $orgSupplier, ActionRequest $request): \Illuminate\Http\RedirectResponse|PurchaseOrder
@@ -158,6 +158,6 @@ class StorePurchaseOrder extends OrgAction
 
         $purchaseOrder = $this->handle($organisation, $orgSupplier, $this->validatedData);
 
-        return redirect()->route('grp.org.procurement.purchase-orders.show', $purchaseOrder->slug);
+        return redirect()->route('grp.org.procurement.purchase_orders.show', $purchaseOrder->slug);
     }
 }

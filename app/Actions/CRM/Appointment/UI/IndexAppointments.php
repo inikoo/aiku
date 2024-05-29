@@ -182,7 +182,7 @@ class IndexAppointments extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('appointments'),
+                        'label' => __('Appointments'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],

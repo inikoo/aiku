@@ -259,7 +259,7 @@ class IndexStoredPallets extends OrgAction
                                     'warehouse'    => $routeParameters['warehouse'],
                                 ]
                             ],
-                            'label' => __('pallets'),
+                            'label' => __('Pallets'),
                             'icon'  => 'fal fa-bars',
                         ],
 
@@ -281,7 +281,7 @@ class IndexStoredPallets extends OrgAction
                                     'fulfilment'   => $routeParameters['fulfilment'],
                                 ]
                             ],
-                            'label' => __('pallets'),
+                            'label' => __('Pallets'),
                             'icon'  => 'fal fa-bars',
                         ],
 

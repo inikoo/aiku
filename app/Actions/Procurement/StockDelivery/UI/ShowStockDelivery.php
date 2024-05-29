@@ -8,7 +8,7 @@
 namespace App\Actions\Procurement\StockDelivery\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Procurement\ProcurementDashboard;
+use App\Actions\Procurement\UI\ProcurementDashboard;
 use App\Enums\UI\Procurement\StockDeliveryTabsEnum;
 use App\Http\Resources\Procurement\StockDeliveryResource;
 use App\Models\Procurement\StockDelivery;
@@ -82,13 +82,13 @@ class ShowStockDelivery extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.org.procurement.stock-deliveries.index',
+                                'name' => 'grp.org.procurement.stock_deliveries.index',
                             ],
                             'label' => __('supplier delivery')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.org.procurement.stock-deliveries.show',
+                                'name'       => 'grp.org.procurement.stock_deliveries.show',
                                 'parameters' => [$stockDelivery->slug]
                             ],
                             'label' => $stockDelivery->number,
@@ -120,7 +120,7 @@ class ShowStockDelivery extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'grp.org.procurement.stock-deliveries.show'=> [
+            'grp.org.procurement.stock_deliveries.show'=> [
                 'label'=> $stockDelivery->number,
                 'route'=> [
                     'name'      => $routeName,

@@ -9,6 +9,7 @@ namespace App\Actions\Catalogue\Service\UI;
 
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Product\ProductTypeEnum;
+use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
@@ -112,9 +113,10 @@ class EditService extends OrgAction
                                     'value' => $product->description
                                 ],
                                 'units' => [
-                                    'type'  => 'input',
+                                    'type'  => 'select',
                                     'label' => __('units'),
-                                    'value' => $product->service->unit
+                                    'value' => $product->service->unit,
+                                    'options'  => Options::forEnum(RentalUnitEnum::class)
                                 ],
                                 'price' => [
                                     'type'    => 'input',
@@ -153,7 +155,7 @@ class EditService extends OrgAction
         return ShowService::make()->getBreadcrumbs(
             routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
-            suffix: '('.__('editing').')'
+            suffix: '('.__('Editing').')'
         );
     }
 

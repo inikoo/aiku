@@ -31,7 +31,7 @@ class CreateArtefact extends OrgAction
                 'pageHead'    => [
                     'title'        => __('new artefact'),
                     'icon'         => [
-                        'title' => __('create artefact'),
+                        'title' => __('Create artefact'),
                         'icon'  => 'fal fa-industry'
                     ],
                     'actions'      => [
@@ -49,7 +49,7 @@ class CreateArtefact extends OrgAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('create artefact'),
+                            'title'  => __('Create artefact'),
                             'fields' => [
                                 'code' => [
                                     'type'     => 'input',

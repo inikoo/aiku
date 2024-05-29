@@ -135,7 +135,7 @@ class CreateProduct extends InertiaAction
                 [
                     'type'         => 'creatingModel',
                     'creatingModel'=> [
-                        'label'=> __('creating product'),
+                        'label'=> __('Creating product'),
                     ]
                 ]
             ]

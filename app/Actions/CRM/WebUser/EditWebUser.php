@@ -156,7 +156,7 @@ class EditWebUser extends OrgAction
         return ShowWebUser::make()->getBreadcrumbs(
             routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
-            suffix: '('.__('editing').')'
+            suffix: '('.__('Editing').')'
         );
     }
 }

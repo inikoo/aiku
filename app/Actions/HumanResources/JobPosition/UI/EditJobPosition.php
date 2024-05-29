@@ -109,6 +109,6 @@ class EditJobPosition extends OrgAction
         return ShowJobPosition::make()->getBreadcrumbs([
             'organisation' => $this->organisation->slug,
             'job_position' => $jobPosition->slug
-        ], suffix: '('.__('editing').')');
+        ], suffix: '('.__('Editing').')');
     }
 }

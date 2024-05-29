@@ -97,7 +97,7 @@ class EditPaymentServiceProvider extends OrgAction
     {
         return ShowPaymentServiceProvider::make()->getBreadcrumbs(
             routeParameters:$routeParameters,
-            suffix: '('.__('editing').')'
+            suffix: '('.__('Editing').')'
         );
     }
 }

@@ -129,7 +129,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                             'type'  => 'button',
                             'style' => 'primary',
                             'icon'  => 'fal fa-plus',
-                            'label' => __('create good'),
+                            'label' => __('Create good'),
                             'route' => [
                                 'name'       => 'grp.org.fulfilments.show.products.outers.create',
                                 'parameters' => array_values($request->route()->originalParameters())
@@ -216,7 +216,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('goods'),
+                        'label' => __('Goods'),
                         'icon'  => 'fal fa-bars'
                     ],
                     'suffix' => $suffix

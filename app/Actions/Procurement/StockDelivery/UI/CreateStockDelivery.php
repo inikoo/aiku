@@ -26,7 +26,7 @@ class CreateStockDelivery extends OrgAction
                     'title'        => __('new supplier delivery'),
                     'cancelCreate' => [
                         'route' => [
-                            'name'       => 'grp.org.procurement.stock-deliveries.index',
+                            'name'       => 'grp.org.procurement.stock_deliveries.index',
                             'parameters' => array_values($request->route()->originalParameters())
                         ],
                     ]
@@ -35,7 +35,7 @@ class CreateStockDelivery extends OrgAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('create supplier delivery'),
+                            'title'  => __('Create supplier delivery'),
                             'fields' => [
 
                                 'number' => [
@@ -82,7 +82,7 @@ class CreateStockDelivery extends OrgAction
                 [
                     'type'         => 'creatingModel',
                     'creatingModel'=> [
-                        'label'=> __('creating supplier deliveries'),
+                        'label'=> __('Creating supplier deliveries'),
                     ]
                 ]
             ]

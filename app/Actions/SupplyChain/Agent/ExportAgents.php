@@ -8,7 +8,7 @@
 namespace App\Actions\SupplyChain\Agent;
 
 use App\Actions\Traits\WithExportData;
-use App\Exports\Procurement\AgentsExport;
+use App\Exports\SupplyChain\AgentsExport;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;

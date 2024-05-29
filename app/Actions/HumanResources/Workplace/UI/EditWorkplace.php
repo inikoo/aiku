@@ -168,7 +168,7 @@ class EditWorkplace extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters): array
     {
-        return ShowWorkplace::make()->getBreadcrumbs(routeParameters: $routeParameters, suffix: '('.__('editing').')');
+        return ShowWorkplace::make()->getBreadcrumbs(routeParameters: $routeParameters, suffix: '('.__('Editing').')');
     }
 
     public function getPrevious(Workplace $workplace, ActionRequest $request): ?array

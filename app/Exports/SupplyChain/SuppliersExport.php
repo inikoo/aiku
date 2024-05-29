@@ -1,11 +1,11 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Tue, 20 Jun 2023 09:17:36 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 28 May 2024 11:28:42 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Exports\Procurement;
+namespace App\Exports\SupplyChain;
 
 use App\Models\SupplyChain\Supplier;
 use Illuminate\Database\Eloquent\Relations\Relation;

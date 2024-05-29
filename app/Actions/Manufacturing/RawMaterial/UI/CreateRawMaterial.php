@@ -34,7 +34,7 @@ class CreateRawMaterial extends OrgAction
                 'pageHead'    => [
                     'title'        => __('new raw material'),
                     'icon'         => [
-                        'title' => __('create raw material'),
+                        'title' => __('Create raw material'),
                         'icon'  => 'fal fa-industry'
                     ],
                     'actions'      => [
@@ -52,7 +52,7 @@ class CreateRawMaterial extends OrgAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('create raw material'),
+                            'title'  => __('Create raw material'),
                             'fields' => [
 
                                 'type' => [

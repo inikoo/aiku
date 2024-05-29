@@ -233,7 +233,7 @@ class IndexDepartments extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('departments'),
+                        'label' => __('Departments'),
                         'icon'  => 'fal fa-bars'
                     ],
                     'suffix' => $suffix

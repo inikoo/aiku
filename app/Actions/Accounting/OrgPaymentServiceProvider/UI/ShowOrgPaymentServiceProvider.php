@@ -189,7 +189,7 @@ class ShowOrgPaymentServiceProvider extends OrgAction
                                 'name'       => 'grp.org.accounting.org-payment-service-providers.index',
                                 'parameters' => Arr::only($routeParameters, 'organisation')
                             ],
-                            'label' => __('providers')
+                            'label' => __('Providers')
                         ],
                         'model' => [
                             'route' => [

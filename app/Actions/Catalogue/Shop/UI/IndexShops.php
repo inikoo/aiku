@@ -243,7 +243,7 @@ class IndexShops extends OrgAction
                                     'name'       => 'grp.org.shops.index',
                                     'parameters' => $routeParameters
                                 ],
-                                'label' => __('shops'),
+                                'label' => __('Shops'),
                                 'icon'  => 'fal fa-bars'
                             ],
                             'suffix' => $suffix

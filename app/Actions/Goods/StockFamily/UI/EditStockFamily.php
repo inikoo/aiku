@@ -98,7 +98,7 @@ class EditStockFamily extends InertiaAction
     {
         return ShowStockFamily::make()->getBreadcrumbs(
             routeParameters: ['stockFamily' => $stockFamily->slug],
-            suffix: '('.__('editing').')'
+            suffix: '('.__('Editing').')'
         );
     }
 

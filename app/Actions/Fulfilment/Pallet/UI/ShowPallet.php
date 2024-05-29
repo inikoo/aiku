@@ -48,13 +48,13 @@ class ShowPallet extends OrgAction
 
             return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.view");
         } elseif ($this->parent instanceof Warehouse) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.edit");
+            $this->canEdit       = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.edit");
             $this->allowLocation = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.view");
             return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.stored-items.view");
         }
 
         $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->organisation->id}.stored-items.edit");
-        
+
         return $request->user()->hasPermissionTo("fulfilment.{$this->organisation->id}.stored-items.view");
     }
 
@@ -130,7 +130,7 @@ class ShowPallet extends OrgAction
                         ],
                     'title'         => $this->pallet->reference,
                     'model'         => __('Pallet'),
-                    'iconRight' => $pallet->status->statusIcon()[$pallet->status->value],
+                    'iconRight'     => $pallet->status->statusIcon()[$pallet->status->value],
                     'noCapitalise'  => true,
                     'after_title'   => [
                         'label'     => '(' . $this->pallet->customer_reference . ')'
@@ -319,10 +319,10 @@ class ShowPallet extends OrgAction
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'organisation'=> $pallet->organisation->slug,
-                        'fulfilment'  => $pallet->fulfilment->slug,
+                        'organisation'       => $pallet->organisation->slug,
+                        'fulfilment'         => $pallet->fulfilment->slug,
                         'fulfilmentCustomer' => $pallet->fulfilmentCustomer->slug,
-                        'pallet'     => $pallet->slug
+                        'pallet'             => $pallet->slug
                     ]
                 ]
             ],

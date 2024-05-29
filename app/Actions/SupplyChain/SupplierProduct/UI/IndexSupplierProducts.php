@@ -9,13 +9,14 @@ namespace App\Actions\SupplyChain\SupplierProduct\UI;
 
 use App\Actions\GrpAction;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
-use App\Actions\UI\Procurement\ProcurementDashboard;
+use App\Actions\Procurement\UI\ProcurementDashboard;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Group;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -23,7 +24,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexSupplierProducts extends GrpAction
 {
@@ -171,24 +171,24 @@ class IndexSupplierProducts extends GrpAction
         };
 
         return match ($routeName) {
-            'grp.procurement.supplier-products.index' =>
+            'grp.procurement.supplier_products.index' =>
             array_merge(
                 ProcurementDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name' => 'grp.procurement.supplier-products.index',
+                        'name' => 'grp.procurement.supplier_products.index',
                         null
                     ]
                 ),
             ),
 
 
-            'grp.procurement.agents.show.supplier-products.index' =>
+            'grp.procurement.agents.show.supplier_products.index' =>
             array_merge(
                 (new ShowOrgAgent())->getBreadcrumbs($routeParameters['supplierProduct']),
                 $headCrumb(
                     [
-                        'name'       => 'grp.procurement.agents.show.supplier-products.index',
+                        'name'       => 'grp.procurement.agents.show.supplier_products.index',
                         'parameters' =>
                             [
                                 $routeParameters['supplierProduct']->slug

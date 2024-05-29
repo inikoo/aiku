@@ -16,13 +16,13 @@ const props = defineProps<{
 
 function stockDeliveryRoute(stockDelivery: { } ) {
     switch (route().current()) {
-        case 'grp.org.procurement.stock-deliveries.index':
+        case 'grp.org.procurement.stock_deliveries.index':
             return route(
-                'grp.org.procurement.stock-deliveries.show',
+                'grp.org.procurement.stock_deliveries.show',
                 [stockDelivery.slug]);
         default:
             return route(
-                'grp.org.procurement.stock-deliveries.show',
+                'grp.org.procurement.stock_deliveries.show',
                 [stockDelivery.slug]);
     }
 }

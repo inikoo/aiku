@@ -230,7 +230,7 @@ class IndexPaymentAccounts extends OrgAction
                             'name'       => $routeName,
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('payment accounts'),
+                        'label' => __('Payment accounts'),
                         'icon'  => 'fal fa-bars',
 
                     ],

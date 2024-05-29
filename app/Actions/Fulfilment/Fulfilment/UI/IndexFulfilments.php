@@ -164,7 +164,7 @@ class IndexFulfilments extends OrgAction
                                 'name'       => 'grp.org.fulfilments.index',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('fulfilment shops'),
+                            'label' => __('Fulfilment shops'),
                             'icon'  => 'fal fa-bars'
                         ],
                         'suffix' => $suffix

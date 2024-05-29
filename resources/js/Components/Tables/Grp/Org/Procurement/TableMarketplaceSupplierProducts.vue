@@ -19,19 +19,19 @@ function supplierProductRoute(supplierProduct: SupplierProduct) {
     switch (route().current()) {
         case "procurement.marketplace.agents.show":
             return route(
-                "procurement.marketplace.agents.show.supplier-products.show",
+                "procurement.marketplace.agents.show.supplier_products.show",
                 [supplierProduct.agent_slug, supplierProduct.slug]);
         case "procurement.marketplace.agents.show.suppliers.show":
             return route(
-                "procurement.marketplace.agents.show.suppliers.show.supplier-products.show",
+                "procurement.marketplace.agents.show.suppliers.show.supplier_products.show",
                 [supplierProduct.agent_slug, supplierProduct.supplier_slug, supplierProduct.slug]);
         case "procurement.marketplace.suppliers.show":
             return route(
-                "procurement.marketplace.suppliers.show.supplier-products.show",
+                "procurement.marketplace.suppliers.show.supplier_products.show",
                 [supplierProduct.supplier_slug, supplierProduct.slug]);
         default:
             return route(
-                "procurement.marketplace.supplier-products.show",
+                "procurement.marketplace.supplier_products.show",
                 [supplierProduct.slug]);
     }
 }

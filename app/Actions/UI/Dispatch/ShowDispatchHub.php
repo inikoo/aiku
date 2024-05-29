@@ -53,6 +53,10 @@ class ShowDispatchHub extends OrgAction
                 ),
                 'title'       => 'dispatch',
                 'pageHead'    => [
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-conveyor-belt-alt'],
+                        'title' => __('locations')
+                    ],
                     'title'     => __('Dispatch backlog'),
                             ],
 
@@ -73,7 +77,7 @@ class ShowDispatchHub extends OrgAction
                             'name'       => 'grp.org.warehouses.show.dispatching.backlog',
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('dispatch'),
+                        'label' => __('Dispatch'),
                     ]
                 ]
             ]

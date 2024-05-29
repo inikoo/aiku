@@ -290,7 +290,7 @@ class IndexPalletDeliveries extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('deliveries'),
+                        'label' => __('Deliveries'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],

@@ -88,7 +88,7 @@ class ShowProspectQuery extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('prospect list'),
+                        'label' => __('Prospect list'),
                         'icon'  => 'fal fa-envelope'
                     ],
                 ],

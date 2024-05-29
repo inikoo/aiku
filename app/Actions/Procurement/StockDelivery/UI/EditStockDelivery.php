@@ -100,7 +100,7 @@ class EditStockDelivery extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'grp.org.procurement.stock-deliveries.edit'=> [
+            'grp.org.procurement.stock_deliveries.edit'=> [
                 'label'=> $stockDelivery->number,
                 'route'=> [
                     'name'      => $routeName,

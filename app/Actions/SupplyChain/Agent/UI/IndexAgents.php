@@ -165,6 +165,11 @@ class IndexAgents extends GrpAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __("agents"),
                 'pageHead'    => [
+                    'icon'    =>
+                        [
+                            'icon'  => ['fal', 'fa-people-arrows'],
+                            'title' => __('agents')
+                        ],
                     'title'  => __("agents"),
 
                     'actions'=> [
@@ -196,7 +201,7 @@ class IndexAgents extends GrpAction
                             'route' => [
                                 'name' => 'grp.supply-chain.agents.index'
                             ],
-                            'label' => __("agents"),
+                            'label' => __("Agents"),
                             'icon'  => 'fal fa-bars'
                         ]
                     ]

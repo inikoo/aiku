@@ -100,7 +100,7 @@ class CreateWarehouseArea extends InertiaAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating warehouse areas'),
+                        'label' => __('Creating warehouse areas'),
                     ]
                 ]
             ]

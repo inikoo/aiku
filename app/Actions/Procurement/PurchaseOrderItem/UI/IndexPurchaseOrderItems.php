@@ -8,16 +8,16 @@
 namespace App\Actions\Procurement\PurchaseOrderItem\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Procurement\ProcurementDashboard;
+use App\Actions\Procurement\UI\ProcurementDashboard;
 use App\Http\Resources\Procurement\PurchaseOrderItemResource;
+use App\InertiaTable\InertiaTable;
 use App\Models\Procurement\PurchaseOrderItem;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexPurchaseOrderItems extends InertiaAction
 {
@@ -96,9 +96,9 @@ class IndexPurchaseOrderItems extends InertiaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'grp.org.procurement.purchase-orders.index'
+                                'name' => 'grp.org.procurement.purchase_orders.index'
                             ],
-                            'label' => __('purchase orders'),
+                            'label' => __('Purchase orders'),
                             'icon'  => 'fal fa-bars'
                         ]
                     ]

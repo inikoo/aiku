@@ -20,6 +20,7 @@ class ClockingHanResource extends JsonResource
         return [
             'id'         => $this->id,
             'clocked_at' => $this->clocked_at,
+            'photo'      => $this->photoImageSources()
         ];
     }
 }
