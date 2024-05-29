@@ -15,10 +15,12 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\InertiaTable\InertiaTable;
+use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
@@ -164,5 +166,21 @@ class IndexPalletsInDelivery extends OrgAction
         };
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
 
+        return $request->user()->hasAnyPermission(
+            [
+                'org-supervisor.'.$this->organisation->id,
+                'warehouses-view.'.$this->organisation->id]
+        );
+    }
+
+    public function asController(Organisation $organisation, Warehouse $warehouse, PalletDelivery $palletDelivery, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->initialisationFromWarehouse($warehouse, $request);
+
+        return $this->handle($palletDelivery);
+    }
 }
