@@ -120,6 +120,7 @@ class GetOrganisationNavigation
                     "subSections" => [
                         [
                             "icon"  => ["fal", "fa-chart-network"],
+                            'root'  => 'grp.org.inventory.dashboard',
                             "route" => [
                                 "name"       => "grp.org.inventory.dashboard",
                                 "parameters" => [$organisation->slug],
@@ -266,6 +267,14 @@ class GetOrganisationNavigation
                 'topMenu' => [
                     'subSections' => [
                         [
+                            'icon'  => ['fal', 'fa-chart-network'],
+                            'root'  => 'grp.org.procurement.dashboard',
+                            'route' => [
+                                'name'       => 'grp.org.procurement.dashboard',
+                                'parameters' => [$organisation->slug],
+                            ]
+                        ],
+                        [
                             'label' => __('agents'),
                             'icon'  => ['fal', 'fa-people-arrows'],
                             'root'  => 'grp.org.procurement.org_agents.',
@@ -312,6 +321,14 @@ class GetOrganisationNavigation
 
                 'topMenu' => [
                     'subSections' => [
+                        [
+                            'icon'  => ['fal', 'fa-chart-network'],
+                            'root'  => 'grp.org.accounting.dashboard',
+                            'route' => [
+                                'name' => 'grp.org.accounting.dashboard',
+                                'parameters' => [$organisation->slug],
+                            ]
+                        ],
                         [
                             'label' => __('Providers'),
                             'icon'  => ['fal', 'fa-cash-register'],
@@ -373,7 +390,7 @@ class GetOrganisationNavigation
                         [
                             "tooltip" => __("Dashboard"),
                             "icon"    => ["fal", "fa-chart-network"],
-                            "root"    => "grp.org.fulfilments.show.operations.dashboard",
+                            "root"    => "grp.org.hr.dashboard",
                             "route"   => [
                                 "name"       => "grp.org.hr.dashboard",
                                 'parameters' => [$organisation->slug],

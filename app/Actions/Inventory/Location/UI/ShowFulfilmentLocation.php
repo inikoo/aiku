@@ -63,6 +63,7 @@ class ShowFulfilmentLocation extends OrgAction
                     'next'     => $this->getNext($location, $request),
                 ],
                 'pageHead'    => [
+                    'model'     => __('location'),
                     'icon'  => [
                         'title' => __('locations'),
                         'icon'  => 'fal fa-inventory'

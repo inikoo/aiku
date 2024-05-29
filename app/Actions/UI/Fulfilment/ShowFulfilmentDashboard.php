@@ -43,6 +43,10 @@ class ShowFulfilmentDashboard extends OrgAction
                         'icon'  => ['fal', 'fa-hand-holding-box'],
                         'title' => __('fulfilment')
                     ],
+                    'iconRight' => [
+                        'icon'  => ['fal', 'fa-chart-network'],
+                        'title' => __('fulfilment')
+                    ],
                     'title' => __('fulfilment central command'),
                 ],
 

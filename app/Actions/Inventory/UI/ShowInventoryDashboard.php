@@ -51,6 +51,10 @@ class ShowInventoryDashboard extends OrgAction
                     'icon'           => [
                         'icon' => 'fal fa-pallet-alt'
                     ],
+                    'iconRight' => [
+                        'icon'  => ['fal', 'fa-chart-network'],
+                        'title' => __('inventory')
+                    ],
                 ],
                 'flatTreeMaps'   => [
                     [

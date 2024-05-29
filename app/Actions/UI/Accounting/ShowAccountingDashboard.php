@@ -83,6 +83,10 @@ class ShowAccountingDashboard extends OrgAction
                         'icon'  => ['fal', 'fa-abacus'],
                         'title' => __('accounting')
                     ],
+                    'iconRight' => [
+                        'icon'  => ['fal', 'fa-chart-network'],
+                        'title' => __('accounting')
+                    ],
                     'title'     => __('accounting'),
                     'container' => $container
                 ],
