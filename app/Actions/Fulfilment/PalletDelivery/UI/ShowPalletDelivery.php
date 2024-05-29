@@ -420,7 +420,7 @@ class ShowPalletDelivery extends OrgAction
         )->table(
             IndexServiceInPalletDelivery::make()->tableStructure(
                 $palletDelivery,
-                prefix: PalletDeliveryTabsEnum::PALLETS->value
+                prefix: PalletDeliveryTabsEnum::SERVICES->value
             )
         );
     }

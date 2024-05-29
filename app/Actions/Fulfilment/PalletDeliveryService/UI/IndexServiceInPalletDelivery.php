@@ -115,7 +115,12 @@ class IndexServiceInPalletDelivery extends OrgAction
                     match (class_basename($parent)) {
                         'Fulfilment' => [
                             'title' => __("No services found"),
-                            'count' => $parent->fulfilment->shop->stats->number_products_type_service,
+                            'count' => $parent->fulfilment->shop->stats->number_services_state_active,
+                        ],
+                        'PalletDelivery' => [
+                            'icons' => ['fal fa-concierge-bell'],
+                            'title' => '',
+                            'count' => $parent->stats->number_services,
                         ],
                         default => null
                     }
