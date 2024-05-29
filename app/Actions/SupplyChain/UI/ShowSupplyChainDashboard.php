@@ -42,6 +42,10 @@ class ShowSupplyChainDashboard extends GrpAction
                 'breadcrumbs'  => $this->getBreadcrumbs(),
                 'title'        => __('supply chain'),
                 'pageHead'     => [
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-box-usd'],
+                        'title' => __('supply chain')
+                    ],
                     'title' => __('supply chain'),
                 ],
                 'flatTreeMaps' => [
@@ -71,7 +75,7 @@ class ShowSupplyChainDashboard extends GrpAction
                             'name'      => __('supplier products'),
                             'shortName' => __('products'),
                             'icon'      => ['fal', 'fa-box-usd'],
-                            'href'      => ['name' => 'grp.supply-chain.supplier-products.index'],
+                            'href'      => ['name' => 'grp.supply-chain.supplier_products.index'],
                             'index'     => [
                                 'number' => $this->group->supplyChainStats->number_supplier_products
                             ],
@@ -98,7 +102,7 @@ class ShowSupplyChainDashboard extends GrpAction
                             'route' => [
                                 'name' => 'grp.supply-chain.dashboard'
                             ],
-                            'label' => __('supply chain'),
+                            'label' => __('Supply chain'),
                         ]
                     ]
                 ]

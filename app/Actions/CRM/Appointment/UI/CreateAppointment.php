@@ -152,7 +152,7 @@ class CreateAppointment extends InertiaAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating appointment'),
+                        'label' => __('Creating appointment'),
                     ]
                 ]
             ]

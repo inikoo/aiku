@@ -285,7 +285,7 @@ class IndexWebsites extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('websites'),
+                        'label' => __('Websites'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],

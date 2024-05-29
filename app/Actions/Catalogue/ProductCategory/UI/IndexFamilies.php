@@ -222,7 +222,7 @@ class IndexFamilies extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('families'),
+                        'label' => __('Families'),
                         'icon'  => 'fal fa-bars'
                     ],
                     'suffix' => $suffix

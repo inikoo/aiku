@@ -9,11 +9,12 @@ namespace App\Actions\Procurement\SupplierProduct\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
-use App\Actions\UI\Procurement\ProcurementDashboard;
+use App\Actions\Procurement\UI\ProcurementDashboard;
 use App\Http\Resources\Procurement\SupplierProductResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\SupplierProduct;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -21,7 +22,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexSupplierProducts extends InertiaAction
 {
@@ -147,7 +147,7 @@ class IndexSupplierProducts extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('supplier products'),
+                        'label' => __('Supplier products'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],
@@ -155,24 +155,24 @@ class IndexSupplierProducts extends InertiaAction
         };
 
         return match ($routeName) {
-            'grp.org.procurement.supplier-products.index' =>
+            'grp.org.procurement.org_supplier_products.index' =>
             array_merge(
                 ProcurementDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name' => 'grp.org.procurement.supplier-products.index',
+                        'name' => 'grp.org.procurement.org_supplier_products.index',
                         null
                     ]
                 ),
             ),
 
 
-            'grp.org.procurement.agents.show.supplier-products.index' =>
+            'grp.org.procurement.org_agents.show.org_supplier_products.index' =>
             array_merge(
                 (new ShowOrgAgent())->getBreadcrumbs($routeParameters['supplierProduct']),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.procurement.agents.show.supplier-products.index',
+                        'name'       => 'grp.org.procurement.org_agents.show.org_supplier_products.index',
                         'parameters' =>
                             [
                                 $routeParameters['supplierProduct']->slug

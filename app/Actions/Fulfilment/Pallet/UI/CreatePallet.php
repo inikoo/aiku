@@ -114,7 +114,7 @@ class CreatePallet extends OrgAction
                             'name'       => 'grp.org.fulfilments.show.pallets.create',
                             'parameters' => array_values($routeParameters)
                         ],
-                        'label' => __('pallets'),
+                        'label' => __('Pallets'),
                         'icon'  => 'fal fa-bars',
                     ],
 

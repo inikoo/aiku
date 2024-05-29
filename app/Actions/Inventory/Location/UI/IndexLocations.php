@@ -309,7 +309,7 @@ class IndexLocations extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('locations'),
+                        'label' => __('Locations'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],

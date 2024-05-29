@@ -55,8 +55,12 @@ const originUrl = location.origin
                     </div>
                 </div>
                 <div v-if="data.icon" class="inline text-gray-400">
-                    <FontAwesomeIcon :title="data.icon.tooltip ?? ''" aria-hidden="true"
-                        :icon="data.icon.icon || data.icon" size="sm" fixed-width />
+                    <FontAwesomeIcon
+                        v-tooltip="data.icon.tooltip || ''"
+                        aria-hidden="true"
+                        :icon="data.icon.icon || data.icon"
+                        size="sm"
+                        fixed-width />
 
                 </div>
                 <h2 :class="!data.noCapitalise? 'capitalize' : ''">
@@ -64,12 +68,18 @@ const originUrl = location.origin
                     {{ data.title }}
                 </h2>
                 <FontAwesomeIcon v-if="data.iconRight"
-                    :title="data.iconRight.tooltip || ''"
+                    v-tooltip="data.iconRight.tooltip || ''"
                     :icon="data.iconRight.icon" class="h-4" :class="data.iconRight.class"
                     aria-hidden="true"
                 />
+                
 
-                <slot name="afterTitle" />
+                <!-- Section: After Title -->
+                <slot name="afterTitle">
+                    <div v-if="data.after_title" class="text-gray-400 font-normal text-lg leading-none">
+                        {{ data.after_title.label }}
+                    </div>
+                </slot>
             </div>
 
             <!-- Section: mini Tabs -->

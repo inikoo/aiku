@@ -46,7 +46,7 @@ class CreateJobPosition extends OrgAction
                 'formData'    => [
                     'blueprint' => [
                         [
-                            'title'  => __('creating job positions'),
+                            'title'  => __('Creating job positions'),
                             'fields' => [
                                 'code' => [
                                     'type'     => 'inputWithAddOn',
@@ -108,7 +108,7 @@ class CreateJobPosition extends OrgAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating job position')
+                        'label' => __('Creating job position')
                     ]
                 ]
             ]

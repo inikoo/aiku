@@ -130,7 +130,7 @@ class EditQuery extends InertiaAction
         return ShowPortfolioWebsite::make()->getBreadcrumbs(
             $routeName,
             $routeParameters,
-            suffix: '(' . __('editing') . ')'
+            suffix: '(' . __('Editing') . ')'
         );
     }
 

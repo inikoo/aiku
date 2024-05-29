@@ -12,8 +12,8 @@ use App\Actions\InertiaAction;
 use App\Actions\Procurement\OrgSupplier\UI\IndexOrgSuppliers;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
+use App\Actions\Procurement\UI\ProcurementDashboard;
 use App\Actions\SupplyChain\Supplier\UI\IndexSuppliers;
-use App\Actions\UI\Procurement\ProcurementDashboard;
 use App\Enums\UI\Procurement\OrgAgentTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\AgentResource;
@@ -36,8 +36,8 @@ class ShowOrgAgent extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit   = $request->user()->hasPermissionTo('procurement.agents.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('procurement.agents.edit');
+        $this->canEdit   = $request->user()->hasPermissionTo('procurement.org_agents.edit');
+        $this->canDelete = $request->user()->hasPermissionTo('procurement.org_agents.edit');
 
         return $request->user()->hasPermissionTo("procurement.view");
     }
@@ -72,7 +72,7 @@ class ShowOrgAgent extends InertiaAction
                     'title'         => $orgAgent->organisation->name,
                     'create_direct' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'grp.models.agent.purchase-order.store',
+                            'name'       => 'grp.models.org_agent.purchase-order.store',
                             'parameters' => array_values($request->route()->originalParameters())
                         ],
                         'label' => __('purchase order')
@@ -90,7 +90,7 @@ class ShowOrgAgent extends InertiaAction
                             'type'  => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'grp.org.procurement.agents.remove',
+                                'name'       => 'grp.org.procurement.org_agents.remove',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
@@ -101,7 +101,7 @@ class ShowOrgAgent extends InertiaAction
                             'name'     => trans_choice('supplier|suppliers', $orgAgent->stats->number_suppliers),
                             'number'   => $orgAgent->stats->number_suppliers,
                             'href'     => [
-                                'grp.org.procurement.agents.show.suppliers.index',
+                                'grp.org.procurement.org_agents.show.org_suppliers.index',
                                 $orgAgent->organisation->slug
                             ],
                             'leftIcon' => [
@@ -113,7 +113,7 @@ class ShowOrgAgent extends InertiaAction
                             'name'     => trans_choice('product|products', $orgAgent->stats->number_supplier_products),
                             'number'   => $orgAgent->stats->number_supplier_products,
                             'href'     => [
-                                'grp.org.procurement.agents.show.suppliers.index',
+                                'grp.org.procurement.org_agents.show.org_suppliers.index',
                                 $orgAgent->organisation->slug
                             ],
                             'leftIcon' => [
@@ -186,7 +186,7 @@ class ShowOrgAgent extends InertiaAction
                 /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'grp.org.procurement.agents.show.purchase-orders.create',
+                            'name'       => 'grp.org.procurement.org_agents.show.purchase_orders.create',
                             'parameters' => array_values([$orgAgent->slug])
                         ],
                         'label' => __('purchase_orders')
@@ -199,7 +199,7 @@ class ShowOrgAgent extends InertiaAction
                 /* modelOperations: [
                     'createLink' => $this->canEdit ? [
                         'route' => [
-                            'name'       => 'grp.org.procurement.agents.show.supplier-products-orders.create',
+                            'name'       => 'grp.org.procurement.org_agents.show.supplier-products-orders.create',
                             'parameters' => array_values([$orgAgent->slug])
                         ],
                         'label' => __('supplier products')
@@ -213,7 +213,7 @@ class ShowOrgAgent extends InertiaAction
                 /* modelOperations: [
                      'createLink' => $this->canEdit ? [
                          'route' => [
-                             'name'       => 'grp.org.procurement.agents.show.suppliers.create',
+                             'name'       => 'grp.org.procurement.org_agents.show.org_suppliers.create',
                              'parameters' => array_values([$orgAgent->slug])
                          ],
                          'label' => __('suppliers')
@@ -240,13 +240,13 @@ class ShowOrgAgent extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.org.procurement.agents.index',
+                                'name' => 'grp.org.procurement.org_agents.index',
                             ],
                             'label' => __('agent')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.org.procurement.agents.show',
+                                'name'       => 'grp.org.procurement.org_agents.show',
                                 'parameters' => [$routeParameters['agent']->slug]
                             ],
                             'label' => $routeParameters['agent']->code,
@@ -280,7 +280,7 @@ class ShowOrgAgent extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.org.procurement.agents.show' => [
+            'grp.org.procurement.org_agents.show' => [
                 'label' => $orgAgent->organisation->name,
                 'route' => [
                     'name'       => $routeName,

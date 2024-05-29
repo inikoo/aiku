@@ -54,7 +54,6 @@ class StoreWebUser extends OrgAction
         );
         $webUser->stats()->create();
         $webUser->refresh();
-        SetWebUserAvatar::dispatch(userable: $webUser, saveHistory: false);
         CustomerHydrateWebUsers::dispatch($customer);
 
         return $webUser;

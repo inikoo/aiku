@@ -81,7 +81,7 @@ class IndexWebsitesFooter extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('websites footer'),
+                        'label' => __('Websites footer'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],

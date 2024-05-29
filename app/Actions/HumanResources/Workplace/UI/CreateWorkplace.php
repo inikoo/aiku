@@ -123,7 +123,7 @@ class CreateWorkplace extends OrgAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating workplace'),
+                        'label' => __('Creating workplace'),
                     ]
                 ]
             ]

@@ -114,7 +114,7 @@ class EditOrgStock extends InertiaAction
         return \App\Actions\Goods\Stock\UI\ShowStock::make()->getBreadcrumbs(
             routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
-            suffix: '(' . __('editing') . ')'
+            suffix: '(' . __('Editing') . ')'
         );
     }
 

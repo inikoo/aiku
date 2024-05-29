@@ -32,7 +32,7 @@ class CreateManufactureTask extends OrgAction
                 'pageHead'    => [
                     'title'        => __('new manufacture task'),
                     'icon'         => [
-                        'title' => __('create manufacture task'),
+                        'title' => __('Create manufacture task'),
                         'icon'  => 'fal fa-industry'
                     ],
                     'actions'      => [
@@ -50,7 +50,7 @@ class CreateManufactureTask extends OrgAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('create raw material'),
+                            'title'  => __('Create raw material'),
                             'fields' => [
                                 'code' => [
                                     'type'     => 'input',
@@ -183,7 +183,7 @@ class CreateManufactureTask extends OrgAction
                 [
                     'type'         => 'creatingModel',
                     'creatingModel'=> [
-                        'label'=> __('creating task'),
+                        'label'=> __('Creating task'),
                     ]
                 ]
             ]

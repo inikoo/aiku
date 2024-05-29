@@ -27,7 +27,7 @@ class CreateWarehouse extends OrgAction
                 'pageHead'    => [
                     'title'        => __('new warehouse'),
                     'icon'         => [
-                        'title' => __('create warehouses'),
+                        'title' => __('Create warehouses'),
                         'icon'  => 'fal fa-warehouse'
                     ],
                     'actions'      => [
@@ -45,7 +45,7 @@ class CreateWarehouse extends OrgAction
                 'formData' => [
                     'blueprint' => [
                         [
-                            'title'  => __('create warehouse'),
+                            'title'  => __('Create warehouse'),
                             'fields' => [
 
                                 'code' => [
@@ -94,7 +94,7 @@ class CreateWarehouse extends OrgAction
                 [
                     'type'         => 'creatingModel',
                     'creatingModel'=> [
-                        'label'=> __('creating warehouse'),
+                        'label'=> __('Creating warehouse'),
                     ]
                 ]
             ]

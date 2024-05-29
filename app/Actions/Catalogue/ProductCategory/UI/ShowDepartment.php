@@ -216,7 +216,7 @@ class ShowDepartment extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('departments')
+                            'label' => __('Departments')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],

@@ -130,6 +130,10 @@ class IndexFulfilmentProducts extends OrgAction
                     $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-cube'],
+                        'title' => __('products')
+                    ],
                     'title' => __('Products'),
                 ],
 

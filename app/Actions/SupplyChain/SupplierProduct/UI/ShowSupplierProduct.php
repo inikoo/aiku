@@ -12,7 +12,7 @@ use App\Actions\InertiaAction;
 use App\Actions\Procurement\OrgAgent\UI\GetAgentShowcase;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\SupplierProduct\UI\IndexSupplierProducts;
-use App\Actions\UI\Procurement\ProcurementDashboard;
+use App\Actions\Procurement\UI\ProcurementDashboard;
 use App\Enums\UI\SupplyChain\SupplierProductTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
@@ -124,13 +124,13 @@ class ShowSupplierProduct extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.procurement.supplier-products.index',
+                                'name' => 'grp.procurement.supplier_products.index',
                             ],
                             'label' => __('supplierProduct')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.procurement.supplier-products.show',
+                                'name'       => 'grp.procurement.supplier_products.show',
                                 'parameters' => [$supplierProduct->slug]
                             ],
                             'label' => $supplierProduct->name,
@@ -148,9 +148,9 @@ class ShowSupplierProduct extends InertiaAction
         $query = SupplierProduct::where('code', '<', $supplierProduct->code);
 
         $query = match ($request->route()->getName()) {
-            'grp.procurement.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
-            'grp.procurement.agents.show.show.supplier.supplier-products.show',
-            'grp.procurement.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->originalParameters()['supplier']->id),
+            'grp.procurement.agents.show.supplier_products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
+            'grp.procurement.agents.show.show.supplier.supplier_products.show',
+            'grp.procurement.supplier.supplier_products.show' => $query->where('supplier_products.supplier_id', $request->route()->originalParameters()['supplier']->id),
 
             default => $query
         };
@@ -166,9 +166,9 @@ class ShowSupplierProduct extends InertiaAction
         $query = SupplierProduct::where('code', '>', $supplierProduct->code);
 
         $query = match ($request->route()->getName()) {
-            'grp.procurement.agents.show.supplier-products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
-            'grp.procurement.agents.show.show.supplier.supplier-products.show',
-            'grp.procurement.supplier.supplier-products.show' => $query->where('supplier_products.supplier_id', $request->route()->originalParameters()['supplier']->id),
+            'grp.procurement.agents.show.supplier_products.show' => $query->where('supplier_products.agent_id', $request->route()->originalParameters()['agent']->id),
+            'grp.procurement.agents.show.show.supplier.supplier_products.show',
+            'grp.procurement.supplier.supplier_products.show' => $query->where('supplier_products.supplier_id', $request->route()->originalParameters()['supplier']->id),
 
             default => $query
         };
@@ -185,7 +185,7 @@ class ShowSupplierProduct extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.procurement.supplier-products.show' => [
+            'grp.procurement.supplier_products.show' => [
                 'label' => $supplierProduct->code,
                 'route' => [
                     'name'       => $routeName,
@@ -195,7 +195,7 @@ class ShowSupplierProduct extends InertiaAction
 
                 ]
             ],
-            'grp.procurement.agents.show.supplier-products.show' => [
+            'grp.procurement.agents.show.supplier_products.show' => [
                 'label' => $supplierProduct->code,
                 'route' => [
                     'name'       => $routeName,

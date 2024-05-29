@@ -181,7 +181,7 @@ class IndexProspectQueries extends InertiaAction
                                 'name'       => 'grp.org.shops.show.crm.prospects.lists.index',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('lists'),
+                            'label' => __('Lists'),
                             'icon'  => 'fal fa-bars',
                         ],
                         'suffix' => $suffix

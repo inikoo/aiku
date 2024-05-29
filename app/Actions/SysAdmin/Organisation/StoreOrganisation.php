@@ -173,7 +173,7 @@ class StoreOrganisation
     public function asCommand(Command $command): int
     {
         try {
-            $group = Group::where('code', $command->argument('group'))->firstOrFail();
+            $group = Group::where('slug', $command->argument('group'))->firstOrFail();
         } catch (Exception $e) {
             $command->error($e->getMessage());
 

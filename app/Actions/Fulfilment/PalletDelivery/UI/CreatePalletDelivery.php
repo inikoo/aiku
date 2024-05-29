@@ -91,7 +91,7 @@ class CreatePalletDelivery extends OrgAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating customer'),
+                        'label' => __('Creating customer'),
                     ]
                 ]
             ]

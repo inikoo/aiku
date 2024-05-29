@@ -188,7 +188,7 @@ class EditRawMaterial extends OrgAction
         return array_merge(
             ShowRawMaterial::make()->getBreadcrumbs(
                 routeParameters: $routeParameters,
-                suffix: '('.__('editing').')'
+                suffix: '('.__('Editing').')'
             ),
             [
                 [

@@ -137,8 +137,8 @@ class IndexProductions extends OrgAction
                         $this->canEdit && $request->route()->routeName == 'grp.org.productions.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('new production'),
-                            'label'   => __('production'),
+                            'tooltip' => __('Set production'),
+                            'label'   => __('Factory'),
                             'route'   => [
                                 'name'       => 'grp.org.productions.create',
                                 'parameters' => array_values($request->route()->originalParameters())
@@ -183,7 +183,7 @@ class IndexProductions extends OrgAction
                             'name'       => 'grp.org.productions.index',
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('factories'),
+                        'label' => __('Factories'),
                         'icon'  => 'fal fa-bars',
                     ],
                     'suffix' => $suffix

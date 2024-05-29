@@ -29,7 +29,7 @@ class CreatePurchaseOrder extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.org.procurement.purchase-orders.index',
+                                'name'       => 'grp.org.procurement.purchase_orders.index',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]
@@ -70,7 +70,7 @@ class CreatePurchaseOrder extends InertiaAction
         return $this->handle();
     }
 
-    public function inSupplier(Supplier $supplier, ActionRequest $request): Response
+    public function inOrgSupplier(Supplier $supplier, ActionRequest $request): Response
     {
         $this->initialisation($request);
 

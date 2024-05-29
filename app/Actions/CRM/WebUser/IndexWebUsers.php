@@ -229,7 +229,7 @@ class IndexWebUsers extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('web users'),
+                        'label' => __('Web users'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],

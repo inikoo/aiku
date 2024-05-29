@@ -276,7 +276,7 @@ class IndexProducts extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('products'),
+                        'label' => __('Products'),
                         'icon'  => 'fal fa-bars'
                     ],
                     'suffix' => $suffix

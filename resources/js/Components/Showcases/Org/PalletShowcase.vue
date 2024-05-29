@@ -1,6 +1,10 @@
 <script setup lang='ts'>
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import JsBarcode from 'jsbarcode'
+import { Link } from '@inertiajs/vue3'
+import PureTextarea from '@/Components/Pure/PureTextarea.vue'
+import { trans } from 'laravel-vue-i18n'
+import { routeType } from '@/types/route'
 
 const props = defineProps<{
     data: {
@@ -9,7 +13,10 @@ const props = defineProps<{
             reference: string
             customer_reference: string
             slug: string
-            customer_name: string
+            customer: {
+                name: string
+                route: routeType
+            }
             location: {
                 id: number
                 slug: string
@@ -25,37 +32,40 @@ const props = defineProps<{
 }>()
 
 // Blueprint: data
-const blueprint = [
-    {
-        name: 'Slug',
-        value: props.data.data.slug || '-'
+const blueprint = {
+    note: {
+        label: 'Note',
+        value: props.data.data.notes || '-'
     },
-    {
-        name: 'reference',
+    reference: {
+        label: 'Reference',
         value: props.data.data.reference || '-'
     },
-    {
-        name: 'Customer name',
-        value: props.data.data.customer_name || '-'
+    customer: {
+        label: 'Customer',
+        value: props.data.data.customer || '-'
     },
-    {
-        name: 'Customer reference',
+    customer_reference: {
+        label: "Customer's pallet",
         value: props.data.data.customer_reference || '-'
-
     },
-    {
-        name: 'Location',
+    location: {
+        label: 'Location',
         value: props.data.data.location?.code || '-'
     },
-    {
-        name: 'State',
+    state: {
+        label: 'State',
         value: props.data.data.state || '-'
     },
-    {
-        name: 'Status',
+    status: {
+        label: 'Status',
         value: props.data.data.status || '-'
     },
-]
+    items: {
+        label: 'Items',
+        value: props.data.data.items || '-'
+    },
+}
 
 
 onMounted(() => {
@@ -75,11 +85,57 @@ onMounted(() => {
 <template>
     <div class="grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-7xl lg:grid-cols-2 lg:px-8 pt-4">
         <!-- Section: data -->
-        <dl class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-16 lg:gap-x-8">
-            <div v-for="feature in blueprint" :key="feature.name" class="border-t border-gray-200 pt-4">
-                <dt class="font-medium">{{ feature.name }}</dt>
-                <dd class="mt-2 text-sm text-gray-500">{{ feature.value }}</dd>
+        <dl class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-8 lg:gap-x-8">
+            <div class="col-span-2 border-t border-gray-200 pt-4">
+                <dt class="font-medium">{{ blueprint.note.label }}</dt>
+                <dd class="mt-2 text-sm text-gray-500 text-justify">
+                    <PureTextarea :modelValue="blueprint.note.value" :rows="5" :placeholder="trans('No note from customer.')" disabled />
+                </dd>
             </div>
+            
+            <div class="border-t border-gray-200 pt-4">
+                <dt class="font-medium">{{ blueprint.reference.label }}</dt>
+                <dd class="mt-2 text-sm text-gray-500 text-justify">{{ blueprint.reference.value }}</dd>
+            </div>
+
+            <div class="border-t border-gray-200 pt-4">
+                <dt class="font-medium">{{ blueprint.customer.label }}</dt>
+                <dd class="mt-2 text-sm text-gray-500 text-justify">
+                    <Link :href="route(blueprint.customer.value.route.name, blueprint.customer.value.route.parameters)" class="primaryLink">
+                    <!-- <Link :href="'#'" class="primaryLink"> -->
+                        {{ blueprint.customer.value.name }}
+                    </Link>
+                </dd>
+            </div>
+
+            <div class="border-t border-gray-200 pt-4">
+                <dt class="font-medium">{{ blueprint.customer_reference.label }}</dt>
+                <dd class="mt-2 text-sm text-gray-500 text-justify">{{ blueprint.customer_reference.value }}</dd>
+            </div>
+
+            <div class="border-t border-gray-200 pt-4">
+                <dt class="font-medium">{{ blueprint.location.label }}</dt>
+                <dd class="mt-2 text-sm text-gray-500 text-justify">{{ blueprint.location.value }}</dd>
+            </div>
+
+            <div class="border-t border-gray-200 pt-4">
+                <dt class="font-medium">{{ blueprint.state.label }}</dt>
+                <dd class="mt-2 text-sm text-gray-500 text-justify">{{ blueprint.state.value }}</dd>
+            </div>
+
+            <div class="border-t border-gray-200 pt-4">
+                <dt class="font-medium">{{ blueprint.status.label }}</dt>
+                <dd class="mt-2 text-sm text-gray-500 text-justify">{{ blueprint.status.value }}</dd>
+            </div>
+
+            <div class="border-t border-gray-200 pt-4">
+                <dt class="font-medium">{{ blueprint.items.label }}</dt>
+                <dd class="mt-2 text-sm text-gray-500 text-justify">
+                    <span v-if="blueprint.items.value.length">{{ blueprint.items.value }}</span>
+                    <span v-else class="text-gray-400 italic">No items in this pallet.</span>
+                </dd>
+            </div>
+
         </dl>
 
         <!-- Section: Barcode -->

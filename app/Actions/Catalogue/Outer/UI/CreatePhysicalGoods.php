@@ -110,7 +110,7 @@ class CreatePhysicalGoods extends OrgAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating goods'),
+                        'label' => __('Creating goods'),
                     ]
                 ]
             ]

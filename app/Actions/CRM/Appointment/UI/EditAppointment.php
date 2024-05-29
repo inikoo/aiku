@@ -141,7 +141,7 @@ class EditAppointment extends InertiaAction
                 [
                     'type'         => 'editingModel',
                     'editingModel' => [
-                        'label' => __('editing appointment'),
+                        'label' => __('Editing appointment'),
                     ]
                 ]
             ]

@@ -52,6 +52,15 @@ function palletRoute(pallet: Pallet) {
           route().params["fulfilmentCustomer"],
           pallet.slug
         ]);
+    case "grp.org.fulfilments.show.crm.customers.show.pallets.index":
+      return route(
+        "grp.org.fulfilments.show.crm.customers.show.pallets.show",
+        [
+          route().params["organisation"],
+          route().params["fulfilment"],
+          route().params["fulfilmentCustomer"],
+          pallet.slug
+        ]);
 
     default:
       return [];

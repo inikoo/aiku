@@ -183,7 +183,7 @@ class IndexProspectTags extends OrgAction
                                 'name'       => 'grp.org.shops.show.crm.prospects.tags.index',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('tags'),
+                            'label' => __('Tags'),
                             'icon'  => 'fal fa-bars',
                         ],
                         'suffix' => $suffix

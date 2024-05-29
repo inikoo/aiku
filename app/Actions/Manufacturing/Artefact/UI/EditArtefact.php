@@ -152,7 +152,7 @@ class EditArtefact extends OrgAction
         return array_merge(
             ShowArtefact::make()->getBreadcrumbs(
                 routeParameters: $routeParameters,
-                suffix: '('.__('editing').')'
+                suffix: '('.__('Editing').')'
             ),
             [
                 [

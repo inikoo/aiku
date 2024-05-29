@@ -24,7 +24,7 @@ trait WithExportData
 
         $query = $callback->query();
 
-        if($query->count() >= 2000) {
+        if($query->count() >= 20000) {
             $type = ExportTypeEnum::CSV->value;
         }
 

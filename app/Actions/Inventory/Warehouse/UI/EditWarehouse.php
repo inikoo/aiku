@@ -98,7 +98,7 @@ class EditWarehouse extends OrgAction
 
     public function getBreadcrumbs(array $routeParameters): array
     {
-        return ShowWarehouse::make()->getBreadcrumbs(routeParameters:$routeParameters, suffix: '('.__('editing').')');
+        return ShowWarehouse::make()->getBreadcrumbs(routeParameters:$routeParameters, suffix: '('.__('Editing').')');
     }
 
     public function getPrevious(Warehouse $warehouse, ActionRequest $request): ?array

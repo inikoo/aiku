@@ -17,7 +17,7 @@ use App\Actions\Goods\StockFamily\UI\RemoveStockFamily;
 use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
 use App\Actions\Inventory\OrgStock\ExportOrgStocks;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
-use App\Actions\UI\Inventory\ShowInventoryDashboard;
+use App\Actions\Inventory\UI\ShowInventoryDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowInventoryDashboard::class)->name('dashboard');

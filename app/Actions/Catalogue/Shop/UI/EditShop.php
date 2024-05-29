@@ -176,7 +176,7 @@ class EditShop extends InertiaAction
     public function getBreadcrumbs(Shop $shop): array
     {
         $routeParameters = ['shop' => $shop];
-        return ShowShop::make()->getBreadcrumbs($routeParameters, suffix: '('.__('editing').')');
+        return ShowShop::make()->getBreadcrumbs($routeParameters, suffix: '('.__('Editing').')');
     }
 
     public function getPrevious(Shop $shop, ActionRequest $request): ?array

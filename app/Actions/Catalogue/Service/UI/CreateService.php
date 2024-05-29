@@ -102,7 +102,7 @@ class CreateService extends OrgAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating service'),
+                        'label' => __('Creating service'),
                     ]
                 ]
             ]

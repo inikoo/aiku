@@ -9,7 +9,7 @@ namespace App\Actions\Procurement\Marketplace\SupplierProduct\UI;
 
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Marketplace\Supplier\UI\ShowMarketplaceSupplier;
-use App\Actions\UI\Procurement\ProcurementDashboard;
+use App\Actions\Procurement\UI\ProcurementDashboard;
 use App\Http\Resources\Procurement\MarketplaceSupplierProductResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
@@ -145,9 +145,9 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
                 'title'       => __("supplier product's marketplaces "),
                 'pageHead'    => [
                     'title'  => __("supplier product's marketplaces "),
-                    'create' => $this->canEdit && $request->route()->getName() == 'grp.org.procurement.marketplace.supplier-products.index' ? [
+                    'create' => $this->canEdit && $request->route()->getName() == 'grp.org.procurement.marketplace.org_supplier_products.index' ? [
                         'route' => [
-                            'name'       => 'grp.org.procurement.marketplace.supplier-products.create',
+                            'name'       => 'grp.org.procurement.marketplace.org_supplier_products.create',
                             'parameters' => array_values($request->route()->originalParameters())
                         ],
                         'label' => __('agent')
@@ -170,7 +170,7 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('supplier products marketplaces'),
+                        'label' => __('Supplier products marketplaces'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],
@@ -179,25 +179,25 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
 
 
         return match ($routeName) {
-            'grp.org.procurement.marketplace.supplier-products.index' =>
+            'grp.org.procurement.marketplace.org_supplier_products.index' =>
             array_merge(
                 ProcurementDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
-                        'name' => 'grp.org.procurement.marketplace.supplier-products.index',
+                        'name' => 'grp.org.procurement.marketplace.org_supplier_products.index',
                         null
                     ]
                 ),
             ),
-            'grp.org.procurement.marketplace.suppliers.show.supplier-products.index' =>
+            'grp.org.procurement.marketplace.org_suppliers.show.org_supplier_products.index' =>
             array_merge(
                 (new ShowMarketplaceSupplier())->getBreadcrumbs(
-                    'grp.org.procurement.marketplace.suppliers.show',
+                    'grp.org.procurement.marketplace.org_suppliers.show',
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.procurement.marketplace.suppliers.show.supplier-products.index',
+                        'name'       => 'grp.org.procurement.marketplace.org_suppliers.show.org_supplier_products.index',
                         'parameters' =>
                             [
                                 $routeParameters['supplier']->slug
@@ -206,12 +206,12 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
                 )
             ),
 
-            'grp.org.procurement.marketplace.agents.show.supplier-products.index' =>
+            'grp.org.procurement.marketplace.org_agents.show.org_supplier_products.index' =>
             array_merge(
                 (new \App\Actions\SupplyChain\Agent\UI\ShowAgent())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.procurement.marketplace.agents.show.supplier-products.index',
+                        'name'       => 'grp.org.procurement.marketplace.org_agents.show.org_supplier_products.index',
                         'parameters' =>
                             [
                                 $routeParameters['agent']->slug

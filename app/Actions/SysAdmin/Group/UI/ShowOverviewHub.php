@@ -36,6 +36,10 @@ class ShowOverviewHub extends GrpAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('overview'),
                 'pageHead'    => [
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-mountains'],
+                        'title' => __('overview')
+                    ],
                     'title'     => __('overview'),
                 ],
 
@@ -71,7 +75,7 @@ class ShowOverviewHub extends GrpAction
                             'route' => [
                                 'name' => 'grp.overview.hub'
                             ],
-                            'label'  => __('overview'),
+                            'label'  => __('Overview'),
                         ]
                     ]
                 ]

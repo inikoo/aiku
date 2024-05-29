@@ -296,7 +296,7 @@ class IndexProspects extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('prospects'),
+                        'label' => __('Prospects'),
                         'icon'  => 'fal fa-transporter'
                     ],
                 ],

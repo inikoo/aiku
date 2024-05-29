@@ -10,9 +10,9 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
+use App\Actions\SysAdmin\User\SetUserAvatarFromImage;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\SysAdmin\User\UpdateUser;
-use App\Actions\Utils\StoreImage;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Workplace;
@@ -51,14 +51,6 @@ class FetchAuroraEmployees extends FetchAuroraAction
             UpdateEmployeeWorkingHours::run($employee, $employeeData['working_hours']);
 
 
-            foreach ($employeeData['photo'] ?? [] as $profileImage) {
-                if (isset($profileImage['image_path']) and isset($profileImage['filename'])) {
-                    StoreImage::run($employee, $profileImage['image_path'], $profileImage['filename']);
-                }
-            }
-
-
-
             if (Arr::has($employeeData, 'user')) {
 
                 if ($employee->user) {
@@ -85,6 +77,21 @@ class FetchAuroraEmployees extends FetchAuroraAction
                     );
                 }
             }
+
+           if($employee->user){
+
+
+               foreach ($employeeData['photo'] ?? [] as $profileImage) {
+                   if (isset($profileImage['image_path']) and isset($profileImage['filename'])) {
+                       SetUserAvatarFromImage::run(
+                           $employee->user,
+                           $profileImage['image_path'],
+                           $profileImage['filename']
+                       );
+                   }
+               }
+
+           }
 
 
             return $employee;

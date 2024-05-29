@@ -55,6 +55,12 @@ class ShowUser extends GrpAction
                     'next'     => $this->getNext($user, $request),
                 ],
                 'pageHead' => [
+                    'model'   => __('user'),
+                    'icon'    =>
+                        [
+                            'icon'  => ['fal', 'fa-terminal'],
+                            'title' => __('user')
+                        ],
                     'title'   => $user->username,
                     'actions' => [
                         $this->canEdit ? [
@@ -108,7 +114,7 @@ class ShowUser extends GrpAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('users')
+                            'label' => __('Users')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],

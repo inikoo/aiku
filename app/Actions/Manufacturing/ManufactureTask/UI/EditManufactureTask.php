@@ -208,7 +208,7 @@ class EditManufactureTask extends OrgAction
         return array_merge(
             ShowManufactureTask::make()->getBreadcrumbs(
                 routeParameters: $routeParameters,
-                suffix: '('.__('editing').')'
+                suffix: '('.__('Editing').')'
             ),
             [
                 [

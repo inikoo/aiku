@@ -296,7 +296,7 @@ class EditWebsite extends OrgAction
         return ShowWebsite::make()->getBreadcrumbs(
             $routeName,
             $routeParameters,
-            suffix: '('.__('editing').')'
+            suffix: '('.__('Editing').')'
         );
     }
 

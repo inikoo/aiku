@@ -101,7 +101,7 @@ class CreateRental extends OrgAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating rental'),
+                        'label' => __('Creating rental'),
                     ]
                 ]
             ]

@@ -109,7 +109,7 @@ class ShowProspectTag extends InertiaAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('tags')
+                            'label' => __('Tags')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],

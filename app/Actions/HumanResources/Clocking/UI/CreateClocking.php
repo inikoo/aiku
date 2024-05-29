@@ -114,7 +114,7 @@ class CreateClocking extends OrgAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('creating clocking'),
+                        'label' => __('Creating clocking'),
                     ]
                 ]
             ]

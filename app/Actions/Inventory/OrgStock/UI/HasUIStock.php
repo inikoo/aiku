@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\OrgStock\UI;
 
-use App\Actions\UI\Inventory\ShowInventoryDashboard;
+use App\Actions\Inventory\UI\ShowInventoryDashboard;
 use App\Models\SupplyChain\Stock;
 
 trait HasUIStock

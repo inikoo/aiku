@@ -218,7 +218,7 @@ class IndexProspectMailshots extends InertiaAction
                                 'name'       => 'grp.org.shops.show.crm.prospects.mailshots.index',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('mailshots'),
+                            'label' => __('Mailshots'),
                             'icon'  => 'fal fa-bars',
                         ],
                         'suffix' => $suffix

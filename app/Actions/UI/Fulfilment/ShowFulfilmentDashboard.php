@@ -39,6 +39,10 @@ class ShowFulfilmentDashboard extends OrgAction
                 'breadcrumbs'  => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'        => __('fulfilment'),
                 'pageHead'     => [
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-hand-holding-box'],
+                        'title' => __('fulfilment')
+                    ],
                     'title' => __('fulfilment central command'),
                 ],
 
