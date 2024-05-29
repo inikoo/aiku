@@ -41,6 +41,7 @@ const onCloseExpand = (data) => {
 </script>
 
 <template>
+    <!-- <pre>{{ data }}</pre> {{ tab }} -->
     <Table :resource="data" class="mt-5" :name="tab" :useExpandTable="true">
         <template #cell(expand)="{ item: user }">
             <div v-if="user?.rowIndex === index" class="p-4">
