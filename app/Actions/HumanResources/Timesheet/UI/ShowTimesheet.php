@@ -138,7 +138,7 @@ class ShowTimesheet extends OrgAction
                                         'name'       => 'grp.org.hr.timesheets.index',
                                         'parameters' => Arr::only($routeParameters, 'organisation')
                                     ],
-                                    'label' => __('timesheets')
+                                    'label' => __('Timesheets')
                                 ],
                                 'model' => [
                                     'route' => [
@@ -170,7 +170,7 @@ class ShowTimesheet extends OrgAction
                                             'employee'     => $timesheet->subject->slug,
                                         ]
                                     ],
-                                    'label' => __('timesheets')
+                                    'label' => __('Timesheets')
                                 ],
                                 'model' => [
                                     'label' => $timesheet->date->format('Y-m-d'),

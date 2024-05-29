@@ -252,7 +252,7 @@ class IndexPalletReturns extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('returns'),
+                        'label' => __('Returns'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],

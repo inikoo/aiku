@@ -430,7 +430,7 @@ class ShowPalletDelivery extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('pallet deliveries')
+                            'label' => __('Pallet deliveries')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],

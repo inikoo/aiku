@@ -110,7 +110,7 @@ class ShowFulfilmentLocation extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('locations')
+                            'label' => __('Locations')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
