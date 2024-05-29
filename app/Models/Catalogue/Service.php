@@ -8,10 +8,12 @@
 namespace App\Models\Catalogue;
 
 use App\Enums\Catalogue\Service\ServiceStateEnum;
+use App\Models\Fulfilment\RecurringBill;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -78,5 +80,10 @@ class Service extends Model
     public function historicRecords(): MorphMany
     {
         return $this->morphMany(HistoricOuterable::class, 'outerable');
+    }
+
+    public function recurringBills(): MorphToMany
+    {
+        return $this->morphToMany(RecurringBill::class, 'model', 'model_has_recurring_bills')->withTimestamps();
     }
 }

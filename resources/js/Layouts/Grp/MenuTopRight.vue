@@ -67,7 +67,11 @@ const notifications = layout.user.notifications
                 <SearchBar :isOpen="showSearchDialog" @close="(e) => showSearchDialog = e" />
             </button>
 
-            <div class="pl-6 flex items-center gap-x-1">
+            <div class="pl-4 flex items-center gap-x-2">
+                <div class="px-1">
+                    To do
+                </div>
+
                 <!-- Button: Notifications -->
                 <div class="relative px-2 rounded-full flex items-center">
                     <Popover width="w-full">
