@@ -19,24 +19,25 @@ enum PalletReturnStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS      = 'in-process';
-    case SUBMITTED       = 'submitted';
-    case CONFIRMED       = 'confirmed';
-    case PICKING         = 'picking';
-    case PICKED          = 'picked';
-    case DISPATCHED      = 'dispatched';
-    case CANCEL          = 'cancel';
+    case IN_PROCESS = 'in-process';
+    case SUBMITTED = 'submitted';
+    case CONFIRMED = 'confirmed';
+    case PICKING = 'picking';
+    case PICKED = 'picked';
+    case DISPATCHED = 'dispatched';
+    case CONSOLIDATED = 'consolidated';
+    case CANCEL = 'cancel';
 
     public static function labels($forElements = false): array
     {
         return [
-            'in-process'           => __('In Process'),
-            'submitted'            => __('Submitted'),
-            'confirmed'            => __('Confirmed'),
-            'picking'              => __('Picking'),
-            'picked'               => __('Picked'),
-            'dispatched'           => __('Dispatched'),
-            'cancel'               => __('Cancel')
+            'in-process' => __('In Process'),
+            'submitted'  => __('Submitted'),
+            'confirmed'  => __('Confirmed'),
+            'picking'    => __('Picking'),
+            'picked'     => __('Picked'),
+            'dispatched' => __('Dispatched'),
+            'cancel'     => __('Cancel')
         ];
     }
 
@@ -54,7 +55,7 @@ enum PalletReturnStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'submitted' => [
+            'submitted'  => [
                 'tooltip' => __('Submitted'),
                 'icon'    => 'fal fa-share',
                 'class'   => 'text-indigo-400',
@@ -74,7 +75,7 @@ enum PalletReturnStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'picking' => [
+            'picking'    => [
                 'tooltip' => __('Picking'),
                 'icon'    => 'fal fa-truck',
                 'class'   => 'text-orange-500',
@@ -84,7 +85,7 @@ enum PalletReturnStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'picked' => [
+            'picked'     => [
                 'tooltip' => __('Picked'),
                 'icon'    => 'fal fa-check',
                 'class'   => 'text-slate-500',
@@ -104,7 +105,7 @@ enum PalletReturnStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'cancel' => [
+            'cancel'     => [
                 'tooltip' => __('Cancel'),
                 'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500',
@@ -126,44 +127,44 @@ enum PalletReturnStateEnum: string
         }
 
         return [
-            'in-process'   => $stats->number_pallet_returns_state_in_process,
-            'submitted'    => $stats->number_pallet_returns_state_submitted,
-            'confirmed'    => $stats->number_pallet_returns_state_confirmed,
-            'picking'      => $stats->number_pallet_returns_state_picking,
-            'picked'       => $stats->number_pallet_returns_state_picked,
-            'dispatched'   => $stats->number_pallet_returns_state_dispatched,
-            'cancel'       => $stats->number_pallet_returns_state_cancel
+            'in-process' => $stats->number_pallet_returns_state_in_process,
+            'submitted'  => $stats->number_pallet_returns_state_submitted,
+            'confirmed'  => $stats->number_pallet_returns_state_confirmed,
+            'picking'    => $stats->number_pallet_returns_state_picking,
+            'picked'     => $stats->number_pallet_returns_state_picked,
+            'dispatched' => $stats->number_pallet_returns_state_dispatched,
+            'cancel'     => $stats->number_pallet_returns_state_cancel
         ];
     }
 
     public static function notifications(string $reference): array
     {
         return [
-            'in-process'   => [
+            'in-process' => [
                 'title'    => __("Pallet Return $reference Created"),
                 'subtitle' => __('Pallet return has been created')
             ],
-            'submitted'    => [
+            'submitted'  => [
                 'title'    => __("Pallet Return $reference Submitted"),
                 'subtitle' => __('Pallet return has been submitted')
             ],
-            'confirmed'    => [
+            'confirmed'  => [
                 'title'    => __("Pallet Return $reference Confirmed"),
                 'subtitle' => __('Pallet return has been confirmed')
             ],
-            'picking'     => [
+            'picking'    => [
                 'title'    => __("Pallet Return $reference Picking"),
                 'subtitle' => __('Pallet return is picking')
             ],
-            'picked' => [
+            'picked'     => [
                 'title'    => __("Pallet Return $reference Picked"),
                 'subtitle' => __('Pallet return has been picked')
             ],
-            'dispatched'   => [
+            'dispatched' => [
                 'title'    => __("Pallet Return $reference Dispatched"),
                 'subtitle' => __('Pallet return has been dispatched')
             ],
-            'cancel'    => [
+            'cancel'     => [
                 'title'    => __("Pallet Return $reference Cancelled"),
                 'subtitle' => __('Pallet return has been cancelled')
             ],
