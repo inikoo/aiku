@@ -53,6 +53,10 @@ class ShowDispatchHub extends OrgAction
                 ),
                 'title'       => 'dispatch',
                 'pageHead'    => [
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-conveyor-belt-alt'],
+                        'title' => __('locations')
+                    ],
                     'title'     => __('Dispatch backlog'),
                             ],
 

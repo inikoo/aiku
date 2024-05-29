@@ -67,6 +67,10 @@ class IndexReports extends OrgAction
                 ),
                 'title'    => 'BI',
                 'pageHead' => [
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-chart-line'],
+                        'title' => __('reports')
+                    ],
                     'title'     => __('reports'),
                     'container' => $container
                 ],

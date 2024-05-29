@@ -46,6 +46,10 @@ class ShowHumanResourcesDashboard
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('human resources'),
                 'pageHead'    => [
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-user-hard-hat'],
+                        'title' => __('human resources')
+                    ],
                     'title' => __('human resources'),
                 ],
                 'stats'       => [

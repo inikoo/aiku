@@ -79,6 +79,10 @@ class ShowAccountingDashboard extends OrgAction
                 ),
                 'title'       => __('accounting'),
                 'pageHead'    => [
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-abacus'],
+                        'title' => __('accounting')
+                    ],
                     'title'     => __('accounting'),
                     'container' => $container
                 ],

@@ -45,6 +45,10 @@ class ProcurementDashboard extends OrgAction
                 'breadcrumbs'  => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'        => __('procurement'),
                 'pageHead'     => [
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-box-usd'],
+                        'title' => __('procurement')
+                    ],
                     'title' => __('procurement'),
                 ],
                 'flatTreeMaps' => [
