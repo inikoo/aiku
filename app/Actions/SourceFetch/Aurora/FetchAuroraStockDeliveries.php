@@ -7,8 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Helpers\Address\StoreFixedAddress;
-use App\Actions\Helpers\Address\UpdateHistoricAddressToModel;
 use App\Actions\Procurement\StockDelivery\StoreStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStockDelivery;
 use App\Models\Procurement\StockDelivery;
@@ -27,12 +25,6 @@ class FetchAuroraStockDeliveries extends FetchAuroraAction
                     ->first()) {
                 $order = UpdateStockDelivery::run($order, $orderData['stockDelivery']);
 
-                $currentDeliveryAddress = $order->getAddress('delivery');
-
-                if ($currentDeliveryAddress and $currentDeliveryAddress->checksum != $orderData['delivery_address']->getChecksum()) {
-                    $deliveryAddress = StoreFixedAddress::run($orderData['delivery_address']);
-                    UpdateHistoricAddressToModel::run($order, $currentDeliveryAddress, $deliveryAddress, ['scope' => 'delivery']);
-                }
 
 
                 //  $this->fetchTransactions($organisationSource, $order);
