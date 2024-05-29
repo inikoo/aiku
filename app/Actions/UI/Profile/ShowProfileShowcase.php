@@ -11,6 +11,7 @@ use App\Actions\GrpAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\SysAdmin\ProfileTabsEnum;
+use App\Http\Resources\SysAdmin\ProfileResource;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -28,8 +29,8 @@ class ShowProfileShowcase extends GrpAction
         return $request->user();
     }
 
-    public function jsonResponse(User $user): GetProfileShowcase
+    public function jsonResponse(User $user): ProfileResource
     {
-        return GetProfileShowcase::run($user);
+        return ProfileResource::make($user);
     }
 }

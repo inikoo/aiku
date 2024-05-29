@@ -192,7 +192,7 @@ class IndexUsers extends InertiaAction
             ->table(IndexHistory::make()->tableStructure(
                 prefix:UsersTabsEnum::USERS_HISTORIES->value
             ));
-            
+
     }
 
     public function asController(ActionRequest $request): LengthAwarePaginator

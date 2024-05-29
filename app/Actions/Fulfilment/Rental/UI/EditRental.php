@@ -113,9 +113,9 @@ class EditRental extends OrgAction
                                     'value' => $product->description
                                 ],
                                 'units' => [
-                                    'type'  => 'select',
-                                    'label' => __('units'),
-                                    'value' => $product->rental->unit,
+                                    'type'     => 'select',
+                                    'label'    => __('units'),
+                                    'value'    => $product->rental->unit,
                                     'options'  => Options::forEnum(RentalUnitEnum::class)
                                 ],
                                 'price' => [

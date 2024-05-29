@@ -46,6 +46,8 @@ const props = defineProps<{
     title: string
     tabs: TSTabs
     pallets?: Table
+    services?: Table
+    physical_goods?: Table
     data?: {
         data: PalletDelivery
     }
@@ -160,6 +162,8 @@ const changePalletType=(form,fieldName,value)=>{
 const component = computed(() => {
     const components: {[key: string]: string} = {
         pallets: TablePalletDeliveryPallets,
+        services: TablePalletDeliveryPallets,
+        physical_goods: TablePalletDeliveryPallets,
         history: TableHistories
     }
     return components[currentTab.value]
@@ -409,7 +413,7 @@ console.log(props)
                 <dd class="text-xs text-gray-500">{{ box_stats.delivery_status.tooltip }}</dd>
             </div>
 
-        
+
             <div  class="flex items-center w-full flex-none gap-x-2">
                 <dt class="flex-none">
                     <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
@@ -425,8 +429,8 @@ console.log(props)
                     </template>
                     <template #content="{ close: closed }">
                         <div>
-                            <DatePicker v-model="data.data.estimated_delivery_date" 
-                                inline auto-apply  :disabled-dates="disableBeforeToday"  
+                            <DatePicker v-model="data.data.estimated_delivery_date"
+                                inline auto-apply  :disabled-dates="disableBeforeToday"
                                 :enable-time-picker="false"
                             />
                         </div>
@@ -463,7 +467,7 @@ console.log(props)
                 </dt>
                 <dd class="text-gray-600 leading-6 text-lg font-medium">{{ data?.data.number_physical }}</dd>
             </div>
-            
+
         </BoxStatsPalletDelivery>
 
         <!-- Box: Barcode -->
@@ -478,7 +482,7 @@ console.log(props)
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    
+
     <component
         :is="component"
         :key="timeline.state"
@@ -490,7 +494,7 @@ console.log(props)
         :locationRoute="locationRoute"
         :storedItemsRoute="storedItemsRoute"
         :rentalRoute="rentalRoute"
-        :rentalList="props.rental_list"    
+        :rentalList="props.rental_list"
     />
 
     <UploadExcel information="The list of column file: customer_reference, notes, stored_items"
@@ -500,6 +504,6 @@ console.log(props)
         history: props.uploadRoutes.history
     }" :dataModal="dataModal" />
 
-    <!-- <pre>{{ props.pallets.data?.[0]?.reference }}</pre>
-    <pre>{{ $inertia.page.props.queryBuilderProps.pallets.columns }}</pre> -->
+<!--     <pre>{{ props.services.data?.[0]?.reference }}</pre>
+    <pre>{{ $inertia.page.props.queryBuilderProps.services.columns }}</pre>-->
 </template>

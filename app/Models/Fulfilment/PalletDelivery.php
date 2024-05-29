@@ -8,6 +8,7 @@
 namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Models\Catalogue\Service;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
@@ -15,6 +16,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -145,5 +147,11 @@ class PalletDelivery extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(PalletDeliveryStats::class);
+    }
+
+    public function services(): BelongsToMany
+    {
+        return $this->belongsToMany(Service::class, 'pallet_delivery_services')
+            ->withTimestamps();
     }
 }

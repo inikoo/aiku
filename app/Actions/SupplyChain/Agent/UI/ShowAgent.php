@@ -64,7 +64,7 @@ class ShowAgent extends GrpAction
                 ],
                 'pageHead'                                => [
                     'model'   => __('agent'),
-                    'icon'   =>
+                    'icon'    =>
                         [
                             'icon'  => ['fal', 'people-arrows'],
                             'title' => __('agent')

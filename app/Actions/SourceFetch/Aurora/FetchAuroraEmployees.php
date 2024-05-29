@@ -78,20 +78,20 @@ class FetchAuroraEmployees extends FetchAuroraAction
                 }
             }
 
-           if($employee->user){
+            if($employee->user) {
 
 
-               foreach ($employeeData['photo'] ?? [] as $profileImage) {
-                   if (isset($profileImage['image_path']) and isset($profileImage['filename'])) {
-                       SetUserAvatarFromImage::run(
-                           $employee->user,
-                           $profileImage['image_path'],
-                           $profileImage['filename']
-                       );
-                   }
-               }
+                foreach ($employeeData['photo'] ?? [] as $profileImage) {
+                    if (isset($profileImage['image_path']) and isset($profileImage['filename'])) {
+                        SetUserAvatarFromImage::run(
+                            $employee->user,
+                            $profileImage['image_path'],
+                            $profileImage['filename']
+                        );
+                    }
+                }
 
-           }
+            }
 
 
             return $employee;

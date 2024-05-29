@@ -257,7 +257,7 @@ class IndexPalletDeliveries extends OrgAction
                     'title'         => __('deliveries'),
                     'subNavigation' => $subNavigation,
                     'icon'          => ['fal', 'fa-truck-couch'],
-                    'actions' => [
+                    'actions'       => [
                         [
                             'type'    => 'button',
                             'style'   => 'create',

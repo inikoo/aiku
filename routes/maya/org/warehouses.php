@@ -6,6 +6,7 @@
  */
 
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
+use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInDelivery;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInReturn;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
@@ -19,7 +20,7 @@ use App\Actions\Inventory\Warehouse\UI\IndexWarehouses;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
 
-Route::get('/', [IndexWarehouses::class, 'inOrganisation'])->name('index');
+Route::get('/', IndexWarehouses::class)->name('index');
 Route::get('areas', [IndexWarehouseAreas::class, 'inOrganisation'])->name('areas.index');
 
 Route::prefix("{warehouse:id}")->name("warehouses.")
@@ -40,7 +41,7 @@ Route::prefix("{warehouse:id}")->name("warehouses.")
         Route::prefix('pallet-deliveries')->name('pallet-delivery.')->group(function () {
             Route::get('/', [IndexPalletDeliveries::class, 'inWarehouse'])->name('index');
             Route::get('{palletDelivery:id}', [ShowPalletDelivery::class, 'inWarehouse'])->name('show')->withoutScopedBindings();
-            Route::get('{palletDelivery:id}/pallets', [IndexPallets::class, 'fromDelivery'])->name('pallets.index')->withoutScopedBindings();
+            Route::get('{palletDelivery:id}/pallets', IndexPalletsInDelivery::class)->name('pallets.index')->withoutScopedBindings();
         });
 
         Route::prefix('pallet-returns')->name('pallet-return.')->group(function () {
