@@ -3,6 +3,7 @@ import { inject, ref } from 'vue'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 import { Switch } from '@headlessui/vue'
 import { useLocaleStore } from '@/Stores/locale'
+import { RadioGroup, RadioGroupOption } from '@headlessui/vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faChevronDown } from '@far'
@@ -12,17 +13,35 @@ import { Head } from '@inertiajs/vue3'
 import { trans } from 'laravel-vue-i18n'
 import { get } from 'lodash'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
+import { useGetCurrencySymbol } from '@/Composables/useCurrency'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import Tag from '@/Components/Tag.vue'
 
 library.add(faTriangle, faChevronDown)
 
 const props = defineProps<{
-    groupStats: {}
+    groupStats: {
+        currency: {
+            code: string
+        }
+        organisations: [
+            {
+                currency: {
+                    code: string
+                }
+                type: string
+                name: string
+                code: string
+                number_invoices_type_refund?: number
+                number_invoices?: number
+                number_invoices_type_invoice?: number
+            }
+        ]
+    }
 }>()
 
 const layout = inject('layout', layoutStructure)
-console.log('asdsadsa', layout.organisations)
+// console.log('asdsadsa', layout.organisations)
 
 const isShowLastYear = ref(true)
 
@@ -100,11 +119,7 @@ const dateOptions = [
     // },
 ]
 
-const dateValue = ref({
-    label: trans('All'),
-    value: 'all'
-})
-const currencyValue = ref(true)
+const currencyValue = ref('group')
 
 const selectedTabGraph = ref(0)
 const tabs = [
@@ -115,7 +130,7 @@ const tabs = [
 ]
 
 // Method: to check the data is increase of decrease based on last year data
-const isUpOrDown = (orgData, keyName: string | null): string => {
+const isUpOrDown = (orgData: {}, keyName: string | null): string => {
     const currentNumber = parseFloat(get(orgData, ['sales', `org_amount_${keyName}`], 0))
     const lastyearNumber = parseFloat(get(orgData, ['sales', `org_amount_${keyName}_ly`], 0))
     
@@ -131,7 +146,7 @@ const isUpOrDown = (orgData, keyName: string | null): string => {
 }
 
 // Method: to retrive the percentage based on last year data
-const calcPercentage = (orgData, keyName: string | null) => {
+const calcPercentage = (orgData: {}, keyName: string | null) => {
     const currentNumber = parseFloat(get(orgData, ['sales', `org_amount_${keyName}`], 0))
     const lastyearNumber = parseFloat(get(orgData, ['sales', `org_amount_${keyName}_ly`], 0))
 
@@ -148,6 +163,19 @@ const calcPercentage = (orgData, keyName: string | null) => {
     return ((lastyearNumber - currentNumber) / currentNumber) * 100
 }
 
+
+const groupCurrency = [
+    {
+        name: 'group',
+        label: 'Group',
+        icon: ''
+    },
+    {
+        name: 'organisation',
+        label: 'Org',
+        icon: ''
+    }
+]
 </script>
 
 <template>
@@ -185,7 +213,7 @@ const calcPercentage = (orgData, keyName: string | null) => {
 
                 <div class="justify-self-end flex divide-x divide-gray-300 gap-x-4">
                     <!-- Radio: Show Last Year -->
-                    <div class="justify-self-end flex items-center gap-x-2 text-sm">
+                    <div v-if="false" class="justify-self-end flex items-center gap-x-2 text-sm">
                         <!-- <div :class="!isShowLastYear ? '' : 'text-gray-400'">Don't show Last year</div> -->
                         <Switch
                             v-model="isShowLastYear"
@@ -203,26 +231,37 @@ const calcPercentage = (orgData, keyName: string | null) => {
 
                     <!-- Radio: Show currency group/org -->
                     <div class="pl-4 justify-self-end flex items-center gap-x-2 text-sm">
-                        <!-- <div :class="!currencyValue ? '' : 'text-gray-400'">Group Currency</div> -->
-                        <Switch
-                            v-model="currencyValue"
-                            :class="currencyValue ? 'bg-indigo-500' : 'bg-indigo-100'"
-                            class="relative inline-flex h-[25px] w-[61px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75"
-                            >
-                            <span
-                                aria-hidden="true"
-                                :class="currencyValue ? 'translate-x-9' : 'translate-x-0'"
-                                class="pointer-events-none inline-block h-[21px] aspect-square transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out"
-                            />
-                        </Switch>
-                        <div @click="currencyValue = !currencyValue" class="select-none cursor-pointer whitespace-nowrap" :class="currencyValue ? '' : 'text-gray-400'">{{ trans('Organisation Currency')}}</div>
+                        <div @click="currencyValue = 'group'"
+                            class="px-1 select-none cursor-pointer whitespace-nowrap"
+                            :class="currencyValue === 'group' ? 'text-indigo-600' : 'text-gray-400'">
+                            {{ useGetCurrencySymbol(groupStats.currency.code) }}
+                        </div>
+
+                        <div class="border border-indigo-300 w-fit rounded-full overflow-hidden">
+                            <RadioGroup v-model="currencyValue" class="grid grid-cols-2">
+                                <RadioGroupOption v-for="curr in groupCurrency" as="template" :key="curr.name" :value="curr.name" v-slot="{ active, checked }">
+                                    <div class="select-none cursor-pointer focus:outline-none flex items-center justify-center py-2 px-3 text-xs font-semibold uppercase sm:flex-1"
+                                        :class="[checked ? 'bg-indigo-200 hover:bg-indigo-300' : 'bg-white hover:bg-indigo-50']">
+                                        {{ curr.label }}
+                                    </div>
+                                </RadioGroupOption>
+                            </RadioGroup>
+                        </div>
+
+                        <div @click="currencyValue = 'organisation'"
+                            class="select-none cursor-pointer whitespace-nowrap"
+                            :class="currencyValue === 'organisation' ? 'text-indigo-600' : 'text-gray-400'">
+                            <span v-for="org in [...new Set(groupStats.organisations.filter(org => org.type != 'agent').map(org => org.currency.code))]">
+                                {{ useGetCurrencySymbol(org) }}
+                            </span>
+                        </div>
                     </div>
                     
                 </div>
                 
             </div>
 
-            <!-- List: Options of date -->
+            <!-- List: Options of date (shortcut) -->
             <div class="px-2 py-2 flex flex-wrap justify-end gap-x-1 gap-y-2 mt-2">
                 <div v-for="(xxxdate, idxXxxdate) in dateOptions" :key="xxxdate.value + idxXxxdate"
                     @click="() => selectedDateOption = xxxdate.value"
@@ -243,25 +282,25 @@ const calcPercentage = (orgData, keyName: string | null) => {
                         </th>
                         
                         <!-- Column: Refunds -->
-                        <th scope="col" class="px-3 py-3.5 text-left hidden lg:table-cell font-normal">
+                        <th scope="col" class="px-3 py-3.5 text-left table-cell font-normal">
                             Refunds
                         </th>
                         
                         <!-- Column: Refunds LY -->
                         <Transition>
-                            <th v-if="isShowLastYear" scope="col" class="px-3 py-3.5 text-left sm:table-cell font-normal">
+                            <th scope="col" class="px-3 py-3.5 text-left sm:table-cell font-normal">
                                 Refunds vs. last year
                             </th>
                         </Transition>
                         
                         <!-- Column: Invoices -->
-                        <th scope="col" class="px-3 py-3.5 text-left hidden lg:table-cell font-normal">
+                        <th scope="col" class="px-3 py-3.5 text-left table-cell font-normal">
                             Invoices
                         </th>
                         
                         <!-- Column: Invoices LY -->
                         <Transition>
-                            <th v-if="isShowLastYear" scope="col" class="px-3 py-3.5 text-left sm:table-cell font-normal">
+                            <th scope="col" class="px-3 py-3.5 text-left sm:table-cell font-normal">
                                 Invoices vs. last year
                             </th>
                         </Transition>
@@ -273,7 +312,7 @@ const calcPercentage = (orgData, keyName: string | null) => {
                         
                         <!-- Column: Sales LY -->
                         <Transition>
-                            <th v-if="isShowLastYear" scope="col" class="px-3 py-3.5 text-left sm:table-cell font-normal">
+                            <th scope="col" class="px-3 py-3.5 text-left sm:table-cell font-normal">
                                 vs. last year
                             </th>
                         </Transition>
@@ -294,27 +333,25 @@ const calcPercentage = (orgData, keyName: string | null) => {
                             </td>
                         
                             <!-- Column: Refunds -->
-                            <td class="hidden px-3 py-4 text-sm text-gray-500 lg:table-cell">{{ org.number_invoices_type_refund || 0 }}</td>
+                            <td class="px-3 py-4 text-sm text-gray-500 table-cell">{{ org.number_invoices_type_refund || 0 }}</td>
                         
                             <!-- Column: Refunds LY -->
-                            <Transition>
-                                <td v-if="isShowLastYear" class="px-3 py-4 text-sm text-gray-500 lg:table-cell tabular-nums">
-                                    ----
-                                </td>
-                            </Transition>
+                            <td class="px-3 py-4 text-sm text-gray-500 table-cell tabular-nums">
+                                ----
+                            </td>
                         
                             <!-- Column: Invoices -->
-                            <td class="hidden px-3 py-4 text-sm text-gray-500 lg:table-cell">{{ org.number_invoices || 0 }}</td>
+                            <td class="px-3 py-4 text-sm text-gray-500 table-cell">{{ org.number_invoices || 0 }}</td>
                         
                             <!-- Column: Invoices LY -->
                             <Transition>
-                                <td v-if="isShowLastYear" class="px-3 py-4 text-sm text-gray-500 lg:table-cell tabular-nums">
+                                <td class="px-3 py-4 text-sm text-gray-500 table-cell tabular-nums">
                                     {{ org.number_invoices_type_invoice }}
                                 </td>
                             </Transition>
                         
                             <!-- Column: Sales -->
-                            <td class="overflow-hidden hidden px-3 py-4 text-sm text-gray-500 lg:table-cell">
+                            <td class="overflow-hidden px-3 py-4 text-sm text-gray-500 table-cell">
                                 <Transition name="spin-to-down" mode="out-in">
                                     <div
                                         class="flex gap-x-1"
@@ -325,7 +362,7 @@ const calcPercentage = (orgData, keyName: string | null) => {
                                                 ? 'text-red-500'
                                                 : ''
                                     " :key="get(org, ['sales', `org_amount_${selectedDateOption}`], 0)">
-                                        {{ useLocaleStore().currencyFormat(currencyValue ? org.currency.code : groupStats.currency.code , get(org, ['sales', `org_amount_${selectedDateOption}`], 0)) }}
+                                        {{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code , get(org, ['sales', `org_amount_${selectedDateOption}`], 0)) }}
                                         <Tag v-if="calcPercentage(org, selectedDateOption) && isShowLastYear"
                                                 :theme="
                                                     isUpOrDown(org, selectedDateOption) == 'increased' && isShowLastYear
@@ -347,15 +384,15 @@ const calcPercentage = (orgData, keyName: string | null) => {
                             </td>
 
                             <!-- Column: Sales LY -->
-                            <Transition>
-                                <td v-if="isShowLastYear" class="overflow-hidden px-3 py-4 text-sm text-gray-500 lg:table-cell">
-                                    <Transition name="spin-to-down" mode="out-in">
-                                        <div class="" :key="get(org, ['sales', `org_amount_${selectedDateOption+'_ly'}`], 0)">
-                                            {{ useLocaleStore().currencyFormat(currencyValue ? org.currency.code : groupStats.currency.code , get(org, ['sales', `org_amount_${selectedDateOption+'_ly'}`], 0)) }}
-                                        </div>
-                                    </Transition>
-                                </td>
-                            </Transition>
+                            <td class="overflow-hidden px-3 py-4 text-sm text-gray-500 lg:table-cell">
+                                <Transition name="spin-to-down" mode="out-in">
+                                    <div class="" :key="get(org, ['sales', `org_amount_${selectedDateOption+'_ly'}`], 0)">
+                                        <!-- groupStats.currency.code == 'GBP' -->
+                                        <!-- org.currency.code == 'INR' -->
+                                        {{ useLocaleStore().currencyFormat(currencyValue  === 'organisation' ? org.currency.code : groupStats.currency.code , get(org, ['sales', `org_amount_${selectedDateOption+'_ly'}`], 0)) }}
+                                    </div>
+                                </Transition>
+                            </td>
                         
                             <!-- Column: Sales Revenue -->
                             <!-- <td class="px-3 py-4 text-sm text-gray-500 lg:table-cell tabular-nums"
