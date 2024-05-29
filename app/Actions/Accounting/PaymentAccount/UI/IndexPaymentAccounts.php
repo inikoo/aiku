@@ -216,7 +216,20 @@ class IndexPaymentAccounts extends OrgAction
 
 
             ]
-        )->table($this->tableStructure($this->parent));
+        )->table($this->tableStructure(
+            parent: $this->parent,
+            modelOperations: [
+                'createLink' => $this->canEdit ? [
+                    [
+                    'route' => [
+                        'name'       => 'grp.org.accounting.payment-accounts.create',
+                        'parameters' => array_values($request->route()->originalParameters())
+                    ],
+                    'label' => __('payment account')
+                ]
+                ] : false,
+            ],
+        ));
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
