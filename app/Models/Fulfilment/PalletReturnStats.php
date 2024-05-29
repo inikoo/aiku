@@ -108,6 +108,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_pallet_returns_state_picking
  * @property int $number_pallet_returns_state_picked
  * @property int $number_pallet_returns_state_dispatched
+ * @property int $number_pallet_returns_state_consolidated
  * @property int $number_pallet_returns_state_cancel
  * @property int $number_recurring_bills
  * @property int $number_recurring_bills_status_current

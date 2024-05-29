@@ -19,14 +19,14 @@ enum PalletReturnStateEnum: string
 {
     use EnumHelperTrait;
 
-    case IN_PROCESS = 'in-process';
-    case SUBMITTED = 'submitted';
-    case CONFIRMED = 'confirmed';
-    case PICKING = 'picking';
-    case PICKED = 'picked';
-    case DISPATCHED = 'dispatched';
+    case IN_PROCESS   = 'in-process';
+    case SUBMITTED    = 'submitted';
+    case CONFIRMED    = 'confirmed';
+    case PICKING      = 'picking';
+    case PICKED       = 'picked';
+    case DISPATCHED   = 'dispatched';
     case CONSOLIDATED = 'consolidated';
-    case CANCEL = 'cancel';
+    case CANCEL       = 'cancel';
 
     public static function labels($forElements = false): array
     {
