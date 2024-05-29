@@ -125,6 +125,10 @@ class IndexFulfilmentRentals extends OrgAction
                     $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
+                    'icon'    => [
+                        'icon'  => ['fal', 'fa-garage'],
+                        'title' => __('rentals')
+                    ],
                     'title'   => __('rentals'),
                     'actions' => [
                         [

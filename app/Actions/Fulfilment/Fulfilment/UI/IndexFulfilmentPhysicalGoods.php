@@ -123,6 +123,10 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                     $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
+                    'icon'    => [
+                        'icon'  => ['fal', 'fa-cube'],
+                        'title' => __('physical goods')
+                    ],
                     'title'   => __('Physical goods'),
                     'actions' => [
                         [

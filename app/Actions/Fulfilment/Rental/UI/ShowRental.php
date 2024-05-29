@@ -107,10 +107,11 @@ class ShowRental extends OrgAction
                 ],
                 'pageHead'    => [
                     'title'   => $product->code,
+                    'model'   => __('rental'),
                     'icon'    =>
                         [
-                            'icon'  => ['fal', 'fa-cube'],
-                            'title' => __('product')
+                            'icon'  => ['fal', 'fa-garage'],
+                            'title' => __('rental')
                         ],
                     'actions' => [
                         $this->canEdit ? [

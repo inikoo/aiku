@@ -123,6 +123,10 @@ class IndexFulfilmentServices extends OrgAction
                     $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
+                    'icon'    => [
+                        'icon'  => ['fal', 'fa-concierge-bell'],
+                        'title' => __('services')
+                    ],
                     'title'   => __('services'),
                     'actions' => [
                         [
