@@ -216,7 +216,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('goods'),
+                        'label' => __('Goods'),
                         'icon'  => 'fal fa-bars'
                     ],
                     'suffix' => $suffix

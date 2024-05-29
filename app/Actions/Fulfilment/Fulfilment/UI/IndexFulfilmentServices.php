@@ -214,7 +214,7 @@ class IndexFulfilmentServices extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('services'),
+                        'label' => __('Services'),
                         'icon'  => 'fal fa-bars'
                     ],
                     'suffix' => $suffix
