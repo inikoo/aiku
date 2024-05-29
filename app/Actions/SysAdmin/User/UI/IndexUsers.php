@@ -70,7 +70,7 @@ class IndexUsers extends InertiaAction
             ];
     }
 
-    public function handle(Group $group, $prefix = null): LengthAwarePaginator
+    public function handle(Group $group, $scope = 'active', $prefix = null): LengthAwarePaginator
     {
         $this->group  = $group;
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -88,15 +88,23 @@ class IndexUsers extends InertiaAction
 
         $queryBuilder = QueryBuilder::for(User::class)
             ->whereNotNull('type');
-        foreach ($this->getElementGroups($group) as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
+
+        if ($scope == 'active') {
+            $queryBuilder->where('status', true);
+        } elseif ($scope == 'suspended') {
+            $queryBuilder->where('status', false);
         }
 
+        if ($scope == 'all') {
+            foreach ($this->getElementGroups($group) as $key => $elementGroup) {
+                $queryBuilder->whereElementGroup(
+                    key: $key,
+                    allowedElements: array_keys($elementGroup['elements']),
+                    engine: $elementGroup['engine'],
+                    prefix: $prefix
+                );
+            }
+        }
 
         return $queryBuilder->with('parent')
             ->defaultSort('username')
@@ -107,23 +115,23 @@ class IndexUsers extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(Group $group, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Group $group, string $scope = 'active', ?array $modelOperations = null, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($modelOperations, $prefix, $group) {
+        return function (InertiaTable $table) use ($modelOperations, $prefix, $group, $scope) {
             if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
-
-            foreach ($this->getElementGroups($group) as $key => $elementGroup) {
-                $table->elementGroup(
-                    key: $key,
-                    label: $elementGroup['label'],
-                    elements: $elementGroup['elements']
-                );
+            if ($scope == 'all') {
+                foreach ($this->getElementGroups($group) as $key => $elementGroup) {
+                    $table->elementGroup(
+                        key: $key,
+                        label: $elementGroup['label'],
+                        elements: $elementGroup['elements']
+                    );
+                }
             }
-
 
             $table
                 ->withTitle(title: __('Users'))
@@ -141,8 +149,8 @@ class IndexUsers extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         $this->canEdit = $request->user()->hasPermissionTo('sysadmin.edit');
-        return  $request->user()->hasPermissionTo('sysadmin.view');
 
+        return $request->user()->hasPermissionTo('sysadmin.view');
     }
 
 
@@ -169,13 +177,21 @@ class IndexUsers extends InertiaAction
                     'navigation' => UsersTabsEnum::navigation(),
                 ],
 
-                UsersTabsEnum::USERS->value => $this->tab == UsersTabsEnum::USERS->value ?
-                    fn () => UserResource::collection($users)
-                    : Inertia::lazy(fn () => UserResource::collection($users)),
+                UsersTabsEnum::ACTIVE_USERS->value => $this->tab == UsersTabsEnum::ACTIVE_USERS->value ?
+                    fn () => UsersResource::collection($users)
+                    : Inertia::lazy(fn () => UsersResource::collection($users)),
+
+                UsersTabsEnum::SUSPENDED_USERS->value => $this->tab == UsersTabsEnum::SUSPENDED_USERS->value ?
+                    fn () => UsersResource::collection(IndexUsers::run($this->group, 'suspended'))
+                    : Inertia::lazy(fn () => UsersResource::collection(IndexUsers::run($this->group, 'suspended'))),
 
                 UsersTabsEnum::USERS_REQUESTS->value => $this->tab == UsersTabsEnum::USERS_REQUESTS->value ?
                     fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run())
                     : Inertia::lazy(fn () => UserRequestLogsResource::collection(IndexUserRequestLogs::run())),
+
+                UsersTabsEnum::USERS->value => $this->tab == UsersTabsEnum::USERS->value ?
+                    fn () => UsersResource::collection(IndexUsers::run($this->group, 'all'))
+                    : Inertia::lazy(fn () => UsersResource::collection(IndexUsers::run($this->group, 'all'))),
 
                 UsersTabsEnum::USERS_HISTORIES->value => $this->tab == UsersTabsEnum::USERS_HISTORIES->value ?
                     fn () => HistoryResource::collection(IndexHistory::run(User::class))
@@ -185,14 +201,28 @@ class IndexUsers extends InertiaAction
         )->table(
             $this->tableStructure(
                 group: $this->group,
-                prefix: 'users'
+                scope: 'all',
+                prefix: UsersTabsEnum::USERS->value
+            )
+        )->table(
+            $this->tableStructure(
+                group: $this->group,
+                scope: 'active',
+                prefix: UsersTabsEnum::ACTIVE_USERS->value
+            )
+        )->table(
+            $this->tableStructure(
+                group: $this->group,
+                scope: 'suspended',
+                prefix: UsersTabsEnum::SUSPENDED_USERS->value
             )
         )
             ->table(IndexUserRequestLogs::make()->tableStructure())
-            ->table(IndexHistory::make()->tableStructure(
-                prefix:UsersTabsEnum::USERS_HISTORIES->value
-            ));
-
+            ->table(
+                IndexHistory::make()->tableStructure(
+                    prefix: UsersTabsEnum::USERS_HISTORIES->value
+                )
+            );
     }
 
     public function asController(ActionRequest $request): LengthAwarePaginator

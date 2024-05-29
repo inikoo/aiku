@@ -15,17 +15,28 @@ enum UsersTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case USERS                       = 'users';
-    case USERS_REQUESTS              = 'users_requests';
-
-    case USERS_HISTORIES             = 'users_histories';
+    case ACTIVE_USERS    = 'active_users';
+    case SUSPENDED_USERS = 'suspended_users';
+    case USERS_REQUESTS  = 'users_requests';
+    case USERS_HISTORIES = 'users_histories';
+    case USERS           = 'users';
 
     public function blueprint(): array
     {
         return match ($this) {
+            UsersTabsEnum::ACTIVE_USERS => [
+                'title' => __('active users'),
+                'icon'  => 'fal fa-user',
+            ],
+            UsersTabsEnum::SUSPENDED_USERS => [
+                'title' => __('suspended users'),
+                'icon'  => 'fal fa-user-slash',
+            ],
             UsersTabsEnum::USERS => [
-                'title' => __('users'),
-                'icon'  => 'fal fa-terminal',
+                'title' => __('all users'),
+                'icon'  => 'fal fa-blender',
+                'type'  => 'icon',
+                'align' => 'right'
             ],
             UsersTabsEnum::USERS_REQUESTS => [
                 'title' => __('users requests'),
