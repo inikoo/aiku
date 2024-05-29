@@ -74,7 +74,11 @@ class ShowProductionCrafts extends OrgAction
                 'pageHead'                         => [
                     'icon'    =>
                         [
-                            'icon'  => ['fal', 'industry'],
+                            'icon'  => ['fal', 'fa-flask-potion'],
+                            'title' => __('Craft')
+                        ],
+                        'iconRight' => [
+                            'icon'  => ['fal', 'fa-chart-network'],
                             'title' => __('Craft')
                         ],
                     'title'   => $production->name,

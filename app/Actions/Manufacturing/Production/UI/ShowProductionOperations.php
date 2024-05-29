@@ -74,7 +74,11 @@ class ShowProductionOperations extends OrgAction
                 'pageHead'                         => [
                     'icon'    =>
                         [
-                            'icon'  => ['fal', 'industry'],
+                            'icon'  => ['fal', 'fa-fill-drip'],
+                            'title' => __('Factory operations')
+                        ],
+                        'iconRight' => [
+                            'icon'  => ['fal', 'fa-chart-network'],
                             'title' => __('Factory operations')
                         ],
                     'title'   => $production->name,

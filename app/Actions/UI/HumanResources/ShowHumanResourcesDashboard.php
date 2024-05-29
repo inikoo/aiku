@@ -50,6 +50,10 @@ class ShowHumanResourcesDashboard
                         'icon'  => ['fal', 'fa-user-hard-hat'],
                         'title' => __('human resources')
                     ],
+                    'iconRight' => [
+                        'icon'  => ['fal', 'fa-chart-network'],
+                        'title' => __('human resources')
+                    ],
                     'title' => __('human resources'),
                 ],
                 'stats'       => [
