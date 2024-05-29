@@ -42,7 +42,7 @@ class ConnectClockingMachineToHan
         return [
             'qr_code'              => ['required', 'string', 'exists:clocking_machines,qr_code'],
             'device_name'          => ['required', 'string'],
-            'device_uuid'          => ['required', 'string'],
+            'device_uuid'          => ['required', 'string', 'unique:clocking_machines,device_uuid'],
         ];
     }
 
