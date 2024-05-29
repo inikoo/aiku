@@ -38,8 +38,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $organisation_id
  * @property string $slug
  * @property string $parent_type OrgAgent|OrgSupplier|Organisation(intra-group sales)
- * @property string $parent_name Parent name on the time of consolidation
  * @property int $parent_id
+ * @property string $parent_code Parent code on the time of consolidation
+ * @property string $parent_name Parent name on the time of consolidation
  * @property string $number
  * @property array $data
  * @property PurchaseOrderStateEnum $state

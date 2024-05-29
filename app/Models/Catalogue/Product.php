@@ -86,6 +86,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read MediaCollection<int, Media> $media
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Catalogue\Outer> $outers
+ * @property-read Collection<int, RecurringBill> $recurringBills
  * @property-read Rental|null $rental
  * @property-read \App\Models\Catalogue\ProductSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\Service|null $service

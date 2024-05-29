@@ -62,6 +62,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
  * @property-read \App\Models\Fulfilment\PalletReturnStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
  * @property-read Warehouse|null $warehouse
