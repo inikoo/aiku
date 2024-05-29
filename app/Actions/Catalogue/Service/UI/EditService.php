@@ -113,9 +113,9 @@ class EditService extends OrgAction
                                     'value' => $product->description
                                 ],
                                 'units' => [
-                                    'type'  => 'select',
-                                    'label' => __('units'),
-                                    'value' => $product->service->unit,
+                                    'type'     => 'select',
+                                    'label'    => __('units'),
+                                    'value'    => $product->service->unit,
                                     'options'  => Options::forEnum(RentalUnitEnum::class)
                                 ],
                                 'price' => [
