@@ -63,6 +63,7 @@ class ShowAgent extends GrpAction
                     'next'     => $this->getNext($agent, $request),
                 ],
                 'pageHead'                                => [
+                    'model'   => __('agent'),
                     'icon'   =>
                         [
                             'icon'  => ['fal', 'people-arrows'],

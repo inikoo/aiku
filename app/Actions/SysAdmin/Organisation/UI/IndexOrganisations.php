@@ -134,6 +134,10 @@ class IndexOrganisations extends GrpAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('organisations'),
                 'pageHead'    => [
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-building'],
+                        'title' => __('organisations')
+                    ],
                     'title'   => __('organisations'),
                     'actions' => [
                         $this->canEdit ? [

@@ -73,6 +73,7 @@ class ShowSupplier extends GrpAction
                     'next'      => $this->getNext($supplier, $request),
                 ],
                 'pageHead'    => [
+                    'model'   => __('supplier'),
                     'icon'          =>
                         [
                             'icon'  => 'fal fa-person-dolly',

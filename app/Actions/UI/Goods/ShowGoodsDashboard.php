@@ -45,6 +45,10 @@ class ShowGoodsDashboard extends GrpAction
                 'breadcrumbs'  => $this->getBreadcrumbs(),
                 'title'        => __('goods'),
                 'pageHead'     => [
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-cloud-rainbow'],
+                        'title' => __('goods')
+                    ],
                     'title' => __('goods strategy'),
                 ],
                 'flatTreeMaps' => [

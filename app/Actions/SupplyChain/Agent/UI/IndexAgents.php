@@ -165,6 +165,11 @@ class IndexAgents extends GrpAction
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __("agents"),
                 'pageHead'    => [
+                    'icon'    =>
+                        [
+                            'icon'  => ['fal', 'fa-people-arrows'],
+                            'title' => __('agents')
+                        ],
                     'title'  => __("agents"),
 
                     'actions'=> [

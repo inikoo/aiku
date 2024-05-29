@@ -41,6 +41,10 @@ class ShowSysAdminDashboard
                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('system administration'),
                 'pageHead'    => [
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-users-cog'],
+                        'title' => __('system administration')
+                    ],
                     'title' => __('system administration'),
                 ],
                 'stats' => [

@@ -188,6 +188,11 @@ class IndexSuppliers extends GrpAction
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('suppliers'),
                 'pageHead'    => [
+                    'icon'    =>
+                        [
+                            'icon'  => ['fal', 'fa-person-dolly'],
+                            'title' => __('suppliers')
+                        ],
                     'title' => __('suppliers'),
                 ],
                 'data'        => SupplierResource::collection($suppliers),

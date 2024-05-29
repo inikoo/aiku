@@ -56,6 +56,7 @@ class ShowStockFamily extends GrpAction
                     'next'     => $this->getNext($stockFamily, $request),
                 ],
                 'pageHead'    => [
+                    'model'   => __('stock family'),
                     'icon'    =>
                         [
                             'icon'  => ['fal', 'fa-boxes-alt'],
