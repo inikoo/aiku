@@ -55,6 +55,12 @@ class ShowUser extends GrpAction
                     'next'     => $this->getNext($user, $request),
                 ],
                 'pageHead' => [
+                    'model'   => __('user'),
+                    'icon'    =>
+                        [
+                            'icon'  => ['fal', 'fa-terminal'],
+                            'title' => __('user')
+                        ],
                     'title'   => $user->username,
                     'actions' => [
                         $this->canEdit ? [

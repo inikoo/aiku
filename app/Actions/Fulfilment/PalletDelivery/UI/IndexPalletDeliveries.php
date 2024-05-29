@@ -257,6 +257,19 @@ class IndexPalletDeliveries extends OrgAction
                     'title'         => __('deliveries'),
                     'subNavigation' => $subNavigation,
                     'icon'          => ['fal', 'fa-truck-couch'],
+                    'actions'       => [
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('Create new pallet delivery'),
+                            'label'   => __('Pallet delivery'),
+                            'route'   => [
+                                'method'     => 'post',
+                                'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
+                                'parameters' => [$this->parent->id]
+                            ]
+                        ]
+                    ]
                     /*
                     'actions' => [
                         ($this->canEdit && $this->parent instanceof FulfilmentCustomer) ? [

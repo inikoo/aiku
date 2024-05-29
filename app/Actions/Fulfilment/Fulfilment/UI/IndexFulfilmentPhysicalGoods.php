@@ -123,6 +123,10 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                     $request->route()->originalParameters()
                 ),
                 'pageHead'    => [
+                    'icon'    => [
+                        'icon'  => ['fal', 'fa-cube'],
+                        'title' => __('physical goods')
+                    ],
                     'title'   => __('Physical goods'),
                     'actions' => [
                         [
@@ -216,7 +220,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('goods'),
+                        'label' => __('Goods'),
                         'icon'  => 'fal fa-bars'
                     ],
                     'suffix' => $suffix

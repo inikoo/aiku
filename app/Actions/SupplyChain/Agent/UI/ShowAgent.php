@@ -63,7 +63,8 @@ class ShowAgent extends GrpAction
                     'next'     => $this->getNext($agent, $request),
                 ],
                 'pageHead'                                => [
-                    'icon'   =>
+                    'model'   => __('agent'),
+                    'icon'    =>
                         [
                             'icon'  => ['fal', 'people-arrows'],
                             'title' => __('agent')
@@ -199,7 +200,7 @@ class ShowAgent extends GrpAction
                             'route' => [
                                 'name' => 'grp.supply-chain.agents.index',
                             ],
-                            'label' => __("agents"),
+                            'label' => __("Agents"),
                         ],
                         'model' => [
                             'route' => [

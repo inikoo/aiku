@@ -54,7 +54,7 @@ class ShowProfile
                     "label" => __("avatar"),
                     "value" => !blank($webUser->avatar_id)
                         ? $webUser->avatarImageSources(320, 320)
-                        : null,
+                        : '/retina-default-user.svg',
                 ],
             ],
         ];

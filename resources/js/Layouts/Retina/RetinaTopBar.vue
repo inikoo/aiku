@@ -29,12 +29,12 @@ defineEmits<{
 const layout = inject('layout')
 
 // For label
-const label = {
-    organisationSelect: trans("Select organisation"),
-    shopSelect: trans("Go to shop"),
-    warehouseSelect: trans("Select warehouses"),
-    fulfilmentSelect: trans("Select fulfilments")
-}
+// const label = {
+//     organisationSelect: trans("Select organisation"),
+//     shopSelect: trans("Go to shop"),
+//     warehouseSelect: trans("Select warehouses"),
+//     fulfilmentSelect: trans("Select fulfilments")
+// }
 
 </script>
 

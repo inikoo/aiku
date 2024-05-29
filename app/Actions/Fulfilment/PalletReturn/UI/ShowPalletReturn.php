@@ -358,7 +358,7 @@ class ShowPalletReturn extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('pallet returns')
+                            'label' => __('Pallet returns')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],

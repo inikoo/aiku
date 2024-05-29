@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\Rental\UI;
 
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Product\ProductTypeEnum;
+use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
@@ -112,9 +113,10 @@ class EditRental extends OrgAction
                                     'value' => $product->description
                                 ],
                                 'units' => [
-                                    'type'  => 'input',
-                                    'label' => __('units'),
-                                    'value' => $product->rental->unit
+                                    'type'     => 'select',
+                                    'label'    => __('units'),
+                                    'value'    => $product->rental->unit,
+                                    'options'  => Options::forEnum(RentalUnitEnum::class)
                                 ],
                                 'price' => [
                                     'type'    => 'input',

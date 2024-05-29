@@ -11,26 +11,26 @@ use App\Actions\GrpAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\SysAdmin\ProfileTabsEnum;
-use App\Http\Resources\SysAdmin\ProfileResource;
-use App\Models\SysAdmin\User;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowProfileShowcase extends GrpAction
+class ShowProfileIndexTodo extends GrpAction
 {
     use AsAction;
     use WithInertia;
     use WithActionButtons;
 
-    public function asController(ActionRequest $request): User
+    public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation(group(), $request)->withTab(ProfileTabsEnum::values());
 
         return $request->user();
     }
 
-    public function jsonResponse(User $user): ProfileResource
+    public function jsonResponse(LengthAwarePaginator $kpis): AnonymousResourceCollection|array
     {
-        return ProfileResource::make($user);
+        return [];
     }
 }

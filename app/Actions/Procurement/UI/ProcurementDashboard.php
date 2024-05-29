@@ -45,6 +45,10 @@ class ProcurementDashboard extends OrgAction
                 'breadcrumbs'  => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'        => __('procurement'),
                 'pageHead'     => [
+                    'icon'      => [
+                        'icon'  => ['fal', 'fa-box-usd'],
+                        'title' => __('procurement')
+                    ],
                     'title' => __('procurement'),
                 ],
                 'flatTreeMaps' => [
@@ -152,7 +156,7 @@ class ProcurementDashboard extends OrgAction
                                 'name'       => 'grp.org.procurement.dashboard',
                                 'parameters' => Arr::only($routeParameters, 'organisation')
                             ],
-                            'label' => __('procurement'),
+                            'label' => __('Procurement'),
                         ]
                     ]
                 ]

@@ -209,7 +209,7 @@ class IndexPalletReturns extends OrgAction
         }
 
         return Inertia::render(
-            'Org/Fulfilment/PalletDeliveries',
+            'Org/Fulfilment/PalletReturns',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -252,7 +252,7 @@ class IndexPalletReturns extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('returns'),
+                        'label' => __('Returns'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],

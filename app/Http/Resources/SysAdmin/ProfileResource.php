@@ -41,7 +41,9 @@ class ProfileResource extends JsonResource
             'settings'         => [
                 'language'  => $user->language_id,
                 'app_theme' => Arr::get($user->settings, 'app_theme')
-            ]
+            ],
+            'roles'         => $user->getRoleNames()->toArray(),
+            'permissions'   => $user->getAllPermissions()->pluck('name')->toArray()
         ];
     }
 }
