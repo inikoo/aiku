@@ -201,7 +201,7 @@ class IndexAgents extends GrpAction
                             'route' => [
                                 'name' => 'grp.supply-chain.agents.index'
                             ],
-                            'label' => __("agents"),
+                            'label' => __("Agents"),
                             'icon'  => 'fal fa-bars'
                         ]
                     ]

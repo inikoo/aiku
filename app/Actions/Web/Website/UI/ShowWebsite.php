@@ -165,7 +165,7 @@ class ShowWebsite extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('websites')
+                            'label' => __('Websites')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],

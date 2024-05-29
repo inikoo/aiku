@@ -176,7 +176,7 @@ class IndexOrganisations extends GrpAction
                             'route' => [
                                 'name' => 'grp.organisations.index'
                             ],
-                            'label'  => __('organisations'),
+                            'label'  => __('Organisations'),
                         ]
                     ]
                 ]

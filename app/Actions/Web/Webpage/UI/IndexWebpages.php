@@ -223,7 +223,7 @@ class IndexWebpages extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('webpages'),
+                        'label' => __('Webpages'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],

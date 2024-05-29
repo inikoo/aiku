@@ -187,7 +187,7 @@ class ShowSupplier extends GrpAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('suppliers')
+                            'label' => __('Suppliers')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],

@@ -156,7 +156,7 @@ class ProcurementDashboard extends OrgAction
                                 'name'       => 'grp.org.procurement.dashboard',
                                 'parameters' => Arr::only($routeParameters, 'organisation')
                             ],
-                            'label' => __('procurement'),
+                            'label' => __('Procurement'),
                         ]
                     ]
                 ]

@@ -206,7 +206,7 @@ class ShowAccountingDashboard extends OrgAction
                                 'name'       => 'grp.org.accounting.shops.show.dashboard',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('accounting'),
+                            'label' => __('Accounting'),
                         ]
                     ]
                 ]
@@ -222,7 +222,7 @@ class ShowAccountingDashboard extends OrgAction
                                 'name'       => 'grp.org.accounting.dashboard',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('accounting'),
+                            'label' => __('Accounting'),
                         ]
                     ]
                 ]

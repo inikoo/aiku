@@ -102,7 +102,7 @@ class ShowSupplyChainDashboard extends GrpAction
                             'route' => [
                                 'name' => 'grp.supply-chain.dashboard'
                             ],
-                            'label' => __('supply chain'),
+                            'label' => __('Supply chain'),
                         ]
                     ]
                 ]

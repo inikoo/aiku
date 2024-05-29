@@ -200,7 +200,7 @@ class ShowAgent extends GrpAction
                             'route' => [
                                 'name' => 'grp.supply-chain.agents.index',
                             ],
-                            'label' => __("agents"),
+                            'label' => __("Agents"),
                         ],
                         'model' => [
                             'route' => [

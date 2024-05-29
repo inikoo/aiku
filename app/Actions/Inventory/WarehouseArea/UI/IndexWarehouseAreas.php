@@ -240,7 +240,7 @@ class IndexWarehouseAreas extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('warehouse areas'),
+                        'label' => __('Warehouse areas'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],

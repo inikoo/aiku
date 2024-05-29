@@ -214,7 +214,7 @@ class IndexSuppliers extends GrpAction
                             'route' => [
                                 'name' => 'grp.supply-chain.suppliers.index'
                             ],
-                            'label' => __('suppliers'),
+                            'label' => __('Suppliers'),
                             'icon'  => 'fal fa-bars'
                         ]
                     ]
