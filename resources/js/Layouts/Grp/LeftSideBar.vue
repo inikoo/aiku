@@ -52,7 +52,7 @@ const logoutAuth = () => {
 </script>
 
 <template>
-    <div class="mt-11 pb-10 fixed md:flex md:flex-col md:inset-y-0 lg:mt-10 h-full transition-all duration-200 ease-in-out"
+    <div class="mt-11 pb-32 lg:pb-40 fixed md:flex md:flex-col md:inset-y-0 lg:mt-10 h-full transition-all duration-200 ease-in-out"
         :style="{
             'background-color': layout.app.theme[0],
             'color': layout.app.theme[2]
@@ -78,7 +78,7 @@ const logoutAuth = () => {
             </div>
         </div>
 
-        <div class="flex flex-grow flex-col h-full overflow-y-auto custom-hide-scrollbar pb-4">
+        <div class="flex flex-grow flex-col h-full overflow-y-auto custom-hide-scrollbar pb-3">
             <LeftSidebarNavigation />
         </div>
 

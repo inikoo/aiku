@@ -28,9 +28,10 @@ library.add(faHeart, faComputerClassic, faDiscord)
 
         <div class="flex justify-between">
             <!-- Left: Logo Section -->
-            <div class="pl-4 flex items-center gap-x-1.5 py-1">
+            <div class="pl-4 flex items-center gap-x-1.5 py-1 text-slate-400">
+                <span class="font-normal leading-none">Aiku</span>
                 <img class="h-3 select-none hidden lg:inline pl-1 pr-1" src="/art/logo-yellow.svg"  alt="aiku"/>
-                <span class="text-slate-400	text-xs hidden lg:inline">
+                <span class="text-xs hidden lg:inline">
                     {{ trans('Made with') }}
                     <FontAwesomeIcon icon='fas fa-heart' class="text-red-500 mx-1" aria-hidden='true' />
                     {{ trans('and') }}
