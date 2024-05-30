@@ -40,19 +40,16 @@ class ShowOrganisation extends InertiaAction
     }
 
 
-    public function htmlResponse(Organisation $organisation): Response
+    public function htmlResponse(Organisation $organisation, ActionRequest $request): Response
     {
-
-
-
         return Inertia::render(
-            'Organisation/Organisation',
+            'Organisations/Organisation',
             [
-                'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
                 'title'       => __('organisation'),
                 'pageHead'    => [
                     'model'   => __('organisation'),
-                    'title' => $organisation->name,
+                    'title'   => $organisation->name,
                     'actions' => [
                         [
                             'type'  => 'button',
@@ -61,7 +58,7 @@ class ShowOrganisation extends InertiaAction
                             //     'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                             //     'parameters' => array_values($request->route()->originalParameters())
                             // ]
-                        ] 
+                        ]
                     ]
                 ],
 
@@ -72,7 +69,7 @@ class ShowOrganisation extends InertiaAction
                 OrgTabsEnum::SHOWCASE->value => $this->tab == OrgTabsEnum::SHOWCASE->value ?
                 fn () => OrganisationResource::make($organisation)
                 : Inertia::lazy(fn () => OrganisationResource::make($organisation)),
-                
+
                 OrgTabsEnum::HISTORY->value => $this->tab == OrgTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($organisation))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($organisation)))

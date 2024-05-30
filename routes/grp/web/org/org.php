@@ -48,7 +48,7 @@ Route::prefix("reports")
     ->name("reports.")
     ->group(__DIR__."/reports.php");
 
-    Route::get('/', ShowOrganisation::class)->name('show');
+Route::get('/show', ShowOrganisation::class)->name('show');
 
 
 /*
