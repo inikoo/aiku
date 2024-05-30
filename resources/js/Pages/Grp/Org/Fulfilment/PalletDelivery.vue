@@ -40,6 +40,11 @@ import '@/Composables/Icon/PalletDeliveryStateEnum'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone, faConciergeBell, faCube, faCalendarDay } from '@fal'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import PureMultiselect from "@/Components/Pure/PureMultiselect.vue";
+
+import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue";
+import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue";
+
 library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone,faExclamationTriangle, faConciergeBell, faCube, faCalendarDay)
 
 const props = defineProps<{
@@ -70,7 +75,9 @@ const props = defineProps<{
         status: string
         message: string
     }
-    rental_list?: []
+    rental_list?: [],
+    service_lists?: [],
+    physical_good_lists?: []
 }>()
 
 
@@ -162,8 +169,8 @@ const changePalletType=(form,fieldName,value)=>{
 const component = computed(() => {
     const components: {[key: string]: string} = {
         pallets: TablePalletDeliveryPallets,
-        services: TablePalletDeliveryPallets,
-        physical_goods: TablePalletDeliveryPallets,
+        services: TableServices,
+        physical_goods: TablePhysicalGoods,
         history: TableHistories
     }
     return components[currentTab.value]
@@ -194,7 +201,7 @@ onMounted(() => {
     });
 })
 
-console.log(props)
+console.log(currentTab.value)
 
 </script>
 
@@ -205,17 +212,19 @@ console.log(props)
     <PageHeading :data="pageHead">
         <!-- Button: Upload -->
         <template #button-group-upload="{ action }">
-            <Button @click="() => onUploadOpen(action.button)" :style="action.button.style" :icon="action.button.icon"
+            <Button v-if="currentTab === 'pallets'" @click="() => onUploadOpen(action.button)" :style="action.button.style" :icon="action.button.icon"
                 v-tooltip="action.button.tooltip" class="rounded-l rounded-r-none border-none" />
+            <div v-else></div>
         </template>
 
         <!-- Button: Add many pallet -->
         <template #button-group-multiple="{ action }">
             <Popover width="w-full" class="relative h-full">
                 <template #button>
-                    <Button :style="action.button.style" :icon="action.button.icon" :iconRight="action.button.iconRight"
+                    <Button v-if="currentTab === 'pallets'" :style="action.button.style" :icon="action.button.icon" :iconRight="action.button.iconRight"
                         :key="`ActionButton${action.button.label}${action.button.style}`"
                         :tooltip="trans('Add multiple pallets')" class="rounded-none border-none" />
+                    <div v-else></div>
                 </template>
 
                 <template #content="{ close: closed }">
@@ -254,7 +263,7 @@ console.log(props)
 
         <!-- Button: Add pallet (single) -->
         <template #button-group-add-pallet="{ action: action }">
-            <div class="relative">
+            <div class="relative" v-if="currentTab === 'pallets'">
                 <Popover width="w-full">
                     <template #button>
                         <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
@@ -306,6 +315,95 @@ console.log(props)
                     </template>
                 </Popover>
             </div>
+            <div v-else></div>
+        </template>
+
+        <!-- Button: Add service (single) -->
+        <template #button-group-add-service="{ action: action }">
+            <div class="relative" v-if="currentTab === 'services'">
+                <Popover width="w-full">
+                    <template #button>
+                        <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
+                                :key="`ActionButton${action.button.label}${action.button.style}`"
+                                :tooltip="action.button.tooltip" class="rounded-l-none rounded-r border-none " />
+                    </template>
+
+                    <template #content="{ close: closed }">
+                        <div class="w-[350px]">
+                            <span class="text-xs px-1 my-2">{{ trans('Services') }}: </span>
+                            <div>
+                                <PureMultiselect v-model="formAddPallet.customer_reference" autofocus placeholder="Services"
+                                                 :options="props.service_lists"
+                                           @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)" />
+                                <p v-if="get(formAddPallet, ['errors', 'service_id'])"
+                                   class="mt-2 text-sm text-red-600">
+                                    {{ formAddPallet.errors.customer_reference }}
+                                </p>
+                            </div>
+
+                            <div class="mt-3">
+                                <span class="text-xs px-1 my-2">{{ trans('Qty') }}: </span>
+                                <PureInput v-model="formAddPallet.customer_reference" autofocus placeholder="Qty"
+                                                 @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)" />
+                                <p v-if="get(formAddPallet, ['errors', 'quantity'])"
+                                   class="mt-2 text-sm text-red-600">
+                                    {{ formAddPallet.errors.customer_reference }}
+                                </p>
+                            </div>
+
+                            <div class="flex justify-end mt-3">
+                                <Button :style="'save'" :loading="loading" :label="'save'"
+                                        @click="() => handleFormSubmitAddPallet(action.button, closed)" />
+                            </div>
+                        </div>
+                    </template>
+                </Popover>
+            </div>
+            <div v-else></div>
+        </template>
+
+        <!-- Button: Add physical good (single) -->
+        <template #button-group-add-physical-good="{ action: action }">
+            <div class="relative" v-if="currentTab === 'physical_goods'">
+                <Popover width="w-full">
+                    <template #button>
+                        <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
+                                :key="`ActionButton${action.button.label}${action.button.style}`"
+                                :tooltip="action.button.tooltip" class="rounded-l-none rounded-r border-none " />
+                    </template>
+
+                    <template #content="{ close: closed }">
+                        <div class="w-[350px]">
+                            <span class="text-xs px-1 my-2">{{ trans('Physical Goods') }}: </span>
+                            <div>
+                                <PureMultiselect v-model="formAddPallet.customer_reference" autofocus placeholder="Physical Goods"
+                                                 :options="props.physical_good_lists"
+                                                 @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)" />
+                                <p v-if="get(formAddPallet, ['errors', 'service_id'])"
+                                   class="mt-2 text-sm text-red-600">
+                                    {{ formAddPallet.errors.customer_reference }}
+                                </p>
+                            </div>
+
+                            <div class="mt-3">
+                                <span class="text-xs px-1 my-2">{{ trans('Qty') }}: </span>
+                                <PureInput v-model="formAddPallet.customer_reference" autofocus placeholder="Qty"
+                                           @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)" />
+                                <p v-if="get(formAddPallet, ['errors', 'quantity'])"
+                                   class="mt-2 text-sm text-red-600">
+                                    {{ formAddPallet.errors.customer_reference }}
+                                </p>
+                            </div>
+
+                            <div class="flex justify-end mt-3">
+                                <Button :style="'save'" :loading="loading" :label="'save'"
+                                        @click="() => handleFormSubmitAddPallet(action.button, closed)" />
+                            </div>
+                        </div>
+                    </template>
+                </Popover>
+            </div>
+            <div v-else></div>
         </template>
     </PageHeading>
 
@@ -342,7 +440,7 @@ console.log(props)
     <!-- Box -->
     <div class="h-min grid grid-cols-4 border-b border-gray-200 divide-x divide-gray-300">
         <!-- Box: Customer -->
-        <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" tooltip="Customer" :label="data?.data.customer_name"
+        <BoxStatsPalletDelivery class="py-2 px-3" :label="data?.data.customer_name"
             icon="fal fa-user">
             <!-- Field: Reference -->
             <Link as="a" v-if="box_stats.fulfilment_customer.customer.reference"
@@ -403,7 +501,7 @@ console.log(props)
         </BoxStatsPalletDelivery>
 
         <!-- Box: Status -->
-        <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" :tooltip="trans('Status')" :label="capitalize(data?.data.state)" icon="fal fa-truck-couch">
+        <BoxStatsPalletDelivery class="py-2 px-3" :label="capitalize(data?.data.state)" icon="fal fa-truck-couch">
             <div class="flex items-center w-full flex-none gap-x-2 mb-2">
                 <dt class="flex-none">
                     <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
@@ -440,7 +538,7 @@ console.log(props)
         </BoxStatsPalletDelivery>
 
         <!-- Box: Pallet -->
-        <BoxStatsPalletDelivery class="pb-2 py-5 px-3" :tooltip="trans('Pallets')" :percentage="0">
+        <BoxStatsPalletDelivery class="py-2 px-3" :percentage="0">
             <div v-tooltip="trans('Total Pallet')" class="flex items-end w-fit pr-2 gap-x-3 mb-1">
                 <dt class="flex-none">
                     <span class="sr-only">Total pallet</span>
@@ -450,7 +548,7 @@ console.log(props)
                 <dd class="text-gray-600 leading-6 text-lg font-medium ">{{ data?.data.number_pallets || 0 }}</dd>
             </div>
 
-            <div v-if="data?.data?.number_services" v-tooltip="trans('Total Services')" class="flex items-end w-fit pr-2 gap-x-3 mb-1">
+            <div v-tooltip="trans('Total Services')" class="flex items-end w-fit pr-2 gap-x-3 mb-1">
                 <dt class="flex-none">
                     <span class="sr-only">Services</span>
                     <FontAwesomeIcon icon='fal fa-concierge-bell' size="xs" class='text-gray-400' fixed-width
@@ -459,13 +557,13 @@ console.log(props)
                 <dd class="text-gray-600 leading-6 text-lg font-medium">{{ data?.data.number_services }}</dd>
             </div>
 
-            <div v-if="data?.data?.number_physical" v-tooltip="trans('Total Physical Goods')" class="flex items-end w-fit pr-2 gap-x-3 mb-1">
+            <div v-tooltip="trans('Total Physical Goods')" class="flex items-end w-fit pr-2 gap-x-3 mb-1">
                 <dt class="flex-none">
                     <span class="sr-only">Physical Goods</span>
                     <FontAwesomeIcon icon='fal fa-cube' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ data?.data.number_physical }}</dd>
+                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ data?.data.number_physical_goods }}</dd>
             </div>
 
         </BoxStatsPalletDelivery>

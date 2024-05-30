@@ -5,16 +5,16 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\PalletDeliveryService;
+namespace App\Actions\Fulfilment\PalletDeliveryPhysicalGood;
 
-use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateServices;
+use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePhysicalGoods;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\PalletDelivery;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class SyncServiceToPalletDelivery
+class SyncPhysicalGoodToPalletDelivery
 {
     use AsAction;
     use WithAttributes;
@@ -23,9 +23,9 @@ class SyncServiceToPalletDelivery
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
-        $palletDelivery->services()->sync($modelData['service_id']);
+        $palletDelivery->services()->sync($modelData['product_id']);
 
-        PalletDeliveryHydrateServices::dispatch($palletDelivery);
+        PalletDeliveryHydratePhysicalGoods::dispatch($palletDelivery);
 
         return $palletDelivery;
     }
@@ -33,8 +33,8 @@ class SyncServiceToPalletDelivery
     public function rules(): array
     {
         return [
-            'service_id'            => ['required', 'array'],
-            'service_id.*.quantity' => ['required', 'integer', 'min:1']
+            'product_id'            => ['required', 'array'],
+            'product_id.*.quantity' => ['required', 'integer', 'min:1']
         ];
     }
 
