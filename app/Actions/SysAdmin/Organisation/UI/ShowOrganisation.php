@@ -7,7 +7,12 @@
 
 namespace App\Actions\SysAdmin\Organisation\UI;
 
+use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
+use App\Enums\UI\Organisation\OrgTabsEnum;
+use App\Enums\UI\SysAdmin\UserTabsEnum;
+use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\SysAdmin\Organisation\OrganisationResource;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -41,39 +46,96 @@ class ShowOrganisation extends InertiaAction
 
 
         return Inertia::render(
-            'Central/Account',
+            'Organisation/Organisation',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('account'),
+                'title'       => __('organisation'),
                 'pageHead'    => [
+                    'model'   => __('organisation'),
                     'title' => $organisation->name,
-                ],
-
-                'tabs' => [
-
-                    'current' => 'account',
-                    'items'   => [
-                        'account' => [
-                            'name' => __('Account'),
-                            'icon' => 'fal fa-briefcase',
-                        ],
-                        'index'   => [
-                            'name' => __('Index'),
-                            'icon' => 'fal fa-indent',
-                        ]
+                    'actions' => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            // 'route' => [
+                            //     'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                            //     'parameters' => array_values($request->route()->originalParameters())
+                            // ]
+                        ] 
                     ]
                 ],
 
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => OrgTabsEnum::navigation()
+                ],
+                OrgTabsEnum::SHOWCASE->value => $this->tab == OrgTabsEnum::SHOWCASE->value ?
+                fn () => OrganisationResource::make($organisation)
+                : Inertia::lazy(fn () => OrganisationResource::make($organisation)),
+                
+                OrgTabsEnum::HISTORY->value => $this->tab == OrgTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistory::run($organisation))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($organisation)))
 
 
 
             ]
-        );
+        )->table(IndexHistory::make()->tableStructure(prefix: UserTabsEnum::HISTORY->value));
     }
 
 
-    public function getBreadcrumbs(): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
-        return [];
+
+        $headCrumb = function (Organisation $organisation, array $routeParameters, string $suffix) {
+            return [
+                [
+
+                    'type'           => 'modelWithIndex',
+                    'modelWithIndex' => [
+                        'index' => [
+                            'route' => $routeParameters['index'],
+                            'label' => __('Organisations')
+                        ],
+                        'model' => [
+                            'route' => $routeParameters['model'],
+                            'label' => $organisation->slug,
+                        ],
+
+                    ],
+                    'suffix' => $suffix
+
+                ],
+            ];
+        };
+
+        $organisation=Organisation::where('slug', $routeParameters['organisation'])->first();
+
+        return match ($routeName) {
+            'grp.sysadmin.users.show',
+            'grp.sysadmin.users.edit' =>
+
+            array_merge(
+                ShowOrganisationDashboard::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    $organisation,
+                    [
+                        'index' => [
+                            'name'       => 'grp.organisations.index',
+                            'parameters' => []
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.show',
+                            'parameters' => $organisation->slug
+                        ]
+                    ],
+                    $suffix
+                ),
+            ),
+
+
+            default => []
+        };
+
     }
 }

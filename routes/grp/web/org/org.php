@@ -5,6 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\SysAdmin\Organisation\UI\ShowOrganisation;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix("")
@@ -47,6 +48,7 @@ Route::prefix("reports")
     ->name("reports.")
     ->group(__DIR__."/reports.php");
 
+    Route::get('/', ShowOrganisation::class)->name('show');
 
 
 /*
