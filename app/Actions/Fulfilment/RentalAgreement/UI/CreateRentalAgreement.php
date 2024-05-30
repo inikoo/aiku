@@ -63,13 +63,17 @@ class CreateRentalAgreement extends OrgAction
                                         'label'            => __('Rental'),
                                         'required'         => false,
                                         'full'             => true,
-                                        'indexRentalRoute' => [
-                                            'name'       => 'grp.org.fulfilments.show.products.rentals.index',
-                                            'parameters' => [
-                                                'organisation' => $this->organisation->slug,
-                                                'fulfilment'   => $fulfilmentCustomer->fulfilment->slug
-                                            ]
-                                        ]
+                                        'rentals'          => $fulfilmentCustomer->fulfilment->rentals,
+                                        'services'         => $fulfilmentCustomer->fulfilment->shop->services,
+                                        'physical_goods'   => $fulfilmentCustomer->fulfilment->shop->outers,
+                                        'clauses'          => $fulfilmentCustomer->rentalAgreementClauses,   
+                                        // 'indexRentalRoute' => [
+                                        //     'name'       => 'grp.org.fulfilments.show.products.rentals.index',
+                                        //     'parameters' => [
+                                        //         'organisation' => $this->organisation->slug,
+                                        //         'fulfilment'   => $fulfilmentCustomer->fulfilment->slug
+                                        //     ]
+                                        // ]
                                     ],
                                 ]
                             ]
