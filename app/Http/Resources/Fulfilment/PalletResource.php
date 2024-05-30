@@ -29,7 +29,7 @@ class PalletResource extends JsonResource
     {
         /** @var Pallet $pallet */
         $pallet=$this;
-// dd($pallet);
+        // dd($pallet);
         return [
             'id'                    => $this->id,
             'reference'             => $pallet->reference,
