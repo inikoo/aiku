@@ -68,8 +68,8 @@ const notifications = layout.user.notifications
             </button>
 
             <div class="pl-4 flex items-center gap-x-2">
-                <div class="px-1">
-                    To do
+                <div @click="() => layout.stackedComponents.push({ component: Profile, data: { currentTab: 'todo' }})">
+                    <Button label="To do" size="xs" :style="'tertiary'" />
                 </div>
 
                 <!-- Button: Notifications -->

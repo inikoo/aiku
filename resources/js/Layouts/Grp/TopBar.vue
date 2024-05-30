@@ -44,7 +44,6 @@ defineEmits<{
 const imageSkeleton: { [key: string]: boolean } = reactive({})
 
 const layoutStore = inject('layout', layoutStructure)
-console.log('dasd', layoutStore.group?.label)
 
 // For label
 const label = {

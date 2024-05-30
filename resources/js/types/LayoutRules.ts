@@ -73,4 +73,7 @@ export interface Currency {
 
 export interface StackedComponent {
     component: Component
+    data?: {
+        currentTab?: string
+    }
 }
