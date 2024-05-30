@@ -100,14 +100,6 @@ class IndexServiceInPalletDelivery extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
-            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                $table->elementGroup(
-                    key: $key,
-                    label: $elementGroup['label'],
-                    elements: $elementGroup['elements']
-                );
-            }
-
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
