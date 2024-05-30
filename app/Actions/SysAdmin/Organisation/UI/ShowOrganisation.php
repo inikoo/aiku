@@ -10,7 +10,6 @@ namespace App\Actions\SysAdmin\Organisation\UI;
 use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Enums\UI\Organisation\OrgTabsEnum;
-use App\Enums\UI\SysAdmin\UserTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\SysAdmin\Organisation\OrganisationResource;
 use App\Models\SysAdmin\Organisation;

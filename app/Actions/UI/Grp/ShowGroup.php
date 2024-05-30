@@ -9,23 +9,18 @@ namespace App\Actions\UI\Grp;
 
 use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\UI\Group\GrpTabsEnum;
 use App\Enums\UI\Organisation\OrgTabsEnum;
-use App\Enums\UI\SysAdmin\UserTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\SysAdmin\Group\GroupResource;
-use App\Http\Resources\SysAdmin\Organisation\OrganisationResource;
 use App\Models\SysAdmin\Group;
-use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class ShowGroup extends GrpAction
 {
-    
     public function handle(): Group
     {
         $group = group();
@@ -51,11 +46,11 @@ class ShowGroup extends GrpAction
         return Inertia::render(
             'Group',
             [
-                'breadcrumbs' => $this->getBreadcrumbs( $request->route()->originalParameters()),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('group'),
                 'pageHead'    => [
                     'model'   => __('group'),
-                    'icon'   => ['fal', 'fa-city'],
+                    'icon'    => ['fal', 'fa-city'],
                     'title'   => $group->name,
                     'actions' => [
                         [
