@@ -194,6 +194,8 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 		<!-- Column: type pallet -->
 		<template #cell(type)="{ item: pallet }">
             <FieldEditableTable :data="pallet" @onSave="onSaved" :options="typePallet" :fieldType="'select'"
+                label="label"
+                valueProp="value"
                 fieldName="type" placeholder="Enter customer type" />
 		</template>
 

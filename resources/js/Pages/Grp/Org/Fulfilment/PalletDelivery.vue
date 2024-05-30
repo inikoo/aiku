@@ -31,21 +31,21 @@ import { Table } from '@/types/Table'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import DatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
-import { useFormatTime } from '@/Composables/useFormatTime';
+import { useFormatTime, useDaysLeftFromToday } from '@/Composables/useFormatTime'
 import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
 
 import '@/Composables/Icon/PalletDeliveryStateEnum'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone, faConciergeBell, faCube, faCalendarDay } from '@fal'
+import { faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone, faConciergeBell, faCube, faCalendarDay, faPencil } from '@fal'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue";
 
 import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue";
 import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue";
 
-library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone,faExclamationTriangle, faConciergeBell, faCube, faCalendarDay)
+library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEnvelope, faPhone,faExclamationTriangle, faConciergeBell, faCube, faCalendarDay, faPencil)
 
 const props = defineProps<{
     title: string
@@ -84,7 +84,7 @@ const props = defineProps<{
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const loading = ref(false)
-const timeline = ref({ ...props.data.data })
+const timeline = ref({ ...props.data?.data })
 const dataModal = ref({ isModalOpen: false })
 const formAddPallet = useForm({ notes: '', customer_reference: '', type : 'pallet' })
 const formMultiplePallet = useForm({ number_pallets: 1, type : 'pallet' })
@@ -100,7 +100,7 @@ const typePallet = [
 const onChangeEstimateDate = async () => {
     try {
         const response = await axios.patch(route(props.updateRoute.name, props.updateRoute.parameters), {
-            estimated_delivery_date : props.data.data.estimated_delivery_date
+            estimated_delivery_date : props.data?.data.estimated_delivery_date
         })
     } catch (error) {
         notify({
@@ -212,8 +212,9 @@ console.log(currentTab.value)
     <PageHeading :data="pageHead">
         <!-- Button: Upload -->
         <template #button-group-upload="{ action }">
-            <Button v-if="currentTab === 'pallets'" @click="() => onUploadOpen(action.button)" :style="action.button.style" :icon="action.button.icon"
-                v-tooltip="action.button.tooltip" class="rounded-l rounded-r-none border-none" />
+            <Button v-if="currentTab === 'pallets'" @click="() => onUploadOpen(action.button)"
+                :style="action.button.style" :icon="action.button.icon" v-tooltip="action.button.tooltip"
+                class="rounded-l rounded-r-none border-none" />
             <div v-else></div>
         </template>
 
@@ -221,7 +222,8 @@ console.log(currentTab.value)
         <template #button-group-multiple="{ action }">
             <Popover width="w-full" class="relative h-full">
                 <template #button>
-                    <Button v-if="currentTab === 'pallets'" :style="action.button.style" :icon="action.button.icon" :iconRight="action.button.iconRight"
+                    <Button v-if="currentTab === 'pallets'" :style="action.button.style" :icon="action.button.icon"
+                        :iconRight="action.button.iconRight"
                         :key="`ActionButton${action.button.label}${action.button.style}`"
                         :tooltip="trans('Add multiple pallets')" class="rounded-none border-none" />
                     <div v-else></div>
@@ -231,12 +233,13 @@ console.log(currentTab.value)
                     <div class="w-[350px]">
                         <span class="text-xs  my-2">{{ trans('Type') }}: </span>
                         <div class="flex items-center">
-                            <div v-for="(typeData, typeIdx) in typePallet" :key="typeIdx" class="relative py-3 mr-4 flex items-center">
-                                    <input type="checkbox" :id="typeData.value" :value="typeData.value"
-                                        :checked="formMultiplePallet.type == typeData.value"
-                                        @input="changePalletType(formMultiplePallet,'type',typeData.value)"
-                                        class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer">
-                                    <label :for="typeData.value" class="ml-2 cursor-pointer">{{ typeData.label }}</label>
+                            <div v-for="(typeData, typeIdx) in typePallet" :key="typeIdx"
+                                class="relative py-3 mr-4 flex items-center">
+                                <input type="checkbox" :id="typeData.value" :value="typeData.value"
+                                    :checked="formMultiplePallet.type == typeData.value"
+                                    @input="changePalletType(formMultiplePallet,'type',typeData.value)"
+                                    class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer">
+                                <label :for="typeData.value" class="ml-2 cursor-pointer">{{ typeData.label }}</label>
                             </div>
                         </div>
                         <span class="text-xs  my-2">Number of pallets: </span>
@@ -270,20 +273,19 @@ console.log(currentTab.value)
                             :key="`ActionButton${action.button.label}${action.button.style}`"
                             :tooltip="action.button.tooltip" class="rounded-l-none rounded-r border-none " />
                     </template>
-
                     <template #content="{ close: closed }">
                         <div class="w-[350px]">
-
                             <span class="text-xs px-1 my-2">{{ trans('Type') }}: </span>
-
                             <div class="flex items-center">
                                 <div v-for="(typeData, typeIdx) in typePallet" :key="typeIdx"
                                     class="relative py-3 mr-4 flex items-center">
-                                        <input type="checkbox" :id="typeData.value" :value="typeData.value"
-                                            :checked="formAddPallet.type == typeData.value"
-                                            @input="changePalletType(formAddPallet,'type',typeData.value)"
-                                            class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer">
-                                        <label :for="typeData.value" class="ml-2 cursor-pointer">{{ typeData.label }}</label>
+                                    <input type="checkbox" :id="typeData.value" :value="typeData.value"
+                                        :checked="formAddPallet.type == typeData.value"
+                                        @input="changePalletType(formAddPallet,'type',typeData.value)"
+                                        class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer">
+                                    <label :for="typeData.value" class="ml-2 cursor-pointer">
+                                        {{ typeData.label }}
+                                    </label>
                                 </div>
                             </div>
                             <span class="text-xs px-1 my-2">{{ trans('Reference') }}: </span>
@@ -295,7 +297,6 @@ console.log(currentTab.value)
                                     {{ formAddPallet.errors.customer_reference }}
                                 </p>
                             </div>
-
                             <div class="mt-3">
                                 <span class="text-xs px-1 my-2">{{ trans('Notes') }}: </span>
                                 <textarea
@@ -306,7 +307,6 @@ console.log(currentTab.value)
                                     {{ formAddPallet.errors.notes }}
                                 </p>
                             </div>
-
                             <div class="flex justify-end mt-3">
                                 <Button :style="'save'" :loading="loading" :label="'save'"
                                     @click="() => handleFormSubmitAddPallet(action.button, closed)" />
@@ -320,40 +320,36 @@ console.log(currentTab.value)
 
         <!-- Button: Add service (single) -->
         <template #button-group-add-service="{ action: action }">
-            <div class="relative" v-if="currentTab === 'services'">
-                <Popover width="w-full">
-                    <template #button>
-                        <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
+                <div class="relative" v-if="currentTab === 'services'">
+                    <Popover width="w-full">
+                        <template #button>
+                            <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
                                 :key="`ActionButton${action.button.label}${action.button.style}`"
                                 :tooltip="action.button.tooltip" class="rounded-l-none rounded-r border-none " />
                     </template>
-
                     <template #content="{ close: closed }">
                         <div class="w-[350px]">
                             <span class="text-xs px-1 my-2">{{ trans('Services') }}: </span>
                             <div>
-                                <PureMultiselect v-model="formAddPallet.customer_reference" autofocus placeholder="Services"
-                                                 :options="props.service_lists"
-                                           @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)" />
+                                <PureMultiselect v-model="formAddPallet.customer_reference" autofocus placeholder="Services" :options="props.service_lists"
+                                    @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)" />
                                 <p v-if="get(formAddPallet, ['errors', 'service_id'])"
-                                   class="mt-2 text-sm text-red-600">
+                                    class="mt-2 text-sm text-red-600">
                                     {{ formAddPallet.errors.customer_reference }}
                                 </p>
                             </div>
-
                             <div class="mt-3">
                                 <span class="text-xs px-1 my-2">{{ trans('Qty') }}: </span>
                                 <PureInput v-model="formAddPallet.customer_reference" autofocus placeholder="Qty"
-                                                 @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)" />
+                                    @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)" />
                                 <p v-if="get(formAddPallet, ['errors', 'quantity'])"
-                                   class="mt-2 text-sm text-red-600">
+                                    class="mt-2 text-sm text-red-600">
                                     {{ formAddPallet.errors.customer_reference }}
                                 </p>
                             </div>
-
                             <div class="flex justify-end mt-3">
                                 <Button :style="'save'" :loading="loading" :label="'save'"
-                                        @click="() => handleFormSubmitAddPallet(action.button, closed)" />
+                                    @click="() => handleFormSubmitAddPallet(action.button, closed)" />
                             </div>
                         </div>
                     </template>
@@ -368,36 +364,33 @@ console.log(currentTab.value)
                 <Popover width="w-full">
                     <template #button>
                         <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
-                                :key="`ActionButton${action.button.label}${action.button.style}`"
-                                :tooltip="action.button.tooltip" class="rounded-l-none rounded-r border-none " />
+                            :key="`ActionButton${action.button.label}${action.button.style}`"
+                            :tooltip="action.button.tooltip" class="rounded-l-none rounded-r border-none " />
                     </template>
-
                     <template #content="{ close: closed }">
                         <div class="w-[350px]">
                             <span class="text-xs px-1 my-2">{{ trans('Physical Goods') }}: </span>
                             <div>
-                                <PureMultiselect v-model="formAddPallet.customer_reference" autofocus placeholder="Physical Goods"
-                                                 :options="props.physical_good_lists"
-                                                 @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)" />
+                                <PureMultiselect v-model="formAddPallet.customer_reference" autofocus
+                                    placeholder="Physical Goods" :options="props.physical_good_lists"
+                                    @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)" />
                                 <p v-if="get(formAddPallet, ['errors', 'service_id'])"
-                                   class="mt-2 text-sm text-red-600">
+                                    class="mt-2 text-sm text-red-600">
                                     {{ formAddPallet.errors.customer_reference }}
                                 </p>
                             </div>
-
                             <div class="mt-3">
                                 <span class="text-xs px-1 my-2">{{ trans('Qty') }}: </span>
                                 <PureInput v-model="formAddPallet.customer_reference" autofocus placeholder="Qty"
-                                           @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)" />
+                                    @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)" />
                                 <p v-if="get(formAddPallet, ['errors', 'quantity'])"
-                                   class="mt-2 text-sm text-red-600">
+                                    class="mt-2 text-sm text-red-600">
                                     {{ formAddPallet.errors.customer_reference }}
                                 </p>
                             </div>
-
                             <div class="flex justify-end mt-3">
                                 <Button :style="'save'" :loading="loading" :label="'save'"
-                                        @click="() => handleFormSubmitAddPallet(action.button, closed)" />
+                                    @click="() => handleFormSubmitAddPallet(action.button, closed)" />
                             </div>
                         </div>
                     </template>
@@ -440,8 +433,7 @@ console.log(currentTab.value)
     <!-- Box -->
     <div class="h-min grid grid-cols-4 border-b border-gray-200 divide-x divide-gray-300">
         <!-- Box: Customer -->
-        <BoxStatsPalletDelivery class="py-2 px-3" :label="data?.data.customer_name"
-            icon="fal fa-user">
+        <BoxStatsPalletDelivery class="py-2 px-3" :label="data?.data.customer_name" icon="fal fa-user">
             <!-- Field: Reference -->
             <Link as="a" v-if="box_stats.fulfilment_customer.customer.reference"
                 :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, box_stats.fulfilment_customer.fulfilment.slug, box_stats.fulfilment_customer.slug])"
@@ -502,36 +494,53 @@ console.log(currentTab.value)
 
         <!-- Box: Status -->
         <BoxStatsPalletDelivery class="py-2 px-3" :label="capitalize(data?.data.state)" icon="fal fa-truck-couch">
+        <!-- <pre>{{ data.data }}</pre> -->
             <div class="flex items-center w-full flex-none gap-x-2 mb-2">
                 <dt class="flex-none">
                     <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
                     <FontAwesomeIcon :icon='box_stats.delivery_status.icon' :class='box_stats.delivery_status.class'
                         fixed-width aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.delivery_status.tooltip }}</dd>
+                <dd class="text-xs text-gray-500" :class='box_stats.delivery_status.class'>{{
+                    box_stats.delivery_status.tooltip }}</dd>
             </div>
 
-
-            <div  class="flex items-center w-full flex-none gap-x-2">
-                <dt class="flex-none">
+            <!-- Set estimated date -->
+            <div class="flex items-center w-full gap-x-2">
+                <dt v-tooltip="'Estimated received date'" class="flex-none">
                     <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
-                    <FontAwesomeIcon :icon="['fal', 'calendar-day']"  :class='box_stats.delivery_status.class'
-                        fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon :icon="['fal', 'calendar-day']" class="text-gray-400" fixed-width aria-hidden='true' />
                 </dt>
-                <div v-if="(box_stats.delivery_status.tooltip == 'Received' || box_stats.delivery_status.tooltip == 'Booking in' || box_stats.delivery_status.tooltip == 'Booked In')">
-                    <dd class="text-xs text-gray-500">{{ data?.data.estimated_delivery_date ? useFormatTime(data?.data?.estimated_delivery_date) : 'Not Set' }}</dd>
+                
+                <div v-if="(box_stats.delivery_status.tooltip === 'Received' || box_stats.delivery_status.tooltip === 'Booking in' || box_stats.delivery_status.tooltip == 'Booked In')">
+                    <dd class="text-xs text-gray-500">
+                        {{ data?.data.estimated_delivery_date ? useFormatTime(data?.data?.estimated_delivery_date) : 'Not Set' }}
+                    </dd>
                 </div>
+
                 <Popover v-else position="">
                     <template #button>
-                        <dd class="text-xs text-gray-500">{{ data.data.estimated_delivery_date ? useFormatTime(data.data.estimated_delivery_date) : 'Not Set' }}</dd>
-                    </template>
-                    <template #content="{ close: closed }">
-                        <div>
-                            <DatePicker v-model="data.data.estimated_delivery_date"
-                                inline auto-apply  :disabled-dates="disableBeforeToday"
-                                :enable-time-picker="false"
-                            />
+                        <div v-if="data?.data.estimated_delivery_date"
+                            v-tooltip="useDaysLeftFromToday(data?.data.estimated_delivery_date)"
+                            class="group text-xs text-gray-500"
+                        >
+                            {{ useFormatTime(data?.data?.estimated_delivery_date) }}
+                            <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='text-gray-400 group-hover:text-gray-600' fixed-width aria-hidden='true' />
                         </div>
+
+                        <div v-else class="text-xs text-gray-500 hover:text-gray-600 underline">
+                            {{ trans('Set estimated date') }}
+                        </div>
+                    </template>
+
+                    <template #content="{ close }">
+                        <DatePicker
+                            v-model="data.data.estimated_delivery_date"
+                            inline
+                            auto-apply
+                            :disabled-dates="disableBeforeToday"
+                            :enable-time-picker="false"
+                        />
                     </template>
                 </Popover>
             </div>
@@ -581,10 +590,10 @@ console.log(currentTab.value)
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
 
-    <component
+     <component
         :is="component"
         :key="timeline.state"
-        :data="props[currentTab]"
+        :data="props[currentTab as keyof typeof props]"
         :state="timeline.state"
         :tab="currentTab"
         :tableKey="tableKey"
@@ -602,6 +611,6 @@ console.log(currentTab.value)
         history: props.uploadRoutes.history
     }" :dataModal="dataModal" />
 
-<!--     <pre>{{ props.services.data?.[0]?.reference }}</pre>
+    <!--     <pre>{{ props.services.data?.[0]?.reference }}</pre>
     <pre>{{ $inertia.page.props.queryBuilderProps.services.columns }}</pre>-->
 </template>
