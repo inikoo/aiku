@@ -63,8 +63,12 @@ class CreateRentalAgreement extends OrgAction
                                         'label'            => __('Rental'),
                                         'required'         => false,
                                         'full'             => true,
-                                        'rentals'          => $fulfilmentCustomer->fulfilment->rentals,
-                                        'services'         => $fulfilmentCustomer->fulfilment->shop->services,
+                                        'rentals' => $fulfilmentCustomer->fulfilment->rentals->map(function($rental) {
+                                            return $rental->product;
+                                        }),
+                                        'services' => $fulfilmentCustomer->fulfilment->services->map(function($service) {
+                                            return $service->product;
+                                        }),
                                         'physical_goods'   => $fulfilmentCustomer->fulfilment->shop->outers,
                                         'clauses'          => $fulfilmentCustomer->rentalAgreementClauses,   
                                         // 'indexRentalRoute' => [

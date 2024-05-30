@@ -77,8 +77,12 @@ class EditRentalAgreement extends OrgAction
                                         'label'            => __('Rental'),
                                         'required'         => false,
                                         'full'             => true,
-                                        'rentals'          => $rentalAgreement->fulfilment->rentals,
-                                        'services'         => $rentalAgreement->fulfilment->shop->services,
+                                        'rentals' => $rentalAgreement->fulfilment->rentals->map(function($rental) {
+                                            return $rental->product;
+                                        }),
+                                        'services' => $rentalAgreement->fulfilment->services->map(function($service) {
+                                            return $service->product;
+                                        }),
                                         'physical_goods'   => $rentalAgreement->fulfilment->shop->outers,
                                         'clauses'          => $rentalAgreement->clauses,     
                                         // 'indexRentalRoute' => [
