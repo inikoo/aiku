@@ -109,6 +109,7 @@ class IndexOrganisations extends GrpAction
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_employees_state_working', label: __('employees'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_shops_state_open', label: __('shops'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'btn', label: __('action'), canBeHidden: false, sortable: false, searchable: false)
                 ->defaultSort('code');
         };
     }
