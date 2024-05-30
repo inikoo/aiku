@@ -9,6 +9,8 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInReturn;
+use App\Actions\Fulfilment\PalletReturnPhysicalGood\UI\IndexPhysicalGoodInPalletReturn;
+use App\Actions\Fulfilment\PalletReturnService\UI\IndexServiceInPalletReturn;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
@@ -18,6 +20,8 @@ use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\PalletReturnResource;
 use App\Http\Resources\Fulfilment\PalletReturnsResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
+use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
+use App\Http\Resources\Fulfilment\ServicesResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
@@ -334,11 +338,29 @@ class ShowPalletReturn extends OrgAction
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPalletsInReturn::run($palletReturn))
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexPalletsInReturn::run($palletReturn))),
+
+                PalletReturnTabsEnum::SERVICES->value => $this->tab == PalletReturnTabsEnum::SERVICES->value ?
+                    fn () => ServicesResource::collection(IndexServiceInPalletReturn::run($palletReturn))
+                    : Inertia::lazy(fn () => ServicesResource::collection(IndexServiceInPalletReturn::run($palletReturn))),
+
+                PalletReturnTabsEnum::PHYSICAL_GOODS->value => $this->tab == PalletReturnTabsEnum::PHYSICAL_GOODS->value ?
+                    fn () => PhysicalGoodsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn))
+                    : Inertia::lazy(fn () => PhysicalGoodsResource::collection(IndexPhysicalGoodInPalletReturn::run($palletReturn))),
             ]
         )->table(
             IndexPalletsInReturn::make()->tableStructure(
                 $palletReturn,
                 prefix: PalletReturnTabsEnum::PALLETS->value
+            )
+        )->table(
+            IndexServiceInPalletReturn::make()->tableStructure(
+                $palletReturn,
+                prefix: PalletReturnTabsEnum::SERVICES->value
+            )
+        )->table(
+            IndexPhysicalGoodInPalletReturn::make()->tableStructure(
+                $palletReturn,
+                prefix: PalletReturnTabsEnum::PHYSICAL_GOODS->value
             )
         );
     }

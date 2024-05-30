@@ -9,7 +9,6 @@ namespace App\Actions\SysAdmin\Organisation\UI;
 
 use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\InertiaAction;
 use App\Enums\UI\Organisation\OrgTabsEnum;
 use App\Enums\UI\SysAdmin\UserTabsEnum;
 use App\Http\Resources\History\HistoryResource;
