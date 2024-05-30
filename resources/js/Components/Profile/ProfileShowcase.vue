@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import Image from '../Image.vue'
+import Image from '@/Components/Image.vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { Image as ImageTS } from '@/types/Image'
 import { faAndroid } from "@fortawesome/free-brands-svg-icons"
@@ -12,21 +12,23 @@ library.add(faAndroid)
 
 const props = defineProps<{
     data: {
-        id: number
-        username: string
-        avatar?: ImageTS
-        email: string
-        about: string
-        status: {
-            tooltip: string
-            icon: string
-            class: string
+        data: {
+            id: number
+            username: string
+            avatar?: ImageTS
+            email: string
+            about: string
+            status: {
+                tooltip: string
+                icon: string
+                class: string
+            }
+            parent_type: string
+            contact_name: string
+            created_at: string
+            roles: string[]
+            permissions: string[]
         }
-        parent_type: string
-        contact_name: string
-        created_at: string
-        roles: string[]
-        permissions: string[]
     }
 }>()
 </script>
@@ -36,22 +38,22 @@ const props = defineProps<{
         <div class="col-span-6 ring-1 ring-gray-300 shadow rounded-2xl py-6 grid grid-cols-2 gap-y-4">
             <div class="flex flex-col gap-y-4 px-8">
                 <div class="mx-auto w-fit aspect-square rounded-full overflow-hidden md:h-56" :src="'person.imageUrl'" alt="">
-                    <Image :src="data?.avatar" />
+                    <Image :src="data?.data?.avatar" />
                 </div>
                 
                 <div class="col-span-4">
                     <div class="flex items-end gap-x-2">
-                        <div class="font-semibold text-2xl">{{ data?.contact_name }}</div>
+                        <div class="font-semibold text-2xl">{{ data?.data?.contact_name }}</div>
                         <div class="text-gray-400">
-                            #{{ data?.id }} {{ data?.username }}
+                            #{{ data?.data?.id }} {{ data?.data?.username }}
                         </div>
                     </div>
                     <div class="mt-4">
                         <div class="font-medium">
                             Description
                         </div>
-                        <div v-if="data?.about" class="text-gray-500">
-                            {{ data?.about }}
+                        <div v-if="data?.data?.about" class="text-gray-500">
+                            {{ data?.data?.about }}
                         </div>
                         <div v-else class="text-gray-400 italic">
                             {{ 'No description yet' }}
@@ -70,7 +72,7 @@ const props = defineProps<{
                             Status
                         </div>
                         <div class="col-span-2 font-medium capitalize">
-                            {{ data?.status?.tooltip }}
+                            {{ data?.data?.status?.tooltip }}
                         </div>
                     </div>
 
@@ -79,7 +81,7 @@ const props = defineProps<{
                             User type
                         </div>
                         <div class="col-span-2 font-medium capitalize">
-                            {{ data?.parent_type }}
+                            {{ data?.data?.parent_type }}
                         </div>
                     </div>
 
@@ -88,7 +90,7 @@ const props = defineProps<{
                             Member since
                         </div>
                         <div class="col-span-2 font-medium">
-                            {{ useFormatTime(data?.created_at) }}
+                            {{ useFormatTime(data?.data?.created_at) }}
                         </div>
                     </div>
 
@@ -97,7 +99,7 @@ const props = defineProps<{
                             Email
                         </div>
                         <div class="col-span-2 font-medium">
-                            {{ data?.email }}
+                            {{ data?.data?.email }}
                         </div>
                     </div>
 
@@ -106,7 +108,7 @@ const props = defineProps<{
                             Roles
                         </div>
                         <div class="col-span-2 font-medium">
-                            {{ data?.roles?.length }} roles
+                            {{ data?.data?.roles?.length }} roles
                         </div>
                     </div>
 
@@ -115,7 +117,7 @@ const props = defineProps<{
                             Permissions
                         </div>
                         <div class="col-span-2 font-medium">
-                            {{ data?.permissions?.length }} access
+                            {{ data?.data?.permissions?.length }} access
                         </div>
                     </div>
                 </div>

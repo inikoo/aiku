@@ -10,7 +10,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <pre>{{ data }}</pre>
+    <!-- <pre>{{ Object.keys(data) }}</pre> -->
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(title)="{ item: notification }">
             <Link :href="notification.route" class="primaryLink">

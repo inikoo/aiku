@@ -151,8 +151,8 @@ const isShowHorizontal = () => {
             :style="{ color: layout.app.theme[1] + '99' }">
 
             <!-- Label: 'UK (Shop)' -->
-            <div class="relative flex gap-x-1.5 items-center"
-                :class="layout.leftSidebar.show ? '' : 'pt-1'"
+            <div class="relative flex gap-x-1.5 items-center transition-all"
+                :class="layout.leftSidebar.show ? 'pt-[3px]' : 'pt-1'"
             >
                 <Transition name="spin-to-down">
                     <FontAwesomeIcon v-if="currentNavigation()?.type === 'shop'" icon="fal fa-store-alt" class='text-xxs' fixed-width aria-hidden='true' />
@@ -178,9 +178,8 @@ const isShowHorizontal = () => {
             
             <!-- Section: Arrow left-right -->
             <Transition name="slide-to-left">
-                <div v-if="isSomeSubnavActive() && layout.leftSidebar.show" class="flex text-white" :class="[
-                    layout.leftSidebar.show ? 'justify-self-end text-xxs' : ''
-                ]">
+                <div v-if="isSomeSubnavActive() && layout.leftSidebar.show" class="absolute right-1 top-2 flex text-white text-xxs"
+                >
                     <component :is="previousNavigation() ? Link : 'div'" :href="routeArrow(previousNavigation())" class="py-0.5 px-[1px] flex justify-center items-center rounded"
                         :class="previousNavigation() ? 'hover:bg-black/10' : 'text-white/40'"
                     >

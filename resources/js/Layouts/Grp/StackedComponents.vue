@@ -1,5 +1,4 @@
 <script setup lang='ts'>
-import Button from '@/Components/Elements/Buttons/Button.vue'
 import { inject, ref } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 
@@ -20,13 +19,6 @@ const getTranslateX = (listLength: number, idxComponent: number) => {
 
 <template>
     <div class="p-6 fixed top-0 left-0 h-screen w-screen flex justify-end isolate z-[100]">
-        <!-- <div class="flex gap-x-2 absolute bottom-24 left-1/2 z-[200]">
-            <Button @click="() => layout.stackedComponents.push(Profile)" label="Add component" class="">
-            </Button>
-            <Button @click="() => layout.stackedComponents.pop()" label="Delete component" type="negative" class="">
-            </Button>
-        </div> -->
-        
         <template v-if="layout.stackedComponents.length">
             <TransitionGroup name="stacked-component">
                 <div
@@ -45,7 +37,7 @@ const getTranslateX = (listLength: number, idxComponent: number) => {
                         </div>
                         
                         <!-- Section: main component -->
-                        <component :is="component.component" />
+                        <component :is="component.component" :data="component.data"/>
                     </div>
                 </div>
             </TransitionGroup>
