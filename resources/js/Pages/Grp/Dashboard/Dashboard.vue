@@ -187,9 +187,9 @@ const groupCurrency = [
         <!-- Section: Table -->
         <div class="mt-8">
 
-            <div class="grid grid-cols-2 ">
+            <div v-if="false" class="grid grid-cols-2">
                 <!-- Sections: Tabs -->
-                <nav v-if="false" class="rounded-md overflow-hidden isolate flex divide-x divide-gray-200 border border-gray-100 w-fit" aria-label="Tabs">
+                <nav v-if="true" class="rounded-md overflow-hidden isolate flex divide-x divide-gray-200 border border-gray-100 w-fit" aria-label="Tabs">
                     <div v-for="(tab, tabIdx) in tabs" :key="tab.name"
                         @click="selectedTabGraph = tabIdx"
                         class="group relative flex-1 py-2 px-4 text-center text-sm font-medium focus:z-10 cursor-pointer transition-all"
@@ -213,7 +213,7 @@ const groupCurrency = [
 
                 <div class="justify-self-end flex divide-x divide-gray-300 gap-x-4">
                     <!-- Radio: Show Last Year -->
-                    <div v-if="false" class="justify-self-end flex items-center gap-x-2 text-sm">
+                    <div v-if="true" class="justify-self-end flex items-center gap-x-2 text-sm">
                         <!-- <div :class="!isShowLastYear ? '' : 'text-gray-400'">Don't show Last year</div> -->
                         <Switch
                             v-model="isShowLastYear"
@@ -228,197 +228,206 @@ const groupCurrency = [
                         </Switch>
                         <div @click="isShowLastYear = !isShowLastYear" class="select-none cursor-pointer whitespace-nowrap" :class="isShowLastYear ? '' : 'text-gray-400'">Show Last Year</div>
                     </div>
-
-                    <!-- Radio: Show currency group/org -->
-                    <div class="pl-4 justify-self-end flex items-center gap-x-2 text-sm">
-                        <div @click="currencyValue = 'group'"
-                            class="px-1 select-none cursor-pointer whitespace-nowrap"
-                            :class="currencyValue === 'group' ? 'text-indigo-600' : 'text-gray-400'">
-                            {{ useGetCurrencySymbol(groupStats.currency.code) }}
-                        </div>
-
-                        <div class="border border-indigo-300 w-fit rounded-full overflow-hidden">
-                            <RadioGroup v-model="currencyValue" class="grid grid-cols-2">
-                                <RadioGroupOption v-for="curr in groupCurrency" as="template" :key="curr.name" :value="curr.name" v-slot="{ active, checked }">
-                                    <div class="select-none cursor-pointer focus:outline-none flex items-center justify-center py-2 px-3 text-xs font-semibold uppercase sm:flex-1"
-                                        :class="[checked ? 'bg-indigo-200 hover:bg-indigo-300' : 'bg-white hover:bg-indigo-50']">
-                                        {{ curr.label }}
-                                    </div>
-                                </RadioGroupOption>
-                            </RadioGroup>
-                        </div>
-
-                        <div @click="currencyValue = 'organisation'"
-                            class="select-none cursor-pointer whitespace-nowrap"
-                            :class="currencyValue === 'organisation' ? 'text-indigo-600' : 'text-gray-400'">
-                            <span v-for="org in [...new Set(groupStats.organisations.filter(org => org.type != 'agent').map(org => org.currency.code))]">
-                                {{ useGetCurrencySymbol(org) }}
-                            </span>
-                        </div>
-                    </div>
                     
                 </div>
+            </div>
+
+            
+            <div class="border border-gray-300 rounded-t-lg">
+                <table class="min-w-full divide-y divide-gray-400">
+                    <thead class="">
+                        <tr class="rounded-full">
+                            <!-- Radio: Show currency group/org -->
+                            <td colspan="4" class="px-2 py-2">
+                                <div class="flex items-center gap-x-2 text-sm">
+                                    <div @click="currencyValue = 'group'"
+                                        class="px-1 select-none cursor-pointer whitespace-nowrap"
+                                        :class="currencyValue === 'group' ? 'text-indigo-600' : 'text-gray-400'">
+                                        {{ useGetCurrencySymbol(groupStats.currency.code) }}
+                                    </div>
+                                    <div class="border border-indigo-300 w-fit rounded-full overflow-hidden">
+                                        <RadioGroup v-model="currencyValue" class="grid grid-cols-2">
+                                            <RadioGroupOption v-for="curr in groupCurrency" as="template" :key="curr.name" :value="curr.name" v-slot="{ active, checked }">
+                                                <div class="select-none cursor-pointer focus:outline-none flex items-center justify-center py-2 px-3 text-xs font-semibold uppercase sm:flex-1"
+                                                    :class="[checked ? 'bg-indigo-200 hover:bg-indigo-300' : 'bg-white hover:bg-indigo-50']">
+                                                    {{ curr.label }}
+                                                </div>
+                                            </RadioGroupOption>
+                                        </RadioGroup>
+                                    </div>
+                                    <div @click="currencyValue = 'organisation'"
+                                        class="select-none cursor-pointer whitespace-nowrap"
+                                        :class="currencyValue === 'organisation' ? 'text-indigo-600' : 'text-gray-400'">
+                                        <span v-for="org in [...new Set(groupStats.organisations.filter(org => org.type != 'agent').map(org => org.currency.code))]">
+                                            {{ useGetCurrencySymbol(org) }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
                 
-            </div>
-
-            <!-- List: Options of date (shortcut) -->
-            <div class="px-2 py-2 flex flex-wrap justify-end gap-x-1 gap-y-2 mt-2">
-                <div v-for="(xxxdate, idxXxxdate) in dateOptions" :key="xxxdate.value + idxXxxdate"
-                    @click="() => selectedDateOption = xxxdate.value"
-                    v-tooltip="xxxdate.label"
-                    class="text-xs select-none whitespace-nowrap py-1 px-2.5 rounded-md w-fit cursor-pointer"
-                    :class="xxxdate.value === selectedDateOption ? 'bg-indigo-500 text-white border border-transparent' : 'border border-gray-200  hover:bg-gray-200'"
-                >
-                    {{ xxxdate.value }}
-                </div>
-            </div>
-
-            <table class="border border-gray-300 rounded mt-2 min-w-full divide-y divide-gray-400">
-                <thead class="bg-gray-100">
-                    <tr class="relative divide-x divide-gray-200 text-gray-400">
-                        <!-- Column: Organisations -->
-                        <th scope="col" class="py-3.5 pl-4 pr-3 text-left font-normal">
-                            Organisation
-                        </th>
-                        
-                        <!-- Column: Refunds -->
-                        <th scope="col" class="px-3 py-3.5 text-left table-cell font-normal">
-                            Refunds
-                        </th>
-                        
-                        <!-- Column: Refunds LY -->
-                        <Transition>
-                            <th scope="col" class="px-3 py-3.5 text-left sm:table-cell font-normal">
-                                Refunds vs. last year
-                            </th>
-                        </Transition>
-                        
-                        <!-- Column: Invoices -->
-                        <th scope="col" class="px-3 py-3.5 text-left table-cell font-normal">
-                            Invoices
-                        </th>
-                        
-                        <!-- Column: Invoices LY -->
-                        <Transition>
-                            <th scope="col" class="px-3 py-3.5 text-left sm:table-cell font-normal">
-                                Invoices vs. last year
-                            </th>
-                        </Transition>
-                        
-                        <!-- Column: Sales -->
-                        <th scope="col" class="min-w-40 px-3 py-3.5 text-left font-normal">
-                            Sales
-                        </th>
-                        
-                        <!-- Column: Sales LY -->
-                        <Transition>
-                            <th scope="col" class="px-3 py-3.5 text-left sm:table-cell font-normal">
-                                vs. last year
-                            </th>
-                        </Transition>
-                        
-                        <!-- Column: Actions -->
-                        <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
-                            <span class="sr-only">Edit</span>
-                        </th>
-                    </tr>
-                </thead>
-
-                <tbody class="divide-y divide-gray-200 bg-white">
-                    <template v-for="(org, orgIdx) in groupStats.organisations" :key="org.name + orgIdx">
-                        <tr v-if="org.type !== 'agent'" class="relative">
-                            <!-- Column: Organisations -->
-                            <td class="uppercase w-full max-w-0 py-4 pl-4 pr-3 text-sm sm:w-auto sm:max-w-none">
-                                <span v-tooltip="org.name">{{ org.code }}</span>
-                            </td>
-                        
-                            <!-- Column: Refunds -->
-                            <td class="px-3 py-4 text-sm text-gray-500 table-cell">{{ org.number_invoices_type_refund || 0 }}</td>
-                        
-                            <!-- Column: Refunds LY -->
-                            <td class="px-3 py-4 text-sm text-gray-500 table-cell tabular-nums">
-                                ----
-                            </td>
-                        
-                            <!-- Column: Invoices -->
-                            <td class="px-3 py-4 text-sm text-gray-500 table-cell">{{ org.number_invoices || 0 }}</td>
-                        
-                            <!-- Column: Invoices LY -->
-                            <Transition>
-                                <td class="px-3 py-4 text-sm text-gray-500 table-cell tabular-nums">
-                                    {{ org.number_invoices_type_invoice }}
-                                </td>
-                            </Transition>
-                        
-                            <!-- Column: Sales -->
-                            <td class="overflow-hidden px-3 py-4 text-sm text-gray-500 table-cell">
-                                <Transition name="spin-to-down" mode="out-in">
-                                    <div
-                                        class="flex gap-x-1"
-                                        :class="
-                                        isUpOrDown(org, selectedDateOption) == 'increased' && isShowLastYear
-                                            ? 'text-green-500'
-                                            : isUpOrDown(org, selectedDateOption) == 'decreased' && isShowLastYear
-                                                ? 'text-red-500'
-                                                : ''
-                                    " :key="get(org, ['sales', `org_amount_${selectedDateOption}`], 0)">
-                                        {{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code , get(org, ['sales', `org_amount_${selectedDateOption}`], 0)) }}
-                                        <Tag v-if="calcPercentage(org, selectedDateOption) && isShowLastYear"
-                                                :theme="
-                                                    isUpOrDown(org, selectedDateOption) == 'increased' && isShowLastYear
-                                                        ? 3
-                                                        : isUpOrDown(org, selectedDateOption) == 'decreased' && isShowLastYear
-                                                            ? 7
-                                                            : 99
-                                                "
-                                                size="xxs"
-                                        >
-                                            <template #label>
-                                                <FontAwesomeIcon v-if="isUpOrDown(org, selectedDateOption) == 'increased' && isShowLastYear" icon='fas fa-triangle' size="xs" class='' fixed-width aria-hidden='true' />
-                                                <FontAwesomeIcon v-else-if="isUpOrDown(org, selectedDateOption) == 'decreased' && isShowLastYear" icon='fas fa-triangle' size="xs" class='rotate-180' fixed-width aria-hidden='true' />
-                                                {{ calcPercentage(org, selectedDateOption) }}%
-                                            </template>
-                                        </Tag>
+                            <td colspan="4" class="px-2 py-2">
+                                <div class="flex flex-wrap justify-end gap-x-1.5 gap-y-2">
+                                    <div v-for="(xxxdate, idxXxxdate) in dateOptions" :key="xxxdate.value + idxXxxdate"
+                                        @click="() => selectedDateOption = xxxdate.value"
+                                        v-tooltip="xxxdate.label"
+                                        class="h-fit text-xs select-none whitespace-nowrap py-1 px-2.5 rounded-md w-fit cursor-pointer"
+                                        :class="xxxdate.value === selectedDateOption ? 'bg-indigo-500 text-white border border-transparent' : 'border border-gray-200  hover:bg-gray-200'"
+                                    >
+                                        {{ xxxdate.value }}
                                     </div>
-                                </Transition>
-                            </td>
-
-                            <!-- Column: Sales LY -->
-                            <td class="overflow-hidden px-3 py-4 text-sm text-gray-500 lg:table-cell">
-                                <Transition name="spin-to-down" mode="out-in">
-                                    <div class="" :key="get(org, ['sales', `org_amount_${selectedDateOption+'_ly'}`], 0)">
-                                        <!-- groupStats.currency.code == 'GBP' -->
-                                        <!-- org.currency.code == 'INR' -->
-                                        {{ useLocaleStore().currencyFormat(currencyValue  === 'organisation' ? org.currency.code : groupStats.currency.code , get(org, ['sales', `org_amount_${selectedDateOption+'_ly'}`], 0)) }}
-                                    </div>
-                                </Transition>
-                            </td>
-                        
-                            <!-- Column: Sales Revenue -->
-                            <!-- <td class="px-3 py-4 text-sm text-gray-500 lg:table-cell tabular-nums"
-                                :class="
-                                    isUpOrDown(org, selectedDateOption) == 'increased'
-                                        ? 'text-green-500'
-                                        : isUpOrDown(org, selectedDateOption) == 'decreased'
-                                            ? 'text-red-500'
-                                            : 'text-gray-500'
-                                "
-                            >
-                                <FontAwesomeIcon v-if="isUpOrDown(org, selectedDateOption) == 'increased'" icon='fas fa-triangle' size="xs" class='' fixed-width aria-hidden='true' />
-                                <FontAwesomeIcon v-else-if="isUpOrDown(org, selectedDateOption) == 'decreased'" icon='fas fa-triangle' size="xs" class='rotate-180' fixed-width aria-hidden='true' />
-                                {{ calcPercentage(org, selectedDateOption) }}%
-                            </td> -->
-                        
-                            <!-- Column: Actions -->
-                            <td class="py-4 pl-3 pr-4 text-right text-sm font-medium">
-                                <!-- <a href="#" class="text-indigo-600 hover:text-indigo-900">
-                                    <Button label="open" />
-                                </a> -->
+                                </div>
                             </td>
                         </tr>
-                    </template>
-                </tbody>
-            </table>
+
+                        <tr  class="bg-gray-100 relative divide-x divide-gray-200 text-gray-400"
+                            :style="{
+                                backgroundColor: layout.app.theme[4],
+                                color: layout.app.theme[5]
+                            }"
+                        >
+                            <!-- Column: Organisations -->
+                            <th scope="col" class="py-3.5 pl-4 pr-3 text-left font-normal">
+                                Organisation
+                            </th>
+                
+                            <!-- Column: Refunds -->
+                            <th scope="col" class="px-3 py-3.5 text-left table-cell font-normal">
+                                Refunds
+                            </th>
+                
+                            <!-- Column: Refunds LY -->
+                            <Transition>
+                                <th scope="col" class="px-3 py-3.5 text-left sm:table-cell font-normal">
+                                    Refunds vs. last year
+                                </th>
+                            </Transition>
+                
+                            <!-- Column: Invoices -->
+                            <th scope="col" class="px-3 py-3.5 text-left table-cell font-normal">
+                                Invoices
+                            </th>
+                
+                            <!-- Column: Invoices LY -->
+                            <Transition>
+                                <th scope="col" class="px-3 py-3.5 text-left sm:table-cell font-normal">
+                                    Invoices vs. last year
+                                </th>
+                            </Transition>
+                
+                            <!-- Column: Sales -->
+                            <th scope="col" class="min-w-40 px-3 py-3.5 text-left font-normal">
+                                Sales
+                            </th>
+                
+                            <!-- Column: Sales LY -->
+                            <Transition>
+                                <th scope="col" class="px-3 py-3.5 text-left sm:table-cell font-normal">
+                                    vs. last year
+                                </th>
+                            </Transition>
+                
+                            <!-- Column: Actions -->
+                            <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
+                                <span class="sr-only">Edit</span>
+                            </th>
+                        </tr>
+                    </thead>
+                
+                    <tbody class="divide-y divide-gray-200 bg-white">
+                        <template v-for="(org, orgIdx) in groupStats.organisations" :key="org.name + orgIdx">
+                            <tr v-if="org.type !== 'agent'" class="relative">
+                                <!-- Column: Organisations -->
+                                <td class="uppercase w-full max-w-0 py-4 pl-4 pr-3 text-sm sm:w-auto sm:max-w-none">
+                                    <span v-tooltip="org.name">{{ org.code }}</span>
+                                </td>
+                
+                                <!-- Column: Refunds -->
+                                <td class="px-3 py-4 text-sm text-gray-500 table-cell">{{ org.number_invoices_type_refund || 0 }}</td>
+                
+                                <!-- Column: Refunds LY -->
+                                <td class="px-3 py-4 text-sm text-gray-500 table-cell tabular-nums">
+                                    ----
+                                </td>
+                
+                                <!-- Column: Invoices -->
+                                <td class="px-3 py-4 text-sm text-gray-500 table-cell">{{ org.number_invoices || 0 }}</td>
+                
+                                <!-- Column: Invoices LY -->
+                                <Transition>
+                                    <td class="px-3 py-4 text-sm text-gray-500 table-cell tabular-nums">
+                                        {{ org.number_invoices_type_invoice }}
+                                    </td>
+                                </Transition>
+                
+                                <!-- Column: Sales -->
+                                <td class="overflow-hidden px-3 py-4 text-sm text-gray-500 table-cell">
+                                    <Transition name="spin-to-down" mode="out-in">
+                                        <div
+                                            class="flex items-center gap-x-1"
+                                            :class="
+                                            isUpOrDown(org, selectedDateOption) == 'increased' && isShowLastYear
+                                                ? 'text-green-500'
+                                                : isUpOrDown(org, selectedDateOption) == 'decreased' && isShowLastYear
+                                                    ? 'text-red-500'
+                                                    : ''
+                                        " :key="get(org, ['sales', `org_amount_${selectedDateOption}`], 0)">
+                                            {{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code , get(org, ['sales', `org_amount_${selectedDateOption}`], 0)) }}
+                                            <Tag v-if="calcPercentage(org, selectedDateOption) && isShowLastYear"
+                                                    :theme="
+                                                        isUpOrDown(org, selectedDateOption) == 'increased' && isShowLastYear
+                                                            ? 3
+                                                            : isUpOrDown(org, selectedDateOption) == 'decreased' && isShowLastYear
+                                                                ? 7
+                                                                : 99
+                                                    "
+                                                    size="xxs"
+                                            >
+                                                <template #label>
+                                                    <FontAwesomeIcon v-if="isUpOrDown(org, selectedDateOption) == 'increased' && isShowLastYear" icon='fas fa-triangle' size="xs" class='' fixed-width aria-hidden='true' />
+                                                    <FontAwesomeIcon v-else-if="isUpOrDown(org, selectedDateOption) == 'decreased' && isShowLastYear" icon='fas fa-triangle' size="xs" class='rotate-180' fixed-width aria-hidden='true' />
+                                                    {{ calcPercentage(org, selectedDateOption) }}%
+                                                </template>
+                                            </Tag>
+                                        </div>
+                                    </Transition>
+                                </td>
+                                <!-- Column: Sales LY -->
+                                <td class="overflow-hidden px-3 py-4 text-sm text-gray-500 lg:table-cell">
+                                    <Transition name="spin-to-down" mode="out-in">
+                                        <div class="" :key="get(org, ['sales', `org_amount_${selectedDateOption+'_ly'}`], 0)">
+                                            <!-- groupStats.currency.code == 'GBP' -->
+                                            <!-- org.currency.code == 'INR' -->
+                                            {{ useLocaleStore().currencyFormat(currencyValue  === 'organisation' ? org.currency.code : groupStats.currency.code , get(org, ['sales', `org_amount_${selectedDateOption+'_ly'}`], 0)) }}
+                                        </div>
+                                    </Transition>
+                                </td>
+                
+                                <!-- Column: Sales Revenue -->
+                                <!-- <td class="px-3 py-4 text-sm text-gray-500 lg:table-cell tabular-nums"
+                                    :class="
+                                        isUpOrDown(org, selectedDateOption) == 'increased'
+                                            ? 'text-green-500'
+                                            : isUpOrDown(org, selectedDateOption) == 'decreased'
+                                                ? 'text-red-500'
+                                                : 'text-gray-500'
+                                    "
+                                >
+                                    <FontAwesomeIcon v-if="isUpOrDown(org, selectedDateOption) == 'increased'" icon='fas fa-triangle' size="xs" class='' fixed-width aria-hidden='true' />
+                                    <FontAwesomeIcon v-else-if="isUpOrDown(org, selectedDateOption) == 'decreased'" icon='fas fa-triangle' size="xs" class='rotate-180' fixed-width aria-hidden='true' />
+                                    {{ calcPercentage(org, selectedDateOption) }}%
+                                </td> -->
+                
+                                <!-- Column: Actions -->
+                                <td class="py-4 pl-3 pr-4 text-right text-sm font-medium">
+                                    <!-- <a href="#" class="text-indigo-600 hover:text-indigo-900">
+                                        <Button label="open" />
+                                    </a> -->
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
           <!--  <pre>{{ groupStats.organisations[1] }}</pre> -->
 
             
