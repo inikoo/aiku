@@ -38,8 +38,8 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <Link :href="nav.route?.name ? route(nav.route.name, nav.route.parameters) : '#'"
-        class="group flex items-center px-2 text-sm gap-x-2" :class="[
+    <component :is="nav.route?.name ? Link : 'div'" :href="nav.route?.name ? route(nav.route.name, nav.route.parameters) : '#'"
+        class="w-full group flex items-center px-2 text-sm gap-x-2" :class="[
             isNavigationActive(layout.currentRoute, props.nav.root)
                 ? 'navigationActive'
                 : 'navigation',
@@ -69,6 +69,6 @@ onUnmounted(() => {
                 />
             </Teleport>
         </template>
-    </Link>
+    </component>
 
 </template>

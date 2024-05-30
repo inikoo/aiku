@@ -9,6 +9,7 @@
 import LeftSidebarNavigation from "@/Layouts/Grp/LeftSidebarNavigation.vue"
 import LeftSidebarBottomNav from "@/Layouts/Grp/LeftSidebarBottomNav.vue"
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
+import NavigationSimple from '@/Layouts/Grp/NavigationSimple.vue'
 
 import { router } from '@inertiajs/vue3'
 import { useLiveUsers } from '@/Stores/active-users'
@@ -30,8 +31,13 @@ const handleToggleLeftBar = () => {
     layout.leftSidebar.show = !layout.leftSidebar.show
 }
 
+const logoutData = {
+    label: 'Logout',
+    tooltip: 'Logout the app',
+    icon: 'far fa-door-open',
+}
 
-const logoutAuth = () => {
+const onLogoutAuth = () => {
     router.post(route('grp.logout'))
 
     const dataActiveUser = {
@@ -49,6 +55,7 @@ const logoutAuth = () => {
     window.Echo.join(`grp.live.users`).whisper('otherIsNavigating', dataActiveUser)
     useLiveUsers().unsubscribe()  // Unsubscribe from Laravel Echo
 }
+
 </script>
 
 <template>
@@ -85,14 +92,15 @@ const logoutAuth = () => {
         <!-- Section: Logout -->
         <div class="absolute bottom-20 w-full">
             <div class="flex justify-center">
-                <Popover class="relative " v-slot="{ open }">
-                    <PopoverButton class="focus:outline-none focus:ring-0 focus:border-none">
-                        <Button icon="far fa-door-open" label="Logout" type="tertiary">
+                <Popover class="relative w-full " v-slot="{ open }">
+                    <PopoverButton class="flex w-full focus:outline-none focus:ring-0 focus:border-none px-2">
+                        <NavigationSimple :nav="logoutData" />
+                        <!-- <Button icon="far fa-door-open" label="Logout" type="tertiary">
                             <div class="text-gray-100">
                                 <FontAwesomeIcon icon="far fa-door-open" fixed-width aria-hidden='true' size="lg" />
                                 Logout
                             </div>
-                        </Button>
+                        </Button> -->
                     </PopoverButton>
                     
                     <transition enter-active-class="transition duration-200 ease-out" enter-from-class="opacity-0 scale-95" enter-to-class="opacity-100 scale-100" leave-active-class="transition duration-150 ease-in" leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95" >
@@ -100,7 +108,7 @@ const logoutAuth = () => {
                             <div class="min-w-32 flex flex-col justify-center gap-y-2">
                                 <div class="whitespace-nowrap text-gray-500 text-xs">Are you sure want to logout?</div>
                                 <div class="mx-auto">
-                                    <Button @click="logoutAuth()" label="Yes, Logout" type="red" />
+                                    <Button @click="onLogoutAuth()" label="Yes, Logout" type="red" />
                                 </div>
                             </div>
                         </PopoverPanel>

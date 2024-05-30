@@ -11,11 +11,11 @@ import { faBoxUsd, faUsersCog, faChartLine, faUserHardHat, faUser, faInventory, 
     faChevronDown, faPalletAlt, faAbacus,faCloudRainbow,faShoppingCart,faMountains, faTasksAlt, faTruck,
   faFlaskPotion,faFillDrip,faBullhorn,faBadgePercent,faChargingStation
 } from "@fal"
-import NavigationSimple from '@/Layouts/Grp/NavigationSimple.vue'
 import { generateNavigationName, generateCurrentString } from '@/Composables/useConvertString'
 import '@/Composables/Icon/ProductionsStateIcon'
 
 import { get } from "lodash"
+import NavigationSimple from '@/Layouts/Grp/NavigationSimple.vue'
 import NavigationGroup from "@/Layouts/Grp/NavigationGroup.vue"
 import NavigationScope from "@/Layouts/Grp/NavigationScope.vue"
 import NavigationHorizontal from "@/Layouts/Grp/NavigationHorizontal.vue"
