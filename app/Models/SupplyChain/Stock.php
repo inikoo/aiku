@@ -17,7 +17,7 @@ use App\Models\Inventory\OrgStock;
 use App\Models\Media\Media;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
-use App\Models\Traits\HasImages;
+use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -66,6 +66,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_slug
  * @property string|null $source_id
  * @property-read Group $group
+ * @property-read Media|null $image
  * @property-read MediaCollection<int, Media> $images
  * @property-read Collection<int, Location> $locations
  * @property-read MediaCollection<int, Media> $media
@@ -88,7 +89,7 @@ class Stock extends Model implements HasMedia
     use SoftDeletes;
     use HasSlug;
     use HasUniversalSearch;
-    use HasImages;
+    use HasImage;
     use HasFactory;
 
     protected $casts = [

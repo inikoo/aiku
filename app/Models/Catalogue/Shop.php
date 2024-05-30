@@ -128,6 +128,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read Organisation $organisation
  * @property-read LaravelCollection<int, Outbox> $outboxes
+ * @property-read LaravelCollection<int, \App\Models\Catalogue\Outer> $outers
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
  * @property-read LaravelCollection<int, Payment> $payments
  * @property-read LaravelCollection<int, \App\Models\Catalogue\ProductCategory> $productCategories
@@ -138,6 +139,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopSalesStats|null $salesStats
  * @property-read SenderEmail|null $senderEmail
  * @property-read LaravelCollection<int, SerialReference> $serialReferences
+ * @property-read LaravelCollection<int, \App\Models\Catalogue\Service> $services
  * @property-read LaravelCollection<int, ShippingZoneSchema> $shippingZoneSchemas
  * @property-read \App\Models\Catalogue\ShopStats|null $stats
  * @property-read TaxNumber|null $taxNumber
