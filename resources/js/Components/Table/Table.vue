@@ -657,11 +657,11 @@ watch(selectRow, () => {
                 <div class="grid grid-flow-col justify-between items-center flex-nowrap px-4">
 
                     <!-- Left Section: Records, Model Operations, MO Bulk, Search -->
-                    <div class="h-fit flex gap-x-1 items-center">
+                    <div class="h-fit flex gap-x-1 items-center my-0.5">
                         <!-- Result Number -->
                         <div class="bg-gray-100 h-fit flex items-center border border-gray-300 overflow-hidden rounded">
                             <div class="grid justify-end items-center text-base font-normal text-gray-700">
-                                <div class="px-2 py-0.5 whitespace-nowrap flex gap-x-1 flex-nowrap">
+                                <div class="px-2 py-[1px] whitespace-nowrap flex gap-x-1 flex-nowrap">
                                     <span class="font-semibold tabular-nums">
                                         <CountUp :endVal="compResourceMeta?.total || 0" :duration="1.2" :scrollSpyOnce="true"
                                             :options="{
@@ -728,7 +728,7 @@ watch(selectRow, () => {
                         </div>
                     </div>
 
-                    <!-- Search Group -->
+                    <!-- Filter Group -->
                     <div class="flex flex-row justify-end items-center flex-nowrap gap-x-2">
                         <!-- <div class="order-2 sm:order-1 mr-2 sm:mr-4" v-if="queryBuilderProps.hasFilters">
                             <slot name="tableAdvancedFilter" :has-filters="queryBuilderProps.hasFilters"

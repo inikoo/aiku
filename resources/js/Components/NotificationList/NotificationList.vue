@@ -5,6 +5,9 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { routeType } from "@/types/route"
 import { Link } from "@inertiajs/vue3"
+import { inject } from "vue"
+import { layoutStructure } from "@/Composables/useLayoutStructure"
+import Profile from "@/Pages/Grp/Profile.vue"
 
 library.add(faEnvelope, faEnvelopeOpenText)
 
@@ -13,7 +16,8 @@ const props = defineProps<{
         data: {
             id: number
             read: boolean
-            route: routeType
+            route?: routeType
+            href: string //  "http://app.aiku.test/org/aw/fulfilments/awf/customers/3b-recycling-ltd/pallet-deliveries/brl-001"
             title: string
             body: string
             created_at: Date | string
@@ -22,6 +26,7 @@ const props = defineProps<{
     close: Function
 }>()
 
+const layout = inject('layout', layoutStructure)
 </script>
 
 <template>
@@ -53,9 +58,9 @@ const props = defineProps<{
         </div>
 
         <div class="flex w-full justify-center border-t border-gray-200 mt-3 pt-3">
-            <Link :href="route('grp.notifications')" @click="() => close()" class="cursor-pointer px-2 text-gray-400 hover:text-gray-500 font-semibold">
+            <div @click="() => (close(), layout.stackedComponents.push({ component: Profile, data: { currentTab: 'notifications' }}))" class="cursor-pointer px-2 text-gray-400 hover:text-gray-500 font-semibold">
                 Show all notification
-            </Link>
+            </div>
         </div>
     </div>
 </template>

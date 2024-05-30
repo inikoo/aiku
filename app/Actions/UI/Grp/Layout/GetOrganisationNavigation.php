@@ -325,7 +325,7 @@ class GetOrganisationNavigation
                             'icon'  => ['fal', 'fa-chart-network'],
                             'root'  => 'grp.org.accounting.dashboard',
                             'route' => [
-                                'name' => 'grp.org.accounting.dashboard',
+                                'name'       => 'grp.org.accounting.dashboard',
                                 'parameters' => [$organisation->slug],
                             ]
                         ],

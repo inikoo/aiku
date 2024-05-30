@@ -5,11 +5,12 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\PalletDeliveryService\UI;
+namespace App\Actions\Fulfilment\PalletDeliveryPhysicalGood\UI;
 
 use App\Actions\OrgAction;
-use App\Enums\Catalogue\Service\ServiceStateEnum;
-use App\Http\Resources\Fulfilment\ServicesResource;
+use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\Product\ProductTypeEnum;
+use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Services\QueryBuilder;
@@ -18,7 +19,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexServiceInPalletDelivery extends OrgAction
+class IndexPhysicalGoodInPalletDelivery extends OrgAction
 {
     protected function getElementGroups(PalletDelivery $parent): array
     {
@@ -27,8 +28,8 @@ class IndexServiceInPalletDelivery extends OrgAction
             'state' => [
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
-                    ServicestateEnum::labels(),
-                    ServicestateEnum::count($parent->fulfilment->shop)
+                    ProductStateEnum::labels(),
+                    ProductStateEnum::count($parent->fulfilment->shop)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -43,8 +44,8 @@ class IndexServiceInPalletDelivery extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('services.name', $value)
-                    ->orWhereStartWith('services.code', $value);
+                $query->whereAnyWordStartWith('products.name', $value)
+                    ->orWhereStartWith('products.code', $value);
             });
         });
 
@@ -52,8 +53,10 @@ class IndexServiceInPalletDelivery extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for($parent->services());
-        $queryBuilder->join('products', 'services.product_id', '=', 'products.id');
+        $queryBuilder = QueryBuilder::for($parent->physicalGoods());
+
+        $queryBuilder->where('type', ProductTypeEnum::PHYSICAL_GOOD->value);
+
         $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
@@ -66,20 +69,15 @@ class IndexServiceInPalletDelivery extends OrgAction
         }
 
         $queryBuilder
-            ->defaultSort('services.id')
+            ->defaultSort('products.id')
             ->select([
-                'services.id',
-                'services.state',
-                'services.created_at',
-                'services.price',
-                'services.unit',
+                'products.id',
                 'products.name',
                 'products.code',
                 'products.main_outerable_price',
                 'products.description',
                 'currencies.code as currency_code',
             ]);
-
 
         return $queryBuilder->allowedSorts(['id','price','name','state'])
             ->allowedFilters([$globalSearch])
@@ -100,19 +98,27 @@ class IndexServiceInPalletDelivery extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
+
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
                     match (class_basename($parent)) {
                         'Fulfilment' => [
-                            'title' => __("No services found"),
-                            'count' => $parent->fulfilment->shop->stats->number_services_state_active,
+                            'title' => __("No physical goods found"),
+                            'count' => $parent->fulfilment->shop->stats->number_products_type_physical_good,
                         ],
                         'PalletDelivery' => [
-                            'icons' => ['fal fa-concierge-bell'],
+                            'icons' => ['fal fa-cube'],
                             'title' => '',
-                            'count' => $parent->stats->number_services,
+                            'count' => $parent->stats->number_physical_goods,
                         ],
                         default => null
                     }
@@ -123,14 +129,13 @@ class IndexServiceInPalletDelivery extends OrgAction
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
-                ->column(key: 'workflow', label: __('workflow'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
                 ->defaultSort('code');
         };
     }
 
 
-    public function jsonResponse(LengthAwarePaginator $services): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $physicalGoods): AnonymousResourceCollection
     {
-        return ServicesResource::collection($services);
+        return PhysicalGoodsResource::collection($physicalGoods);
     }
 }

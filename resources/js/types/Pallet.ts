@@ -94,6 +94,8 @@ export interface PalletDelivery {
     id: number
     customer_name: string
     number_pallets: number
+    number_services: number
+    number_physical_goods: number
     reference: string
     state: string
     timeline: Timeline[]

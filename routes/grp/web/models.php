@@ -40,6 +40,8 @@ use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryTimeline;
+use App\Actions\Fulfilment\PalletDeliveryPhysicalGood\SyncPhysicalGoodToPalletDelivery;
+use App\Actions\Fulfilment\PalletDeliveryService\SyncServiceToPalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\ConfirmPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\DeletePalletFromReturn;
 use App\Actions\Fulfilment\PalletReturn\DispatchedPalletReturn;
@@ -207,6 +209,10 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
     Route::post('pallet-upload', [ImportPallet::class, 'fromGrp'])->name('pallet.upload');
     Route::post('pallet', StorePalletFromDelivery::class)->name('pallet.store');
     Route::post('multiple-pallet', StoreMultiplePalletsFromDelivery::class)->name('multiple-pallets.store');
+
+    Route::post('service', SyncServiceToPalletDelivery::class)->name('service.store');
+    Route::post('physical-goods', SyncPhysicalGoodToPalletDelivery::class)->name('physical_good.store');
+
     Route::get('pdf', PdfPalletDelivery::class)->name('pdf');
 });
 

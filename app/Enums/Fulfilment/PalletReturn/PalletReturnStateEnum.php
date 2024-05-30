@@ -31,13 +31,14 @@ enum PalletReturnStateEnum: string
     public static function labels($forElements = false): array
     {
         return [
-            'in-process' => __('In Process'),
-            'submitted'  => __('Submitted'),
-            'confirmed'  => __('Confirmed'),
-            'picking'    => __('Picking'),
-            'picked'     => __('Picked'),
-            'dispatched' => __('Dispatched'),
-            'cancel'     => __('Cancel')
+            'in-process'   => __('In Process'),
+            'submitted'    => __('Submitted'),
+            'confirmed'    => __('Confirmed'),
+            'picking'      => __('Picking'),
+            'picked'       => __('Picked'),
+            'dispatched'   => __('Dispatched'),
+            'cancel'       => __('Cancel'),
+            'consolidated' => __('Consolidated')
         ];
     }
 
@@ -115,6 +116,16 @@ enum PalletReturnStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
+            'consolidated'     => [
+                'tooltip' => __('Consolidated'),
+                'icon'    => 'fal fa-times',
+                'class'   => 'text-red-500',
+                'color'   => 'red',
+                'app'     => [
+                    'name' => 'times',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
         ];
     }
 
@@ -127,13 +138,14 @@ enum PalletReturnStateEnum: string
         }
 
         return [
-            'in-process' => $stats->number_pallet_returns_state_in_process,
-            'submitted'  => $stats->number_pallet_returns_state_submitted,
-            'confirmed'  => $stats->number_pallet_returns_state_confirmed,
-            'picking'    => $stats->number_pallet_returns_state_picking,
-            'picked'     => $stats->number_pallet_returns_state_picked,
-            'dispatched' => $stats->number_pallet_returns_state_dispatched,
-            'cancel'     => $stats->number_pallet_returns_state_cancel
+            'in-process'   => $stats->number_pallet_returns_state_in_process,
+            'submitted'    => $stats->number_pallet_returns_state_submitted,
+            'confirmed'    => $stats->number_pallet_returns_state_confirmed,
+            'picking'      => $stats->number_pallet_returns_state_picking,
+            'picked'       => $stats->number_pallet_returns_state_picked,
+            'dispatched'   => $stats->number_pallet_returns_state_dispatched,
+            'cancel'       => $stats->number_pallet_returns_state_cancel,
+            'consolidated' => $stats->number_pallet_returns_state_consolidated,
         ];
     }
 
@@ -167,6 +179,10 @@ enum PalletReturnStateEnum: string
             'cancel'     => [
                 'title'    => __("Pallet Return $reference Cancelled"),
                 'subtitle' => __('Pallet return has been cancelled')
+            ],
+            'consolidated'     => [
+                'title'    => __("Pallet Return $reference Consolidated"),
+                'subtitle' => __('Pallet return has been consolidated')
             ],
         ];
     }

@@ -3,9 +3,8 @@ import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import Tabs from "@/Components/Navigation/Tabs.vue"
 
-import LoadingText from "@/Components/Utils/LoadingText.vue"
 import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
-import { computed, defineAsyncComponent, inject, onMounted, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, inject, onMounted, ref } from 'vue'
 import type { Component } from 'vue'
 
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
@@ -37,12 +36,12 @@ library.add(faIdCard, faClipboardListCheck, faRabbitFast, faSpinnerThird, faInfo
 const EditProfile = defineAsyncComponent(() => import("@/Pages/Grp/EditProfile.vue"))
 
 
-// const props = defineProps<{
-//     // title: string,
-//     // pageHead: TSPageHeading
-//     // tabs?: TSTabs
+const props = defineProps<{
+    data?: {
+        currentTab?: string
+    }
 
-// }>()
+}>()
 
 
 const layout = inject('layout', layoutStructure)
@@ -148,8 +147,8 @@ const fetchTabData = async (tabSlug: string) => {
 
 
 onMounted(async () => {
-    // console.log("On mounted currentTab")
     await fetchPageHead()
+    currentTab.value = props?.data?.currentTab || currentTab.value
     await fetchTabData(currentTab.value)
 })
 
