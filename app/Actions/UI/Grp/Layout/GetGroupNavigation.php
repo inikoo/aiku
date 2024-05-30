@@ -18,6 +18,18 @@ class GetGroupNavigation
     {
         $groupNavigation = [];
 
+        $groupNavigation['group'] = [
+            'label'   => __('Group'),
+            'icon'    => ['fal', 'fa-city'],
+            'root'    => 'grp.show',
+            'route'   => [
+                'name' => 'grp.show'
+            ],
+            'topMenu' => [
+            ]
+
+        ];
+
         if ($user->hasPermissionTo('goods.view')) {
             $groupNavigation['goods'] = [
                 'label'   => __('Goods'),

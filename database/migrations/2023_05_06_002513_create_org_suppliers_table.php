@@ -25,6 +25,8 @@ return new class () extends Migration {
             $table->foreign('agent_id')->references('id')->on('agents');
             $table->unsignedSmallInteger('org_agent_id')->nullable();
             $table->foreign('org_agent_id')->references('id')->on('org_agents');
+            $table->unsignedInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('media')->onDelete('cascade');
             $table->timestampsTz();
             $table->string('source_id')->index()->nullable();
             $table->unique(['group_id','organisation_id','supplier_id']);

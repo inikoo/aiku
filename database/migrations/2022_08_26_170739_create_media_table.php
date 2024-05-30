@@ -16,16 +16,11 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedSmallInteger('organisation_id')->index()->nullable();
-            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedInteger('customer_id')->nullable()->index();
-            $table->foreign('customer_id')->references('id')->on('customers');
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('model_type')->nullable();
             $table->unsignedInteger('model_id')->nullable();
             $table->uuid()->nullable()->unique();
             $table->string('collection_name')->index();
-            $table->string('scope')->nullable()->index();
             $table->string('name');
             $table->string('file_name');
             $table->string('mime_type')->nullable();
@@ -41,12 +36,59 @@ return new class () extends Migration {
             $table->unsignedInteger('order_column')->nullable()->index();
             $table->nullableTimestamps();
             $table->index(['model_type','model_id']);
-            $table->index(['collection_name','scope']);
+
+
         });
+
+
+        Schema::table('groups', function (Blueprint $table) {
+            $table->foreign('image_id')->references('id')->on('media');
+        });
+
+        Schema::table('organisations', function (Blueprint $table) {
+            $table->foreign('image_id')->references('id')->on('media');
+        });
+
+        Schema::table('shops', function (Blueprint $table) {
+            $table->foreign('image_id')->references('id')->on('media');
+        });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreign('image_id')->references('id')->on('media');
+        });
+
+        Schema::table('customers', function (Blueprint $table) {
+            $table->foreign('image_id')->references('id')->on('media');
+        });
+
+        Schema::table('employees', function (Blueprint $table) {
+            $table->foreign('image_id')->references('id')->on('media');
+        });
+
+
+
     }
 
     public function down(): void
     {
+        Schema::table('employees', function (Blueprint $table) {
+            $table->dropForeign('image_id_foreign');
+        });
+        Schema::table('customers', function (Blueprint $table) {
+            $table->dropForeign('image_id_foreign');
+        });
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign('image_id_foreign');
+        });
+        Schema::table('shops', function (Blueprint $table) {
+            $table->dropForeign('image_id_foreign');
+        });
+        Schema::table('organisations', function (Blueprint $table) {
+            $table->dropForeign('image_id_foreign');
+        });
+        Schema::table('groups', function (Blueprint $table) {
+            $table->dropForeign('image_id_foreign');
+        });
         Schema::dropIfExists('media');
     }
 };

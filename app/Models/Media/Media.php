@@ -17,14 +17,11 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
  *
  * @property int $id
  * @property int $group_id
- * @property int|null $organisation_id
- * @property int|null $customer_id
  * @property string $slug
  * @property string|null $model_type
  * @property int|null $model_id
  * @property string|null $uuid
  * @property string $collection_name
- * @property string|null $scope
  * @property string $name
  * @property string $file_name
  * @property string|null $mime_type

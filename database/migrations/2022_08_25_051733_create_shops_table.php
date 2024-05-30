@@ -46,6 +46,7 @@ return new class () extends Migration {
             $table->foreign('currency_id')->references('id')->on('currencies');
             $table->unsignedSmallInteger('timezone_id');
             $table->foreign('timezone_id')->references('id')->on('timezones');
+            $table->unsignedInteger('image_id')->nullable();
             $table->jsonb('data');
             $table->jsonb('settings');
             $table->unsignedSmallInteger('sender_email_id')->nullable();

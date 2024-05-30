@@ -17,7 +17,7 @@ use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;
-use App\Models\Traits\HasPhoto;
+use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -70,6 +70,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
  * @property-read Group $group
+ * @property-read \App\Models\Media\Media|null $image
+ * @property-read MediaCollection<int, \App\Models\Media\Media> $images
  * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read Collection<int, OrgSupplier> $orgSuppliers
@@ -95,7 +97,7 @@ class Supplier extends Model implements HasMedia, Auditable
     use HasAddresses;
     use HasSlug;
     use HasUniversalSearch;
-    use HasPhoto;
+    use HasImage;
     use HasFactory;
     use HasHistory;
 

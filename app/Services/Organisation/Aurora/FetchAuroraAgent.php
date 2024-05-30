@@ -63,7 +63,7 @@ class FetchAuroraAgent extends FetchAurora
 
 
             ];
-        //    $this->parsePhoto();
+        $this->parsePhoto();
     }
 
     private function parsePhoto(): void

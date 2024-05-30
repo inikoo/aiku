@@ -7,15 +7,21 @@
 
 namespace App\Actions\CRM\WebUser;
 
-use App\Actions\Traits\WithSetUserableAvatar;
+use App\Actions\Media\Media\StoreMediaFromIcon;
+use App\Actions\Traits\WithAttachMediaToModel;
 use App\Models\CRM\WebUser;
 use Exception;
 use Illuminate\Console\Command;
 
-class SetWebUserAvatar
+class SetIconAsWebUserImage
 {
-    use WithSetUserableAvatar;
-
+    use WithAttachMediaToModel;
+    public function handle(WebUser $webUser, bool $saveHistory = true): WebUser
+    {
+        $media = StoreMediaFromIcon::run($webUser);
+        $this->attachMediaToModel($webUser, $media, 'avatar');
+        return $webUser;
+    }
 
     public string $commandSignature = 'web-user:avatar {slug : Web user slug}';
 

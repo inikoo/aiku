@@ -7,17 +7,25 @@
 
 namespace App\Actions\SysAdmin\User;
 
-use App\Actions\Traits\WithSetUserableAvatar;
+use App\Actions\Media\Media\StoreMediaFromIcon;
+use App\Actions\Traits\WithAttachMediaToModel;
 use App\Models\SysAdmin\User;
 use Exception;
 use Illuminate\Console\Command;
+use Lorisleiva\Actions\Concerns\AsAction;
 
-class SetUserAvatar
+class SetIconAsUserImage
 {
-    use WithSetUserableAvatar;
+    use AsAction;
+    use WithAttachMediaToModel;
+    public function handle(User $user): User
+    {
+        $media = StoreMediaFromIcon::run($user);
+        $this->attachMediaToModel($user, $media, 'avatar');
+        return $user;
+    }
 
-
-    public string $commandSignature = 'user:avatar {slug : User slug}';
+    public string $commandSignature = 'user:set-icon {slug : User slug}';
 
     public function asCommand(Command $command): int
     {

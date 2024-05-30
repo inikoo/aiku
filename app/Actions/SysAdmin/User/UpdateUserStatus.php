@@ -8,7 +8,7 @@
 namespace App\Actions\SysAdmin\User;
 
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\SysAdmin\UserResource;
+use App\Http\Resources\SysAdmin\UsersResource;
 use App\Models\SysAdmin\User;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
@@ -72,8 +72,8 @@ class UpdateUserStatus
 
     }
 
-    public function jsonResponse(User $user): UserResource
+    public function jsonResponse(User $user): UsersResource
     {
-        return new UserResource($user);
+        return new UsersResource($user);
     }
 }

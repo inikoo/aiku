@@ -25,7 +25,7 @@ class LoggedWebUserResource extends JsonResource
             'username'         => $webUser->username,
             'email'            => $webUser->email,
             'customer_id'      => $webUser->customer_id,
-            'avatar_thumbnail' => !blank($webUser->avatar_id) ? $webUser->avatarImageSources(0, 48) : null,
+            'avatar_thumbnail' => !blank($webUser->image_id) ? $webUser->imageSources(0, 48) : null,
 
         ];
     }

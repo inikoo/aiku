@@ -9,7 +9,7 @@ namespace App\Actions\SysAdmin\User;
 
 use App\Actions\GrpAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\SysAdmin\UserResource;
+use App\Http\Resources\SysAdmin\UsersResource;
 use App\Models\Notifications\FcmToken;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
@@ -70,8 +70,8 @@ class UpdateFcmTokenUser extends GrpAction
 
     }
 
-    public function jsonResponse(User $user): UserResource
+    public function jsonResponse(User $user): UsersResource
     {
-        return new UserResource($user);
+        return new UsersResource($user);
     }
 }

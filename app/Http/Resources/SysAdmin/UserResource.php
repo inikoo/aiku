@@ -25,7 +25,7 @@ class UserResource extends JsonResource
         return [
             'id'            => $user->id,
             'username'      => $user->username,
-            'avatar'        => $user->avatarImageSources(48, 48),
+            'image'         => $user->imageSources(320, 320),
             'email'         => $user->email,
             'about'         => $user->about,
             'status'        => match ($user->status) {

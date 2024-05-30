@@ -38,14 +38,14 @@ class SnapshotResource extends JsonResource
                     $webUser = $snapshot->publisher;
 
                     $publisher       = $webUser->contact_name;
-                    $publisherAvatar = $webUser->avatarImageSources(48, 48);
+                    $publisherAvatar = $webUser->imageSources(48, 48);
                     break;
                 case 'User':
                     /** @var User $user */
                     $user = $snapshot->publisher;
 
                     $publisher       = $user->contact_name;
-                    $publisherAvatar = $user->avatarImageSources(48, 48);
+                    $publisherAvatar = $user->imageSources(48, 48);
             }
         }
 

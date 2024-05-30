@@ -52,10 +52,11 @@ function userRoute(user: User) {
             </Link>
         </template>
 
-        <!-- Column: Avatar -->
-        <template #cell(avatar)="{ item: user }">
+        <!-- Column: Image -->
+        <template #cell(image)="{ item: user }">
+
             <div class="flex justify-center">
-                <Image :src="user['avatar']" class="w-6 aspect-square rounded-full overflow-hidden shadow"
+                <Image :src="user['image']" class="w-6 aspect-square rounded-full overflow-hidden shadow"
                     :alt="user.username" />
             </div>
         </template>

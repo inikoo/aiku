@@ -69,7 +69,7 @@ class IndexClockings extends OrgAction
                 ]
             )
             ->leftJoin('workplaces', 'clockings.workplace_id', 'workplaces.id')
-            ->leftJoin('media', 'clockings.photo_id', 'media.id')
+            ->leftJoin('media', 'clockings.image_id', 'media.id')
             ->leftJoin('clocking_machines', 'clockings.clocking_machine_id', 'clocking_machines.id')
             ->allowedSorts(['clocked_at'])
             ->withPaginator($prefix)

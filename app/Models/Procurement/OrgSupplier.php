@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property int $supplier_id
  * @property int|null $agent_id
  * @property int|null $org_agent_id
+ * @property int|null $image_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $source_id

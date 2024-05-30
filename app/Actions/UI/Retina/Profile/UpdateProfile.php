@@ -7,8 +7,8 @@
 
 namespace App\Actions\UI\Retina\Profile;
 
+use App\Actions\Media\Media\SaveModelImage;
 use App\Actions\Traits\WithActionUpdate;
-use App\Actions\UI\Retina\SysAdmin\UI\SetWebUserAvatarFromImage;
 use App\Models\CRM\WebUser;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
@@ -19,8 +19,6 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateProfile
 {
     use WithActionUpdate;
-
-    private bool $asAction = false;
 
 
     public function handle(WebUser $webUser, array $modelData, ?UploadedFile $avatar): WebUser
@@ -39,11 +37,15 @@ class UpdateProfile
         data_forget($modelData, 'app_theme');
 
         if ($avatar) {
-            SetWebUserAvatarFromImage::run(
-                webUser: $webUser,
-                imagePath: $avatar->getPathName(),
-                originalFilename: $avatar->getClientOriginalName(),
-                extension: $avatar->getClientOriginalExtension()
+            SaveModelImage::run(
+                model: $webUser,
+                imageData: [
+                    'path'         => $avatar->getPathName(),
+                    'originalName' => $avatar->getClientOriginalName(),
+                    'extension'    => $avatar->getClientOriginalExtension(),
+                ],
+                scope:'avatar'
+
             );
         }
 
