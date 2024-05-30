@@ -30,6 +30,9 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { trans } from "laravel-vue-i18n"
+import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue";
+import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue";
+
 library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt )
 
 const layout = inject('layout', {})
@@ -38,6 +41,8 @@ const props = defineProps<{
     title: string
     tabs: {}
     pallets?: {}
+    services?: {}
+    physical_goods?: {}
     data?: {}
     history?: {}
     pageHead: PageHeadingTypes
@@ -61,6 +66,8 @@ const openModal = ref(false)
 const component = computed(() => {
     const components = {
         pallets: TablePalletReturnsDelivery,
+        services: TableServices,
+        physical_goods: TablePhysicalGoods,
         history: TableHistories,
     }
     return components[currentTab.value]
@@ -105,17 +112,17 @@ console.log(props)
     </div>
 
     <!-- Section: Timeline -->
-    <div class="border-b border-gray-200"> 
+    <div class="border-b border-gray-200">
         <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="Object.entries(timeline.timeline).length" />
     </div>
 
     <!-- Section: Box -->
     <div class="h-min grid grid-cols-4 border-b border-gray-200 divide-x divide-gray-300">
         <!-- Box: Customer -->
-        <BoxStatsPalletDelivery class="pb-2 pt-5 px-3" tooltip="Customer">
+        <BoxStatsPalletDelivery class="py-2 px-3">
             <!-- Field: Reference -->
             <Link as="a" v-if="box_stats.fulfilment_customer.customer.reference"
-                :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, box_stats.fulfilment_customer.fulfilment.slug, box_stats.fulfilment_customer.slug])" 
+                :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, box_stats.fulfilment_customer.fulfilment.slug, box_stats.fulfilment_customer.slug])"
                 class="flex items-center w-fit flex-none gap-x-2 cursor-pointer secondaryLink">
                 <dt v-tooltip="'Company name'" class="flex-none">
                     <span class="sr-only">Reference</span>
@@ -123,7 +130,7 @@ console.log(props)
                 </dt>
                 <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.reference }}</dd>
             </Link>
-            
+
             <!-- Field: Contact name -->
             <div v-if="box_stats.fulfilment_customer.customer.contact_name" class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Contact name'" class="flex-none">
@@ -142,7 +149,7 @@ console.log(props)
                 </dt>
                 <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.company_name }}</dd>
             </div>
-            
+
             <!-- Field: Email -->
             <div v-if="box_stats.fulfilment_customer?.customer.email" class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Email'" class="flex-none">
@@ -151,7 +158,7 @@ console.log(props)
                 </dt>
                 <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer?.customer.email }}</dd>
             </div>
-            
+
             <!-- Field: Phone -->
             <div v-if="box_stats.fulfilment_customer?.customer.phone" class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Phone'" class="flex-none">
@@ -160,7 +167,7 @@ console.log(props)
                 </dt>
                 <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer?.customer.phone }}</dd>
             </div>
-            
+
             <!-- Field: Location -->
             <div v-if="box_stats.fulfilment_customer?.customer?.location?.length" class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Phone'" class="flex-none">
@@ -172,7 +179,7 @@ console.log(props)
         </BoxStatsPalletDelivery>
 
 
-        <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" :tooltip="trans('Status')" :label="capitalize(data?.data.state)"
+        <BoxStatsPalletDelivery class="py-2 px-3" :label="capitalize(data?.data.state)"
             icon="fal fa-truck-couch">
             <div class="flex items-center w-full flex-none gap-x-2">
                 <dt class="flex-none">
@@ -185,7 +192,7 @@ console.log(props)
         </BoxStatsPalletDelivery>
 
         <!-- Box: Pallet -->
-        <BoxStatsPalletDelivery class="pb-2 py-5 px-3" :tooltip="trans('Pallets')" :percentage="0">
+        <BoxStatsPalletDelivery class="py-2 px-3" :percentage="0">
             <div class="flex items-end gap-x-3 mb-1">
                 <dt class="flex-none">
                     <span class="sr-only">Total pallet</span>
@@ -212,7 +219,7 @@ console.log(props)
                 </dt>
                 <dd class="text-gray-600 leading-6 text-lg font-medium">{{ data?.data.number_pallets }}</dd>
             </div>
-            
+
         </BoxStatsPalletDelivery>
 
 
@@ -232,10 +239,10 @@ console.log(props)
 
     <Modal :isOpen="openModal" @onClose="openModal = false">
         <div class="min-h-72 max-h-96 px-2 overflow-auto">
-            <TablePalletReturn 
+            <TablePalletReturn
 				:dataRoute="palletRoute.index"
                 :saveRoute="palletRoute.store"
-				@onClose="() => openModal = false" 
+				@onClose="() => openModal = false"
 				:descriptor="palletReturnDescriptor"
 			>
                 <template #column-stored_items="{data}">

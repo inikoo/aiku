@@ -7,6 +7,7 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery;
 
+use App\Actions\Fulfilment\AttachRecurringBillToModel;
 use App\Actions\Fulfilment\FulfilmentCustomer\HydrateFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
@@ -41,7 +42,8 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
 
-        if(!$palletDelivery->fulfilmentCustomer->currentRecurringBill) {
+        $recurringBill = $palletDelivery->fulfilmentCustomer->currentRecurringBill;
+        if(!$recurringBill) {
             $recurringBill=StoreRecurringBill::make()->action($palletDelivery->fulfilmentCustomer->rentalAgreement, [
                 'start_date' => now(),
                 'end_date'   => now()->addMonth(),
@@ -49,6 +51,8 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
             ]);
             $palletDelivery->fulfilmentCustomer->update(['current_recurring_bill_id' => $recurringBill->id]);
         }
+
+        AttachRecurringBillToModel::run($palletDelivery, $recurringBill);
 
         HydrateFulfilmentCustomer::dispatch($palletDelivery->fulfilmentCustomer);
         SendPalletDeliveryNotification::dispatch($palletDelivery);

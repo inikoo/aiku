@@ -38,7 +38,7 @@ enum PalletReturnTabsEnum: string
                 'icon'  => 'fal fa-bars',
             ],
             PalletReturnTabsEnum::STORED_ITEMS => [
-                'title' => __('stored_items'),
+                'title' => __('stored items'),
                 'icon'  => 'fal fa-cube',
             ],
             PalletReturnTabsEnum::SERVICES => [
@@ -46,10 +46,9 @@ enum PalletReturnTabsEnum: string
                 'icon'  => 'fal fa-concierge-bell',
             ],
             PalletReturnTabsEnum::PHYSICAL_GOODS => [
-                'title' => __('physical_goods'),
+                'title' => __('physical goods'),
                 'icon'  => 'fal fa-cube',
             ],
-
         };
     }
 }

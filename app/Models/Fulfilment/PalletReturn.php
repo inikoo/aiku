@@ -8,6 +8,8 @@
 namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Models\Catalogue\Outer;
+use App\Models\Catalogue\Service;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
@@ -150,5 +152,17 @@ class PalletReturn extends Model
     public function recurringBills(): MorphToMany
     {
         return $this->morphToMany(RecurringBill::class, 'model', 'model_has_recurring_bills')->withTimestamps();
+    }
+
+    public function services(): BelongsToMany
+    {
+        return $this->belongsToMany(Service::class, 'pallet_return_services')
+            ->withTimestamps();
+    }
+
+    public function physicalGoods(): BelongsToMany
+    {
+        return $this->belongsToMany(Outer::class, 'pallet_return_physical_goods')
+            ->withTimestamps();
     }
 }
