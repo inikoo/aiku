@@ -31,7 +31,7 @@ class AddressHydrateMultiplicity implements ShouldBeUnique
 
     public function handle(Address $address): void
     {
-        $multiplicity = DB::table('addresses')->where('checksum', $address->checksum)->count();
+        $multiplicity = DB::table('addresses')->where('group_id', $address->group_id)->where('checksum', $address->checksum)->count();
         $address->update(['multiplicity' => $multiplicity]);
     }
 
