@@ -119,7 +119,7 @@ class IndexServiceInPalletDelivery extends OrgAction
                         ],
                         'PalletDelivery' => [
                             'icons' => ['fal fa-concierge-bell'],
-                            'title' => '',
+                            'title' => 'No service selected',
                             'count' => $parent->stats->number_services,
                         ],
                         default => null

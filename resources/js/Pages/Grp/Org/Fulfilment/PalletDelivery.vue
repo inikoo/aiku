@@ -10,6 +10,7 @@ import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import { computed, ref, watch, onMounted } from 'vue'
+import type { Component } from 'vue'
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import TablePalletDeliveryPallets from '@/Components/Tables/Grp/Org/Fulfilment/TablePalletDeliveryPallets.vue'
@@ -27,7 +28,7 @@ import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
 import JsBarcode from 'jsbarcode'
 import { PalletDelivery, BoxStats, PDRNotes } from '@/types/Pallet'
-import { Table } from '@/types/Table'
+import { TableTS } from '@/types/Table'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import DatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
@@ -50,9 +51,9 @@ library.add(faUser, faTruckCouch, faPallet, faPlus, faFilePdf, faIdCardAlt, faEn
 const props = defineProps<{
     title: string
     tabs: TSTabs
-    pallets?: Table
-    services?: Table
-    physical_goods?: Table
+    pallets?: TableTS
+    services?: TableTS
+    physical_goods?: TableTS
     data?: {
         data: PalletDelivery
     }
@@ -167,7 +168,7 @@ const changePalletType=(form,fieldName,value)=>{
 }
 
 const component = computed(() => {
-    const components: {[key: string]: string} = {
+    const components: Component = {
         pallets: TablePalletDeliveryPallets,
         services: TableServices,
         physical_goods: TablePhysicalGoods,
