@@ -19,7 +19,7 @@ use App\Enums\UI\SysAdmin\ProfileTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\HumanResources\TimesheetsResource;
 use App\Http\Resources\SysAdmin\UserRequestLogsResource;
-use App\Http\Resources\SysAdmin\UserResource;
+use App\Http\Resources\SysAdmin\UsersResource;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\User;
@@ -41,9 +41,9 @@ class ShowProfile extends GrpAction
         return $request->user();
     }
 
-    public function jsonResponse(User $user): UserResource
+    public function jsonResponse(User $user): UsersResource
     {
-        return new UserResource($user);
+        return new UsersResource($user);
     }
 
     public function htmlResponse(User $user, ActionRequest $request): Response

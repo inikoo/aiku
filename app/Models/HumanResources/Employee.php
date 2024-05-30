@@ -16,7 +16,7 @@ use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use App\Models\Traits\HasHistory;
-use App\Models\Traits\HasPhoto;
+use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
 use Eloquent;
@@ -68,6 +68,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property array $errors
  * @property string|null $pin
+ * @property int|null $image_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -76,6 +77,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\HumanResources\Clocking> $clockings
  * @property-read Group $group
+ * @property-read \App\Models\Media\Media|null $image
+ * @property-read MediaCollection<int, \App\Models\Media\Media> $images
  * @property-read Collection<int, Issue> $issues
  * @property-read Collection<int, \App\Models\HumanResources\JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
@@ -100,7 +103,7 @@ class Employee extends Model implements HasMedia, Auditable
     use HasSlug;
     use SoftDeletes;
     use HasUniversalSearch;
-    use HasPhoto;
+    use HasImage;
     use HasFactory;
     use HasHistory;
     use InOrganisation;

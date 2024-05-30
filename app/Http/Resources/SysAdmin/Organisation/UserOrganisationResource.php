@@ -38,7 +38,7 @@ class UserOrganisationResource extends JsonResource
             'label'     => $organisation->name,
             'type'      => $organisation->type,
             'currency'  => $organisation->currency,
-            'logo'      => $organisation->logoImageSources(48, 48),
+            'logo'      => $organisation->imageSources(48, 48),
             'route'     => [
                 'name'       => 'grp.org.dashboard.show',
                 'parameters' => [

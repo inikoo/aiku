@@ -26,6 +26,8 @@ return new class () extends Migration {
             $table->boolean('status')->index()->default(true);
             $table = $this->contactFields(table: $table, withPersonalDetails: true);
             $table->jsonb('data');
+            $table->unsignedInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('media')->onDelete('cascade');
             $table->timestampsTz();
             $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();

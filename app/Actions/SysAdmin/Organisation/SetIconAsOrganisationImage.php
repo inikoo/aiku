@@ -7,41 +7,23 @@
 
 namespace App\Actions\SysAdmin\Organisation;
 
-use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
-use App\Enums\Helpers\Avatars\DiceBearStylesEnum;
-use App\Models\Media\Media;
+use App\Actions\Media\Media\StoreMediaFromIcon;
+use App\Actions\Traits\WithAttachMediaToModel;
 use App\Models\SysAdmin\Organisation;
 use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SetOrganisationLogo
+class SetIconAsOrganisationImage
 {
     use AsAction;
+    use WithAttachMediaToModel;
 
-    public function handle(Organisation $organisation): array
+    public function handle(Organisation $organisation): Organisation
     {
-        try {
-            $seed = 'organisation-'.$organisation->id;
-            /** @var Media $media */
-            $media = $organisation->addMediaFromString(GetDiceBearAvatar::run(DiceBearStylesEnum::RINGS, $seed))
-                ->preservingOriginal()
-                ->withProperties(
-                    [
-                        'group_id' => $organisation->group_id
-                    ]
-                )
-                ->usingFileName($organisation->slug."-logo.sgv")
-                ->toMediaCollection('logo');
-
-            $logoId = $media->id;
-
-            $organisation->update(['logo_id' => $logoId]);
-
-            return ['result' => 'success'];
-        } catch (Exception $e) {
-            return ['result' => 'error', 'message' => $e->getMessage()];
-        }
+        $media = StoreMediaFromIcon::run($organisation);
+        $this->attachMediaToModel($organisation, $media, 'logo');
+        return $organisation;
     }
 
 

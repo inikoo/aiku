@@ -5,6 +5,9 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\UI\Grp\EditGroup;
+use App\Actions\UI\Grp\IndexGroups;
+use App\Actions\UI\Grp\ShowGroup;
 use App\Actions\UI\Notification\IndexNotification;
 use Illuminate\Support\Facades\Route;
 
@@ -12,6 +15,10 @@ Route::middleware(["auth"])->group(function () {
     Route::get('/', function () {
         return redirect('/dashboard');
     });
+    Route::get('/groups', IndexGroups::class)->name('index');
+    Route::get('/group', ShowGroup::class)->name('show');
+    Route::get('/group/edit', EditGroup::class)->name('edit');
+
     Route::get('/notifications', IndexNotification::class)->name('notifications');
     Route::prefix("overview")
         ->name("overview.")

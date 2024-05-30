@@ -7,9 +7,9 @@
 
 namespace App\Actions\UI\Profile;
 
-use App\Actions\SysAdmin\User\SetUserAvatarFromImage;
+use App\Actions\GrpAction;
+use App\Actions\Media\Media\SaveModelImage;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\SysAdmin\User\SynchronisableUserFieldsEnum;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
@@ -17,40 +17,43 @@ use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateProfile
+class UpdateProfile extends GrpAction
 {
     use WithActionUpdate;
 
-    private bool $asAction = false;
 
-
-    public function handle(User $user, array $modelData, ?UploadedFile $avatar): User
+    public function handle(User $user, array $modelData): User
     {
+        if (Arr::has($modelData, 'image')) {
+            /** @var UploadedFile $image */
+            $image = Arr::get($modelData, 'image');
+            data_forget($modelData, 'image');
+            $imageData = [
+                'pathName'                => $image->getPathName(),
+                'clientOriginalName'      => $image->getClientOriginalName(),
+                'clientOriginalExtension' => $image->getClientOriginalExtension(),
+            ];
+            $user      = SaveModelImage::run(
+                model: $user,
+                imageData: $imageData
+            );
+        }
+
         foreach ($modelData as $key => $value) {
             data_set(
                 $modelData,
                 match ($key) {
-                    'app_theme'     => 'settings.app_theme',
-                    default         => $key
+                    'app_theme' => 'settings.app_theme',
+                    default     => $key
                 },
                 $value
             );
-        };
+        }
 
         data_forget($modelData, 'app_theme');
 
-        if ($avatar) {
-            SetUserAvatarFromImage::run(
-                user: $user,
-                imagePath: $avatar->getPathName(),
-                originalFilename: $avatar->getClientOriginalName(),
-                extension: $avatar->getClientOriginalExtension()
-            );
-        }
 
-        $user->refresh();
-
-        return $this->update($user, Arr::except($modelData, SynchronisableUserFieldsEnum::values()), ['profile']);
+        return $this->update($user, $modelData, ['settings']);
     }
 
 
@@ -58,11 +61,11 @@ class UpdateProfile
     {
         return [
             'password'    => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-            'email'       => 'sometimes|required|email|unique:App\Models\SysAdmin\User,email,' . request()->user()->id,
+            'email'       => 'sometimes|required|email|unique:App\Models\SysAdmin\User,email,'.request()->user()->id,
             'about'       => ['sometimes', 'nullable', 'string', 'max:255'],
             'language_id' => ['sometimes', 'required', 'exists:languages,id'],
             'app_theme'   => ['sometimes', 'required'],
-            'avatar'      => [
+            'image'       => [
                 'sometimes',
                 'nullable',
                 File::image()
@@ -74,10 +77,9 @@ class UpdateProfile
 
     public function asController(ActionRequest $request): User
     {
-        $this->fillFromRequest($request);
+        $this->initialisation(app('group'), $request);
 
-        $validated = $this->validateAttributes();
-        return $this->handle($request->user(), Arr::except($validated, 'avatar'), Arr::get($validated, 'avatar'));
+        return $this->handle($request->user(), $this->validatedData);
     }
 
 

@@ -20,7 +20,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
 /**
- * App\Models\HumanResources\Clocking
+ *
  *
  * @property int $id
  * @property int|null $workplace_id
@@ -34,7 +34,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property string|null $generator_type
  * @property int|null $generator_id
  * @property string|null $notes
- * @property int|null $photo_id
+ * @property int|null $image_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -96,7 +96,7 @@ class Clocking extends Model implements HasMedia
 
     public function photo(): BelongsTo
     {
-        return $this->belongsTo(Media::class, 'photo_id');
+        return $this->belongsTo(Media::class, 'image_id');
     }
 
     public function photoImageSources($width = 0, $height = 0)

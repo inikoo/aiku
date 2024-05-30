@@ -48,6 +48,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $date_of_birth
  * @property string|null $gender
  * @property array $data
+ * @property int|null $image_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at

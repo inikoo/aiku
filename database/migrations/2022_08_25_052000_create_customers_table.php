@@ -25,7 +25,6 @@ return new class () extends Migration {
             $table=$this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->index()->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->unsignedInteger('image_id')->nullable();
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('reference')->nullable()->collation('und_ns')->index()->comment('customer public id');
             $table->string('name', 256)->nullable();
@@ -46,6 +45,7 @@ return new class () extends Migration {
             $table->text('warehouse_notes')->nullable();
             $table->unsignedSmallInteger('prospects_sender_email_id')->nullable();
             $table->foreign('prospects_sender_email_id')->references('id')->on('sender_emails');
+            $table->unsignedInteger('image_id')->nullable();
             $table->timestampsTz();
             $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();

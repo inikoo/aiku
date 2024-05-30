@@ -16,7 +16,6 @@ onMounted(async () => {
     try {
         const { data } = await axios.get(route('grp.profile.edit'))
         dataEditProfile.value = data
-        // console.log('zzzzz response xxxxxxxxxxx', dataEditProfile.value)
     } catch (error) {
         notify({
             title: trans('Something went wrong.'),

@@ -11,7 +11,7 @@ use App\Actions\GrpAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateUsers;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
-use App\Http\Resources\SysAdmin\UserResource;
+use App\Http\Resources\SysAdmin\UsersResource;
 use App\Models\SysAdmin\User;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
@@ -122,8 +122,8 @@ class UpdateUser extends GrpAction
 
     }
 
-    public function jsonResponse(User $user): UserResource
+    public function jsonResponse(User $user): UsersResource
     {
-        return new UserResource($user);
+        return new UsersResource($user);
     }
 }

@@ -13,6 +13,7 @@ use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasImage;
 use App\Models\Traits\InCustomer;
 use App\Models\Traits\IsUserable;
 use Eloquent;
@@ -22,7 +23,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Password;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\Permission\Traits\HasPermissions;
@@ -53,16 +53,17 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $settings
  * @property bool $reset_password
  * @property int $language_id
- * @property int|null $avatar_id
+ * @property int|null $image_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property WebUserTypeEnum $state
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
- * @property-read \App\Models\Media\Media|null $avatar
  * @property-read \App\Models\CRM\Customer $customer
  * @property-read Group $group
+ * @property-read \App\Models\Media\Media|null $image
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $images
  * @property-read \App\Models\Assets\Language $language
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
@@ -87,6 +88,7 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
     use IsUserable;
     use HasPermissions;
     use Notifiable;
+    use HasImage;
     use InCustomer;
 
     public function getSlugOptions(): SlugOptions

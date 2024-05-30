@@ -1,6 +1,8 @@
-import { format, formatDuration, intervalToDuration, addSeconds, formatDistanceToNowStrict, isPast, parseISO } from 'date-fns'
+import { format, formatDuration, intervalToDuration, addSeconds,
+    formatDistanceToNowStrict, startOfDay, isPast, parseISO, isAfter, differenceInDays  } from 'date-fns'
 import formatDistanceToNow from 'date-fns/formatDistanceToNow'
 import { zhCN, enUS, fr, de, id, ja, sk, es } from 'date-fns/locale'
+import { trans } from 'laravel-vue-i18n'
 
 export const localesCode: any = { zhCN, enUS, fr, de, id, ja, sk, es }
 
@@ -8,6 +10,7 @@ export interface OptionsTime {
     formatTime?: string
     localeCode?: string
 }
+
 
 export const useFormatTime = (dateIso: string | Date | undefined, OptionsTime?: OptionsTime) => {
     if (!dateIso) return '-'  // If the provided data date is null
@@ -23,6 +26,7 @@ export const useFormatTime = (dateIso: string | Date | undefined, OptionsTime?: 
     return format(tempDateIso, 'PPP', { locale: localesCode[tempLocaleCode] }) // October 13th, 2023
 }
 
+
 // Relative time range (10 days ago)
 export const useRangeFromNow = (dateIso: string | Date, OptionsTime?: OptionsTime) => {
     if (!dateIso) return '-'  // If the provided data date is null
@@ -32,6 +36,38 @@ export const useRangeFromNow = (dateIso: string | Date, OptionsTime?: OptionsTim
 
     return formatDistanceToNow(date, { locale: localesCode[tempLocaleCode], includeSeconds: true })
 }
+
+
+// Range from today to expected date: "3 days left"
+export const useDaysLeftFromToday = (isoDate?: string) => {
+    if (!isoDate) return trans('No date')
+
+    let targetDate: Date
+    try {
+        targetDate = new Date(isoDate)
+        if (isNaN(targetDate.getTime())) {
+            targetDate = parseISO(isoDate)
+        }
+    } catch {
+        return trans('Invalid date')
+    }
+
+    const today = startOfDay(new Date())
+    targetDate = startOfDay(targetDate)
+
+    if (!isAfter(targetDate, today)) {
+        return trans('The date has passed.')
+    }
+
+    const daysLeft = differenceInDays(targetDate, today)
+
+    if (daysLeft === 1) {
+        return daysLeft + ' ' + trans('day left')
+    } else {
+        return daysLeft + ' ' + trans('days left')
+    }
+}
+
 
 // Time countdown 1
 export const useTimeCountdown: any = (dateIso: string, options?: { human?: boolean, zero?: boolean }) => {
@@ -59,6 +95,7 @@ export const useSecondCountdown: any = (dateIso: string | Date, duration: number
     return formatDistanceToNowStrict(newDate)  // 23 seconds
 }
 
+
 // Convert miliseconds to hours-minutes-seconds
 export const useMilisecondToTime = (miliSecond: number) => {
     // Calculate minutes and seconds
@@ -81,6 +118,7 @@ export const useMilisecondToTime = (miliSecond: number) => {
 
     return formattedTime // 2 hours 56 minutes 23 seconds
 }
+
 
 // Check if the provided date is a future date and does it already passed?
 export const useIsFutureIsAPast = (dateIso: Date | string, additionalSeconds: number) => {
@@ -106,6 +144,7 @@ export const useSecondsToMS = (seconds?: number) => {
 
     return strHour + ':' + strMinutes + ':' + strSeconds
 }
+
 
 // Method: Convert date to '08:30 am'
 export const useHMAP = (date?: string) => {

@@ -41,6 +41,8 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
+use App\Models\Traits\HasHistory;
+use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
 use App\Models\Web\Website;
@@ -58,6 +60,8 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -87,6 +91,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $language_id
  * @property int $currency_id
  * @property int $timezone_id
+ * @property int|null $image_id
  * @property array $data
  * @property array $settings
  * @property int|null $sender_email_id
@@ -100,6 +105,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Address|null $address
  * @property-read LaravelCollection<int, Address> $addresses
  * @property-read LaravelCollection<int, Appointment> $appointments
+ * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Address|null $collectionAddress
  * @property-read LaravelCollection<int, \App\Models\Catalogue\CollectionCategory> $collectionCategories
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Collection> $collections
@@ -109,10 +115,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Customer> $customers
  * @property-read Fulfilment|null $fulfilment
  * @property-read Group $group
+ * @property-read \App\Models\Media\Media|null $image
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $images
  * @property-read LaravelCollection<int, Invoice> $invoices
  * @property-read LaravelCollection<int, Issue> $issues
  * @property-read \App\Models\Catalogue\ShopMailStats|null $mailStats
  * @property-read ShopMailshotsIntervals|null $mailshotsIntervals
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
  * @property-read ShopOrdersIntervals|null $orderIntervals
  * @property-read LaravelCollection<int, Order> $orders
@@ -144,7 +153,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Shop withoutTrashed()
  * @mixin Eloquent
  */
-class Shop extends Model
+class Shop extends Model implements HasMedia, Auditable
 {
     use HasAddress;
     use HasAddresses;
@@ -153,6 +162,8 @@ class Shop extends Model
     use HasUniversalSearch;
     use HasFactory;
     use InOrganisation;
+    use HasHistory;
+    use HasImage;
 
     protected $casts = [
         'data'     => 'array',
@@ -366,6 +377,16 @@ class Shop extends Model
     public function collections(): HasMany
     {
         return $this->hasMany(Collection::class);
+    }
+
+    public function services(): HasMany
+    {
+        return $this->hasMany(Service::class);
+    }
+
+    public function outers(): HasMany
+    {
+        return $this->hasMany(Outer::class);
     }
 
     public function collectionAddress(): BelongsTo

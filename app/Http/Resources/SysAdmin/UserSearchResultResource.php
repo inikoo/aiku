@@ -11,9 +11,6 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
 use JsonSerializable;
 
-/**
- * @property mixed $avatar_id
- */
 class UserSearchResultResource extends JsonResource
 {
     public function toArray($request): array|Arrayable|JsonSerializable
@@ -22,7 +19,7 @@ class UserSearchResultResource extends JsonResource
         $user = $this;
         return [
             'username'           => $user->username,
-            'avatar'             => $this->avatar_id,
+            'image'              => $user->image_id,
             'email'              => $user->email,
             'contact_name'       => $user->contact_name,
             'route'              => [

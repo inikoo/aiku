@@ -10,12 +10,11 @@ namespace App\Models\SysAdmin;
 use App\Actions\SysAdmin\User\SendLinkResetPassword;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
-use App\Models\Assets\Language;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Manufacturing\Production;
 use App\Models\Catalogue\Shop;
-use App\Models\Media\Media;
+use App\Models\Traits\HasImage;
 use App\Models\Traits\HasRoles;
 use App\Models\Traits\IsUserable;
 use App\Models\Traits\WithPushNotifications;
@@ -30,7 +29,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\SysAdmin\User
+ *
  *
  * @property int $id
  * @property int $group_id
@@ -55,7 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $settings
  * @property bool $reset_password
  * @property int $language_id
- * @property int|null $avatar_id
+ * @property int|null $image_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -71,12 +70,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $authorisedShopOrganisations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Shop> $authorisedShops
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $authorisedWarehouses
- * @property-read Media|null $avatar
  * @property-read \App\Models\Notifications\FcmToken|null $fcmToken
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Notifications\FcmToken> $fcmTokens
  * @property-read \App\Models\SysAdmin\Group $group
- * @property-read Language $language
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
+ * @property-read \App\Models\Media\Media|null $image
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $images
+ * @property-read \App\Models\Assets\Language $language
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $parent
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
@@ -103,6 +103,7 @@ class User extends Authenticatable implements HasMedia, Auditable
     use HasRoles;
     use WithPushNotifications;
     use IsUserable;
+    use HasImage;
 
     protected $guarded = [
     ];

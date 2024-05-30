@@ -8,7 +8,7 @@
 namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\HumanResources\Employee\Hydrators\EmployeeHydrateWeekWorkingHours;
-use App\Http\Resources\SysAdmin\UserResource;
+use App\Http\Resources\SysAdmin\UsersResource;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -46,8 +46,8 @@ class UpdateEmployeeWorkingHours
         return $this->handle($employee, $validatedData);
     }
 
-    public function jsonResponse(User $user): UserResource
+    public function jsonResponse(User $user): UsersResource
     {
-        return new UserResource($user);
+        return new UsersResource($user);
     }
 }

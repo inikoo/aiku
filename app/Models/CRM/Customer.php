@@ -30,7 +30,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;
-use App\Models\Traits\HasPhoto;
+use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Builder;
@@ -58,7 +58,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property int|null $shop_id
- * @property int|null $image_id
  * @property string $slug
  * @property string|null $reference customer public id
  * @property string|null $name
@@ -82,6 +81,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $internal_notes
  * @property string|null $warehouse_notes
  * @property int|null $prospects_sender_email_id
+ * @property int|null $image_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -96,6 +96,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Address|null $deliveryAddress
  * @property-read FulfilmentCustomer|null $fulfilmentCustomer
  * @property-read Group $group
+ * @property-read Media|null $image
+ * @property-read MediaCollection<int, Media> $images
  * @property-read Collection<int, Invoice> $invoices
  * @property-read Collection<int, Issue> $issues
  * @property-read MediaCollection<int, Media> $media
@@ -126,7 +128,7 @@ class Customer extends Model implements HasMedia, Auditable
     use HasAddresses;
     use HasSlug;
     use HasUniversalSearch;
-    use HasPhoto;
+    use HasImage;
     use HasFactory;
     use HasHistory;
     use InShop;

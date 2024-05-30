@@ -107,7 +107,7 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
                         ],
                         'PalletDelivery' => [
                             'icons' => ['fal fa-cube'],
-                            'title' => '',
+                            'title' => __('No physical goods selected'),
                             'count' => $parent->stats->number_physical_goods,
                         ],
                         default => null

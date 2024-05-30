@@ -37,7 +37,7 @@ use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
-use App\Models\Traits\HasLogo;
+use App\Models\Traits\HasImage;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -65,7 +65,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $language_id
  * @property int $timezone_id
  * @property int $currency_id customer accounting currency
- * @property int|null $logo_id
+ * @property int|null $image_id
  * @property int $number_organisations
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
@@ -83,11 +83,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\GroupJobPosition> $groupJobPositions
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Guest> $guests
  * @property-read \App\Models\SysAdmin\GroupHumanResourcesStats|null $humanResourcesStats
+ * @property-read \App\Models\Media\Media|null $image
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $images
  * @property-read \App\Models\SysAdmin\GroupInventoryStats|null $inventoryStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $jobPositions
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Location> $locations
- * @property-read \App\Models\Media\Media|null $logo
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Mailroom> $mailrooms
  * @property-read \App\Models\SysAdmin\GroupMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\GroupManufactureStats|null $manufactureStats
@@ -135,7 +136,7 @@ class Group extends Model implements HasMedia
     use HasSlug;
     use HasFactory;
     use InteractsWithMedia;
-    use HasLogo;
+    use HasImage;
 
     protected $guarded = [];
 

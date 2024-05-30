@@ -7,12 +7,14 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Media\Media\SaveModelImage;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SupplyChain\Supplier\UpdateSupplier;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\SupplyChain\Supplier;
 use App\Services\Organisation\SourceOrganisationService;
+use Illuminate\Support\Arr;
 
 trait FetchSuppliersTrait
 {
@@ -39,6 +41,22 @@ trait FetchSuppliersTrait
                 parent: $supplierData['parent'],
                 modelData: $supplierData['supplier'],
             );
+            $supplier->refresh();
+
+            foreach (Arr::get($supplierData, 'photo', []) as $photoData) {
+                if (isset($photoData['image_path']) and isset($photoData['filename'])) {
+                    SaveModelImage::run(
+                        $supplier,
+                        [
+                            'path'         => $photoData['image_path'],
+                            'originalName' => $photoData['filename'],
+
+                        ],
+                        'photo'
+                    );
+                }
+            }
+
         }
         $organisation = $organisationSource->getOrganisation();
 
@@ -66,11 +84,7 @@ trait FetchSuppliersTrait
                 );
             }
 
-            if (array_key_exists('photo', $supplierData)) {
-                foreach ($supplierData['photo'] as $photoData) {
-                    $this->saveImage($supplier, $photoData);
-                }
-            }
+
         } elseif ($baseSupplier) {
             $orgSupplier = OrgSupplier::where('organisation_id', $organisation->id)->where('supplier_id', $baseSupplier->id)->first();
             if ($orgSupplier) {

@@ -24,7 +24,7 @@ class UserShowcaseResource extends JsonResource
         return [
             'id'                      => $user->id,
             'username'                => $user->username,
-            'avatar'                  => $user->avatarImageSources(48, 48),
+            'avatar'                  => $user->imageSources(48, 48),
             'email'                   => $user->email,
             'about'                   => $user->about,
             'parent_type'             => $user->parent_type,
