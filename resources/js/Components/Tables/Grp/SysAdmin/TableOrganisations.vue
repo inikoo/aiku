@@ -25,7 +25,7 @@ function orgRoute(org: Organisation) {
     switch (route().current()) {
         case 'grp.organisations.index':
             return route(
-                'grp.org.show',
+                'grp.organisations.show',
                 [org.slug])
 
     }
