@@ -77,7 +77,7 @@ class ShowOrganisation extends GrpAction
 
 
             ]
-        )->table(IndexHistory::make()->tableStructure(prefix: UserTabsEnum::HISTORY->value));
+        )->table(IndexHistory::make()->tableStructure(prefix: OrgTabsEnum::HISTORY->value));
     }
 
 
