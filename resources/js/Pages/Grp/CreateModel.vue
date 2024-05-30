@@ -30,6 +30,7 @@ import Interest from '@/Components/Forms/Fields/Interest.vue'
 import Toggle from '@/Components/Forms/Fields/Toggle.vue'
 import WebRegistrations from '@/Components/Forms/Fields/WebRegistrations.vue'
 import Rental from '@/Components/Rental/Rental.vue'
+import Agreement from '@/Components/Rental/Agreement.vue'
 import { isArray } from 'lodash'
 
 import { ref, onMounted } from 'vue'
@@ -80,7 +81,7 @@ const getComponent = (componentName: string) => {
         'senderEmail': SenderEmail,
         'employeePosition': EmployeePosition,
         'interest': Interest,
-        'rental' : Rental,
+        'rental' : Agreement,
         'webRegistrations' : WebRegistrations
     }
     return components[componentName] ?? null
