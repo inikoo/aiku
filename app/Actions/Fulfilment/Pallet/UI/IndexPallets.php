@@ -27,6 +27,8 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use App\InertiaTable\InertiaTable;
+use App\Models\Inventory\Location;
+use App\Models\Inventory\Warehouse;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Services\QueryBuilder;
 
@@ -35,11 +37,11 @@ class IndexPallets extends OrgAction
     use HasFulfilmentAssetsAuthorisation;
     use WithFulfilmentCustomerSubNavigation;
 
-    private FulfilmentCustomer|Fulfilment $parent;
+    private FulfilmentCustomer|Fulfilment|Location $parent;
 
     private bool $selectStoredPallets = false;
 
-    protected function getElementGroups(FulfilmentCustomer|Fulfilment $parent): array
+    protected function getElementGroups(FulfilmentCustomer|Fulfilment|Location $parent): array
     {
         return [
             'status' => [
@@ -58,7 +60,7 @@ class IndexPallets extends OrgAction
         ];
     }
 
-    public function handle(FulfilmentCustomer|Fulfilment $parent, $prefix = null): LengthAwarePaginator
+    public function handle(FulfilmentCustomer|Fulfilment|Location $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -84,6 +86,9 @@ class IndexPallets extends OrgAction
                 break;
             case "PalletDelivery":
                 $query->where('pallets.pallet_delivery_id', $parent->id);
+                break;
+            case "Location":
+                $query->where('pallets.location_id', $parent->id);
                 break;
             default:
                 abort(422);
@@ -137,7 +142,7 @@ class IndexPallets extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(FulfilmentCustomer|Fulfilment $parent, $prefix = null, $modelOperations = []): Closure
+    public function tableStructure(FulfilmentCustomer|Fulfilment|Location $parent, $prefix = null, $modelOperations = []): Closure
     {
         return function (InertiaTable $table) use ($prefix, $modelOperations, $parent) {
             if ($prefix) {
@@ -285,12 +290,20 @@ class IndexPallets extends OrgAction
         )->table($this->tableStructure($this->parent, 'pallets'));
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($fulfilment, 'pallets');
+    }
+
+    public function inLocation(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment,  Location $location, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $location;
+        $this->initialisationFromWarehouse($warehouse, $request);
+
+        return $this->handle($location, 'pallets');
     }
 
     /** @noinspection PhpUnusedParameterInspection */

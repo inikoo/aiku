@@ -132,7 +132,7 @@ enum PalletStatusEnum: string
     }
 
     public static function count(
-        Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn $parent,
+        Organisation|FulfilmentCustomer|Fulfilment|Warehouse|PalletDelivery|PalletReturn|Location $parent,
     ): array {
         if ($parent instanceof FulfilmentCustomer) {
             $stats = $parent;
