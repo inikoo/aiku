@@ -32,7 +32,7 @@ class PalletDeliveryHydratePhysicalGoods extends HydrateModel
     public function handle(PalletDelivery $palletDelivery): void
     {
         $stats = [
-            'number_physical_goods' => $palletDelivery->services()->count()
+            'number_physical_goods' => $palletDelivery->physicalGoods()->count()
         ];
 
         $palletDelivery->stats()->update($stats);

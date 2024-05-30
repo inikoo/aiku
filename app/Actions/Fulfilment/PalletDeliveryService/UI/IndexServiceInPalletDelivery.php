@@ -78,6 +78,7 @@ class IndexServiceInPalletDelivery extends OrgAction
                 'products.main_outerable_price',
                 'products.description',
                 'currencies.code as currency_code',
+                'pallet_delivery_services.quantity'
             ]);
 
 
@@ -98,14 +99,6 @@ class IndexServiceInPalletDelivery extends OrgAction
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
-            }
-
-            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                $table->elementGroup(
-                    key: $key,
-                    label: $elementGroup['label'],
-                    elements: $elementGroup['elements']
-                );
             }
 
             $table
@@ -130,6 +123,7 @@ class IndexServiceInPalletDelivery extends OrgAction
                 ->column(key: 'state', label: '', canBeHidden: false, type: 'icon')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
                 ->column(key: 'workflow', label: __('workflow'), canBeHidden: false, sortable: true, searchable: true, className: 'hello')
                 ->defaultSort('code');

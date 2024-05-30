@@ -7,6 +7,7 @@
 
 namespace App\Actions\SysAdmin\Organisation\UI;
 
+use App\Actions\GrpAction;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Enums\UI\Organisation\OrgTabsEnum;
@@ -18,7 +19,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowOrganisation extends InertiaAction
+class ShowOrganisation extends GrpAction
 {
     private Organisation $organisation;
 
@@ -33,9 +34,9 @@ class ShowOrganisation extends InertiaAction
         return $request->user()->hasPermissionTo('sysadmin.edit');
     }
 
-    public function asController(Organisation $organisation): Organisation
+    public function asController(Organisation $organisation, ActionRequest $request): Organisation
     {
-        $this->validateAttributes();
+        $this->initialisation(app('group'), $request)->withTab(OrgTabsEnum::values());
         return $this->handle($organisation);
     }
 
@@ -54,10 +55,10 @@ class ShowOrganisation extends InertiaAction
                         [
                             'type'  => 'button',
                             'style' => 'edit',
-                            // 'route' => [
-                            //     'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                            //     'parameters' => array_values($request->route()->originalParameters())
-                            // ]
+                            'route' => [
+                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
                         ]
                     ]
                 ],
@@ -109,11 +110,10 @@ class ShowOrganisation extends InertiaAction
         $organisation=Organisation::where('slug', $routeParameters['organisation'])->first();
 
         return match ($routeName) {
-            'grp.sysadmin.users.show',
-            'grp.sysadmin.users.edit' =>
+            'grp.organisations.show'=>
 
             array_merge(
-                ShowOrganisationDashboard::make()->getBreadcrumbs($routeParameters),
+                IndexOrganisations::make()->getBreadcrumbs(),
                 $headCrumb(
                     $organisation,
                     [
@@ -122,7 +122,7 @@ class ShowOrganisation extends InertiaAction
                             'parameters' => []
                         ],
                         'model' => [
-                            'name'       => 'grp.org.show',
+                            'name'       => 'grp.organisations.show',
                             'parameters' => $organisation->slug
                         ]
                     ],

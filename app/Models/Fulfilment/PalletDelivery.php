@@ -8,7 +8,7 @@
 namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
-use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Outer;
 use App\Models\Catalogue\Service;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Warehouse;
@@ -161,7 +161,7 @@ class PalletDelivery extends Model
 
     public function physicalGoods(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'pallet_delivery_physical_goods')
+        return $this->belongsToMany(Outer::class, 'pallet_delivery_physical_goods')
             ->withTimestamps();
     }
 
