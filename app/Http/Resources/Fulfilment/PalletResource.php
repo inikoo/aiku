@@ -29,12 +29,12 @@ class PalletResource extends JsonResource
     {
         /** @var Pallet $pallet */
         $pallet=$this;
-
+// dd($pallet);
         return [
             'id'                    => $this->id,
             'reference'             => $pallet->reference,
             'customer_reference'    => $pallet->customer_reference,
-            'slug'                  => $pallet->slug,
+            'slug'                  => $pallet->slug ?? null,
             'customer'              => [
                 'name'                 => $this->fulfilmentCustomer->customer->name,
                 'contact_name'         => $this->fulfilmentCustomer->customer->contact_name,
@@ -44,13 +44,13 @@ class PalletResource extends JsonResource
                                     ]
                 ],
 
-            'location'              => [
-                                        'resource' => LocationResource::make($this->location),
-                                        'route'    => $request->user()->hasPermissionTo("locations.{$pallet->warehouse_id}.view") ? [
-                                            'name'       => 'grp.org.warehouses.show.fulfilment.locations.show',
-                                            'parameters' => [$pallet->organisation->slug, $pallet->warehouse->slug, $pallet->location->slug]
-                                            ] : null
-                                        ],
+            'location'              => $pallet->location ? [
+                                    'resource' => LocationResource::make($this->location),
+                                    'route'    => $request->user()->hasPermissionTo("locations.{$pallet->warehouse_id}.view") ? [
+                                        'name'       => 'grp.org.warehouses.show.fulfilment.locations.show',
+                                        'parameters' => [$pallet->organisation->slug, $pallet->warehouse->slug, $pallet->location->slug]
+                                    ] : null
+                ] : null,
             'state'                 => $this->state,
             'status'                => $this->status,
             'notes'                 => $this->notes,
