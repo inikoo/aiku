@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\PalletDeliveryService;
 
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateServices;
 use App\Actions\OrgAction;
+use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Http\RedirectResponse;
@@ -60,7 +61,8 @@ class SyncServiceToPalletDelivery extends OrgAction
                 'organisation'           => $palletDelivery->organisation->slug,
                 'fulfilment'             => $palletDelivery->fulfilment->slug,
                 'fulfilmentCustomer'     => $palletDelivery->fulfilmentCustomer->slug,
-                'palletDelivery'         => $palletDelivery->slug
+                'palletDelivery'         => $palletDelivery->slug,
+                'tab'                    => PalletDeliveryTabsEnum::SERVICES->value
             ]),
             default => Redirect::route('retina.storage.pallet-deliveries.show', [
                 'palletDelivery'     => $palletDelivery->slug

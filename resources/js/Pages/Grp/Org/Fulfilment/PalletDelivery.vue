@@ -88,6 +88,7 @@ const timeline = ref({ ...props.data.data })
 const dataModal = ref({ isModalOpen: false })
 const formAddPallet = useForm({ notes: '', customer_reference: '', type : 'pallet' })
 const formAddService = useForm({ service_id: '', quantity: 1 })
+const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1 })
 const formMultiplePallet = useForm({ number_pallets: 1, type : 'pallet' })
 const tableKey = ref(1)  // To re-render Table after click Confirm (so the Table retrieve the new props)
 const estimatedDate = ref(null);
@@ -132,7 +133,6 @@ const handleFormSubmitAddPallet = (data: {}, closedPopover: Function) => {
     })
 }
 
-
 // Method: Add single service
 const handleFormSubmitAddService = (data: {}, closedPopover: Function) => {
     loading.value = true
@@ -144,6 +144,26 @@ const handleFormSubmitAddService = (data: {}, closedPopover: Function) => {
         onSuccess: () => {
             closedPopover()
             formAddService.reset('quantity', 'service_id')
+            loading.value = false
+        },
+        onError: (errors) => {
+            loading.value = false
+            console.error('Error during form submission:', errors)
+        },
+    })
+}
+
+// Method: Add single service
+const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
+    loading.value = true
+    formAddPhysicalGood.post(route(
+        data.route.name,
+        data.route.parameters
+    ), {
+        preserveScroll: true,
+        onSuccess: () => {
+            closedPopover()
+            formAddPhysicalGood.reset('quantity', 'outer_id')
             loading.value = false
         },
         onError: (errors) => {
@@ -400,30 +420,30 @@ console.log(currentTab.value)
                         <div class="w-[350px]">
                             <span class="text-xs px-1 my-2">{{ trans('Physical Goods') }}: </span>
                             <div>
-                                <PureMultiselect v-model="formAddPallet.customer_reference" autofocus placeholder="Physical Goods"
+                                <PureMultiselect v-model="formAddPhysicalGood.outer_id" autofocus placeholder="Physical Goods"
                                                  :options="props.physical_good_lists"
                                                  label="name"
                                                  valueProp="id"
                                                  @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)" />
-                                <p v-if="get(formAddPallet, ['errors', 'service_id'])"
+                                <p v-if="get(formAddPhysicalGood, ['errors', 'outer_id'])"
                                    class="mt-2 text-sm text-red-600">
-                                    {{ formAddPallet.errors.customer_reference }}
+                                    {{ formAddPhysicalGood.errors.outer_id }}
                                 </p>
                             </div>
 
                             <div class="mt-3">
                                 <span class="text-xs px-1 my-2">{{ trans('Qty') }}: </span>
-                                <PureInput v-model="formAddPallet.customer_reference" autofocus placeholder="Qty"
+                                <PureInput v-model="formAddPhysicalGood.quantity" placeholder="Qty"
                                            @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)" />
-                                <p v-if="get(formAddPallet, ['errors', 'quantity'])"
+                                <p v-if="get(formAddPhysicalGood, ['errors', 'quantity'])"
                                    class="mt-2 text-sm text-red-600">
-                                    {{ formAddPallet.errors.customer_reference }}
+                                    {{ formAddPhysicalGood.errors.quantity }}
                                 </p>
                             </div>
 
                             <div class="flex justify-end mt-3">
                                 <Button :style="'save'" :loading="loading" :label="'save'"
-                                        @click="() => handleFormSubmitAddPallet(action.button, closed)" />
+                                        @click="() => handleFormSubmitAddPhysicalGood(action.button, closed)" />
                             </div>
                         </div>
                     </template>

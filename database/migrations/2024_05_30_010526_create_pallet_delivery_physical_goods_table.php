@@ -11,7 +11,7 @@ return new class () extends Migration {
             $table->id();
 
             $table->unsignedSmallInteger('pallet_delivery_id');
-            $table->unsignedSmallInteger('product_id');
+            $table->unsignedSmallInteger('outer_id');
             $table->integer('quantity');
 
             $table->timestampsTz();
