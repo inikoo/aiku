@@ -7,10 +7,13 @@
 
 namespace App\Actions\Fulfilment\PalletDelivery\UI;
 
+use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentPhysicalGoods;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentRentals;
+use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInDelivery;
+use App\Actions\Fulfilment\PalletDeliveryPhysicalGood\UI\IndexPhysicalGoodInPalletDelivery;
 use App\Actions\Fulfilment\PalletDeliveryService\UI\IndexServiceInPalletDelivery;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
@@ -21,6 +24,7 @@ use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentCustomerResource;
 use App\Http\Resources\Fulfilment\PalletDeliveryResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
+use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
 use App\Http\Resources\Fulfilment\RentalsResource;
 use App\Http\Resources\Fulfilment\ServicesResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -155,6 +159,32 @@ class ShowPalletDelivery extends OrgAction
                                     ]
                                 ]
                             ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'label'   => __('add service'),
+                                'tooltip' => __('Add single service'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.service.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ],
+                            [
+                                'type'    => 'button',
+                                'style'   => 'secondary',
+                                'icon'    => 'fal fa-plus',
+                                'label'   => __('add physical good'),
+                                'tooltip' => __('Add physical good'),
+                                'route'   => [
+                                    'name'       => 'grp.models.pallet-delivery.physical_good.store',
+                                    'parameters' => [
+                                        'palletDelivery' => $palletDelivery->id
+                                    ]
+                                ]
+                            ],
                         ]
                     ],
                     ($palletDelivery->pallets()->count() > 0) ?
@@ -253,11 +283,14 @@ class ShowPalletDelivery extends OrgAction
 
         $palletLimitLeft = ($palletLimits - ($totalPallets + $numberStoredPallets));
 
-        $rentalList = null;
+        $rentalList = [];
 
         if (in_array($palletDelivery->state, [PalletDeliveryStateEnum::BOOKING_IN, PalletDeliveryStateEnum::BOOKED_IN])) {
             $rentalList = RentalsResource::collection(IndexFulfilmentRentals::run($palletDelivery->fulfilment, 'rentals'))->toArray($request);
         }
+
+        $servicesList      = ServicesResource::collection(IndexFulfilmentServices::run($palletDelivery->fulfilment))->toArray($request);
+        $physicalGoodsList = PhysicalGoodsResource::collection(IndexFulfilmentPhysicalGoods::run($palletDelivery->fulfilment))->toArray($request);
 
         return Inertia::render(
             'Org/Fulfilment/PalletDelivery',
@@ -398,10 +431,9 @@ class ShowPalletDelivery extends OrgAction
                         'field'           => 'internal_notes'
                     ],
                 ],
-                'rental_list' => $rentalList,
-
-
-
+                'rental_list'                          => $rentalList,
+                'service_lists'                        => $servicesList,
+                'physical_good_lists'                  => $physicalGoodsList,
                 PalletDeliveryTabsEnum::PALLETS->value => $this->tab == PalletDeliveryTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexPalletsInDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PALLETS->value))),
@@ -410,7 +442,9 @@ class ShowPalletDelivery extends OrgAction
                     fn () => ServicesResource::collection(IndexServiceInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::SERVICES->value))
                     : Inertia::lazy(fn () => ServicesResource::collection(IndexServiceInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::SERVICES->value))),
 
-
+                PalletDeliveryTabsEnum::PHYSICAL_GOODS->value => $this->tab == PalletDeliveryTabsEnum::PHYSICAL_GOODS->value ?
+                    fn () => PhysicalGoodsResource::collection(IndexPhysicalGoodInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PHYSICAL_GOODS->value))
+                    : Inertia::lazy(fn () => PhysicalGoodsResource::collection(IndexPhysicalGoodInPalletDelivery::run($palletDelivery, PalletDeliveryTabsEnum::PHYSICAL_GOODS->value))),
             ]
         )->table(
             IndexPalletsInDelivery::make()->tableStructure(
@@ -422,10 +456,13 @@ class ShowPalletDelivery extends OrgAction
                 $palletDelivery,
                 prefix: PalletDeliveryTabsEnum::SERVICES->value
             )
+        )->table(
+            IndexPhysicalGoodInPalletDelivery::make()->tableStructure(
+                $palletDelivery,
+                prefix: PalletDeliveryTabsEnum::PHYSICAL_GOODS->value
+            )
         );
     }
-
-
 
     public function jsonResponse(PalletDelivery $palletDelivery): PalletDeliveryResource
     {
