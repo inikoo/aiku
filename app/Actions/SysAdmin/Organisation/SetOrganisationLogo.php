@@ -42,7 +42,7 @@ class SetOrganisationLogo
         try {
             $this->handle($organisation);
             return 0;
-        }catch (Exception $exception) {
+        } catch (Exception $exception) {
             $command->error('Error setting logo, '.$exception->getMessage());
             return 1;
         }

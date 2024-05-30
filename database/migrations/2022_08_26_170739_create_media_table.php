@@ -32,6 +32,8 @@ return new class () extends Migration {
             $table->json('generated_conversions');
             $table->json('responsive_images');
             $table->string('checksum')->index()->nullable();
+            $table->unsignedSmallInteger('multiplicity')->index()->default(1);
+            $table->unsignedSmallInteger('usage')->index()->default(1);
             $table->boolean('is_animated')->default(false);
             $table->unsignedInteger('order_column')->nullable()->index();
             $table->nullableTimestamps();

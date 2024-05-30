@@ -29,7 +29,7 @@ class SaveModelImage
         string $scope = 'image'
     ): User|WebUser|Agent|Supplier|Employee|Guest|Customer|Group|Organisation|Shop {
         $oldImage = $model->image;
-        $media    = StoreMediaFromFile::run($model, $imageData);
+        $media    = StoreMediaFromFile::run($model, $imageData, 'image');
 
         $group_id        = $model->group_id;
         $organisation_id = $model->organisation_id;
@@ -53,10 +53,9 @@ class SaveModelImage
                     ]
                 ]
             );
-            if($oldImage) {
+            if ($oldImage) {
                 $oldImage->delete();
             }
-
         }
 
         return $model;

@@ -31,7 +31,7 @@ class FetchAuroraProduct extends FetchAurora
         if ($this->auroraModelData->{'Product Family Category Key'}) {
             $family = $this->parseFamily($this->organisation->id.':'.$this->auroraModelData->{'Product Family Category Key'});
             if ($family) {
-                $this->parsedData['parent'] =$family;
+                $this->parsedData['parent'] = $family;
             }
         }
 
@@ -67,12 +67,12 @@ class FetchAuroraProduct extends FetchAurora
             $units = 1;
         }
 
-        $created_at=$this->parseDatetime($this->auroraModelData->{'Product Valid From'});
-        if(!$created_at) {
-            $created_at=$this->parseDatetime($this->auroraModelData->{'Product For Sale Since Date'});
+        $created_at = $this->parseDatetime($this->auroraModelData->{'Product Valid From'});
+        if (!$created_at) {
+            $created_at = $this->parseDatetime($this->auroraModelData->{'Product For Sale Since Date'});
         }
-        if(!$created_at) {
-            $created_at=$this->parseDatetime($this->auroraModelData->{'Product First Sold Date'});
+        if (!$created_at) {
+            $created_at = $this->parseDatetime($this->auroraModelData->{'Product First Sold Date'});
         }
 
         $unit_price        = $this->auroraModelData->{'Product Price'} / $units;
@@ -84,23 +84,35 @@ class FetchAuroraProduct extends FetchAurora
 
 
         $this->parsedData['product'] = [
-            'type'                                 => ProductTypeEnum::PHYSICAL_GOOD,
-            'owner_type'                           => $owner_type,
-            'owner_id'                             => $owner_id,
-            'code'                                 => $code,
-            'name'                                 => $this->auroraModelData->{'Product Name'},
-            'main_outerable_price'                 => round($unit_price, 2),
-         //   'units'                 => round($units, 3),
-            'status'                => $status,
-            'state'                 => $state,
-            'data'                  => $data,
-            'settings'              => $settings,
-            'created_at'            => $created_at,
-            'trade_unit_composition'=> ProductUnitRelationshipType::SINGLE,
-            'source_id'             => $this->organisation->id.':'.$this->auroraModelData->{'Product ID'},
-            'historic_source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Product Current Key'},
-
+            'type'                   => ProductTypeEnum::PHYSICAL_GOOD,
+            'owner_type'             => $owner_type,
+            'owner_id'               => $owner_id,
+            'code'                   => $code,
+            'name'                   => $this->auroraModelData->{'Product Name'},
+            'main_outerable_price'   => round($unit_price, 2),
+            //   'units'                 => round($units, 3),
+            'status'                 => $status,
+            'state'                  => $state,
+            'data'                   => $data,
+            'settings'               => $settings,
+            'created_at'             => $created_at,
+            'trade_unit_composition' => ProductUnitRelationshipType::SINGLE,
+            'source_id'              => $this->organisation->id.':'.$this->auroraModelData->{'Product ID'},
+            'historic_source_id'     => $this->organisation->id.':'.$this->auroraModelData->{'Product Current Key'},
+            'images'                 => $this->parseImages()
         ];
+    }
+
+    private function parseImages(): array
+    {
+        $images = $this->getModelImagesCollection(
+            'Product',
+            $this->auroraModelData->{'Product ID'}
+        )->map(function ($auroraImage) {
+            return $this->fetchImage($auroraImage);
+        });
+
+        return $images->toArray();
     }
 
 

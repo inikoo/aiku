@@ -15,13 +15,12 @@ class StoreMediaFromFile
 {
     use AsAction;
 
-    public function handle($model, $imageData): Media
+    public function handle($model, $imageData, $collection): Media
     {
         $checksum = md5_file($imageData['path']);
         $oldImage = $model->image;
 
         if ($oldImage && $oldImage->checksum == $checksum) {
-
             return $model->image;
         }
 
@@ -42,12 +41,10 @@ class StoreMediaFromFile
             )
             ->usingName($imageData['originalName'])
             ->usingFileName($checksum.'.'.$extension)
-            ->toMediaCollection();
+            ->toMediaCollection($collection);
 
         UpdateIsAnimatedMedia::run($media, $imageData['path']);
 
         return $media;
-
-
     }
 }
