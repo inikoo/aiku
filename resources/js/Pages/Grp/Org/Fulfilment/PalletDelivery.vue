@@ -330,7 +330,7 @@ console.log(currentTab.value)
                     <template #content="{ close: closed }">
                         <div class="w-[350px]">
                             <span class="text-xs px-1 my-2">{{ trans('Services') }}: </span>
-                            <div>
+                            <div class="">
                                 <PureMultiselect v-model="formAddPallet.customer_reference" autofocus placeholder="Services" :options="props.service_lists"
                                     @keydown.enter="() => handleFormSubmitAddPallet(action.button, closed)" />
                                 <p v-if="get(formAddPallet, ['errors', 'service_id'])"
@@ -590,7 +590,7 @@ console.log(currentTab.value)
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
 
-     <component
+    <component
         :is="component"
         :key="timeline.state"
         :data="props[currentTab as keyof typeof props]"
