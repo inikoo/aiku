@@ -81,7 +81,7 @@ class EditProfile
                             "avatar" => [
                                 "type"  => "avatar",
                                 "label" => __("photo"),
-                                "value" => $user->avatarImageSources(320, 320)
+                                "value" => $user->imageSources(320, 320)
                             ],
                         ],
                     ],

@@ -16,6 +16,7 @@ use App\Actions\OrgAction;
 use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
 use App\Actions\SysAdmin\Organisation\SeedJobPositions;
+use App\Actions\SysAdmin\Organisation\SetIconAsShopLogo;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\Traits\Rules\WithShopRules;
 use App\Actions\Traits\WithModelAddressActions;
@@ -143,7 +144,7 @@ class StoreShop extends OrgAction
         ProspectQuerySeeder::run($shop);
         SeedShopOutboxes::run($shop);
         SeedJobPositions::run($organisation);
-
+        SetIconAsShopLogo::run($shop);
 
         return $shop;
     }

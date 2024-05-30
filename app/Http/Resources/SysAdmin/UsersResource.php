@@ -1,8 +1,8 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 07 Sept 2022 21:56:20 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 30 May 2024 08:37:52 Central European Summer Time, Mijas Costa, Spain
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Http\Resources\SysAdmin;
@@ -15,7 +15,7 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
 use JsonSerializable;
 
-class UserResource extends JsonResource
+class UsersResource extends JsonResource
 {
     public function toArray($request): array|Arrayable|JsonSerializable
     {
@@ -25,7 +25,7 @@ class UserResource extends JsonResource
         return [
             'id'            => $user->id,
             'username'      => $user->username,
-            'image'         => $user->imageSources(320, 320),
+            'image'         => $user->imageSources(48, 48),
             'email'         => $user->email,
             'about'         => $user->about,
             'status'        => match ($user->status) {

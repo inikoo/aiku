@@ -51,8 +51,8 @@ class StoreGroup
         $group->mailshotsIntervals()->create();
         $group->manufactureStats()->create();
 
-        SetGroupLogo::dispatch($group);
 
+        SetIconAsGroupImage::dispatch($group);
 
         foreach (MailroomCodeEnum::cases() as $case) {
             StoreMailroom::run(

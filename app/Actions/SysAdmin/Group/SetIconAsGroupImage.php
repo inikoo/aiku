@@ -7,41 +7,23 @@
 
 namespace App\Actions\SysAdmin\Group;
 
-use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
-use App\Enums\Helpers\Avatars\DiceBearStylesEnum;
+use App\Actions\Media\Media\StoreMediaFromIcon;
+use App\Actions\Traits\WithAttachMediaToModel;
 use App\Models\SysAdmin\Group;
-use App\Models\Media\Media;
 use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SetGroupLogo
+class SetIconAsGroupImage
 {
     use AsAction;
+    use WithAttachMediaToModel;
 
-    public function handle(Group $group): array
+    public function handle(Group $group): Group
     {
-
-        try {
-            $seed       = 'group-'.$group->id;
-            /** @var Media $media */
-            $media = $group->addMediaFromString(GetDiceBearAvatar::run(DiceBearStylesEnum::SHAPES, $seed))
-                ->preservingOriginal()
-                ->withProperties(
-                    [
-                        'group_id' => $group->id
-                    ]
-                )
-                ->usingFileName($group->slug."-logo.sgv")
-                ->toMediaCollection('logo');
-
-            $logoId = $media->id;
-
-            $group->update(['logo_id' => $logoId]);
-            return ['result' => 'success'];
-        } catch(Exception $e) {
-            return ['result' => 'error', 'message' => $e->getMessage()];
-        }
+        $media = StoreMediaFromIcon::run($group);
+        $this->attachMediaToModel($group, $media, 'logo');
+        return $group;
     }
 
 

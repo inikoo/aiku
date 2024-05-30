@@ -41,7 +41,7 @@ return new class () extends Migration {
             $table->boolean('reset_password')->default(false);
             $table->unsignedSmallInteger('language_id')->default(68);
             $table->foreign('language_id')->references('id')->on('languages');
-            $table->unsignedInteger('avatar_id')->nullable();
+            $table->unsignedInteger('image_id')->nullable();
             $table->timestampsTz();
             $table=$this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();

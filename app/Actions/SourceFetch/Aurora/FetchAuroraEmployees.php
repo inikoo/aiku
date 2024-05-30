@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
-use App\Actions\SysAdmin\User\SetUserAvatarFromImage;
+use App\Actions\Media\Media\SaveModelImage;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
@@ -32,7 +32,6 @@ class FetchAuroraEmployees extends FetchAuroraAction
 
 
         if ($employeeData = $organisationSource->fetchEmployee($organisationSourceId)) {
-
             if ($employee = Employee::where('source_id', $employeeData['employee']['source_id'])->first()) {
                 $employee = UpdateEmployee::make()->action(
                     employee: $employee,
@@ -52,12 +51,11 @@ class FetchAuroraEmployees extends FetchAuroraAction
 
 
             if (Arr::has($employeeData, 'user')) {
-
                 if ($employee->user) {
                     UpdateUser::make()->action(
                         $employee->user,
                         [
-                            'legacy_password' => (string) Arr::get($employeeData, 'user.password'),
+                            'legacy_password' => (string)Arr::get($employeeData, 'user.password'),
                             'status'          => Arr::get($employeeData, 'user.status'),
                         ]
                     );
@@ -78,19 +76,20 @@ class FetchAuroraEmployees extends FetchAuroraAction
                 }
             }
 
-            if($employee->user) {
-
-
+            if ($employee->user) {
                 foreach ($employeeData['photo'] ?? [] as $profileImage) {
                     if (isset($profileImage['image_path']) and isset($profileImage['filename'])) {
-                        SetUserAvatarFromImage::run(
+                        SaveModelImage::run(
                             $employee->user,
-                            $profileImage['image_path'],
-                            $profileImage['filename']
+                            [
+                                'path'         => $profileImage['image_path'],
+                                'originalName' => $profileImage['filename'],
+
+                            ],
+                            'avatar'
                         );
                     }
                 }
-
             }
 
 
