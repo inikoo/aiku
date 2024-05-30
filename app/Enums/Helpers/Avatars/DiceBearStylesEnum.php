@@ -12,7 +12,6 @@ enum DiceBearStylesEnum: string
     case IDENTICON = 'identicon';
     case SHAPES    = 'shapes';
     case INITIALS  = 'initials';
-
-    case RINGS  = 'rings';
-    case BOTTTS ='bottts';
+    case BOTS      = 'bottts-neutral';
+    case RINGS     = 'rings';
 }

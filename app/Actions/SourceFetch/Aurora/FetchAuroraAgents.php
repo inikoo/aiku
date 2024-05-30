@@ -7,6 +7,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Media\Media\SaveModelImage;
 use App\Actions\Procurement\OrgAgent\StoreOrgAgent;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Agent\UpdateAgent;
@@ -14,6 +15,7 @@ use App\Models\Procurement\OrgAgent;
 use App\Models\SupplyChain\Agent;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraAgents extends FetchAuroraAction
@@ -41,6 +43,21 @@ class FetchAuroraAgents extends FetchAuroraAction
                     group: $organisation->group,
                     modelData: $agentData['agent'],
                 );
+                $agent->refresh();
+                foreach (Arr::get($agentData, 'photo', []) as $photoData) {
+                    if (isset($photoData['image_path']) and isset($photoData['filename'])) {
+                        SaveModelImage::run(
+                            $agent,
+                            [
+                                'path'         => $photoData['image_path'],
+                                'originalName' => $photoData['filename'],
+
+                            ],
+                            'photo'
+                        );
+                    }
+                }
+
             }
 
 
@@ -59,11 +76,9 @@ class FetchAuroraAgents extends FetchAuroraAction
                     ]
                 );
 
-                /*
-                foreach ($agentData['photo'] as $photoData) {
-                    $this->saveImage($agent, $photoData);
-                }
-                */
+
+
+
 
                 $sourceData = explode(':', $agentData['agent']['source_id']);
 

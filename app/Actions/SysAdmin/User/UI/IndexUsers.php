@@ -15,7 +15,7 @@ use App\Enums\SysAdmin\User\UserTypeEnum;
 use App\Enums\UI\SysAdmin\UsersTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\SysAdmin\UserRequestLogsResource;
-use App\Http\Resources\SysAdmin\UserResource;
+use App\Http\Resources\SysAdmin\UsersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\User;
@@ -108,7 +108,7 @@ class IndexUsers extends InertiaAction
 
         return $queryBuilder->with('parent')
             ->defaultSort('username')
-            ->select(['username', 'parent_type', 'parent_id', 'email', 'contact_name', 'avatar_id', 'status'])
+            ->select(['username', 'parent_type', 'parent_id', 'email', 'contact_name', 'image_id', 'status'])
             ->allowedSorts(['username', 'email', 'parent_type', 'contact_name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -138,7 +138,7 @@ class IndexUsers extends InertiaAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->column(key: 'status', label: ['data' => ['fal', 'fa-yin-yang'], 'type' => 'icon', 'tooltip' => __('status')], type: 'icon')
-                ->column(key: 'avatar', label: ['data' => ['fal', 'fa-user-circle'], 'type' => 'icon', 'tooltip' => __('avatar')], type: 'avatar')
+                ->column(key: 'image', label: ['data' => ['fal', 'fa-user-circle'], 'type' => 'icon', 'tooltip' => __('avatar')], type: 'avatar')
                 ->column(key: 'username', label: __('username'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'contact_name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'parent_type', label: __('type'), canBeHidden: false, sortable: true)
@@ -156,7 +156,7 @@ class IndexUsers extends InertiaAction
 
     public function jsonResponse(LengthAwarePaginator $users): AnonymousResourceCollection
     {
-        return UserResource::collection($users);
+        return UsersResource::collection($users);
     }
 
 

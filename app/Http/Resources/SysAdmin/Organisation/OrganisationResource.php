@@ -25,7 +25,7 @@ class OrganisationResource extends JsonResource
             'slug'  => $organisation->slug,
             'name'  => $organisation->name,
             'email' => $organisation->email,
-            'logo'  => $organisation->logoImageSources(48, 48),
+            'logo'  => $organisation->imageSources(48, 48),
         ];
     }
 }

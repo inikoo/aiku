@@ -52,6 +52,9 @@ class StoreOrganisation
         /** @var Organisation $organisation */
         $organisation = $group->organisations()->create($modelData);
         $organisation->refresh();
+
+        SetIconAsOrganisationImage::dispatch($organisation);
+
         SeedOrganisationPermissions::run($organisation);
         SeedJobPositions::run($organisation);
 

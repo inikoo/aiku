@@ -54,8 +54,7 @@ use App\Models\SupplyChain\Agent;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;
-use App\Models\Traits\HasLogo;
-use App\Models\Traits\HasPhoto;
+use App\Models\Traits\HasImage;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Collection as LaravelCollection;
@@ -93,7 +92,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $language_id
  * @property int $timezone_id
  * @property int $currency_id customer accounting currency
- * @property int|null $logo_id
+ * @property int|null $image_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $deleted_at
@@ -117,6 +116,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Fulfilment> $fulfilments
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\OrganisationHumanResourcesStats|null $humanResourcesStats
+ * @property-read Media|null $image
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images
  * @property-read \App\Models\SysAdmin\OrganisationInventoryStats|null $inventoryStats
  * @property-read LaravelCollection<int, Invoice> $invoices
  * @property-read LaravelCollection<int, JobPosition> $jobPositions
@@ -172,8 +173,7 @@ class Organisation extends Model implements HasMedia, Auditable
     use HasFactory;
     use HasSlug;
     use InteractsWithMedia;
-    use HasLogo;
-    use HasPhoto;
+    use HasImage;
     use HasAddress;
     use HasAddresses;
     use HasHistory;

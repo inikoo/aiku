@@ -23,6 +23,8 @@ return new class () extends Migration {
             $table->string('name')->index()->comment('mirror of organisation');
             $table->boolean('status')->default(true)->index();
             $table->string('slug')->unique()->collation('und_ns');
+            $table->unsignedInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('media')->onDelete('cascade');
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_slug')->index()->nullable();

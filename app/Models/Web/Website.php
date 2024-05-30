@@ -18,7 +18,6 @@ use App\Models\Media\Media;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
-use App\Models\Traits\HasLogo;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
 use Eloquent;
@@ -36,8 +35,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -87,8 +84,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images
  * @property-read Snapshot|null $liveSnapshot
- * @property-read Media|null $logo
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read Organisation $organisation
  * @property-read Shop $shop
  * @property-read Collection<int, Snapshot> $snapshots
@@ -107,15 +102,13 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Website withoutTrashed()
  * @mixin Eloquent
  */
-class Website extends Model implements Auditable, HasMedia
+class Website extends Model implements Auditable
 {
     use HasSlug;
     use SoftDeletes;
     use HasHistory;
     use HasUniversalSearch;
     use HasFactory;
-    use InteractsWithMedia;
-    use HasLogo;
     use InShop;
 
     protected $casts = [

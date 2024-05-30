@@ -16,7 +16,7 @@ use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
-use App\Models\Traits\HasPhoto;
+use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,7 +29,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
-use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -43,6 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $name mirror of organisation
  * @property bool $status
  * @property string $slug
+ * @property int|null $image_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
@@ -51,7 +52,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency|null $currency
  * @property-read Group $group
- * @property-read MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read \App\Models\Media\Media|null $image
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $images
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read Collection<int, OrgAgent> $orgAgents
  * @property-read Collection<int, OrgSupplier> $orgSuppliers
  * @property-read Organisation $organisation
@@ -70,14 +73,14 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Agent withoutTrashed()
  * @mixin Eloquent
  */
-class Agent extends Model implements Auditable
+class Agent extends Model implements HasMedia, Auditable
 {
     use SoftDeletes;
     use HasSlug;
     use HasUniversalSearch;
-    use HasPhoto;
     use HasFactory;
     use HasHistory;
+    use HasImage;
 
     protected $casts = [
         'status'      => 'boolean',

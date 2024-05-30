@@ -7,14 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Media\Media\UpdateIsAnimatedMedia;
 use App\Actions\SourceFetch\FetchAction;
-use App\Actions\SysAdmin\User\UpdateUser;
 use App\Enums\Helpers\Fetch\FetchTypeEnum;
 use App\Models\Catalogue\Shop;
-use App\Models\Media\Media;
-use App\Models\SupplyChain\Agent;
-use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
@@ -154,50 +149,6 @@ class FetchAuroraAction extends FetchAction
             return [
                 'error' => 'model not returned'
             ];
-        }
-    }
-
-    /**
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileDoesNotExist
-     * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
-     */
-    public function saveImage(Agent|Supplier $model, $imageData, $imageField = 'image_id', $mediaCollection = 'photo'): void
-    {
-        if (array_key_exists('image_path', $imageData) and file_exists($imageData['image_path'])) {
-            $imagePath  = $imageData['image_path'];
-            $filename   = $imageData['filename'];
-            $checksum   = md5_file($imagePath);
-
-            if ($model->getMedia($mediaCollection, ['checksum' => $checksum])->count() == 0) {
-
-                $model->update([$imageField => null]);
-                /** @var Media $media */
-                $media = $model->addMedia($imagePath)
-                    ->preservingOriginal()
-                    ->withProperties(
-                        [
-                            'checksum' => $checksum,
-                            'group_id' => $model->group_id
-                        ]
-                    )
-                    ->usingName($filename)
-                    ->usingFileName($checksum.".".pathinfo($imagePath, PATHINFO_EXTENSION))
-                    ->toMediaCollection($mediaCollection);
-
-                $media->refresh();
-                UpdateIsAnimatedMedia::run($media, $imagePath);
-
-                if (class_basename($model) == 'User') {
-                    UpdateUser::run(
-                        $model,
-                        [
-                            'avatar_id' => $media->id
-                        ]
-                    );
-                } else {
-                    $model->update([$imageField => $media->id]);
-                }
-            }
         }
     }
 

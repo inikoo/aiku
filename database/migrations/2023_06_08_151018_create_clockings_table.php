@@ -27,8 +27,8 @@ return new class () extends Migration {
             $table->string('generator_type')->nullable();
             $table->unsignedInteger('generator_id')->nullable();
             $table->text('notes')->nullable();
-            $table->unsignedSmallInteger('photo_id')->nullable();
-
+            $table->unsignedInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('media')->onDelete('cascade');
             $table->timestampsTz();
             $table->softDeletes();
             $table->nullableMorphs('deleted_by');
