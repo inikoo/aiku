@@ -368,6 +368,16 @@ class Shop extends Model
         return $this->hasMany(Collection::class);
     }
 
+    public function services(): HasMany
+    {
+        return $this->hasMany(Service::class);
+    }
+
+    public function outers(): HasMany
+    {
+        return $this->hasMany(Outer::class);
+    }
+
     public function collectionAddress(): BelongsTo
     {
         return $this->belongsTo(Address::class, 'collection_address_id');
