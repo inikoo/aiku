@@ -298,7 +298,7 @@ class IndexPallets extends OrgAction
         return $this->handle($fulfilment, 'pallets');
     }
 
-    public function inLocation(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment,  Location $location, ActionRequest $request): LengthAwarePaginator
+    public function inLocation(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, Location $location, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $location;
         $this->initialisationFromWarehouse($warehouse, $request);

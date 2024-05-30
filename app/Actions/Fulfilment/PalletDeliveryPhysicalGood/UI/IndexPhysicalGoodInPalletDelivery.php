@@ -74,6 +74,7 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
                 'products.main_outerable_price',
                 'products.description',
                 'currencies.code as currency_code',
+                'pallet_delivery_physical_goods.quantity'
             ]);
 
         return $queryBuilder->allowedSorts(['id','price','name','state'])
@@ -106,7 +107,7 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
                         ],
                         'PalletDelivery' => [
                             'icons' => ['fal fa-cube'],
-                            'title' => '',
+                            'title' => __('No physical goods selected'),
                             'count' => $parent->stats->number_physical_goods,
                         ],
                         default => null
@@ -117,6 +118,7 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
                 ->column(key: 'state', label: '', canBeHidden: false, type: 'icon')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
                 ->defaultSort('code');
         };
