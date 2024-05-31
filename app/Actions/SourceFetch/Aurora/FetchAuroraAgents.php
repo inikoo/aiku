@@ -7,7 +7,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Media\Media\SaveModelImage;
+use App\Actions\Studio\Media\SaveModelImage;
 use App\Actions\Procurement\OrgAgent\StoreOrgAgent;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Agent\UpdateAgent;

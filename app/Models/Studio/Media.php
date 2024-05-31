@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Media;
+namespace App\Models\Studio;
 
 use App\Helpers\ImgProxy\Image;
 use App\Models\Traits\IsMedia;

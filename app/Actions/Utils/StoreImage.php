@@ -7,7 +7,7 @@
 
 namespace App\Actions\Utils;
 
-use App\Actions\Media\Media\UpdateIsAnimatedMedia;
+use App\Actions\Studio\Media\UpdateIsAnimatedMedia;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\Customer;
 use App\Models\Goods\TradeUnit;

@@ -10,7 +10,7 @@ namespace App\Models\Mail;
 use App\Actions\Utils\Abbreviate;
 use App\Models\Helpers\Deployment;
 use App\Models\Helpers\Snapshot;
-use App\Models\Media\Media;
+use App\Models\Studio\Media;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

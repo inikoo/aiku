@@ -4,9 +4,11 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { Link } from "@inertiajs/vue3"
-import { inject } from "vue"
+import { inject, onMounted, onBeforeUnmount } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import Profile from "@/Pages/Grp/Profile.vue"
+import axios from "axios"
+import { notify } from "@kyvg/vue3-notification"
 
 library.add(faEnvelope, faEnvelopeOpenText)
 
@@ -16,10 +18,75 @@ const props = defineProps<{
 
 const layout = inject('layout', layoutStructure)
 // console.log('ewew', layout.user.notifications)
+
+
+// Method: set all notifications to read = true
+const setAllToRead = async () => {
+    try {
+        const response = await axios.patch(
+            route('grp.models.notifications.all.read')
+        )
+
+        layout.user.notifications.map(notif => notif.read = true)  // Manipulation data in FE
+
+        notify({
+            title: 'All notifications already marks.',
+            text: undefined,
+            type: 'success'
+        })
+    } catch (error: any) {
+        console.log(error)
+        notify({
+            title: 'Error on set notifications.',
+            text: error,
+            type: 'error'
+        })
+    }
+}
+
+// Method: set selected notification to read = true
+const setNotificationToRead = async (notifId: string) => {
+    props.close()
+    if (layout.user.notifications.find(notif => notif.id === notifId && !notif.read)){
+        console.log('inside')
+        try {
+            const response = await axios.patch(
+                route('grp.models.notifications.read', notifId)
+            )
+    
+    
+        } catch (error: any) {
+            console.log(error)
+            notify({
+                title: 'Error on set notifications.',
+                text: error,
+                type: 'error'
+            })
+        }
+    }
+}
+
+let timer: ReturnType<typeof setTimeout> | null = null
+onMounted(async () => {
+    timer = setTimeout(async () => {
+        // await setAllToRead()
+        timer = null
+    }, 2500)
+})
+
+onBeforeUnmount(() => {
+    if (timer) {
+        clearTimeout(timer)
+    }
+})
 </script>
 
 <template>
     <div class="flex items-center flex-col w-full overflow-auto min-h-11 max-h-96">
+        <div @click="() => setAllToRead()" class="place-self-end text-gray-500 hover:text-indigo-500 cursor-pointer text-sm">
+            Marks all as read
+        </div>
+        
         <ul v-if="layout.user.notifications.length" role="list" class="w-full divide-y divide-gray-100 overflow-y-auto">
             <li v-for="notif in layout.user.notifications" :key="notif.id"
                 class="relative flex justify-between gap-x-6 px-1 py-2 hover:bg-gray-50 sm:px-2">
@@ -27,7 +94,11 @@ const layout = inject('layout', layoutStructure)
                     :class="['h-8 w-8 flex-none m-auto', notif.read && 'text-gray-400']" />
                 <div class="min-w-0 flex-auto relative">
                     <div class="text-sm font-semibold leading-6" :class="[notif.read ? 'text-gray-400' : '']">
-                        <component :is="notif.href ? Link : 'div'" :href="notif.href">
+                        <component
+                            :is="notif.href ? Link : 'div'"
+                            :href="notif.href"
+                            @success="() => setNotificationToRead(notif.id)"
+                        >
                             <span class="absolute inset-x-0 -top-px bottom-0"></span>
                             {{ notif.title }}
                         </component>

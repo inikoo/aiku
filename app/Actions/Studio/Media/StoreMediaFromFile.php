@@ -5,9 +5,9 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Media\Media;
+namespace App\Actions\Studio\Media;
 
-use App\Models\Media\Media;
+use App\Models\Studio\Media;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 

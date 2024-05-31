@@ -14,7 +14,7 @@ use App\Models\Helpers\Barcode;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\LocationOrgStock;
 use App\Models\Inventory\OrgStock;
-use App\Models\Media\Media;
+use App\Models\Studio\Media;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasImage;

@@ -8,7 +8,6 @@
 namespace App\Http\Resources\Catalogue;
 
 use App\Http\Resources\Assets\CurrencyResource;
-use App\Models\Fulfilment\RentalAgreement;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ServicesResource extends JsonResource
@@ -20,6 +19,7 @@ class ServicesResource extends JsonResource
 
         return [
             'id'                                => $service->id,
+            'product_id'                        => $service->product_id,
             'slug'                              => $service->product->slug,
             'name'                              => $service->product->name,
             'code'                              => $service->product->code,

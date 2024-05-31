@@ -10,9 +10,9 @@ namespace App\Actions\Fulfilment\RentalAgreement\UI;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
-use App\Http\Resources\Catalogue\OutersResource;
-use App\Http\Resources\Catalogue\RentalsResource;
-use App\Http\Resources\Catalogue\ServicesResource;
+use App\Http\Resources\Catalogue\OuterClausesResource;
+use App\Http\Resources\Catalogue\RentalClausesResource;
+use App\Http\Resources\Catalogue\ServiceClausesResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\RentalAgreement;
@@ -31,18 +31,18 @@ class EditRentalAgreement extends OrgAction
     public function handle(RentalAgreement $rentalAgreement, ActionRequest $request): Response
     {
         $rentals = [];
-
         foreach ($rentalAgreement->fulfilmentCustomer->rentalAgreementClauses as $clause) {
-            $price       = $clause->rental->product->main_outerable_price;
+            $price       = $clause->product->main_outerable_price;
             $agreedPrice = $clause->agreed_price;
 
             $rentals[] = [
-                'rental'       => $clause->rental_id,
-                'agreed_price' => $agreedPrice,
-                'price'        => $price,
-                'discount'     => ($price - $agreedPrice) / $agreedPrice * 100
+                'product_id'       => $clause->product_id,
+                'agreed_price'     => $agreedPrice,
+                'price'            => $price,
+                'discount'         => ($price - $agreedPrice) / $agreedPrice * 100
             ];
         }
+        // dd($rentalAgreement->clauses->pluck('agreed_price'));
 
         return Inertia::render(
             'EditModel',
@@ -80,9 +80,9 @@ class EditRentalAgreement extends OrgAction
                                         'label'            => __('Rental'),
                                         'required'         => false,
                                         'full'             => true,
-                                        'rentals'          => RentalsResource::collection($rentalAgreement->fulfilment->rentals),
-                                        'services'         => ServicesResource::collection($rentalAgreement->fulfilment->shop->services),
-                                        'physical_goods'   => OutersResource::collection($rentalAgreement->fulfilment->shop->outers),
+                                        'rentals'          => RentalClausesResource::collection($rentalAgreement->clauses->where('type', 'rental')),
+                                        'services'         => ServiceClausesResource::collection($rentalAgreement->clauses->where('type', 'service')),
+                                        'physical_goods'   => OuterClausesResource::collection($rentalAgreement->clauses->where('type', 'physical_good')),
                                         'clauses'          => $rentalAgreement->clauses,
                                         // 'indexRentalRoute' => [
                                         //     'name'       => 'grp.org.fulfilments.show.products.rentals.index',
@@ -91,7 +91,10 @@ class EditRentalAgreement extends OrgAction
                                         //         'fulfilment'   => $rentalAgreement->fulfilment->slug
                                         //     ]
                                         // ],
-                                        'value' => $rentals
+                                        'value'          => $rentals
+
+
+
                                     ],
                                 ]
                             ]

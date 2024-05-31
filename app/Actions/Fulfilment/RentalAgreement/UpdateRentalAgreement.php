@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\RentalAgreement;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStatus;
+use App\Actions\Fulfilment\RentalAgreementClause\UpdateRentalAgreementClause;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
@@ -27,6 +28,7 @@ class UpdateRentalAgreement extends OrgAction
 
     public function handle(RentalAgreement $rentalAgreement, array $modelData): RentalAgreement
     {
+
         $oldData = [
             'billing_cycle' => $rentalAgreement->billing_cycle,
             'pallets_limit' => $rentalAgreement->pallets_limit,
@@ -61,6 +63,39 @@ class UpdateRentalAgreement extends OrgAction
 
         }
 
+        $causes=Arr::get($modelData, 'rental', []);
+        // dd($causes);
+        foreach ($rentalAgreement->clauses as $clause) {
+            $productId = $clause->product_id;
+
+            if (isset($modelData['rental']['rentals'])) {
+                foreach ($modelData['rental']['rentals'] as $rentalData) {
+                    if ($rentalData['product_id'] === $productId) {
+                        UpdateRentalAgreementClause::run($clause, $rentalData);
+                        break;
+                    }
+                }
+            }
+
+            if (isset($modelData['rental']['services'])) {
+                foreach ($modelData['rental']['services'] as $serviceData) {
+                    if ($serviceData['product_id'] === $productId) {
+                        UpdateRentalAgreementClause::run($clause, $serviceData);
+                        break;
+                    }
+                }
+            }
+
+            if (isset($modelData['rental']['physical_goods'])) {
+                foreach ($modelData['rental']['physical_goods'] as $physicalGoodsData) {
+                    if ($physicalGoodsData['product_id'] === $productId) {
+                        UpdateRentalAgreementClause::run($clause, $physicalGoodsData);
+                        break;
+                    }
+                }
+            }
+        }
+
 
         FulfilmentCustomerHydrateStatus::run($rentalAgreement->fulfilmentCustomer);
 
@@ -70,14 +105,34 @@ class UpdateRentalAgreement extends OrgAction
     public function rules(): array
     {
         return [
-            'billing_cycle'         => ['sometimes', 'string', Rule::in(RentalAgreementBillingCycleEnum::values())],
-            'pallets_limit'         => ['sometimes', 'integer', 'min:1', 'max:10000'],
-            'rental'                => ['sometimes', 'array'],
-            'rental.*.rental'       => ['sometimes', 'exists:rentals,id'],
-            'rental.*.agreed_price' => ['sometimes', 'numeric', 'gt:0'],
-            'rental.*.price'        => ['sometimes', 'numeric', 'gt:0'],
+            'billing_cycle'                  => ['sometimes', 'string', Rule::in(RentalAgreementBillingCycleEnum::values())],
+            'pallets_limit'                  => ['sometimes', 'integer', 'min:1', 'max:10000'],
+            'rental'                         => ['sometimes', 'array'],
+            'rental.rentals.*.product_id'    => ['sometimes',
+                                         Rule::exists('products', 'id')
+
+                ],
+            'rental.rentals.*.agreed_price'  => ['sometimes', 'numeric', 'gt:0'],
+            // 'rental.rentals.*.price'         => ['sometimes', 'numeric', 'gt:0'],
+            'rental.services.*.product_id'    => ['sometimes',
+                                         Rule::exists('products', 'id')
+
+                ],
+            'rental.services.*.agreed_price'  => ['sometimes', 'numeric', 'gt:0'],
+            // 'rental.services.*.price'         => ['sometimes', 'numeric', 'gt:0'],
+            'rental.physical_goods.*.product_id'    => ['sometimes',
+                                         Rule::exists('products', 'id')
+
+                ],
+            'rental.physical_goods.*.agreed_price'  => ['sometimes', 'numeric', 'gt:0'],
+            // 'rental.physical_goods.*.price'         => ['sometimes', 'numeric', 'gt:0'],
         ];
     }
+
+    // public function afterValidator($validator)
+    // {
+    //     dd($validator);
+    // }
 
     public function action(FulfilmentCustomer $fulfilmentCustomer, RentalAgreement $rentalAgreement, array $modelData): RentalAgreement
     {

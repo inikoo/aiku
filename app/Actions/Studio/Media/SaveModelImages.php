@@ -5,12 +5,12 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Media\Media;
+namespace App\Actions\Studio\Media;
 
-use App\Actions\Media\Media\Hydrators\MediaHydrateMultiplicity;
-use App\Actions\Media\Media\Hydrators\MediaHydrateUsage;
+use App\Actions\Studio\Media\Hydrators\MediaHydrateMultiplicity;
+use App\Actions\Studio\Media\Hydrators\MediaHydrateUsage;
 use App\Models\Catalogue\Product;
-use App\Models\Media\Media;
+use App\Models\Studio\Media;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class SaveModelImages

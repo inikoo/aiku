@@ -8,7 +8,7 @@
 namespace App\Actions\UI\Profile;
 
 use App\Actions\GrpAction;
-use App\Actions\Media\Media\SaveModelImage;
+use App\Actions\Studio\Media\SaveModelImage;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\UploadedFile;
@@ -29,13 +29,14 @@ class UpdateProfile extends GrpAction
             $image = Arr::get($modelData, 'image');
             data_forget($modelData, 'image');
             $imageData = [
-                'pathName'                => $image->getPathName(),
-                'clientOriginalName'      => $image->getClientOriginalName(),
-                'clientOriginalExtension' => $image->getClientOriginalExtension(),
+                'path'         => $image->getPathName(),
+                'originalName' => $image->getClientOriginalName(),
+                'extension'    => $image->getClientOriginalExtension(),
             ];
             $user      = SaveModelImage::run(
                 model: $user,
-                imageData: $imageData
+                imageData: $imageData,
+                scope: 'avatar'
             );
         }
 

@@ -7,11 +7,11 @@
 
 namespace App\Actions\Traits;
 
-use App\Actions\Media\Media\UpdateIsAnimatedMedia;
+use App\Actions\Studio\Media\UpdateIsAnimatedMedia;
 use App\Models\CRM\WebUser;
 use App\Models\HumanResources\Clocking;
 use App\Models\Mail\EmailTemplate;
-use App\Models\Media\Media;
+use App\Models\Studio\Media;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use App\Models\Web\Website;

@@ -15,8 +15,10 @@ enum RecurringBillTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE = 'showcase';
-    case PALLETS  = 'pallets';
+    case SHOWCASE        = 'showcase';
+    case PALLETS         = 'pallets';
+    case SERVICES        = 'services';
+    case PHYSICAL_GOODS  = 'physical_goods';
 
     case DATA    = 'data';
     case HISTORY = 'history';
@@ -31,6 +33,14 @@ enum RecurringBillTabsEnum: string
             RecurringBillTabsEnum::PALLETS => [
                 'title' => __('pallets'),
                 'icon'  => 'fal fa-pallet',
+            ],
+            RecurringBillTabsEnum::SERVICES => [
+                'title' => __('services'),
+                'icon'  => 'fal fa-concierge-bell',
+            ],
+            RecurringBillTabsEnum::PHYSICAL_GOODS => [
+                'title' => __('physical goods'),
+                'icon'  => 'fal fa-cube',
             ],
             RecurringBillTabsEnum::DATA => [
                 'align' => 'right',

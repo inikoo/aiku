@@ -8,7 +8,6 @@
 namespace App\Http\Resources\Catalogue;
 
 use App\Http\Resources\Assets\CurrencyResource;
-use App\Models\Fulfilment\RentalAgreement;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class RentalsResource extends JsonResource
@@ -20,6 +19,7 @@ class RentalsResource extends JsonResource
 
         return [
             'id'                                => $rental->id,
+            'product_id'                        => $rental->product_id,
             'slug'                              => $rental->product->slug,
             'name'                              => $rental->product->name,
             'code'                              => $rental->product->code,
@@ -28,7 +28,7 @@ class RentalsResource extends JsonResource
             'discount'                          => 0,
             'original_price'                    => $rental->price,
             'unit'                              => $rental->unit,
-            'currency'                          => CurrencyResource::make($rental->product->currency) 
+            'currency'                          => CurrencyResource::make($rental->product->currency)
         ];
     }
 }

@@ -5,12 +5,12 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Media\Media;
+namespace App\Actions\Studio\Media;
 
 use App\Actions\HydrateModel;
-use App\Actions\Media\Media\Hydrators\MediaHydrateMultiplicity;
-use App\Actions\Media\Media\Hydrators\MediaHydrateUsage;
-use App\Models\Media\Media;
+use App\Actions\Studio\Media\Hydrators\MediaHydrateMultiplicity;
+use App\Actions\Studio\Media\Hydrators\MediaHydrateUsage;
+use App\Models\Studio\Media;
 use Illuminate\Console\Command;
 
 class HydrateMedia extends HydrateModel

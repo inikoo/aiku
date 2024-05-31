@@ -171,8 +171,8 @@ class AppServiceProvider extends ServiceProvider
                 'OfferCampaign'                   => 'App\Models\Marketing\OfferCampaign',
                 'OfferComponent'                  => 'App\Models\Marketing\OfferComponent',
 
-                // Media
-                'Media'                  => 'App\Models\Media\Media',
+                // Studio
+                'Studio'                  => 'App\Models\Media\Media',
 
                 // Notifications
                 'FcmToken'                  => 'App\Models\Notifications\FcmToken',

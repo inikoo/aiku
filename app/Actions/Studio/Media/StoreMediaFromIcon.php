@@ -5,13 +5,13 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Media\Media;
+namespace App\Actions\Studio\Media;
 
 use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
 use App\Enums\Helpers\Avatars\DiceBearStylesEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\WebUser;
-use App\Models\Media\Media;
+use App\Models\Studio\Media;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;

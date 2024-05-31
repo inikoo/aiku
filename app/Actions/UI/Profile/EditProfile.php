@@ -78,9 +78,9 @@ class EditProfile
                                 "rows"          => 5,
                                 "placeholder"   => __('Enter up to 50 characters')
                             ],
-                            "avatar" => [
+                            "image" => [
                                 "type"  => "avatar",
-                                "label" => __("photo"),
+                                "label" => __("Logo"),
                                 "value" => $user->imageSources(320, 320)
                             ],
                         ],

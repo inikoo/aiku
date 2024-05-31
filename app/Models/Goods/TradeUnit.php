@@ -48,9 +48,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_slug
  * @property string|null $source_id
  * @property-read Group $group
- * @property-read \App\Models\Media\Media|null $image
- * @property-read MediaCollection<int, \App\Models\Media\Media> $images
- * @property-read MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read \App\Models\Studio\Media|null $image
+ * @property-read MediaCollection<int, \App\Models\Studio\Media> $images
+ * @property-read MediaCollection<int, \App\Models\Studio\Media> $media
  * @property-read Collection<int, Product> $products
  * @property-read Collection<int, Stock> $stocks
  * @method static \Database\Factories\Goods\TradeUnitFactory factory($count = null, $state = [])

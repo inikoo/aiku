@@ -46,16 +46,16 @@ class IndexRecurringBills extends OrgAction
 
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(RecurringBillsTabsEnum::values());
 
-        return $this->handle($fulfilment);
+        return $this->handle($fulfilment, RecurringBillsTabsEnum::RECURRING_BILLS->value);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilmentCustomer;
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(RecurringBillsTabsEnum::values());
 
-        return $this->handle($fulfilmentCustomer);
+        return $this->handle($fulfilmentCustomer, RecurringBillsTabsEnum::RECURRING_BILLS->value);
     }
 
     public function handle(Fulfilment|FulfilmentCustomer $parent, $prefix = null): LengthAwarePaginator

@@ -1,19 +1,19 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 06 Mar 2023 00:07:47 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sat, 25 May 2024 13:47:14 British Summer Time, Sheffield, UK
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Media\Media\Hydrators;
+namespace App\Actions\Studio\Media\Hydrators;
 
-use App\Models\Media\Media;
+use App\Models\Studio\Media;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class MediaHydrateUsage implements ShouldBeUnique
+class MediaHydrateMultiplicity implements ShouldBeUnique
 {
     use AsAction;
 
@@ -31,10 +31,8 @@ class MediaHydrateUsage implements ShouldBeUnique
 
     public function handle(Media $media): void
     {
-        if (!$media->is_fixed) {
-            $usage = DB::table('model_has_media')->where('media_id', $media->id)->where('group_id', $media->group_id)->count();
-            $media->update(['usage' => $usage]);
-        }
+        $multiplicity = DB::table('media')->where('checksum', $media->checksum)->where('group_id', $media->group_id)->count();
+        $media->update(['multiplicity' => $multiplicity]);
     }
 
 
