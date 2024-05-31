@@ -47,6 +47,7 @@ return new class () extends Migration {
             $table->unsignedInteger('image_id')->nullable();
             $table->foreign('image_id')->references('id')->on('media')->onDelete('cascade');
             $table->decimal('rrp', 12, 3)->nullable()->comment('RRP per outer');
+            $table->string('barcode')->index()->nullable()->comment('mirror from trade_unit');
             $table->jsonb('settings');
             $table->jsonb('data');
             $table->unsignedSmallInteger('family_id')->nullable();

@@ -31,7 +31,6 @@ return new class () extends Migration {
 
             $table->boolean('sellable')->default(1)->index();
             $table->boolean('raw_material')->default(0)->index();
-            $table->string('barcode')->index()->nullable();
             $table->unsignedInteger('units_per_pack')->nullable()->comment('units per pack');
             $table->unsignedInteger('units_per_carton')->nullable()->comment('units per carton');
             $table->decimal('unit_value', 16)->nullable();

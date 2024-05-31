@@ -20,6 +20,8 @@ return new class () extends Migration {
             $table->string('code')->index();
             $table->string('name', 255)->nullable();
             $table->text('description')->nullable();
+            $table->unsignedInteger('barcode_id')->index()->nullable();
+            $table->foreign('barcode_id')->references('id')->on('barcodes')->onUpdate('cascade')->onDelete('cascade');
             $table->string('barcode')->index()->nullable();
             $table->float('gross_weight')->nullable()->comment('in kilograms include packing');
             $table->float('net_weight')->nullable()->comment('in kilograms');
