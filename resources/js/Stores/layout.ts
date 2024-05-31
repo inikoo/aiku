@@ -11,7 +11,6 @@ import { defineStore } from "pinia"
 import { Image } from "@/types/Image"
 import { Colors } from "@/types/Color"
 import { OrganisationsData, Group, OrganisationState, StackedComponent} from '@/types/LayoutRules'
-import Profile from "@/Pages/Grp/Profile.vue"
 
 
 export const useLayoutStore = defineStore("layout", {
