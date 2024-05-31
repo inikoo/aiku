@@ -22,6 +22,7 @@ class OutersResource extends JsonResource
             'code'                  => $outer->code,
             'name'                  => $outer->name,
             'price'                 => $outer->price,
+            'original_price'        => $outer->price,
             'unit'                  => $outer->unit,
             'currency'              => CurrencyResource::make($outer->product->currency),
             'state'                 => $outer->state,
