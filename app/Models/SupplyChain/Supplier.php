@@ -16,6 +16,7 @@ use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
+use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
@@ -100,6 +101,7 @@ class Supplier extends Model implements HasMedia, Auditable
     use HasImage;
     use HasFactory;
     use HasHistory;
+    use HasAttachments;
 
     protected $casts = [
         'data'        => 'array',

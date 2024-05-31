@@ -7,6 +7,7 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Studio\Attachment\SaveModelAttachment;
 use App\Actions\Studio\Media\SaveModelImage;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
@@ -100,8 +101,30 @@ trait FetchSuppliersTrait
             );
         }
 
+        if (in_array('attachments', $this->with)) {
+            $sourceData= explode(':', $supplier->source_id);
+            foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
+
+                SaveModelAttachment::run(
+                    $supplier,
+                    $attachmentData['fileData'],
+                    $attachmentData['modelData'],
+                );
+                $attachmentData['temporaryDirectory']->delete();
+            }
+        }
+
 
         return $supplier;
+    }
+
+    private function parseAttachments($staffKey): array
+    {
+        $attachments            = $this->getModelAttachmentsCollection(
+            'Supplier',
+            $staffKey
+        )->map(function ($auroraAttachment) {return $this->fetchAttachment($auroraAttachment);});
+        return $attachments->toArray();
     }
 
 

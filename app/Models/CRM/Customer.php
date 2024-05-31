@@ -29,6 +29,7 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
+use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
@@ -132,6 +133,7 @@ class Customer extends Model implements HasMedia, Auditable
     use HasFactory;
     use HasHistory;
     use InShop;
+    use HasAttachments;
 
     protected $casts = [
         'data'           => 'array',

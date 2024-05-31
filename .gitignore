@@ -68,3 +68,4 @@ push.sh
 /restart_elasticsearch.sh
 /create_wowsbar_organisations.sh
 /public/aiku-public/*
+/storage/app/var/*

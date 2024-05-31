@@ -9,16 +9,20 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
+use App\Actions\Studio\Attachment\SaveModelAttachment;
 use App\Enums\Ordering\Transaction\TransactionTypeEnum;
 use App\Models\Accounting\Payment;
 use App\Models\Ordering\Order;
+use App\Services\Organisation\Aurora\WithAuroraAttachments;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraOrders extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:orders {organisations?*} {--S|shop= : Shop slug}  {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    use WithAuroraAttachments;
+
+    public string $commandSignature = 'fetch:orders {organisations?*} {--S|shop= : Shop slug}  {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments attachments full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions=false): ?Order
     {
@@ -94,11 +98,32 @@ class FetchAuroraOrders extends FetchAuroraAction
 
         }
 
+        if (in_array('attachments', $this->with)) {
+            $sourceData = explode(':', $order->source_id);
+            foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
+                SaveModelAttachment::run(
+                    $order,
+                    $attachmentData['fileData'],
+                    $attachmentData['modelData'],
+                );
+                $attachmentData['temporaryDirectory']->delete();
+            }
+        }
+
 
         return $order;
 
     }
 
+
+    private function parseAttachments($staffKey): array
+    {
+        $attachments            = $this->getModelAttachmentsCollection(
+            'Order',
+            $staffKey
+        )->map(function ($auroraAttachment) {return $this->fetchAttachment($auroraAttachment);});
+        return $attachments->toArray();
+    }
 
     private function fetchPayments($organisationSource, Order $order): void
     {

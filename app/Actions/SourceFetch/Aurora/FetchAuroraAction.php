@@ -69,7 +69,18 @@ class FetchAuroraAction extends FetchAction
         }
 
 
-        if (in_array($command->getName(), ['fetch:customers', 'fetch:orders', 'fetch:invoices', 'fetch:delivery-notes'])) {
+        if (in_array($command->getName(), [
+            'fetch:customers',
+            'fetch:orders',
+            'fetch:invoices',
+            'fetch:delivery-notes',
+            'fetch:employees',
+            'fetch:stocks',
+            'fetch:purchase-orders',
+            'fetch:stock-deliveries',
+            'fetch:suppliers',
+
+        ])) {
             $this->with = $command->option('with');
         }
 

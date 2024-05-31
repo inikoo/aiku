@@ -17,6 +17,7 @@ use App\Models\Inventory\OrgStock;
 use App\Models\Studio\Media;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
+use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -91,6 +92,7 @@ class Stock extends Model implements HasMedia
     use HasUniversalSearch;
     use HasImage;
     use HasFactory;
+    use HasAttachments;
 
     protected $casts = [
         'data'                   => 'array',

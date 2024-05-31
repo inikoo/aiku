@@ -184,15 +184,17 @@ class FetchAuroraEmployee extends FetchAurora
     }
 
 
+
+
     private function parsePhoto(): void
     {
-        $profile_images            = $this->getModelImagesCollection(
+        $profileImages            = $this->getModelImagesCollection(
             'Staff',
             $this->auroraModelData->{'Staff Key'}
         )->map(function ($auroraImage) {
             return $this->fetchImage($auroraImage);
         });
-        $this->parsedData['photo'] = $profile_images->toArray();
+        $this->parsedData['photo'] = $profileImages->toArray();
     }
 
     private function parseJobPositions(): array

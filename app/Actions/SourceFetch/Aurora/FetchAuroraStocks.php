@@ -13,15 +13,19 @@ use App\Actions\Goods\Stock\UpdateStock;
 use App\Actions\Inventory\OrgStock\StoreOrgStock;
 use App\Actions\Inventory\OrgStock\SyncOrgStockLocations;
 use App\Actions\Inventory\OrgStock\UpdateOrgStock;
+use App\Actions\Studio\Attachment\SaveModelAttachment;
 use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\Stock;
+use App\Services\Organisation\Aurora\WithAuroraAttachments;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraStocks extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:stocks {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    use WithAuroraAttachments;
+
+    public string $commandSignature = 'fetch:stocks {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset} {--w|with=* : Accepted values: attachments}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): array
     {
@@ -98,11 +102,33 @@ class FetchAuroraStocks extends FetchAuroraAction
 
         }
 
+        if (in_array('attachments', $this->with)) {
+            $sourceData= explode(':', $stock->source_id);
+            foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
+
+                SaveModelAttachment::run(
+                    $stock,
+                    $attachmentData['fileData'],
+                    $attachmentData['modelData'],
+                );
+                $attachmentData['temporaryDirectory']->delete();
+            }
+        }
+
 
         return [
             'stock'    => $stock,
             'orgStock' => $orgStock
         ];
+    }
+
+    private function parseAttachments($staffKey): array
+    {
+        $attachments            = $this->getModelAttachmentsCollection(
+            'Part',
+            $staffKey
+        )->map(function ($auroraAttachment) {return $this->fetchAttachment($auroraAttachment);});
+        return $attachments->toArray();
     }
 
     public function getModelsQuery(): Builder

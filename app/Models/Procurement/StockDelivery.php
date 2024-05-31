@@ -13,6 +13,7 @@ use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
+use App\Models\Traits\HasAttachments;
 use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -89,6 +90,7 @@ class StockDelivery extends Model
     use HasSlug;
     use HasFactory;
     use InOrganisation;
+    use HasAttachments;
 
 
     protected $casts = [

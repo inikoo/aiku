@@ -13,10 +13,12 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
+use App\Actions\Studio\Attachment\SaveModelAttachment;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\CRM\Customer;
+use App\Services\Organisation\Aurora\WithAuroraAttachments;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
@@ -24,7 +26,9 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraCustomers extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    use WithAuroraAttachments;
+
+    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users attachments} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Customer
@@ -158,10 +162,34 @@ class FetchAuroraCustomers extends FetchAuroraAction
                 ->where('Customer Key', $sourceData[1])
                 ->update(['aiku_id' => $customer->id]);
 
+
+            if (in_array('attachments', $this->with)) {
+                $sourceData= explode(':', $customer->source_id);
+                foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
+
+                    SaveModelAttachment::run(
+                        $customer,
+                        $attachmentData['fileData'],
+                        $attachmentData['modelData'],
+                    );
+                    $attachmentData['temporaryDirectory']->delete();
+                }
+            }
+
+
             return $customer;
         }
 
         return null;
+    }
+
+    private function parseAttachments($staffKey): array
+    {
+        $attachments            = $this->getModelAttachmentsCollection(
+            'Customer',
+            $staffKey
+        )->map(function ($auroraAttachment) {return $this->fetchAttachment($auroraAttachment);});
+        return $attachments->toArray();
     }
 
     public function getModelsQuery(): Builder

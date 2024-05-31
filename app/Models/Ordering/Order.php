@@ -20,6 +20,7 @@ use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddresses;
+use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InCustomer;
 use Eloquent;
@@ -120,6 +121,7 @@ class Order extends Model
     use HasFactory;
     use InCustomer;
     use HasAddresses;
+    use HasAttachments;
 
 
     protected $casts = [

@@ -13,6 +13,7 @@ use App\Models\Assets\Currency;
 use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\InOrganisation;
@@ -99,6 +100,7 @@ class PurchaseOrder extends Model implements Auditable
     use HasFactory;
     use HasHistory;
     use InOrganisation;
+    use HasAttachments;
 
 
     protected $casts = [

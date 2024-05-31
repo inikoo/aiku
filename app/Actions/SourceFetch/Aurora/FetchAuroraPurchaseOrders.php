@@ -9,7 +9,9 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
+use App\Actions\Studio\Attachment\SaveModelAttachment;
 use App\Models\Procurement\PurchaseOrder;
+use App\Services\Organisation\Aurora\WithAuroraAttachments;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
@@ -17,7 +19,9 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraPurchaseOrders extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:purchase-orders {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} {--r|reset}';
+    use WithAuroraAttachments;
+
+    public string $commandSignature = 'fetch:purchase-orders {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} {--r|reset} {--w|with=* : Accepted values: attachments}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?PurchaseOrder
     {
@@ -34,7 +38,7 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
 
                 //  $this->fetchTransactions($organisationSource, $purchaseOrder);
                 $this->updateAurora($purchaseOrder);
-
+                $this->setAttachments($purchaseOrder);
 
                 return $purchaseOrder;
             } else {
@@ -54,7 +58,7 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
 
                     $this->updateAurora($purchaseOrder);
 
-
+                    $this->setAttachments($purchaseOrder);
                     return $purchaseOrder;
                 }
                 print "Warning purchase order ".$purchaseOrderData['purchase_order']['number']."  Id:$organisationSourceId do not have parent\n";
@@ -62,6 +66,31 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
         }
 
         return null;
+    }
+
+    private function setAttachments($stockDelivery): void
+    {
+        if (in_array('attachments', $this->with)) {
+            $sourceData= explode(':', $stockDelivery->source_id);
+            foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
+
+                SaveModelAttachment::run(
+                    $stockDelivery,
+                    $attachmentData['fileData'],
+                    $attachmentData['modelData'],
+                );
+                $attachmentData['temporaryDirectory']->delete();
+            }
+        }
+    }
+
+    private function parseAttachments($staffKey): array
+    {
+        $attachments            = $this->getModelAttachmentsCollection(
+            'Purchase Order',
+            $staffKey
+        )->map(function ($auroraAttachment) {return $this->fetchAttachment($auroraAttachment);});
+        return $attachments->toArray();
     }
 
     /*

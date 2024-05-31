@@ -10,12 +10,14 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
+use App\Actions\Studio\Attachment\SaveModelAttachment;
 use App\Actions\Studio\Media\SaveModelImage;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Workplace;
+use App\Services\Organisation\Aurora\WithAuroraAttachments;
 use App\Services\Organisation\SourceOrganisationService;
 use Arr;
 use Illuminate\Database\Query\Builder;
@@ -24,7 +26,9 @@ use Illuminate\Support\Str;
 
 class FetchAuroraEmployees extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:employees {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    use WithAuroraAttachments;
+
+    public string $commandSignature = 'fetch:employees {organisations?*} {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: attachments}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Employee
     {
@@ -92,11 +96,34 @@ class FetchAuroraEmployees extends FetchAuroraAction
                 }
             }
 
+            if (in_array('attachments', $this->with)) {
+                $sourceData= explode(':', $employee->source_id);
+                foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
+
+                    SaveModelAttachment::run(
+                        $employee,
+                        $attachmentData['fileData'],
+                        $attachmentData['modelData'],
+                    );
+
+                    $attachmentData['temporaryDirectory']->delete();
+                }
+            }
+
 
             return $employee;
         }
 
         return null;
+    }
+
+    private function parseAttachments($staffKey): array
+    {
+        $attachments            = $this->getModelAttachmentsCollection(
+            'Staff',
+            $staffKey
+        )->map(function ($auroraAttachment) {return $this->fetchAttachment($auroraAttachment);});
+        return $attachments->toArray();
     }
 
     public function getModelsQuery(): Builder

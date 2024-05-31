@@ -15,6 +15,7 @@ use App\Models\Helpers\Issue;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
+use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
@@ -74,6 +75,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
+ * @property-read MediaCollection<int, \App\Models\Studio\Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\HumanResources\Clocking> $clockings
  * @property-read Group $group
@@ -104,6 +106,7 @@ class Employee extends Model implements HasMedia, Auditable
     use SoftDeletes;
     use HasUniversalSearch;
     use HasImage;
+    use HasAttachments;
     use HasFactory;
     use HasHistory;
     use InOrganisation;

@@ -9,37 +9,41 @@ namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Procurement\StockDelivery\StoreStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStockDelivery;
+use App\Actions\Studio\Attachment\SaveModelAttachment;
 use App\Models\Procurement\StockDelivery;
+use App\Services\Organisation\Aurora\WithAuroraAttachments;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraStockDeliveries extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:stock-deliveries {organisations?*} {--s|source_id=}';
+    use WithAuroraAttachments;
+
+    public string $commandSignature = 'fetch:stock-deliveries {organisations?*} {--s|source_id=} {--w|with=* : Accepted values: attachments}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?StockDelivery
     {
-        if ($orderData = $organisationSource->fetchStockDelivery($organisationSourceId)) {
-            if (!empty($orderData['stockDelivery']['source_id']) and $order = StockDelivery::withTrashed()->where('source_id', $orderData['stockDelivery']['source_id'])
+        if ($stockDeliveryData = $organisationSource->fetchStockDelivery($organisationSourceId)) {
+            if (!empty($stockDeliveryData['stockDelivery']['source_id']) and $stockDelivery = StockDelivery::withTrashed()->where('source_id', $stockDeliveryData['stockDelivery']['source_id'])
                     ->first()) {
-                $order = UpdateStockDelivery::run($order, $orderData['stockDelivery']);
+                $stockDelivery = UpdateStockDelivery::run($stockDelivery, $stockDeliveryData['stockDelivery']);
 
 
 
-                //  $this->fetchTransactions($organisationSource, $order);
-                $this->updateAurora($order);
+                //  $this->fetchTransactions($organisationSource, $stockDelivery);
+                $this->updateAurora($stockDelivery);
 
-
-                return $order;
+                $this->setAttachments($stockDelivery);
+                return $stockDelivery;
             } else {
-                if ($orderData['parent']) {
-                    $order = StoreStockDelivery::run($orderData['parent'], $orderData['stockDelivery'], $orderData['delivery_address']);
-                    //  $this->fetchTransactions($organisationSource, $order);
-                    $this->updateAurora($order);
+                if ($stockDeliveryData['parent']) {
+                    $stockDelivery = StoreStockDelivery::run($stockDeliveryData['parent'], $stockDeliveryData['stockDelivery'], $stockDeliveryData['delivery_address']);
+                    //  $this->fetchTransactions($organisationSource, $stockDelivery);
+                    $this->updateAurora($stockDelivery);
 
-
-                    return $order;
+                    $this->setAttachments($stockDelivery);
+                    return $stockDelivery;
                 }
                 print "Warning Supplier Delivery $organisationSourceId do not have parent\n";
             }
@@ -48,6 +52,31 @@ class FetchAuroraStockDeliveries extends FetchAuroraAction
         }
 
         return null;
+    }
+
+    private function setAttachments($stockDelivery): void
+    {
+        if (in_array('attachments', $this->with)) {
+            $sourceData= explode(':', $stockDelivery->source_id);
+            foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
+
+                SaveModelAttachment::run(
+                    $stockDelivery,
+                    $attachmentData['fileData'],
+                    $attachmentData['modelData'],
+                );
+                $attachmentData['temporaryDirectory']->delete();
+            }
+        }
+    }
+
+    private function parseAttachments($staffKey): array
+    {
+        $attachments            = $this->getModelAttachmentsCollection(
+            'Supplier Delivery',
+            $staffKey
+        )->map(function ($auroraAttachment) {return $this->fetchAttachment($auroraAttachment);});
+        return $attachments->toArray();
     }
 
     /*
