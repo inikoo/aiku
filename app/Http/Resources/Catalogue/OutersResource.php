@@ -17,17 +17,18 @@ class OutersResource extends JsonResource
     {
         /** @var Outer $outer */
         $outer=$this;
-        return [            
+        return [
             'slug'                  => $outer->slug,
             'code'                  => $outer->code,
             'name'                  => $outer->name,
             'price'                 => $outer->price,
+            'original_price'        => $outer->price,
             'unit'                  => $outer->unit,
             'currency'              => CurrencyResource::make($outer->product->currency),
             'state'                 => $outer->state,
             'agreed_price'          => $outer->price,
             'discount'              => 0,
-            
+
         ];
     }
 }

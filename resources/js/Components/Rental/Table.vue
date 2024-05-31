@@ -140,7 +140,7 @@ const resetValue=()=>{
                                 </div>
                                 <div v-else-if="e.type == 'number'">
                                     <Currency 
-                                        v-model="itemData[e.key]" 
+                                        :modelValue="itemData[e.key]"
                                         :placeholder="'Input Price'" 
                                         @input="(value)=> e?.propsOptions?.onChange(value,e,itemData)"
                                         :currency="itemData.currency.code" 

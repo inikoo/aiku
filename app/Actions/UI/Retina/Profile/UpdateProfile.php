@@ -7,6 +7,7 @@
 
 namespace App\Actions\UI\Retina\Profile;
 
+use App\Actions\GrpAction;
 use App\Actions\Media\Media\SaveModelImage;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\WebUser;
@@ -16,19 +17,37 @@ use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\Rules\Password;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateProfile
+class UpdateProfile extends GrpAction
 {
     use WithActionUpdate;
 
 
-    public function handle(WebUser $webUser, array $modelData, ?UploadedFile $avatar): WebUser
+    public function handle(WebUser $webUser, array $modelData): WebUser
     {
+
+        if (Arr::has($modelData, 'image')) {
+            /** @var UploadedFile $image */
+            $image = Arr::get($modelData, 'image');
+            data_forget($modelData, 'image');
+            $imageData = [
+                'path'         => $image->getPathName(),
+                'originalName' => $image->getClientOriginalName(),
+                'extension'    => $image->getClientOriginalExtension(),
+            ];
+            $webUser      = SaveModelImage::run(
+                model: $webUser,
+                imageData: $imageData,
+                scope: 'avatar'
+            );
+        }
+
+
         foreach ($modelData as $key => $value) {
             data_set(
                 $modelData,
                 match ($key) {
-                    'app_theme'     => 'settings.app_theme',
-                    default         => $key
+                    'app_theme' => 'settings.app_theme',
+                    default     => $key
                 },
                 $value
             );
@@ -36,17 +55,7 @@ class UpdateProfile
 
         data_forget($modelData, 'app_theme');
 
-        if ($avatar) {
-            SaveModelImage::run(
-                model: $webUser,
-                imageData: [
-                    'path'         => $avatar->getPathName(),
-                    'originalName' => $avatar->getClientOriginalName(),
-                    'extension'    => $avatar->getClientOriginalExtension(),
-                ],
-                scope:'avatar'
-            );
-        }
+
 
         $webUser->refresh();
 
@@ -62,7 +71,7 @@ class UpdateProfile
             'about'       => 'sometimes|nullable|string|max:255',
             'language_id' => ['sometimes', 'required', 'exists:languages,id'],
             'app_theme'   => ['sometimes', 'required'],
-            'avatar'      => [
+            'image'       => [
                 'sometimes',
                 'nullable',
                 File::image()
@@ -76,10 +85,11 @@ class UpdateProfile
 
     public function asController(ActionRequest $request): WebUser
     {
-        $this->fillFromRequest($request);
+        $webUser = $request->user();
+        $this->initialisation(app('group'), $request);
 
-        $validated = $this->validateAttributes();
-        return $this->handle($request->user(), Arr::except($validated, 'avatar'), Arr::get($validated, 'avatar'));
+
+        return $this->handle($webUser, $this->validatedData, );
     }
 
 

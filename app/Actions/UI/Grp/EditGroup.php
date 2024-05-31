@@ -77,11 +77,11 @@ class EditGroup extends GrpAction
                                 "label"       => __("email"),
                                 "value"       => $group->email ?? '',
                             ],
-                            // "avatar" => [
-                            //     "type"  => "avatar",
-                            //     "label" => __("photo"),
-                            //     "value" => $group->avatarImageSources(320, 320)
-                            // ],
+                            "image" => [
+                                "type"  => "avatar",
+                                "label" => __("logo"),
+                                "value" => $group->imageSources(320, 320)
+                            ],
                         ],
                     ],
                 ],

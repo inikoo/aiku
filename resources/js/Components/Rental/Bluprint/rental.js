@@ -8,6 +8,10 @@ export default {
             key : 'name'
         },
         {
+            title : 'Original price',
+            key : 'original_price'
+        },
+        {
             title : 'Price',
             key : 'price',
             type : 'number',
@@ -16,6 +20,7 @@ export default {
                     let discountedPrice = value - (value * (rowData.discount / 100))
                     discountedPrice = discountedPrice.toFixed(2)
                     rowData.agreed_price = discountedPrice
+                    rowData.price = value
                 }
             }
         },
