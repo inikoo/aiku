@@ -26,6 +26,7 @@ class RentalsResource extends JsonResource
             'price'                             => $rental->price,
             'agreed_price'                      => $rental->price,
             'discount'                          => 0,
+            'original_price'                    => $rental->price,
             'unit'                              => $rental->unit,
             'currency'                          => CurrencyResource::make($rental->product->currency) 
         ];
