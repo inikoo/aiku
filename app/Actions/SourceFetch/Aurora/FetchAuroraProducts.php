@@ -11,7 +11,7 @@ use App\Actions\Catalogue\Outer\StoreOuter;
 use App\Actions\Catalogue\Product\SetProductMainOuter;
 use App\Actions\Catalogue\Product\StorePhysicalGood;
 use App\Actions\Catalogue\Product\UpdatePhysicalGood;
-use App\Actions\Media\Media\SaveModelImages;
+use App\Actions\Studio\Media\SaveModelImages;
 use App\Models\Catalogue\Outer;
 use App\Models\Catalogue\Product;
 use App\Services\Organisation\SourceOrganisationService;

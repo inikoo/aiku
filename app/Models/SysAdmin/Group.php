@@ -83,8 +83,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\GroupJobPosition> $groupJobPositions
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Guest> $guests
  * @property-read \App\Models\SysAdmin\GroupHumanResourcesStats|null $humanResourcesStats
- * @property-read \App\Models\Media\Media|null $image
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $images
+ * @property-read \App\Models\Studio\Media|null $image
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $images
  * @property-read \App\Models\SysAdmin\GroupInventoryStats|null $inventoryStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $jobPositions
@@ -94,7 +94,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupManufactureStats|null $manufactureStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ManufactureTask> $manufactureTasks
  * @property-read \App\Models\SysAdmin\GroupMarketStats|null $marketStats
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
  * @property-read \App\Models\SysAdmin\GroupOrdersIntervals|null $ordersIntervals
  * @property-read \Illuminate\Database\Eloquent\Collection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders

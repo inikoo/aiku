@@ -14,7 +14,7 @@ use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Helpers\Deployment;
 use App\Models\Helpers\Snapshot;
 use App\Models\Catalogue\Shop;
-use App\Models\Media\Media;
+use App\Models\Studio\Media;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;

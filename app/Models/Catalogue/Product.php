@@ -15,7 +15,7 @@ use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Rental;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
-use App\Models\Media\Media;
+use App\Models\Studio\Media;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;

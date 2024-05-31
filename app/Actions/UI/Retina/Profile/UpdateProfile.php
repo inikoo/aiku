@@ -8,7 +8,7 @@
 namespace App\Actions\UI\Retina\Profile;
 
 use App\Actions\GrpAction;
-use App\Actions\Media\Media\SaveModelImage;
+use App\Actions\Studio\Media\SaveModelImage;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\WebUser;
 use Illuminate\Http\UploadedFile;

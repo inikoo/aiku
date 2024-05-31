@@ -5,9 +5,9 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Media\Media;
+namespace App\Actions\Studio\Media;
 
-use App\Models\Media\Media;
+use App\Models\Studio\Media;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
@@ -78,7 +78,7 @@ class UpdateIsAnimatedMedia
             try {
                 $media = Media::where('slug', $media)->firstOrFail();
             } catch (Exception) {
-                $command->error('Media not found');
+                $command->error('Studio not found');
                 return 1;
             }
 
@@ -104,10 +104,10 @@ class UpdateIsAnimatedMedia
 
         if($isAnimated!==$media->is_animated) {
 
-            $command->line("Media $media->slug is_animated updated from $isAnimated to $label");
+            $command->line("Studio $media->slug is_animated updated from $isAnimated to $label");
         } else {
 
-            $command->line("Media $media->slug is_animated is: $label");
+            $command->line("Studio $media->slug is_animated is: $label");
         }
     }
 

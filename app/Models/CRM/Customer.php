@@ -21,7 +21,7 @@ use App\Models\Helpers\Issue;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
-use App\Models\Media\Media;
+use App\Models\Studio\Media;
 use App\Models\Ordering\Order;
 use App\Models\Search\UniversalSearch;
 use App\Models\SupplyChain\Stock;

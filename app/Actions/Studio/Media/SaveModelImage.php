@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Media\Media;
+namespace App\Actions\Studio\Media;
 
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;

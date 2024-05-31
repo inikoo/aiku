@@ -9,7 +9,7 @@ namespace App\Models\HumanResources;
 
 use App\Actions\Helpers\Images\GetPictureSources;
 use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
-use App\Models\Media\Media;
+use App\Models\Studio\Media;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;

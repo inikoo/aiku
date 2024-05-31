@@ -58,7 +58,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Clocking> $clockings
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $jobPositions
- * @property-read MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read MediaCollection<int, \App\Models\Studio\Media> $media
  * @property-read \App\Models\SysAdmin\GuestStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, TimeTracker> $timeTrackers
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Timesheet> $timesheets

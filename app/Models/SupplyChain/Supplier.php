@@ -70,10 +70,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
  * @property-read Group $group
- * @property-read \App\Models\Media\Media|null $image
- * @property-read MediaCollection<int, \App\Models\Media\Media> $images
+ * @property-read \App\Models\Studio\Media|null $image
+ * @property-read MediaCollection<int, \App\Models\Studio\Media> $images
  * @property-read Collection<int, Issue> $issues
- * @property-read MediaCollection<int, \App\Models\Media\Media> $media
+ * @property-read MediaCollection<int, \App\Models\Studio\Media> $media
  * @property-read Collection<int, OrgSupplier> $orgSuppliers
  * @property-read Collection<int, \App\Models\SupplyChain\SupplierProduct> $products
  * @property-read Collection<int, PurchaseOrder> $purchaseOrders

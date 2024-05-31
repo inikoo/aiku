@@ -7,7 +7,7 @@
 
 namespace App\Actions\SysAdmin\Organisation;
 
-use App\Actions\Media\Media\StoreMediaFromIcon;
+use App\Actions\Studio\Media\StoreMediaFromIcon;
 use App\Actions\Traits\WithAttachMediaToModel;
 use App\Models\Catalogue\Shop;
 use Exception;

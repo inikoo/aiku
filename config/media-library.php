@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Models\Media\Media;
+use App\Models\Studio\Media;
 
 return [
 

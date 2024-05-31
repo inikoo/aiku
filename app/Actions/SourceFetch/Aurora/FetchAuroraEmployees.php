@@ -10,7 +10,7 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
-use App\Actions\Media\Media\SaveModelImage;
+use App\Actions\Studio\Media\SaveModelImage;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
