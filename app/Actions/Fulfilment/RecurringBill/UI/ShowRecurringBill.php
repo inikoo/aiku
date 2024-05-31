@@ -7,19 +7,22 @@
 
 namespace App\Actions\Fulfilment\RecurringBill\UI;
 
+use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentPhysicalGoods;
+use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
-use App\Actions\Fulfilment\StoredItem\UI\GetStoredItemShowcase;
-use App\Actions\Fulfilment\StoredItem\UI\IndexStoredItemPallets;
+use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
 use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;
 use App\Enums\UI\Fulfilment\StoredItemTabsEnum;
+use App\Http\Resources\Catalogue\ServicesResource;
 use App\Http\Resources\Fulfilment\PalletsResource;
-use App\Http\Resources\Fulfilment\StoredItemResource;
+use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
+use App\Http\Resources\Fulfilment\RecurringBillResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
+use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -39,135 +42,81 @@ class ShowRecurringBill extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
-    public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, StoredItem $storedItem, ActionRequest $request): StoredItem
+    public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, RecurringBill $recurringBill, ActionRequest $request): RecurringBill
     {
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(RecurringBillTabsEnum::values());
 
-        return $this->handle($storedItem);
+        return $this->handle($recurringBill);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, StoredItem $storedItem, ActionRequest $request): StoredItem
+    public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, RecurringBill $recurringBill, ActionRequest $request): RecurringBill
     {
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(RecurringBillTabsEnum::values());
 
-        return $this->handle($storedItem);
+        return $this->handle($recurringBill);
     }
 
-    public function handle(StoredItem $storedItem): StoredItem
+    public function handle(RecurringBill $recurringBill): RecurringBill
     {
-        return $storedItem;
+        return $recurringBill;
     }
 
-    public function htmlResponse(StoredItem $storedItem, ActionRequest $request): Response
+    public function htmlResponse(RecurringBill $recurringBill, ActionRequest $request): Response
     {
         return Inertia::render(
             'Org/Fulfilment/RecurringBill',
             [
                 'title'       => __('recurring bill'),
-                'breadcrumbs' => $this->getBreadcrumbs($storedItem),
+                'breadcrumbs' => $this->getBreadcrumbs($recurringBill),
                 'pageHead'    => [
                     'icon'          =>
                         [
                             'icon'  => ['fa', 'fa-narwhal'],
                             'title' => __('recurring bill')
                         ],
-                    'title'  => $storedItem->slug,
-                    'actions'=> [
-                        [
-                            'type'    => 'button',
-                            'style'   => 'exit',
-                            'tooltip' => __('return to customer'),
-                            'label'   => $storedItem->status == StoredItemStatusEnum::RETURNED ? __('returned') : __('return to customer'),
-                            'route'   => [
-                                'name'       => 'grp.fulfilment.stored-items.setReturn',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ],
-                            'disabled' => $storedItem->status == StoredItemStatusEnum::RETURNED
-                        ],
-                        [
-                            'type'    => 'button',
-                            'style'   => 'negative',
-                            'icon'    => 'fal fa-fragile',
-                            'tooltip' => __('Set as damaged'),
-                            'label'   => $storedItem->status == StoredItemStatusEnum::DAMAGED ? __('damaged') : __('set as damaged'),
-                            'route'   => [
-                                'name'       => 'grp.fulfilment.stored-items.setDamaged',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ],
-                            'disabled' => $storedItem->status == StoredItemStatusEnum::DAMAGED
-                        ],
-                        [
-                            'type'    => 'button',
-                            'style'   => 'secondary',
-                            'icon'    => 'fal fa-pencil',
-                            'tooltip' => __('Edit recurring bill'),
-                            'label'   => __('recurring bills'),
-                            'route'   => [
-                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ],
-                    ],
+                    'title'  => $recurringBill->slug
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => StoredItemTabsEnum::navigation(),
-                ],
-
-                'palletRoute' => [
-                    'index' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
-                        'parameters' => [
-                            'organisation'         => $request->route('organisation'),
-                            'fulfilment'           => $request->route('fulfilment'),
-                            'fulfilmentCustomer'   => $request->route('fulfilmentCustomer')
-                        ]
-                    ],
-                ],
-
-                'locationRoute' => [
-                    'index' => [
-                        'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallets.locations.index',
-                        'parameters' => [
-                            'organisation'         => $request->route('organisation'),
-                            'fulfilment'           => $request->route('fulfilment'),
-                            'fulfilmentCustomer'   => $request->route('fulfilmentCustomer')
-                        ]
-                    ],
-                ],
-
-                'update' => [
-                    'name'       => 'grp.models.stored-items.move',
-                    'parameters' => [
-                        'storedItem'         => $storedItem->id
-                    ]
+                    'navigation' => RecurringBillTabsEnum::navigation(),
                 ],
 
                 StoredItemTabsEnum::SHOWCASE->value => $this->tab == StoredItemTabsEnum::SHOWCASE->value ?
-                    fn () => GetStoredItemShowcase::run($storedItem)
-                    : Inertia::lazy(fn () => GetStoredItemShowcase::run($storedItem)),
+                    fn () => RecurringBillResource::make($recurringBill)
+                    : Inertia::lazy(fn () => RecurringBillResource::make($recurringBill)),
 
-//                StoredItemTabsEnum::PALLETS->value => $this->tab == StoredItemTabsEnum::PALLETS->value ?
-//                    fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))
-//                    : Inertia::lazy(fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))),
+                RecurringBillTabsEnum::PALLETS->value => $this->tab == RecurringBillTabsEnum::PALLETS->value ?
+                    fn () => PalletsResource::collection(IndexPallets::run($recurringBill))
+                    : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($recurringBill))),
 
-                StoredItemTabsEnum::HISTORY->value => $this->tab == StoredItemTabsEnum::HISTORY->value ?
-                    fn () => HistoryResource::collection(IndexHistory::run($storedItem))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($storedItem)))
+                RecurringBillTabsEnum::SERVICES->value => $this->tab == RecurringBillTabsEnum::PALLETS->value ?
+                    fn () => ServicesResource::collection(IndexFulfilmentServices::run($recurringBill))
+                    : Inertia::lazy(fn () => ServicesResource::collection(IndexFulfilmentServices::run($recurringBill))),
+
+                RecurringBillTabsEnum::PHYSICAL_GOODS->value => $this->tab == RecurringBillTabsEnum::PALLETS->value ?
+                    fn () => PhysicalGoodsResource::collection(IndexFulfilmentPhysicalGoods::run($recurringBill))
+                    : Inertia::lazy(fn () => PhysicalGoodsResource::collection(IndexFulfilmentPhysicalGoods::run($recurringBill))),
+
+                RecurringBillTabsEnum::HISTORY->value => $this->tab == RecurringBillTabsEnum::HISTORY->value ?
+                    fn () => HistoryResource::collection(IndexHistory::run($recurringBill))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($recurringBill)))
 
             ]
-        )->table(IndexHistory::make()->tableStructure(prefix: StoredItemTabsEnum::HISTORY->value))
-            ->table(IndexStoredItemPallets::make()->tableStructure($storedItem, 'pallets'));
+            // Todo @kirin or @raul please fix this below
+        )->table(IndexHistory::make()->tableStructure(prefix: RecurringBillTabsEnum::HISTORY->value))
+            ->table(IndexFulfilmentServices::make()->tableStructure($recurringBill, prefix: RecurringBillTabsEnum::SERVICES->value))
+            ->table(IndexFulfilmentPhysicalGoods::make()->tableStructure($recurringBill, prefix: RecurringBillTabsEnum::PHYSICAL_GOODS->value))
+            ->table(IndexPallets::make()->tableStructure($recurringBill, RecurringBillTabsEnum::PALLETS->value));
     }
 
 
-    public function jsonResponse(StoredItem $storedItem): StoredItemResource
+    public function jsonResponse(RecurringBill $recurringBill): RecurringBillResource
     {
-        return new StoredItemResource($storedItem);
+        return new RecurringBillResource($recurringBill);
     }
 
-    public function getBreadcrumbs(StoredItem $storedItem, $suffix = null): array
+    public function getBreadcrumbs(RecurringBill $recurringBill, $suffix = null): array
     {
 
         return array_merge(
@@ -178,16 +127,19 @@ class ShowRecurringBill extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name' => 'grp.fulfilment.stored-items.index',
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.index',
+                                'parameters' => [
+                                    array_values(request()->route()->originalParameters())
+                                ]
                             ],
                             'label' => __('recurring bills')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.fulfilment.stored-items.show',
+                                'name'       => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.show',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
-                            'label' => $storedItem->slug,
+                            'label' => $recurringBill->slug,
                         ],
                     ],
                     'suffix' => $suffix,
