@@ -47,8 +47,6 @@ const props = defineProps<{
 
 }>()
 
-console.log('errops', props.orgNav.fulfilments_navigation)
-
 interface MergeNavigation {
     key: string  // 'uk', 'awd'
     value: {
@@ -70,23 +68,27 @@ const fulfilmentsNav: () => MergeNavigation[] = () => {
     return filterFulfilmentsOpen.map(([key, subNavObject]) => {
         return {
             key: key,
-            value: subNavObject,
+            value: {
+                type: subNavObject.type,
+                subNavigation: subNavObject.subNavigation
+            },
             type: 'fulfilment',
-            root: 'grp.org.fulfilments.show.'
+            root: 'grp.org.fulfilments.'
         }
     })
 }
 const shopsNav: () => MergeNavigation[] = () => {
     const filterShopsOpen = Object.entries(props.orgNav.shops_navigation.navigation).filter(([key, subNavList]) => shopsOpenSlugs?.includes(key))
 
-    return filterShopsOpen.map(([key, subNavList]) => {
+    return filterShopsOpen.map(([key, subNavObject]) => {
         return {
             key: key,
             value: {
-            type: subNavList.type,
-            subNavigation: subNavList.subNavigation },
+                type: subNavObject.type,
+                subNavigation: subNavObject.subNavigation
+            },
             type: 'shop',
-            root: 'grp.org.shops.show.'
+            root: 'grp.org.shops.'
         }
     })
 }
@@ -155,6 +157,17 @@ const isShowHorizontal = () => {
     return (isShopOpen || isFulfilmentOpen) 
 }
 
+// Route for label 'UK (Shop)'
+const routeLabelHorizontal = () => {
+    if(currentNavigation()?.type === 'fulfilment') {
+        return route('grp.org.fulfilments.show.operations.dashboard', [layout.currentParams.organisation, currentNavigation()?.key])
+    } else if (currentNavigation()?.type === 'shop'){
+        return route('grp.org.shops.show', [layout.currentParams.organisation, currentNavigation()?.key])
+    } else {
+        return '#'
+    }
+}
+
 </script>
 
 <template>
@@ -171,9 +184,7 @@ const isShowHorizontal = () => {
             :style="{ color: layout.app.theme[1] + '99' }">
 
             <!-- Label: 'UK (Shop)' -->
-            <div class="relative flex gap-x-1.5 items-center transition-all"
-                :class="layout.leftSidebar.show ? 'pt-1' : 'pt-1'"
-            >
+            <Link :href="routeLabelHorizontal()" class="relative flex gap-x-1.5 items-center pt-1  hover:text-gray-100">
                 <Transition name="spin-to-down">
                     <FontAwesomeIcon v-if="currentNavigation()?.value.type === 'b2b'" icon="fal fa-store-alt" class='text-xs' fixed-width aria-hidden='true' />
                     <FontAwesomeIcon v-else-if="currentNavigation()?.value.type === 'fulfilment'" icon="fal fa-hand-holding-box" class='text-xs' fixed-width aria-hidden='true' />
@@ -195,7 +206,7 @@ const isShowHorizontal = () => {
                         </Transition>
                     </div>
                 </Transition>
-            </div>
+            </Link>
 
             
             <!-- Section: Arrow left-right -->
