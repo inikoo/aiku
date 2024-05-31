@@ -29,7 +29,19 @@ class SaveModelImage
         string $scope = 'image'
     ): User|WebUser|Agent|Supplier|Employee|Guest|Customer|Group|Organisation|Shop {
         $oldImage = $model->image;
+
+        $checksum = md5_file($imageData['path']);
+
+        if ($oldImage && $oldImage->checksum == $checksum) {
+            return $model;
+        }
+
+        data_set($imageData, 'checksum', $checksum);
         $media    = StoreMediaFromFile::run($model, $imageData, 'image');
+
+        if($oldImage->id == $media->id) {
+            return $model;
+        }
 
         $group_id        = $model->group_id;
         $organisation_id = $model->organisation_id;

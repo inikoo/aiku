@@ -15,15 +15,8 @@ class StoreMediaFromFile
 {
     use AsAction;
 
-    public function handle($model, $imageData, $collection): Media
+    public function handle($model, $imageData, $collection, $type = 'image'): Media
     {
-        $checksum = md5_file($imageData['path']);
-        $oldImage = $model->image;
-
-        if ($oldImage && $oldImage->checksum == $checksum) {
-            return $model->image;
-        }
-
         $extension = Arr::get($imageData, 'extension');
         if (!$extension) {
             $extension = pathinfo($imageData['path'], PATHINFO_EXTENSION);
@@ -34,13 +27,14 @@ class StoreMediaFromFile
             ->withProperties(
                 array_merge(
                     [
-                        'checksum' => $checksum,
-                        'group_id' => group()->id
+                        'checksum' => $imageData['checksum'],
+                        'group_id' => group()->id,
+                        'type'     => $type
                     ],
                 )
             )
             ->usingName($imageData['originalName'])
-            ->usingFileName($checksum.'.'.$extension)
+            ->usingFileName($imageData['checksum'].'.'.$extension)
             ->toMediaCollection($collection);
 
         UpdateIsAnimatedMedia::run($media, $imageData['path']);

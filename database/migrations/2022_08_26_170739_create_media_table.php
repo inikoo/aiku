@@ -17,6 +17,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
+            $table->string('type')->index()->default('image');
             $table->string('model_type')->nullable();
             $table->unsignedInteger('model_id')->nullable();
             $table->uuid()->nullable()->unique();

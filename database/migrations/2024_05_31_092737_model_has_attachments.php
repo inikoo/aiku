@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 30 May 2024 08:37:52 Central European Summer Time, Mijas Costa, Spain
+ * Created: Fri, 31 May 2024 11:42:27 Central European Summer Time, Mijas Costa, Spain
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -12,15 +12,10 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('model_has_media', function (Blueprint $table) {
+        Schema::create('model_has_attachments', function (Blueprint $table) {
             $table->id();
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedSmallInteger('organisation_id')->index()->nullable();
-            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedInteger('customer_id')->nullable()->index();
-            $table->foreign('customer_id')->references('id')->on('customers');
-
             $table->string('scope')->nullable()->index();
             $table->text('caption')->nullable();
             $table->unsignedInteger('media_id');
@@ -36,6 +31,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('model_has_media');
+        Schema::dropIfExists('model_has_attachment');
     }
 };

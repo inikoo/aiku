@@ -18,6 +18,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
  * @property int $id
  * @property int $group_id
  * @property string $slug
+ * @property-read string $type
  * @property string|null $model_type
  * @property int|null $model_id
  * @property string|null $uuid
@@ -44,7 +45,6 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $model
  * @property-read mixed $original_url
  * @property-read mixed $preview_url
- * @property-read mixed $type
  * @method static \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, static> all($columns = ['*'])
  * @method static \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, static> get($columns = ['*'])
  * @method static \Illuminate\Database\Eloquent\Builder|Media newModelQuery()
@@ -56,6 +56,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
 class Media extends BaseMedia
 {
     use IsMedia;
+
     protected $table = 'media';
 
     public function getRouteKeyName(): string

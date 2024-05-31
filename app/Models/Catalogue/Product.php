@@ -79,6 +79,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property string|null $historic_source_id
  * @property-read Collection<int, Barcode> $barcode
+ * @property-read Currency $currency
  * @property-read \App\Models\Catalogue\HistoricOuterable|null $currentHistoricOuterable
  * @property-read Group $group
  * @property-read Collection<int, \App\Models\Catalogue\HistoricOuterable> $historicOuters
