@@ -8,7 +8,6 @@
 namespace App\Http\Resources\Catalogue;
 
 use App\Http\Resources\Assets\CurrencyResource;
-use App\Models\Fulfilment\RentalAgreement;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ServicesResource extends JsonResource

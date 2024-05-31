@@ -17,7 +17,7 @@ class OutersResource extends JsonResource
     {
         /** @var Outer $outer */
         $outer=$this;
-        return [            
+        return [
             'slug'                  => $outer->slug,
             'code'                  => $outer->code,
             'name'                  => $outer->name,
@@ -28,7 +28,7 @@ class OutersResource extends JsonResource
             'state'                 => $outer->state,
             'agreed_price'          => $outer->price,
             'discount'              => 0,
-            
+
         ];
     }
 }
