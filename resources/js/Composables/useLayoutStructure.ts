@@ -4,6 +4,7 @@ import { OrganisationsData, Group, OrganisationState, StackedComponent} from '@/
 import { Colors } from "@/types/Color"
 import { Navigation, grpNavigation, orgNavigation } from "@/types/Navigation"
 import { Image } from "@/types/Image"
+import { Notification } from '@/types/Notification'
 
 export const layoutStructure = {
     agents: {
@@ -44,5 +45,11 @@ export const layoutStructure = {
         }
     },
     stackedComponents: [] as StackedComponent[],
-    user: {} as { id: number, avatar_thumbnail: Image, email: string, username: string, notifications: {}[] },
+    user: {} as {
+        id: number,
+        avatar_thumbnail: Image,
+        email: string,
+        username: string,
+        notifications: Notification[]
+    },
 }

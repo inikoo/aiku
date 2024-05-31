@@ -52,6 +52,8 @@ use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\PalletReturn\SubmitPalletReturn;
 use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\PalletReturnItem\UpdatePalletReturnItem;
+use App\Actions\Fulfilment\PalletReturnPhysicalGood\SyncPhysicalGoodToPalletReturn;
+use App\Actions\Fulfilment\PalletReturnService\SyncServiceToPalletReturn;
 use App\Actions\Fulfilment\Rental\StoreRental;
 use App\Actions\Fulfilment\Rental\UpdateRental;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
@@ -105,6 +107,8 @@ use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\SysAdmin\User\UpdateUser;
+use App\Actions\UI\Notification\MarkAllNotificationAsRead;
+use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
 use App\Actions\Web\Webpage\UpdateWebpage;
@@ -118,6 +122,8 @@ Route::patch('/profile', UpdateProfile::class)->name('profile.update');
 Route::get('/profile/app-login-qrcode', GetProfileAppLoginQRCode::class)->name('profile.app-login-qrcode');
 
 Route::patch('/user/{user:id}', UpdateUser::class)->name('user.update');
+Route::patch('notification/{notification}', MarkNotificationAsRead::class)->name('notifications.read');
+Route::patch('notifications', MarkAllNotificationAsRead::class)->name('notifications.all.read');
 
 Route::post('/agent/', StoreAgent::class)->name('agent.store');
 
@@ -217,6 +223,9 @@ Route::name('pallet-delivery.')->prefix('pallet-delivery/{palletDelivery:id}')->
 });
 
 Route::name('pallet-return.')->prefix('pallet-return/{palletReturn:id}')->group(function () {
+    Route::post('service', SyncServiceToPalletReturn::class)->name('service.store');
+    Route::post('physical-goods', SyncPhysicalGoodToPalletReturn::class)->name('physical_good.store');
+
     Route::patch('/', UpdatePalletReturn::class)->name('update');
     Route::get('pdf', PdfPalletReturn::class)->name('pdf');
 });

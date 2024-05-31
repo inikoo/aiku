@@ -7,10 +7,9 @@ import ServicesBluprint from './Bluprint/services.js'
 import PhysicalGoodsBluprint from './Bluprint/physicalGoods.js'
 import { inject } from 'vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
+import { cloneDeep } from 'lodash'
 
 const layout = inject('layout', layoutStructure)
-
-
 
 const props = defineProps<{
     form: any
@@ -57,12 +56,17 @@ const tabs = ref([
 ])
 
 
+
 onBeforeMount(() => {
-    props.form[props.fieldName] = {
-        rentals: props.fieldData?.rentals.data,
-        physical_goods: props.fieldData?.physical_goods.data,
-        services: props.fieldData?.services.data,
-    }
+    const clonedData = {
+        rentals: cloneDeep(props.fieldData?.rentals?.data),
+        physical_goods: cloneDeep(props.fieldData?.physical_goods.data),
+        services: cloneDeep(props.fieldData?.services.data),
+    };
+    props.form.defaults({
+        [props.fieldName]: clonedData,
+    })
+    props.form.reset(props.fieldName)
 })
 
 </script>
@@ -73,13 +77,14 @@ onBeforeMount(() => {
         <TabGroup>
             <TabList class="flex space-x-8 border-b-2">
                 <Tab v-for="tab in tabs" as="template" :key="tab.key" v-slot="{ selected }">
-                    <button :style="selected ? {color : layout.app.theme[0], borderBottomColor : layout.app.theme[0]} : {}" 
-                    :class="[
-                        'whitespace-nowrap border-b-2 py-1.5 px-1 text-sm font-medium focus:ring-0 focus:outline-none mb-2',
-                        selected
-                            ? `border-org-5s00 text-[${layout.app.theme[0]}]`
-                            : `border-transparent text-[${layout.app.theme[0]}] hover:border-[${layout.app.theme[0]}]`,
-                    ]">
+                    <button
+                        :style="selected ? { color: layout.app.theme[0], borderBottomColor: layout.app.theme[0] } : {}"
+                        :class="[
+                            'whitespace-nowrap border-b-2 py-1.5 px-1 text-sm font-medium focus:ring-0 focus:outline-none mb-2',
+                            selected
+                                ? `border-org-5s00 text-[${layout.app.theme[0]}]`
+                                : `border-transparent text-[${layout.app.theme[0]}] hover:border-[${layout.app.theme[0]}]`,
+                        ]">
                         {{ tab.title }}
                     </button>
                 </Tab>

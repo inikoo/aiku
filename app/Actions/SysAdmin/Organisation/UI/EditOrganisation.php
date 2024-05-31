@@ -80,6 +80,11 @@ class EditOrganisation extends InertiaAction
                                 "label"       => __("phone"),
                                 "value"       => $organisation->phone ?? '',
                             ],
+                            "image" => [
+                                "type"  => "avatar",
+                                "label" => __("Logo"),
+                                "value" => $organisation->imageSources(320, 320)
+                            ],
                         ],
                     ],
                 ],

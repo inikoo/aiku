@@ -117,10 +117,8 @@ router.on('navigate', (event) => {
                             </component>
                         </div>
                         <span class="mx-3 select-none">→</span>
-                        <component :is="breadcrumb.modelWithIndex?.model?.route?.name ? Link : 'div'" class="text-indigo-400 hover:text-indigo-500" :href="breadcrumb.modelWithIndex?.model?.route?.name ? route(breadcrumb.modelWithIndex.model.route.name, breadcrumb.modelWithIndex.model.route.parameters) : '#'">
-                            <span>
-                                {{ breadcrumb.modelWithIndex.model.label }}
-                            </span>
+                        <component :is="breadcrumb.modelWithIndex?.model?.route?.name ? Link : 'div'" class="breadcrumbSection" :href="breadcrumb.modelWithIndex?.model?.route?.name ? route(breadcrumb.modelWithIndex.model.route.name, breadcrumb.modelWithIndex.model.route.parameters) : '#'">
+                            {{ breadcrumb.modelWithIndex.model.label }}
                         </component>
                     </template>
                     <span v-if="breadcrumb.suffix" :class="breadcrumb.type ? 'ml-1' : ''" class="italic">{{ breadcrumb.suffix }}</span>
@@ -226,3 +224,14 @@ router.on('navigate', (event) => {
         </div>
     </nav>
 </template>
+
+<style lang="scss" scope>
+.breadcrumbSection {
+    color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[0]} 90%, white)`') !important;
+
+    &:hover {
+        color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[0]} 85%, black)`') !important;
+    }
+}
+
+</style>
