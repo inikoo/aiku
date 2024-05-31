@@ -1,6 +1,5 @@
 <script setup lang='ts'>
 import { trans } from 'laravel-vue-i18n'
-import { useLayoutStore } from '@/Stores/layout'
 import { ref, onMounted, onUnmounted, inject, defineAsyncComponent } from 'vue'
 import SearchBar from "@/Components/SearchBar.vue"
 import Image from '@/Components/Image.vue'
@@ -9,12 +8,12 @@ import NotificationList from '@/Components/NotificationList/NotificationList.vue
 
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
-// import Profile from '@/Pages/Grp/Profile.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faDoorOpen } from '@far'
+import { faCircle } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faDoorOpen)
+library.add(faDoorOpen, faCircle)
 
 const Profile = defineAsyncComponent(() => import("@/Pages/Grp/Profile.vue"))
 
@@ -46,7 +45,6 @@ onUnmounted(() => {
 })
 
 const isUserMac = navigator.platform.includes('Mac')  // To check the user's Operating System
-const notifications = layout.user.notifications
 
 </script>
 
@@ -76,13 +74,14 @@ const notifications = layout.user.notifications
                 <div class="relative px-2 rounded-full flex items-center">
                     <Popover width="w-full">
                         <template #button>
-                            <div class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                            <div tabindex="-1" class="relative text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
                                 <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
+                                <FontAwesomeIcon icon='fas fa-circle' class='text-blue-500 absolute top-0.5 -right-0.5 text-[6px]' fixed-width aria-hidden='true' />
                             </div>
                         </template>
                         <template #content="{ close }">
                             <div class="w-96">
-                                <NotificationList :messages="notifications" :close />
+                                <NotificationList :close />
                             </div>
                         </template>
                     </Popover>

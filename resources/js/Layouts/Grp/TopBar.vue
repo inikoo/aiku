@@ -87,7 +87,7 @@ const label = {
                             class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
                             :class="[layoutStore.leftSidebar.show ? 'py-1 pl-4' : 'pl-2.5 w-full']"
                         >
-                            <Image :src="layoutStore.organisations.data.find((item) => item.slug == (layoutStore.currentParams?.organisation || false))?.logo || layoutStore.group?.logo" class="aspect-square h-5" />
+                            <Image :src="layoutStore.organisations.data?.find((item) => item.slug == (layoutStore.currentParams?.organisation || false))?.logo || layoutStore.group?.logo" class="aspect-square h-5" />
                             <Transition name="slide-to-left">
                                 <p v-if="layoutStore.leftSidebar.show" class="text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate">
                                     {{ layoutStore.currentParams?.organisation
@@ -124,7 +124,7 @@ const label = {
                                                     : 'fal fa-city'
                                             : 'fal fa-city'
                                     "
-                                    :activeButton="!!(layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation)) || !!layoutStore.agents.data.find((item) => item.slug == layoutStore.currentParams?.organisation)"
+                                    :activeButton="!!(layoutStore.organisations.data?.find((item) => item.slug == layoutStore.currentParams?.organisation)) || !!layoutStore.agents.data?.find((item) => item.slug == layoutStore.currentParams?.organisation)"
                                     :label="
                                         layoutStore.currentParams?.organisation
                                             ? layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
