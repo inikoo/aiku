@@ -48,7 +48,10 @@ class GetOrganisationNavigation
             $organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Shop')->get() as $authorisedModel
         ) {
             $shop                          = $authorisedModel->model;
-            $shops_navigation[$shop->slug] = GetShopNavigation::run($shop, $user);
+            $shops_navigation[$shop->slug] = [
+                'type'          => $shop->type,
+                'subNavigation' => GetShopNavigation::run($shop, $user)
+            ];
         }
 
 
@@ -77,7 +80,10 @@ class GetOrganisationNavigation
             $organisation->authorisedModels()->where('user_id', $user->id)->where('model_type', 'Fulfilment')->get() as $authorisedModel
         ) {
             $fulfilment                                = $authorisedModel->model;
-            $fulfilments_navigation[$fulfilment->slug] = GetFulfilmentNavigation::run($fulfilment, $user);
+            $fulfilments_navigation[$fulfilment->slug] = [
+                'type'              => $fulfilment->type ?? 'fulfilment',
+                'subNavigation'     => GetFulfilmentNavigation::run($fulfilment, $user)
+            ];
         }
 
 

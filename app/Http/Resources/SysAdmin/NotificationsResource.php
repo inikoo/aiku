@@ -19,6 +19,7 @@ use Illuminate\Support\Arr;
  */
 class NotificationsResource extends JsonResource
 {
+    public static $wrap = null;
     public function toArray($request): array
     {
         return [

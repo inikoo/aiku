@@ -11,6 +11,7 @@ use App\Actions\Catalogue\Outer\StoreOuter;
 use App\Actions\Catalogue\Product\SetProductMainOuter;
 use App\Actions\Catalogue\Product\StorePhysicalGood;
 use App\Actions\Catalogue\Product\UpdatePhysicalGood;
+use App\Actions\Media\Media\SaveModelImages;
 use App\Models\Catalogue\Outer;
 use App\Models\Catalogue\Product;
 use App\Services\Organisation\SourceOrganisationService;
@@ -99,6 +100,27 @@ class FetchAuroraProducts extends FetchAuroraAction
                 ->where('Product ID', $sourceData[1])
                 ->update(['aiku_id' => $product->id]);
 
+
+            if(count($productData['product']['images'])>0) {
+                foreach($productData['product']['images'] as $imageData) {
+                    if (isset($imageData['image_path']) and isset($imageData['filename'])) {
+                        // try {
+                        SaveModelImages::run(
+                            $product,
+                            [
+                                'path'         => $imageData['image_path'],
+                                'originalName' => $imageData['filename'],
+
+                            ],
+                            'photo',
+                            'product_images'
+                        );
+                        //} catch (Exception) {
+                        //
+                        // }
+                    }
+                }
+            }
             return $product;
         }
 

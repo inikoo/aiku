@@ -129,9 +129,9 @@ test('set organisation logo by command', function (Organisation $organisation) {
     ])->assertSuccessful();
 })->depends('create organisation type shop');
 
-test('create organisation by command', function () {
+test('create organisation by command', function (Group $group) {
     $this->artisan('org:create', [
-        'group'         => 'TEST2',
+        'group'         => $group->slug,
         'type'          => 'shop',
         'code'          => 'TEST',
         'email'         => 'a@example.com',
@@ -268,10 +268,6 @@ test('fail to create guest with invalid usernames', function (Group $group) {
 
 
 test('update user password', function ($guest) {
-
-
-
-
     $user = UpdateUser::make()->action($guest->user, [
         'password' => 'secret'
     ]);

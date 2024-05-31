@@ -19,6 +19,7 @@ use Illuminate\Support\Carbon;
  * App\Models\Helpers\Address
  *
  * @property int $id
+ * @property int $group_id
  * @property int $usage usage by models/scopes
  * @property int $fixed_usage count usage by fixed models/fixed_scopes
  * @property int $multiplicity count address with same checksum

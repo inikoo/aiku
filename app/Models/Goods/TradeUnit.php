@@ -10,7 +10,7 @@ namespace App\Models\Goods;
 use App\Models\Catalogue\Product;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
-use App\Models\Traits\HasImages;
+use App\Models\Traits\HasImage;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -48,6 +48,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_slug
  * @property string|null $source_id
  * @property-read Group $group
+ * @property-read \App\Models\Media\Media|null $image
+ * @property-read MediaCollection<int, \App\Models\Media\Media> $images
  * @property-read MediaCollection<int, \App\Models\Media\Media> $media
  * @property-read Collection<int, Product> $products
  * @property-read Collection<int, Stock> $stocks
@@ -64,8 +66,7 @@ class TradeUnit extends Model implements HasMedia
 {
     use SoftDeletes;
     use HasSlug;
-
-    use HasImages;
+    use HasImage;
     use HasFactory;
 
     protected $casts = [

@@ -33,6 +33,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
  * @property array $generated_conversions
  * @property array $responsive_images
  * @property string|null $checksum
+ * @property int $multiplicity
+ * @property int $usage
  * @property bool $is_animated
  * @property int|null $order_column
  * @property \Illuminate\Support\Carbon|null $created_at

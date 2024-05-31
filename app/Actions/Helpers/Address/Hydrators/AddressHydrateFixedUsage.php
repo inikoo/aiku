@@ -32,7 +32,7 @@ class AddressHydrateFixedUsage implements ShouldBeUnique
     public function handle(Address $address): void
     {
         if ($address->is_fixed) {
-            $fixedUsage = DB::table('model_has_fixed_addresses')->where('address_id', $address->id)->count();
+            $fixedUsage = DB::table('model_has_fixed_addresses')->where('group_id', $address->group_id)->where('address_id', $address->id)->count();
             $address->update(['fixed_usage' => $fixedUsage]);
         }
     }

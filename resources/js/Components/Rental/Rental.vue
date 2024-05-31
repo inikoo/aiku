@@ -45,6 +45,8 @@ const bulkData = ref([])
 const bulkDiscInput = ref(0)
 const currency = (inject('layout', layoutStructure))?.group?.currency
 
+console.log(props)
+
 const emits = defineEmits<{
     (e: 'changeIsDirty', value: Boolean): void
 }>()
@@ -79,7 +81,6 @@ const calculateDiscountedPrice = (price, discount) => {
 const sePriceByRental = (value: number, options: Array, index: number) => {
     const data = options.find((item: { id: number }) => item.id == value)
     if (data) {
-        console.log('rental_id', data)
         props.form[props.fieldName][index].price = data.price
         props.form[props.fieldName][index].original_price = data.price
         props.form[props.fieldName][index].agreed_price = calculateDiscountedPrice(props.form[props.fieldName][index].price, props.form[props.fieldName][index].discount)

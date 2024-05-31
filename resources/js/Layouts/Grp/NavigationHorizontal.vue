@@ -5,19 +5,19 @@
   -->
 
 <script setup lang='ts'>
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { useLayoutStore } from '@/Stores/layout'
 import NavigationSimple from '@/Layouts/Grp/NavigationSimple.vue'
 import { Navigation } from '@/types/Navigation'
-import { Link, usePage } from '@inertiajs/vue3'
+import { Link } from '@inertiajs/vue3'
 import { isNavigationActive } from '@/Composables/useUrl'
 import { generateCurrentString } from '@/Composables/useConvertString'
-import { ref, computed } from 'vue'
+import { inject } from 'vue'
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faChevronLeft, faChevronRight } from '@fas'
+import { faParachuteBox } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faChevronLeft, faChevronRight)
+library.add(faChevronLeft, faChevronRight, faParachuteBox)
 
 
 const props = defineProps<{
@@ -25,12 +25,22 @@ const props = defineProps<{
         fulfilments_navigation: {
             label: string
             icon: string
-            navigation: Navigation[]
+            navigation: {
+                [key: string]: {
+                    type?: string
+                    subNavigation: Navigation[]
+                }
+            }
         }
         shops_navigation: {
             label: string
             icon: string
-            navigation: Navigation[]
+            navigation: {
+                [key: string]: {
+                    type?: string  // 'dropshipping' || 'shop'
+                    subNavigation: Navigation[]
+                }
+            }
         }
     }
     // icon: string
@@ -39,16 +49,15 @@ const props = defineProps<{
 
 interface MergeNavigation {
     key: string  // 'uk', 'awd'
-    value: Navigation
+    value: {
+        type?: string
+        subNavigation: Navigation[]
+    }
     type: string  // 'shop', 'fulfilment
     root: string  // 'grp.org.fulfilments.show.'
 }
 
-const layout = useLayoutStore()
-
-// (layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_fulfilments`]
-
-// console.log('haha', Object.entries(props.orgNav.fulfilments_navigation.navigation))
+const layout = inject('layout', layoutStructure)
 
 // Navigation Fulfilment, Shop, and Merged
 const shopsOpenSlugs = layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.filter(shop => shop.state === 'open').map(shop => shop.slug)
@@ -56,21 +65,34 @@ const fulfilmentsOpenSlugs = layout.organisations.data.find(organisation => orga
 const fulfilmentsNav: () => MergeNavigation[] = () => {
     const filterFulfilmentsOpen = Object.entries(props.orgNav.fulfilments_navigation.navigation).filter(([key, subNavList]) => fulfilmentsOpenSlugs?.includes(key))
 
-    return filterFulfilmentsOpen.map(([key, subNavList]) => {
-        return { key: key, value: subNavList, type: 'fulfilment', root: 'grp.org.fulfilments.show.' }
+    return filterFulfilmentsOpen.map(([key, subNavObject]) => {
+        return {
+            key: key,
+            value: {
+                type: subNavObject.type,
+                subNavigation: subNavObject.subNavigation
+            },
+            type: 'fulfilment',
+            root: 'grp.org.fulfilments.'
+        }
     })
 }
 const shopsNav: () => MergeNavigation[] = () => {
     const filterShopsOpen = Object.entries(props.orgNav.shops_navigation.navigation).filter(([key, subNavList]) => shopsOpenSlugs?.includes(key))
 
-    return filterShopsOpen.map(([key, subNavList]) => {
-        return { key: key, value: subNavList, type: 'shop', root: 'grp.org.shops.show.' }
+    return filterShopsOpen.map(([key, subNavObject]) => {
+        return {
+            key: key,
+            value: {
+                type: subNavObject.type,
+                subNavigation: subNavObject.subNavigation
+            },
+            type: 'shop',
+            root: 'grp.org.shops.'
+        }
     })
 }
 
-// const shopsNav: MergeNavigation[] = Object.entries(props.orgNav.shops_navigation.navigation).filter(([key, subNavList]) => shopsOpenSlugs?.includes(key)).map(([key, subNavList]) => {
-//     return { key: key, value: subNavList, type: 'shop', root: 'grp.org.shops.show.' }
-// })
 const mergeNavigations = [...shopsNav(), ...fulfilmentsNav()]
 
 const currentNavigation = () => {
@@ -135,6 +157,17 @@ const isShowHorizontal = () => {
     return (isShopOpen || isFulfilmentOpen) 
 }
 
+// Route for label 'UK (Shop)'
+const routeLabelHorizontal = () => {
+    if(currentNavigation()?.type === 'fulfilment') {
+        return route('grp.org.fulfilments.show.operations.dashboard', [layout.currentParams.organisation, currentNavigation()?.key])
+    } else if (currentNavigation()?.type === 'shop'){
+        return route('grp.org.shops.show', [layout.currentParams.organisation, currentNavigation()?.key])
+    } else {
+        return '#'
+    }
+}
+
 </script>
 
 <template>
@@ -151,29 +184,29 @@ const isShowHorizontal = () => {
             :style="{ color: layout.app.theme[1] + '99' }">
 
             <!-- Label: 'UK (Shop)' -->
-            <div class="relative flex gap-x-1.5 items-center transition-all"
-                :class="layout.leftSidebar.show ? 'pt-[3px]' : 'pt-1'"
-            >
+            <Link :href="routeLabelHorizontal()" class="relative flex gap-x-1.5 items-center pt-1  hover:text-gray-100">
                 <Transition name="spin-to-down">
-                    <FontAwesomeIcon v-if="currentNavigation()?.type === 'shop'" icon="fal fa-store-alt" class='text-xxs' fixed-width aria-hidden='true' />
-                    <FontAwesomeIcon v-else-if="currentNavigation()?.type === 'fulfilment'" icon="fal fa-hand-holding-box" class='text-xxs' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon v-if="currentNavigation()?.value.type === 'b2b'" icon="fal fa-store-alt" class='text-xs' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon v-else-if="currentNavigation()?.value.type === 'fulfilment'" icon="fal fa-hand-holding-box" class='text-xs' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon v-else-if="currentNavigation()?.value.type === 'dropshipping'" icon="fal fa-parachute-box " class='text-xs' fixed-width aria-hidden='true' />
+                    <FontAwesomeIcon v-else-if="currentNavigation()?.type === 'shop'" icon="fal fa-store-alt " class='text-xs' fixed-width aria-hidden='true' />
                 </Transition>
 
                 <Transition name="slide-to-left">
                     <div v-if="layout.leftSidebar.show" class="flex items-center gap-x-1.5">
                         <Transition name="spin-to-down">
-                            <span :key="currentNavigation()?.key" class="text-sm leading-3 uppercase">
+                            <span :key="currentNavigation()?.key" class="text-base leading-3 uppercase">
                                 {{ currentNavigation()?.key }}
                             </span>
                         </Transition>
                         <Transition name="spin-to-down">
-                            <span :key="currentNavigation()?.type" class="text-xs capitalize leading-3">
-                                ({{ currentNavigation()?.type }})
+                            <span :key="currentNavigation()?.value.type" class="text-sm capitalize leading-3">
+                                ({{ currentNavigation()?.value.type || currentNavigation()?.type}})
                             </span>
                         </Transition>
                     </div>
                 </Transition>
-            </div>
+            </Link>
 
             
             <!-- Section: Arrow left-right -->
@@ -207,7 +240,7 @@ const isShowHorizontal = () => {
             class="flex flex-col gap-y-1 mb-1">
             <!-- Looping: SubNav -->
             <template
-                v-for="nav, navKey, navIndex in currentNavigation()?.value"
+                v-for="nav, navKey, navIndex in currentNavigation()?.value.subNavigation"
                 :key="navKey + navIndex">
                 <!-- {{ navKey }} -->
                 <NavigationSimple :nav="nav" :navKey="navKey" />

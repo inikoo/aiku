@@ -11,7 +11,6 @@ use App\Actions\Assets\Country\UI\GetAddressData;
 use App\Actions\Assets\Country\UI\GetCountriesOptions;
 use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
 use App\Actions\InertiaAction;
-use App\Actions\SupplyChain\Agent\UI\RemoveAgent;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\SupplyChain\Agent;
 use Inertia\Inertia;
@@ -35,6 +34,7 @@ class EditOrgAgent extends InertiaAction
     public function asController(Agent $agent, ActionRequest $request): Agent
     {
         $this->initialisation($request);
+
         return $this->handle($agent);
     }
 
@@ -52,8 +52,8 @@ class EditOrgAgent extends InertiaAction
                     'next'     => $this->getNext($agent, $request),
                 ],
                 'pageHead'    => [
-                    'title'     => $agent->code,
-                    'actions'   => [
+                    'title'   => $agent->code,
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'exitEdit',
@@ -71,28 +71,28 @@ class EditOrgAgent extends InertiaAction
                             'title'  => __('ID/contact details '),
                             'icon'   => ['fal', 'fa-address-book'],
                             'fields' => [
-                                'code'         => [
+                                'code'    => [
                                     'type'  => 'input',
                                     'label' => __('code '),
                                     'value' => $agent->code
                                 ],
-                                'company_name' => [
+                                'name'    => [
                                     'type'  => 'input',
-                                    'label' => __('company_name'),
-                                    'value' => $agent->company_name
+                                    'label' => __('name'),
+                                    'value' => $agent->organisation->name
                                 ],
-                                'email'        => [
+                                'email'   => [
                                     'type'    => 'input',
                                     'label'   => __('email'),
-                                    'value'   => $agent->email,
+                                    'value'   => $agent->organisation->email,
                                     'options' => [
                                         'inputType' => 'email'
                                     ]
                                 ],
-                                'address'      => [
+                                'address' => [
                                     'type'    => 'address',
                                     'label'   => __('Address'),
-                                    'value'   => AddressResource::make($agent->getAddress())->getArray(),
+                                    'value'   => AddressResource::make($agent->organisation->address)->getArray(),
                                     'options' => [
                                         'countriesAddressData' => GetAddressData::run()
 
@@ -123,23 +123,7 @@ class EditOrgAgent extends InertiaAction
                                 ],
                             ]
                         ],
-                        [
-                            'title'     => __('delete'),
-                            'icon'      => 'fa-light fa-trash-alt',
-                            'operation' => [
-                                [
-                                    'component' => 'removeModelAction',
-                                    'data'      => RemoveAgent::make()->getAction(
-                                        route:[
-                                            'name'       => 'grp.models.org_agent.delete',
-                                            'parameters' => array_values($request->route()->originalParameters())
-                                        ]
-                                    )
-                                ],
 
-
-                            ]
-                        ],
 
                     ],
 

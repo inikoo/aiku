@@ -10,6 +10,9 @@ namespace App\Actions\Fulfilment\RentalAgreement\UI;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
+use App\Http\Resources\Catalogue\OutersResource;
+use App\Http\Resources\Catalogue\RentalsResource;
+use App\Http\Resources\Catalogue\ServicesResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
@@ -60,16 +63,20 @@ class CreateRentalAgreement extends OrgAction
                                     ],
                                     'rental' => [
                                         'type'             => 'rental',
-                                        'label'            => __('Rental'),
+                                        'label'            => __(''),
                                         'required'         => false,
                                         'full'             => true,
-                                        'indexRentalRoute' => [
-                                            'name'       => 'grp.org.fulfilments.show.products.rentals.index',
-                                            'parameters' => [
-                                                'organisation' => $this->organisation->slug,
-                                                'fulfilment'   => $fulfilmentCustomer->fulfilment->slug
-                                            ]
-                                        ]
+                                        'rentals'          => RentalsResource::collection($fulfilmentCustomer->fulfilment->rentals),
+                                        'services'         => ServicesResource::collection($fulfilmentCustomer->fulfilment->shop->services),
+                                        'physical_goods'   => OutersResource::collection($fulfilmentCustomer->fulfilment->shop->outers),
+                                        'clauses'          => $fulfilmentCustomer->rentalAgreementClauses,
+                                        // 'indexRentalRoute' => [
+                                        //     'name'       => 'grp.org.fulfilments.show.products.rentals.index',
+                                        //     'parameters' => [
+                                        //         'organisation' => $this->organisation->slug,
+                                        //         'fulfilment'   => $fulfilmentCustomer->fulfilment->slug
+                                        //     ]
+                                        // ]
                                     ],
                                 ]
                             ]
