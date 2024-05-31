@@ -71,6 +71,8 @@ const resetValue=()=>{
     props.form[props.fieldName][props.bluprint.key] = props.fieldData[props.bluprint.key].data
 }
 
+console.log(props)
+
 
 </script>
 
@@ -80,7 +82,7 @@ const resetValue=()=>{
         <Popover width="w-full" class="relative h-full">
             <template #button>
                 <Button :key="bulkData.length" label="Set all discount (%)"
-                    :type="bulkData.length > 0 ? 'edit' : 'disabled'" :icon='["far", "fa-pencil"]' class="mr-2" />
+                    :type="bulkData.length > 0 ? 'edit' : 'disabled'"  :icon="['fal', 'list-alt']" class="mr-2" />
             </template>
 
             <template #content="{ close: closed }">
@@ -138,18 +140,29 @@ const resetValue=()=>{
                                 <div v-if="!e.type || e.type == 'text'">
                                     {{ itemData[e.key] }}
                                 </div>
-                                <div v-else-if="e.type == 'number'">
+                                <div v-if="e.type == 'price'">
+                                     {{ `${itemData.currency.symbol} ${itemData[e.key]}` }}
+                                </div>
+                                <div v-else-if="e.type == 'name'">
+                                <div>
+                                    <div>{{ itemData["code"] }}</div>
+                                    <div class="text-[10px]">{{ itemData["name"] }}</div>
+                                </div>
+                                    
+                                </div>
+                                <div v-else-if="e.type == 'inputPrice'">
                                     <Currency 
-                                        :modelValue="itemData[e.key]"
+                                        v-model="itemData[e.key]"
                                         :placeholder="'Input Price'" 
                                         @input="(value)=> e?.propsOptions?.onChange(value,e,itemData)"
                                         :currency="itemData.currency.code" 
-                                        :minValue="0" step="0.01"   
+                                        :minValue="0" step="0.01" 
+                                        :maxValue="itemData['original_price']"  
                                     />
                                 </div>
                                 <div v-else-if="e.type == 'discount'">
                                     <PureInput v-model="itemData[e.key]" :placeholder="'Input Discount'" type="number"
-                                        :maxValue="99" :suffix="true" :minValue="0"  @input="(value)=> e?.propsOptions?.onChange(value,e,itemData)">
+                                        :maxValue="100" :suffix="true" :minValue="0"  @input="(value)=> e?.propsOptions?.onChange(value,e,itemData)">
                                         <template #suffix>
                                             <div
                                                 class="flex justify-center items-center px-2 absolute inset-y-0 right-0 text-gray-400">

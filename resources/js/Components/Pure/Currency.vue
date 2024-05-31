@@ -2,7 +2,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { faCopy } from '@fal'
 import { faEye, faEyeSlash } from '@far'
-import { faTimesCircle, } from '@fas'
+import { faTimesCircle } from '@fas'
 import { faSpinnerThird } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { useCurrencyInput } from 'vue-currency-input';
@@ -17,7 +17,9 @@ const props = withDefaults(defineProps<{
     minValue?: string | number
     maxValue?: string | number
     currency: String
+    step?: string | number
 }>(), {
+    step: '1'
 })
 
 const { inputRef, formattedValue, numberValue, setValue } = useCurrencyInput({
@@ -39,21 +41,40 @@ watch(
     }
 );
 
-watch(
+/* watch(
     () => numberValue.value,
     (value) => {
         emits('update:modelValue', value);
         emits('input', value);
     }
 );
-
+ */
 const increment = () => {
-    setValue((parseFloat(numberValue.value) || 0) + 1);
+    const stepValue = parseFloat(props.step as string) || 1;
+    setValue((parseFloat(numberValue.value) || 0) + stepValue);
+    emits('input', (parseFloat(numberValue.value) || 0) + stepValue)
 }
 
 const decrement = () => {
-    setValue((parseFloat(numberValue.value) || 0) - 1);
+    const stepValue = parseFloat(props.step as string) || 1;
+    setValue((parseFloat(numberValue.value) || 0) - stepValue);
+    emits('input', (parseFloat(numberValue.value) || 0) - stepValue)
 }
+
+const onChange = () => {
+    let numericPart = formattedValue.value.match(/[0-9.]+/)
+
+    if (numericPart) {
+        let priceNumber = parseFloat(numericPart);
+      
+        emits('update:modelValue', priceNumber);
+        emits('input', priceNumber);
+    } else {
+        console.log("Invalid price string format.");
+    }
+}
+
+
 
 </script>
 
@@ -61,12 +82,12 @@ const decrement = () => {
     <div
         class="bg-white w-full flex group relative ring-1 ring-gray-300 focus-within:ring-2 focus-within:ring-gray-500 rounded-md overflow-hidden">
         <div class="relative w-full">
-            <input v-model="formattedValue" ref="inputRef" :placeholder="placeholder" class="remove-arrows-input bg-transparent py-2.5 block w-full
+            <input v-model="formattedValue" ref="inputRef" :placeholder="placeholder" class="remove-arrows-input bg-transparent py-2.5 block w-full 
                     text-black sm:text-sm placeholder:text-gray-400
                     border-transparent
                     focus:ring-0 focus:ring-gray-500 focus:outline-0 focus:border-transparent
                     read-only:bg-gray-100 read-only:ring-0 read-only:ring-transparent read-only:focus:border-transparent read-only:focus:border-gray-300 read-only:text-gray-500
-                " @keydown.up.prevent="increment" @keydown.down.prevent="decrement"/>
+                " @keydown.up.prevent="increment" @keydown.down.prevent="decrement" @input="onChange"/>
         </div>
     </div>
 </template>
