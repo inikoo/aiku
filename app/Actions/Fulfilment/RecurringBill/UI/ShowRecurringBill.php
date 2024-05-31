@@ -86,24 +86,28 @@ class ShowRecurringBill extends OrgAction
                     fn () => RecurringBillResource::make($recurringBill)
                     : Inertia::lazy(fn () => RecurringBillResource::make($recurringBill)),
 
+                // Todo @kirin fix this below
                 RecurringBillTabsEnum::PALLETS->value => $this->tab == RecurringBillTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPallets::run($recurringBill))
                     : Inertia::lazy(fn () => PalletsResource::collection(IndexPallets::run($recurringBill))),
 
+                // Todo @kirin fix this below
                 RecurringBillTabsEnum::SERVICES->value => $this->tab == RecurringBillTabsEnum::PALLETS->value ?
                     fn () => ServicesResource::collection(IndexFulfilmentServices::run($recurringBill))
                     : Inertia::lazy(fn () => ServicesResource::collection(IndexFulfilmentServices::run($recurringBill))),
 
+                // Todo @kirin fix this below
                 RecurringBillTabsEnum::PHYSICAL_GOODS->value => $this->tab == RecurringBillTabsEnum::PALLETS->value ?
                     fn () => PhysicalGoodsResource::collection(IndexFulfilmentPhysicalGoods::run($recurringBill))
                     : Inertia::lazy(fn () => PhysicalGoodsResource::collection(IndexFulfilmentPhysicalGoods::run($recurringBill))),
 
+                // Todo @kirin fix this below
                 RecurringBillTabsEnum::HISTORY->value => $this->tab == RecurringBillTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($recurringBill))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($recurringBill)))
 
             ]
-            // Todo @kirin or @raul please fix this below
+            // Todo @kirin please fix this below
         )->table(IndexHistory::make()->tableStructure(prefix: RecurringBillTabsEnum::HISTORY->value));
         //            ->table(IndexFulfilmentServices::make()->tableStructure($recurringBill, prefix: RecurringBillTabsEnum::SERVICES->value))
         //            ->table(IndexFulfilmentPhysicalGoods::make()->tableStructure($recurringBill, prefix: RecurringBillTabsEnum::PHYSICAL_GOODS->value))
@@ -118,7 +122,8 @@ class ShowRecurringBill extends OrgAction
 
     public function getBreadcrumbs(RecurringBill $recurringBill, $suffix = null): array
     {
-
+        //  TODO: Fix this @kirin
+        return [];
         return array_merge(
             ShowFulfilmentCustomer::make()->getBreadcrumbs(request()->route()->originalParameters()),
             [
