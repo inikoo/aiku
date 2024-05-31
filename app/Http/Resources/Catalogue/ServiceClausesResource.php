@@ -14,7 +14,7 @@ class ServiceClausesResource extends JsonResource
 {
     public function toArray($request): array
     {
-          /** @var RentalAgreementClause $clause */
+        /** @var RentalAgreementClause $clause */
         $clause = $this;
 
         return [
@@ -28,7 +28,7 @@ class ServiceClausesResource extends JsonResource
             'agreed_price'                      => $clause->agreed_price,
             'discount'                          => 0,
             'unit'                              => $clause->product->service->unit,
-            'currency'                          => CurrencyResource::make($clause->product->currency) 
+            'currency'                          => CurrencyResource::make($clause->product->currency)
         ];
     }
 }

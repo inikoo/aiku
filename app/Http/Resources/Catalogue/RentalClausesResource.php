@@ -28,7 +28,7 @@ class RentalClausesResource extends JsonResource
             'agreed_price'                      => $clause->agreed_price,
             'discount'                          => 0,
             'unit'                              => $clause->product->rental->unit,
-            'currency'                          => CurrencyResource::make($clause->product->currency) 
+            'currency'                          => CurrencyResource::make($clause->product->currency)
         ];
     }
 }

@@ -56,14 +56,14 @@ class StoreRentalAgreement extends OrgAction
 
 
         foreach ($causes as $causeData) {
-            foreach ($causeData as $data)   {
+            foreach ($causeData as $data) {
                 StoreRentalAgreementClause::run($rentalAgreement, $data);
             }
         }
 
-        
 
-       
+
+
 
         FulfilmentCustomerHydrateStatus::run($fulfilmentCustomer);
 
@@ -74,26 +74,26 @@ class StoreRentalAgreement extends OrgAction
     public function rules(): array
     {
         return [
-            'billing_cycle'          => ['required', Rule::enum(RentalAgreementBillingCycleEnum::class)],
-            'pallets_limit'          => ['nullable', 'integer', 'min:1', 'max:10000'],
-            'rental'                 => ['sometimes', 'array'],
+            'billing_cycle'                  => ['required', Rule::enum(RentalAgreementBillingCycleEnum::class)],
+            'pallets_limit'                  => ['nullable', 'integer', 'min:1', 'max:10000'],
+            'rental'                         => ['sometimes', 'array'],
             'rental.rentals.*.product_id'    => ['sometimes',
                                          Rule::exists('products', 'id')
                                              ->where('shop_id', $this->fulfilment->shop_id)
                 ],
-            'rental.rentals.*.agreed_price'  => ['sometimes', 'numeric', 'gt:0'],
+            'rental.rentals.*.agreed_price'   => ['sometimes', 'numeric', 'gt:0'],
             'rental.services.*.product_id'    => ['sometimes',
                                          Rule::exists('products', 'id')
                                              ->where('shop_id', $this->fulfilment->shop_id)
                 ],
-            'rental.services.*.agreed_price'  => ['sometimes', 'numeric', 'gt:0'],
+            'rental.services.*.agreed_price'        => ['sometimes', 'numeric', 'gt:0'],
             'rental.physical_goods.*.product_id'    => ['sometimes',
                                          Rule::exists('products', 'id')
                                              ->where('shop_id', $this->fulfilment->shop_id)
                 ],
             'rental.physical_goods.*.agreed_price'  => ['sometimes', 'numeric', 'gt:0'],
-            'state'                  => ['sometimes', Rule::enum(RentalAgreementStateEnum::class)],
-            'created_at'             => ['sometimes', 'date']
+            'state'                                 => ['sometimes', Rule::enum(RentalAgreementStateEnum::class)],
+            'created_at'                            => ['sometimes', 'date']
         ];
     }
 

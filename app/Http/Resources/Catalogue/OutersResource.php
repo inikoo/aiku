@@ -17,7 +17,7 @@ class OutersResource extends JsonResource
     {
         /** @var Outer $outer */
         $outer=$this;
-        return [            
+        return [
             'id'                    => $outer->id,
             'product_id'            => $outer->product_id,
             'slug'                  => $outer->slug,

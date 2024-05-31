@@ -7,6 +7,8 @@
 
 namespace App\Actions\Fulfilment\PalletReturn\UI;
 
+use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentPhysicalGoods;
+use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInReturn;
 use App\Actions\Fulfilment\PalletReturnPhysicalGood\UI\IndexPhysicalGoodInPalletReturn;
@@ -86,6 +88,10 @@ class ShowPalletReturn extends OrgAction
         }
 
         $actions = [];
+
+        $servicesList      = ServicesResource::collection(IndexFulfilmentServices::run($palletReturn->fulfilment))->toArray($request);
+        $physicalGoodsList = PhysicalGoodsResource::collection(IndexFulfilmentPhysicalGoods::run($palletReturn->fulfilment))->toArray($request);
+
 
         if($this->canEdit) {
             $actions = $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
@@ -360,6 +366,9 @@ class ShowPalletReturn extends OrgAction
                         'field'           => 'internal_notes'
                     ],
                 ],
+
+                'service_lists'                        => $servicesList,
+                'physical_good_lists'                  => $physicalGoodsList,
 
                 PalletReturnTabsEnum::PALLETS->value => $this->tab == PalletReturnTabsEnum::PALLETS->value ?
                     fn () => PalletsResource::collection(IndexPalletsInReturn::run($palletReturn))

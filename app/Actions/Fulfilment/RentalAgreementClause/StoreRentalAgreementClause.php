@@ -25,7 +25,7 @@ class StoreRentalAgreementClause extends OrgAction
 
         $product = Product::find($modelData['product_id']);
         data_set($modelData, 'type', $product->type);
-        
+
         // dd($modelData);
         /** @var RentalAgreementClause $rentalAgreementClause */
         $rentalAgreementClause = $rentalAgreement->clauses()->create($modelData);

@@ -67,7 +67,7 @@ class UpdateRentalAgreement extends OrgAction
         // dd($causes);
         foreach ($rentalAgreement->clauses as $clause) {
             $productId = $clause->product_id;
-                     
+
             if (isset($modelData['rental']['rentals'])) {
                 foreach ($modelData['rental']['rentals'] as $rentalData) {
                     if ($rentalData['product_id'] === $productId) {
@@ -76,16 +76,16 @@ class UpdateRentalAgreement extends OrgAction
                     }
                 }
             }
-            
+
             if (isset($modelData['rental']['services'])) {
                 foreach ($modelData['rental']['services'] as $serviceData) {
                     if ($serviceData['product_id'] === $productId) {
                         UpdateRentalAgreementClause::run($clause, $serviceData);
-                        break; 
+                        break;
                     }
                 }
             }
-            
+
             if (isset($modelData['rental']['physical_goods'])) {
                 foreach ($modelData['rental']['physical_goods'] as $physicalGoodsData) {
                     if ($physicalGoodsData['product_id'] === $productId) {
@@ -105,27 +105,27 @@ class UpdateRentalAgreement extends OrgAction
     public function rules(): array
     {
         return [
-            'billing_cycle'         => ['sometimes', 'string', Rule::in(RentalAgreementBillingCycleEnum::values())],
-            'pallets_limit'         => ['sometimes', 'integer', 'min:1', 'max:10000'],
-            'rental'                => ['sometimes', 'array'],
+            'billing_cycle'                  => ['sometimes', 'string', Rule::in(RentalAgreementBillingCycleEnum::values())],
+            'pallets_limit'                  => ['sometimes', 'integer', 'min:1', 'max:10000'],
+            'rental'                         => ['sometimes', 'array'],
             'rental.rentals.*.product_id'    => ['sometimes',
                                          Rule::exists('products', 'id')
-                                            
+
                 ],
             'rental.rentals.*.agreed_price'  => ['sometimes', 'numeric', 'gt:0'],
-            // 'rental.rentals.*.price'         => ['sometimes', 'numeric', 'gt:0'],   
+            // 'rental.rentals.*.price'         => ['sometimes', 'numeric', 'gt:0'],
             'rental.services.*.product_id'    => ['sometimes',
                                          Rule::exists('products', 'id')
-                                             
+
                 ],
             'rental.services.*.agreed_price'  => ['sometimes', 'numeric', 'gt:0'],
-            // 'rental.services.*.price'         => ['sometimes', 'numeric', 'gt:0'],   
+            // 'rental.services.*.price'         => ['sometimes', 'numeric', 'gt:0'],
             'rental.physical_goods.*.product_id'    => ['sometimes',
                                          Rule::exists('products', 'id')
-                                             
+
                 ],
             'rental.physical_goods.*.agreed_price'  => ['sometimes', 'numeric', 'gt:0'],
-            // 'rental.physical_goods.*.price'         => ['sometimes', 'numeric', 'gt:0'],   
+            // 'rental.physical_goods.*.price'         => ['sometimes', 'numeric', 'gt:0'],
         ];
     }
 
@@ -133,7 +133,7 @@ class UpdateRentalAgreement extends OrgAction
     // {
     //     dd($validator);
     // }
-    
+
     public function action(FulfilmentCustomer $fulfilmentCustomer, RentalAgreement $rentalAgreement, array $modelData): RentalAgreement
     {
         $this->asAction = true;
