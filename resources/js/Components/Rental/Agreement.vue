@@ -7,10 +7,9 @@ import ServicesBluprint from './Bluprint/services.js'
 import PhysicalGoodsBluprint from './Bluprint/physicalGoods.js'
 import { inject } from 'vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
+import { cloneDeep } from 'lodash'
 
 const layout = inject('layout', layoutStructure)
-
-
 
 const props = defineProps<{
     form: any
@@ -57,11 +56,12 @@ const tabs = ref([
 ])
 
 
+
 onBeforeMount(() => {
     props.form[props.fieldName] = {
-        rentals: props.fieldData?.rentals.data,
-        physical_goods: props.fieldData?.physical_goods.data,
-        services: props.fieldData?.services.data,
+        rentals: cloneDeep(props.fieldData?.rentals?.data),
+        physical_goods: cloneDeep(props.fieldData?.physical_goods.data),
+        services: cloneDeep(props.fieldData?.services.data),
     }
 })
 
