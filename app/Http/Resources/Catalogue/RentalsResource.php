@@ -19,6 +19,7 @@ class RentalsResource extends JsonResource
 
         return [
             'id'                                => $rental->id,
+            'product_id'                        => $rental->product_id,
             'slug'                              => $rental->product->slug,
             'name'                              => $rental->product->name,
             'code'                              => $rental->product->code,
