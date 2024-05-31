@@ -10,6 +10,8 @@ namespace App\Actions\Fulfilment\RentalAgreement\UI;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
+use App\Http\Resources\Catalogue\RentalsResource;
+use App\Http\Resources\Catalogue\ServicesResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\SysAdmin\Organisation;
@@ -63,12 +65,8 @@ class CreateRentalAgreement extends OrgAction
                                         'label'            => __('Rental'),
                                         'required'         => false,
                                         'full'             => true,
-                                        'rentals' => $fulfilmentCustomer->fulfilment->rentals->map(function($rental) {
-                                            return $rental->product;
-                                        }),
-                                        'services' => $fulfilmentCustomer->fulfilment->services->map(function($service) {
-                                            return $service->product;
-                                        }),
+                                        'rentals'          => RentalsResource::collection($fulfilmentCustomer->fulfilment->rentals),
+                                        'services'         => ServicesResource::collection($fulfilmentCustomer->fulfilment->shop->services),
                                         'physical_goods'   => $fulfilmentCustomer->fulfilment->shop->outers,
                                         'clauses'          => $fulfilmentCustomer->rentalAgreementClauses,   
                                         // 'indexRentalRoute' => [
