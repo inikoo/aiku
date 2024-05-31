@@ -46,6 +46,7 @@ const props = defineProps<{
 const bulkData = ref([])
 const bulkDiscInput = ref(0)
 
+
 const onSelectAllRows = (input) => {
     const value = []
     if (input.target.checked) {
@@ -134,12 +135,17 @@ const onBulkDiscount = (close: Function) => {
                                     {{ itemData[e.key] }}
                                 </div>
                                 <div v-else-if="e.type == 'number'">
-                                    <Currency v-model="itemData[e.key]" :placeholder="'Input Price'"
-                                        :currency="itemData.currency.code" :minValue="0" step="0.01" />
+                                    <Currency 
+                                        v-model="itemData[e.key]" 
+                                        :placeholder="'Input Price'" 
+                                        @input="(value)=> e?.propsOptions?.onChange(value,e,itemData)"
+                                        :currency="itemData.currency.code" 
+                                        :minValue="0" step="0.01"   
+                                    />
                                 </div>
                                 <div v-else-if="e.type == 'discount'">
                                     <PureInput v-model="itemData[e.key]" :placeholder="'Input Discount'" type="number"
-                                        :maxValue="99" :suffix="true" :minValue="0">
+                                        :maxValue="99" :suffix="true" :minValue="0"  @input="(value)=> e?.propsOptions?.onChange(value,e,itemData)">
                                         <template #suffix>
                                             <div
                                                 class="flex justify-center items-center px-2 absolute inset-y-0 right-0 text-gray-400">

@@ -25,7 +25,9 @@ class ServicesResource extends JsonResource
             'code'                              => $service->product->code,
             'price'                             => $service->price,
             'unit'                              => $service->unit,
-            'currency'                          => CurrencyResource::make($service->product->currency) 
+            'currency'                          => CurrencyResource::make($service->product->currency),
+            'agreed_price'                      => $service->price,
+            'discount'                          => 0,
         ];
     }
 }
