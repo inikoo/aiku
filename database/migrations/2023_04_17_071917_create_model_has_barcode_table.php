@@ -12,17 +12,19 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('barcodeable', function (Blueprint $table) {
+        Schema::create('model_has_barcode', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('barcode_id')->index();
-            $table->morphs('barcodeable');
+            $table->string('model_type');
+            $table->unsignedInteger('model_id');
             $table->timestampsTz();
+            $table->index(['model_type','model_id']);
         });
     }
 
 
     public function down(): void
     {
-        Schema::dropIfExists('barcodeable');
+        Schema::dropIfExists('model_has_barcode');
     }
 };

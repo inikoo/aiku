@@ -76,10 +76,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Collection<int, \App\Models\Procurement\PurchaseOrderItem> $items
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $media
  * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $parent
  * @method static \Database\Factories\Procurement\PurchaseOrderFactory factory($count = null, $state = [])

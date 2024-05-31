@@ -68,8 +68,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $attachments
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Collection<int, \App\Models\Procurement\StockDeliveryItem> $items
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $media
  * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $parent
  * @property-read Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders

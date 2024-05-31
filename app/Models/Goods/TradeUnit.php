@@ -8,6 +8,7 @@
 namespace App\Models\Goods;
 
 use App\Models\Catalogue\Product;
+use App\Models\Helpers\Barcode;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasImage;
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\HasMedia;
@@ -34,7 +36,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property string|null $name
  * @property string|null $description
- * @property string|null $barcode
+ * @property Collection<int, Barcode> $barcode
  * @property float|null $gross_weight in kilograms include packing
  * @property float|null $net_weight in kilograms
  * @property array|null $dimensions
@@ -102,5 +104,10 @@ class TradeUnit extends Model implements HasMedia
     public function products(): BelongsToMany
     {
         return $this->belongsToMany(Product::class);
+    }
+
+    public function barcode(): MorphToMany
+    {
+        return $this->morphToMany(Barcode::class, 'mode', 'model_has_barcode')->withTimestamps();
     }
 }

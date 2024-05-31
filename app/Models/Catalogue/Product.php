@@ -174,7 +174,7 @@ class Product extends Model implements HasMedia
 
     public function barcode(): MorphToMany
     {
-        return $this->morphToMany(Barcode::class, 'barcodeable');
+        return $this->morphToMany(Barcode::class, 'model', 'model_has_barcode')->withTimestamps();
     }
 
     public function outers(): HasMany

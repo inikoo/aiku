@@ -66,6 +66,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
+ * @property-read MediaCollection<int, Media> $attachments
  * @property-read Group $group
  * @property-read Media|null $image
  * @property-read MediaCollection<int, Media> $images
@@ -175,6 +176,6 @@ class Stock extends Model implements HasMedia
 
     public function barcode(): MorphToMany
     {
-        return $this->morphToMany(Barcode::class, 'barcodeable');
+        return $this->morphToMany(Barcode::class, 'mode', 'model_has_barcode')->withTimestamps();
     }
 }

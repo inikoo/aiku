@@ -16,6 +16,7 @@ use App\Models\Assets\Currency;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Goods\TradeUnit;
+use App\Models\Helpers\Barcode;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
@@ -73,6 +74,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupAccountingStats|null $accountingStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Artefact> $artefacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Barcode> $barcodes
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ClockingMachine> $clockingMachines
  * @property-read \Illuminate\Database\Eloquent\Collection<int, CollectionCategory> $collectionCategories
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Collection> $collections
@@ -394,6 +396,11 @@ class Group extends Model implements HasMedia
     public function clockingMachines(): HasMany
     {
         return $this->hasMany(ClockingMachine::class);
+    }
+
+    public function barcodes(): HasMany
+    {
+        return $this->hasMany(Barcode::class);
     }
 
 }

@@ -32,7 +32,7 @@ class SaveModelImage
 
         $checksum = md5_file($imageData['path']);
 
-        if ($oldImage && $oldImage->checksum == $checksum  ) {
+        if ($oldImage && $oldImage->checksum == $checksum) {
             return $model;
         }
 

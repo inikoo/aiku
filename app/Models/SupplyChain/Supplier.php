@@ -68,6 +68,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\Address|null $address
  * @property-read Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read \App\Models\SupplyChain\Agent|null $agent
+ * @property-read MediaCollection<int, \App\Models\Studio\Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
  * @property-read Group $group

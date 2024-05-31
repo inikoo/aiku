@@ -89,6 +89,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Collection<int, Address> $addresses
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $attachments
  * @property-read Address|null $billingAddress
  * @property-read Address|null $collectionAddress
  * @property-read \App\Models\CRM\Customer $customer
@@ -98,6 +99,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Address> $fixedAddresses
  * @property-read Group $group
  * @property-read Collection<int, Invoice> $invoices
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $media
  * @property-read Organisation $organisation
  * @property-read Collection<int, Payment> $payments
  * @property-read Shop $shop

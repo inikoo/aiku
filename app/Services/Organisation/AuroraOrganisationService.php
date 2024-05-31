@@ -13,6 +13,7 @@ use App\Models\Helpers\Fetch;
 use App\Models\SysAdmin\Organisation;
 use App\Services\Organisation\Aurora\FetchAuroraAgent;
 use App\Services\Organisation\Aurora\FetchAuroraArtefact;
+use App\Services\Organisation\Aurora\FetchAuroraBarcode;
 use App\Services\Organisation\Aurora\FetchAuroraClockingMachine;
 use App\Services\Organisation\Aurora\FetchAuroraCustomer;
 use App\Services\Organisation\Aurora\FetchAuroraCustomerClient;
@@ -363,6 +364,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchArtefact($id): array
     {
         return (new FetchAuroraArtefact($this))->fetch($id);
+    }
+
+    public function fetchBarcode($id): array
+    {
+        return (new FetchAuroraBarcode($this))->fetch($id);
     }
 
 }

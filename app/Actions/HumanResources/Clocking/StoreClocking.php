@@ -185,9 +185,7 @@ class StoreClocking extends OrgAction
     public function action(Organisation|User|Employee|Guest $generator, ClockingMachine|Workplace $parent, Employee|Guest $subject, array $modelData): Clocking
     {
         $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
-
-        return $this->handle($generator, $parent, $subject, $validatedData);
+        $this->initialisation($parent->organisation, $modelData);
+        return $this->handle($generator, $parent, $subject, $this->validatedData);
     }
 }

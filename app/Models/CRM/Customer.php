@@ -92,6 +92,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, \App\Models\CRM\Appointment> $appointments
+ * @property-read MediaCollection<int, Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, CustomerClient> $clients
  * @property-read Address|null $deliveryAddress

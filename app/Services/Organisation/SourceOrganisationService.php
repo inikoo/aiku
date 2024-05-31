@@ -125,4 +125,6 @@ interface SourceOrganisationService
 
     public function fetchClockingMachine($id);
 
+    public function fetchBarcode($id);
+
 }

@@ -8,7 +8,9 @@
 namespace App\Models\Helpers;
 
 use App\Models\Catalogue\Product;
+use App\Models\Goods\TradeUnit;
 use App\Models\SupplyChain\Stock;
+use App\Models\Traits\InGroup;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -22,17 +24,22 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Helpers\Barcode
  *
  * @property int $id
+ * @property int $group_id
  * @property string $slug
  * @property string $type
  * @property string $status
  * @property string $number
+ * @property string|null $note
  * @property string|null $assigned_at
  * @property array $data
+ * @property string|null $source_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Collection<int, Product> $product
  * @property-read Collection<int, Stock> $stock
+ * @property-read Collection<int, TradeUnit> $tradeUnit
  * @method static Builder|Barcode newModelQuery()
  * @method static Builder|Barcode newQuery()
  * @method static Builder|Barcode onlyTrashed()
@@ -45,6 +52,7 @@ class Barcode extends Model
 {
     use SoftDeletes;
     use HasSlug;
+    use InGroup;
 
     protected $casts = [
         'data' => 'array',
@@ -71,11 +79,16 @@ class Barcode extends Model
 
     public function stock(): MorphToMany
     {
-        return $this->morphedByMany(Stock::class, 'barcodeable');
+        return $this->morphedByMany(Stock::class, 'model', 'model_has_barcode');
+    }
+
+    public function tradeUnit(): MorphToMany
+    {
+        return $this->morphedByMany(TradeUnit::class, 'model', 'model_has_barcode');
     }
 
     public function product(): MorphToMany
     {
-        return $this->morphedByMany(Product::class, 'barcodeable');
+        return $this->morphedByMany(Product::class, 'model', 'model_has_barcode');
     }
 }

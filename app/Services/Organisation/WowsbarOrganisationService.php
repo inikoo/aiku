@@ -318,4 +318,9 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchBarcode($id): ?array
+    {
+        return null;
+    }
+
 }
