@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\RentalAgreementClause;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Fulfilment\RentalAgreementClause;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateRentalAgreementClause extends OrgAction
@@ -18,6 +19,7 @@ class UpdateRentalAgreementClause extends OrgAction
 
     public function handle(RentalAgreementClause $rentalAgreementClause, array $modelData): RentalAgreementClause
     {
+        $modelData = Arr::only($modelData, 'agreed_price');
         /** @var \App\Models\Fulfilment\RentalAgreementClause $rentalAgreementClause */
         $rentalAgreementClause = $this->update($rentalAgreementClause, $modelData);
 
