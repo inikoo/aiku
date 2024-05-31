@@ -67,11 +67,16 @@ const onBulkDiscount = (close: Function) => {
 }
 
 
+const resetValue=()=>{
+    props.form[props.fieldName][props.bluprint.key] = props.fieldData[props.bluprint.key].data
+}
+
+
 </script>
 
 <template>
 
-    <div class="flex justify-end mt-3 mb-3">
+    <div class="flex justify-end mb-3">
         <Popover width="w-full" class="relative h-full">
             <template #button>
                 <Button :key="bulkData.length" label="Set all discount (%)"
@@ -97,8 +102,7 @@ const onBulkDiscount = (close: Function) => {
                 </div>
             </template>
         </Popover>
-       <!--  <Button :key="bulkData.length" :label="`Delete (${bulkData.length})`" :icon='["far", "fa-trash-alt"]'
-            :type="bulkData.length > 0 ? 'delete' : 'disabled'" @click="bulkDeleteAction" /> -->
+        <Button :key="bluprint.key" :label="`Reset`" :icon="['fal', 'history']" :type="'gray'" @click="resetValue"/>
     </div>
 
 
