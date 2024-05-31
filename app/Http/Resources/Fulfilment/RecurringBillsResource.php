@@ -13,6 +13,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 *
  * @property int $id
  * @property int $reference
+ * @property int $slug
  */
 class RecurringBillsResource extends JsonResource
 {
@@ -20,6 +21,7 @@ class RecurringBillsResource extends JsonResource
     {
         return [
             'id'          => $this->id,
+            'slug'        => $this->slug,
             'reference'   => $this->reference,
         ];
     }

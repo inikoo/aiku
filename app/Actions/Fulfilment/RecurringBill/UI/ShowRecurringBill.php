@@ -148,9 +148,9 @@ class ShowRecurringBill extends OrgAction
                     fn () => GetStoredItemShowcase::run($storedItem)
                     : Inertia::lazy(fn () => GetStoredItemShowcase::run($storedItem)),
 
-                StoredItemTabsEnum::PALLETS->value => $this->tab == StoredItemTabsEnum::PALLETS->value ?
-                    fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))
-                    : Inertia::lazy(fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))),
+//                StoredItemTabsEnum::PALLETS->value => $this->tab == StoredItemTabsEnum::PALLETS->value ?
+//                    fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))
+//                    : Inertia::lazy(fn () => PalletsResource::collection(IndexStoredItemPallets::run($storedItem))),
 
                 StoredItemTabsEnum::HISTORY->value => $this->tab == StoredItemTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($storedItem))

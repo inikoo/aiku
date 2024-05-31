@@ -7,6 +7,8 @@
 <script setup lang='ts'>
 import Table from '@/Components/Table/Table.vue'
 import {RecurringBill} from "@/types/recurring_bill";
+import {Link} from "@inertiajs/vue3";
+import {Pallet} from "@/types/Pallet";
 
 
 const props = defineProps<{
@@ -15,10 +17,31 @@ const props = defineProps<{
 }>()
 
 
+function recurringBillRoute(bill) {
+    console.log(route().current());
+    switch (route().current()) {
+        case "grp.org.fulfilments.show.crm.customers.show.recurring_bills.index":
+            return route(
+                "grp.org.fulfilments.show.crm.customers.show.recurring_bills.show",
+                [
+                    route().params["organisation"],
+                    route().params["fulfilment"],
+                    route().params["fulfilmentCustomer"],
+                    bill.slug
+                ]);
+
+        default:
+            return [];
+    }
+}
 </script>
 
 <template>
   <Table :resource="data" :name="tab" class="mt-5">
-
+      <template #cell(reference)="{ item: bill }">
+          <Link :href="recurringBillRoute(bill)" class="secondaryLink">
+              {{ bill["reference"] }}
+          </Link>
+      </template>
   </Table>
 </template>
