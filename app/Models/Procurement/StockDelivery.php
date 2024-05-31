@@ -14,6 +14,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasAttachments;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -25,6 +26,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -84,7 +87,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|StockDelivery withoutTrashed()
  * @mixin Eloquent
  */
-class StockDelivery extends Model
+class StockDelivery extends Model implements HasMedia, Auditable
 {
     use SoftDeletes;
     use HasAddress;
@@ -93,6 +96,7 @@ class StockDelivery extends Model
     use HasFactory;
     use InOrganisation;
     use HasAttachments;
+    use HasHistory;
 
 
     protected $casts = [

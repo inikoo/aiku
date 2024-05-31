@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -93,7 +94,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|PurchaseOrder withoutTrashed()
  * @mixin Eloquent
  */
-class PurchaseOrder extends Model implements Auditable
+class PurchaseOrder extends Model implements Auditable, HasMedia
 {
     use SoftDeletes;
     use HasAddress;

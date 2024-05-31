@@ -21,6 +21,7 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasAttachments;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InCustomer;
 use Eloquent;
@@ -36,6 +37,8 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 
+use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -115,7 +118,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Order withoutTrashed()
  * @mixin Eloquent
  */
-class Order extends Model
+class Order extends Model implements HasMedia, Auditable
 {
     use HasSlug;
     use SoftDeletes;
@@ -124,6 +127,7 @@ class Order extends Model
     use InCustomer;
     use HasAddresses;
     use HasAttachments;
+    use HasHistory;
 
 
     protected $casts = [
