@@ -1,4 +1,4 @@
-    <?php
+<?php
 /*
  * Author: Artha <artha@aw-advantage.com>
  * Created: Thu, 18 Apr 2024 09:27:56 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -24,6 +24,8 @@ class RentalsResource extends JsonResource
             'name'                              => $rental->product->name,
             'code'                              => $rental->product->code,
             'price'                             => $rental->price,
+            'agreed_price'                      => $rental->price,
+            'discount'                          => 0,
             'unit'                              => $rental->unit,
             'currency'                          => CurrencyResource::make($rental->product->currency) 
         ];

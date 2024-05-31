@@ -19,6 +19,7 @@ const props = withDefaults(defineProps<{
     currency: String
 }>(), {
 })
+
 const { inputRef, formattedValue, numberValue, setValue } = useCurrencyInput({
     currency: props.currency,
     hideCurrencySymbolOnFocus: false,
@@ -27,14 +28,22 @@ const { inputRef, formattedValue, numberValue, setValue } = useCurrencyInput({
 });
 
 const emits = defineEmits<{
-    (e: 'update:modelValue', value: string): void
-    (e: 'input', value: string): void
+    (e: 'update:modelValue', value: string | number): void
+    (e: 'input', value: string | number): void
 }>()
 
 watch(
     () => props.modelValue,
     (value) => {
         setValue(value);
+    }
+);
+
+watch(
+    () => numberValue.value,
+    (value) => {
+        emits('update:modelValue', value);
+        emits('input', value);
     }
 );
 
@@ -61,15 +70,3 @@ const decrement = () => {
         </div>
     </div>
 </template>
-
-<style scoped>
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-input[type=number] {
-    -moz-appearance: textfield;
-}
-</style>

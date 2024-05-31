@@ -40,6 +40,7 @@ import WebRegistrations from '@/Components/Forms/Fields/WebRegistrations.vue'
 import GoogleSearch from '@/Components/Forms/Fields/GoogleSearch.vue'
 import Action from '@/Components/Forms/Fields/Action.vue'
 import Rental from '@/Components/Rental/Rental.vue'
+import Agreement from '@/Components/Rental/Agreement.vue'
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -100,7 +101,7 @@ const components: {[key: string]: Component} = {
     'interest': Interest,
     'webRegistrations': WebRegistrations,
     'googleSearch': GoogleSearch,
-    'rental' : Rental,
+    'rental' : Agreement,
     'employeeState': EmployeeState,
 }
 

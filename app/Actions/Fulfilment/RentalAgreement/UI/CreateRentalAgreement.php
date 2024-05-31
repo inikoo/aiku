@@ -63,7 +63,7 @@ class CreateRentalAgreement extends OrgAction
                                     ],
                                     'rental' => [
                                         'type'             => 'rental',
-                                        'label'            => __('Rental'),
+                                        'label'            => __(''),
                                         'required'         => false,
                                         'full'             => true,
                                         'rentals'          => RentalsResource::collection($fulfilmentCustomer->fulfilment->rentals),

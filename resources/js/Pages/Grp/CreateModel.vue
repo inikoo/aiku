@@ -103,8 +103,7 @@ const form = useForm(
 
 
 const handleFormSubmit = () => {
-    console.log(form.data())
-   /*  if (!props.formData.submitButton) {
+   if (!props.formData.submitButton) {
         form.post(route(
             props.formData.route.name,
             props.formData.route.parameters
@@ -114,7 +113,7 @@ const handleFormSubmit = () => {
             ButtonActive.value.name,
             ButtonActive.value.parameters
         ))
-    } */
+    }
 }
 
 const buttonRefs = ref([])
