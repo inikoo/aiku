@@ -108,6 +108,32 @@ class ShowPalletReturn extends OrgAction
                                 ]
                             ]
                         ],
+                        [
+                            'type'    => 'button',
+                            'style'   => 'secondary',
+                            'icon'    => 'fal fa-plus',
+                            'label'   => __('add service'),
+                            'tooltip' => __('Add single service'),
+                            'route'   => [
+                                'name'       => 'grp.models.pallet-return.service.store',
+                                'parameters' => [
+                                    'palletReturn' => $palletReturn->id
+                                ]
+                            ]
+                        ],
+                        [
+                            'type'    => 'button',
+                            'style'   => 'secondary',
+                            'icon'    => 'fal fa-plus',
+                            'label'   => __('add physical good'),
+                            'tooltip' => __('Add physical good'),
+                            'route'   => [
+                                'name'       => 'grp.models.pallet-return.physical_good.store',
+                                'parameters' => [
+                                    'palletReturn' => $palletReturn->id
+                                ]
+                            ]
+                        ],
                     ]
                 ],
                 $palletReturn->pallets()->count() > 0 ? [

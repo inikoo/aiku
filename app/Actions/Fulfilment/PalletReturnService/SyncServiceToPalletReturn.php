@@ -7,11 +7,11 @@
 
 namespace App\Actions\Fulfilment\PalletReturnService;
 
-use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateServices;
+use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateServices;
 use App\Actions\OrgAction;
-use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
+use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Models\CRM\Customer;
-use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
@@ -26,15 +26,15 @@ class SyncServiceToPalletReturn extends OrgAction
 
     public Customer $customer;
 
-    public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
+    public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $palletDelivery->services()->syncWithoutDetaching([
+        $palletReturn->services()->syncWithoutDetaching([
             $modelData['service_id'] => ['quantity' => $modelData['quantity']]
         ]);
 
-        PalletDeliveryHydrateServices::dispatch($palletDelivery);
+        PalletReturnHydrateServices::dispatch($palletReturn);
 
-        return $palletDelivery;
+        return $palletReturn;
     }
 
     public function rules(): array
@@ -45,27 +45,27 @@ class SyncServiceToPalletReturn extends OrgAction
         ];
     }
 
-    public function asController(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
+    public function asController(PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
-        $this->initialisation($palletDelivery->organisation, $request->all());
+        $this->initialisation($palletReturn->organisation, $request->all());
 
-        return $this->handle($palletDelivery, $this->validatedData);
+        return $this->handle($palletReturn, $this->validatedData);
     }
 
-    public function htmlResponse(PalletDelivery $palletDelivery, ActionRequest $request): RedirectResponse
+    public function htmlResponse(PalletReturn $palletReturn, ActionRequest $request): RedirectResponse
     {
         $routeName = $request->route()->getName();
 
         return match ($routeName) {
-            'grp.models.pallet-delivery.service.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show', [
-                'organisation'           => $palletDelivery->organisation->slug,
-                'fulfilment'             => $palletDelivery->fulfilment->slug,
-                'fulfilmentCustomer'     => $palletDelivery->fulfilmentCustomer->slug,
-                'palletDelivery'         => $palletDelivery->slug,
-                'tab'                    => PalletDeliveryTabsEnum::SERVICES->value
+            'grp.models.pallet-return.service.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
+                'organisation'           => $palletReturn->organisation->slug,
+                'fulfilment'             => $palletReturn->fulfilment->slug,
+                'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
+                'palletReturn'           => $palletReturn->slug,
+                'tab'                    => PalletReturnTabsEnum::SERVICES->value
             ]),
-            default => Redirect::route('retina.storage.pallet-deliveries.show', [
-                'palletDelivery'     => $palletDelivery->slug
+            default => Redirect::route('retina.storage.pallet-return.show', [
+                'palletReturn'     => $palletReturn->slug
             ])
         };
     }
