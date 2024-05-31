@@ -10,6 +10,7 @@ namespace App\Models\Catalogue;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductTypeEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
+use App\Models\Assets\Currency;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Rental;
 use App\Models\Goods\TradeUnit;
@@ -203,6 +204,11 @@ class Product extends Model implements HasMedia
     public function recurringBills(): MorphToMany
     {
         return $this->morphToMany(RecurringBill::class, 'model', 'model_has_recurring_bills')->withTimestamps();
+    }
+
+    public function currency(): BelongsTo
+    {
+        return $this->belongsTo(Currency::class);
     }
 
 }

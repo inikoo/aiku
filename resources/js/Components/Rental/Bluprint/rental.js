@@ -9,11 +9,13 @@ export default {
         },
         {
             title : 'Price',
-            key : 'price'
+            key : 'price',
+            type : 'number',
         },
         {
             title : 'Discount',
-            key : 'discount'
+            key  : 'discount',
+            type : 'discount',
         },
     ]
 }   

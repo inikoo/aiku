@@ -1,7 +1,7 @@
 
 export default {
-    name : 'Rentals',
-    key : 'rentals',
+    name : 'Services',
+    key : 'services',
     column : [
         {
             title : 'Services',
@@ -9,11 +9,13 @@ export default {
         },
         {
             title : 'Price',
-            key : 'price'
+            key : 'price',
+            type : 'number',
         },
         {
             title : 'Discount',
-            key : 'discount'
+            key : 'discount',
+            type : 'discount',
         },
     ]
 }   
