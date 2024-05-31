@@ -35,7 +35,7 @@ enum PalletReturnTabsEnum: string
             ],
             PalletReturnTabsEnum::PALLETS => [
                 'title' => __('pallets'),
-                'icon'  => 'fal fa-bars',
+                'icon'  => 'fal fa-pallet',
             ],
             PalletReturnTabsEnum::STORED_ITEMS => [
                 'title' => __('stored items'),
