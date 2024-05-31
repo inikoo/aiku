@@ -10,6 +10,7 @@ namespace App\Actions\Fulfilment\RentalAgreement\UI;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
+use App\Http\Resources\Catalogue\OutersResource;
 use App\Http\Resources\Catalogue\RentalsResource;
 use App\Http\Resources\Catalogue\ServicesResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -81,7 +82,7 @@ class EditRentalAgreement extends OrgAction
                                         'full'             => true,
                                         'rentals'          => RentalsResource::collection($rentalAgreement->fulfilment->rentals),
                                         'services'         => ServicesResource::collection($rentalAgreement->fulfilment->shop->services),
-                                        'physical_goods'   => $rentalAgreement->fulfilment->shop->outers,
+                                        'physical_goods'   => OutersResource::collection($rentalAgreement->fulfilment->shop->outers),
                                         'clauses'          => $rentalAgreement->clauses,
                                         // 'indexRentalRoute' => [
                                         //     'name'       => 'grp.org.fulfilments.show.products.rentals.index',
