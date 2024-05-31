@@ -52,7 +52,7 @@ class StoreGroup
         $group->manufactureStats()->create();
 
 
-        SetIconAsGroupImage::dispatch($group);
+        SetGroupLogo::dispatch($group);
 
         foreach (MailroomCodeEnum::cases() as $case) {
             StoreMailroom::run(

@@ -45,6 +45,7 @@ return new class () extends Migration {
             $table->string('main_outerable_unit')->nullable();
             $table->unsignedInteger('main_outerable_available_quantity')->default(0)->nullable();
             $table->unsignedInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('media')->onDelete('cascade');
             $table->decimal('rrp', 12, 3)->nullable()->comment('RRP per outer');
             $table->jsonb('settings');
             $table->jsonb('data');

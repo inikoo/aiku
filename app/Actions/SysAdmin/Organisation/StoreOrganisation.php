@@ -53,7 +53,7 @@ class StoreOrganisation
         $organisation = $group->organisations()->create($modelData);
         $organisation->refresh();
 
-        SetIconAsOrganisationImage::dispatch($organisation);
+        SetOrganisationLogo::dispatch($organisation);
 
         SeedOrganisationPermissions::run($organisation);
         SeedJobPositions::run($organisation);
@@ -175,13 +175,14 @@ class StoreOrganisation
 
     public function asCommand(Command $command): int
     {
+
         try {
             $group = Group::where('slug', $command->argument('group'))->firstOrFail();
         } catch (Exception $e) {
             $command->error($e->getMessage());
-
             return 1;
         }
+
         setPermissionsTeamId($group->id);
         try {
             $country = Country::where('code', $command->argument('country_code'))->firstOrFail();
@@ -257,6 +258,7 @@ class StoreOrganisation
             'timezone_id' => $timezone->id,
             'source'      => $source,
         ];
+
 
         if ($address) {
             $data['address'] = $address;

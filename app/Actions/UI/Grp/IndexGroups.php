@@ -5,17 +5,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
- namespace App\Actions\UI\Grp;
-
+namespace App\Actions\UI\Grp;
 
 use App\Actions\GrpAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
-use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Http\Resources\SysAdmin\Group\GroupResource;
-use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SysAdmin\Group;
-use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -42,7 +38,7 @@ class IndexGroups extends GrpAction
     }
 
 
-    public function handle( $prefix = null): LengthAwarePaginator
+    public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {

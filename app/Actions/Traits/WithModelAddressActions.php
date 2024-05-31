@@ -9,6 +9,7 @@ namespace App\Actions\Traits;
 
 use App\Actions\Helpers\Address\Hydrators\AddressHydrateUsage;
 use App\Models\Helpers\Address;
+use App\Models\SysAdmin\Group;
 
 trait WithModelAddressActions
 {
@@ -61,11 +62,18 @@ trait WithModelAddressActions
             return $model;
         }
 
+        $groupId=$model->group_id;
+        if($model instanceof Group) {
+            $groupId=$model->id;
+        }
+        data_set($addressData, 'group_id', $groupId);
+
         $address = Address::create($addressData);
         $model->addresses()->attach(
             $address->id,
             [
-                'scope' => $scope
+                'scope'    => $scope,
+                'group_id' => $groupId
             ]
         );
 
@@ -85,6 +93,12 @@ trait WithModelAddressActions
     {
         data_set($addressData, 'is_fixed', true);
         data_set($addressData, 'usage', 1);
+
+        $groupId=$model->group_id;
+        if($model instanceof Group) {
+            $groupId=$model->id;
+        }
+        data_set($addressData, 'group_id', $groupId);
 
         $address = Address::create($addressData);
 
@@ -112,12 +126,17 @@ trait WithModelAddressActions
             $address = $addressModel->addresses()->where('scope', $addressLink[1])->first();
         }
 
+        $groupId=$model->group_id;
+        if($model instanceof Group) {
+            $groupId=$model->id;
+        }
 
         if ($address) {
             $model->addresses()->attach(
                 $address->id,
                 [
-                    'scope' => $scope
+                    'scope'    => $scope,
+                    'group_id' => $groupId
                 ]
             );
             AddressHydrateUsage::dispatch($address);

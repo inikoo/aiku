@@ -14,7 +14,7 @@ use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SetIconAsOrganisationImage
+class SetOrganisationLogo
 {
     use AsAction;
     use WithAttachMediaToModel;
@@ -39,14 +39,11 @@ class SetIconAsOrganisationImage
             return 1;
         }
 
-        $result = $this->handle($organisation);
-        if ($result['result'] === 'success') {
-            $command->info('Logo set');
-
+        try {
+            $this->handle($organisation);
             return 0;
-        } else {
-            $command->error($result['message']);
-
+        } catch (Exception $exception) {
+            $command->error('Error setting logo, '.$exception->getMessage());
             return 1;
         }
 

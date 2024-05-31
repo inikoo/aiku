@@ -19,7 +19,7 @@ use App\Models\Media\Media;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
-use App\Models\Traits\HasImages;
+use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
 use Eloquent;
@@ -82,6 +82,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\HistoricOuterable|null $currentHistoricOuterable
  * @property-read Group $group
  * @property-read Collection<int, \App\Models\Catalogue\HistoricOuterable> $historicOuters
+ * @property-read Media|null $image
  * @property-read MediaCollection<int, Media> $images
  * @property-read Model|\Eloquent $mainOuterable
  * @property-read MediaCollection<int, Media> $media
@@ -109,9 +110,9 @@ class Product extends Model implements HasMedia
     use SoftDeletes;
     use HasSlug;
     use HasUniversalSearch;
-    use HasImages;
     use HasFactory;
     use InShop;
+    use HasImage;
 
     protected $casts = [
         'data'                   => 'array',
@@ -168,13 +169,6 @@ class Product extends Model implements HasMedia
     public function stats(): HasOne
     {
         return $this->hasOne(ProductStats::class);
-    }
-
-    public function images(): BelongsToMany
-    {
-        return $this->belongsToMany(Media::class, 'media_product')->withTimestamps()
-            ->withPivot(['public', 'owner_type', 'owner_id'])
-            ->wherePivot('type', 'image');
     }
 
     public function barcode(): MorphToMany

@@ -49,7 +49,7 @@ class StoreMediaFromIcon
                 )
                 ->usingName($model->slug."-icon")
                 ->usingFileName($model->slug."-icon.sgv")
-                ->toMediaCollection();
+                ->toMediaCollection('icon');
 
 
             return $media;

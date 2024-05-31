@@ -14,7 +14,7 @@ use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SetIconAsGroupImage
+class SetGroupLogo
 {
     use AsAction;
     use WithAttachMediaToModel;
@@ -39,13 +39,11 @@ class SetIconAsGroupImage
             return 1;
         }
 
-
-        $result=$this->handle($group);
-        if($result['result']==='success') {
-            $command->info('Logo set');
+        try {
+            $this->handle($group);
             return 0;
-        } else {
-            $command->error($result['message']);
+        } catch (Exception $exception) {
+            $command->error('Error setting logo, '.$exception->getMessage());
             return 1;
         }
     }

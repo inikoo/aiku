@@ -16,6 +16,9 @@ return new class () extends Migration {
             'addresses',
             function (Blueprint $table) {
                 $table->increments('id');
+                $table->unsignedSmallInteger('group_id')->index();
+                $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+
                 $table->unsignedInteger('usage')->default(0)->comment('usage by models/scopes');
                 $table->unsignedInteger('fixed_usage')->default(0)->comment('count usage by fixed models/fixed_scopes');
                 $table->unsignedInteger('multiplicity')->default(0)->comment('count address with same checksum');
@@ -42,6 +45,9 @@ return new class () extends Migration {
 
         Schema::create('model_has_addresses', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedSmallInteger('group_id')->index();
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+
             $table->unsignedInteger('address_id')->index();
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->string('model_type');
@@ -57,6 +63,9 @@ return new class () extends Migration {
 
         Schema::create('model_has_fixed_addresses', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedSmallInteger('group_id')->index();
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+
             $table->unsignedInteger('address_id')->index();
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->string('model_type');

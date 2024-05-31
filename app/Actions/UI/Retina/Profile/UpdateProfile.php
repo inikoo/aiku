@@ -45,7 +45,6 @@ class UpdateProfile
                     'extension'    => $avatar->getClientOriginalExtension(),
                 ],
                 scope:'avatar'
-
             );
         }
 

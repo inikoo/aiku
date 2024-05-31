@@ -82,7 +82,6 @@ class StoreWebsite extends OrgAction
                 ]
             ]
         );
-        SetInitialWebsiteLogo::dispatch($website);
         $website->webStats()->create();
         //AddWebsiteToCloudflare::run($website);
 
