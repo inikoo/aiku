@@ -39,6 +39,11 @@ export interface grpNavigation {
 
 export interface orgNavigation {
     [orgKey: string]: {
-        [shopKey: string]: { [navShopKey: string]: Navigation }
+        [shopKey: string]: {
+            [navShopKey: string]: {
+                type?: string  // 'shop' || 'dropshipping'
+                subNavigation: Navigation
+            }
+        }
     }
 }
