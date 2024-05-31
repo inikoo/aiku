@@ -105,6 +105,7 @@ use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\SysAdmin\User\UpdateUser;
+use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
 use App\Actions\Web\Webpage\UpdateWebpage;
@@ -118,6 +119,7 @@ Route::patch('/profile', UpdateProfile::class)->name('profile.update');
 Route::get('/profile/app-login-qrcode', GetProfileAppLoginQRCode::class)->name('profile.app-login-qrcode');
 
 Route::patch('/user/{user:id}', UpdateUser::class)->name('user.update');
+Route::patch('notification/{notification}', MarkNotificationAsRead::class)->name('notifications.read');
 
 Route::post('/agent/', StoreAgent::class)->name('agent.store');
 
