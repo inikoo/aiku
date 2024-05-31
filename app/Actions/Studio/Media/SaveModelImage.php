@@ -32,14 +32,14 @@ class SaveModelImage
 
         $checksum = md5_file($imageData['path']);
 
-        if ($oldImage && $oldImage->checksum == $checksum) {
+        if ($oldImage && $oldImage->checksum == $checksum  ) {
             return $model;
         }
 
         data_set($imageData, 'checksum', $checksum);
         $media    = StoreMediaFromFile::run($model, $imageData, 'image');
 
-        if($oldImage->id == $media->id) {
+        if($oldImage && $oldImage->id == $media->id) {
             return $model;
         }
 
