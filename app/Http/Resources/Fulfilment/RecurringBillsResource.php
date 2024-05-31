@@ -9,15 +9,18 @@ namespace App\Http\Resources\Fulfilment;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+*
+ * @property int $id
+ * @property int $reference
+ */
 class RecurringBillsResource extends JsonResource
 {
     public function toArray($request): array
     {
-
-
         return [
-            'id'     => $this->id,
-            'slug'   => $this->slug,
+            'id'          => $this->id,
+            'reference'   => $this->reference,
         ];
     }
 }
