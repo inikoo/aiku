@@ -76,7 +76,7 @@ const isUserMac = navigator.platform.includes('Mac')  // To check the user's Ope
                         <template #button>
                             <div tabindex="-1" class="relative text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
                                 <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-bell" size="lg" />
-                                <FontAwesomeIcon icon='fas fa-circle' class='text-blue-500 absolute top-0.5 -right-0.5 text-[6px]' fixed-width aria-hidden='true' />
+                                <FontAwesomeIcon icon='fas fa-circle' class='animate-pulse text-blue-500 absolute top-[1px] -right-0.5 text-[6px]' fixed-width aria-hidden='true' />
                             </div>
                         </template>
                         <template #content="{ close }">
