@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onBeforeMount } from 'vue'
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
 import Rental from '@/Components/Rental/Table.vue'
 import RentalBluprint from './Bluprint/rental.js'
@@ -12,12 +12,21 @@ const props = defineProps<{
     fieldName: string
     options?: any
     fieldData?: {
-        type: string
-        placeholder: string
-        readonly?: boolean
-        copyButton: boolean
-        maxLength?: number
-    }
+		type: string
+		placeholder: string
+		readonly?: boolean
+		copyButton: boolean
+		maxLength?: number
+        physical_goods: { 
+            data : Object
+        },
+        rentals: { 
+            data : Object
+        },
+        services:{ 
+            data : Object
+        },
+	}
 }>()
 
 
@@ -41,6 +50,16 @@ const tabs = ref([
         tableBluprint : PhysicalGoodsBluprint
     }
 ])
+
+
+onBeforeMount(() => {
+	props.form[props.fieldName] = {
+		rentals: props.fieldData?.rentals.data,
+		physical_goods: props.fieldData?.physical_goods.data,
+		services: props.fieldData?.services.data,
+	}
+})
+
 </script>
 
 
