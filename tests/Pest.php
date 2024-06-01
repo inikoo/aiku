@@ -29,6 +29,7 @@ function loadDB($dumpName): void
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__.'/../', '.env.testing');
     $dotenv->load();
 
+
     $process = new Process(
         command:[
             __DIR__.'/../devops/devel/reset_test_database.sh',
@@ -36,7 +37,7 @@ function loadDB($dumpName): void
             env('DB_PORT'),
             env('DB_USERNAME'),
             env('DB_PASSWORD'),
-            $dumpName
+            __DIR__.'/datasets/db_dumps/'.$dumpName
         ],
         timeout: 300
     );
