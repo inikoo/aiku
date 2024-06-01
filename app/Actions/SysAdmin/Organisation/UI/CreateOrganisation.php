@@ -8,10 +8,10 @@
 namespace App\Actions\SysAdmin\Organisation\UI;
 
 use App\Actions\InertiaAction;
-use App\Models\Assets\Country;
-use App\Models\Assets\Currency;
-use App\Models\Assets\Language;
-use App\Models\Assets\Timezone;
+use App\Models\Helpers\Country;
+use App\Models\Helpers\Currency;
+use App\Models\Helpers\Language;
+use App\Models\Helpers\Timezone;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

@@ -7,7 +7,7 @@
 
 namespace App\Models\Traits;
 
-use App\Models\Assets\Language;
+use App\Models\Helpers\Language;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;

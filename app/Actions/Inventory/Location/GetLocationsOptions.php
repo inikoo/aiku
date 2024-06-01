@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\Location;
 
-use App\Models\Assets\Country;
+use App\Models\Helpers\Country;
 use App\Models\Inventory\Location;
 use Lorisleiva\Actions\Concerns\AsObject;
 

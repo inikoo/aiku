@@ -11,7 +11,7 @@ use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Actions\SourceFetch\Aurora\FetchAuroraDeletedSuppliers;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
-use App\Models\Assets\Currency;
+use App\Models\Helpers\Currency;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;
 use Illuminate\Support\Carbon;

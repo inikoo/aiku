@@ -7,7 +7,7 @@
 
 namespace Database\Factories\Helpers;
 
-use App\Models\Assets\Country;
+use App\Models\Helpers\Country;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AddressFactory extends Factory

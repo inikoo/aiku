@@ -7,9 +7,9 @@
 
 namespace App\Actions\Procurement\OrgSupplier\UI;
 
-use App\Actions\Assets\Country\UI\GetAddressData;
-use App\Actions\Assets\Country\UI\GetCountriesOptions;
-use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
+use App\Actions\Helpers\Country\UI\GetAddressData;
+use App\Actions\Helpers\Country\UI\GetCountriesOptions;
+use App\Actions\Helpers\Currency\UI\GetCurrenciesOptions;
 use App\Actions\OrgAction;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\SupplyChain\Agent;

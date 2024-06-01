@@ -7,8 +7,8 @@
 
 namespace App\Http\Resources\Catalogue;
 
-use App\Http\Resources\Assets\CurrencyResource;
-use App\Models\Catalogue\Outer;
+use App\Http\Resources\Helpers\CurrencyResource;
+use App\Models\Catalogue\Product;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class OutersResource extends JsonResource

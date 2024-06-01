@@ -9,11 +9,11 @@ namespace App\Actions\Helpers\CurrencyExchange;
 
 use App\Actions\Helpers\CurrencyExchange\Providers\FetchCurrencyExchangeCurrencyBeacon;
 use App\Actions\Helpers\CurrencyExchange\Providers\FetchCurrencyExchangeFrankfurter;
+use App\Models\Helpers\Currency;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Lorisleiva\Actions\Concerns\AsAction;
-use App\Models\Assets\Currency;
 
 class FetchCurrencyExchange
 {

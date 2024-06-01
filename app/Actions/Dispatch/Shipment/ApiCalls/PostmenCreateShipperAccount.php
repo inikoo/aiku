@@ -7,7 +7,7 @@
 
 namespace App\Actions\Dispatch\Shipment\ApiCalls;
 
-use App\Models\Assets\Country;
+use App\Models\Helpers\Country;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;

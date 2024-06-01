@@ -1,14 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 15 Jan 2024 11:57:49 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sat, 01 Jun 2024 19:37:16 Central European Summer Time, Mijas Costa, Spain
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Http\Resources\Assets;
+namespace App\Http\Resources\Helpers;
 
 use App\Http\Resources\HasSelfCall;
-use App\Models\Assets\Timezone;
+use App\Models\Helpers\Timezone;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class TimezoneResource extends JsonResource

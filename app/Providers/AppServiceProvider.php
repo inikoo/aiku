@@ -66,11 +66,11 @@ class AppServiceProvider extends ServiceProvider
                 'PaymentServiceProvider'            => 'App\Models\Accounting\PaymentServiceProvider',
 
                 // Assets
-                'Country'      => 'App\Models\Assets\Country',
-                'Currency'     => 'App\Models\Assets\Currency',
-                'Language'     => 'App\Models\Assets\Language',
-                'TariffCode'   => 'App\Models\Assets\TariffCode',
-                'Timezone'     => 'App\Models\Assets\Timezone',
+                'Country'      => 'App\Models\Helpers\Country',
+                'Currency'     => 'App\Models\Helpers\Currency',
+                'Language'     => 'App\Models\Helpers\Language',
+                'TariffCode'   => 'App\Models\Helpers\TariffCode',
+                'Timezone'     => 'App\Models\Helpers\Timezone',
 
                 // CRM
                 'Customer'                  => 'App\Models\CRM\Customer',

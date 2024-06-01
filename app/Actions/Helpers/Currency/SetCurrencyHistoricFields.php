@@ -1,13 +1,13 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 18 Apr 2023 12:43:12 Malaysia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sat, 01 Jun 2024 19:35:06 Central European Summer Time, Mijas Costa, Spain
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Assets\Currency;
+namespace App\Actions\Helpers\Currency;
 
-use App\Models\Assets\Currency;
+use App\Models\Helpers\Currency;
 use Illuminate\Support\Carbon;
 use Lorisleiva\Actions\Concerns\AsAction;
 

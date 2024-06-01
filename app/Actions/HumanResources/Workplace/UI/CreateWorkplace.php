@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\Workplace\UI;
 
-use App\Actions\Assets\Country\UI\GetAddressData;
+use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\OrgAction;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;

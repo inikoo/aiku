@@ -7,8 +7,8 @@
 
 namespace App\Actions\SysAdmin\Organisation;
 
-use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\Helpers\Address\UpdateAddress;
+use App\Actions\Helpers\Currency\SetCurrencyHistoricFields;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\ValidAddress;

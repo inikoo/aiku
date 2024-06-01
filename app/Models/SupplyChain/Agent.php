@@ -7,7 +7,7 @@
 
 namespace App\Models\SupplyChain;
 
-use App\Models\Assets\Currency;
+use App\Models\Helpers\Currency;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;

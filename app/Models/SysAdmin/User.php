@@ -10,10 +10,10 @@ namespace App\Models\SysAdmin;
 use App\Actions\SysAdmin\User\SendLinkResetPassword;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
+use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Manufacturing\Production;
-use App\Models\Catalogue\Shop;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasRoles;
 use App\Models\Traits\IsUserable;
@@ -75,7 +75,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Studio\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $images
- * @property-read \App\Models\Assets\Language $language
+ * @property-read \App\Models\Helpers\Language $language
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $media
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $parent

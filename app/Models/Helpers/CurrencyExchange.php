@@ -7,7 +7,6 @@
 
 namespace App\Models\Helpers;
 
-use App\Models\Assets\Currency;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;

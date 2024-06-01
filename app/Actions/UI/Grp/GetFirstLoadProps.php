@@ -7,10 +7,10 @@
 
 namespace App\Actions\UI\Grp;
 
-use App\Actions\Assets\Language\UI\GetLanguagesOptions;
+use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 use App\Actions\UI\Grp\Layout\GetLayout;
-use App\Http\Resources\Assets\LanguageResource;
-use App\Models\Assets\Language;
+use App\Http\Resources\Helpers\LanguageResource;
+use App\Models\Helpers\Language;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Facades\App;
 use Lorisleiva\Actions\Concerns\AsObject;

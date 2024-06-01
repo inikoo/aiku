@@ -7,8 +7,8 @@
 
 namespace App\Http\Resources\SysAdmin\Group;
 
-use App\Http\Resources\Assets\CurrencyResource;
 use App\Http\Resources\HasSelfCall;
+use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\SysAdmin\Group;
 use App\Models\Web\Website;
 use Illuminate\Http\Resources\Json\JsonResource;

@@ -8,7 +8,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Assets\Country;
+use App\Models\Helpers\Country;
 use CommerceGuys\Addressing\AddressFormat\AddressFormatRepository;
 use CommerceGuys\Addressing\Country\CountryRepository;
 use CommerceGuys\Addressing\Subdivision\SubdivisionRepository;

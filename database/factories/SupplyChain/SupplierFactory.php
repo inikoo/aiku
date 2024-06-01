@@ -7,8 +7,8 @@
 
 namespace Database\Factories\SupplyChain;
 
-use App\Models\Assets\Currency;
 use App\Models\Helpers\Address;
+use App\Models\Helpers\Currency;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class SupplierFactory extends Factory

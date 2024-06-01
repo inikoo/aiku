@@ -9,7 +9,7 @@ namespace App\Models\HumanResources;
 
 use App\Actions\Utils\Abbreviate;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
-use App\Models\Assets\Timezone;
+use App\Models\Helpers\Timezone;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
@@ -27,7 +27,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;

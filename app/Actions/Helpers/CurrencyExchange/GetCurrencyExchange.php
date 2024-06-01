@@ -7,7 +7,7 @@
 
 namespace App\Actions\Helpers\CurrencyExchange;
 
-use App\Models\Assets\Currency;
+use App\Models\Helpers\Currency;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;

@@ -7,7 +7,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Assets\Language;
+use App\Models\Helpers\Language;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;

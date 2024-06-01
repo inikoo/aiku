@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\Retina\Profile;
 
-use App\Actions\Assets\Language\UI\GetLanguagesOptions;
+use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 use App\Actions\UI\Retina\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\CRM\WebUserResource;

@@ -1,13 +1,13 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 19 May 2023 12:12:23 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sat, 01 Jun 2024 19:35:06 Central European Summer Time, Mijas Costa, Spain
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Assets\Country\UI;
+namespace App\Actions\Helpers\Country\UI;
 
-use App\Models\Assets\Country;
+use App\Models\Helpers\Country;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetCountriesOptions

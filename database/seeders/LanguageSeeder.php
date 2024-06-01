@@ -8,7 +8,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Assets\Language;
+use App\Models\Helpers\Language;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Storage;
 

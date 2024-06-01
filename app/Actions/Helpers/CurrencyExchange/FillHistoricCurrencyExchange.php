@@ -7,7 +7,7 @@
 
 namespace App\Actions\Helpers\CurrencyExchange;
 
-use App\Models\Assets\Currency;
+use App\Models\Helpers\Currency;
 use App\Models\Helpers\CurrencyExchange;
 use Carbon\CarbonPeriod;
 use Illuminate\Console\Command;

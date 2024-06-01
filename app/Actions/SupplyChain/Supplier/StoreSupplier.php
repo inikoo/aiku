@@ -7,8 +7,8 @@
 
 namespace App\Actions\SupplyChain\Supplier;
 
-use App\Actions\Assets\Currency\SetCurrencyHistoricFields;
 use App\Actions\GrpAction;
+use App\Actions\Helpers\Currency\SetCurrencyHistoricFields;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplierFromSupplierInAgent;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateUniversalSearch;

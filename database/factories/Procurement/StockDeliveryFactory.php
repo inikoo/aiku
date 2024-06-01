@@ -7,7 +7,7 @@
 
 namespace Database\Factories\Procurement;
 
-use App\Models\Assets\Currency;
+use App\Models\Helpers\Currency;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class StockDeliveryFactory extends Factory

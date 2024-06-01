@@ -8,8 +8,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Assets\Country;
-use App\Models\Assets\Currency;
+use App\Models\Helpers\Country;
+use App\Models\Helpers\Currency;
 use CommerceGuys\Addressing\Country\CountryRepository;
 use CommerceGuys\Intl\Currency\CurrencyRepository;
 use Illuminate\Database\Seeder;

@@ -9,13 +9,13 @@ namespace App\Models\Procurement;
 
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
-use App\Models\Assets\Currency;
 use App\Models\Helpers\Address;
+use App\Models\Helpers\Currency;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
+use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasHistory;
-use App\Models\Traits\HasAddresses;
 use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;

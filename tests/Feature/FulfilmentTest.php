@@ -132,8 +132,8 @@ test('create rental product to fulfilment shop', function (Fulfilment $fulfilmen
     $product = StoreRentalProduct::make()->action(
         $fulfilment->shop,
         [
-            'main_outerable_price' => 100,
-            'main_outerable_unit'  => RentalUnitEnum::WEEK->value,
+            'price'                => 100,
+            'unit'                 => RentalUnitEnum::WEEK->value,
             'code'                 => 'R00001',
             'name'                 => 'Rental Billable A',
 

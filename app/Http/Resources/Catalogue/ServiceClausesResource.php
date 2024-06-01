@@ -7,7 +7,7 @@
 
 namespace App\Http\Resources\Catalogue;
 
-use App\Http\Resources\Assets\CurrencyResource;
+use App\Http\Resources\Helpers\CurrencyResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ServiceClausesResource extends JsonResource

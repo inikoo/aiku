@@ -1,14 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 08 May 2024 22:38:21 British Summer Time, Sheffield, UK
+ * Created: Sat, 01 Jun 2024 19:37:16 Central European Summer Time, Mijas Costa, Spain
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Http\Resources\Assets;
+namespace App\Http\Resources\Helpers;
 
 use App\Http\Resources\HasSelfCall;
-use App\Models\Assets\Currency;
+use App\Models\Helpers\Currency;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CurrencyResource extends JsonResource

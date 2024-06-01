@@ -7,8 +7,8 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Models\Assets\Country;
-use App\Models\Assets\Language;
+use App\Models\Helpers\Country;
+use App\Models\Helpers\Language;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 

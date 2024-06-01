@@ -7,10 +7,10 @@
 
 namespace App\Actions\Helpers\CurrencyExchange\Providers;
 
+use App\Models\Helpers\Currency;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Lorisleiva\Actions\Concerns\AsAction;
-use App\Models\Assets\Currency;
 
 class FetchCurrencyExchangeCurrencyBeacon
 {

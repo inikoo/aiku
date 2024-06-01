@@ -1,13 +1,13 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 18 Apr 2023 11:01:57 Malaysia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sat, 01 Jun 2024 19:35:06 Central European Summer Time, Mijas Costa, Spain
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Assets\TariffCode;
+namespace App\Actions\Helpers\TariffCode;
 
-use App\Models\Assets\TariffCode;
+use App\Models\Helpers\TariffCode;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreTariffCode

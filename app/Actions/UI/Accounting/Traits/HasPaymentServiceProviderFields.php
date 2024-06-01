@@ -7,7 +7,7 @@
 
 namespace App\Actions\UI\Accounting\Traits;
 
-use App\Models\Assets\Country;
+use App\Models\Helpers\Country;
 use Illuminate\Support\Arr;
 use Spatie\LaravelOptions\Options;
 

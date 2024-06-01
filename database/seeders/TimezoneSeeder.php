@@ -8,8 +8,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Assets\Country;
-use App\Models\Assets\Timezone;
+use App\Models\Helpers\Country;
+use App\Models\Helpers\Timezone;
 use CommerceGuys\Addressing\Country\CountryRepository;
 use DateTime;
 use DateTimeZone;

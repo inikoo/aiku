@@ -7,7 +7,7 @@
 
 namespace App\Models\Traits;
 
-use App\Models\Assets\Country;
+use App\Models\Helpers\Country;
 use CommerceGuys\Addressing\Address as Adr;
 use CommerceGuys\Addressing\AddressFormat\AddressFormatRepository;
 use CommerceGuys\Addressing\Country\CountryRepository;

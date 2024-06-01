@@ -7,9 +7,9 @@
 
 namespace App\Imports;
 
-use App\Actions\Assets\TariffCode\StoreTariffCode;
-use App\Actions\Assets\TariffCode\UpdateTariffCode;
-use App\Models\Assets\TariffCode;
+use App\Actions\Helpers\TariffCode\StoreTariffCode;
+use App\Actions\Helpers\TariffCode\UpdateTariffCode;
+use App\Models\Helpers\TariffCode;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 

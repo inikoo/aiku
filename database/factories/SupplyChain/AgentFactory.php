@@ -7,11 +7,11 @@
 
 namespace Database\Factories\SupplyChain;
 
-use App\Models\Assets\Country;
-use App\Models\Assets\Currency;
-use App\Models\Assets\Language;
-use App\Models\Assets\Timezone;
 use App\Models\Helpers\Address;
+use App\Models\Helpers\Country;
+use App\Models\Helpers\Currency;
+use App\Models\Helpers\Language;
+use App\Models\Helpers\Timezone;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AgentFactory extends Factory

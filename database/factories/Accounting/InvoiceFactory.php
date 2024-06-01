@@ -8,7 +8,7 @@
 namespace Database\Factories\Accounting;
 
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
-use App\Models\Assets\Currency;
+use App\Models\Helpers\Currency;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class InvoiceFactory extends Factory

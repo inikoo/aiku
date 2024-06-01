@@ -7,9 +7,9 @@
 
 namespace App\Actions\Helpers\CurrencyExchange;
 
-use App\Models\Assets\Currency;
-use Lorisleiva\Actions\Concerns\AsAction;
+use App\Models\Helpers\Currency;
 use App\Models\Helpers\CurrencyExchange;
+use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreCurrencyExchange
 {

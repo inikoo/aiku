@@ -7,9 +7,9 @@
 
 namespace App\Actions\SupplyChain\Agent\UI;
 
-use App\Actions\Assets\Country\UI\GetAddressData;
-use App\Actions\Assets\Country\UI\GetCountriesOptions;
-use App\Actions\Assets\Currency\UI\GetCurrenciesOptions;
+use App\Actions\Helpers\Country\UI\GetAddressData;
+use App\Actions\Helpers\Country\UI\GetCountriesOptions;
+use App\Actions\Helpers\Currency\UI\GetCurrenciesOptions;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\Marketplace\Agent\UI\RemoveMarketplaceAgent;
 use App\Http\Resources\Helpers\AddressResource;
