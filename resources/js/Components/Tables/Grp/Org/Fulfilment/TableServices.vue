@@ -7,7 +7,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
-import { Product } from "@/types/product"
 import Icon from "@/Components/Icon.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faRobot } from '@fal'
@@ -16,13 +15,11 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 library.add(faRobot)
 
-
-const props = defineProps<{
+defineProps<{
     data: object
     tab?: string,
 }>()
 
-console.log(props.data)
 function serviceRoute(service: {}) {
     console.log(route().current())
     switch (route().current()) {
@@ -39,7 +36,7 @@ function serviceRoute(service: {}) {
 
 </script>
 
-<template>{{ data.data[10] }}
+<template>
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Code -->
         <template #cell(code)="{ item: service }">

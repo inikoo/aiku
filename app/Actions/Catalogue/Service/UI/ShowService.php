@@ -184,7 +184,7 @@ class ShowService extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
-        $headCrumb = function (Product $product, array $routeParameters, $suffix) {
+        $headCrumb = function (Service $service, array $routeParameters, $suffix) {
             return [
 
                 [
@@ -196,7 +196,7 @@ class ShowService extends OrgAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $product->slug,
+                            'label' => $service->slug,
                         ],
                     ],
                     'suffix'         => $suffix,

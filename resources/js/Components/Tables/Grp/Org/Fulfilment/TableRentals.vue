@@ -7,18 +7,15 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
-import { Product } from "@/types/product"
 import Icon from "@/Components/Icon.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faRobot } from '@fal'
-// import product from "@/Pages/Grp/Catalogue/Product.vue"
 import { useLocaleStore } from '@/Stores/locale'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 library.add(faRobot)
 
-
-const props = defineProps<{
+defineProps<{
     data: object
     tab?: string,
 }>()
