@@ -46,3 +46,14 @@ Route::name("services.")->prefix('services')
             Route::get('edit', EditDummy::class)->name('edit');
         });
     });
+
+Route::name("insurances.")->prefix('insurances')
+    ->group(function () {
+        Route::get('', IndexDummies::class)->name('index');
+        Route::get('create', EditDummy::class)->name('create');
+
+        Route::prefix('{insurance}')->group(function () {
+            Route::get('', ShowDummy::class)->name('show');
+            Route::get('edit', EditDummy::class)->name('edit');
+        });
+    });
