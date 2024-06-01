@@ -300,6 +300,15 @@ class GetOrganisationNavigation
                             ]
                         ],
                         [
+                            'label' => __('partners'),
+                            'icon'  => ['fal', 'fa-person-dolly'],
+                            'root'  => 'grp.org.procurement.org_partners.',
+                            'route' => [
+                                'name'       => 'grp.org.procurement.org_suppliers.index',
+                                'parameters' => [$organisation->slug],
+                            ]
+                        ],
+                        [
                             'label' => __('purchase orders'),
                             'icon'  => ['fal', 'fa-clipboard-list'],
                             'root'  => 'grp.org.procurement.purchase_orders.',

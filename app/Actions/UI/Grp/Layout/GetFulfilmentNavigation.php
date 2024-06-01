@@ -22,7 +22,7 @@ class GetFulfilmentNavigation
         if ($user->hasPermissionTo("fulfilment-shop.$fulfilment->id.view")) {
 
 
-            $navigation['products'] = [
+            $navigation['billablea'] = [
                 'root'  => 'grp.org.fulfilments.show.products.',
                 'label' => __('Products'),
                 'icon'  => ['fal', 'fa-cube'],
