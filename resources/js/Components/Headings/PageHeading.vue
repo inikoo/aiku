@@ -8,7 +8,7 @@
 import { Link } from "@inertiajs/vue3"
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faMapSigns, faPallet, faTruckCouch, faUpload, faWarehouse, faEmptySet } from "@fal"
+import { faMapSigns, faPallet, faTruckCouch, faUpload, faWarehouse, faEmptySet} from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import MetaLabel from "@/Components/Headings/MetaLabel.vue"
 import Container from "@/Components/Headings/Container.vue"

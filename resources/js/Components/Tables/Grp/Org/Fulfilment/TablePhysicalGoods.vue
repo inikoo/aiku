@@ -26,9 +26,9 @@ defineProps<{
 function serviceRoute(outer: {}) {
     console.log(route().current())
     switch (route().current()) {
-        case 'grp.org.fulfilments.show.products.outers.index': 
+        case 'grp.org.fulfilments.show.billables.outers.index':
             return route(
-                'grp.org.fulfilments.show.products.outers.show',
+                'grp.org.fulfilments.show.billables.outers.show',
                 [route().params['organisation'], route().params['fulfilment'], outer.id])
         default:
             return null

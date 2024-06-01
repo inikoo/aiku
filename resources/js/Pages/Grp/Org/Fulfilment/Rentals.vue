@@ -13,6 +13,8 @@ import {computed, ref} from "vue";
 import {useTabChange} from "@/Composables/tab-change";
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
+import { library } from "@fortawesome/fontawesome-svg-core";
+
 
 const props = defineProps<{
   pageHead: object

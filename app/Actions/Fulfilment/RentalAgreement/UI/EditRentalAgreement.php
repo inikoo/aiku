@@ -85,7 +85,7 @@ class EditRentalAgreement extends OrgAction
                                         'physical_goods'   => OuterClausesResource::collection($rentalAgreement->clauses->where('type', 'physical_good')),
                                         'clauses'          => $rentalAgreement->clauses,
                                         // 'indexRentalRoute' => [
-                                        //     'name'       => 'grp.org.fulfilments.show.products.rentals.index',
+                                        //     'name'       => 'grp.org.fulfilments.show.billables.rentals.index',
                                         //     'parameters' => [
                                         //         'organisation' => $this->organisation->slug,
                                         //         'fulfilment'   => $rentalAgreement->fulfilment->slug

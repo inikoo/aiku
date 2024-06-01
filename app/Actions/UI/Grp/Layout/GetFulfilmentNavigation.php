@@ -22,13 +22,13 @@ class GetFulfilmentNavigation
         if ($user->hasPermissionTo("fulfilment-shop.$fulfilment->id.view")) {
 
 
-            $navigation['billablea'] = [
-                'root'  => 'grp.org.fulfilments.show.products.',
-                'label' => __('Products'),
-                'icon'  => ['fal', 'fa-cube'],
+            $navigation['billables'] = [
+                'root'  => 'grp.org.fulfilments.show.billables.',
+                'label' => __('Billables'),
+                'icon'  => ['fal', 'fa-ballot'],
 
                 'route' => [
-                    'name'       => 'grp.org.fulfilments.show.products.index',
+                    'name'       => 'grp.org.fulfilments.show.billables.index',
                     'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                 ],
 
@@ -37,33 +37,40 @@ class GetFulfilmentNavigation
                         [
                             'label'   => __('rentals'),
                             'icon'    => ['fal', 'fa-garage'],
-                            'root'    => 'grp.org.fulfilments.show.products.rentals.',
+                            'root'    => 'grp.org.fulfilments.show.billables.rentals.',
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.products.rentals.index',
+                                'name'       => 'grp.org.fulfilments.show.billables.rentals.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ],
                         ],
                         [
                             'label'   => __('services'),
                             'icon'    => ['fal', 'fa-concierge-bell'],
-                            'root'    => 'grp.org.fulfilments.show.products.services.',
+                            'root'    => 'grp.org.fulfilments.show.billables.services.',
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.products.services.index',
+                                'name'       => 'grp.org.fulfilments.show.billables.services.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ],
                         ],
                         [
                             'label'   => __('goods'),
                             'icon'    => ['fal', 'fa-cube'],
-                            'root'    => 'grp.org.fulfilments.show.products.outers.',
+                            'root'    => 'grp.org.fulfilments.show.billables.outers.',
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.products.outers.index',
+                                'name'       => 'grp.org.fulfilments.show.billables.outers.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                             ],
                         ],
-
-
-
+                        [
+                            "label"   => __("Shipping"),
+                            "tooltip" => __("Shipping"),
+                            "icon"    => ["fal", "fa-shipping-fast"],
+                            'root'    => 'grp.org.fulfilments.show.billables.outers.',
+                            "route"   => [
+                                'name'       => 'grp.org.fulfilments.show.billables.shipping.index',
+                                'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
+                            ],
+                        ],
 
                     ]
                 ]

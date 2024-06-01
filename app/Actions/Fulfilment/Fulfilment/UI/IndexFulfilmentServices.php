@@ -135,7 +135,7 @@ class IndexFulfilmentServices extends OrgAction
                             'icon'  => 'fal fa-plus',
                             'label' => __('Create service'),
                             'route' => [
-                                'name'       => 'grp.org.fulfilments.show.products.services.create',
+                                'name'       => 'grp.org.fulfilments.show.billables.services.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],
@@ -228,10 +228,10 @@ class IndexFulfilmentServices extends OrgAction
 
         return
             array_merge(
-                IndexFulfilmentProducts::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-cube'),
+                IndexFulfilmentBillables::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.products.services.index',
+                        'name'       => 'grp.org.fulfilments.show.billables.services.index',
                         'parameters' => $routeParameters
                     ]
                 )

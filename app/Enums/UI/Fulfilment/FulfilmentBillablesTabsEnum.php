@@ -10,28 +10,30 @@ namespace App\Enums\UI\Fulfilment;
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum FulfilmentProductsTabsEnum: string
+enum FulfilmentBillablesTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
 
-    case DASHBOARD                      = 'dashboard';
-    case PRODUCTS                       = 'products';
-    case HISTORY                        = 'history';
+    case DASHBOARD                       = 'dashboard';
+    case HISTORY                         = 'history';
+    case BILLABLES                       = 'billables';
 
     public function blueprint(): array
     {
         return match ($this) {
-            FulfilmentProductsTabsEnum::DASHBOARD => [
+            FulfilmentBillablesTabsEnum::DASHBOARD => [
                 'title' => __('dashboard'),
-                'icon'  => 'fal fa-cube',
+                'icon'  => 'fal fa-tachometer-alt-fast',
             ],
-            FulfilmentProductsTabsEnum::PRODUCTS => [
+            FulfilmentBillablesTabsEnum::BILLABLES => [
                 'title' => __('products list'),
                 'icon'  => 'fal fa-bars',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
 
-            FulfilmentProductsTabsEnum::HISTORY => [
+            FulfilmentBillablesTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',

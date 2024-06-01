@@ -137,7 +137,7 @@ class IndexFulfilmentRentals extends OrgAction
                             'icon'  => 'fal fa-plus',
                             'label' => __('Create rental'),
                             'route' => [
-                                'name'       => 'grp.org.fulfilments.show.products.rentals.create',
+                                'name'       => 'grp.org.fulfilments.show.billables.rentals.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],
@@ -230,10 +230,10 @@ class IndexFulfilmentRentals extends OrgAction
 
         return
             array_merge(
-                IndexFulfilmentProducts::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-cube'),
+                IndexFulfilmentBillables::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.products.rentals.index',
+                        'name'       => 'grp.org.fulfilments.show.billables.rentals.index',
                         'parameters' => $routeParameters
                     ]
                 )

@@ -135,7 +135,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                             'icon'  => 'fal fa-plus',
                             'label' => __('Create good'),
                             'route' => [
-                                'name'       => 'grp.org.fulfilments.show.products.outers.create',
+                                'name'       => 'grp.org.fulfilments.show.billables.outers.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],
@@ -230,10 +230,10 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
 
         return
             array_merge(
-                IndexFulfilmentProducts::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-cube'),
+                IndexFulfilmentBillables::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.products.outers.index',
+                        'name'       => 'grp.org.fulfilments.show.billables.outers.index',
                         'parameters' => $routeParameters
                     ]
                 )

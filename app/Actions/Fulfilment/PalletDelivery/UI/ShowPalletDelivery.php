@@ -368,7 +368,7 @@ class ShowPalletDelivery extends OrgAction
                 ],
 
                 'rentalRoute' => [
-                    'name'       => 'grp.org.fulfilments.show.products.rentals.index',
+                    'name'       => 'grp.org.fulfilments.show.billables.rentals.index',
                     'parameters' => [
                         'organisation'  => $palletDelivery->organisation->slug,
                         'fulfilment'    => $palletDelivery->fulfilment->slug

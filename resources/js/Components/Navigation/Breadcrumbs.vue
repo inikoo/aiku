@@ -11,11 +11,11 @@ import { Menu, MenuButton, MenuItems, MenuItem } from "@headlessui/vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faChevronRight } from '@far'
-import { faBars } from '@fal'
+import { faBars,faBallot } from '@fal'
 import { faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight } from '@fas'
 import { routeType } from '@/types/route'
 
-library.add(faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight, faChevronRight, faBars)
+library.add(faSparkles, faArrowFromLeft, faArrowLeft, faArrowRight, faChevronRight, faBars,faBallot)
 
 const props = defineProps<{
     breadcrumbs: {

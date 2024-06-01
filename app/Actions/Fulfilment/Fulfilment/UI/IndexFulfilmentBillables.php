@@ -11,7 +11,7 @@ use App\Actions\OrgAction;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Enums\UI\Fulfilment\FulfilmentProductsTabsEnum;
+use App\Enums\UI\Fulfilment\FulfilmentBillablesTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentProductsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
@@ -26,7 +26,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexFulfilmentProducts extends OrgAction
+class IndexFulfilmentBillables extends OrgAction
 {
     protected function getElementGroups(Fulfilment $parent): array
     {
@@ -114,9 +114,9 @@ class IndexFulfilmentProducts extends OrgAction
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(FulfilmentProductsTabsEnum::values());
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(FulfilmentBillablesTabsEnum::values());
 
-        return $this->handle($fulfilment, FulfilmentProductsTabsEnum::PRODUCTS->value);
+        return $this->handle($fulfilment, FulfilmentBillablesTabsEnum::BILLABLES->value);
     }
 
 
@@ -131,19 +131,19 @@ class IndexFulfilmentProducts extends OrgAction
                 ),
                 'pageHead'    => [
                     'icon'      => [
-                        'icon'  => ['fal', 'fa-cube'],
-                        'title' => __('products')
+                        'icon'  => ['fal', 'fa-ballot'],
+                        'title' => __('Billables')
                     ],
-                    'title' => __('Products'),
+                    'title' => __('Billables'),
                 ],
 
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => FulfilmentProductsTabsEnum::navigation()
+                    'navigation' => FulfilmentBillablesTabsEnum::navigation()
                 ],
 
 
-                FulfilmentProductsTabsEnum::PRODUCTS->value => $this->tab == FulfilmentProductsTabsEnum::PRODUCTS->value ?
+                FulfilmentBillablesTabsEnum::BILLABLES->value => $this->tab == FulfilmentBillablesTabsEnum::BILLABLES->value ?
                     fn () => FulfilmentProductsResource::collection($products)
                     : Inertia::lazy(fn () => FulfilmentProductsResource::collection($products)),
 
@@ -152,7 +152,7 @@ class IndexFulfilmentProducts extends OrgAction
         )->table(
             $this->tableStructure(
                 parent: $this->fulfilment,
-                prefix: FulfilmentProductsTabsEnum::PRODUCTS->value
+                prefix: FulfilmentBillablesTabsEnum::BILLABLES->value
             )
         );
     }
@@ -215,7 +215,7 @@ class IndexFulfilmentProducts extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('Products'),
+                        'label' => __('Billables'),
                         'icon'  => $icon
                     ],
                     'suffix' => $suffix
@@ -228,7 +228,7 @@ class IndexFulfilmentProducts extends OrgAction
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.products.index',
+                        'name'       => 'grp.org.fulfilments.show.billables.index',
                         'parameters' => $routeParameters
                     ]
                 )
