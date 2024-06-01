@@ -36,7 +36,7 @@ function loadDB($dumpName): void
             env('DB_PORT'),
             env('DB_USERNAME'),
             env('DB_PASSWORD'),
-            __DIR__.'/datasets/db_dumps/'.$dumpName
+            $dumpName
         ],
         timeout: 300
     );
