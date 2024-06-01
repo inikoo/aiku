@@ -10,7 +10,7 @@ namespace App\Actions\Catalogue\Service;
 use App\Actions\Catalogue\HistoricOuterable\StoreHistoricOuterable;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\Billable\BillableStateEnum;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Models\Catalogue\Service;
 use App\Rules\IUnique;
@@ -32,9 +32,9 @@ class UpdateService extends OrgAction
 
         if(Arr::has($modelData, 'state')) {
             $productData['state']=match($modelData['state']) {
-                ServiceStateEnum::ACTIVE       => ProductStateEnum::ACTIVE,
-                ServiceStateEnum::DISCONTINUED => ProductStateEnum::DISCONTINUED,
-                ServiceStateEnum::IN_PROCESS   => ProductStateEnum::IN_PROCESS,
+                ServiceStateEnum::ACTIVE       => BillableStateEnum::ACTIVE,
+                ServiceStateEnum::DISCONTINUED => BillableStateEnum::DISCONTINUED,
+                ServiceStateEnum::IN_PROCESS   => BillableStateEnum::IN_PROCESS,
             };
 
         }

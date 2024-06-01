@@ -7,9 +7,9 @@
 
 namespace App\Actions\Catalogue\Service\UI;
 
-use App\Actions\Catalogue\Product\UI\GetProductRental;
-use App\Actions\Catalogue\Product\UI\GetProductService;
-use App\Actions\Catalogue\Product\UI\GetProductShowcase;
+use App\Actions\Catalogue\Billable\UI\GetProductRental;
+use App\Actions\Catalogue\Billable\UI\GetProductService;
+use App\Actions\Catalogue\Billable\UI\GetProductShowcase;
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
@@ -23,7 +23,7 @@ use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Sales\OrderResource;
-use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Billable;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
@@ -37,7 +37,7 @@ class ShowService extends OrgAction
 {
     private Organisation|Shop|Fulfilment|ProductCategory $parent;
 
-    public function handle(Product $product): Product
+    public function handle(Billable $product): Billable
     {
         return $product;
     }
@@ -61,21 +61,21 @@ class ShowService extends OrgAction
 
     }
 
-    public function inOrganisation(Organisation $organisation, Product $product, ActionRequest $request): Product
+    public function inOrganisation(Organisation $organisation, Billable $product, ActionRequest $request): Billable
     {
         $this->parent= $organisation;
         $this->initialisation($organisation, $request)->withTab(ProductTabsEnum::values());
         return $this->handle($product);
     }
 
-    public function asController(Organisation $organisation, Shop $shop, Product $product, ActionRequest $request): Product
+    public function asController(Organisation $organisation, Shop $shop, Billable $product, ActionRequest $request): Billable
     {
         $this->parent= $shop;
         $this->initialisationFromShop($shop, $request)->withTab(ProductTabsEnum::values());
         return $this->handle($product);
     }
 
-    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, Product $product, ActionRequest $request): Product
+    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, Billable $product, ActionRequest $request): Billable
     {
         $this->parent= $department;
         $this->initialisationFromShop($shop, $request)->withTab(ProductTabsEnum::values());
@@ -83,17 +83,17 @@ class ShowService extends OrgAction
         return $this->handle($product);
     }
 
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Service $service, ActionRequest $request): Product
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Service $service, ActionRequest $request): Billable
     {
         $this->parent= $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(ProductTabsEnum::values());
         return $this->handle($service->product);
     }
 
-    public function htmlResponse(Product $product, ActionRequest $request): Response
+    public function htmlResponse(Billable $product, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Catalogue/Product',
+            'Org/Catalogue/Billable',
             [
                 'title'       => __('product'),
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -177,7 +177,7 @@ class ShowService extends OrgAction
             ->table(IndexMailshots::make()->tableStructure($product));
     }
 
-    public function jsonResponse(Product $product): ProductsResource
+    public function jsonResponse(Billable $product): ProductsResource
     {
         return new ProductsResource($product);
     }
@@ -267,20 +267,20 @@ class ShowService extends OrgAction
         };
     }
 
-    public function getPrevious(Product $product, ActionRequest $request): ?array
+    public function getPrevious(Billable $product, ActionRequest $request): ?array
     {
-        $previous = Product::where('slug', '<', $product->slug)->orderBy('slug', 'desc')->first();
+        $previous = Billable::where('slug', '<', $product->slug)->orderBy('slug', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
 
-    public function getNext(Product $product, ActionRequest $request): ?array
+    public function getNext(Billable $product, ActionRequest $request): ?array
     {
-        $next = Product::where('slug', '>', $product->slug)->orderBy('slug')->first();
+        $next = Billable::where('slug', '>', $product->slug)->orderBy('slug')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
-    private function getNavigation(?Product $product, string $routeName): ?array
+    private function getNavigation(?Billable $product, string $routeName): ?array
     {
         if (!$product) {
             return null;

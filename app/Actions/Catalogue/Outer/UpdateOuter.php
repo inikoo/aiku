@@ -9,7 +9,7 @@ namespace App\Actions\Catalogue\Outer;
 
 use App\Actions\Catalogue\HistoricOuterable\StoreHistoricOuterable;
 use App\Actions\Catalogue\Outer\Hydrators\OuterHydrateUniversalSearch;
-use App\Actions\Catalogue\Product\SetProductMainOuter;
+use App\Actions\Catalogue\Billable\SetProductMainOuter;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Catalogue\OuterResource;

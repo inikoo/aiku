@@ -7,7 +7,7 @@
 
 namespace App\Models\Helpers;
 
-use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Billable;
 use App\Models\Goods\TradeUnit;
 use App\Models\SupplyChain\Stock;
 use App\Models\Traits\InGroup;
@@ -37,7 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\SysAdmin\Group $group
- * @property-read Collection<int, Product> $product
+ * @property-read Collection<int, Billable> $product
  * @property-read Collection<int, Stock> $stock
  * @property-read Collection<int, TradeUnit> $tradeUnit
  * @method static Builder|Barcode newModelQuery()
@@ -89,6 +89,6 @@ class Barcode extends Model
 
     public function product(): MorphToMany
     {
-        return $this->morphedByMany(Product::class, 'model', 'model_has_barcode');
+        return $this->morphedByMany(Billable::class, 'model', 'model_has_barcode');
     }
 }

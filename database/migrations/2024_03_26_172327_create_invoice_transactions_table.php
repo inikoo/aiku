@@ -25,8 +25,8 @@ return new class () extends Migration {
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
 
-            $table->unsignedInteger('product_id')->index();
-            $table->foreign('product_id')->references('id')->on('products');
+            $table->unsignedInteger('billable_id')->index();
+            $table->foreign('billable_id')->references('id')->on('billables');
             $table->unsignedSmallInteger('family_id')->nullable();
             $table->foreign('family_id')->references('id')->on('product_categories');
 

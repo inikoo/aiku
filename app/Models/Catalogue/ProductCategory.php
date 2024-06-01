@@ -58,7 +58,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $parent
- * @property-read Collection<int, \App\Models\Catalogue\Product> $products
+ * @property-read Collection<int, \App\Models\Catalogue\Billable> $products
  * @property-read \App\Models\Catalogue\ProductCategorySalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\ProductCategoryStats|null $stats
@@ -139,6 +139,6 @@ class ProductCategory extends Model implements Auditable
 
     public function products(): MorphMany
     {
-        return $this->morphMany(Product::class, 'parent');
+        return $this->morphMany(Billable::class, 'parent');
     }
 }

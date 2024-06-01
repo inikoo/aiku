@@ -125,7 +125,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Catalogue\Product $product
+ * @property-read \App\Models\Catalogue\Billable $product
  * @method static \Illuminate\Database\Eloquent\Builder|ProductSalesIntervals newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ProductSalesIntervals newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ProductSalesIntervals query()
@@ -137,6 +137,6 @@ class ProductSalesIntervals extends Model
 
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Billable::class);
     }
 }

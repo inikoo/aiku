@@ -35,7 +35,7 @@ class FetchAuroraInvoiceTransaction extends FetchAurora
 
 
         } else {
-            print "Warning Product Key missing in transaction >".$this->auroraModelData->{'Order Transaction Fact Key'}."\n";
+            print "Warning Billable Key missing in transaction >".$this->auroraModelData->{'Order Transaction Fact Key'}."\n";
         }
     }
 

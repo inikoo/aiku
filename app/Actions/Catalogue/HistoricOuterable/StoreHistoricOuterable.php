@@ -9,7 +9,7 @@ namespace App\Actions\Catalogue\HistoricOuterable;
 
 use App\Actions\Fulfilment\Rental\Hydrators\RentalHydrateHistoricOuters;
 use App\Actions\Catalogue\Outer\Hydrators\OuterHydrateHistoricOuters;
-use App\Actions\Catalogue\Product\Hydrators\ProductHydrateHistoricOuterables;
+use App\Actions\Catalogue\Billable\Hydrators\BillableHydrateHistoricOuterables;
 use App\Actions\Catalogue\Service\Hydrators\ServiceHydrateHistoricOuters;
 use App\Models\Fulfilment\Rental;
 use App\Models\Catalogue\HistoricOuterable;
@@ -22,30 +22,23 @@ class StoreHistoricOuterable
 {
     use AsAction;
 
-    public function handle(Outer|Rental|Service $outerable, array $modelData = []): HistoricOuterable
+    public function handle(Outer|Rental|Service $billableModel, array $modelData = []): HistoricOuterable
     {
-
 
         $historicOuterableData = [
             'source_id'  => Arr::get($modelData, 'source_id'),
         ];
 
-        if($outerable instanceof Outer) {
-            data_set($historicOuterableData, 'code', $outerable->price);
-            data_set($historicOuterableData, 'name', $outerable->price);
-            data_set($historicOuterableData, 'price', $outerable->price);
-        } else {
+        data_set($historicOuterableData, 'code', $billableModel->code);
+        data_set($historicOuterableData, 'name', $billableModel->name);
+        data_set($historicOuterableData, 'price', $billableModel->price);
 
-            data_set($historicOuterableData, 'code', $outerable->product->code);
-            data_set($historicOuterableData, 'name', $outerable->product->name);
-            data_set($historicOuterableData, 'price', $outerable->product->main_outerable_price);
-        }
 
 
         if (Arr::get($modelData, 'created_at')) {
             $historicOuterableData['created_at'] = Arr::get($modelData, 'created_at');
         } else {
-            $historicOuterableData['created_at'] = $outerable->created_at;
+            $historicOuterableData['created_at'] = $billableModel->created_at;
         }
         if (Arr::get($modelData, 'deleted_at')) {
             $historicOuterableData['deleted_at'] = Arr::get($modelData, 'deleted_at');
@@ -57,23 +50,23 @@ class StoreHistoricOuterable
         }
 
 
-        data_set($historicOuterableData, 'organisation_id', $outerable->organisation_id);
-        data_set($historicOuterableData, 'group_id', $outerable->group_id);
-        data_set($historicOuterableData, 'product_id', $outerable->product_id);
+        data_set($historicOuterableData, 'organisation_id', $billableModel->organisation_id);
+        data_set($historicOuterableData, 'group_id', $billableModel->group_id);
+        data_set($historicOuterableData, 'billable_id', $billableModel->billable_id);
 
 
         /** @var HistoricOuterable $historicOuterable */
-        $historicOuterable = $outerable->historicRecords()->create($historicOuterableData);
+        $historicOuterable = $billableModel->historicRecords()->create($historicOuterableData);
         $historicOuterable->stats()->create();
 
-        if($outerable instanceof Outer) {
-            OuterHydrateHistoricOuters::dispatch($outerable);
-        } if($outerable instanceof Service) {
-            ServiceHydrateHistoricOuters::dispatch($outerable);
-        } if($outerable instanceof Rental) {
-            RentalHydrateHistoricOuters::dispatch($outerable);
+        if($billableModel instanceof Outer) {
+            OuterHydrateHistoricOuters::dispatch($billableModel);
+        } if($billableModel instanceof Service) {
+            ServiceHydrateHistoricOuters::dispatch($billableModel);
+        } if($billableModel instanceof Rental) {
+            RentalHydrateHistoricOuters::dispatch($billableModel);
         }
-        ProductHydrateHistoricOuterables::dispatch($outerable->product);
+        BillableHydrateHistoricOuterables::dispatch($billableModel->billable);
 
         return $historicOuterable;
     }

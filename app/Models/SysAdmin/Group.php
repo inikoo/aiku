@@ -30,7 +30,7 @@ use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
 use App\Models\Catalogue\CollectionCategory;
 use App\Models\Catalogue\Collection;
-use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Billable;
 use App\Models\Ordering\Order;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SupplyChain\Agent;
@@ -105,7 +105,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Production> $productions
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Billable> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PurchaseOrder> $purchaseOrders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, RawMaterial> $rawMaterials
  * @property-read \Illuminate\Database\Eloquent\Collection<int, RecurringBill> $recurringBills
@@ -340,7 +340,7 @@ class Group extends Model implements HasMedia
 
     public function products(): HasMany
     {
-        return $this->hasMany(Product::class);
+        return $this->hasMany(Billable::class);
     }
 
     public function collectionCategories(): HasMany

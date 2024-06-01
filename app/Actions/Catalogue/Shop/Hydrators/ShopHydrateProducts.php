@@ -8,9 +8,9 @@
 namespace App\Actions\Catalogue\Shop\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Catalogue\Product\ProductStateEnum;
-use App\Enums\Catalogue\Product\ProductTypeEnum;
-use App\Models\Catalogue\Product;
+use App\Enums\Catalogue\Billable\BillableStateEnum;
+use App\Enums\Catalogue\Billable\BillableTypeEnum;
+use App\Models\Catalogue\Billable;
 use App\Models\Catalogue\Shop;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -42,8 +42,8 @@ class ShopHydrateProducts
             $this->getEnumStats(
                 model: 'products',
                 field: 'state',
-                enum: ProductStateEnum::class,
-                models: Product::class,
+                enum: BillableStateEnum::class,
+                models: Billable::class,
                 where: function ($q) use ($shop) {
                     $q->where('shop_id', $shop->id);
                 }
@@ -55,8 +55,8 @@ class ShopHydrateProducts
             $this->getEnumStats(
                 model: 'products',
                 field: 'type',
-                enum: ProductTypeEnum::class,
-                models: Product::class,
+                enum: BillableTypeEnum::class,
+                models: Billable::class,
                 where: function ($q) use ($shop) {
                     $q->where('shop_id', $shop->id);
                 }

@@ -12,23 +12,23 @@ use App\Actions\Catalogue\CollectionCategory\StoreCollectionCategory;
 use App\Actions\Catalogue\CollectionCategory\UpdateCollectionCategory;
 use App\Actions\Catalogue\Outer\StoreOuter;
 use App\Actions\Catalogue\Outer\UpdateOuter;
-use App\Actions\Catalogue\Product\DeleteProduct;
-use App\Actions\Catalogue\Product\StoreServiceProduct;
-use App\Actions\Catalogue\Product\StorePhysicalGood;
-use App\Actions\Catalogue\Product\UpdatePhysicalGood;
+use App\Actions\Catalogue\Billable\DeleteProduct;
+use App\Actions\Catalogue\Billable\StoreServiceProduct;
+use App\Actions\Catalogue\Billable\StorePhysicalGood;
+use App\Actions\Catalogue\Billable\UpdatePhysicalGood;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\ProductCategory\UpdateProductCategory;
 use App\Actions\Catalogue\Service\UpdateService;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
-use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
+use App\Enums\Catalogue\Billable\BillableUnitRelationshipType;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\CollectionCategory;
 use App\Models\Catalogue\Outer;
-use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Billable;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
@@ -196,7 +196,7 @@ test('create physical good product', function ($shop) {
     ];
 
     $productData = array_merge(
-        Product::factory()->definition(),
+        Billable::factory()->definition(),
         [
             'trade_units'               => $tradeUnits,
             'main_outerable_price'      => 100,
@@ -210,7 +210,7 @@ test('create physical good product', function ($shop) {
 
     expect($mainOuterable)->toBeInstanceOf(Outer::class)
         ->and($mainOuterable->number_historic_outerables)->toBe(1)
-        ->and($product)->toBeInstanceOf(Product::class)
+        ->and($product)->toBeInstanceOf(Billable::class)
         ->and($product->tradeUnits()->count())->toBe(1)
         ->and($shop->organisation->marketStats->number_products)->toBe(1)
         ->and($shop->organisation->marketStats->number_products_type_physical_good)->toBe(1)
@@ -237,7 +237,7 @@ test('create physical good product with many trade units', function ($shop) {
     ];
 
     $productData = array_merge(
-        Product::factory()->definition(),
+        Billable::factory()->definition(),
         [
             'trade_units'=> $tradeUnits,
             'price'      => 99,
@@ -248,8 +248,8 @@ test('create physical good product with many trade units', function ($shop) {
     $product     = StorePhysicalGood::make()->action($shop, $productData);
     $shop->refresh();
 
-    expect($product)->toBeInstanceOf(Product::class)
-        ->and($product->unit_relationship_type)->toBe(ProductUnitRelationshipType::MULTIPLE)
+    expect($product)->toBeInstanceOf(Billable::class)
+        ->and($product->unit_relationship_type)->toBe(BillableUnitRelationshipType::MULTIPLE)
         ->and($product->tradeUnits()->count())->toBe(2)
         ->and($shop->stats->number_products)->toBe(2)
 
@@ -262,10 +262,10 @@ test('create physical good product with many trade units', function ($shop) {
 test('update product', function ($product) {
 
 
-    expect($product->name)->not->toBe('Updated Product Name');
+    expect($product->name)->not->toBe('Updated Billable Name');
     $productData = [
-        'name'        => 'Updated Product Name',
-        'description' => 'Updated Product Description',
+        'name'        => 'Updated Billable Name',
+        'description' => 'Updated Billable Description',
         'rrp'         => 99.99
     ];
     $product = UpdatePhysicalGood::make()->action($product, $productData);
@@ -273,11 +273,11 @@ test('update product', function ($product) {
     /** @var Outer $outer */
     $outer=$product->mainOuterable;
 
-    expect($product->name)->toBe('Updated Product Name')
+    expect($product->name)->toBe('Updated Billable Name')
       ->and($product->stats->number_historic_outerables)->toBe(2)
         ->and($outer->number_historic_outerables)->toBe(2)
-    ->and($outer->name)->toBe('Updated Product Name')
-        ->and($product->name)->toBe('Updated Product Name');
+    ->and($outer->name)->toBe('Updated Billable Name')
+        ->and($product->name)->toBe('Updated Billable Name');
 
     return $product;
 })->depends('create physical good product');
@@ -351,7 +351,7 @@ test('delete product', function ($product) {
 test('create service', function ($shop) {
 
     $serviceData = array_merge(
-        Product::factory()->definition(),
+        Billable::factory()->definition(),
         [
             'main_outerable_price'      => 100,
         ]
@@ -365,7 +365,7 @@ test('create service', function ($shop) {
     expect($mainOuterable)->toBeInstanceOf(Service::class)
         ->and($product->service)->toBeInstanceOf(Service::class)
         ->and($product->main_outerable_price)->toBe(100)
-        ->and($product)->toBeInstanceOf(Product::class)
+        ->and($product)->toBeInstanceOf(Billable::class)
         ->and($product->stats->number_historic_outerables)->toBe(1)
         ->and($product->tradeUnits()->count())->toBe(0)
         ->and($product->stats->number_outers)->toBe(0)

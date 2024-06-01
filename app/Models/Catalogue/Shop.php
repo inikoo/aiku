@@ -132,7 +132,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
  * @property-read LaravelCollection<int, Payment> $payments
  * @property-read LaravelCollection<int, \App\Models\Catalogue\ProductCategory> $productCategories
- * @property-read LaravelCollection<int, \App\Models\Catalogue\Product> $products
+ * @property-read LaravelCollection<int, \App\Models\Catalogue\Billable> $products
  * @property-read LaravelCollection<int, Prospect> $prospects
  * @property-read LaravelCollection<int, Role> $roles
  * @property-read \App\Models\Catalogue\ShopSalesIntervals|null $salesIntervals
@@ -249,7 +249,7 @@ class Shop extends Model implements HasMedia, Auditable
 
     public function products(): HasMany
     {
-        return $this->hasMany(Product::class);
+        return $this->hasMany(Billable::class);
     }
 
     public function website(): HasOne

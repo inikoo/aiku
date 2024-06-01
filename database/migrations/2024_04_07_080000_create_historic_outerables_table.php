@@ -19,8 +19,8 @@ return new class () extends Migration {
             $table->increments('id');
             $table = $this->groupOrgRelationship($table);
             $table->boolean('status')->index();
-            $table->unsignedInteger('product_id')->index();
-            $table->foreign('product_id')->references('id')->on('products');
+            $table->unsignedInteger('billable_id')->index();
+            $table->foreign('billable_id')->references('id')->on('billables');
             $table->string('outerable_type')->index();
             $table->unsignedInteger('outerable_id')->index();
             $table->decimal('price', 18)->comment('unit price');

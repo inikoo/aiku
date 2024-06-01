@@ -8,9 +8,9 @@
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Catalogue\Product\ProductStateEnum;
-use App\Enums\Catalogue\Product\ProductTypeEnum;
-use App\Models\Catalogue\Product;
+use App\Enums\Catalogue\Billable\BillableStateEnum;
+use App\Enums\Catalogue\Billable\BillableTypeEnum;
+use App\Models\Catalogue\Billable;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -42,8 +42,8 @@ class GroupHydrateProducts
             $this->getEnumStats(
                 model: 'products',
                 field: 'state',
-                enum: ProductStateEnum::class,
-                models: Product::class,
+                enum: BillableStateEnum::class,
+                models: Billable::class,
                 where: function ($q) use ($group) {
                     $q->where('group_id', $group->id);
                 }
@@ -55,8 +55,8 @@ class GroupHydrateProducts
             $this->getEnumStats(
                 model: 'products',
                 field: 'type',
-                enum: ProductTypeEnum::class,
-                models: Product::class,
+                enum: BillableTypeEnum::class,
+                models: Billable::class,
                 where: function ($q) use ($group) {
                     $q->where('group_id', $group->id);
                 }

@@ -14,7 +14,7 @@ use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentBillables;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentRentals;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
 use App\Actions\Fulfilment\Rental\UI\CreateRental;
-use App\Actions\Catalogue\Product\UI\ShowProduct;
+use App\Actions\Catalogue\Billable\UI\ShowProduct;
 use App\Actions\Catalogue\Service\UI\EditService;
 use App\Actions\Catalogue\Service\UI\ShowService;
 use App\Actions\Fulfilment\Rental\UI\EditRental;

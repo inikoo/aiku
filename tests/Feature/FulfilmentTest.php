@@ -23,7 +23,7 @@ use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\Rental\UpdateRental;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Inventory\Location\StoreLocation;
-use App\Actions\Catalogue\Product\StoreRentalProduct;
+use App\Actions\Catalogue\Billable\StoreRentalProduct;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
@@ -46,7 +46,7 @@ use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Rental;
 use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Inventory\Location;
-use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Billable;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
@@ -135,12 +135,12 @@ test('create rental product to fulfilment shop', function (Fulfilment $fulfilmen
             'main_outerable_price' => 100,
             'main_outerable_unit'  => RentalUnitEnum::WEEK->value,
             'code'                 => 'R00001',
-            'name'                 => 'Rental Product A',
+            'name'                 => 'Rental Billable A',
 
         ]
     );
 
-    expect($product)->toBeInstanceOf(Product::class)
+    expect($product)->toBeInstanceOf(Billable::class)
         ->and($product->mainOuterable)->toBeInstanceOf(Rental::class);
 
     return $product;
@@ -175,18 +175,18 @@ test('create second rental product to fulfilment shop', function (Fulfilment $fu
             'main_outerable_price' => 200,
             'main_outerable_unit'  => RentalUnitEnum::WEEK->value,
             'code'                 => 'R00002',
-            'name'                 => 'Rental Product B',
+            'name'                 => 'Rental Billable B',
         ]
     );
 
-    expect($product)->toBeInstanceOf(Product::class)
+    expect($product)->toBeInstanceOf(Billable::class)
         ->and($product->mainOuterable)->toBeInstanceOf(Rental::class)
         ->and($product->rental)->toBeInstanceOf(Rental::class);
 
     return $product;
 })->depends('create fulfilment shop');
 
-test('assign auto assign asset to rental', function (Product $product) {
+test('assign auto assign asset to rental', function (Billable $product) {
     $product->rental->update([
         'auto_assign_asset'      => 'Pallet',
         'auto_assign_asset_type' => PalletTypeEnum::PALLET->value,

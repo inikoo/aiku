@@ -11,7 +11,7 @@ use App\Enums\Fulfilment\Rental\RentalStateEnum;
 use App\Enums\Fulfilment\Rental\RentalTypeEnum;
 use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Models\Catalogue\HistoricOuterable;
-use App\Models\Catalogue\IsOuterable;
+use App\Models\Catalogue\InBillableModel;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -44,7 +44,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, HistoricOuterable> $historicRecords
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @property-read \App\Models\Catalogue\Product|null $product
+ * @property-read \App\Models\Catalogue\Billable|null $product
  * @property-read \App\Models\Fulfilment\RentalSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
@@ -60,7 +60,7 @@ class Rental extends Model
 {
     use SoftDeletes;
     use HasUniversalSearch;
-    use IsOuterable;
+    use InBillableModel;
 
     protected $guarded = [];
 

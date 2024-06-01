@@ -8,16 +8,16 @@
 namespace App\Actions\Catalogue\Service;
 
 use App\Actions\Catalogue\HistoricOuterable\StoreHistoricOuterable;
-use App\Actions\Catalogue\Product\Hydrators\ProductHydrateHistoricOuterables;
+use App\Actions\Catalogue\Billable\Hydrators\BillableHydrateHistoricOuterables;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
-use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Billable;
 use App\Models\Catalogue\Service;
 use Illuminate\Validation\Rule;
 
 class StoreService extends OrgAction
 {
-    public function handle(Product $product, array $modelData): Service
+    public function handle(Billable $product, array $modelData): Service
     {
 
 
@@ -51,7 +51,7 @@ class StoreService extends OrgAction
             ]
         );
 
-        ProductHydrateHistoricOuterables::dispatch($product);
+        BillableHydrateHistoricOuterables::dispatch($product);
 
         return $service;
     }
@@ -73,7 +73,7 @@ class StoreService extends OrgAction
 
     }
 
-    public function action(Product $product, array $modelData, int $hydratorsDelay = 0): Service
+    public function action(Billable $product, array $modelData, int $hydratorsDelay = 0): Service
     {
         $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;

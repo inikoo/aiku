@@ -27,7 +27,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_historic_outerables
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read \App\Models\Catalogue\Product $product
+ * @property-read \App\Models\Catalogue\Billable $product
  * @method static Builder|ProductStats newModelQuery()
  * @method static Builder|ProductStats newQuery()
  * @method static Builder|ProductStats query()
@@ -41,6 +41,6 @@ class ProductStats extends Model
 
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Billable::class);
     }
 }

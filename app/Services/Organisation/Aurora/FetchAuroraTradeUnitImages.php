@@ -33,7 +33,7 @@ class FetchAuroraTradeUnitImages extends FetchAurora
                 ->where('Product Part Part SKU', $this->auroraModelData->{'Part SKU'})->get() as $auroraProductsData
         ) {
             $productImages = $this->getModelImagesCollection(
-                'Product',
+                'Billable',
                 $auroraProductsData->{'Product Part Product ID'}
             )->map(function ($auroraImage) {
                 return $this->fetchImage($auroraImage);

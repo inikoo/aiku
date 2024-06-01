@@ -8,14 +8,14 @@
 namespace App\Actions\Fulfilment\Fulfilment\UI;
 
 use App\Actions\OrgAction;
-use App\Enums\Catalogue\Product\ProductStateEnum;
-use App\Enums\Catalogue\Product\ProductTypeEnum;
+use App\Enums\Catalogue\Billable\BillableStateEnum;
+use App\Enums\Catalogue\Billable\BillableTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\UI\Fulfilment\FulfilmentBillablesTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentProductsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Billable;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -34,8 +34,8 @@ class IndexFulfilmentBillables extends OrgAction
             'type'  => [
                 'label'    => __('Type'),
                 'elements' => array_merge_recursive(
-                    ProductTypeEnum::labels($parent->shop),
-                    ProductTypeEnum::count($parent->shop)
+                    BillableTypeEnum::labels($parent->shop),
+                    BillableTypeEnum::count($parent->shop)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -46,8 +46,8 @@ class IndexFulfilmentBillables extends OrgAction
             'state' => [
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
-                    ProductStateEnum::labels(),
-                    ProductStateEnum::count($parent->shop)
+                    BillableStateEnum::labels(),
+                    BillableStateEnum::count($parent->shop)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -71,7 +71,7 @@ class IndexFulfilmentBillables extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(Product::class);
+        $queryBuilder = QueryBuilder::for(Billable::class);
         $queryBuilder->where('products.shop_id', $parent->shop_id);
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {

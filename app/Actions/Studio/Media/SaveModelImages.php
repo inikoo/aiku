@@ -9,7 +9,7 @@ namespace App\Actions\Studio\Media;
 
 use App\Actions\Studio\Media\Hydrators\MediaHydrateMultiplicity;
 use App\Actions\Studio\Media\Hydrators\MediaHydrateUsage;
-use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Billable;
 use App\Models\Studio\Media;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -18,11 +18,11 @@ class SaveModelImages
     use AsAction;
 
     public function handle(
-        Product $model,
+        Billable $model,
         array $imageData,
         string $scope = 'image',
         string $mediaScope = 'images'
-    ): Product {
+    ): Billable {
         $group_id        = $model->group_id;
         $organisation_id = $model->organisation_id;
 

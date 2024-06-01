@@ -16,7 +16,7 @@ class FetchAuroraOuter extends FetchAurora
 
     protected function parseModel(): void
     {
-        if ($this->auroraModelData->{'Product Type'} != 'Product') {
+        if ($this->auroraModelData->{'Product Type'} != 'Billable') {
             return;
         }
 

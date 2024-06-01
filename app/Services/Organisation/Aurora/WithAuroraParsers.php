@@ -59,7 +59,7 @@ use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
 use App\Models\Catalogue\HistoricOuterable;
-use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Billable;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\Order;
@@ -317,10 +317,10 @@ trait WithAuroraParsers
 
     }
 
-    public function parseProduct(string $sourceId): Product
+    public function parseProduct(string $sourceId): Billable
     {
 
-        $product = Product::where('source_id', $sourceId)->first();
+        $product = Billable::where('source_id', $sourceId)->first();
         if (!$product) {
             $sourceData = explode(':', $sourceId);
 
@@ -352,9 +352,9 @@ trait WithAuroraParsers
         return $family;
     }
 
-    public function parseService(string $sourceId): Product
+    public function parseService(string $sourceId): Billable
     {
-        $service = Product::withTrashed()->where('source_id', $sourceId)->first();
+        $service = Billable::withTrashed()->where('source_id', $sourceId)->first();
         if (!$service) {
             $sourceData = explode(':', $sourceId);
             $service    = FetchAuroraServices::run($this->organisationSource, $sourceData[1]);

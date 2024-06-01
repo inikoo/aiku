@@ -116,7 +116,7 @@ class EditOrgAgent extends InertiaAction
 
                                 'default_product_country_origin' => [
                                     'type'        => 'select',
-                                    'label'       => __("Product's country of origin"),
+                                    'label'       => __("Billable's country of origin"),
                                     'placeholder' => __('Select a country'),
                                     'options'     => GetCountriesOptions::run(),
                                     'mode'        => 'single'

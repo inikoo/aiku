@@ -12,7 +12,7 @@ use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateRentals;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Rental\RentalStateEnum;
-use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\Billable\BillableStateEnum;
 use App\Models\Fulfilment\Rental;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
@@ -31,9 +31,9 @@ class UpdateRental extends OrgAction
 
         if(Arr::has($modelData, 'state')) {
             $productData['state']=match($modelData['state']) {
-                RentalStateEnum::ACTIVE       => ProductStateEnum::ACTIVE,
-                RentalStateEnum::DISCONTINUED => ProductStateEnum::DISCONTINUED,
-                RentalStateEnum::IN_PROCESS   => ProductStateEnum::IN_PROCESS,
+                RentalStateEnum::ACTIVE       => BillableStateEnum::ACTIVE,
+                RentalStateEnum::DISCONTINUED => BillableStateEnum::DISCONTINUED,
+                RentalStateEnum::IN_PROCESS   => BillableStateEnum::IN_PROCESS,
             };
 
         }

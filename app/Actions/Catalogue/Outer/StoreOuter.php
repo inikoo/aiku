@@ -9,30 +9,30 @@ namespace App\Actions\Catalogue\Outer;
 
 use App\Actions\Catalogue\HistoricOuterable\StoreHistoricOuterable;
 use App\Actions\Catalogue\Outer\Hydrators\OuterHydrateUniversalSearch;
-use App\Actions\Catalogue\Product\Hydrators\ProductHydrateHistoricOuterables;
-use App\Actions\Catalogue\Product\Hydrators\ProductHydrateOuters;
+use App\Actions\Catalogue\Billable\Hydrators\BillableHydrateHistoricOuterables;
+use App\Actions\Catalogue\Billable\Hydrators\BillableHydrateOuters;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Outer\OuterStateEnum;
-use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\Billable\BillableStateEnum;
 use App\Models\Catalogue\Outer;
-use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Billable;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 
 class StoreOuter extends OrgAction
 {
-    public function handle(Product $product, array $modelData, bool $skipHistoric = false): Outer
+    public function handle(Billable $product, array $modelData, bool $skipHistoric = false): Outer
     {
 
         data_set($modelData, 'organisation_id', $product->organisation_id);
         data_set($modelData, 'group_id', $product->group_id);
         data_set($modelData, 'shop_id', $product->shop_id);
         data_set($modelData, 'state', match ($product->state) {
-            ProductStateEnum::IN_PROCESS     => OuterStateEnum::IN_PROCESS,
-            ProductStateEnum::ACTIVE         => OuterStateEnum::ACTIVE,
-            ProductStateEnum::DISCONTINUING  => OuterStateEnum::DISCONTINUING,
-            ProductStateEnum::DISCONTINUED   => OuterStateEnum::DISCONTINUED,
+            BillableStateEnum::IN_PROCESS     => OuterStateEnum::IN_PROCESS,
+            BillableStateEnum::ACTIVE         => OuterStateEnum::ACTIVE,
+            BillableStateEnum::DISCONTINUING  => OuterStateEnum::DISCONTINUING,
+            BillableStateEnum::DISCONTINUED   => OuterStateEnum::DISCONTINUED,
         });
         data_set($modelData, 'price', $product->main_outerable_price);
 
@@ -52,8 +52,8 @@ class StoreOuter extends OrgAction
             );
         }
 
-        ProductHydrateOuters::dispatch($product);
-        ProductHydrateHistoricOuterables::dispatch($product);
+        BillableHydrateOuters::dispatch($product);
+        BillableHydrateHistoricOuterables::dispatch($product);
         OuterHydrateUniversalSearch::dispatch($outer);
 
         return $outer;
@@ -88,7 +88,7 @@ class StoreOuter extends OrgAction
 
     }
 
-    public function action(Product $product, array $modelData, int $hydratorsDelay = 0): Outer
+    public function action(Billable $product, array $modelData, int $hydratorsDelay = 0): Outer
     {
         $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;

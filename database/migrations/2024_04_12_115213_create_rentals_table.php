@@ -25,8 +25,8 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedSmallInteger('fulfilment_id')->nullable();
             $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
-            $table->unsignedInteger('product_id')->nullable();
-            $table->foreign('product_id')->references('id')->on('products');
+            $table->unsignedInteger('billable_id')->nullable();
+            $table->foreign('billable_id')->references('id')->on('billables');
 
             $table->string('auto_assign_asset')->nullable()->comment('Used for auto assign this rent to this asset');
             $table->string('auto_assign_asset_type')->nullable()->comment('Used for auto assign this rent to this asset type');

@@ -7,7 +7,8 @@
 
 namespace App\Models\Goods;
 
-use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Billable;
+use App\Models\Catalogue\Outer;
 use App\Models\Helpers\Barcode;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
@@ -53,7 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Studio\Media|null $image
  * @property-read MediaCollection<int, \App\Models\Studio\Media> $images
  * @property-read MediaCollection<int, \App\Models\Studio\Media> $media
- * @property-read Collection<int, Product> $products
+ * @property-read Collection<int, Billable> $products
  * @property-read Collection<int, Stock> $stocks
  * @method static \Database\Factories\Goods\TradeUnitFactory factory($count = null, $state = [])
  * @method static Builder|TradeUnit newModelQuery()
@@ -101,9 +102,9 @@ class TradeUnit extends Model implements HasMedia
         return $this->belongsToMany(Stock::class);
     }
 
-    public function products(): BelongsToMany
+    public function outers(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class);
+        return $this->belongsToMany(Outer::class);
     }
 
     public function barcode(): MorphToMany

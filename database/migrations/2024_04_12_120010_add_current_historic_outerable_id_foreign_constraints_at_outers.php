@@ -12,16 +12,16 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->foreign('current_historic_outerable_id')->references('id')->on('historic_outerables');
+        Schema::table('billables', function (Blueprint $table) {
+            //  $table->foreign('current_historic_outerable_id')->references('id')->on('historic_outerables');
         });
     }
 
 
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropForeign('current_historic_outerable_id_foreign');
+        Schema::table('billables', function (Blueprint $table) {
+            //     $table->dropForeign('current_historic_outerable_id_foreign');
         });
     }
 };

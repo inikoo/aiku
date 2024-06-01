@@ -12,7 +12,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\Customer;
 use App\Models\Goods\TradeUnit;
 use App\Models\HumanResources\Employee;
-use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Billable;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\Supplier;
@@ -28,11 +28,11 @@ class StoreImage
      * @throws \Spatie\MediaLibrary\MediaCollections\Exceptions\FileIsTooBig
      */
     public function handle(
-        Employee|Guest|Product|Stock|TradeUnit|Customer|SupplierProduct|Supplier|Agent $subject,
+        Employee|Guest|Billable|Stock|TradeUnit|Customer|SupplierProduct|Supplier|Agent $subject,
         string $imagePath,
         string $filename,
         string $collection='photo'
-    ): Employee|Guest|Product|Stock|TradeUnit|Customer|SupplierProduct|Supplier|Agent {
+    ): Employee|Guest|Billable|Stock|TradeUnit|Customer|SupplierProduct|Supplier|Agent {
         $checksum = md5_file($imagePath);
 
         $media = $subject->media()->where('collection_name', $collection)->where('checksum', $checksum)->first();

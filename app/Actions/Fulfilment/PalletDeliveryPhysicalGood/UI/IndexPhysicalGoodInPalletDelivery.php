@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\PalletDeliveryPhysicalGood\UI;
 
 use App\Actions\OrgAction;
-use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\Billable\BillableStateEnum;
 use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\PalletDelivery;
@@ -27,8 +27,8 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
             'state' => [
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
-                    ProductStateEnum::labels(),
-                    ProductStateEnum::count($parent->fulfilment->shop)
+                    BillableStateEnum::labels(),
+                    BillableStateEnum::count($parent->fulfilment->shop)
                 ),
 
                 'engine' => function ($query, $elements) {

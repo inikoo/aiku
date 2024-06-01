@@ -18,8 +18,8 @@ return new class () extends Migration {
     {
         Schema::create('product_stats', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('product_id')->index();
-            $table->foreign('product_id')->references('id')->on('products');
+            $table->unsignedInteger('billable_id')->index();
+            $table->foreign('billable_id')->references('id')->on('billables');
             $table->unsignedSmallInteger('number_outers')->default(0);
             $table->unsignedSmallInteger('number_outers_available')->default(0);
             foreach (OuterStateEnum::cases() as $case) {

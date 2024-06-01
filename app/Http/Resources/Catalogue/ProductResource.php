@@ -7,14 +7,14 @@
 
 namespace App\Http\Resources\Catalogue;
 
-use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Billable;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProductResource extends JsonResource
 {
     public function toArray($request): array
     {
-        /** @var Product $product */
+        /** @var Billable $product */
         $product=$this;
         return [
             'slug'       => $product->slug,

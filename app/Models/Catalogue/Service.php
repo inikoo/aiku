@@ -40,7 +40,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricOuterable> $historicRecords
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @property-read \App\Models\Catalogue\Product|null $product
+ * @property-read \App\Models\Catalogue\Billable|null $product
  * @property-read \Illuminate\Database\Eloquent\Collection<int, RecurringBill> $recurringBills
  * @property-read \App\Models\Catalogue\ServiceSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\Shop|null $shop
@@ -57,7 +57,7 @@ class Service extends Model
 {
     use SoftDeletes;
     use HasUniversalSearch;
-    use IsOuterable;
+    use InBillableModel;
 
     protected $guarded = [];
 

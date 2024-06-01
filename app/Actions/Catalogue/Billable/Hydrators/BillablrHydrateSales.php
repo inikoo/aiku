@@ -1,0 +1,46 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 25 Mar 2023 01:59:32 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\Catalogue\Billable\Hydrators;
+
+use App\Actions\Traits\WithIntervalsAggregators;
+use App\Models\Accounting\InvoiceTransaction;
+use App\Models\Catalogue\Billable;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Lorisleiva\Actions\Concerns\AsAction;
+
+class BillablrHydrateSales
+{
+    use AsAction;
+    use WithIntervalsAggregators;
+
+
+    private Billable $product;
+
+    public function __construct(Billable $product)
+    {
+        $this->product = $product;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->product->id))->dontRelease()];
+    }
+
+    public function handle(Billable $product): void
+    {
+        $stats = [];
+
+        $queryBase = InvoiceTransaction::where('shop_id', $product->shop->id)->selectRaw('sum(group_net_amount) as  sum_group  , sum(group_net_amount) as  sum_org , sum(net) as  sum_shop  ');
+
+        $stats=array_merge($stats, $this->processIntervalShopAssetsStats($queryBase));
+
+        $product->salesIntervals()->update($stats);
+    }
+
+
+}

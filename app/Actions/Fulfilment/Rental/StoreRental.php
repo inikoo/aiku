@@ -8,17 +8,17 @@
 namespace App\Actions\Fulfilment\Rental;
 
 use App\Actions\Catalogue\HistoricOuterable\StoreHistoricOuterable;
-use App\Actions\Catalogue\Product\Hydrators\ProductHydrateHistoricOuterables;
+use App\Actions\Catalogue\Billable\Hydrators\BillableHydrateHistoricOuterables;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateRentals;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\Rental\RentalStateEnum;
 use App\Models\Fulfilment\Rental;
-use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Billable;
 use Illuminate\Validation\Rule;
 
 class StoreRental extends OrgAction
 {
-    public function handle(Product $product, array $modelData): Rental
+    public function handle(Billable $product, array $modelData): Rental
     {
         data_set($modelData, 'organisation_id', $product->organisation_id);
         data_set($modelData, 'group_id', $product->group_id);
@@ -49,7 +49,7 @@ class StoreRental extends OrgAction
             ]
         );
 
-        ProductHydrateHistoricOuterables::dispatch($product);
+        BillableHydrateHistoricOuterables::dispatch($product);
         ShopHydrateRentals::dispatch($product->shop);
 
         return $rental;
@@ -70,7 +70,7 @@ class StoreRental extends OrgAction
         ];
     }
 
-    public function action(Product $product, array $modelData, int $hydratorsDelay = 0): Rental
+    public function action(Billable $product, array $modelData, int $hydratorsDelay = 0): Rental
     {
         $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;

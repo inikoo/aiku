@@ -5,8 +5,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Catalogue\Product\UI\CreateProduct;
-use App\Actions\Catalogue\Product\UI\IndexProducts;
+use App\Actions\Catalogue\Billable\UI\CreateProduct;
+use App\Actions\Catalogue\Billable\UI\IndexProducts;
 use App\Actions\Devel\UI\EditDummy;
 use App\Actions\Devel\UI\IndexDummies;
 use App\Actions\Devel\UI\ShowDummy;

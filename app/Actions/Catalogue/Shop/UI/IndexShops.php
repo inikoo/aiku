@@ -8,7 +8,7 @@
 namespace App\Actions\Catalogue\Shop\UI;
 
 use App\Actions\Catalogue\HasMarketAuthorisation;
-use App\Actions\Catalogue\Product\UI\IndexProducts;
+use App\Actions\Catalogue\Billable\UI\IndexProducts;
 use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
 use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
 use App\Actions\OrgAction;

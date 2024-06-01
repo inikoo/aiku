@@ -8,8 +8,8 @@
 namespace App\Stubs\Migrations;
 
 use App\Enums\Fulfilment\Rental\RentalStateEnum;
-use App\Enums\Catalogue\Product\ProductStateEnum;
-use App\Enums\Catalogue\Product\ProductTypeEnum;
+use App\Enums\Catalogue\Billable\BillableStateEnum;
+use App\Enums\Catalogue\Billable\BillableTypeEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
@@ -72,11 +72,11 @@ trait HasCatalogueStats
         $table->unsignedInteger('number_products')->default(0);
         $table->unsignedInteger('number_current_products')->default(0)->comment('state: active+discontinuing');
 
-        foreach (ProductStateEnum::cases() as $productState) {
+        foreach (BillableStateEnum::cases() as $productState) {
             $table->unsignedInteger('number_products_state_'.$productState->snake())->default(0);
         }
 
-        foreach (ProductTypeEnum::cases() as $case) {
+        foreach (BillableTypeEnum::cases() as $case) {
             $table->unsignedInteger('number_products_type_'.$case->snake())->default(0);
         }
 
@@ -89,7 +89,7 @@ trait HasCatalogueStats
             $table->unsignedInteger('number_services_state_'.$case->snake())->default(0);
         }
 
-        foreach (ProductStateEnum::cases() as $case) {
+        foreach (BillableStateEnum::cases() as $case) {
             $table->unsignedInteger('number_physical_goods_state_'.$case->snake())->default(0);
         }
 

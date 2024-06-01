@@ -19,7 +19,7 @@ use App\Models\Fulfilment\StoredItem;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
 use App\Models\Helpers\TaxNumber;
-use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Billable;
 use App\Models\Catalogue\Shop;
 use App\Models\Studio\Media;
 use App\Models\Ordering\Order;
@@ -106,7 +106,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Order> $orders
  * @property-read Organisation $organisation
  * @property-read Collection<int, Payment> $payments
- * @property-read Collection<int, Product> $products
+ * @property-read Collection<int, Billable> $products
  * @property-read Shop|null $shop
  * @property-read \App\Models\CRM\CustomerStats|null $stats
  * @property-read Collection<int, Stock> $stocks
@@ -256,7 +256,7 @@ class Customer extends Model implements HasMedia, Auditable
 
     public function products(): MorphMany
     {
-        return $this->morphMany(Product::class, 'owner', 'owner_type', 'owner_id', 'id');
+        return $this->morphMany(Billable::class, 'owner', 'owner_type', 'owner_id', 'id');
     }
 
     public function stocks(): MorphMany

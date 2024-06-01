@@ -18,8 +18,8 @@ return new class () extends Migration {
             $table->string('state')->default(ServiceStateEnum::IN_PROCESS)->index();
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->unsignedInteger('product_id')->nullable();
-            $table->foreign('product_id')->references('id')->on('products');
+            $table->unsignedInteger('billable_id')->nullable();
+            $table->foreign('billable_id')->references('id')->on('billables');
             $table->unsignedSmallInteger('number_historic_outerables')->default(0);
 
             $table->string('auto_assign_action')->nullable()->comment('Used for auto assign this service to a action');

@@ -8,11 +8,13 @@
 namespace App\Models\Catalogue;
 
 use App\Enums\Catalogue\Outer\OuterStateEnum;
+use App\Models\Goods\TradeUnit;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -47,7 +49,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricOuterable> $historicRecords
  * @property-read Organisation $organisation
- * @property-read \App\Models\Catalogue\Product|null $product
+ * @property-read \App\Models\Catalogue\Billable|null $product
  * @property-read \App\Models\Catalogue\OuterSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
@@ -64,7 +66,7 @@ class Outer extends Model
     use SoftDeletes;
     use HasSlug;
     use HasUniversalSearch;
-    use IsOuterable;
+    use InBillableModel;
 
     protected $guarded = [];
 
@@ -104,6 +106,14 @@ class Outer extends Model
     public function currentHistoricOuterable(): BelongsTo
     {
         return $this->belongsTo(HistoricOuterable::class);
+    }
+
+    public function tradeUnits(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            TradeUnit::class,
+            'outer_trade_unit',
+        )->withPivot(['units_per_main_outer', 'notes'])->withTimestamps();
     }
 
 

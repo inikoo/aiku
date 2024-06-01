@@ -33,7 +33,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
- * @property-read \App\Models\Catalogue\Product $product
+ * @property-read \App\Models\Catalogue\Billable $product
  * @property-read \App\Models\Catalogue\HistoricOuterableStats|null $stats
  * @method static Builder|HistoricOuterable newModelQuery()
  * @method static Builder|HistoricOuterable newQuery()
@@ -55,7 +55,7 @@ class HistoricOuterable extends Model
 
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(Billable::class);
     }
 
     public function stats(): HasOne

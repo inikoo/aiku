@@ -156,15 +156,15 @@ class AppServiceProvider extends ServiceProvider
                 'SesNotification'                        => 'App\Models\Mail\SesNotification',
 
                 // Catalogue
-                'Shop'                              => 'App\Models\Catalogue\Shop',
-                'ProductCategory'                   => 'App\Models\Catalogue\ProductCategory',
-                'Product'                           => 'App\Models\Catalogue\Product',
-                'HistoricOuterable'                 => 'App\Models\Catalogue\HistoricOuterable',
-                'ShippingZone'                      => 'App\Models\Ordering\ShippingZone',
-                'ShippingZoneSchema'                => 'App\Models\Ordering\ShippingZoneSchema',
-                'Outer'                             => 'App\Models\Catalogue\Outer',
-                'Rental'                            => 'App\Models\Fulfilment\Rental',
-                'Service'                           => 'App\Models\Catalogue\Service',
+                'Shop'                               => 'App\Models\Catalogue\Shop',
+                'ProductCategory'                    => 'App\Models\Catalogue\ProductCategory',
+                'Billable'                           => 'App\Models\Catalogue\Billable',
+                'HistoricOuterable'                  => 'App\Models\Catalogue\HistoricOuterable',
+                'ShippingZone'                       => 'App\Models\Ordering\ShippingZone',
+                'ShippingZoneSchema'                 => 'App\Models\Ordering\ShippingZoneSchema',
+                'Outer'                              => 'App\Models\Catalogue\Outer',
+                'Rental'                             => 'App\Models\Fulfilment\Rental',
+                'Service'                            => 'App\Models\Catalogue\Service',
 
                 // Deals
                 'Offer'                           => 'App\Models\Marketing\Offer',

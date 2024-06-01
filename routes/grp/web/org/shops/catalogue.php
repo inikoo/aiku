@@ -7,10 +7,10 @@
 
 use App\Actions\Catalogue\Collection\UI\IndexCollection;
 use App\Actions\Catalogue\Collection\UI\ShowCollection;
-use App\Actions\Catalogue\Product\UI\CreateProduct;
-use App\Actions\Catalogue\Product\UI\EditProduct;
-use App\Actions\Catalogue\Product\UI\IndexProducts;
-use App\Actions\Catalogue\Product\UI\ShowProduct;
+use App\Actions\Catalogue\Billable\UI\CreateProduct;
+use App\Actions\Catalogue\Billable\UI\EditProduct;
+use App\Actions\Catalogue\Billable\UI\IndexProducts;
+use App\Actions\Catalogue\Billable\UI\ShowProduct;
 use App\Actions\Catalogue\ProductCategory\UI\CreateDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\CreateFamily;
 use App\Actions\Catalogue\ProductCategory\UI\EditDepartment;

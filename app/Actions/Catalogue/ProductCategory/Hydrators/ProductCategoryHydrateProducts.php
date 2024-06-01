@@ -7,8 +7,8 @@
 
 namespace App\Actions\Catalogue\ProductCategory\Hydrators;
 
-use App\Enums\Catalogue\Product\ProductStateEnum;
-use App\Models\Catalogue\Product;
+use App\Enums\Catalogue\Billable\BillableStateEnum;
+use App\Models\Catalogue\Billable;
 use App\Models\Catalogue\ProductCategory;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Support\Arr;
@@ -24,12 +24,12 @@ class ProductCategoryHydrateProducts implements ShouldBeUnique
         $stats         = [
             'number_products' => $productCategory->products->count(),
         ];
-        $stateCounts   = Product::where('productCategory_id', $productCategory->id)
+        $stateCounts   = Billable::where('productCategory_id', $productCategory->id)
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
 
-        foreach (ProductStateEnum::cases() as $productState) {
+        foreach (BillableStateEnum::cases() as $productState) {
             $stats['number_products_state_'.$productState->snake()] = Arr::get($stateCounts, $productState->value, 0);
         }
         $productCategory->stats()->update($stats);

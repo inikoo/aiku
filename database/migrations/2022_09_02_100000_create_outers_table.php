@@ -1,0 +1,59 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 08 Apr 2024 09:52:43 Central Indonesia Time, Bali Office , Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+use App\Enums\Catalogue\Outer\OuterStateEnum;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class () extends Migration {
+    use HasGroupOrganisationRelationship;
+
+    public function up(): void
+    {
+        Schema::create('outers', function (Blueprint $table) {
+            $table->increments('id');
+            //$table->boolean('is_main')->index();
+            $table = $this->groupOrgRelationship($table);
+            $table->unsignedSmallInteger('shop_id')->nullable();
+            $table->foreign('shop_id')->references('id')->on('shops');
+            $table->unsignedInteger('billable_id')->nullable();
+            $table->foreign('billable_id')->references('id')->on('billables');
+
+
+
+
+            //$table->unsignedInteger('current_historic_outerable_id')->index()->nullable();
+
+            $table->string('slug')->unique()->collation('und_ns');
+            $table->string('code')->index()->collation('und_ns');
+            $table->string('name', 255)->nullable();
+            $table->decimal('price', 18)->comment('outer price');
+            $table->unsignedSmallInteger('number_units')->default(1);
+            $table->string('unit')->nullable();
+            $table->string('state')->default(OuterStateEnum::IN_PROCESS)->index();
+
+            //$table->decimal('main_outer_ratio', 12, 3)->nullable()->comment('number of outers in relation to main outer');
+
+
+
+            $table->unsignedInteger('available_quantity')->default(0)->nullable()->comment('outer available quantity for sale');
+            //$table->unsignedSmallInteger('number_historic_outerables')->default(0);
+            $table->timestampsTz();
+            $table->softDeletesTz();
+            $table->string('source_id')->nullable()->unique();
+            $table->string('historic_source_id')->nullable()->index();
+        });
+    }
+
+
+    public function down(): void
+    {
+        Schema::dropIfExists('outers');
+    }
+};

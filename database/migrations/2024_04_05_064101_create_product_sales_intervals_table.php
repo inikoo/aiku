@@ -17,8 +17,8 @@ return new class () extends Migration {
     {
         Schema::create('product_sales_intervals', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('product_id')->index();
-            $table->foreign('product_id')->references('id')->on('products');
+            $table->unsignedInteger('billable_id')->index();
+            $table->foreign('billable_id')->references('id')->on('billables');
             $table=$this->salesIntervalFields($table, ['shop_amount', 'org_amount', 'group_amount']);
             $table->timestampsTz();
         });
