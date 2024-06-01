@@ -10,7 +10,7 @@ namespace App\Actions\Catalogue\Billable\Hydrators;
 use App\Models\Catalogue\Billable;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ProductHydrateUniversalSearch
+class BillableHydrateUniversalSearch
 {
     use AsAction;
 

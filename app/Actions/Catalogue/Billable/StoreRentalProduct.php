@@ -8,7 +8,7 @@
 namespace App\Actions\Catalogue\Billable;
 
 use App\Actions\Fulfilment\Rental\StoreRental;
-use App\Actions\Catalogue\Billable\Hydrators\ProductHydrateUniversalSearch;
+use App\Actions\Catalogue\Billable\Hydrators\BillableHydrateUniversalSearch;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProducts;
@@ -70,7 +70,7 @@ class StoreRentalProduct extends OrgAction
         ShopHydrateProducts::dispatch($product->shop);
         OrganisationHydrateProducts::dispatch($product->organisation);
         GroupHydrateProducts::dispatch($product->group);
-        ProductHydrateUniversalSearch::dispatch($product);
+        BillableHydrateUniversalSearch::dispatch($product);
 
         return $product;
     }

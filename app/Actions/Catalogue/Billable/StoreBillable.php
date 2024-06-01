@@ -11,7 +11,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProducts;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProducts;
 use App\Actions\Catalogue\Billable\Hydrators\BillableHydrateHistoricOuterables;
 use App\Actions\Catalogue\Billable\Hydrators\BillableHydrateOuters;
-use App\Actions\Catalogue\Billable\Hydrators\ProductHydrateUniversalSearch;
+use App\Actions\Catalogue\Billable\Hydrators\BillableHydrateUniversalSearch;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\OrgAction;
 use App\Models\Catalogue\Outer;
@@ -30,9 +30,6 @@ class StoreBillable extends OrgAction
         data_set($modelData, 'unit', $parent->unit);
         data_set($modelData, 'number_units', $parent->number_units);
         data_set($modelData, 'status', $parent->status);
-
-        data_set($modelData, 'source_id', $parent->source_id);
-        data_set($modelData, 'historic_source_id', $parent->historic_source_id);
         data_set($modelData, 'created_at', $parent->created_at);
 
 
@@ -50,7 +47,7 @@ class StoreBillable extends OrgAction
         OrganisationHydrateProducts::dispatch($billable->organisation);
         GroupHydrateProducts::dispatch($billable->group);
 
-        ProductHydrateUniversalSearch::dispatch($billable);
+        BillableHydrateUniversalSearch::dispatch($billable);
 
         return $billable;
     }

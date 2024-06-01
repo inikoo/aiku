@@ -8,18 +8,18 @@
 namespace App\Actions\Catalogue\Billable;
 
 use App\Actions\HydrateModel;
-use App\Actions\Catalogue\Billable\Hydrators\ProductHydrateUniversalSearch;
+use App\Actions\Catalogue\Billable\Hydrators\BillableHydrateUniversalSearch;
 use App\Models\Catalogue\Billable;
 use Illuminate\Support\Collection;
 
-class UpdateProductUniversalSearch extends HydrateModel
+class UpdateBillableUniversalSearch extends HydrateModel
 {
-    public string $commandSignature = 'product:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'billable:search {organisations?*} {--s|slugs=}';
 
 
     public function handle(Billable $product): void
     {
-        ProductHydrateUniversalSearch::run($product);
+        BillableHydrateUniversalSearch::run($product);
     }
 
 

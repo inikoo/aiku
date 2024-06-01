@@ -8,7 +8,7 @@
 namespace App\Actions\Catalogue\Billable;
 
 use App\Actions\Catalogue\Outer\UpdateOuter;
-use App\Actions\Catalogue\Billable\Hydrators\ProductHydrateUniversalSearch;
+use App\Actions\Catalogue\Billable\Hydrators\BillableHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\Billable\BillableStateEnum;
@@ -38,7 +38,7 @@ class UpdatePhysicalGood extends OrgAction
 
 
 
-        ProductHydrateUniversalSearch::dispatch($product);
+        BillableHydrateUniversalSearch::dispatch($product);
 
         return $product;
     }

@@ -126,12 +126,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\Billable $product
- * @method static \Illuminate\Database\Eloquent\Builder|ProductSalesIntervals newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ProductSalesIntervals newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ProductSalesIntervals query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BillableSalesIntervals newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BillableSalesIntervals newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BillableSalesIntervals query()
  * @mixin \Eloquent
  */
-class ProductSalesIntervals extends Model
+class BillableSalesIntervals extends Model
 {
     protected $guarded = [];
 

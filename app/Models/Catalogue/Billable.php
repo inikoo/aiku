@@ -28,7 +28,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -91,10 +90,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Catalogue\Outer> $outers
  * @property-read Collection<int, RecurringBill> $recurringBills
  * @property-read Rental|null $rental
- * @property-read \App\Models\Catalogue\ProductSalesIntervals|null $salesIntervals
+ * @property-read \App\Models\Catalogue\BillableSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\Service|null $service
  * @property-read \App\Models\Catalogue\Shop|null $shop
- * @property-read \App\Models\Catalogue\ProductStats|null $stats
+ * @property-read \App\Models\Catalogue\BillableStats|null $stats
  * @property-read Collection<int, TradeUnit> $tradeUnits
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Catalogue\ProductFactory factory($count = null, $state = [])
@@ -150,7 +149,7 @@ class Billable extends Model implements HasMedia
 
     public function salesIntervals(): HasOne
     {
-        return $this->hasOne(ProductSalesIntervals::class);
+        return $this->hasOne(BillableSalesIntervals::class);
     }
 
     public function historicOuters(): HasMany
@@ -160,7 +159,7 @@ class Billable extends Model implements HasMedia
 
     public function stats(): HasOne
     {
-        return $this->hasOne(ProductStats::class);
+        return $this->hasOne(BillableStats::class);
     }
 
     public function barcode(): MorphToMany

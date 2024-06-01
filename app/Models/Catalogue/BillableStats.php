@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * App\Models\Catalogue\ProductStats
+ * App\Models\Catalogue\BillableStats
  *
  * @property int $id
  * @property int $product_id
@@ -28,12 +28,12 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\Billable $product
- * @method static Builder|ProductStats newModelQuery()
- * @method static Builder|ProductStats newQuery()
- * @method static Builder|ProductStats query()
+ * @method static Builder|BillableStats newModelQuery()
+ * @method static Builder|BillableStats newQuery()
+ * @method static Builder|BillableStats query()
  * @mixin Eloquent
  */
-class ProductStats extends Model
+class BillableStats extends Model
 {
     protected $table = 'product_stats';
 
