@@ -8,7 +8,7 @@
 namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
-use App\Models\Catalogue\Outer;
+use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Service;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Warehouse;
@@ -65,7 +65,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Outer> $physicalGoods
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $physicalGoods
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Service> $services
  * @property-read \App\Models\Fulfilment\PalletDeliveryStats|null $stats
@@ -162,7 +162,7 @@ class PalletDelivery extends Model
 
     public function physicalGoods(): BelongsToMany
     {
-        return $this->belongsToMany(Outer::class, 'pallet_delivery_physical_goods')
+        return $this->belongsToMany(Product::class, 'pallet_delivery_physical_goods')
             ->withTimestamps();
     }
 

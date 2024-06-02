@@ -6,11 +6,11 @@
  */
 
 
-use App\Actions\Catalogue\Billable\UI\CreateProduct;
-use App\Actions\Catalogue\Billable\UI\EditProduct;
-use App\Actions\Catalogue\Billable\UI\IndexProducts;
-use App\Actions\Catalogue\Billable\UI\RemoveProduct;
-use App\Actions\Catalogue\Billable\UI\ShowProduct;
+use App\Actions\Catalogue\Asset\UI\CreateProduct;
+use App\Actions\Catalogue\Asset\UI\EditProduct;
+use App\Actions\Catalogue\Asset\UI\IndexProducts;
+use App\Actions\Catalogue\Asset\UI\RemoveProduct;
+use App\Actions\Catalogue\Asset\UI\ShowProduct;
 use App\Actions\Catalogue\ProductCategory\ExportProductCategory;
 use App\Actions\Catalogue\ProductCategory\UI\CreateDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\CreateDepartments;

@@ -36,20 +36,18 @@ use Illuminate\Support\Carbon;
  * @property int $number_products_state_active
  * @property int $number_products_state_discontinuing
  * @property int $number_products_state_discontinued
- * @property int $number_products_type_physical_good
- * @property int $number_products_type_service
- * @property int $number_products_type_subscription
- * @property int $number_products_type_rental
+ * @property int $number_rentals
  * @property int $number_rentals_state_in_process
  * @property int $number_rentals_state_active
  * @property int $number_rentals_state_discontinued
+ * @property int $number_services
  * @property int $number_services_state_in_process
  * @property int $number_services_state_active
  * @property int $number_services_state_discontinued
- * @property int $number_physical_goods_state_in_process
- * @property int $number_physical_goods_state_active
- * @property int $number_physical_goods_state_discontinuing
- * @property int $number_physical_goods_state_discontinued
+ * @property int $number_subscriptions
+ * @property int $number_subscriptions_state_in_process
+ * @property int $number_subscriptions_state_active
+ * @property int $number_subscriptions_state_discontinued
  * @property string $shop_amount_all
  * @property string $shop_amount_1y
  * @property string $shop_amount_1q

@@ -87,7 +87,7 @@ class IndexFulfilmentRentals extends OrgAction
                 'rentals.unit',
                 'products.name',
                 'products.code',
-                'products.main_outerable_price',
+                'products.price',
                 'products.description',
                 'currencies.code as currency_code',
             ]);
@@ -137,7 +137,7 @@ class IndexFulfilmentRentals extends OrgAction
                             'icon'  => 'fal fa-plus',
                             'label' => __('Create rental'),
                             'route' => [
-                                'name'       => 'grp.org.fulfilments.show.billables.rentals.create',
+                                'name'       => 'grp.org.fulfilments.show.assets.rentals.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],
@@ -189,7 +189,7 @@ class IndexFulfilmentRentals extends OrgAction
                     match (class_basename($parent)) {
                         'Fulfilment' => [
                             'title' => __("No rentals found"),
-                            'count' => $parent->shop->stats->number_products_type_rental,
+                            'count' => $parent->shop->stats->number_assets_type_rental,
                         ],
                         default => null
                     }
@@ -230,10 +230,10 @@ class IndexFulfilmentRentals extends OrgAction
 
         return
             array_merge(
-                IndexFulfilmentBillables::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
+                IndexFulfilmentAssets::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.billables.rentals.index',
+                        'name'       => 'grp.org.fulfilments.show.assets.rentals.index',
                         'parameters' => $routeParameters
                     ]
                 )

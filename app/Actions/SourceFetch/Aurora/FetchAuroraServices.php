@@ -8,12 +8,12 @@
 namespace App\Actions\SourceFetch\Aurora;
 
 use App\Actions\Fulfilment\Rental\UpdateRental;
-use App\Actions\Catalogue\Billable\StoreRentalProduct;
-use App\Actions\Catalogue\Billable\StoreServiceProduct;
+use App\Actions\Catalogue\Asset\StoreRentalProduct;
+use App\Actions\Catalogue\Asset\StoreServiceProduct;
 use App\Actions\Catalogue\Service\UpdateService;
-use App\Enums\Catalogue\Billable\BillableTypeEnum;
+use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Models\Fulfilment\Rental;
-use App\Models\Catalogue\Billable;
+use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Service;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
@@ -24,12 +24,12 @@ class FetchAuroraServices extends FetchAuroraAction
 {
     public string $commandSignature = 'fetch:services {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--N|only_new : Fetch only new}  {--d|db_suffix=}';
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Billable
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Asset
     {
 
         if ($serviceData = $organisationSource->fetchService($organisationSourceId)) {
 
-            if($serviceData['type']==BillableTypeEnum::SERVICE) {
+            if($serviceData['type']==AssetTypeEnum::SERVICE) {
 
                 if ($service = Service::where('source_id', $serviceData['service']['source_id'])
                     ->first()) {
@@ -46,7 +46,7 @@ class FetchAuroraServices extends FetchAuroraAction
                             modelData:    $serviceData['service'],
                         );
                     } catch (Exception $e) {
-                        $this->recordError($organisationSource, $e, $serviceData['service'], 'Billable', 'store');
+                        $this->recordError($organisationSource, $e, $serviceData['service'], 'Asset', 'store');
                         return null;
                     }
                 }
@@ -74,7 +74,7 @@ class FetchAuroraServices extends FetchAuroraAction
                             modelData:    $serviceData['service'],
                         );
                     } catch (Exception $e) {
-                        $this->recordError($organisationSource, $e, $serviceData['service'], 'Billable', 'store');
+                        $this->recordError($organisationSource, $e, $serviceData['service'], 'Asset', 'store');
                         return null;
                     }
                 }

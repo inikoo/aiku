@@ -7,51 +7,79 @@
 
 namespace App\Actions\Catalogue\Service;
 
-use App\Actions\Catalogue\HistoricOuterable\StoreHistoricOuterable;
-use App\Actions\Catalogue\Billable\Hydrators\BillableHydrateHistoricOuterables;
+use App\Actions\Catalogue\Asset\StoreAsset;
+use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateServices;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateServices;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateServices;
+use App\Enums\Catalogue\Asset\AssetStateEnum;
+use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
-use App\Models\Catalogue\Billable;
+use App\Enums\Fulfilment\Rental\RentalStateEnum;
 use App\Models\Catalogue\Service;
+use App\Models\Catalogue\Shop;
+use App\Rules\IUnique;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 
 class StoreService extends OrgAction
 {
-    public function handle(Billable $product, array $modelData): Service
+    public function handle(Shop $shop, array $modelData): Service
     {
+        $status = false;
+        if (Arr::get($modelData, 'state') == ServiceStateEnum::ACTIVE) {
+            $status = true;
+        }
+        data_set($modelData, 'status', $status);
+
+        data_set($modelData, 'organisation_id', $shop->organisation_id);
+        data_set($modelData, 'group_id', $shop->group_id);
+        data_set($modelData, 'shop_id', $shop->id);
+        data_set($modelData, 'currency_id', $shop->currency_id);
 
 
-        data_set($modelData, 'organisation_id', $product->organisation_id);
-        data_set($modelData, 'group_id', $product->group_id);
-        data_set($modelData, 'shop_id', $product->shop_id);
-        data_set($modelData, 'product_id', $product->id);
-
-
-        $service=Service::create($modelData);
-
-        $product->update(
-            [
-                'main_outerable_id'=> $service->id
-            ]
-        );
-
-
+        /** @var Service $service */
+        $service = $shop->services()->create($modelData);
+        $service->stats()->create();
         $service->salesIntervals()->create();
+        $service->refresh();
 
-
-        $historicOuterable = StoreHistoricOuterable::run(
+        $asset = StoreAsset::run(
             $service,
             [
-                'source_id'=> $service->historic_source_id
-            ]
-        );
-        $product->update(
-            [
-                'current_historic_outerable_id' => $historicOuterable->id,
+                'type'  => AssetTypeEnum::SERVICE,
+                'state' => match ($service->state) {
+                    ServiceStateEnum::IN_PROCESS   => AssetStateEnum::IN_PROCESS,
+                    ServiceStateEnum::ACTIVE       => AssetStateEnum::ACTIVE,
+                    ServiceStateEnum::DISCONTINUED => AssetStateEnum::DISCONTINUED,
+                }
             ]
         );
 
-        BillableHydrateHistoricOuterables::dispatch($product);
+        $service->updateQuietly(
+            [
+                'asset_id' => $asset->id
+            ]
+        );
+
+        $historicOuterable = StoreHistoricAsset::run(
+            $service,
+            [
+                'source_id' => $service->historic_source_id
+            ]
+        );
+        $asset->update(
+            [
+                'current_historic_asset_id' => $historicOuterable->id,
+            ]
+        );
+
+
+        ShopHydrateServices::dispatch($shop);
+        OrganisationHydrateServices::dispatch($shop->organisation);
+        GroupHydrateServices::dispatch($shop->group);
+
 
         return $service;
     }
@@ -59,32 +87,42 @@ class StoreService extends OrgAction
     public function rules(): array
     {
         return [
-            'status'                  => ['required', 'boolean'],
-            'state'                   => ['required', Rule::enum(ServiceStateEnum::class)],
+            'code'               => [
+                'required',
+                'max:32',
+                'alpha_dash',
+                new IUnique(
+                    table: 'services',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'state', 'operator' => '!=', 'value' => RentalStateEnum::DISCONTINUED->value],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
+                    ]
+                ),
+            ],
+            'name'                    => ['required', 'max:250', 'string'],
+            'price'                   => ['required', 'numeric', 'min:0'],
+            'unit'                    => ['required', 'string'],
+            'state'                   => ['sometimes', 'required', Rule::enum(ServiceStateEnum::class)],
             'data'                    => ['sometimes', 'array'],
             'created_at'              => ['sometimes', 'date'],
-            'source_id'               => ['sometimes','string','max:63'],
+            'source_id'               => ['sometimes', 'string', 'max:63'],
             'auto_assign_action'      => ['nullable', 'string', 'in:Pallet,StoredItem'],
             'auto_assign_action_type' => ['nullable', 'string', 'in:pallet,box,oversize'],
 
-            'price'                  => ['required', 'numeric', 'min:0'],
-            'unit'                   => ['sometimes','nullable', 'string'],
         ];
-
     }
 
-    public function action(Billable $product, array $modelData, int $hydratorsDelay = 0): Service
+    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0): Service
     {
         $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;
 
 
-        $this->initialisationFromShop($product->shop, $modelData);
+        $this->initialisationFromShop($shop, $modelData);
 
-        return $this->handle($product, $this->validatedData);
+        return $this->handle($shop, $this->validatedData);
     }
-
-
 
 
 }

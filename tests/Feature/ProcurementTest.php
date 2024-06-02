@@ -87,7 +87,7 @@ test('create purchase order while no products', function ($orgSupplier) {
 test('create supplier product', function ($supplier) {
     $arrayData = [
         'code' => 'ABC',
-        'name' => 'ABC Billable',
+        'name' => 'ABC Asset',
         'cost' => 200,
     ];
 

@@ -8,7 +8,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Actions\Catalogue\HistoricOuterable\StoreHistoricOuterable;
+use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\SourceFetch\Aurora\FetchAuroraAgents;
 use App\Actions\SourceFetch\Aurora\FetchAuroraClockingMachines;
 use App\Actions\SourceFetch\Aurora\FetchAuroraCustomers;
@@ -42,8 +42,8 @@ use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
-use App\Models\Catalogue\Billable;
-use App\Models\Catalogue\HistoricOuterable;
+use App\Models\Catalogue\Asset;
+use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
@@ -256,9 +256,9 @@ trait WithAuroraParsers
 
     // Never used
     /*
-    public function parseHistoricProduct($sourceId): HistoricOuterable
+    public function parseHistoricProduct($sourceId): HistoricAsset
     {
-        $historicProduct = HistoricOuterable::where('source_id', $sourceId)->first();
+        $historicProduct = HistoricAsset::where('source_id', $sourceId)->first();
         if (!$historicProduct) {
             $historicProduct = FetchHistoricProducts::run($this->organisationSource, $sourceId);
         }
@@ -268,7 +268,7 @@ trait WithAuroraParsers
     */
 
 
-    public function parseTransactionItem($organisation, $productID, $productKey): HistoricOuterable|null
+    public function parseTransactionItem($organisation, $productID, $productKey): HistoricAsset|null
     {
 
         $auroraData = DB::connection('aurora')
@@ -278,7 +278,7 @@ trait WithAuroraParsers
             ->where('PH.Product Key', $productKey)->first();
 
 
-        $historicOuterable = HistoricOuterable::where('source_id', $organisation->id.':'.$productKey)->first();
+        $historicOuterable = HistoricAsset::where('source_id', $organisation->id.':'.$productKey)->first();
         if($historicOuterable) {
             return $historicOuterable;
         }
@@ -296,7 +296,7 @@ trait WithAuroraParsers
                 }
             }
 
-            return StoreHistoricOuterable::run($outer, [
+            return StoreHistoricAsset::run($outer, [
                 'source_id'=> $organisation->id.':'.$productKey
             ]);
 
@@ -307,7 +307,7 @@ trait WithAuroraParsers
                 return $serviceableProduct->currentHistoricOuterable;
             }
 
-            return StoreHistoricOuterable::run($serviceableProduct->mainOuterable, [
+            return StoreHistoricAsset::run($serviceableProduct->mainOuterable, [
                 'source_id'=> $organisation->id.':'.$productKey
             ]);
 
@@ -317,10 +317,10 @@ trait WithAuroraParsers
 
     }
 
-    public function parseProduct(string $sourceId): Billable
+    public function parseProduct(string $sourceId): Asset
     {
 
-        $product = Billable::where('source_id', $sourceId)->first();
+        $product = Asset::where('source_id', $sourceId)->first();
         if (!$product) {
             $sourceData = explode(':', $sourceId);
 
@@ -352,9 +352,9 @@ trait WithAuroraParsers
         return $family;
     }
 
-    public function parseService(string $sourceId): Billable
+    public function parseService(string $sourceId): Asset
     {
-        $service = Billable::withTrashed()->where('source_id', $sourceId)->first();
+        $service = Asset::withTrashed()->where('source_id', $sourceId)->first();
         if (!$service) {
             $sourceData = explode(':', $sourceId);
             $service    = FetchAuroraServices::run($this->organisationSource, $sourceData[1]);

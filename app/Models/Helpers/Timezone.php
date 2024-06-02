@@ -10,6 +10,25 @@ namespace App\Models\Helpers;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property string $name
+ * @property int|null $offset in hours
+ * @property int|null $country_id
+ * @property float|null $latitude
+ * @property float|null $longitude
+ * @property string $location
+ * @property array $data
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Country> $countries
+ * @method static \Illuminate\Database\Eloquent\Builder|Timezone newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Timezone newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Timezone query()
+ * @mixin \Eloquent
+ */
 class Timezone extends Model
 {
     protected $casts = [

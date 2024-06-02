@@ -9,12 +9,16 @@ namespace App\Models\Catalogue;
 
 use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Models\Fulfilment\RecurringBill;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
 
 /**
  * App\Models\Catalogue\Service
@@ -22,29 +26,38 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
- * @property bool $status
- * @property ServiceStateEnum $state
  * @property int|null $shop_id
- * @property int|null $product_id
- * @property int $number_historic_outerables
+ * @property int|null $asset_id
  * @property string|null $auto_assign_action Used for auto assign this service to a action
  * @property string|null $auto_assign_action_type Used for auto assign this service to an action type
+ * @property bool $status
+ * @property ServiceStateEnum $state
+ * @property string $slug
+ * @property string $code
+ * @property string|null $name
+ * @property string|null $description
  * @property string|null $price
+ * @property int $number_units
  * @property string|null $unit
  * @property array $data
+ * @property int $currency_id
+ * @property int|null $current_historic_asset_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property string|null $historic_source_id
+ * @property-read \App\Models\Catalogue\Asset|null $asset
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricOuterable> $historicRecords
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicAssets
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @property-read \App\Models\Catalogue\Billable|null $product
  * @property-read \Illuminate\Database\Eloquent\Collection<int, RecurringBill> $recurringBills
  * @property-read \App\Models\Catalogue\ServiceSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\Shop|null $shop
+ * @property-read \App\Models\Catalogue\ServiceStats|null $stats
  * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @method static \Database\Factories\Catalogue\ServiceFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Service newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Service newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Service onlyTrashed()
@@ -53,11 +66,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder|Service withoutTrashed()
  * @mixin \Eloquent
  */
-class Service extends Model
+class Service extends Model implements Auditable
 {
     use SoftDeletes;
     use HasUniversalSearch;
-    use InBillableModel;
+    use InAssetModel;
+    use HasHistory;
+    use HasFactory;
+    use HasSlug;
 
     protected $guarded = [];
 
@@ -65,26 +81,36 @@ class Service extends Model
         'state'                  => ServiceStateEnum::class,
         'status'                 => 'boolean',
         'data'                   => 'array',
-
     ];
 
     protected $attributes = [
         'data'     => '{}',
     ];
 
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom(function () {
+                return $this->shop->slug . '-' . $this->code;
+            })
+            ->saveSlugsTo('slug')
+            ->doNotGenerateSlugsOnUpdate()
+            ->slugsShouldBeNoLongerThan(64);
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(ServiceStats::class);
+    }
+
     public function salesIntervals(): HasOne
     {
         return $this->hasOne(ServiceSalesIntervals::class);
-    }
-
-
-    public function historicRecords(): MorphMany
-    {
-        return $this->morphMany(HistoricOuterable::class, 'outerable');
     }
 
     public function recurringBills(): MorphToMany
     {
         return $this->morphToMany(RecurringBill::class, 'model', 'model_has_recurring_bills')->withTimestamps();
     }
+
 }

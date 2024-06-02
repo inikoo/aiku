@@ -7,12 +7,12 @@
 
 namespace App\Actions\Fulfilment\Rental;
 
-use App\Actions\Catalogue\HistoricOuterable\StoreHistoricOuterable;
+use App\Actions\Catalogue\Asset\UpdateAsset;
+use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateRentals;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Rental\RentalStateEnum;
-use App\Enums\Catalogue\Billable\BillableStateEnum;
 use App\Models\Fulfilment\Rental;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
@@ -27,37 +27,26 @@ class UpdateRental extends OrgAction
 
     public function handle(Rental $rental, array $modelData): Rental
     {
-        $productData = Arr::only($modelData, ['code', 'name', 'main_outerable_price', 'description', 'data', 'settings', 'status']);
 
-        if(Arr::has($modelData, 'state')) {
-            $productData['state']=match($modelData['state']) {
-                RentalStateEnum::ACTIVE       => BillableStateEnum::ACTIVE,
-                RentalStateEnum::DISCONTINUED => BillableStateEnum::DISCONTINUED,
-                RentalStateEnum::IN_PROCESS   => BillableStateEnum::IN_PROCESS,
-            };
+        $rental  = $this->update($rental, $modelData);
+        $changed = $rental->getChanges();
 
-        }
-
-        $product= $rental->product;
-        $this->update($product, $productData);
-        $product->refresh();
-
-        $rental= $this->update($rental, Arr::except($modelData, ['code', 'name', 'main_outerable_price', 'description', 'data', 'settings']));
-
-        $changed=$product->getChanges();
-
-        if(Arr::hasAny($changed, ['name', 'code', 'main_outerable_price'])) {
-
-            $historicOuterable = StoreHistoricOuterable::run($rental);
-            $product->update(
+        if (Arr::hasAny($changed, ['name', 'code', 'price','units','unit'])) {
+            $historicOuterable = StoreHistoricAsset::run($rental);
+            $rental->updateQuietly(
                 [
-                    'current_historic_outerable_id' => $historicOuterable->id,
-                ]
+                     'current_historic_asset_id' => $historicOuterable->id,
+                 ]
             );
         }
-        if(Arr::hasAny($rental->getChanges(), ['state'])) {
+
+        UpdateAsset::run($rental->asset);
+
+
+        if (Arr::hasAny($rental->getChanges(), ['state'])) {
             ShopHydrateRentals::dispatch($rental->shop);
         }
+
         return $rental;
     }
 
@@ -73,47 +62,51 @@ class UpdateRental extends OrgAction
     public function rules(): array
     {
         return [
-            'code'        => [
+            'code'  => [
                 'sometimes',
                 'required',
                 'max:32',
                 'alpha_dash',
                 new IUnique(
-                    table: 'products',
+                    table: 'rentals',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
-                        ['column' => 'deleted_at', 'operator'=>'notNull'],
-                        ['column' => 'id', 'value' => $this->rental->product->id, 'operator' => '!=']
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
+                        ['column' => 'id', 'value' => $this->rental->id, 'operator' => '!=']
                     ]
                 ),
             ],
-            'name'                       => ['sometimes', 'required', 'max:250', 'string'],
-            'main_outerable_price'       => ['sometimes', 'required', 'numeric', 'min:0'],
-            'description'                => ['sometimes', 'required', 'max:1500'],
-            'data'                       => ['sometimes', 'array'],
-            'settings'                   => ['sometimes', 'array'],
-            'status'                     => ['sometimes','required','boolean'],
-            'state'                      => ['sometimes','required',Rule::enum(RentalStateEnum::class)],
-            'auto_assign_asset'          => ['nullable','string','in:Pallet,StoredItem'],
-            'auto_assign_asset_type'     => ['nullable','string','in:pallet,box,oversize'],
+            'name'  => ['sometimes', 'required', 'max:250', 'string'],
+            'price' => ['sometimes', 'required', 'numeric', 'min:0'],
+            'unit'  => ['sometimes','required', 'string'],
+
+            'description'            => ['sometimes', 'required', 'max:1500'],
+            'data'                   => ['sometimes', 'array'],
+            'settings'               => ['sometimes', 'array'],
+            'status'                 => ['sometimes', 'required', 'boolean'],
+            'state'                  => ['sometimes', 'required', Rule::enum(RentalStateEnum::class)],
+            'auto_assign_asset'      => ['nullable', 'string', 'in:Pallet,StoredItem'],
+            'auto_assign_asset_type' => ['nullable', 'string', 'in:pallet,box,oversize'],
         ];
     }
 
     public function asController(Rental $rental, ActionRequest $request): Rental
     {
-        $this->rental        =$rental;
+        $this->rental = $rental;
 
         $this->initialisationFromShop($rental->shop, $request);
+
         return $this->handle($rental, $this->validatedData);
     }
 
     public function action(Rental $rental, array $modelData, int $hydratorsDelay = 0): Rental
     {
-        $this->asAction       = true;
-        $this->rental         =$rental;
+        $this->asAction = true;
+        $this->rental   = $rental;
 
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($rental->shop, $modelData);
+
         return $this->handle($rental, $this->validatedData);
     }
 

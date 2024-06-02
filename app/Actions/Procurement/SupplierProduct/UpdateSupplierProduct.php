@@ -33,7 +33,7 @@ class UpdateSupplierProduct extends GrpAction
         if (!$skipHistoric and $supplierProduct->wasChanged(
             ['price', 'code', 'name', 'units']
         )) {
-            //todo create HistoricSupplierProduct and update current_historic_outerable_id if
+            //todo create HistoricSupplierProduct and update current_historic_asset_id if
         }
 
         SupplierProductHydrateUniversalSearch::dispatch($supplierProduct);

@@ -7,10 +7,11 @@
 
 namespace App\Actions\Catalogue\Service;
 
-use App\Actions\Catalogue\HistoricOuterable\StoreHistoricOuterable;
+use App\Actions\Catalogue\Asset\UpdateAsset;
+use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateServices;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Catalogue\Billable\BillableStateEnum;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Models\Catalogue\Service;
 use App\Rules\IUnique;
@@ -27,36 +28,23 @@ class UpdateService extends OrgAction
 
     public function handle(Service $service, array $modelData): Service
     {
+        $service  = $this->update($service, $modelData);
+        $changed  = $service->getChanges();
 
-        $productData = Arr::only($modelData, ['code', 'name', 'main_outerable_price', 'description', 'data', 'settings', 'status']);
-
-        if(Arr::has($modelData, 'state')) {
-            $productData['state']=match($modelData['state']) {
-                ServiceStateEnum::ACTIVE       => BillableStateEnum::ACTIVE,
-                ServiceStateEnum::DISCONTINUED => BillableStateEnum::DISCONTINUED,
-                ServiceStateEnum::IN_PROCESS   => BillableStateEnum::IN_PROCESS,
-            };
-
-        }
-
-        $product= $service->product;
-        $this->update($product, $productData);
-        $product->refresh();
-
-
-
-        $service= $this->update($service, Arr::except($modelData, ['code', 'name', 'main_outerable_price', 'description', 'data', 'settings']));
-
-        $changed=$product->getChanges();
-
-        if(Arr::hasAny($changed, ['name', 'code', 'main_outerable_price'])) {
-
-            $historicOuterable = StoreHistoricOuterable::run($service);
-            $product->update(
+        if (Arr::hasAny($changed, ['name', 'code', 'price','units','unit'])) {
+            $historicOuterable = StoreHistoricAsset::run($service);
+            $service->updateQuietly(
                 [
-                    'current_historic_outerable_id' => $historicOuterable->id,
+                    'current_historic_asset_id' => $historicOuterable->id,
                 ]
             );
+        }
+
+        UpdateAsset::run($service->asset);
+
+
+        if (Arr::hasAny($service->getChanges(), ['state'])) {
+            ShopHydrateServices::dispatch($service->shop);
         }
 
 
@@ -82,16 +70,16 @@ class UpdateService extends OrgAction
                 'max:32',
                 'alpha_dash',
                 new IUnique(
-                    table: 'products',
+                    table: 'services',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
                         ['column' => 'deleted_at', 'operator'=>'notNull'],
-                        ['column' => 'id', 'value' => $this->service->product->id, 'operator' => '!=']
+                        ['column' => 'id', 'value' => $this->service->id, 'operator' => '!=']
                     ]
                 ),
             ],
             'name'                       => ['sometimes', 'required', 'max:250', 'string'],
-            'main_outerable_price'       => ['sometimes', 'required', 'numeric', 'min:0'],
+            'price'                      => ['sometimes', 'required', 'numeric', 'min:0'],
             'description'                => ['sometimes', 'required', 'max:1500'],
             'data'                       => ['sometimes', 'array'],
             'settings'                   => ['sometimes', 'array'],

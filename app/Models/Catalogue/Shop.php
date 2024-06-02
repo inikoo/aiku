@@ -24,6 +24,7 @@ use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Deals\OfferCampaign;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\Rental;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
@@ -105,6 +106,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Address|null $address
  * @property-read LaravelCollection<int, Address> $addresses
  * @property-read LaravelCollection<int, Appointment> $appointments
+ * @property-read LaravelCollection<int, \App\Models\Catalogue\Asset> $assets
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Address|null $collectionAddress
  * @property-read LaravelCollection<int, \App\Models\Catalogue\CollectionCategory> $collectionCategories
@@ -128,12 +130,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read Organisation $organisation
  * @property-read LaravelCollection<int, Outbox> $outboxes
- * @property-read LaravelCollection<int, \App\Models\Catalogue\Outer> $outers
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
  * @property-read LaravelCollection<int, Payment> $payments
  * @property-read LaravelCollection<int, \App\Models\Catalogue\ProductCategory> $productCategories
- * @property-read LaravelCollection<int, \App\Models\Catalogue\Billable> $products
+ * @property-read LaravelCollection<int, \App\Models\Catalogue\Product> $products
  * @property-read LaravelCollection<int, Prospect> $prospects
+ * @property-read LaravelCollection<int, Rental> $rentals
  * @property-read LaravelCollection<int, Role> $roles
  * @property-read \App\Models\Catalogue\ShopSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\ShopSalesStats|null $salesStats
@@ -249,7 +251,7 @@ class Shop extends Model implements HasMedia, Auditable
 
     public function products(): HasMany
     {
-        return $this->hasMany(Billable::class);
+        return $this->hasMany(Product::class);
     }
 
     public function website(): HasOne
@@ -386,14 +388,20 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasMany(Service::class);
     }
 
-    public function outers(): HasMany
-    {
-        return $this->hasMany(Outer::class);
-    }
 
     public function collectionAddress(): BelongsTo
     {
         return $this->belongsTo(Address::class, 'collection_address_id');
+    }
+
+    public function assets(): HasMany
+    {
+        return $this->hasMany(Asset::class);
+    }
+
+    public function rentals(): HasMany
+    {
+        return $this->hasMany(Rental::class);
     }
 
 }

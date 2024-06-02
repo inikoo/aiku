@@ -51,7 +51,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property StockStateEnum $state
  * @property bool $sellable
  * @property bool $raw_material
- * @property Collection<int, Barcode> $barcode
  * @property int|null $units_per_pack units per pack
  * @property int|null $units_per_carton units per carton
  * @property string|null $unit_value
@@ -67,6 +66,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_slug
  * @property string|null $source_id
  * @property-read MediaCollection<int, Media> $attachments
+ * @property-read Collection<int, Barcode> $barcode
  * @property-read Group $group
  * @property-read Media|null $image
  * @property-read MediaCollection<int, Media> $images

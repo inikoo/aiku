@@ -68,7 +68,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read mixed $gross_weight
  * @property-read Group $group
- * @property-read Collection<int, HistoricSupplierProduct> $historicRecords
+ * @property-read Collection<int, HistoricSupplierProduct> $historicAssets
  * @property-read mixed $net_weight
  * @property-read Collection<int, OrgSupplierProduct> $orgSupplierProducts
  * @property-read \App\Models\SupplyChain\SupplierProductStats|null $stats
@@ -127,7 +127,7 @@ class SupplierProduct extends Model implements Auditable
         return $this->belongsTo(Group::class);
     }
 
-    public function historicRecords(): HasMany
+    public function historicAssets(): HasMany
     {
         return $this->hasMany(HistoricSupplierProduct::class);
     }

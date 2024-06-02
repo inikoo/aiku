@@ -7,7 +7,7 @@
 
 namespace App\Actions\Fulfilment;
 
-use App\Models\Catalogue\Outer;
+use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Service;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
@@ -17,7 +17,7 @@ class AttachRecurringBillToModel
 {
     use AsAction;
 
-    public function handle(PalletDelivery|PalletReturn|Service|Outer $parent, $recurringBill): void
+    public function handle(PalletDelivery|PalletReturn|Service|Product $parent, $recurringBill): void
     {
         $parent->recurringBills()->attach($recurringBill);
     }

@@ -17,8 +17,8 @@ return new class () extends Migration {
             $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
             $table->unsignedInteger('fulfilment_customer_id');
             $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
-            $table->unsignedInteger('billable_id');
-            $table->foreign('billable_id')->references('id')->on('billables');
+            $table->unsignedInteger('asset_id');
+            $table->foreign('asset_id')->references('id')->on('assets');
 
             $table->unsignedInteger('rental_agreement_id');
             $table->foreign('rental_agreement_id')->references('id')->on('rental_agreements');

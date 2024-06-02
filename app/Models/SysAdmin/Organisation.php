@@ -15,11 +15,13 @@ use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\Catalogue\Billable;
+use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\CollectionCategory;
 use App\Models\Catalogue\ProductCategory;
+use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
+use App\Models\Catalogue\Subscription;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Dispatch\Shipper;
@@ -101,6 +103,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Address> $addresses
  * @property-read Agent|null $agent
  * @property-read LaravelCollection<int, Artefact> $artefacts
+ * @property-read LaravelCollection<int, Asset> $assets
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\OrganisationAuthorisedModels> $authorisedModels
  * @property-read LaravelCollection<int, ClockingMachine> $clockingMachines
@@ -143,7 +146,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationProcurementStats|null $procurementStats
  * @property-read LaravelCollection<int, ProductCategory> $productCategories
  * @property-read LaravelCollection<int, Production> $productions
- * @property-read LaravelCollection<int, Billable> $products
+ * @property-read LaravelCollection<int, Asset> $products
  * @property-read LaravelCollection<int, Prospect> $prospects
  * @property-read LaravelCollection<int, PurchaseOrder> $purchaseOrders
  * @property-read LaravelCollection<int, RawMaterial> $rawMaterials
@@ -152,9 +155,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \App\Models\SysAdmin\OrganisationSalesIntervals|null $salesIntervals
  * @property-read \App\Models\SysAdmin\OrganisationSalesStats|null $salesStats
+ * @property-read LaravelCollection<int, Service> $services
  * @property-read LaravelCollection<int, Shipper> $shippers
  * @property-read LaravelCollection<int, Shop> $shops
  * @property-read \App\Models\SysAdmin\OrganisationStats|null $stats
+ * @property-read LaravelCollection<int, Subscription> $subscriptions
  * @property-read Timezone $timezone
  * @property-read LaravelCollection<int, WarehouseArea> $warehouseAreas
  * @property-read LaravelCollection<int, Warehouse> $warehouses
@@ -505,12 +510,22 @@ class Organisation extends Model implements HasMedia, Auditable
 
     public function products(): HasMany
     {
-        return $this->hasMany(Billable::class);
+        return $this->hasMany(Asset::class);
     }
 
     public function rentals(): HasMany
     {
         return $this->hasMany(Rental::class);
+    }
+
+    public function services(): HasMany
+    {
+        return $this->hasMany(Service::class);
+    }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
     }
 
     public function collectionCategories(): HasMany
@@ -531,5 +546,10 @@ class Organisation extends Model implements HasMedia, Auditable
     public function artefacts(): HasMany
     {
         return $this->hasMany(Artefact::class);
+    }
+
+    public function assets(): HasMany
+    {
+        return $this->hasMany(Asset::class);
     }
 }

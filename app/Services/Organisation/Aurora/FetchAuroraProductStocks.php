@@ -28,7 +28,7 @@ class FetchAuroraProductStocks extends FetchAurora
                 }
             }
             //else {
-            //print "Warning: Part SKU ".$modelData->{'Product Part Part SKU'}." not found in `Billable Part Bridge`\n";
+            //print "Warning: Part SKU ".$modelData->{'Product Part Part SKU'}." not found in `Asset Part Bridge`\n";
             //}
         }
         $this->parsedData['trade_units'] = $productStocks;

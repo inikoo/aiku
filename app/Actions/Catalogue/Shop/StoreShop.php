@@ -47,6 +47,7 @@ class StoreShop extends OrgAction
 
     public function handle(Organisation $organisation, array $modelData): Shop
     {
+
         $warehouses = Arr::get($modelData, 'warehouses', []);
         Arr::forget($modelData, 'warehouses');
         $addressData = Arr::get($modelData, 'address');

@@ -9,14 +9,14 @@ namespace App\Actions\Accounting\InvoiceTransaction;
 
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceTransaction;
-use App\Models\Catalogue\HistoricOuterable;
+use App\Models\Catalogue\HistoricAsset;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreInvoiceTransaction
 {
     use AsAction;
 
-    public function handle(Invoice $invoice, HistoricOuterable $historicOuterable, array $modelData): InvoiceTransaction
+    public function handle(Invoice $invoice, HistoricAsset $historicOuterable, array $modelData): InvoiceTransaction
     {
         $modelData['shop_id']            = $invoice->shop_id;
         $modelData['customer_id']        = $invoice->customer_id;

@@ -12,23 +12,23 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class RentalClausesResource extends JsonResource
 {
+    //TODO revamp this
     public function toArray($request): array
     {
-        /** @var RentalAgreementClause $clause */
-        $clause = $this;
+
 
         return [
-            'id'                                => $clause->id,
-            'rental_id'                         => $clause->product->rental->id,
-            'product_id'                        => $clause->product_id,
-            'slug'                              => $clause->product->slug,
-            'name'                              => $clause->product->name,
-            'code'                              => $clause->product->code,
-            'price'                             => $clause->product->rental->price,
-            'agreed_price'                      => $clause->agreed_price,
+            'id'                                => $this->id,
+            'rental_id'                         => $this->product->rental->id,
+            'product_id'                        => $this->product_id,
+            'slug'                              => $this->product->slug,
+            'name'                              => $this->product->name,
+            'code'                              => $this->product->code,
+            'price'                             => $this->product->rental->price,
+            'agreed_price'                      => $this->agreed_price,
             'discount'                          => 0,
-            'unit'                              => $clause->product->rental->unit,
-            'currency'                          => CurrencyResource::make($clause->product->currency)
+            'unit'                              => $this->product->rental->unit,
+            'currency'                          => CurrencyResource::make($this->product->currency)
         ];
     }
 }

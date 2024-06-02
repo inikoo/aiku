@@ -23,10 +23,14 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePaymentAccounts;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePayments;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePaymentServiceProviders;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProductions;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProducts;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRawMaterials;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRecurringBills;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRentals;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSales;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProductSuppliers;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateServices;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSubscriptions;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSuppliers;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateTradeUnits;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateUsers;
@@ -70,6 +74,11 @@ class HydrateGroup extends HydrateModel
         GroupHydrateRawMaterials::run($group);
         GroupHydrateEmployees::run($group);
         GroupHydrateClockingMachines::run($group);
+        GroupHydrateProducts::run($group);
+        GroupHydrateRentals::run($group);
+        GroupHydrateServices::run($group);
+        GroupHydrateSubscriptions::run($group);
+
 
     }
 

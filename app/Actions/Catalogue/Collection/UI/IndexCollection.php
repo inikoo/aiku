@@ -10,7 +10,7 @@ namespace App\Actions\Catalogue\Collection\UI;
 use App\Actions\Catalogue\HasMarketAuthorisation;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\OrgAction;
-use App\Enums\Catalogue\Billable\BillableTypeEnum;
+use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Http\Resources\Catalogue\CollectionResource;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Shop;
@@ -36,8 +36,8 @@ class IndexCollection extends OrgAction
             'type'  => [
                 'label'    => __('Type'),
                 'elements' => array_merge_recursive(
-                    BillableTypeEnum::labels($parent),
-                    BillableTypeEnum::count($parent)
+                    AssetTypeEnum::labels($parent),
+                    AssetTypeEnum::count($parent)
                 ),
 
                 'engine' => function ($query, $elements) {

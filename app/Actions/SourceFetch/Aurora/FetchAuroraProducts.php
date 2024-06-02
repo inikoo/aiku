@@ -7,13 +7,13 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Catalogue\Outer\StoreOuter;
-use App\Actions\Catalogue\Billable\SetProductMainOuter;
-use App\Actions\Catalogue\Billable\StorePhysicalGood;
-use App\Actions\Catalogue\Billable\UpdatePhysicalGood;
+use App\Actions\Catalogue\Asset\SetProductMainOuter;
+use App\Actions\Catalogue\Product\StoreOuterTODELETE;
+use App\Actions\Catalogue\Product\StoreProduct;
+use App\Actions\Catalogue\Product\UpdateProduct;
 use App\Actions\Studio\Media\SaveModelImages;
-use App\Models\Catalogue\Outer;
-use App\Models\Catalogue\Billable;
+use App\Models\Catalogue\Asset;
+use App\Models\Catalogue\Product;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
@@ -23,7 +23,7 @@ class FetchAuroraProducts extends FetchAuroraAction
 {
     public string $commandSignature = 'fetch:products {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--N|only_new : Fetch only new}  {--d|db_suffix=} {--r|reset}';
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Billable
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Asset
     {
         if ($productData = $organisationSource->fetchProduct($organisationSourceId)) {
             $sourceData = explode(':', $productData['product']['source_id']);
@@ -35,22 +35,22 @@ class FetchAuroraProducts extends FetchAuroraAction
                 $tradeUnits
             );
 
-            if ($product = Billable::withTrashed()->where('source_id', $productData['product']['source_id'])
+            if ($product = Asset::withTrashed()->where('source_id', $productData['product']['source_id'])
                 ->first()) {
                 if (!$product->mainOuterable) {
                     print "fix missing main outerable\n";
 
-                    $outer = Outer::where('historic_source_id', $productData['product']['historic_source_id'])->first();
+                    $outer = Product::where('historic_source_id', $productData['product']['historic_source_id'])->first();
 
 
                     if (!$outer) {
                         print "adding missing outer\n";
 
-                        $outer = StoreOuter::run(
+                        $outer = StoreOuterTODELETE::run(
                             product: $product,
                             modelData: [
                                 'code'               => $product->code,
-                                'price'              => $productData['product']['main_outerable_price'],
+                                'price'              => $productData['product']['price'],
                                 'name'               => $product->name,
                                 'is_main'            => true,
                                 'main_outer_ratio'   => 1,
@@ -70,26 +70,26 @@ class FetchAuroraProducts extends FetchAuroraAction
 
 
                 try {
-                    $product = UpdatePhysicalGood::make()->action(
+                    $product = UpdateProduct::make()->action(
                         product: $product,
                         modelData: $productData['product'],
                     );
                 } catch (Exception $e) {
                     dd($e);
-                    $this->recordError($organisationSource, $e, $productData['product'], 'Billable', 'update');
+                    $this->recordError($organisationSource, $e, $productData['product'], 'Asset', 'update');
                     return null;
                 }
             } else {
 
                 try {
-                    $product = StorePhysicalGood::make()->action(
+                    $product = StoreProduct::make()->action(
                         parent: $productData['parent'],
                         modelData: $productData['product'],
                         strict: false
                     );
                 } catch (Exception $e) {
                     dd($e);
-                    $this->recordError($organisationSource, $e, $productData['product'], 'Billable', 'store');
+                    $this->recordError($organisationSource, $e, $productData['product'], 'Asset', 'store');
 
                     return null;
                 }

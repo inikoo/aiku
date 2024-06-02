@@ -7,22 +7,22 @@
 
 namespace App\Http\Resources\Catalogue;
 
-use App\Models\Catalogue\Outer;
+use App\Models\Catalogue\Product;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class OuterResource extends JsonResource
 {
     public function toArray($request): array
     {
-        /** @var Outer $Outer */
-        $Outer=$this;
+        /** @var Product $outer */
+        $outer=$this;
         return [
-            'slug'       => $Outer->slug,
-            'code'       => $Outer->code,
-            'name'       => $Outer->name,
-            'state'      => $Outer->state,
-            'created_at' => $Outer->created_at,
-            'updated_at' => $Outer->updated_at,
+            'slug'       => $outer->slug,
+            'code'       => $outer->code,
+            'name'       => $outer->name,
+            'state'      => $outer->state,
+            'created_at' => $outer->created_at,
+            'updated_at' => $outer->updated_at,
         ];
     }
 }

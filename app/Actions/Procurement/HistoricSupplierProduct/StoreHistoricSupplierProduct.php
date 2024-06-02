@@ -42,7 +42,7 @@ class StoreHistoricSupplierProduct
         }
 
         /** @var HistoricSupplierProduct $historicSupplierProduct */
-        $historicSupplierProduct = $supplierProduct->historicRecords()->create($historicSupplierProductData);
+        $historicSupplierProduct = $supplierProduct->historicAssets()->create($historicSupplierProductData);
         $historicSupplierProduct->stats()->create();
 
         return $historicSupplierProduct;

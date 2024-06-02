@@ -8,27 +8,37 @@
 namespace App\Http\Resources\Catalogue;
 
 use App\Http\Resources\Helpers\CurrencyResource;
+use App\Models\Helpers\Currency;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property mixed $id
+ * @property mixed $asset_id
+ * @property mixed $slug
+ * @property mixed $name
+ * @property mixed $code
+ * @property mixed $price
+ * @property mixed $agreed_price
+ * @property mixed $unit
+ * @property mixed $currency_id
+ */
 class RentalsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        /** @var Rental $rental */
-        $rental = $this;
+        $currency = Currency::find($this->currency_id);
 
         return [
-            'id'                                => $rental->id,
-            'product_id'                        => $rental->product_id,
-            'slug'                              => $rental->product->slug,
-            'name'                              => $rental->product->name,
-            'code'                              => $rental->product->code,
-            'price'                             => $rental->price,
-            'agreed_price'                      => $rental->price,
-            'discount'                          => 0,
-            'original_price'                    => $rental->price,
-            'unit'                              => $rental->unit,
-            'currency'                          => CurrencyResource::make($rental->product->currency)
+            'id'             => $this->id,
+            'asset_id'       => $this->asset_id,
+            'slug'           => $this->slug,
+            'name'           => $this->name,
+            'code'           => $this->code,
+            'price'          => $this->price,
+            'agreed_price'   => $this->agreed_price,
+            'discount'       => 0,
+            'unit'           => $this->unit,
+            'currency'       => CurrencyResource::make($$currency)
         ];
     }
 }

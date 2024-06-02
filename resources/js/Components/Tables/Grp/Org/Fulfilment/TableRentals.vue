@@ -25,9 +25,9 @@ function rentalRoute(rental: {}) {
     console.log(route().current())
     switch (route().current()) {
 
-        case "grp.org.fulfilments.show.billables.rentals.index":
+        case "grp.org.fulfilments.show.assets.rentals.index":
             return route(
-                'grp.org.fulfilments.show.billables.rentals.show',
+                'grp.org.fulfilments.show.assets.rentals.show',
                 [route().params['organisation'], route().params['fulfilment'], rental.id])
         default:
             return null

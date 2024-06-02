@@ -23,7 +23,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $source F:Frankfurter, CB:currencyBeacon, M:manual
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Currency $currency
+ * @property-read \App\Models\Helpers\Currency $currency
  * @method static Builder|CurrencyExchange newModelQuery()
  * @method static Builder|CurrencyExchange newQuery()
  * @method static Builder|CurrencyExchange query()

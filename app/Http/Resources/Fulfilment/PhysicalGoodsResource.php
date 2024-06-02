@@ -14,12 +14,11 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property int $id
  * @property string $slug
  * @property string $name
- * @property string $main_outerable_price
+ * @property string $price
  * @property string $description
  * @property mixed $type
  * @property mixed $auto_assign_asset
  * @property mixed $auto_assign_asset_type
- * @property mixed $price
  * @property mixed $currency_code
  * @property mixed $unit
  * @property mixed $state

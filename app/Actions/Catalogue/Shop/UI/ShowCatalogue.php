@@ -8,7 +8,7 @@
 namespace App\Actions\Catalogue\Shop\UI;
 
 use App\Actions\Catalogue\Collection\UI\IndexCollection;
-use App\Actions\Catalogue\Billable\UI\IndexProducts;
+use App\Actions\Catalogue\Asset\UI\IndexProducts;
 use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
 use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
 use App\Actions\OrgAction;

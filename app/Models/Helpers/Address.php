@@ -36,7 +36,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $fixed_scope Key where address can be shared if have same checksum
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Country|null $country
+ * @property-read \App\Models\Helpers\Country|null $country
  * @property-read string $formatted_address
  * @property-read Model|\Eloquent $owner
  * @method static \Database\Factories\Helpers\AddressFactory factory($count = null, $state = [])

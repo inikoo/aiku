@@ -10,6 +10,13 @@ use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvi
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProviderAccount;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
+use App\Actions\Catalogue\Product\DeleteProduct;
+use App\Actions\Catalogue\Product\StoreProduct;
+use App\Actions\Catalogue\Product\UpdateProduct;
+use App\Actions\Catalogue\Service\StoreService;
+use App\Actions\Catalogue\Service\UpdateService;
+use App\Actions\Catalogue\Shop\StoreShop;
+use App\Actions\Catalogue\Shop\SyncPaymentAccountToShop;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\CRM\Prospect\ImportShopProspects;
@@ -22,6 +29,8 @@ use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
 use App\Actions\Fulfilment\Pallet\DeletePallet;
 use App\Actions\Fulfilment\Pallet\ImportPallet;
+use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
+use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
 use App\Actions\Fulfilment\Pallet\SetPalletAsNotReceived;
 use App\Actions\Fulfilment\Pallet\SetPalletRental;
 use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
@@ -30,11 +39,11 @@ use App\Actions\Fulfilment\Pallet\StorePalletToReturn;
 use App\Actions\Fulfilment\Pallet\UndoPalletStateToReceived;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePalletLocation;
-use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\DeletePalletInDelivery;
 use App\Actions\Fulfilment\PalletDelivery\PdfPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SubmitPalletDelivery;
@@ -67,6 +76,7 @@ use App\Actions\Fulfilment\StoredItemReturn\StoreStoredItemToStoredItemReturn;
 use App\Actions\Fulfilment\StoredItemReturn\UpdateStateStoredItemReturn;
 use App\Actions\Helpers\Tag\StoreTag;
 use App\Actions\HumanResources\ClockingMachine\DeleteClockingMachine;
+use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UpdateClockingMachine;
 use App\Actions\HumanResources\Employee\DeleteEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
@@ -84,20 +94,10 @@ use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\ImportWarehouseArea;
 use App\Actions\Manufacturing\Artefact\ImportArtefact;
-use App\Actions\Manufacturing\JobOrder\StoreJobOrder;
-use App\Actions\Manufacturing\JobOrder\UpdateJobOrder;
-use App\Actions\Catalogue\Billable\DeleteProduct;
-use App\Actions\Catalogue\Billable\StorePhysicalGood;
-use App\Actions\Catalogue\Billable\UpdatePhysicalGood;
-use App\Actions\Catalogue\Service\StoreService;
-use App\Actions\Catalogue\Service\UpdateService;
-use App\Actions\Catalogue\Shop\StoreShop;
-use App\Actions\Catalogue\Shop\SyncPaymentAccountToShop;
-use App\Actions\Fulfilment\Pallet\SetPalletAsDamaged;
-use App\Actions\Fulfilment\Pallet\SetPalletAsLost;
-use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
 use App\Actions\Manufacturing\Artefact\StoreArtefact;
 use App\Actions\Manufacturing\Artefact\UpdateArtefact;
+use App\Actions\Manufacturing\JobOrder\StoreJobOrder;
+use App\Actions\Manufacturing\JobOrder\UpdateJobOrder;
 use App\Actions\Manufacturing\ManufactureTask\StoreManufactureTask;
 use App\Actions\Manufacturing\ManufactureTask\UpdateManufactureTask;
 use App\Actions\Manufacturing\RawMaterial\ImportRawMaterial;
@@ -189,12 +189,12 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::patch('/shop/{shop:id}/customer/{customer:id}', UpdateCustomer::class)->name('shop.customer.update')->withoutScopedBindings();
     Route::post('/shop/{shop:id}/fulfilment/{fulfilment:id}/customer', StoreFulfilmentCustomer::class)->name('shop.fulfilment-customer.store')->withoutScopedBindings();
 
-    Route::post('/shop/{shop:id}/product/', [StorePhysicalGood::class, 'inShop'])->name('show.product.store');
+    Route::post('/shop/{shop:id}/product/', [StoreProduct::class, 'inShop'])->name('show.product.store');
     Route::delete('/shop/{shop:id}/product/{product:id}', [DeleteProduct::class, 'inShop'])->name('shop.product.delete');
 
-    Route::post('/product/', StorePhysicalGood::class)->name('product.store');
-    Route::patch('/product/{product:id}', UpdatePhysicalGood::class)->name('product.update');
-    Route::delete('/product/{product:id}', UpdatePhysicalGood::class)->name('product.delete');
+    Route::post('/product/', StoreProduct::class)->name('product.store');
+    Route::patch('/product/{product:id}', UpdateProduct::class)->name('product.update');
+    Route::delete('/product/{product:id}', UpdateProduct::class)->name('product.delete');
 
     Route::patch('/payment-account/{paymentAccount:id}', UpdatePaymentAccount::class)->name('payment-account.update')->withoutScopedBindings();
     Route::post('/payment-account', StorePaymentAccount::class)->name('payment-account.store');
@@ -371,12 +371,12 @@ Route::delete('/website/{website:id}', DeleteWebsite::class)->name('website.dele
 
 
 
-Route::post('/shop/{shop:id}/product/', [StorePhysicalGood::class, 'inShop'])->name('show.product.store');
+Route::post('/shop/{shop:id}/product/', [StoreProduct::class, 'inShop'])->name('show.product.store');
 Route::post('/shop/{shop:id}/order/', [StoreOrder::class, 'inShop'])->name('show.order.store');
 
-Route::post('/product/', StorePhysicalGood::class)->name('product.store');
-Route::patch('/product/{product:id}', UpdatePhysicalGood::class)->name('product.update');
-Route::delete('/product/{product:id}', UpdatePhysicalGood::class)->name('product.delete');
+Route::post('/product/', StoreProduct::class)->name('product.store');
+Route::patch('/product/{product:id}', UpdateProduct::class)->name('product.update');
+Route::delete('/product/{product:id}', UpdateProduct::class)->name('product.delete');
 Route::delete('/shop/{shop:id}/product/{product:id}', [DeleteProduct::class, 'inShop'])->name('shop.product.delete');
 
 Route::patch('/department/{department:id}', UpdateProductCategory::class)->name('department.update');

@@ -48,26 +48,34 @@ use Illuminate\Support\Carbon;
  * @property int $number_families_state_discontinuing
  * @property int $number_families_state_discontinued
  * @property int $number_orphan_families
+ * @property int $number_assets
+ * @property int $number_current_assets state: active+discontinuing
+ * @property int $number_assets_state_in_process
+ * @property int $number_assets_state_active
+ * @property int $number_assets_state_discontinuing
+ * @property int $number_assets_state_discontinued
+ * @property int $number_assets_type_product
+ * @property int $number_assets_type_service
+ * @property int $number_assets_type_subscription
+ * @property int $number_assets_type_rental
  * @property int $number_products
  * @property int $number_current_products state: active+discontinuing
  * @property int $number_products_state_in_process
  * @property int $number_products_state_active
  * @property int $number_products_state_discontinuing
  * @property int $number_products_state_discontinued
- * @property int $number_products_type_physical_good
- * @property int $number_products_type_service
- * @property int $number_products_type_subscription
- * @property int $number_products_type_rental
+ * @property int $number_rentals
  * @property int $number_rentals_state_in_process
  * @property int $number_rentals_state_active
  * @property int $number_rentals_state_discontinued
+ * @property int $number_services
  * @property int $number_services_state_in_process
  * @property int $number_services_state_active
  * @property int $number_services_state_discontinued
- * @property int $number_physical_goods_state_in_process
- * @property int $number_physical_goods_state_active
- * @property int $number_physical_goods_state_discontinuing
- * @property int $number_physical_goods_state_discontinued
+ * @property int $number_subscriptions
+ * @property int $number_subscriptions_state_in_process
+ * @property int $number_subscriptions_state_active
+ * @property int $number_subscriptions_state_discontinued
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation

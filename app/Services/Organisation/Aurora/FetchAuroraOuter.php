@@ -7,7 +7,7 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Enums\Catalogue\Outer\OuterStateEnum;
+use App\Enums\Catalogue\Product\ProductStateEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraOuter extends FetchAurora
@@ -16,7 +16,7 @@ class FetchAuroraOuter extends FetchAurora
 
     protected function parseModel(): void
     {
-        if ($this->auroraModelData->{'Product Type'} != 'Billable') {
+        if ($this->auroraModelData->{'Product Type'} != 'Asset') {
             return;
         }
 
@@ -31,10 +31,10 @@ class FetchAuroraOuter extends FetchAurora
 
 
         $state = match ($this->auroraModelData->{'Product Status'}) {
-            'InProcess'     => OuterStateEnum::IN_PROCESS,
-            'Discontinuing' => OuterStateEnum::DISCONTINUING,
-            'Discontinued'  => OuterStateEnum::DISCONTINUED,
-            default         => OuterStateEnum::ACTIVE
+            'InProcess'     => ProductStateEnum::IN_PROCESS,
+            'Discontinuing' => ProductStateEnum::DISCONTINUING,
+            'Discontinued'  => ProductStateEnum::DISCONTINUED,
+            default         => ProductStateEnum::ACTIVE
         };
 
 

@@ -10,6 +10,23 @@ namespace App\Models\Helpers;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property string $section
+ * @property string $hs_code
+ * @property string $description
+ * @property int|null $parent_id
+ * @property int $level
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read TariffCode|null $parent
+ * @method static \Illuminate\Database\Eloquent\Builder|TariffCode newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|TariffCode newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|TariffCode query()
+ * @mixin \Eloquent
+ */
 class TariffCode extends Model
 {
     protected $guarded = [];

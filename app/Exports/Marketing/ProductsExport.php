@@ -2,7 +2,7 @@
 
 namespace App\Exports\Marketing;
 
-use App\Models\Catalogue\Billable;
+use App\Models\Catalogue\Asset;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder;
 use Maatwebsite\Excel\Concerns\FromQuery;
@@ -12,12 +12,12 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 
 class ProductsExport implements FromQuery, WithMapping, ShouldAutoSize, WithHeadings
 {
-    public function query(): Relation|\Illuminate\Database\Eloquent\Builder|Billable|Builder
+    public function query(): Relation|\Illuminate\Database\Eloquent\Builder|Asset|Builder
     {
-        return Billable::query();
+        return Asset::query();
     }
 
-    /** @var Billable $row */
+    /** @var Asset $row */
     public function map($row): array
     {
         return [

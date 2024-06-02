@@ -85,7 +85,7 @@ class IndexFulfilmentServices extends OrgAction
                 'services.unit',
                 'products.name',
                 'products.code',
-                'products.main_outerable_price',
+                'products.price',
                 'products.description',
                 'currencies.code as currency_code',
             ]);
@@ -135,7 +135,7 @@ class IndexFulfilmentServices extends OrgAction
                             'icon'  => 'fal fa-plus',
                             'label' => __('Create service'),
                             'route' => [
-                                'name'       => 'grp.org.fulfilments.show.billables.services.create',
+                                'name'       => 'grp.org.fulfilments.show.assets.services.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],
@@ -187,7 +187,7 @@ class IndexFulfilmentServices extends OrgAction
                     match (class_basename($parent)) {
                         'Fulfilment' => [
                             'title' => __("No services found"),
-                            'count' => $parent->shop->stats->number_products_type_service,
+                            'count' => $parent->shop->stats->number_assets_type_service,
                         ],
                         default => null
                     }
@@ -228,10 +228,10 @@ class IndexFulfilmentServices extends OrgAction
 
         return
             array_merge(
-                IndexFulfilmentBillables::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
+                IndexFulfilmentAssets::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.billables.services.index',
+                        'name'       => 'grp.org.fulfilments.show.assets.services.index',
                         'parameters' => $routeParameters
                     ]
                 )

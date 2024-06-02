@@ -248,7 +248,7 @@ class EditOrgSupplier extends OrgAction
 
                                 'default_product_country_origin' => [
                                     'type'        => 'select',
-                                    'label'       => __("Billable's country of origin"),
+                                    'label'       => __("Asset's country of origin"),
                                     'placeholder' => __('Select a country'),
                                     'value'       => $supplier->code,
                                     'options'     => GetCountriesOptions::run(),

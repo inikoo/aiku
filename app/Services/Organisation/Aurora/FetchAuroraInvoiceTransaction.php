@@ -20,7 +20,7 @@ class FetchAuroraInvoiceTransaction extends FetchAurora
                 $this->auroraModelData->{'Product Key'}
             );
 
-            $this->parsedData['historic_outerable'] = $historicItem;
+            $this->parsedData['historic_asset'] = $historicItem;
 
             $order=$this->parseOrder($this->organisation->id.':'.$this->auroraModelData->{'Order Key'});
 
@@ -35,7 +35,7 @@ class FetchAuroraInvoiceTransaction extends FetchAurora
 
 
         } else {
-            print "Warning Billable Key missing in transaction >".$this->auroraModelData->{'Order Transaction Fact Key'}."\n";
+            print "Warning Asset Key missing in transaction >".$this->auroraModelData->{'Order Transaction Fact Key'}."\n";
         }
     }
 

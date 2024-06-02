@@ -8,9 +8,8 @@
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Catalogue\Billable\BillableStateEnum;
-use App\Enums\Catalogue\Billable\BillableTypeEnum;
-use App\Models\Catalogue\Billable;
+use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Models\Catalogue\Product;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -19,6 +18,7 @@ class OrganisationHydrateProducts
 {
     use AsAction;
     use WithEnumStats;
+
     private Organisation $organisation;
 
     public function __construct(Organisation $organisation)
@@ -30,10 +30,10 @@ class OrganisationHydrateProducts
     {
         return [(new WithoutOverlapping($this->organisation->id))->dontRelease()];
     }
+
     public function handle(Organisation $organisation): void
     {
-
-        $stats         = [
+        $stats = [
             'number_products' => $organisation->products()->count(),
         ];
 
@@ -42,29 +42,22 @@ class OrganisationHydrateProducts
             $this->getEnumStats(
                 model: 'products',
                 field: 'state',
-                enum: BillableStateEnum::class,
-                models: Billable::class,
+                enum: ProductStateEnum::class,
+                models: Product::class,
                 where: function ($q) use ($organisation) {
                     $q->where('organisation_id', $organisation->id);
                 }
             )
         );
-
-        $stats = array_merge(
-            $stats,
-            $this->getEnumStats(
-                model: 'products',
-                field: 'type',
-                enum: BillableTypeEnum::class,
-                models: Billable::class,
-                where: function ($q) use ($organisation) {
-                    $q->where('organisation_id', $organisation->id);
-                }
-            )
-        );
-
 
         $organisation->marketStats()->update($stats);
+        $organisation->marketStats()->update(
+            [
+                'number_current_products' =>
+                    $organisation->marketStats->number_products_state_active +
+                    $organisation->marketStats->number_products_state_discontinuing
+            ]
+        );
     }
 
 }

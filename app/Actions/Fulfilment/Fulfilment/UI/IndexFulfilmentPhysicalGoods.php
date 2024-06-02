@@ -8,11 +8,11 @@
 namespace App\Actions\Fulfilment\Fulfilment\UI;
 
 use App\Actions\OrgAction;
-use App\Enums\Catalogue\Outer\PhysicalGoodStateEnum;
+use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
 use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Catalogue\Outer;
+use App\Models\Catalogue\Product;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -33,8 +33,8 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
             'state' => [
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
-                    PhysicalGoodStateEnum::labels(),
-                    PhysicalGoodStateEnum::count($parent->shop)
+                    ProductStateEnum::labels(),
+                    ProductStateEnum::count($parent->shop)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -58,7 +58,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(Outer::class);
+        $queryBuilder = QueryBuilder::for(Product::class);
         $queryBuilder->where('outers.shop_id', $parent->shop_id);
         $queryBuilder->join('products', 'outers.product_id', '=', 'products.id');
         $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
@@ -85,7 +85,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                 'outers.unit',
                 'products.name',
                 'products.code',
-                'products.main_outerable_price',
+                'products.price',
                 'products.description',
                 'currencies.code as currency_code',
             ]);
@@ -135,7 +135,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                             'icon'  => 'fal fa-plus',
                             'label' => __('Create good'),
                             'route' => [
-                                'name'       => 'grp.org.fulfilments.show.billables.outers.create',
+                                'name'       => 'grp.org.fulfilments.show.assets.outers.create',
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ],
@@ -189,7 +189,7 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
                     match (class_basename($parent)) {
                         'Fulfilment' => [
                             'title' => __("No services found"),
-                            'count' => $parent->shop->stats->number_products_type_service,
+                            'count' => $parent->shop->stats->number_assets_type_service,
                         ],
                         default => null
                     }
@@ -230,10 +230,10 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
 
         return
             array_merge(
-                IndexFulfilmentBillables::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
+                IndexFulfilmentAssets::make()->getBreadcrumbs(routeParameters: $routeParameters, icon: 'fal fa-ballot'),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.billables.outers.index',
+                        'name'       => 'grp.org.fulfilments.show.assets.outers.index',
                         'parameters' => $routeParameters
                     ]
                 )

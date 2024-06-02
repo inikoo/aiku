@@ -10,8 +10,8 @@ namespace App\Services\Organisation\Aurora;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\Rental\RentalStateEnum;
 use App\Enums\Fulfilment\Rental\RentalUnitEnum;
-use App\Enums\Catalogue\Billable\BillableStateEnum;
-use App\Enums\Catalogue\Billable\BillableTypeEnum;
+use App\Enums\Catalogue\Asset\AssetStateEnum;
+use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
 use Illuminate\Support\Facades\DB;
 
@@ -47,14 +47,14 @@ class FetchAuroraService extends FetchAurora
 
         $code = $this->cleanTradeUnitReference($this->auroraModelData->{'Product Code'});
 
-        $type = BillableTypeEnum::SERVICE;
+        $type = AssetTypeEnum::SERVICE;
         if (preg_match('/rent/i', $code)) {
-            $type = BillableTypeEnum::RENTAL;
+            $type = AssetTypeEnum::RENTAL;
         }
 
         $this->parsedData['type'] = $type;
 
-        if ($type == BillableTypeEnum::SERVICE) {
+        if ($type == AssetTypeEnum::SERVICE) {
             $state = match ($this->auroraModelData->{'Product Status'}) {
                 'InProcess' => ServiceStateEnum::IN_PROCESS,
                 'Discontinued', 'Discontinuing' => ServiceStateEnum::DISCONTINUED,
@@ -69,7 +69,7 @@ class FetchAuroraService extends FetchAurora
         }
 
         $status = false;
-        if ($state == BillableStateEnum::ACTIVE) {
+        if ($state == AssetStateEnum::ACTIVE) {
             $status = true;
         }
 
@@ -80,7 +80,7 @@ class FetchAuroraService extends FetchAurora
             'state'                => $state,
             'code'                 => $code,
             'name'                 => $this->auroraModelData->{'Product Name'},
-            'main_outerable_price' => round($unit_price, 2),
+            'price'                => round($unit_price, 2),
             'status'               => $status,
             'data'                 => $data,
             'settings'             => $settings,
@@ -90,7 +90,7 @@ class FetchAuroraService extends FetchAurora
         ];
 
 
-        if ($type == BillableTypeEnum::RENTAL) {
+        if ($type == AssetTypeEnum::RENTAL) {
             $autoAssignAsset = match ($code) {
                 'Rent-01', 'Rent-02', 'Rent-04' => 'Pallet',
                 default => null

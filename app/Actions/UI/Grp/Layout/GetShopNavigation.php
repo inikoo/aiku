@@ -83,12 +83,12 @@ class GetShopNavigation
                 ],
             ];
 
-            $navigation["billables"] = [
-                "root"  => "grp.org.shops.show.billables.",
+            $navigation["assets"] = [
+                "root"  => "grp.org.shops.show.assets.",
                 "icon"  => ["fal", "fa-ballot"],
-                "label" => __("Billables"),
+                "label" => __("Assets"),
                 "route" => [
-                    "name"       => 'grp.org.shops.show.billables.dashboard',
+                    "name"       => 'grp.org.shops.show.assets.dashboard',
                     "parameters" => [$shop->organisation->slug, $shop->slug],
                 ],
                 "topMenu" => [
@@ -96,9 +96,9 @@ class GetShopNavigation
                         [
                             "tooltip" => __("shop"),
                             "icon"    => ["fal", "fa-store-alt"],
-                            'root'    => 'grp.org.shops.show.billables.dashboard',
+                            'root'    => 'grp.org.shops.show.assets.dashboard',
                             "route"   => [
-                                "name"       => 'grp.org.shops.show.billables.dashboard',
+                                "name"       => 'grp.org.shops.show.assets.dashboard',
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -106,9 +106,9 @@ class GetShopNavigation
                             "label"   => __("Shipping"),
                             "tooltip" => __("Shipping"),
                             "icon"    => ["fal", "fa-shipping-fast"],
-                            'root'    => 'grp.org.shops.show.billables.shipping.',
+                            'root'    => 'grp.org.shops.show.assets.shipping.',
                             "route"   => [
-                                "name"       => "grp.org.shops.show.billables.shipping.index",
+                                "name"       => "grp.org.shops.show.assets.shipping.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -116,9 +116,9 @@ class GetShopNavigation
                             "label"   => __("Charges"),
                             "tooltip" => __("Charges"),
                             "icon"    => ["fal", "fa-charging-station"],
-                            'root'    => 'grp.org.shops.show.billables.charges.',
+                            'root'    => 'grp.org.shops.show.assets.charges.',
                             "route"   => [
-                                "name"       => "grp.org.shops.show.billables.charges.index",
+                                "name"       => "grp.org.shops.show.assets.charges.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -126,9 +126,9 @@ class GetShopNavigation
                             "label"   => __("Services"),
                             "tooltip" => __("Services"),
                             "icon"    => ["fal", "fa-concierge-bell"],
-                            'root'    => 'grp.org.shops.show.billables.services.',
+                            'root'    => 'grp.org.shops.show.assets.services.',
                             "route"   => [
-                                "name"       => "grp.org.shops.show.billables.services.index",
+                                "name"       => "grp.org.shops.show.assets.services.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -136,9 +136,9 @@ class GetShopNavigation
                             "label"   => __("Insurance"),
                             "tooltip" => __("Insurance"),
                             "icon"    => ["fal", "fa-house-damage"],
-                            'root'    => 'grp.org.shops.show.billables.insurances.',
+                            'root'    => 'grp.org.shops.show.assets.insurances.',
                             "route"   => [
-                                "name"       => "grp.org.shops.show.billables.insurances.index",
+                                "name"       => "grp.org.shops.show.assets.insurances.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],

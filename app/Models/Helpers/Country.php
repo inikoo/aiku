@@ -11,6 +11,32 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property string $code
+ * @property string|null $iso3
+ * @property string|null $phone_code
+ * @property string $name
+ * @property string|null $continent
+ * @property string|null $capital
+ * @property int|null $timezone_id Timezone in capital
+ * @property int|null $currency_id
+ * @property string|null $type
+ * @property array $data
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Timezone> $timezones
+ * @method static \Illuminate\Database\Eloquent\Builder|Country newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Country newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Country onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Country query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Country withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Country withoutTrashed()
+ * @mixin \Eloquent
+ */
 class Country extends Model
 {
     use SoftDeletes;

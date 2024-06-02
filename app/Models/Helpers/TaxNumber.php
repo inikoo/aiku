@@ -38,7 +38,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $invalid_checked_at Last time was validated online with tax number invalid
  * @property string|null $external_service_failed_at Last time on;ine validation fail due external service down
  * @property Carbon|null $deleted_at
- * @property-read Country|null $country
+ * @property-read \App\Models\Helpers\Country|null $country
  * @method static Builder|TaxNumber newModelQuery()
  * @method static Builder|TaxNumber newQuery()
  * @method static Builder|TaxNumber onlyTrashed()

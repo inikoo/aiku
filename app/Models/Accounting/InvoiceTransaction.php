@@ -7,7 +7,7 @@
 
 namespace App\Models\Accounting;
 
-use App\Models\Catalogue\Billable;
+use App\Models\Catalogue\Asset;
 use App\Models\Ordering\Transaction;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -25,7 +25,7 @@ use Illuminate\Support\Carbon;
  * @property int $organisation_id
  * @property int $shop_id
  * @property int $customer_id
- * @property int $product_id
+ * @property int $asset_id
  * @property int|null $family_id
  * @property int|null $department_id
  * @property int $order_id
@@ -49,7 +49,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $source_id
  * @property int|null $source_alt_id
  * @property-read Model|\Eloquent $item
- * @property-read Billable $product
+ * @property-read Asset|null $product
  * @property-read Transaction|null $transaction
  * @method static Builder|InvoiceTransaction newModelQuery()
  * @method static Builder|InvoiceTransaction newQuery()
@@ -87,7 +87,7 @@ class InvoiceTransaction extends Model
 
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Billable::class);
+        return $this->belongsTo(Asset::class);
     }
 
     public function setQuantityAttribute($val)

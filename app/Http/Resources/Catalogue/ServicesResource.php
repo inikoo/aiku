@@ -8,27 +8,38 @@
 namespace App\Http\Resources\Catalogue;
 
 use App\Http\Resources\Helpers\CurrencyResource;
+use App\Models\Helpers\Currency;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+/**
+ * @property mixed $id
+ * @property mixed $asset_id
+ * @property mixed $slug
+ * @property mixed $name
+ * @property mixed $code
+ * @property mixed $price
+ * @property mixed $agreed_price
+ * @property mixed $unit
+ * @property mixed $currency_id
+ */
 class ServicesResource extends JsonResource
 {
     public function toArray($request): array
     {
-        /** @var Service $service */
-        $service = $this;
+        $currency = Currency::find($this->currency_id);
+
 
         return [
-            'id'                                => $service->id,
-            'product_id'                        => $service->product_id,
-            'slug'                              => $service->product->slug,
-            'name'                              => $service->product->name,
-            'code'                              => $service->product->code,
-            'price'                             => $service->price,
-            'unit'                              => $service->unit,
-            'currency'                          => CurrencyResource::make($service->product->currency),
-            'agreed_price'                      => $service->price,
-            'discount'                          => 0,
-            'original_price'                    => $service->price,
+            'id'             => $this->id,
+            'asset_id'       => $this->asset_id,
+            'slug'           => $this->slug,
+            'name'           => $this->name,
+            'code'           => $this->code,
+            'price'          => $this->price,
+            'agreed_price'   => $this->agreed_price,
+            'discount'       => 0,
+            'unit'           => $this->unit,
+            'currency'       => CurrencyResource::make($$currency)
         ];
     }
 }

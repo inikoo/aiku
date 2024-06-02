@@ -93,6 +93,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read Collection<int, Address> $addresses
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $attachments
+ * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Address|null $billingAddress
  * @property-read Address|null $collectionAddress
  * @property-read \App\Models\CRM\Customer $customer

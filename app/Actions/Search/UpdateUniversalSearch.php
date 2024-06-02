@@ -53,7 +53,7 @@ class UpdateUniversalSearch extends HydrateModel
         $command->line('Stock Family');
         $command->call('stock-families:search');
 
-        $command->line('Supplier Billable');
+        $command->line('Supplier Asset');
         $command->call('supplier-products:search');
 
         $command->line('Agent');

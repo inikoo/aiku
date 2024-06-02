@@ -7,9 +7,9 @@
 
 namespace App\Actions\Fulfilment\Rental\UI;
 
-use App\Actions\Catalogue\Billable\UI\GetProductRental;
-use App\Actions\Catalogue\Billable\UI\GetProductService;
-use App\Actions\Catalogue\Billable\UI\GetProductShowcase;
+use App\Actions\Catalogue\Asset\UI\GetProductRental;
+use App\Actions\Catalogue\Asset\UI\GetProductService;
+use App\Actions\Catalogue\Asset\UI\GetProductShowcase;
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
@@ -23,7 +23,7 @@ use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Sales\OrderResource;
-use App\Models\Catalogue\Billable;
+use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
@@ -38,7 +38,7 @@ class ShowRental extends OrgAction
 {
     private Organisation|Shop|Fulfilment|ProductCategory $parent;
 
-    public function handle(Billable $product): Billable
+    public function handle(Asset $product): Asset
     {
         return $product;
     }
@@ -62,21 +62,21 @@ class ShowRental extends OrgAction
 
     }
 
-    public function inOrganisation(Organisation $organisation, Billable $product, ActionRequest $request): Billable
+    public function inOrganisation(Organisation $organisation, Asset $product, ActionRequest $request): Asset
     {
         $this->parent= $organisation;
         $this->initialisation($organisation, $request)->withTab(ProductTabsEnum::values());
         return $this->handle($product);
     }
 
-    public function asController(Organisation $organisation, Shop $shop, Billable $product, ActionRequest $request): Billable
+    public function asController(Organisation $organisation, Shop $shop, Asset $product, ActionRequest $request): Asset
     {
         $this->parent= $shop;
         $this->initialisationFromShop($shop, $request)->withTab(ProductTabsEnum::values());
         return $this->handle($product);
     }
 
-    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, Billable $product, ActionRequest $request): Billable
+    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, Asset $product, ActionRequest $request): Asset
     {
         $this->parent= $department;
         $this->initialisationFromShop($shop, $request)->withTab(ProductTabsEnum::values());
@@ -84,17 +84,17 @@ class ShowRental extends OrgAction
         return $this->handle($product);
     }
 
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Rental $rental, ActionRequest $request): Billable
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Rental $rental, ActionRequest $request): Asset
     {
         $this->parent= $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(ProductTabsEnum::values());
         return $this->handle($rental->product);
     }
 
-    public function htmlResponse(Billable $product, ActionRequest $request): Response
+    public function htmlResponse(Asset $product, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Catalogue/Billable',
+            'Org/Catalogue/Asset',
             [
                 'title'       => __('product'),
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -178,14 +178,14 @@ class ShowRental extends OrgAction
             ->table(IndexMailshots::make()->tableStructure($product));
     }
 
-    public function jsonResponse(Billable $product): ProductsResource
+    public function jsonResponse(Asset $product): ProductsResource
     {
         return new ProductsResource($product);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
-        $headCrumb = function (Billable $product, array $routeParameters, $suffix) {
+        $headCrumb = function (Asset $product, array $routeParameters, $suffix) {
             return [
 
                 [
@@ -246,18 +246,18 @@ class ShowRental extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.fulfilments.show.billables.show' =>
+            'grp.org.fulfilments.show.assets.show' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $rental,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.billables.index',
+                            'name'       => 'grp.org.fulfilments.show.assets.index',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'grp.org.fulfilments.show.billables.show',
+                            'name'       => 'grp.org.fulfilments.show.assets.show',
                             'parameters' => $routeParameters
                         ]
                     ],
@@ -268,20 +268,20 @@ class ShowRental extends OrgAction
         };
     }
 
-    public function getPrevious(Billable $product, ActionRequest $request): ?array
+    public function getPrevious(Asset $product, ActionRequest $request): ?array
     {
-        $previous = Billable::where('slug', '<', $product->slug)->orderBy('slug', 'desc')->first();
+        $previous = Asset::where('slug', '<', $product->slug)->orderBy('slug', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
 
-    public function getNext(Billable $product, ActionRequest $request): ?array
+    public function getNext(Asset $product, ActionRequest $request): ?array
     {
-        $next = Billable::where('slug', '>', $product->slug)->orderBy('slug')->first();
+        $next = Asset::where('slug', '>', $product->slug)->orderBy('slug')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
-    private function getNavigation(?Billable $product, string $routeName): ?array
+    private function getNavigation(?Asset $product, string $routeName): ?array
     {
         if (!$product) {
             return null;
@@ -308,7 +308,7 @@ class ShowRental extends OrgAction
                     ],
                 ],
             ],
-            'grp.org.fulfilments.show.billables.show' => [
+            'grp.org.fulfilments.show.assets.show' => [
                 'label' => $product->name,
                 'route' => [
                     'name'       => $routeName,

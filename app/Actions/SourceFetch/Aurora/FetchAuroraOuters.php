@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Catalogue\Outer\StoreOuter;
-use App\Actions\Catalogue\Outer\UpdateOuter;
-use App\Models\Catalogue\Outer;
+use App\Actions\Catalogue\Product\StoreOuterTODELETE;
+use App\Actions\Catalogue\Product\ProductOuter;
+use App\Models\Catalogue\Product;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
@@ -19,30 +19,30 @@ class FetchAuroraOuters extends FetchAuroraAction
 {
     public string $commandSignature = 'fetch:outers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--N|only_new : Fetch only new}  {--d|db_suffix=} {--r|reset}';
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Outer
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Product
     {
         if ($outerData = $organisationSource->fetchOuter($organisationSourceId)) {
 
 
-            if ($outer = Outer::withTrashed()->where('source_id', $outerData['outer']['source_id'])
+            if ($outer = Product::withTrashed()->where('source_id', $outerData['outer']['source_id'])
                 ->first()) {
                 try {
-                    $outer = UpdateOuter::make()->action(
+                    $outer = ProductOuter::make()->action(
                         outer: $outer,
                         modelData: $outerData['outer'],
                     );
                 } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $outerData['outer'], 'Outer', 'update');
+                    $this->recordError($organisationSource, $e, $outerData['outer'], 'Product', 'update');
                     return null;
                 }
             } else {
                 try {
-                    $outer = StoreOuter::make()->action(
+                    $outer = StoreOuterTODELETE::make()->action(
                         product: $outerData['product'],
                         modelData: $outerData['outer'],
                     );
                 } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $outerData['outer'], 'Outer', 'store');
+                    $this->recordError($organisationSource, $e, $outerData['outer'], 'Product', 'store');
                     return null;
                 }
             }

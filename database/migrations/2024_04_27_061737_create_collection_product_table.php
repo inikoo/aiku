@@ -16,8 +16,8 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedInteger('collection_id')->index();
             $table->foreign('collection_id')->references('id')->on('collections');
-            $table->unsignedInteger('billable_id')->index();
-            $table->foreign('billable_id')->references('id')->on('billables');
+            $table->unsignedInteger('asset_id')->index();
+            $table->foreign('asset_id')->references('id')->on('assets');
             $table->timestampsTz();
         });
     }

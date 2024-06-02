@@ -7,7 +7,7 @@
 
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
-use App\Actions\Catalogue\Billable\UI\IndexProducts;
+use App\Actions\Catalogue\Asset\UI\IndexProducts;
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\IndexCustomers;

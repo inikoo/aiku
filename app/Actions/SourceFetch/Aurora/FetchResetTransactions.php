@@ -99,7 +99,7 @@ class FetchResetTransactions
                 $command->line("✅ products \t\t".$this->stepTime());
 
 
-                DB::connection('aurora')->table('Customer Favourite Billable Fact')
+                DB::connection('aurora')->table('Customer Favourite Asset Fact')
                     ->update([$aikuIdField => null]);
                 DB::connection('aurora')->table('Back in Stock Reminder Fact')
                     ->update([$aikuIdField => null]);
@@ -111,7 +111,7 @@ class FetchResetTransactions
 
                 DB::connection('aurora')->table('Order Dimension')->update([$aikuIdField => null]);
                 DB::connection('aurora')->table('Order Transaction Fact')->update([$aikuIdField => null]);
-                DB::connection('aurora')->table('Order No Billable Transaction Fact')->update([$aikuIdField => null]);
+                DB::connection('aurora')->table('Order No Asset Transaction Fact')->update([$aikuIdField => null]);
                 DB::connection('aurora')->table('Order Dimension')->update([$aikuIdField => null]);
                 DB::connection('aurora')->table('Order Transaction Fact')->update(
                     [
@@ -119,7 +119,7 @@ class FetchResetTransactions
                         // 'aiku_invoice_id' => null,
                     ]
                 );
-                DB::connection('aurora')->table('Order No Billable Transaction Fact')->update(
+                DB::connection('aurora')->table('Order No Asset Transaction Fact')->update(
                     [
                         $aikuIdField => null,
                         // 'aiku_invoice_id' => null,

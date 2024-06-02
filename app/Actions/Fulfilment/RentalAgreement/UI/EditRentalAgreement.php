@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\RentalAgreement\UI;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
-use App\Http\Resources\Catalogue\OuterClausesResource;
+use App\Http\Resources\Catalogue\ProductClausesResource;
 use App\Http\Resources\Catalogue\RentalClausesResource;
 use App\Http\Resources\Catalogue\ServiceClausesResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -32,7 +32,7 @@ class EditRentalAgreement extends OrgAction
     {
         $rentals = [];
         foreach ($rentalAgreement->fulfilmentCustomer->rentalAgreementClauses as $clause) {
-            $price       = $clause->product->main_outerable_price;
+            $price       = $clause->product->price;
             $agreedPrice = $clause->agreed_price;
 
             $rentals[] = [
@@ -82,10 +82,10 @@ class EditRentalAgreement extends OrgAction
                                         'full'             => true,
                                         'rentals'          => RentalClausesResource::collection($rentalAgreement->clauses->where('type', 'rental')),
                                         'services'         => ServiceClausesResource::collection($rentalAgreement->clauses->where('type', 'service')),
-                                        'physical_goods'   => OuterClausesResource::collection($rentalAgreement->clauses->where('type', 'physical_good')),
+                                        'physical_goods'   => ProductClausesResource::collection($rentalAgreement->clauses->where('type', 'physical_good')),
                                         'clauses'          => $rentalAgreement->clauses,
                                         // 'indexRentalRoute' => [
-                                        //     'name'       => 'grp.org.fulfilments.show.billables.rentals.index',
+                                        //     'name'       => 'grp.org.fulfilments.show.assets.rentals.index',
                                         //     'parameters' => [
                                         //         'organisation' => $this->organisation->slug,
                                         //         'fulfilment'   => $rentalAgreement->fulfilment->slug

@@ -65,7 +65,7 @@ class FetchFromStack
                     $res = FetchAuroraInvoices::run($organisationSource, $jobData->model_id);
 
                     break;
-                case 'Billable':
+                case 'Asset':
                     $res = FetchAuroraProducts::run($organisationSource, $jobData->model_id);
                     break;
                 case 'Supplier':

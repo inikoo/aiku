@@ -7,8 +7,7 @@
 
 namespace App\Models\Goods;
 
-use App\Models\Catalogue\Billable;
-use App\Models\Catalogue\Outer;
+use App\Models\Catalogue\Product;
 use App\Models\Helpers\Barcode;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
@@ -37,6 +36,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property string|null $name
  * @property string|null $description
+ * @property int|null $barcode_id
  * @property Collection<int, Barcode> $barcode
  * @property float|null $gross_weight in kilograms include packing
  * @property float|null $net_weight in kilograms
@@ -54,7 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Studio\Media|null $image
  * @property-read MediaCollection<int, \App\Models\Studio\Media> $images
  * @property-read MediaCollection<int, \App\Models\Studio\Media> $media
- * @property-read Collection<int, Billable> $products
+ * @property-read Collection<int, Product> $outers
  * @property-read Collection<int, Stock> $stocks
  * @method static \Database\Factories\Goods\TradeUnitFactory factory($count = null, $state = [])
  * @method static Builder|TradeUnit newModelQuery()
@@ -104,7 +104,7 @@ class TradeUnit extends Model implements HasMedia
 
     public function outers(): BelongsToMany
     {
-        return $this->belongsToMany(Outer::class);
+        return $this->belongsToMany(Product::class);
     }
 
     public function barcode(): MorphToMany

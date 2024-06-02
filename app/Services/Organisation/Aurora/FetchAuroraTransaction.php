@@ -31,7 +31,7 @@ class FetchAuroraTransaction extends FetchAurora
             );
 
             $state = null;
-            if (class_basename($historicItem) == 'HistoricOuterable') {
+            if (class_basename($historicItem) == 'HistoricAsset') {
                 $state = match ($this->auroraModelData->{'Current Dispatching State'}) {
                     'In Process'            => TransactionStateEnum::CREATING,
                     'Submitted by Customer' => TransactionStateEnum::SUBMITTED,
@@ -96,7 +96,7 @@ class FetchAuroraTransaction extends FetchAurora
 
             ];
         } else {
-            print "Warning Billable Key missing in transaction >".$this->auroraModelData->{'Order Transaction Fact Key'}."\n";
+            print "Warning Asset Key missing in transaction >".$this->auroraModelData->{'Order Transaction Fact Key'}."\n";
         }
     }
 

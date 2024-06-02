@@ -12,11 +12,15 @@ use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
-use App\Models\Catalogue\Billable;
+use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\CollectionCategory;
+use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Service;
+use App\Models\Catalogue\Subscription;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\RecurringBill;
+use App\Models\Fulfilment\Rental;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Currency;
@@ -74,6 +78,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupAccountingStats|null $accountingStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Artefact> $artefacts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Asset> $assets
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Barcode> $barcodes
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ClockingMachine> $clockingMachines
  * @property-read \Illuminate\Database\Eloquent\Collection<int, CollectionCategory> $collectionCategories
@@ -105,15 +110,18 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Production> $productions
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Billable> $products
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
  * @property-read \Illuminate\Database\Eloquent\Collection<int, PurchaseOrder> $purchaseOrders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, RawMaterial> $rawMaterials
  * @property-read \Illuminate\Database\Eloquent\Collection<int, RecurringBill> $recurringBills
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Rental> $rentals
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \App\Models\SysAdmin\GroupSalesIntervals|null $salesIntervals
  * @property-read \App\Models\SysAdmin\GroupSalesStats|null $salesStats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Service> $services
  * @property-read \Illuminate\Database\Eloquent\Collection<int, StockFamily> $stockFamilies
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Subscription> $subscriptions
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SupplierProduct> $supplierProducts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
  * @property-read \App\Models\SysAdmin\GroupSupplyChainStats|null $supplyChainStats
@@ -338,9 +346,29 @@ class Group extends Model implements HasMedia
         return $this->hasOne(GroupMarketStats::class);
     }
 
+    public function assets(): HasMany
+    {
+        return $this->hasMany(Asset::class);
+    }
+
     public function products(): HasMany
     {
-        return $this->hasMany(Billable::class);
+        return $this->hasMany(Product::class);
+    }
+
+    public function services(): HasMany
+    {
+        return $this->hasMany(Service::class);
+    }
+
+    public function rentals(): HasMany
+    {
+        return $this->hasMany(Rental::class);
+    }
+
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class);
     }
 
     public function collectionCategories(): HasMany

@@ -7,9 +7,10 @@
 
 namespace App\Stubs\Migrations;
 
+use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Fulfilment\Rental\RentalStateEnum;
-use App\Enums\Catalogue\Billable\BillableStateEnum;
-use App\Enums\Catalogue\Billable\BillableTypeEnum;
+use App\Enums\Catalogue\Asset\AssetStateEnum;
+use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
@@ -45,6 +46,10 @@ trait HasCatalogueStats
         $table->unsignedInteger('number_collections')->default(0);
 
         $table= $this->catalogueFamilyStats($table);
+
+        $table= $this->assetStats($table);
+
+
         return $this->catalogueProductsStats($table);
     }
 
@@ -66,35 +71,51 @@ trait HasCatalogueStats
 
     }
 
+    public function assetStats(Blueprint $table): Blueprint
+    {
+
+        $table->unsignedInteger('number_assets')->default(0);
+        $table->unsignedInteger('number_current_assets')->default(0)->comment('state: active+discontinuing');
+
+        foreach (AssetStateEnum::cases() as $case) {
+            $table->unsignedInteger('number_assets_state_'.$case->snake())->default(0);
+        }
+
+        foreach (AssetTypeEnum::cases() as $case) {
+            $table->unsignedInteger('number_assets_type_'.$case->snake())->default(0);
+        }
+
+
+        return $table;
+    }
+
     public function catalogueProductsStats(Blueprint $table): Blueprint
     {
 
         $table->unsignedInteger('number_products')->default(0);
         $table->unsignedInteger('number_current_products')->default(0)->comment('state: active+discontinuing');
 
-        foreach (BillableStateEnum::cases() as $productState) {
+        foreach (ProductStateEnum::cases() as $productState) {
             $table->unsignedInteger('number_products_state_'.$productState->snake())->default(0);
         }
 
-        foreach (BillableTypeEnum::cases() as $case) {
-            $table->unsignedInteger('number_products_type_'.$case->snake())->default(0);
-        }
-
+        $table->unsignedInteger('number_rentals')->default(0);
 
         foreach (RentalStateEnum::cases() as $case) {
             $table->unsignedInteger('number_rentals_state_'.$case->snake())->default(0);
         }
 
+        $table->unsignedInteger('number_services')->default(0);
+
         foreach (ServiceStateEnum::cases() as $case) {
             $table->unsignedInteger('number_services_state_'.$case->snake())->default(0);
         }
 
-        foreach (BillableStateEnum::cases() as $case) {
-            $table->unsignedInteger('number_physical_goods_state_'.$case->snake())->default(0);
+        $table->unsignedInteger('number_subscriptions')->default(0);
+
+        foreach (ServiceStateEnum::cases() as $case) {
+            $table->unsignedInteger('number_subscriptions_state_'.$case->snake())->default(0);
         }
-
-
-
 
         return $table;
     }

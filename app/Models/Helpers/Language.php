@@ -9,6 +9,22 @@ namespace App\Models\Helpers;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property string $code
+ * @property string|null $name
+ * @property string|null $original_name
+ * @property string|null $status
+ * @property array $data
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder|Language newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Language newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Language query()
+ * @mixin \Eloquent
+ */
 class Language extends Model
 {
     protected $casts = [

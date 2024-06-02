@@ -8,6 +8,8 @@
 
 namespace App\Actions\Catalogue\Shop;
 
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateAssets;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateServices;
 use App\Actions\HydrateModel;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCollectionCategories;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCollections;
@@ -44,6 +46,9 @@ class HydrateShop extends HydrateModel
         ShopHydrateProducts::run($shop);
         ShopHydrateCollectionCategories::run($shop);
         ShopHydrateCollections::run($shop);
+        ShopHydrateAssets::run($shop);
+        ShopHydrateProducts::run($shop);
+        ShopHydrateServices::run($shop);
 
     }
 

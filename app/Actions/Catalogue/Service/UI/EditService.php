@@ -8,9 +8,9 @@
 namespace App\Actions\Catalogue\Service\UI;
 
 use App\Actions\OrgAction;
-use App\Enums\Catalogue\Billable\BillableTypeEnum;
+use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Fulfilment\Rental\RentalUnitEnum;
-use App\Models\Catalogue\Billable;
+use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
@@ -22,7 +22,7 @@ use Spatie\LaravelOptions\Options;
 
 class EditService extends OrgAction
 {
-    public function handle(Billable $product): Billable
+    public function handle(Asset $product): Asset
     {
         return $product;
     }
@@ -35,7 +35,7 @@ class EditService extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
     }
 
-    // public function inOrganisation(Billable $product, ActionRequest $request): Billable
+    // public function inOrganisation(Asset $product, ActionRequest $request): Asset
     // {
     //     $this->initialisation($request);
 
@@ -43,14 +43,14 @@ class EditService extends OrgAction
     // }
 
     // /** @noinspection PhpUnusedParameterInspection */
-    // public function inShop(Shop $shop, Billable $product, ActionRequest $request): Billable
+    // public function inShop(Shop $shop, Asset $product, ActionRequest $request): Asset
     // {
     //     $this->initialisation($request);
 
     //     return $this->handle($product);
     // }
 
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Service $service, ActionRequest $request): Billable
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Service $service, ActionRequest $request): Asset
     {
         $this->parent= $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
@@ -60,7 +60,7 @@ class EditService extends OrgAction
     /**
      * @throws \Exception
      */
-    public function htmlResponse(Billable $product, ActionRequest $request): Response
+    public function htmlResponse(Asset $product, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
@@ -127,8 +127,8 @@ class EditService extends OrgAction
                                 // 'type' => [
                                 //     'type'          => 'select',
                                 //     'label'         => __('type'),
-                                //     'placeholder'   => 'Select a Billable Type',
-                                //     'options'       => Options::forEnum(BillableTypeEnum::class)->toArray(),
+                                //     'placeholder'   => 'Select a Asset Type',
+                                //     'options'       => Options::forEnum(AssetTypeEnum::class)->toArray(),
                                 //     'required'      => true,
                                 //     'mode'          => 'single',
                                 //     'value'         => $product->type
@@ -159,20 +159,20 @@ class EditService extends OrgAction
         );
     }
 
-    public function getPrevious(Billable $product, ActionRequest $request): ?array
+    public function getPrevious(Asset $product, ActionRequest $request): ?array
     {
-        $previous = Billable::where('slug', '<', $product->slug)->orderBy('slug', 'desc')->first();
+        $previous = Asset::where('slug', '<', $product->slug)->orderBy('slug', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
 
-    public function getNext(Billable $product, ActionRequest $request): ?array
+    public function getNext(Asset $product, ActionRequest $request): ?array
     {
-        $next = Billable::where('slug', '>', $product->slug)->orderBy('slug')->first();
+        $next = Asset::where('slug', '>', $product->slug)->orderBy('slug')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
-    private function getNavigation(?Billable $product, string $routeName): ?array
+    private function getNavigation(?Asset $product, string $routeName): ?array
     {
         if(!$product) {
             return null;

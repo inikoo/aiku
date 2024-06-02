@@ -33,9 +33,9 @@ function productRoute(product: Product) {
       return route(
           'grp.org.shops.show.catalogue.products.show',
           [route().params['organisation'], product.shop_slug, product.slug]);
-    case 'grp.org.fulfilments.show.billables.index':
+    case 'grp.org.fulfilments.show.assets.index':
       return route(
-          'grp.org.fulfilments.show.billables.show',
+          'grp.org.fulfilments.show.assets.show',
           [route().params['organisation'], route().params['fulfilment'], product.slug]);
     case 'grp.org.shops.show.catalogue.departments.show':
       return route(

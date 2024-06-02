@@ -29,7 +29,7 @@ class FetchAuroraHistoricProduct extends FetchAurora
             $units = 1;
         }
 
-        $this->parsedData['historic_outerable'] = [
+        $this->parsedData['historic_asset'] = [
             'code'       => $this->auroraModelData->{'Product History Code'},
             'name'       => $this->auroraModelData->{'Product History Name'},
             'price'      => $this->auroraModelData->{'Product History Price'} / $units,

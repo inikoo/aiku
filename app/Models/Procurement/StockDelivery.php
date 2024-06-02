@@ -72,6 +72,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $attachments
+ * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Collection<int, \App\Models\Procurement\StockDeliveryItem> $items
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $media

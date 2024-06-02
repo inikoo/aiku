@@ -7,7 +7,7 @@
 
 namespace App\Http\Resources\Fulfilment;
 
-use App\Models\Catalogue\Billable;
+use App\Models\Catalogue\Asset;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -24,7 +24,7 @@ class FulfilmentProductsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        /** @var Billable $product */
+        /** @var Asset $product */
         $product= $this;
 
         return [

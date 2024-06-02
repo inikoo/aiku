@@ -7,9 +7,9 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Enums\Catalogue\Billable\BillableStateEnum;
-use App\Enums\Catalogue\Billable\BillableUnitRelationshipType;
-use App\Enums\Catalogue\Billable\BillableTypeEnum;
+use App\Enums\Catalogue\Asset\AssetTypeEnum;
+use App\Enums\Catalogue\Asset\AssetStateEnum;
+use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraProduct extends FetchAurora
@@ -55,10 +55,10 @@ class FetchAuroraProduct extends FetchAurora
         }
 
         $state = match ($this->auroraModelData->{'Product Status'}) {
-            'InProcess'     => BillableStateEnum::IN_PROCESS,
-            'Discontinuing' => BillableStateEnum::DISCONTINUING,
-            'Discontinued'  => BillableStateEnum::DISCONTINUED,
-            default         => BillableStateEnum::ACTIVE
+            'InProcess'     => AssetStateEnum::IN_PROCESS,
+            'Discontinuing' => AssetStateEnum::DISCONTINUING,
+            'Discontinued'  => AssetStateEnum::DISCONTINUED,
+            default         => AssetStateEnum::ACTIVE
         };
 
 
@@ -78,25 +78,25 @@ class FetchAuroraProduct extends FetchAurora
         $unit_price        = $this->auroraModelData->{'Product Price'} / $units;
         $data['raw_price'] = $unit_price;
 
-        $this->parsedData['historic_outerable_source_id'] = $this->auroraModelData->{'Product Current Key'};
+        $this->parsedData['historic_asset_source_id'] = $this->auroraModelData->{'Product Current Key'};
 
         $code = $this->cleanTradeUnitReference($this->auroraModelData->{'Product Code'});
 
 
         $this->parsedData['product'] = [
-            'type'                   => BillableTypeEnum::PHYSICAL_GOOD,
+            'type'                   => AssetTypeEnum::PRODUCT,
             'owner_type'             => $owner_type,
             'owner_id'               => $owner_id,
             'code'                   => $code,
             'name'                   => $this->auroraModelData->{'Product Name'},
-            'main_outerable_price'   => round($unit_price, 2),
+            'price'                  => round($unit_price, 2),
             //   'units'                 => round($units, 3),
             'status'                 => $status,
             'state'                  => $state,
             'data'                   => $data,
             'settings'               => $settings,
             'created_at'             => $created_at,
-            'trade_unit_composition' => BillableUnitRelationshipType::SINGLE,
+            'trade_unit_composition' => ProductUnitRelationshipType::SINGLE,
             'source_id'              => $this->organisation->id.':'.$this->auroraModelData->{'Product ID'},
             'historic_source_id'     => $this->organisation->id.':'.$this->auroraModelData->{'Product Current Key'},
             'images'                 => $this->parseImages()
@@ -106,7 +106,7 @@ class FetchAuroraProduct extends FetchAurora
     private function parseImages(): array
     {
         $images = $this->getModelImagesCollection(
-            'Billable',
+            'Asset',
             $this->auroraModelData->{'Product ID'}
         )->map(function ($auroraImage) {
             return $this->fetchImage($auroraImage);

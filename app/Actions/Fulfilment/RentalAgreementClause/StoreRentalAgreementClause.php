@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\RentalAgreementClause;
 
 use App\Actions\OrgAction;
-use App\Models\Catalogue\Billable;
+use App\Models\Catalogue\Asset;
 use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Fulfilment\RentalAgreementClause;
 use Lorisleiva\Actions\ActionRequest;
@@ -23,7 +23,7 @@ class StoreRentalAgreementClause extends OrgAction
         data_set($modelData, 'fulfilment_id', $rentalAgreement->fulfilment_id);
         data_set($modelData, 'fulfilment_customer_id', $rentalAgreement->fulfilment_customer_id);
 
-        $product = Billable::find($modelData['product_id']);
+        $product = Asset::find($modelData['product_id']);
         data_set($modelData, 'type', $product->type);
 
         // dd($modelData);

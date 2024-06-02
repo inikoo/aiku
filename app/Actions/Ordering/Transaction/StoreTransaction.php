@@ -11,7 +11,7 @@ use App\Actions\OrgAction;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Enums\Ordering\Transaction\TransactionTypeEnum;
-use App\Models\Catalogue\HistoricOuterable;
+use App\Models\Catalogue\HistoricAsset;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use Illuminate\Validation\Rule;
@@ -21,7 +21,7 @@ class StoreTransaction extends OrgAction
 {
     use WithAttributes;
 
-    public function handle(Order $order, HistoricOuterable $item, array $modelData): Transaction
+    public function handle(Order $order, HistoricAsset $item, array $modelData): Transaction
     {
         data_set($modelData, 'shop_id', $order->shop_id);
         data_set($modelData, 'customer_id', $order->customer_id);

@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -58,7 +59,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $parent
- * @property-read Collection<int, \App\Models\Catalogue\Billable> $products
  * @property-read \App\Models\Catalogue\ProductCategorySalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\ProductCategoryStats|null $stats
@@ -137,8 +137,13 @@ class ProductCategory extends Model implements Auditable
         return $this->morphMany(ProductCategory::class, 'parent');
     }
 
-    public function products(): MorphMany
+    public function products(): HasMany
     {
-        return $this->morphMany(Billable::class, 'parent');
+        return match ($this->type) {
+            ProductCategoryTypeEnum::DEPARTMENT => $this->hasMany(Product::class, 'department_id'),
+            ProductCategoryTypeEnum::FAMILY     => $this->hasMany(Product::class, 'family_id'),
+            default                             => null
+        };
+
     }
 }

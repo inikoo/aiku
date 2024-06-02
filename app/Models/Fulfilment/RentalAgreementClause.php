@@ -7,7 +7,7 @@
 
 namespace App\Models\Fulfilment;
 
-use App\Models\Catalogue\Billable;
+use App\Models\Catalogue\Asset;
 use App\Models\Traits\InFulfilmentCustomer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $organisation_id
  * @property int $fulfilment_id
  * @property int $fulfilment_customer_id
- * @property int $product_id
+ * @property int $asset_id
  * @property int $rental_agreement_id
  * @property string $agreed_price
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -30,7 +30,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @property-read Billable $product
+ * @property-read Asset|null $product
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementClause newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementClause newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementClause query()
@@ -45,7 +45,7 @@ class RentalAgreementClause extends Model
 
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Billable::class);
+        return $this->belongsTo(Asset::class);
     }
 
 

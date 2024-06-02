@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\PalletDeliveryPhysicalGood\UI;
 
 use App\Actions\OrgAction;
-use App\Enums\Catalogue\Billable\BillableStateEnum;
+use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\PalletDelivery;
@@ -27,8 +27,8 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
             'state' => [
                 'label'    => __('State'),
                 'elements' => array_merge_recursive(
-                    BillableStateEnum::labels(),
-                    BillableStateEnum::count($parent->fulfilment->shop)
+                    AssetStateEnum::labels(),
+                    AssetStateEnum::count($parent->fulfilment->shop)
                 ),
 
                 'engine' => function ($query, $elements) {
@@ -71,7 +71,7 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
                 'outers.id',
                 'outers.name',
                 'outers.code',
-                'products.main_outerable_price',
+                'products.price',
                 'products.description',
                 'currencies.code as currency_code',
                 'pallet_delivery_physical_goods.quantity'
@@ -103,7 +103,7 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
                     match (class_basename($parent)) {
                         'Fulfilment' => [
                             'title' => __("No physical goods found"),
-                            'count' => $parent->fulfilment->shop->stats->number_products_type_physical_good,
+                            'count' => $parent->fulfilment->shop->stats->number_assets_type_product,
                         ],
                         'PalletDelivery' => [
                             'icons' => ['fal fa-cube'],

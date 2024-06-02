@@ -75,7 +75,7 @@ class IndexServiceInPalletReturn extends OrgAction
                 'services.unit',
                 'products.name',
                 'products.code',
-                'products.main_outerable_price',
+                'products.price',
                 'products.description',
                 'currencies.code as currency_code',
                 'pallet_return_services.quantity'
