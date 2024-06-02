@@ -26,6 +26,7 @@ trait HasAssetModel
         $table->string('unit');
 
         $table->jsonb('data');
+        $table->jsonb('settings');
 
         $table->unsignedSmallInteger('currency_id');
         $table->foreign('currency_id')->references('id')->on('currencies');

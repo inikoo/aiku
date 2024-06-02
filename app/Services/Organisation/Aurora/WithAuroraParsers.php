@@ -44,6 +44,7 @@ use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\HistoricAsset;
+use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
@@ -320,7 +321,7 @@ trait WithAuroraParsers
     public function parseProduct(string $sourceId): Asset
     {
 
-        $product = Asset::where('source_id', $sourceId)->first();
+        $product = Product::where('source_id', $sourceId)->first();
         if (!$product) {
             $sourceData = explode(':', $sourceId);
 

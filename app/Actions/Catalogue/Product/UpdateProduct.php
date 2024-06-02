@@ -14,6 +14,7 @@ use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
+use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Http\Resources\Catalogue\ProductResource;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Product;
@@ -91,7 +92,7 @@ class UpdateProduct extends OrgAction
             'data'        => ['sometimes', 'array'],
             'settings'    => ['sometimes', 'array'],
             'status'      => ['sometimes', 'required', 'boolean'],
-            'state'       => ['sometimes', 'required', Rule::enum(AssetStateEnum::class)],
+            'state'       => ['sometimes', 'required', Rule::enum(ProductStateEnum::class)],
         ];
     }
 

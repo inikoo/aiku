@@ -9,6 +9,7 @@ namespace App\Services\Organisation\Aurora;
 
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
+use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use Illuminate\Support\Facades\DB;
 
@@ -55,10 +56,10 @@ class FetchAuroraProduct extends FetchAurora
         }
 
         $state = match ($this->auroraModelData->{'Product Status'}) {
-            'InProcess'     => AssetStateEnum::IN_PROCESS,
-            'Discontinuing' => AssetStateEnum::DISCONTINUING,
-            'Discontinued'  => AssetStateEnum::DISCONTINUED,
-            default         => AssetStateEnum::ACTIVE
+            'InProcess' => ProductStateEnum::IN_PROCESS,
+            'Discontinuing' => ProductStateEnum::DISCONTINUING,
+            'Discontinued' => ProductStateEnum::DISCONTINUED,
+            default => ProductStateEnum::ACTIVE
         };
 
 
@@ -90,8 +91,8 @@ class FetchAuroraProduct extends FetchAurora
             'code'                   => $code,
             'name'                   => $this->auroraModelData->{'Product Name'},
             'price'                  => round($unit_price, 2),
-            //   'units'                 => round($units, 3),
             'status'                 => $status,
+            'unit'                   => $this->auroraModelData->{'Product Unit Label'},
             'state'                  => $state,
             'data'                   => $data,
             'settings'               => $settings,

@@ -69,11 +69,12 @@ class Subscription extends Model implements Auditable
         'state'                  => ServiceStateEnum::class,
         'status'                 => 'boolean',
         'data'                   => 'array',
-
+        'settings'               => 'array',
     ];
 
     protected $attributes = [
         'data'     => '{}',
+        'settings' => '{}',
     ];
 
     public function stats(): HasOne

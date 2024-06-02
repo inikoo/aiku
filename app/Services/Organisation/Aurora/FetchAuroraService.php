@@ -110,9 +110,11 @@ class FetchAuroraService extends FetchAurora
             };
 
 
-            $this->parsedData['service']['main_outerable_unit']    = $unit;
+            $this->parsedData['service']['unit']                   = $unit;
             $this->parsedData['service']['auto_assign_asset']      = $autoAssignAsset;
             $this->parsedData['service']['auto_assign_asset_type'] = $autoAssignAssetType;
+        } else {
+            $this->parsedData['service']['unit']    = 'service';
         }
     }
 

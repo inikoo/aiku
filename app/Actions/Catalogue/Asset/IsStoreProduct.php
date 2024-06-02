@@ -77,7 +77,7 @@ trait IsStoreProduct
             'family_id'            => ['sometimes', 'required', 'exists:families,id'],
             'image_id'             => ['sometimes', 'required', 'exists:media,id'],
             'price'                => ['required', 'numeric', 'min:0'],
-            'main_outerable_unit'  => ['sometimes', 'required', 'string'],
+            'unit'                 => ['sometimes', 'required', 'string'],
             'rrp'                  => ['sometimes', 'required', 'numeric', 'min:0'],
             'name'                 => ['required', 'max:250', 'string'],
             'description'          => ['sometimes', 'required', 'max:1500'],

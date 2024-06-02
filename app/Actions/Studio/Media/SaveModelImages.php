@@ -10,6 +10,7 @@ namespace App\Actions\Studio\Media;
 use App\Actions\Studio\Media\Hydrators\MediaHydrateMultiplicity;
 use App\Actions\Studio\Media\Hydrators\MediaHydrateUsage;
 use App\Models\Catalogue\Asset;
+use App\Models\Catalogue\Product;
 use App\Models\Studio\Media;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -18,11 +19,11 @@ class SaveModelImages
     use AsAction;
 
     public function handle(
-        Asset $model,
+        Product $model,
         array $imageData,
         string $scope = 'image',
         string $mediaScope = 'images'
-    ): Asset {
+    ): Product {
         $group_id        = $model->group_id;
         $organisation_id = $model->organisation_id;
 

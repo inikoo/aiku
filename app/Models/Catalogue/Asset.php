@@ -150,16 +150,6 @@ class Asset extends Model implements HasMedia
         return $this->hasOne(Rental::class, 'id', 'main_outerable_id');
     }
 
-    public function mainOuterable(): MorphTo
-    {
-        return $this->morphTo(type: 'outerable_type', id: 'main_outerable_id');
-    }
-
-    public function currentHistoricOuterable(): BelongsTo
-    {
-        return $this->belongsTo(HistoricAsset::class);
-    }
-
     public function recurringBills(): MorphToMany
     {
         return $this->morphToMany(RecurringBill::class, 'model', 'model_has_recurring_bills')->withTimestamps();

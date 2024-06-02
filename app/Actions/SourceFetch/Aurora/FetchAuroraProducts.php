@@ -7,8 +7,6 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Catalogue\Asset\SetProductMainOuter;
-use App\Actions\Catalogue\Product\StoreOuterTODELETE;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Product\UpdateProduct;
 use App\Actions\Studio\Media\SaveModelImages;
@@ -35,39 +33,8 @@ class FetchAuroraProducts extends FetchAuroraAction
                 $tradeUnits
             );
 
-            if ($product = Asset::withTrashed()->where('source_id', $productData['product']['source_id'])
-                ->first()) {
-                if (!$product->mainOuterable) {
-                    print "fix missing main outerable\n";
-
-                    $outer = Product::where('historic_source_id', $productData['product']['historic_source_id'])->first();
-
-
-                    if (!$outer) {
-                        print "adding missing outer\n";
-
-                        $outer = StoreOuterTODELETE::run(
-                            product: $product,
-                            modelData: [
-                                'code'               => $product->code,
-                                'price'              => $productData['product']['price'],
-                                'name'               => $product->name,
-                                'is_main'            => true,
-                                'main_outer_ratio'   => 1,
-                                'source_id'          => $product->source_id,
-                                'historic_source_id' => $product->historic_source_id
-                            ]
-                        );
-                    }
-
-                    SetProductMainOuter::run(
-                        product: $product,
-                        mainOuter: $outer
-                    );
-
-                    $product->refresh();
-                }
-
+            /** @var Product $product */
+            if ($product = Product::withTrashed()->where('source_id', $productData['product']['source_id'])->first()) {
 
                 try {
                     $product = UpdateProduct::make()->action(
@@ -123,7 +90,7 @@ class FetchAuroraProducts extends FetchAuroraAction
                     }
                 }
             }
-            return $product;
+            return $product->asset;
         }
 
 

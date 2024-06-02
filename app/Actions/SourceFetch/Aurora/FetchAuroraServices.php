@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
+use App\Actions\Catalogue\Service\StoreService;
+use App\Actions\Fulfilment\Rental\StoreRental;
 use App\Actions\Fulfilment\Rental\UpdateRental;
-use App\Actions\Catalogue\Asset\StoreRentalProduct;
-use App\Actions\Catalogue\Asset\StoreServiceProduct;
 use App\Actions\Catalogue\Service\UpdateService;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Models\Fulfilment\Rental;
@@ -37,25 +37,25 @@ class FetchAuroraServices extends FetchAuroraAction
                         service:      $service,
                         modelData:    $serviceData['service'],
                     );
-                    $serviceProduct=$service->product;
                 } else {
                     try {
 
-                        $serviceProduct = StoreServiceProduct::make()->action(
-                            parent:         $serviceData['shop'],
+                        $service = StoreService::make()->action(
+                            shop:         $serviceData['shop'],
                             modelData:    $serviceData['service'],
                         );
                     } catch (Exception $e) {
+                        dd($e->getMessage());
                         $this->recordError($organisationSource, $e, $serviceData['service'], 'Asset', 'store');
                         return null;
                     }
                 }
-                $sourceData = explode(':', $serviceProduct->source_id);
+                $sourceData = explode(':', $service->source_id);
 
                 DB::connection('aurora')->table('Product Dimension')
                     ->where('Product ID', $sourceData[1])
-                    ->update(['aiku_id' =>$serviceProduct->main_outerable_id]);
-                return $serviceProduct;
+                    ->update(['aiku_id' =>$service->asset->id]);
+                return $service->asset;
 
             } else {
 
@@ -65,26 +65,26 @@ class FetchAuroraServices extends FetchAuroraAction
                         rental:      $rental,
                         modelData:    $serviceData['service'],
                     );
-                    $rentalProduct=$rental->product;
                 } else {
                     try {
 
-                        $rentalProduct = StoreRentalProduct::make()->action(
-                            parent:         $serviceData['shop'],
+                        $rental = StoreRental::make()->action(
+                            shop:         $serviceData['shop'],
                             modelData:    $serviceData['service'],
                         );
                     } catch (Exception $e) {
+                        dd($e->getMessage());
                         $this->recordError($organisationSource, $e, $serviceData['service'], 'Asset', 'store');
                         return null;
                     }
                 }
-                $sourceData = explode(':', $rentalProduct->source_id);
+                $sourceData = explode(':', $rental->source_id);
 
 
                 DB::connection('aurora')->table('Product Dimension')
                     ->where('Product ID', $sourceData[1])
-                    ->update(['aiku_id' =>$rentalProduct->main_outerable_id]);
-                return $rentalProduct;
+                    ->update(['aiku_id' =>$rental->asset_id]);
+                return $rental->asset;
 
             }
 

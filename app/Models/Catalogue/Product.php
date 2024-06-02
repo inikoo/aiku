@@ -13,6 +13,7 @@ use App\Models\Goods\TradeUnit;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -80,7 +82,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|Product withoutTrashed()
  * @mixin \Eloquent
  */
-class Product extends Model implements Auditable
+class Product extends Model implements Auditable,HasMedia
 {
     use SoftDeletes;
     use HasSlug;
@@ -88,18 +90,21 @@ class Product extends Model implements Auditable
     use InAssetModel;
     use HasHistory;
     use HasFactory;
+    use HasImage;
 
     protected $guarded = [];
 
     protected $casts = [
         'data'                   => 'array',
+        'settings'               => 'array',
         'status'                 => 'boolean',
         'state'                  => ProductStateEnum::class,
         'unit_relationship_type' => ProductUnitRelationshipType::class
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'data'     => '{}',
+        'settings' => '{}',
     ];
 
     public function getRouteKeyName(): string

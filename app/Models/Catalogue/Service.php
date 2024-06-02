@@ -82,10 +82,12 @@ class Service extends Model implements Auditable
         'state'                  => ServiceStateEnum::class,
         'status'                 => 'boolean',
         'data'                   => 'array',
+        'settings'               => 'array',
     ];
 
     protected $attributes = [
         'data'     => '{}',
+        'settings' => '{}',
     ];
 
     public function getSlugOptions(): SlugOptions

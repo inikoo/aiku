@@ -80,22 +80,24 @@ class Rental extends Model implements Auditable
     protected $guarded = [];
 
     protected $casts = [
-        'state'  => RentalStateEnum::class,
-        'type'   => RentalTypeEnum::class,
-        'unit'   => RentalUnitEnum::class,
-        'status' => 'boolean',
-        'data'   => 'array',
+        'state'    => RentalStateEnum::class,
+        'type'     => RentalTypeEnum::class,
+        'unit'     => RentalUnitEnum::class,
+        'status'   => 'boolean',
+        'data'     => 'array',
+        'settings' => 'array',
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'data'     => '{}',
+        'settings' => '{}',
     ];
 
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                return $this->shop->slug . '-' . $this->code;
+                return $this->shop->slug.'-'.$this->code;
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
