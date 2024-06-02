@@ -46,7 +46,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code mirror of asset model
  * @property string|null $name mirror of asset model
  * @property string|null $price mirror of asset model
- * @property int $number_units mirror of asset model
+ * @property int $units mirror of asset model
  * @property string|null $unit mirror of asset model
  * @property int $currency_id
  * @property array $data
@@ -59,7 +59,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\HistoricAsset|null $currentHistoricOuterable
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicAssets
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicOuters
  * @property-read \App\Models\Studio\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $images
  * @property-read Model|\Eloquent $mainOuterable
@@ -130,12 +129,6 @@ class Asset extends Model implements HasMedia
     {
         return $this->hasOne(AssetSalesIntervals::class);
     }
-
-    public function historicOuters(): HasMany
-    {
-        return $this->hasMany(HistoricAsset::class);
-    }
-
 
     public function barcode(): MorphToMany
     {

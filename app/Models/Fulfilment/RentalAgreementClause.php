@@ -22,10 +22,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $fulfilment_customer_id
  * @property int $asset_id
  * @property int $rental_agreement_id
+ * @property string|null $type
  * @property string $agreed_price
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $type
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read \App\Models\SysAdmin\Group $group

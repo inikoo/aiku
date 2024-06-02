@@ -20,7 +20,7 @@ class FetchAuroraProductStocks extends FetchAurora
             if ($orgStock) {
                 foreach ($orgStock->stock->tradeUnits as $tradeUnit) {
                     $productStocks[$tradeUnit->id]=[
-                        'units_per_main_outer'      => $modelData->{'Product Part Ratio'} * $tradeUnit->pivot->quantity,
+                        'units'                     => $modelData->{'Product Part Ratio'} * $tradeUnit->pivot->quantity,
                         'notes'                     => $modelData->{'Product Part Note'} ?? null
                     ];
 

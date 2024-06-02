@@ -19,19 +19,17 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
-            $table->increments('id');
-            $table = $this->groupOrgRelationship($table);
-            $table->unsignedSmallInteger('shop_id')->nullable();
-            $table->foreign('shop_id')->references('id')->on('shops');
-            $table->unsignedInteger('asset_id')->nullable();
-            $table->foreign('asset_id')->references('id')->on('assets');
-            $table->unsignedSmallInteger('family_id')->nullable();
-            $table->unsignedSmallInteger('department_id')->nullable();
+
+            $table=$this->productFields($table);
+
 
             $table->boolean('status')->default(false)->index();
             $table->string('state')->default(ProductStateEnum::IN_PROCESS)->index();
 
             $table=$this->assetModelFields($table);
+
+            $table->unsignedInteger('product_variant_id')->index()->nullable();
+
 
             $table->string('barcode')->index()->nullable()->comment('mirror from trade_unit');
             $table->decimal('rrp', 12, 3)->nullable()->comment('RRP per outer');

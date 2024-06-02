@@ -16,7 +16,9 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -24,7 +26,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Catalogue\Product
+ *
  *
  * @property int $id
  * @property int $group_id
@@ -40,11 +42,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $name
  * @property string|null $description
  * @property string|null $price
- * @property int $number_units
- * @property string|null $unit
+ * @property int $units
+ * @property string $unit
  * @property array $data
  * @property int $currency_id
  * @property int|null $current_historic_asset_id
+ * @property int|null $product_variant_id
  * @property string|null $barcode mirror from trade_unit
  * @property string|null $rrp RRP per outer
  * @property int|null $image_id
@@ -57,9 +60,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $historic_source_id
  * @property-read \App\Models\Catalogue\Asset|null $asset
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\Helpers\Currency $currency
  * @property-read Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicAssets
  * @property-read Organisation $organisation
+ * @property-read \App\Models\Catalogue\ProductVariant|null $productVariant
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\ProductVariant> $productVariants
  * @property-read \App\Models\Catalogue\ProductSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\ProductStats|null $stats
@@ -127,7 +133,17 @@ class Product extends Model implements Auditable
         return $this->belongsToMany(
             TradeUnit::class,
             'product_trade_unit',
-        )->withPivot(['units_per_main_product', 'notes'])->withTimestamps();
+        )->withPivot(['units', 'notes'])->withTimestamps();
+    }
+
+    public function productVariants(): HasMany
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
+
+    public function productVariant(): BelongsTo
+    {
+        return $this->belongsTo(ProductVariant::class);
     }
 
 

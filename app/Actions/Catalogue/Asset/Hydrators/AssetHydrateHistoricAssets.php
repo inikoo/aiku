@@ -31,7 +31,7 @@ class AssetHydrateHistoricAssets
     {
 
         $stats         = [
-            'number_historic_assets' => $asset->historicOuters()->count(),
+            'number_historic_assets' => $asset->historicAssets()->count(),
         ];
 
         $asset->stats()->update($stats);

@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 12 Apr 2024 14:12:10 Central Indonesia Time, Sanur , Indonesia
+ * Created: Sun, 02 Jun 2024 12:59:30 Central European Summer Time, Mijas Costa, Spain
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -11,10 +11,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\ProductSalesIntervals
+ *
  *
  * @property int $id
- * @property int $product_id
+ * @property int $product_variant_id
  * @property string $shop_amount_all
  * @property string $shop_amount_1y
  * @property string $shop_amount_1q
@@ -125,18 +125,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Catalogue\Product $product
- * @method static \Illuminate\Database\Eloquent\Builder|ProductSalesIntervals newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ProductSalesIntervals newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ProductSalesIntervals query()
+ * @property-read \App\Models\Catalogue\ProductVariant $productVariant
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductVariantSalesInterval newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductVariantSalesInterval newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|ProductVariantSalesInterval query()
  * @mixin \Eloquent
  */
-class ProductSalesIntervals extends Model
+class ProductVariantSalesInterval extends Model
 {
     protected $guarded = [];
 
-    public function product(): BelongsTo
+    public function productVariant(): BelongsTo
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(ProductVariant::class);
     }
 }

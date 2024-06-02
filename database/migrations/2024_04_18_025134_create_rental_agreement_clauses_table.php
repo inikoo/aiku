@@ -22,6 +22,7 @@ return new class () extends Migration {
 
             $table->unsignedInteger('rental_agreement_id');
             $table->foreign('rental_agreement_id')->references('id')->on('rental_agreements');
+            $table->string('type')->nullable();
 
             $table->decimal('agreed_price');
             $table->timestampsTz();

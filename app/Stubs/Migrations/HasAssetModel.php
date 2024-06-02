@@ -11,6 +11,8 @@ use Illuminate\Database\Schema\Blueprint;
 
 trait HasAssetModel
 {
+    use HasGroupOrganisationRelationship;
+
     public function assetModelFields(Blueprint $table): Blueprint
     {
 
@@ -20,8 +22,8 @@ trait HasAssetModel
         $table->text('description')->nullable()->fulltext();
 
         $table->decimal('price', 18)->nullable();
-        $table->unsignedSmallInteger('number_units')->default(1);
-        $table->string('unit')->nullable();
+        $table->unsignedSmallInteger('units')->default(1);
+        $table->string('unit');
 
         $table->jsonb('data');
 
@@ -31,4 +33,19 @@ trait HasAssetModel
         $table->foreign('current_historic_asset_id')->references('id')->on('historic_assets');
         return $table;
     }
+
+    public function productFields(Blueprint $table): Blueprint
+    {
+        $table->increments('id');
+        $table = $this->groupOrgRelationship($table);
+        $table->unsignedSmallInteger('shop_id')->nullable();
+        $table->foreign('shop_id')->references('id')->on('shops');
+        $table->unsignedInteger('asset_id')->nullable();
+        $table->foreign('asset_id')->references('id')->on('assets');
+        $table->unsignedSmallInteger('family_id')->nullable();
+        $table->unsignedSmallInteger('department_id')->nullable();
+        return $table;
+    }
+
+
 }

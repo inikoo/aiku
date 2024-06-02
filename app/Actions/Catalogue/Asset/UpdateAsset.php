@@ -38,7 +38,7 @@ class UpdateAsset extends OrgAction
             'name'                      => $model->name,
             'price'                     => $model->price,
             'unit'                      => $model->unit,
-            'number_units'              => $model->number_units,
+            'units'                     => $model->units,
             'status'                    => $model->status,
             'current_historic_asset_id' => $model->current_historic_asset_id,
 

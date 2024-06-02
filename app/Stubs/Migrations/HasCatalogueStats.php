@@ -32,6 +32,11 @@ trait HasCatalogueStats
     }
 
 
+    public function productVariantFields(Blueprint $table): Blueprint
+    {
+        $table->unsignedInteger('number_product_variants')->default(0);
+        return $table;
+    }
 
     public function catalogueStats(Blueprint $table): Blueprint
     {
@@ -50,7 +55,9 @@ trait HasCatalogueStats
         $table= $this->assetStats($table);
 
 
-        return $this->catalogueProductsStats($table);
+        $table= $this->catalogueProductsStats($table);
+
+        return $this->productVariantFields($table);
     }
 
     public function catalogueFamilyStats(Blueprint $table): Blueprint

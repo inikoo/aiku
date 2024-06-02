@@ -9,14 +9,15 @@ namespace App\Actions\Catalogue\Product;
 
 use App\Actions\Catalogue\Asset\StoreAsset;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
+use App\Actions\Catalogue\ProductVariant\StoreProductVariant;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProducts;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProducts;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
-use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
@@ -44,6 +45,14 @@ class StoreProduct extends OrgAction
 
         $tradeUnits = $modelData['trade_units'];
         data_forget($modelData, 'trade_units');
+
+        if(count($tradeUnits)==1) {
+            $units=$tradeUnits[array_key_first($tradeUnits)]['units'];
+        } else {
+            $units=1;
+        }
+        data_set($modelData, 'units', $units);
+
 
         data_set($modelData, 'unit_relationship_type', $this->getUnitRelationshipType($tradeUnits));
 
@@ -75,11 +84,25 @@ class StoreProduct extends OrgAction
             $product->tradeUnits()->attach(
                 $tradeUnit,
                 [
-                    'units_per_main_product' => $tradeUnitData['units_per_main_outer'],
-                    'notes'                  => Arr::get($tradeUnitData, 'notes'),
+                    'units' => $tradeUnitData['units'],
+                    'notes' => Arr::get($tradeUnitData, 'notes'),
                 ]
             );
         }
+
+        StoreProductVariant::run(
+            $product,
+            [
+                'is_main'     => true,
+                'ratio'       => 1,
+                'code'        => $product->code,
+                'name'        => $product->name,
+                'price'       => $product->price,
+                'state'       => $product->state,
+            ]
+        );
+        $product->refresh();
+
 
         $asset = StoreAsset::run(
             $product,

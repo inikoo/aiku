@@ -40,8 +40,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $name
  * @property string|null $description
  * @property string|null $price
- * @property int $number_units
- * @property RentalUnitEnum|null $unit
+ * @property int $units
+ * @property RentalUnitEnum $unit
  * @property array $data
  * @property int $currency_id
  * @property int|null $current_historic_asset_id
@@ -53,6 +53,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property RentalTypeEnum $type
  * @property-read \App\Models\Catalogue\Asset|null $asset
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\Helpers\Currency $currency
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, HistoricAsset> $historicAssets
  * @property-read \App\Models\SysAdmin\Organisation $organisation

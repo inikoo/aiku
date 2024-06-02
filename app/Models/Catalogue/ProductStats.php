@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $product_id
+ * @property int $number_product_variants
  * @property int $number_historic_assets
  * @property int $number_products_state_in_process
  * @property int $number_products_state_active
@@ -22,7 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_products_state_discontinued
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Catalogue\Product|null $asset
+ * @property-read \App\Models\Catalogue\Product $product
  * @method static \Illuminate\Database\Eloquent\Builder|ProductStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ProductStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ProductStats query()
@@ -34,7 +35,7 @@ class ProductStats extends Model
 
     protected $guarded = [];
 
-    public function asset(): BelongsTo
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }

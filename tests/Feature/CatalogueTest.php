@@ -10,12 +10,12 @@ use App\Actions\Catalogue\Collection\UpdateCollection;
 use App\Actions\Catalogue\CollectionCategory\StoreCollectionCategory;
 use App\Actions\Catalogue\CollectionCategory\UpdateCollectionCategory;
 use App\Actions\Catalogue\Product\DeleteProduct;
-use App\Actions\Catalogue\Product\ProductOuter;
-use App\Actions\Catalogue\Product\StoreOuterTODELETE;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Product\UpdateProduct;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\ProductCategory\UpdateProductCategory;
+use App\Actions\Catalogue\ProductVariant\StoreProductVariant;
+use App\Actions\Catalogue\ProductVariant\UpdateProductVariant;
 use App\Actions\Catalogue\Service\StoreService;
 use App\Actions\Catalogue\Service\UpdateService;
 use App\Actions\Catalogue\Shop\StoreShop;
@@ -29,6 +29,7 @@ use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\CollectionCategory;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
+use App\Models\Catalogue\ProductVariant;
 use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
 use App\Models\Goods\TradeUnit;
@@ -188,7 +189,7 @@ test('create family', function ($department) {
 test('create physical good product', function ($shop) {
     $tradeUnits = [
         $this->tradeUnit->id => [
-            'units_per_main_outer' => 1,
+            'units' => 1,
         ]
     ];
 
@@ -197,10 +198,14 @@ test('create physical good product', function ($shop) {
         [
             'trade_units' => $tradeUnits,
             'price'       => 100,
+            'unit'        => 'unit'
         ]
     );
 
     $product = StoreProduct::make()->action($shop, $productData);
+    $product->refresh();
+
+    $productVariant=$product->productVariant;
 
     expect($product)->toBeInstanceOf(Product::class)
         ->and($product->asset)->toBeInstanceOf(Asset::class)
@@ -211,7 +216,11 @@ test('create physical good product', function ($shop) {
         ->and($shop->group->marketStats->number_products)->toBe(1)
         ->and($shop->group->marketStats->number_assets_type_product)->toBe(1)
         ->and($shop->stats->number_products)->toBe(1)
-        ->and($shop->stats->number_assets_type_product)->toBe(1);
+        ->and($shop->stats->number_assets_type_product)->toBe(1)
+        ->and($productVariant)->toBeInstanceOf(ProductVariant::class)
+        ->and($productVariant->name)->toBe($product->name)
+        ->and($productVariant->stats->number_historic_product_variants)->toBe(1);
+
 
 
     return $product;
@@ -220,10 +229,10 @@ test('create physical good product', function ($shop) {
 test('create physical good product with many trade units', function ($shop) {
     $tradeUnits = [
         $this->tradeUnit->id  => [
-            'units_per_main_outer' => 1,
+            'units' => 1,
         ],
         $this->tradeUnit2->id => [
-            'units_per_main_outer' => 1,
+            'units' => 1,
         ]
     ];
 
@@ -232,6 +241,7 @@ test('create physical good product with many trade units', function ($shop) {
         [
             'trade_units' => $tradeUnits,
             'price'       => 99,
+            'unit'        => 'pack'
         ]
     );
 
@@ -274,53 +284,54 @@ test('update product', function (Product $product) {
 })->depends('create physical good product');
 
 test('add variant to product', function (Product $product) {
-    expect($product->stats->number_outers)->toBe(1);
+    expect($product->stats->number_product_variants)->toBe(1);
 
 
     $outerData =
         [
-            'code'             => $product->code.'-v1',
-            'main_outer_ratio' => 2,
-            'price'            => 99,
-            'name'             => $product->name.' variant 1',
-            'is_main'          => false
+            'code'    => $product->code.'-v1',
+            'ratio'   => 2,
+            'price'   => 99,
+            'name'    => $product->name.' variant 1',
+            'is_main' => false
         ];
 
 
-    $outer = StoreOuterTODELETE::run($product, $outerData);
+    $productVariant = StoreProductVariant::run($product, $outerData);
     $product->refresh();
 
 
-    expect($outer)->toBeInstanceOf(Product::class)
-        ->and($outer->is_main)->toBeFalse()
-        ->and($outer->product->id)->toBe($product->id)
-        ->and($outer->product->outers()->count())->toBe(2)
-        ->and($product->stats->number_outers)->toBe(2)
-        ->and($product->stats->number_historic_assets)->toBe(3);
+    expect($productVariant)->toBeInstanceOf(ProductVariant::class)
+        ->and($productVariant->is_main)->toBeFalse()
+        ->and($productVariant->product->id)->toBe($product->id)
+        ->and($product->stats->number_product_variants)->toBe(2)
+        ->and($product->stats->number_historic_assets)->toBe(2)
+        ->and($productVariant->stats->number_historic_product_variants)->toBe(1);
 
 
-    return $outer;
+
+    return $productVariant;
 })
-    ->depends('update product')->todo();
+    ->depends('update product');
 
-test('update secondary outer', function ($outer) {
-    $product = $outer->product;
-    expect($outer->id)->not->toBe($product->main_outerable_id)
-        ->and($product->stats->number_historic_assets)->toBe(3);
-    $outerData = [
+test('update second product variant', function (ProductVariant $productVariant) {
+    $product = $productVariant->product;
+    expect($productVariant->id)->not->toBe($product->product_variant_id)
+        ->and($product->stats->number_product_variants)->toBe(2);
+    $modelData = [
         'name'  => 'Updated Product Sec Name',
         'code'  => 'sec_code',
         'price' => 99.99
     ];
 
-    $outer = ProductOuter::run($outer, $outerData);
-    $outer->refresh();
+    $productVariant = UpdateProductVariant::run($productVariant, $modelData);
+    $productVariant->refresh();
     $product->refresh();
 
-    expect($outer->name)->toBe('Updated Product Sec Name')
-        ->and($outer->code)->toBe('sec_code')
-        ->and($outer->number_historic_assets)->toBe(2)
-        ->and($product->stats->number_historic_assets)->toBe(4);
+    expect($productVariant->name)->toBe('Updated Product Sec Name')
+        ->and($productVariant->code)->toBe('sec_code')
+        ->and($product->stats->number_product_variants)->toBe(2)
+        ->and($productVariant->stats->number_historic_product_variants)->toBe(2);
 
     return $product;
 })->depends('add variant to product');

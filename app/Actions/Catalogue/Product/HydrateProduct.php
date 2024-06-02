@@ -8,6 +8,7 @@
 namespace App\Actions\Catalogue\Product;
 
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateHistoricAssets;
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateProductVariants;
 use App\Actions\HydrateModel;
 use App\Models\Catalogue\Product;
 use Illuminate\Support\Collection;
@@ -20,6 +21,7 @@ class HydrateProduct extends HydrateModel
     public function handle(Product $product): void
     {
         ProductHydrateHistoricAssets::run($product);
+        ProductHydrateProductVariants::run($product);
 
 
     }

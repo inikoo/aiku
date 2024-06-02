@@ -67,6 +67,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_subscriptions_state_in_process
  * @property int $number_subscriptions_state_active
  * @property int $number_subscriptions_state_discontinued
+ * @property int $number_product_variants
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\Shop $shop
