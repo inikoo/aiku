@@ -388,7 +388,6 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasMany(Service::class);
     }
 
-
     public function collectionAddress(): BelongsTo
     {
         return $this->belongsTo(Address::class, 'collection_address_id');

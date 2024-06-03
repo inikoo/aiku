@@ -62,8 +62,8 @@ class IndexFulfilmentAssets extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('products.name', $value)
-                    ->orWhereStartWith('products.code', $value);
+                $query->whereAnyWordStartWith('assets.name', $value)
+                    ->orWhereStartWith('assets.code', $value);
             });
         });
 
@@ -72,7 +72,7 @@ class IndexFulfilmentAssets extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(Asset::class);
-        $queryBuilder->where('products.shop_id', $parent->shop_id);
+        $queryBuilder->where('assets.shop_id', $parent->shop_id);
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -84,17 +84,17 @@ class IndexFulfilmentAssets extends OrgAction
         }
 
         $queryBuilder
-            ->defaultSort('products.code')
+            ->defaultSort('assets.code')
             ->select([
-                'products.code',
-                'products.name',
-                'products.state',
-                'products.type',
-                'products.created_at',
-                'products.updated_at',
-                'products.slug'
+                'assets.code',
+                'assets.name',
+                'assets.state',
+                'assets.type',
+                'assets.created_at',
+                'assets.updated_at',
+                'assets.slug'
             ])
-            ->leftJoin('product_stats', 'products.id', 'product_stats.product_id');
+            ->leftJoin('asset_stats', 'assets.id', 'asset_stats.asset_id');
 
 
         return $queryBuilder->allowedSorts(['code', 'name'])
@@ -120,8 +120,9 @@ class IndexFulfilmentAssets extends OrgAction
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $products, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $assets, ActionRequest $request): Response
     {
+        // dd(FulfilmentProductsResource::collection($assets));
         return Inertia::render(
             'Org/Fulfilment/Products',
             [
@@ -144,8 +145,8 @@ class IndexFulfilmentAssets extends OrgAction
 
 
                 FulfilmentAssetsTabsEnum::ASSETS->value => $this->tab == FulfilmentAssetsTabsEnum::ASSETS->value ?
-                    fn () => FulfilmentProductsResource::collection($products)
-                    : Inertia::lazy(fn () => FulfilmentProductsResource::collection($products)),
+                    fn () => FulfilmentProductsResource::collection($assets)
+                    : Inertia::lazy(fn () => FulfilmentProductsResource::collection($assets)),
 
 
             ]
@@ -184,8 +185,8 @@ class IndexFulfilmentAssets extends OrgAction
                 ->withEmptyState(
                     match (class_basename($parent)) {
                         'Fulfilment' => [
-                            'title' => __("No products found"),
-                            'count' => $parent->shop->stats->number_products,
+                            'title' => __("No assets found"),
+                            'count' => $parent->shop->stats->number_assets,
                         ],
                         default => null
                     }

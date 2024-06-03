@@ -18,6 +18,7 @@ import Popover from "@/Components/Popover.vue"
 import { trans } from "laravel-vue-i18n"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import EmptyState from "@/Components/Utils/EmptyState.vue"
+import { get } from 'lodash'
 
 
 library.add(faExclamationCircle, faCheckCircle, faSpinnerThird, faCopy, faTrash, farTrash, faEdit)
@@ -115,7 +116,7 @@ const showAll = () => {
             </template>
 
             <template #content="{ close: closed }">
-                <div class="w-[350px]">
+                <div class="w-[200px]">
                     <div class="text-xs my-2 font-medium">{{ trans('Discount(%)') }}: </div>
                     <PureInputNumber v-model="bulkDiscInput" autofocus placeholder="1-100"  :maxValue="100"
                         :suffix="true" :minValue="0" @onEnter="() => onBulkDiscount(closed)">
@@ -182,7 +183,7 @@ const showAll = () => {
                                     </div>
                                 </div>
 
-                                <div v-else-if="e.type == 'inputPrice'">
+                                <div v-else-if="e.type == 'inputPrice'" class="w-28">
                                     <PureInputNumber v-model="itemData[e.key]" :placeholder="'Input price'" 
                                         :maxValue="itemData['price']" :prefix="true" :minValue="0" 
                                         @input="(value) => e?.propsOptions?.onChange(value, e, itemData)">
@@ -192,11 +193,14 @@ const showAll = () => {
                                             </div>
                                         </template>
                                     </PureInputNumber>
+                                    <p v-if="get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${e.key}`])" class="mt-2 text-sm text-red-600">
+                                        {{ get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${e.key}`]) }}
+                                     </p>
                                 </div>
 
-                                <div v-else-if="e.type == 'discount'">
+                                <div v-else-if="e.type == 'discount'" class="w-28">
                                     <PureInputNumber v-model="itemData[e.key]" :placeholder="'Input Discount'" 
-                                        :maxValue="100" :suffix="true" :minValue="0"
+                                        :suffix="true" :minValue="0"
                                         @input="(value) => e?.propsOptions?.onChange(value, e, itemData)">
                                         <template #suffix>
                                             <div
@@ -205,6 +209,9 @@ const showAll = () => {
                                             </div>
                                         </template>
                                     </PureInputNumber>
+                                    <p v-if="get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${e.key}`])" class="mt-2 text-sm text-red-600">
+                                        {{ get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${e.key}`]) }}
+                                     </p>
                                 </div>
 
                             </td>

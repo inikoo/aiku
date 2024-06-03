@@ -114,6 +114,7 @@ const handleFormSubmit = () => {
             ButtonActive.value.parameters
         ))
     }
+    console.log(form)
 }
 
 const buttonRefs = ref([])

@@ -9,26 +9,26 @@ namespace App\Http\Resources\Catalogue;
 
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Models\Catalogue\Product;
+use App\Models\Helpers\Currency;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class OutersResource extends JsonResource
 {
     public function toArray($request): array
     {
+        $currency = Currency::find($this->currency_id);
         /** @var Product $outer */
         $outer=$this;
         return [
             'id'                    => $outer->id,
-            'product_id'            => $outer->product_id,
+            'asset_id'              => $outer->asset_id,
             'slug'                  => $outer->slug,
             'code'                  => $outer->code,
             'name'                  => $outer->name,
             'price'                 => $outer->price,
-            'original_price'        => $outer->price,
             'unit'                  => $outer->unit,
-            'currency'              => CurrencyResource::make($outer->product->currency),
-            'state'                 => $outer->state,
-            'agreed_price'          => $outer->price,
+            'currency'              => CurrencyResource::make($currency),
+            'agreed_price'          => $outer->agreed_price ?? $outer->price,
             'discount'              => 0,
 
         ];

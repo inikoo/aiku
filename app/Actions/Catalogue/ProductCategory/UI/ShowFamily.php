@@ -263,6 +263,26 @@ class ShowFamily extends OrgAction
                     $suffix
                 )
             ),
+            'grp.org.shops.show.catalogue.departments.families.show' =>
+            array_merge(
+                (new ShowDepartment())->getBreadcrumbs('grp.org.shops.show.catalogue.departments.show', $routeParameters),
+                $headCrumb(
+                    $family,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.shops.show.catalogue.departments.families.index',
+                            'parameters' => $routeParameters
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.shops.show.catalogue.departments.families.show',
+                            'parameters' => $routeParameters
+
+
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
             default => []
         };
     }

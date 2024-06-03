@@ -66,11 +66,11 @@ class UpdateRentalAgreement extends OrgAction
         $causes=Arr::get($modelData, 'rental', []);
         // dd($causes);
         foreach ($rentalAgreement->clauses as $clause) {
-            $productId = $clause->product_id;
+            $assetId = $clause->asset_id;
 
             if (isset($modelData['rental']['rentals'])) {
                 foreach ($modelData['rental']['rentals'] as $rentalData) {
-                    if ($rentalData['product_id'] === $productId) {
+                    if ($rentalData['asset_id'] === $assetId) {
                         UpdateRentalAgreementClause::run($clause, $rentalData);
                         break;
                     }
@@ -79,7 +79,7 @@ class UpdateRentalAgreement extends OrgAction
 
             if (isset($modelData['rental']['services'])) {
                 foreach ($modelData['rental']['services'] as $serviceData) {
-                    if ($serviceData['product_id'] === $productId) {
+                    if ($serviceData['asset_id'] === $assetId) {
                         UpdateRentalAgreementClause::run($clause, $serviceData);
                         break;
                     }
@@ -88,7 +88,7 @@ class UpdateRentalAgreement extends OrgAction
 
             if (isset($modelData['rental']['physical_goods'])) {
                 foreach ($modelData['rental']['physical_goods'] as $physicalGoodsData) {
-                    if ($physicalGoodsData['product_id'] === $productId) {
+                    if ($physicalGoodsData['asset_id'] === $assetId) {
                         UpdateRentalAgreementClause::run($clause, $physicalGoodsData);
                         break;
                     }
@@ -108,20 +108,20 @@ class UpdateRentalAgreement extends OrgAction
             'billing_cycle'                  => ['sometimes', 'string', Rule::in(RentalAgreementBillingCycleEnum::values())],
             'pallets_limit'                  => ['sometimes', 'integer', 'min:1', 'max:10000'],
             'rental'                         => ['sometimes', 'array'],
-            'rental.rentals.*.product_id'    => ['sometimes',
-                                         Rule::exists('products', 'id')
+            'rental.rentals.*.asset_id'    => ['sometimes',
+                                         Rule::exists('assets', 'id')
 
                 ],
             'rental.rentals.*.agreed_price'  => ['sometimes', 'numeric', 'gt:0'],
             // 'rental.rentals.*.price'         => ['sometimes', 'numeric', 'gt:0'],
-            'rental.services.*.product_id'    => ['sometimes',
-                                         Rule::exists('products', 'id')
+            'rental.services.*.asset_id'    => ['sometimes',
+                                         Rule::exists('assets', 'id')
 
                 ],
             'rental.services.*.agreed_price'  => ['sometimes', 'numeric', 'gt:0'],
             // 'rental.services.*.price'         => ['sometimes', 'numeric', 'gt:0'],
-            'rental.physical_goods.*.product_id'    => ['sometimes',
-                                         Rule::exists('products', 'id')
+            'rental.physical_goods.*.asset_id'    => ['sometimes',
+                                         Rule::exists('assets', 'id')
 
                 ],
             'rental.physical_goods.*.agreed_price'  => ['sometimes', 'numeric', 'gt:0'],

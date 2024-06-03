@@ -20,13 +20,15 @@ const props = withDefaults(defineProps<{
     suffix?: boolean
     step?: string
     prefix?: boolean
-}>(), {})
+}>(), {
+    step: "any" // Default step to allow any decimal value
+})
 
 const emits = defineEmits<{
-    (e: 'update:modelValue', value: string): void
-    (e: 'blur', value: string): void
-    (e: 'onEnter', value: string): void
-    (e: 'input', value: string): void
+    (e: 'update:modelValue', value: string | number): void
+    (e: 'blur', value: string | number): void
+    (e: 'onEnter', value: string | number): void
+    (e: 'input', value: string | number): void
 }>()
 
 const value = ref(props.modelValue)
@@ -35,8 +37,8 @@ const onChange = (event: any) => {
     if (props.maxValue != null && value.value > props.maxValue) {
         value.value = props.maxValue
     }
-    emits('update:modelValue', value.value.toString())
-    emits('input', value.value.toString())
+    emits('update:modelValue', value.value)
+    emits('input', value.value)
 }
 
 const _inputRef = ref<HTMLInputElement | null>(null)
@@ -81,6 +83,7 @@ defineExpose({
                 :min="minValue" 
                 :max="maxValue" 
                 :required="required"
+                :step="step"
                 class="remove-arrows-input bg-transparent block w-full text-gray-600 sm:text-sm placeholder:text-gray-400 border-transparent focus:ring-0 focus:ring-gray-500 focus:outline-0 focus:border-transparent read-only:bg-gray-100 read-only:ring-0 read-only:ring-transparent read-only:focus:border-transparent read-only:focus:border-gray-300 read-only:text-gray-500" 
                 :class="['[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none']" />
 

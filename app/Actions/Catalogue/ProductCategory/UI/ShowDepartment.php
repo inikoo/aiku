@@ -9,6 +9,7 @@ namespace App\Actions\Catalogue\ProductCategory\UI;
 
 use App\Actions\Catalogue\HasMarketAuthorisation;
 use App\Actions\Catalogue\Asset\UI\IndexProducts;
+use App\Actions\Catalogue\ProductCategory\WithDepartmentSubNavigation;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\Helpers\History\IndexHistory;
@@ -31,6 +32,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowDepartment extends OrgAction
 {
     use HasMarketAuthorisation;
+    use WithDepartmentSubNavigation;
 
 
     private Organisation|Shop $parent;
@@ -94,7 +96,8 @@ class ShowDepartment extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false
-                    ]
+                    ],
+                    'subNavigation' => $this->getDepartmentSubNavigation($department)
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,

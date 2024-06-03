@@ -19,16 +19,16 @@ class ServiceClausesResource extends JsonResource
 
         return [
             'id'                                => $clause->id,
-            'rental_id'                         => $clause->product->service->id,
-            'product_id'                        => $clause->product_id,
-            'slug'                              => $clause->product->slug,
-            'name'                              => $clause->product->name,
-            'code'                              => $clause->product->code,
-            'price'                             => $clause->product->service->price,
-            'agreed_price'                      => $clause->agreed_price ?? $clause->product->service->price,
+            'rental_id'                         => $clause->asset->service->id,
+            'asset_id'                        => $clause->asset_id,
+            'slug'                              => $clause->asset->slug,
+            'name'                              => $clause->asset->name,
+            'code'                              => $clause->asset->code,
+            'price'                             => $clause->asset->service->price,
+            'agreed_price'                      => $clause->agreed_price ?? $clause->asset->service->price,
             'discount'                          => 0,
-            'unit'                              => $clause->product->service->unit,
-            'currency'                          => CurrencyResource::make($clause->product->currency)
+            'unit'                              => $clause->asset->service->unit,
+            'currency'                          => CurrencyResource::make($clause->asset->currency)
         ];
     }
 }

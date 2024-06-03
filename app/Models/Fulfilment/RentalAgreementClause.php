@@ -43,7 +43,7 @@ class RentalAgreementClause extends Model
     protected $guarded = [];
 
 
-    public function product(): BelongsTo
+    public function asset(): BelongsTo
     {
         return $this->belongsTo(Asset::class);
     }
