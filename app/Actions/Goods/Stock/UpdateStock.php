@@ -9,12 +9,15 @@ namespace App\Actions\Goods\Stock;
 
 use App\Actions\Goods\Stock\Hydrators\StockHydrateUniversalSearch;
 use App\Actions\GrpAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStocks;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Http\Resources\Inventory\OrgStockResource;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -30,6 +33,10 @@ class UpdateStock extends GrpAction
     {
         $stock = $this->update($stock, $modelData, ['data', 'settings']);
         StockHydrateUniversalSearch::dispatch($stock);
+
+        if (Arr::hasAny($stock->getChanges(), ['state'])) {
+            GroupHydrateStocks::dispatch($stock->group);
+        }
 
         return $stock;
     }
@@ -67,6 +74,7 @@ class UpdateStock extends GrpAction
             ],
             'name'            => ['sometimes', 'required', 'string', 'max:255'],
             'stock_family_id' => ['sometimes', 'nullable', 'exists:stock_families,id'],
+            'state'           => ['sometimes', 'required', Rule::enum(StockStateEnum::class)],
         ];
     }
 

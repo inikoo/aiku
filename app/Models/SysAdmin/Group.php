@@ -80,6 +80,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Artefact> $artefacts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Asset> $assets
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Barcode> $barcodes
+ * @property-read \App\Models\SysAdmin\GroupCatalogueStats|null $catalogueStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ClockingMachine> $clockingMachines
  * @property-read \Illuminate\Database\Eloquent\Collection<int, CollectionCategory> $collectionCategories
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Collection> $collections
@@ -100,7 +101,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\GroupManufactureStats|null $manufactureStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ManufactureTask> $manufactureTasks
- * @property-read \App\Models\SysAdmin\GroupCatalogueStats|null $catalogueStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
  * @property-read \App\Models\SysAdmin\GroupOrdersIntervals|null $ordersIntervals

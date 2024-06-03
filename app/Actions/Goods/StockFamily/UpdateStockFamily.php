@@ -9,8 +9,9 @@ namespace App\Actions\Goods\StockFamily;
 
 use App\Actions\Goods\StockFamily\Hydrators\StockFamilyHydrateUniversalSearch;
 use App\Actions\GrpAction;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInventory;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStockFamilies;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
 use App\Http\Resources\Inventory\OrgStockFamiliesResource;
 use App\Models\SupplyChain\StockFamily;
 use App\Rules\IUnique;
@@ -31,7 +32,7 @@ class UpdateStockFamily extends GrpAction
         StockFamilyHydrateUniversalSearch::dispatch($stockFamily);
 
         if (Arr::hasAny($stockFamily->getChanges(), ['state'])) {
-            GroupHydrateInventory::dispatch(group());
+            GroupHydrateStockFamilies::dispatch($stockFamily->group);
         }
 
         return $stockFamily;
@@ -69,6 +70,7 @@ class UpdateStockFamily extends GrpAction
                 ),
             ],
             'name' => ['sometimes', 'required', 'string', 'max:255'],
+            'state'=> ['sometimes', 'required', Rule::enum(StockFamilyStateEnum::class)],
         ];
     }
 

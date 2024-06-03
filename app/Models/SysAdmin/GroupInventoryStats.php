@@ -35,13 +35,16 @@ use Illuminate\Support\Carbon;
  * @property int $number_locations_allow_dropshipping
  * @property string $stock_value
  * @property int $number_stock_families
+ * @property int $number_current_stock_families active + discontinuing
  * @property int $number_stock_families_state_in_process
  * @property int $number_stock_families_state_active
  * @property int $number_stock_families_state_discontinuing
  * @property int $number_stock_families_state_discontinued
  * @property int $number_stocks
+ * @property int $number_current_stocks active + discontinuing
  * @property int $number_stocks_state_in_process
  * @property int $number_stocks_state_active
+ * @property int $number_stocks_state_discontinuing
  * @property int $number_stocks_state_discontinued
  * @property int $number_deliveries
  * @property int $number_deliveries_type_order

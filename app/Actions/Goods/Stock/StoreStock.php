@@ -10,7 +10,7 @@ namespace App\Actions\Goods\Stock;
 use App\Actions\Goods\Stock\Hydrators\StockHydrateUniversalSearch;
 use App\Actions\Goods\StockFamily\Hydrators\StockFamilyHydrateStocks;
 use App\Actions\GrpAction;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInventory;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStocks;
 use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
@@ -29,7 +29,7 @@ class StoreStock extends GrpAction
         /** @var Stock $stock */
         $stock = $group->stocks()->create($modelData);
         $stock->stats()->create();
-        GroupHydrateInventory::dispatch($group);
+        GroupHydrateStocks::dispatch($group);
         if ($stock->stock_family_id) {
             StockFamilyHydrateStocks::dispatch($stock->stockFamily)->delay($this->hydratorsDelay);
         }

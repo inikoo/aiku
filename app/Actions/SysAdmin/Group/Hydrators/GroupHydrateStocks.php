@@ -1,20 +1,21 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 02 Jun 2024 10:22:00 Central European Summer Time, Mijas Costa, Spain
+ * Created: Mon, 18 Mar 2024 11:36:11 Malaysia Time, Mexico City, Mexico
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Fulfilment\Rental\RentalStateEnum;
-use App\Models\Fulfilment\Rental;
+use App\Enums\SupplyChain\Stock\StockStateEnum;
+use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class GroupHydrateRentals
+class GroupHydrateStocks
 {
     use AsAction;
     use WithEnumStats;
@@ -30,27 +31,33 @@ class GroupHydrateRentals
     {
         return [(new WithoutOverlapping($this->group->id))->dontRelease()];
     }
+
+
     public function handle(Group $group): void
     {
-
-        $stats         = [
-            'number_rentals' => $group->rentals()->count(),
+        $stats  = [
+            'number_stocks'         => $group->stocks()->count(),
         ];
 
         $stats = array_merge(
             $stats,
             $this->getEnumStats(
-                model: 'rentals',
+                model: 'stocks',
                 field: 'state',
-                enum: RentalStateEnum::class,
-                models: Rental::class,
+                enum: StockStateEnum::class,
+                models: Stock::class,
                 where: function ($q) use ($group) {
                     $q->where('group_id', $group->id);
                 }
             )
         );
 
-        $group->catalogueStats()->update($stats);
+        $stats['number_current_stocks']=
+            Arr::get($stats, 'number_stocks_state_active', 0)+
+            Arr::get($stats, 'number_stocks_state_discontinuing', 0);
+
+        $group->inventoryStats()->update($stats);
+
 
 
     }

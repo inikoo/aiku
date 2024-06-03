@@ -66,7 +66,7 @@ class ShowInventoryDashboard extends OrgAction
                                 'parameters' => $routeParameters
                             ],
                             'index' => [
-                                'number' => $this->organisation->inventoryStats->number_stock_families
+                                'number' => $this->organisation->inventoryStats->number_current_stock_families
                             ]
 
                         ],
@@ -78,7 +78,7 @@ class ShowInventoryDashboard extends OrgAction
                                 'parameters' => $routeParameters
                             ],
                             'index' => [
-                                'number' => $this->organisation->inventoryStats->number_stocks
+                                'number' => $this->organisation->inventoryStats->number_current_stocks
                             ]
 
                         ]

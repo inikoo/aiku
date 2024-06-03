@@ -9,7 +9,7 @@ namespace App\Actions\Goods\StockFamily;
 
 use App\Actions\Goods\StockFamily\Hydrators\StockFamilyHydrateUniversalSearch;
 use App\Actions\GrpAction;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInventory;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStockFamilies;
 use App\Models\SupplyChain\StockFamily;
 use App\Models\SysAdmin\Group;
 use App\Rules\IUnique;
@@ -25,7 +25,7 @@ class StoreStockFamily extends GrpAction
         /** @var StockFamily $stockFamily */
         $stockFamily = $group->stockFamilies()->create($modelData);
         $stockFamily->stats()->create();
-        GroupHydrateInventory::dispatch($this->group);
+        GroupHydrateStockFamilies::dispatch($this->group);
         StockFamilyHydrateUniversalSearch::dispatch($stockFamily);
 
         return $stockFamily;

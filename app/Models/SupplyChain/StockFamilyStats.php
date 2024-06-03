@@ -21,6 +21,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_stocks
  * @property int $number_stocks_state_in_process
  * @property int $number_stocks_state_active
+ * @property int $number_stocks_state_discontinuing
  * @property int $number_stocks_state_discontinued
  * @property string|null $deleted_at
  * @property Carbon|null $created_at
