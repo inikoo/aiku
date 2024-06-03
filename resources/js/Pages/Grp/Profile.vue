@@ -98,13 +98,13 @@ const fetchTabData = async (tabSlug: string) => {
 
     switch (tabSlug) {
         case 'todo':
-            routeName = 'grp.profile.visit-logs.index'
+            routeName = 'grp.profile.todo.index'
             break
         case 'notifications':
             routeName = 'grp.profile.notifications.index'
             break
         case 'kpi':
-            routeName = 'grp.profile.visit-logs.index'
+            routeName = 'grp.profile.kpis.index'
             break
         case 'visit_logs':
             routeName = 'grp.profile.visit-logs.index'

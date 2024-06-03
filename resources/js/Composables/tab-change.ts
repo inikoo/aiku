@@ -12,17 +12,29 @@ export const useTabChange = (tabSlug: string, currentTab: Ref<string>) => {
         return
     }
 
+    // Advantage: reload 1 props (faster, example load: 826 B)
+    // Disadvantage: backward-forward browser isn't open the tab, query is stay on change Tab (will throw error)
     router.reload(
         {
             data: { tab: tabSlug },  // Sent to url parameter (?tab=showcase, ?tab=menu)
             only: [tabSlug],  // Only reload the props with dynamic name tabSlug (i.e props.showcase, props.menu)
             onSuccess: () => {
-                // console.log('suksescc')
                 currentTab.value = tabSlug;
             },
             onError: (e) => {
-                console.log('eeerr', e)
+                // console.log('eeerr', e)
             }
         }
     )
+
+    // Advantage: clear query on change tab, backward-forward browser will open correct tab
+    // Disadvantage: reload 2 props (a little bit slower, example load: 993 B)
+    // router.visit(route(route().v().name, {...route().v().params, tab: tabSlug}),
+    //     {
+    //         only: [tabSlug, 'tabs'],  // Only reload the props with dynamic name tabSlug (i.e props.showcase, props.menu)
+    //         onError: (e) => {
+    //             // console.log('eeerr', e)
+    //         }
+    //     }
+    // )
 }

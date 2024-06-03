@@ -11,6 +11,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { faInventory, faWarehouse, faMapSigns, faChartLine } from '@fal'
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import { computed, defineAsyncComponent, ref } from "vue"
+import type { Component } from 'vue'
 import WarehouseDashboard from "@/Components/Dashboards/WarehouseDashboard.vue"
 import ModelDetails from "@/Components/ModelDetails.vue"
 import TableLocations from "@/Components/Tables/Grp/Org/Inventory/TableLocations.vue"
@@ -18,16 +19,15 @@ import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import TableWarehouseAreas from "@/Components/Tables/Grp/Org/Inventory/TableWarehouseAreas.vue"
 import { useTabChange } from "@/Composables/tab-change"
 import { capitalize } from "@/Composables/capitalize"
+import { PageHeading as TSPageHeading } from '@/types/PageHeading'
+import { Tabs as TSTabs } from '@/types/Tabs'
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 library.add(faInventory, faWarehouse, faMapSigns, faChartLine)
 
 const props = defineProps<{
-    pageHead: {}
-    tabs: {
-        current: string
-        navigation: {}
-    }
+    pageHead: TSPageHeading
+    tabs: TSTabs
     tagsList: {
         data: {}[]
     }
@@ -41,21 +41,20 @@ const props = defineProps<{
 }>()
 
 
-let currentTab = ref(props.tabs.current)
-const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
+const currentTab = ref(props.tabs.current)
+const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
-
-    const components = {
+    const components: Component = {
         dashboard: WarehouseDashboard,
         warehouse_areas: TableWarehouseAreas,
         locations: TableLocations,
         details: ModelDetails,
         history: TableHistories
     }
-    return components[currentTab.value]
 
-});
+    return components[currentTab.value]
+})
 
 </script>
 
@@ -63,7 +62,7 @@ const component = computed(() => {
 <template>
 
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead" />
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :tab="currentTab" :data="props[currentTab]" :tagsList="tagsList.data"></component>
 </template>
