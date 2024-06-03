@@ -60,8 +60,8 @@ class IndexFulfilmentRentals extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Rental::class);
         $queryBuilder->where('rentals.shop_id', $parent->shop_id);
-        $queryBuilder->join('products', 'rentals.product_id', '=', 'products.id');
-        $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
+        $queryBuilder->join('assets', 'rentals.asset_id', '=', 'assets.id');
+        $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
 
 
@@ -85,10 +85,10 @@ class IndexFulfilmentRentals extends OrgAction
                 'rentals.created_at',
                 'rentals.price',
                 'rentals.unit',
-                'products.name',
-                'products.code',
-                'products.price',
-                'products.description',
+                'assets.name',
+                'assets.code',
+                'assets.price',
+                'rentals.description',
                 'currencies.code as currency_code',
             ]);
 

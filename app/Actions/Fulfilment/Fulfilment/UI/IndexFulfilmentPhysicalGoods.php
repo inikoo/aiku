@@ -59,9 +59,9 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(Product::class);
-        $queryBuilder->where('outers.shop_id', $parent->shop_id);
-        $queryBuilder->join('products', 'outers.product_id', '=', 'products.id');
-        $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
+        $queryBuilder->where('products.shop_id', $parent->shop_id);
+        $queryBuilder->join('assets', 'products.asset_id', '=', 'assets.id');
+        $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
 
 
@@ -76,16 +76,16 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
         }
 
         $queryBuilder
-            ->defaultSort('outers.id')
+            ->defaultSort('products.id')
             ->select([
-                'outers.id',
-                'outers.state',
-                'outers.created_at',
-                'outers.price',
-                'outers.unit',
-                'products.name',
-                'products.code',
+                'products.id',
+                'products.state',
+                'products.created_at',
                 'products.price',
+                'products.unit',
+                'assets.name',
+                'assets.code',
+                'assets.price',
                 'products.description',
                 'currencies.code as currency_code',
             ]);

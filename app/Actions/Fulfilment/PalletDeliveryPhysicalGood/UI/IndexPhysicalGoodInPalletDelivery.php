@@ -53,8 +53,8 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for($parent->physicalGoods());
-        $queryBuilder->join('products', 'outers.product_id', '=', 'products.id');
-        $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
+        $queryBuilder->join('assets', 'products.asset_id', '=', 'assets.id');
+        $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -66,12 +66,12 @@ class IndexPhysicalGoodInPalletDelivery extends OrgAction
         }
 
         $queryBuilder
-            ->defaultSort('outers.id')
+            ->defaultSort('products.id')
             ->select([
-                'outers.id',
-                'outers.name',
-                'outers.code',
-                'products.price',
+                'products.id',
+                'products.name',
+                'products.code',
+                'assets.price',
                 'products.description',
                 'currencies.code as currency_code',
                 'pallet_delivery_physical_goods.quantity'
