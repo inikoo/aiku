@@ -12,9 +12,10 @@ use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\SysAdmin\ProfileTabsEnum;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Pagination\LengthAwarePaginator;
+// use Illuminate\Pagination\LengthAwarePaginator;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use App\Models\SysAdmin\User;
 
 class ShowProfileIndexKpi extends GrpAction
 {
@@ -22,14 +23,14 @@ class ShowProfileIndexKpi extends GrpAction
     use WithInertia;
     use WithActionButtons;
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function asController(ActionRequest $request): User
     {
         $this->initialisation(group(), $request)->withTab(ProfileTabsEnum::values());
 
         return $request->user();
     }
 
-    public function jsonResponse(LengthAwarePaginator $kpis): AnonymousResourceCollection|array
+    public function jsonResponse(User $kpis): AnonymousResourceCollection|array
     {
         return [];
     }
