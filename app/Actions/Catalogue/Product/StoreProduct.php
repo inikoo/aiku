@@ -125,7 +125,7 @@ class StoreProduct extends OrgAction
             ]
         );
 
-        $historicOuterable = StoreHistoricAsset::run(
+        $historicAsset = StoreHistoricAsset::run(
             $product,
             [
                 'source_id' => $product->historic_source_id
@@ -133,7 +133,7 @@ class StoreProduct extends OrgAction
         );
         $asset->update(
             [
-                'current_historic_asset_id' => $historicOuterable->id,
+                'current_historic_asset_id' => $historicAsset->id,
             ]
         );
 

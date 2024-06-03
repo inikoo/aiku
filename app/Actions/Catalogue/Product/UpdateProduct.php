@@ -35,10 +35,10 @@ class UpdateProduct extends OrgAction
         $changed  = $product->getChanges();
 
         if (Arr::hasAny($changed, ['name', 'code', 'price','units','unit'])) {
-            $historicOuterable = StoreHistoricAsset::run($product);
+            $historicAsset = StoreHistoricAsset::run($product);
             $product->updateQuietly(
                 [
-                    'current_historic_asset_id' => $historicOuterable->id,
+                    'current_historic_asset_id' => $historicAsset->id,
                 ]
             );
         }

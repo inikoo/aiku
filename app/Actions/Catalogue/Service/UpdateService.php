@@ -32,10 +32,10 @@ class UpdateService extends OrgAction
         $changed  = $service->getChanges();
 
         if (Arr::hasAny($changed, ['name', 'code', 'price','units','unit'])) {
-            $historicOuterable = StoreHistoricAsset::run($service);
+            $historicAsset = StoreHistoricAsset::run($service);
             $service->updateQuietly(
                 [
-                    'current_historic_asset_id' => $historicOuterable->id,
+                    'current_historic_asset_id' => $historicAsset->id,
                 ]
             );
         }

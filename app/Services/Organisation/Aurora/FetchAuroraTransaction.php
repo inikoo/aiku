@@ -26,7 +26,6 @@ class FetchAuroraTransaction extends FetchAurora
 
             $historicItem = $this->parseTransactionItem(
                 $this->organisation,
-                $this->auroraModelData->{'Product ID'},
                 $this->auroraModelData->{'Product Key'}
             );
 

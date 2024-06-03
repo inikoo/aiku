@@ -151,7 +151,7 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
-    public function fetchHistoricProduct($id): ?array
+    public function fetchHistoricAsset($id): ?array
     {
         return null;
     }

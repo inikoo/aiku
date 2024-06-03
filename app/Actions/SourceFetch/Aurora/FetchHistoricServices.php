@@ -25,12 +25,12 @@ class FetchHistoricServices
             if ($historicProduct = HistoricAsset::withTrashed()->where('source_id', $historicProductData['historic_service']['source_id'])
                 ->first()) {
                 $historicProduct = UpdateHistoricAsset::run(
-                    historicProduct: $historicProduct,
+                    historicAsset: $historicProduct,
                     modelData:       $historicProductData['historic_service'],
                 );
             } else {
                 $historicProduct = StoreHistoricAsset::run(
-                    product:   $historicProductData['service'],
+                    assetModel:   $historicProductData['service'],
                     modelData: $historicProductData['historic_service']
                 );
             }

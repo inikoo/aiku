@@ -31,7 +31,7 @@ use App\Services\Organisation\Aurora\FetchAuroraDispatchedEmail;
 use App\Services\Organisation\Aurora\FetchAuroraEmailTrackingEvent;
 use App\Services\Organisation\Aurora\FetchAuroraEmployee;
 use App\Services\Organisation\Aurora\FetchAuroraFamily;
-use App\Services\Organisation\Aurora\FetchAuroraHistoricProduct;
+use App\Services\Organisation\Aurora\FetchAuroraHistoricAsset;
 use App\Services\Organisation\Aurora\FetchAuroraHistoricService;
 use App\Services\Organisation\Aurora\FetchAuroraInvoice;
 use App\Services\Organisation\Aurora\FetchAuroraInvoiceTransaction;
@@ -201,9 +201,9 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraInvoiceTransaction($this))->fetch($id);
     }
 
-    public function fetchHistoricProduct($id): ?array
+    public function fetchHistoricAsset($id): ?array
     {
-        return (new FetchAuroraHistoricProduct($this))->fetch($id);
+        return (new FetchAuroraHistoricAsset($this))->fetch($id);
     }
 
     public function fetchHistoricService($id): ?array

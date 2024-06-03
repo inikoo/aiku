@@ -63,7 +63,7 @@ interface SourceOrganisationService
 
     public function fetchLocation($id);
 
-    public function fetchHistoricProduct($id);
+    public function fetchHistoricAsset($id);
 
     public function fetchHistoricService($id);
 

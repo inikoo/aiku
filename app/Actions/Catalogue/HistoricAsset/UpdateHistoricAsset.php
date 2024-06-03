@@ -14,8 +14,8 @@ class UpdateHistoricAsset
 {
     use WithActionUpdate;
 
-    public function handle(HistoricAsset $historicProduct, array $modelData): HistoricAsset
+    public function handle(HistoricAsset $historicAsset, array $modelData): HistoricAsset
     {
-        return $this->update($historicProduct, $modelData);
+        return $this->update($historicAsset, $modelData);
     }
 }

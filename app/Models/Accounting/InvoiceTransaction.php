@@ -26,13 +26,15 @@ use Illuminate\Support\Carbon;
  * @property int $shop_id
  * @property int $customer_id
  * @property int $asset_id
+ * @property string $model_type
+ * @property int $model_id
+ * @property int $historic_asset_id
+ * @property int|null $historic_product_variant_id
  * @property int|null $family_id
  * @property int|null $department_id
  * @property int $order_id
  * @property int|null $invoice_id
  * @property int|null $transaction_id
- * @property string|null $item_type
- * @property int|null $item_id
  * @property string $quantity
  * @property string $net_amount
  * @property string $group_net_amount

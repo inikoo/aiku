@@ -64,7 +64,7 @@ class StoreRental extends OrgAction
             ]
         );
 
-        $historicOuterable = StoreHistoricAsset::run(
+        $historicAsset = StoreHistoricAsset::run(
             $rental,
             [
                 'source_id' => $rental->historic_source_id
@@ -72,7 +72,7 @@ class StoreRental extends OrgAction
         );
         $asset->update(
             [
-                'current_historic_asset_id' => $historicOuterable->id,
+                'current_historic_asset_id' => $historicAsset->id,
             ]
         );
 

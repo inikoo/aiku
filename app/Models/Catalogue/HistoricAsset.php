@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -32,7 +33,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
- * @property-read \App\Models\Catalogue\Asset|null $product
+ * @property-read \App\Models\Catalogue\Asset $asset
+ * @property-read Model|\Eloquent $model
  * @property-read \App\Models\Catalogue\HistoricAssetStats|null $stats
  * @method static Builder|HistoricAsset newModelQuery()
  * @method static Builder|HistoricAsset newQuery()
@@ -52,7 +54,7 @@ class HistoricAsset extends Model
 
     protected $guarded = [];
 
-    public function product(): BelongsTo
+    public function asset(): BelongsTo
     {
         return $this->belongsTo(Asset::class);
     }
@@ -61,4 +63,11 @@ class HistoricAsset extends Model
     {
         return $this->hasOne(HistoricAssetStats::class);
     }
+
+    public function model(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+
 }

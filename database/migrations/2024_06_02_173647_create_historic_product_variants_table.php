@@ -33,13 +33,23 @@ return new class () extends Migration {
         Schema::table('product_variants', function (Blueprint $table) {
             $table->foreign('current_historic_product_variant_id')->references('id')->on('historic_product_variants');
         });
+
+        Schema::table('invoice_transactions', function (Blueprint $table) {
+            $table->foreign('historic_product_variant_id')->references('id')->on('historic_product_variants');
+        });
+
+
+
     }
 
 
 
     public function down(): void
     {
-        Schema::table('outers', function (Blueprint $table) {
+        Schema::table('invoice_transactions', function (Blueprint $table) {
+            $table->dropForeign('historic_product_variant_id_foreign');
+        });
+        Schema::table('product_variants', function (Blueprint $table) {
             $table->dropForeign('current_historic_product_variant_id_foreign');
         });
         Schema::dropIfExists('historic_product_variants');

@@ -9,12 +9,22 @@ namespace App\Services\Organisation\Aurora;
 
 use Illuminate\Support\Facades\DB;
 
-class FetchAuroraHistoricProduct extends FetchAurora
+class FetchAuroraHistoricAsset extends FetchAurora
 {
     protected function parseModel(): void
     {
 
-        $this->parsedData['product'] = $this->parseProduct($this->organisation->id.':'.$this->auroraModelData->{'Product ID'});
+
+        if($this->auroraModelData->{'Product Type'}=='Product') {
+            $this->parsedData['asset_model'] = $this->parseProduct($this->organisation->id.':'.$this->auroraModelData->{'Product ID'});
+
+        } else {
+            $this->parsedData['asset_model'] = $this->parseService($this->organisation->id.':'.$this->auroraModelData->{'Product ID'});
+
+        }
+
+
+
         $deleted_at                  = $this->parseDate($this->auroraModelData->{'Product History Valid To'});
 
         $status = 0;
@@ -48,6 +58,7 @@ class FetchAuroraHistoricProduct extends FetchAurora
     {
         return DB::connection('aurora')
             ->table('Product History Dimension')
+            ->leftJoin('Product Dimension', 'Product Dimension.Product ID', '=', 'Product History Dimension.Product ID')
             ->where('Product Key', $id)->first();
     }
 }

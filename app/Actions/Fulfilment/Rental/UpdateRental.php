@@ -32,10 +32,10 @@ class UpdateRental extends OrgAction
         $changed = $rental->getChanges();
 
         if (Arr::hasAny($changed, ['name', 'code', 'price','units','unit'])) {
-            $historicOuterable = StoreHistoricAsset::run($rental);
+            $historicAsset = StoreHistoricAsset::run($rental);
             $rental->updateQuietly(
                 [
-                     'current_historic_asset_id' => $historicOuterable->id,
+                     'current_historic_asset_id' => $historicAsset->id,
                  ]
             );
         }

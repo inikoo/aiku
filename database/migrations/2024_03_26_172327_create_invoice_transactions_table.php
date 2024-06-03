@@ -27,11 +27,22 @@ return new class () extends Migration {
 
             $table->unsignedInteger('asset_id')->index();
             $table->foreign('asset_id')->references('id')->on('assets');
+
+            $table->string('model_type');
+            $table->unsignedInteger('model_id');
+
+            $table->unsignedInteger('historic_asset_id')->index();
+            $table->foreign('historic_asset_id')->references('id')->on('historic_assets');
+
+            $table->unsignedInteger('historic_product_variant_id')->index()->nullable();
+
             $table->unsignedSmallInteger('family_id')->nullable();
             $table->foreign('family_id')->references('id')->on('product_categories');
-
             $table->unsignedSmallInteger('department_id')->nullable();
             $table->foreign('department_id')->references('id')->on('product_categories');
+
+
+
 
             $table->unsignedInteger('order_id');
             $table->foreign('order_id')->references('id')->on('orders');
@@ -39,8 +50,6 @@ return new class () extends Migration {
             $table->foreign('invoice_id')->references('id')->on('invoices');
             $table->unsignedInteger('transaction_id')->nullable();
             $table->foreign('transaction_id')->references('id')->on('transactions');
-
-            $table->nullableMorphs('item');
 
             $table->decimal('quantity', 16, 3);
 
@@ -63,6 +72,7 @@ return new class () extends Migration {
 
             $table->string('source_id')->nullable();
             $table->unsignedInteger('source_alt_id')->nullable();
+            $table->index(['model_type', 'model_id']);
         });
     }
 

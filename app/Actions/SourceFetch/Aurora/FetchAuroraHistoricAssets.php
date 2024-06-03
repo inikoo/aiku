@@ -14,24 +14,23 @@ use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class FetchHistoricProducts
+class FetchAuroraHistoricAssets
 {
     use AsAction;
 
 
     public function handle(SourceOrganisationService $organisationSource, int $source_id): ?HistoricAsset
     {
-        if ($historicProductData = $organisationSource->fetchHistoricProduct($source_id)) {
-
+        if ($historicProductData = $organisationSource->fetchHistoricAsset($source_id)) {
             if ($historicProduct = HistoricAsset::withTrashed()->where('source_id', $historicProductData['historic_asset']['source_id'])
                 ->first()) {
                 $historicProduct = UpdateHistoricAsset::run(
-                    historicProduct: $historicProduct,
-                    modelData:       $historicProductData['historic_asset'],
+                    historicAsset: $historicProduct,
+                    modelData: $historicProductData['historic_asset'],
                 );
             } else {
                 $historicProduct = StoreHistoricAsset::run(
-                    outerable:   $historicProductData['product'],
+                    assetModel: $historicProductData['asset_model'],
                     modelData: $historicProductData['historic_asset']
                 );
             }
@@ -39,7 +38,7 @@ class FetchHistoricProducts
 
             DB::connection('aurora')->table('Product History Dimension')
                 ->where('Product Key', $sourceData[1])
-                ->update(['aiku_id'=>$historicProduct->id]);
+                ->update(['aiku_id' => $historicProduct->id]);
 
             return $historicProduct;
         }

@@ -8,7 +8,6 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\SourceFetch\Aurora\FetchAuroraAgents;
 use App\Actions\SourceFetch\Aurora\FetchAuroraClockingMachines;
 use App\Actions\SourceFetch\Aurora\FetchAuroraCustomers;
@@ -23,7 +22,6 @@ use App\Actions\SourceFetch\Aurora\FetchAuroraLocations;
 use App\Actions\SourceFetch\Aurora\FetchAuroraMailshots;
 use App\Actions\SourceFetch\Aurora\FetchAuroraOrders;
 use App\Actions\SourceFetch\Aurora\FetchAuroraOutboxes;
-use App\Actions\SourceFetch\Aurora\FetchAuroraVariants;
 use App\Actions\SourceFetch\Aurora\FetchAuroraPaymentAccounts;
 use App\Actions\SourceFetch\Aurora\FetchAuroraPayments;
 use App\Actions\SourceFetch\Aurora\FetchAuroraPaymentServiceProviders;
@@ -37,15 +35,16 @@ use App\Actions\SourceFetch\Aurora\FetchAuroraSuppliers;
 use App\Actions\SourceFetch\Aurora\FetchAuroraTradeUnits;
 use App\Actions\SourceFetch\Aurora\FetchAuroraWarehouses;
 use App\Actions\SourceFetch\Aurora\FetchAuroraWebsites;
+use App\Actions\SourceFetch\Aurora\FetchAuroraHistoricAssets;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
-use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
+use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
@@ -72,7 +71,6 @@ use App\Models\Web\Website;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 trait WithAuroraParsers
@@ -261,7 +259,7 @@ trait WithAuroraParsers
     {
         $historicProduct = HistoricAsset::where('source_id', $sourceId)->first();
         if (!$historicProduct) {
-            $historicProduct = FetchHistoricProducts::run($this->organisationSource, $sourceId);
+            $historicProduct = FetchAuroraHistoricAssets::run($this->organisationSource, $sourceId);
         }
 
         return $historicProduct;
@@ -269,58 +267,30 @@ trait WithAuroraParsers
     */
 
 
-    public function parseTransactionItem($organisation, $productID, $productKey): HistoricAsset|null
+    public function parseHistoricAsset($organisation, $productKey): HistoricAsset|null
     {
 
-        $auroraData = DB::connection('aurora')
-            ->table('Product History Dimension as PH')
-            ->leftJoin('Product Dimension as P', 'P.Product ID', 'PH.Product ID')
-            ->select('Product Type', 'is_variant')
-            ->where('PH.Product Key', $productKey)->first();
 
+        $historicAsset = HistoricAsset::where('source_id', $organisation->id.':'.$productKey)->first();
 
-        $historicOuterable = HistoricAsset::where('source_id', $organisation->id.':'.$productKey)->first();
-        if($historicOuterable) {
-            return $historicOuterable;
-        }
-        if ($auroraData->{'Product Type'} == 'Product') {
-            if($auroraData->is_variant=='No') {
-                $product=$this->parseProduct($organisation->id.':'.$productID);
-                if($product->historic_source_id==$organisation->id.':'.$productKey) {
-                    return $product->currentHistoricOuterable;
-                }
-                $outer=$product->mainOuterable;
-            } else {
-                $outer = FetchAuroraVariants::run($this->organisationSource, $productID);
-                if($outer->historic_source_id==$organisation->id.':'.$productKey) {
-                    return $outer->currentHistoricOuterable;
-                }
-            }
-
-            return StoreHistoricAsset::run($outer, [
-                'source_id'=> $organisation->id.':'.$productKey
-            ]);
-
-        } else {
-            $serviceableProduct=$this->parseService($organisation->id.':'.$productID);
-
-            if($serviceableProduct->historic_source_id==$organisation->id.':'.$productKey) {
-                return $serviceableProduct->currentHistoricOuterable;
-            }
-
-            return StoreHistoricAsset::run($serviceableProduct->mainOuterable, [
-                'source_id'=> $organisation->id.':'.$productKey
-            ]);
-
-
+        if($historicAsset) {
+            return $historicAsset;
         }
 
+
+        return FetchAuroraHistoricAssets::run($this->organisationSource, $productKey);
+
+    }
+
+
+    public function parseTransactionItem($organisation, $productKey): HistoricAsset|null
+    {
+        return $this->parseHistoricAsset($organisation, $productKey);
 
     }
 
     public function parseAsset(string $sourceId): Product
     {
-        //todo
         $product = Product::where('source_id', $sourceId)->first();
         if (!$product) {
             $sourceData = explode(':', $sourceId);
@@ -345,6 +315,18 @@ trait WithAuroraParsers
         return $product;
     }
 
+    public function parseService(string $sourceId): Service
+    {
+        $service = Service::withTrashed()->where('source_id', $sourceId)->first();
+        if (!$service) {
+            $sourceData = explode(':', $sourceId);
+            $service    = FetchAuroraServices::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $service;
+    }
+
+
     public function parseDepartment(string $sourceId): ?ProductCategory
     {
         $department = ProductCategory::where('type', ProductCategoryTypeEnum::DEPARTMENT)->where('source_department_id', $sourceId)->first();
@@ -367,16 +349,7 @@ trait WithAuroraParsers
         return $family;
     }
 
-    public function parseService(string $sourceId): Asset
-    {
-        $service = Asset::withTrashed()->where('source_id', $sourceId)->first();
-        if (!$service) {
-            $sourceData = explode(':', $sourceId);
-            $service    = FetchAuroraServices::run($this->organisationSource, $sourceData[1]);
-        }
 
-        return $service;
-    }
 
     public function parseCustomer(string $sourceId): ?Customer
     {

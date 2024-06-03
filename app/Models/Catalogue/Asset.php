@@ -57,6 +57,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Barcode> $barcode
  * @property-read Currency $currency
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\Catalogue\HistoricAsset|null $historicAsset
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicAssets
  * @property-read \App\Models\Studio\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $images
@@ -137,6 +138,11 @@ class Asset extends Model implements HasMedia
     public function historicAssets(): HasMany
     {
         return $this->hasMany(HistoricAsset::class);
+    }
+
+    public function historicAsset(): BelongsTo
+    {
+        return $this->belongsTo(HistoricAsset::class, 'current_historic_asset_id');
     }
 
     public function service(): HasOne

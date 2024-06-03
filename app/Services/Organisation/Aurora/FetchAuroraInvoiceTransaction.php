@@ -16,7 +16,6 @@ class FetchAuroraInvoiceTransaction extends FetchAurora
         if ($this->auroraModelData->{'Product Key'}) {
             $historicItem = $this->parseTransactionItem(
                 $this->organisation,
-                $this->auroraModelData->{'Product ID'},
                 $this->auroraModelData->{'Product Key'}
             );
 

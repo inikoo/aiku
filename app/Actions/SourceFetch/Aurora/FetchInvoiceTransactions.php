@@ -28,7 +28,7 @@ class FetchInvoiceTransactions
 
                 return StoreInvoiceTransaction::run(
                     invoice:   $invoice,
-                    historicOuterable: $transactionData['historic_asset'],
+                    historicAsset: $transactionData['historic_asset'],
                     modelData: $transactionData['transaction']
                 );
             }
