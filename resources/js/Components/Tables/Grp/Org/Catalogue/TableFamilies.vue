@@ -27,7 +27,7 @@ function familyRoute(family: Family) {
         [route().params["organisation"], route().params["shop"], family.slug]);
     case "grp.org.shops.show.catalogue.departments.show":
       return route( 
-        "grp.org.shops.show.catalogue.departments.show.families.show",
+        "grp.org.shops.show.catalogue.departments.families.show",
         [route().params["organisation"], route().params["shop"], route().params["department"], family.slug]);
     case 'grp.org.shops.index':
       return route(
@@ -37,6 +37,10 @@ function familyRoute(family: Family) {
     return route(
         "grp.org.shops.show.catalogue.families.show",
         [route().params["organisation"], route().params["shop"], family.slug]);
+    case "grp.org.shops.show.catalogue.departments.families.index":
+    return route(
+        "grp.org.shops.show.catalogue.departments.families.show",
+        [route().params["organisation"], route().params["shop"], route().params["department"], family.slug]);
   }
 }
 

@@ -42,10 +42,13 @@ Route::name("departments.")->prefix('departments')
     ->group(function () {
         Route::get('', IndexDepartments::class)->name('index');
         Route::get('create', CreateDepartment::class)->name('create');
+       
+        
 
         Route::prefix('{department}')->group(function () {
             Route::get('', ShowDepartment::class)->name('show');
             Route::get('edit', EditDepartment::class)->name('edit');
+            Route::get('families', [IndexFamilies::class, 'inDepartment'])->name('families.index');
             Route::get('families/{family}', [ShowFamily::class, 'inDepartment'])->name('families.show');
             Route::get('products/{product}', [ShowProduct::class, 'inDepartment'])->name('products.show');
         });

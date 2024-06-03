@@ -39,6 +39,13 @@ class IndexFamilies extends OrgAction
         return $this->handle(parent: $organisation);
     }
 
+    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $department;
+        $this->initialisationFromShop($shop, $request);
+        return $this->handle(parent: $department);
+    }
+
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
@@ -101,6 +108,10 @@ class IndexFamilies extends OrgAction
                         'shops.code as shop_code',
                         'shops.name as shop_name',
                     );
+                } elseif (class_basename($parent) == 'ProductCategory') {
+                    // Handle when parent type is ProductCategory
+                    $query->where('product_categories.parent_type', 'ProductCategory');
+                    $query->where('product_categories.parent_id', $parent->id);
                 }
             })->leftjoin('product_categories as departments', 'departments.id', 'product_categories.parent_id')
 
@@ -229,10 +240,9 @@ class IndexFamilies extends OrgAction
                 ]
             ];
         };
-
+    
         return match ($routeName) {
-            'grp.org.shops.show.catalogue.families.index' =>
-            array_merge(
+            'grp.org.shops.show.catalogue.families.index' => array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
@@ -242,7 +252,20 @@ class IndexFamilies extends OrgAction
                     $suffix
                 )
             ),
-
+            'grp.org.shops.show.catalogue.departments.families.index' => array_merge(
+                ShowDepartment::make()->getBreadcrumbs('grp.org.shops.show.catalogue.departments.show', $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.shops.show.catalogue.departments.families.index',
+                        'parameters' => [
+                            $routeParameters['organisation'],
+                            $routeParameters['shop'],
+                            $routeParameters['department']
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
             default => []
         };
     }
