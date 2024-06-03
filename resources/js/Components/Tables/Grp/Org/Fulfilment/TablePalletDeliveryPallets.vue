@@ -201,8 +201,10 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 
 
 		<!-- Column: Rental -->
-		<template #cell(rental)="{ item: pallet }">
+		<template #cell(rental)="{ item: pallet }">  
+			<div v-if="props.state == 'booked-in'">{{ pallet.rental_name }}</div>
 			<FieldEditableTable 
+				v-else
                 :options="props.rentalList"
 				:data="pallet"
 				@onSave="onSavedRental" 

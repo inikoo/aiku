@@ -60,8 +60,8 @@ class IndexFulfilmentServices extends OrgAction
 
         $queryBuilder = QueryBuilder::for(Service::class);
         $queryBuilder->where('services.shop_id', $parent->shop_id);
-        $queryBuilder->join('products', 'services.product_id', '=', 'products.id');
-        $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
+        $queryBuilder->join('assets', 'services.asset_id', '=', 'assets.id');
+        $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
 
 
@@ -83,10 +83,10 @@ class IndexFulfilmentServices extends OrgAction
                 'services.created_at',
                 'services.price',
                 'services.unit',
-                'products.name',
-                'products.code',
-                'products.price',
-                'products.description',
+                'assets.name',
+                'assets.code',
+                'assets.price',
+                'services.description',
                 'currencies.code as currency_code',
             ]);
 
