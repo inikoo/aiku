@@ -29,7 +29,7 @@ class UpdateRentalAgreementClause extends OrgAction
     public function rules(): array
     {
         return [
-            'product_id'             => ['required', 'exists:products,id'],
+            'asset_id'             => ['required', 'exists:assets,id'],
             'agreed_price'           => ['required', 'integer'],
         ];
     }

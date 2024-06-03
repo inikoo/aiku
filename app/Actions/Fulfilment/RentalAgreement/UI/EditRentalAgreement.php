@@ -82,7 +82,7 @@ class EditRentalAgreement extends OrgAction
                                         'full'             => true,
                                         'rentals'          => RentalClausesResource::collection($rentalAgreement->clauses->where('type', 'rental')),
                                         'services'         => ServiceClausesResource::collection($rentalAgreement->clauses->where('type', 'service')),
-                                        'physical_goods'   => ProductClausesResource::collection($rentalAgreement->clauses->where('type', 'physical_good')),
+                                        'physical_goods'   => ProductClausesResource::collection($rentalAgreement->clauses->where('type', 'product')),
                                         'clauses'          => $rentalAgreement->clauses,
                                         // 'indexRentalRoute' => [
                                         //     'name'       => 'grp.org.fulfilments.show.assets.rentals.index',

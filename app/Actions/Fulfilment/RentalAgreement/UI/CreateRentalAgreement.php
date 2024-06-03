@@ -68,7 +68,7 @@ class CreateRentalAgreement extends OrgAction
                                         'full'             => true,
                                         'rentals'          => RentalsResource::collection($fulfilmentCustomer->fulfilment->rentals),
                                         'services'         => ServicesResource::collection($fulfilmentCustomer->fulfilment->shop->services),
-                                     /*    'physical_goods'   => OutersResource::collection($fulfilmentCustomer->fulfilment->shop->outers), */
+                                        'physical_goods'   => OutersResource::collection($fulfilmentCustomer->fulfilment->shop->products),
                                         'clauses'          => $fulfilmentCustomer->rentalAgreementClauses,
                                         // 'indexRentalRoute' => [
                                         //     'name'       => 'grp.org.fulfilments.show.assets.rentals.index',
