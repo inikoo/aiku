@@ -42,7 +42,7 @@ const isLoading = ref(false)
 </script>
 
 <template>
-    <div class="text-center border-gray-200 pt-14">
+    <div class="text-center border-gray-200 p-14">
         <div v-if="data?.icons?.length === 1" class="mb-6">
             <FontAwesomeIcon :icon="data?.icons?.[0]" class="mx-auto h-9 text-gray-300" aria-hidden="true" />
             <FontAwesomeIcon :icon="data?.icons?.[0]" class="mx-7 h-12 w-12 text-gray-400" aria-hidden="true" />
