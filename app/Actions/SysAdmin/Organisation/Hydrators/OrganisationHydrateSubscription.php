@@ -50,7 +50,7 @@ class OrganisationHydrateSubscription
             )
         );
 
-        $organisation->marketStats()->update($stats);
+        $organisation->catalogueStats()->update($stats);
     }
 
 }

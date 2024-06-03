@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\SysAdmin\GroupMarketStats
+ * App\Models\SysAdmin\GroupCatalogueStats
  *
  * @property int $id
  * @property int $group_id
@@ -77,14 +77,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
- * @method static \Illuminate\Database\Eloquent\Builder|GroupMarketStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupMarketStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupMarketStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupCatalogueStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupCatalogueStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupCatalogueStats query()
  * @mixin \Eloquent
  */
-class GroupMarketStats extends Model
+class GroupCatalogueStats extends Model
 {
-    protected $table = 'group_market_stats';
+    protected $table = 'group_catalogue_stats';
 
     protected $guarded = [];
 

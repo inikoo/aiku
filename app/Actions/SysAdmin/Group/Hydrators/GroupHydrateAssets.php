@@ -64,7 +64,7 @@ class GroupHydrateAssets
         );
 
 
-        $group->marketStats()->update($stats);
+        $group->catalogueStats()->update($stats);
     }
 
 }

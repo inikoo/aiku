@@ -129,10 +129,10 @@ class IndexCustomers extends OrgAction
                     match (class_basename($parent)) {
                         'Organisation' => [
                             'title'       => __("No customers found"),
-                            'description' => $this->canCreateShop && $parent->marketStats->number_shops == 0 ? __('Get started by creating a shop. ✨')
+                            'description' => $this->canCreateShop && $parent->catalogueStats->number_shops == 0 ? __('Get started by creating a shop. ✨')
                                 : __("In fact, is no even a shop yet 🤷🏽‍♂️"),
                             'count'       => $parent->crmStats->number_customers,
-                            'action'      => $this->canCreateShop && $parent->marketStats->number_shops == 0
+                            'action'      => $this->canCreateShop && $parent->catalogueStats->number_shops == 0
                                 ? [
                                     'type'    => 'button',
                                     'style'   => 'create',

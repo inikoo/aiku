@@ -49,7 +49,7 @@ class GroupHydrateSubscriptions
             )
         );
 
-        $group->marketStats()->update($stats);
+        $group->catalogueStats()->update($stats);
 
 
     }

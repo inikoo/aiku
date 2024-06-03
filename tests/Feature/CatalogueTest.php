@@ -73,8 +73,8 @@ test('create shop', function () {
     $shopPermissions = Permission::where('scope_type', 'Shop')->where('scope_id', $shop->id)->get();
 
     expect($shop)->toBeInstanceOf(Shop::class)
-        ->and($organisation->marketStats->number_shops)->toBe(1)
-        ->and($organisation->marketStats->number_shops_type_b2b)->toBe(1)
+        ->and($organisation->catalogueStats->number_shops)->toBe(1)
+        ->and($organisation->catalogueStats->number_shops_type_b2b)->toBe(1)
         ->and($shopRoles->count())->toBe(9)
         ->and($shopPermissions->count())->toBe(23);
 
@@ -100,9 +100,9 @@ test('create shop by command', function () {
     ])->assertExitCode(0);
     $organisation->refresh();
 
-    expect($organisation->marketStats->number_shops)->toBe(2)
-        ->and($organisation->marketStats->number_shops_type_b2b)->toBe(1)
-        ->and($organisation->marketStats->number_shops_type_fulfilment)->toBe(1);
+    expect($organisation->catalogueStats->number_shops)->toBe(2)
+        ->and($organisation->catalogueStats->number_shops_type_b2b)->toBe(1)
+        ->and($organisation->catalogueStats->number_shops_type_fulfilment)->toBe(1);
 })->depends('create shop');
 
 test('update shop', function (Shop $shop) {
@@ -210,11 +210,11 @@ test('create physical good product', function ($shop) {
     expect($product)->toBeInstanceOf(Product::class)
         ->and($product->asset)->toBeInstanceOf(Asset::class)
         ->and($product->tradeUnits()->count())->toBe(1)
-        ->and($shop->organisation->marketStats->number_products)->toBe(1)
-        ->and($shop->organisation->marketStats->number_assets_type_product)->toBe(1)
-        ->and($shop->organisation->marketStats->number_assets_type_service)->toBe(0)
-        ->and($shop->group->marketStats->number_products)->toBe(1)
-        ->and($shop->group->marketStats->number_assets_type_product)->toBe(1)
+        ->and($shop->organisation->catalogueStats->number_products)->toBe(1)
+        ->and($shop->organisation->catalogueStats->number_assets_type_product)->toBe(1)
+        ->and($shop->organisation->catalogueStats->number_assets_type_service)->toBe(0)
+        ->and($shop->group->catalogueStats->number_products)->toBe(1)
+        ->and($shop->group->catalogueStats->number_assets_type_product)->toBe(1)
         ->and($shop->stats->number_products)->toBe(1)
         ->and($shop->stats->number_assets_type_product)->toBe(1)
         ->and($productVariant)->toBeInstanceOf(ProductVariant::class)
@@ -254,10 +254,10 @@ test('create physical good product with many trade units', function ($shop) {
         ->and($product->tradeUnits()->count())->toBe(2)
         ->and($shop->stats->number_products)->toBe(2)
         ->and($product->stats->number_historic_assets)->toBe(1)
-        ->and($shop->group->marketStats->number_products)->toBe(2)
-        ->and($shop->group->marketStats->number_assets_type_product)->toBe(2)
-        ->and($shop->organisation->marketStats->number_products)->toBe(2)
-        ->and($shop->organisation->marketStats->number_assets_type_product)->toBe(2);
+        ->and($shop->group->catalogueStats->number_products)->toBe(2)
+        ->and($shop->group->catalogueStats->number_assets_type_product)->toBe(2)
+        ->and($shop->organisation->catalogueStats->number_products)->toBe(2)
+        ->and($shop->organisation->catalogueStats->number_assets_type_product)->toBe(2);
 
     return $product;
 })->depends('create shop');
@@ -342,15 +342,15 @@ test('delete product', function ($product) {
 
 
     expect($shop->stats->number_products)->toBe(2)
-        ->and($shop->group->marketStats->number_products)->toBe(2)
-        ->and($shop->organisation->marketStats->number_products)->toBe(2);
+        ->and($shop->group->catalogueStats->number_products)->toBe(2)
+        ->and($shop->organisation->catalogueStats->number_products)->toBe(2);
 
     DeleteProduct::run($product);
     $shop->refresh();
 
     expect($shop->stats->number_products)->toBe(1)
-        ->and($shop->group->marketStats->number_products)->toBe(1)
-        ->and($shop->organisation->marketStats->number_products)->toBe(1);
+        ->and($shop->group->catalogueStats->number_products)->toBe(1)
+        ->and($shop->organisation->catalogueStats->number_products)->toBe(1);
 
     return $shop;
 })->depends('create physical good product');
@@ -373,13 +373,13 @@ test('create service', function (Shop $shop) {
     expect($service)->toBeInstanceOf(Service::class)
         ->and($asset)->toBeInstanceOf(Asset::class)
         ->and($service->stats->number_historic_assets)->toBe(1)
-        ->and($group->marketStats->number_assets)->toBe(2)
-        ->and($group->marketStats->number_products)->toBe(1)
-        ->and($group->marketStats->number_services)->toBe(1)
-        ->and($group->marketStats->number_assets_type_product)->toBe(1)
-        ->and($group->marketStats->number_assets_type_service)->toBe(1)
-        ->and($organisation->marketStats->number_products)->toBe(1)
-        ->and($organisation->marketStats->number_assets_type_service)->toBe(1)
+        ->and($group->catalogueStats->number_assets)->toBe(2)
+        ->and($group->catalogueStats->number_products)->toBe(1)
+        ->and($group->catalogueStats->number_services)->toBe(1)
+        ->and($group->catalogueStats->number_assets_type_product)->toBe(1)
+        ->and($group->catalogueStats->number_assets_type_service)->toBe(1)
+        ->and($organisation->catalogueStats->number_products)->toBe(1)
+        ->and($organisation->catalogueStats->number_assets_type_service)->toBe(1)
         ->and($shop->stats->number_assets)->toBe(2)
         ->and($shop->stats->number_products)->toBe(1)
         ->and($shop->stats->number_assets_type_product)->toBe(1)
@@ -418,8 +418,8 @@ test('create collection category', function ($shop) {
     $shop->refresh();
     expect($collectionCategory)->toBeInstanceOf(CollectionCategory::class)
         ->and($shop->stats->number_collection_categories)->toBe(1)
-        ->and($shop->organisation->marketStats->number_collection_categories)->toBe(1)
-        ->and($shop->group->marketStats->number_collection_categories)->toBe(1);
+        ->and($shop->organisation->catalogueStats->number_collection_categories)->toBe(1)
+        ->and($shop->group->catalogueStats->number_collection_categories)->toBe(1);
 
 
     return $collectionCategory;
@@ -437,8 +437,8 @@ test('create collection', function ($shop) {
     $shop->refresh();
     expect($collectionCategory)->toBeInstanceOf(Collection::class)
         ->and($shop->stats->number_collections)->toBe(1)
-        ->and($shop->organisation->marketStats->number_collections)->toBe(1)
-        ->and($shop->group->marketStats->number_collections)->toBe(1);
+        ->and($shop->organisation->catalogueStats->number_collections)->toBe(1)
+        ->and($shop->group->catalogueStats->number_collections)->toBe(1);
 
 
     return $collectionCategory;
@@ -458,8 +458,8 @@ test('create collection in a collection category', function (CollectionCategory 
     expect($collection)->toBeInstanceOf(Collection::class)
         ->and($collectionCategory->stats->number_collections)->toBe(1)
         ->and($collectionCategory->shop->stats->number_collections)->toBe(2)
-        ->and($collectionCategory->organisation->marketStats->number_collections)->toBe(2)
-        ->and($collectionCategory->group->marketStats->number_collections)->toBe(2);
+        ->and($collectionCategory->organisation->catalogueStats->number_collections)->toBe(2)
+        ->and($collectionCategory->group->catalogueStats->number_collections)->toBe(2);
 
 
     return $collection;

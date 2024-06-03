@@ -132,9 +132,9 @@ class IndexDepartments extends OrgAction
                     match (class_basename($parent)) {
                         'Organisation' => [
                             'title'       => __("No departments found"),
-                            'description' => $canEdit && $parent->marketStats->number_shops == 0 ? __('Get started by creating a shop. ✨') : '',
-                            'count'       => $parent->marketStats->number_departments,
-                            'action'      => $canEdit && $parent->marketStats->number_shops == 0 ?
+                            'description' => $canEdit && $parent->catalogueStats->number_shops == 0 ? __('Get started by creating a shop. ✨') : '',
+                            'count'       => $parent->catalogueStats->number_departments,
+                            'action'      => $canEdit && $parent->catalogueStats->number_shops == 0 ?
                                 [
                                 'type'    => 'button',
                                 'style'   => 'create',

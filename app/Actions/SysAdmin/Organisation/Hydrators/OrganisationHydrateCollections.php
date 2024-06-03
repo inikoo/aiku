@@ -35,7 +35,7 @@ class OrganisationHydrateCollections
             'number_collections' => $organisation->collections()->count(),
         ];
 
-        $organisation->marketStats()->update($stats);
+        $organisation->catalogueStats()->update($stats);
     }
 
 

@@ -51,7 +51,7 @@ class OrganisationHydrateFamilies
             )
         );
 
-        $organisation->marketStats()->update($stats);
+        $organisation->catalogueStats()->update($stats);
     }
 
 

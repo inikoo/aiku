@@ -35,7 +35,7 @@ class GroupHydrateCollectionCategories
             'number_collection_categories' => $group->collectionCategories()->count(),
         ];
 
-        $group->marketStats()->update($stats);
+        $group->catalogueStats()->update($stats);
     }
 
 

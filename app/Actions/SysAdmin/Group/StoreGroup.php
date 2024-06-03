@@ -43,7 +43,7 @@ class StoreGroup
         $group->inventoryStats()->create();
         $group->crmStats()->create();
         $group->accountingStats()->create();
-        $group->marketStats()->create();
+        $group->catalogueStats()->create();
         $group->fulfilmentStats()->create();
         $group->salesStats()->create();
         $group->salesIntervals()->create();

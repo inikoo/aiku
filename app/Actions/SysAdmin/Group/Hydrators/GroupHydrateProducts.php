@@ -49,12 +49,12 @@ class GroupHydrateProducts
             )
         );
 
-        $group->marketStats()->update($stats);
-        $group->marketStats()->update(
+        $group->catalogueStats()->update($stats);
+        $group->catalogueStats()->update(
             [
                 'number_current_products' =>
-                    $group->marketStats->number_products_state_active +
-                    $group->marketStats->number_products_state_discontinuing
+                    $group->catalogueStats->number_products_state_active +
+                    $group->catalogueStats->number_products_state_discontinuing
             ]
         );
 

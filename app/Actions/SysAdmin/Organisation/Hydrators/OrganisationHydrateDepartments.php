@@ -51,7 +51,7 @@ class OrganisationHydrateDepartments
             )
         );
 
-        $organisation->marketStats()->update($stats);
+        $organisation->catalogueStats()->update($stats);
     }
 
 

@@ -108,9 +108,9 @@ test('create fulfilment shop', function () {
 
     expect($shop)->toBeInstanceOf(Shop::class)
         ->and($shop->fulfilment)->toBeInstanceOf(Fulfilment::class)
-        ->and($organisation->marketStats->number_shops)->toBe(1)
-        ->and($organisation->marketStats->number_shops_type_b2b)->toBe(0)
-        ->and($organisation->marketStats->number_shops_type_fulfilment)->toBe(1)
+        ->and($organisation->catalogueStats->number_shops)->toBe(1)
+        ->and($organisation->catalogueStats->number_shops_type_b2b)->toBe(0)
+        ->and($organisation->catalogueStats->number_shops_type_fulfilment)->toBe(1)
         ->and($shopRoles->count())->toBe(0)
         ->and($shopPermissions->count())->toBe(0)
         ->and($fulfilmentRoles->count())->toBe(2)
@@ -147,7 +147,7 @@ test('create rental product to fulfilment shop', function (Fulfilment $fulfilmen
 
     expect($rental)->toBeInstanceOf(Rental::class)
         ->and($rental->asset)->toBeInstanceOf(Asset::class)
-        ->and($rental->organisation->marketStats->number_assets)->toBe(1)
+        ->and($rental->organisation->catalogueStats->number_assets)->toBe(1)
         ->and($rental->shop->stats->number_assets)->toBe(1)
         ->and($rental->stats->number_historic_assets)->toBe(1);
 

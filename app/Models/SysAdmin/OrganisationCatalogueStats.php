@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * App\Models\SysAdmin\OrganisationMarketStats
+ * App\Models\SysAdmin\OrganisationCatalogueStats
  *
  * @property int $id
  * @property int $organisation_id
@@ -80,14 +80,14 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @method static Builder|OrganisationMarketStats newModelQuery()
- * @method static Builder|OrganisationMarketStats newQuery()
- * @method static Builder|OrganisationMarketStats query()
+ * @method static Builder|OrganisationCatalogueStats newModelQuery()
+ * @method static Builder|OrganisationCatalogueStats newQuery()
+ * @method static Builder|OrganisationCatalogueStats query()
  * @mixin Eloquent
  */
-class OrganisationMarketStats extends Model
+class OrganisationCatalogueStats extends Model
 {
-    protected $table = 'organisation_market_stats';
+    protected $table = 'organisation_catalogue_stats';
 
     protected $guarded = [];
 

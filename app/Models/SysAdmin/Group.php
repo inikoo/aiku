@@ -100,7 +100,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\GroupManufactureStats|null $manufactureStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ManufactureTask> $manufactureTasks
- * @property-read \App\Models\SysAdmin\GroupMarketStats|null $marketStats
+ * @property-read \App\Models\SysAdmin\GroupCatalogueStats|null $catalogueStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
  * @property-read \App\Models\SysAdmin\GroupOrdersIntervals|null $ordersIntervals
@@ -341,9 +341,9 @@ class Group extends Model implements HasMedia
         return $this->hasMany(Payment::class);
     }
 
-    public function marketStats(): HasOne
+    public function catalogueStats(): HasOne
     {
-        return $this->hasOne(GroupMarketStats::class);
+        return $this->hasOne(GroupCatalogueStats::class);
     }
 
     public function assets(): HasMany

@@ -15,7 +15,7 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::create('group_market_stats', function (Blueprint $table) {
+        Schema::create('group_catalogue_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')
@@ -31,6 +31,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('group_market_stats');
+        Schema::dropIfExists('group_catalogue_stats');
     }
 };

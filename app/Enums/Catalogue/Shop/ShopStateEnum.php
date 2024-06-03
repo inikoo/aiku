@@ -34,7 +34,7 @@ enum ShopStateEnum: string
         Organisation|Group $parent,
         $forElements = false
     ): array {
-        $stats = $parent->marketStats;
+        $stats = $parent->catalogueStats;
 
         return [
             'in-process'      => $stats->number_shops_state_in_process,

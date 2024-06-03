@@ -155,11 +155,11 @@ class IndexProducts extends OrgAction
                     match (class_basename($parent)) {
                         'Organisation' => [
                             'title'       => __("No products found"),
-                            'description' => $canEdit && $parent->marketStats->number_shops == 0 ? __(
+                            'description' => $canEdit && $parent->catalogueStats->number_shops == 0 ? __(
                                 'Get started by creating a new shop. ✨'
                             ) : '',
-                            'count'  => $parent->marketStats->number_products,
-                            'action' => $canEdit && $parent->marketStats->number_shops == 0 ? [
+                            'count'  => $parent->catalogueStats->number_products,
+                            'action' => $canEdit && $parent->catalogueStats->number_shops == 0 ? [
                                 'type'    => 'button',
                                 'style'   => 'create',
                                 'tooltip' => __('new shop'),

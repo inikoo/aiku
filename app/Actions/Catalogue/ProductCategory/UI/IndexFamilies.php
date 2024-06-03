@@ -137,10 +137,10 @@ class IndexFamilies extends OrgAction
                         'Organisation' => [
                             'title'       => __("No families found"),
                             'description' => $canEdit ?
-                                $parent->marketStats->number_shops == 0 ? __("In fact, is no even a shop yet 🤷🏽‍♂️") : ''
+                                $parent->catalogueStats->number_shops == 0 ? __("In fact, is no even a shop yet 🤷🏽‍♂️") : ''
                                 : '',
-                            'count'       => $parent->marketStats->number_families,
-                            'action'      => $canEdit && $parent->marketStats->number_shops == 0
+                            'count'       => $parent->catalogueStats->number_families,
+                            'action'      => $canEdit && $parent->catalogueStats->number_shops == 0
                                     ?
                                 [
                                 'type'    => 'button',

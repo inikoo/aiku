@@ -129,7 +129,7 @@ class IndexShops extends OrgAction
                         [
                             'title'       => __('No shops found'),
                             'description' => $this->canEdit ? __('Get started by creating a shop. ✨') : null,
-                            'count'       => $parent->marketStats->number_shops,
+                            'count'       => $parent->catalogueStats->number_shops,
                             'action'      => $this->canEdit ? [
                                 'type'    => 'button',
                                 'style'   => 'create',

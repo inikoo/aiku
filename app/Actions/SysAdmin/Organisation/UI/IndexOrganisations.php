@@ -57,7 +57,7 @@ class IndexOrganisations extends GrpAction
         $queryBuilder->where('group_id', $group->id);
         $queryBuilder->where('type', '!=', OrganisationTypeEnum::AGENT);
         $queryBuilder->leftJoin('organisation_human_resources_stats', 'organisations.id', '=', 'organisation_human_resources_stats.organisation_id');
-        $queryBuilder->leftJoin('organisation_market_stats', 'organisations.id', '=', 'organisation_market_stats.organisation_id');
+        $queryBuilder->leftJoin('organisation_catalogue_stats', 'organisations.id', '=', 'organisation_catalogue_stats.organisation_id');
 
         foreach ($this->getElementGroups() as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(

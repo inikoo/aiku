@@ -50,12 +50,12 @@ class OrganisationHydrateProducts
             )
         );
 
-        $organisation->marketStats()->update($stats);
-        $organisation->marketStats()->update(
+        $organisation->catalogueStats()->update($stats);
+        $organisation->catalogueStats()->update(
             [
                 'number_current_products' =>
-                    $organisation->marketStats->number_products_state_active +
-                    $organisation->marketStats->number_products_state_discontinuing
+                    $organisation->catalogueStats->number_products_state_active +
+                    $organisation->catalogueStats->number_products_state_discontinuing
             ]
         );
     }
