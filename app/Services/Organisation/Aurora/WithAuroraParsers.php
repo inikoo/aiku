@@ -49,6 +49,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Dispatch\Shipper;
+use App\Models\Fulfilment\Rental;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
@@ -315,7 +316,7 @@ trait WithAuroraParsers
         return $product;
     }
 
-    public function parseService(string $sourceId): Service
+    public function parseService(string $sourceId): Service|Rental
     {
         $service = Service::withTrashed()->where('source_id', $sourceId)->first();
         if (!$service) {
