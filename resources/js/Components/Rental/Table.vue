@@ -115,7 +115,7 @@ const showAll = () => {
             </template>
 
             <template #content="{ close: closed }">
-                <div class="w-[350px]">
+                <div class="w-[200px]">
                     <div class="text-xs my-2 font-medium">{{ trans('Discount(%)') }}: </div>
                     <PureInputNumber v-model="bulkDiscInput" autofocus placeholder="1-100"  :maxValue="100"
                         :suffix="true" :minValue="0" @onEnter="() => onBulkDiscount(closed)">
@@ -182,7 +182,7 @@ const showAll = () => {
                                     </div>
                                 </div>
 
-                                <div v-else-if="e.type == 'inputPrice'">
+                                <div v-else-if="e.type == 'inputPrice'" class="w-28">
                                     <PureInputNumber v-model="itemData[e.key]" :placeholder="'Input price'" 
                                         :maxValue="itemData['price']" :prefix="true" :minValue="0" 
                                         @input="(value) => e?.propsOptions?.onChange(value, e, itemData)">
@@ -194,9 +194,9 @@ const showAll = () => {
                                     </PureInputNumber>
                                 </div>
 
-                                <div v-else-if="e.type == 'discount'">
+                                <div v-else-if="e.type == 'discount'" class="w-28">
                                     <PureInputNumber v-model="itemData[e.key]" :placeholder="'Input Discount'" 
-                                        :maxValue="100" :suffix="true" :minValue="0"
+                                        :suffix="true" :minValue="0"
                                         @input="(value) => e?.propsOptions?.onChange(value, e, itemData)">
                                         <template #suffix>
                                             <div
