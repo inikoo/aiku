@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\Fulfilment;
 
+use App\Models\Fulfilment\Rental;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -34,7 +35,9 @@ class PalletsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        return [
+        $rental = Rental::find($this->rental_id) ?? null;
+        // dd($rental);
+                return [
             'id'                               => $this->id,
             'slug'                             => $this->slug,
             'reference'                        => $this->reference,
@@ -46,8 +49,8 @@ class PalletsResource extends JsonResource
             'state'                            => $this->state,
             'type_icon'                        => $this->type->typeIcon()[$this->type->value],
             'type'                             => $this->type,
-            'rental_id'                        => $this->rental_id,
-            'name'                             => $this->rental->name,
+            'rental'                           => $rental,
+            // 'rental_name'                      => $this->rental->name,
             'state_label'                      => $this->state->labels()[$this->state->value],
             'state_icon'                       => $this->state->stateIcon()[$this->state->value],
             'status'                           => $this->status,
