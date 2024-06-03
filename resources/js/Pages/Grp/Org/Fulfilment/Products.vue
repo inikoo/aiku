@@ -21,7 +21,7 @@ const props = defineProps<{
     current: string
     navigation: {}
   }
-  products?: {}
+  assets?: {}
   history?: {}
 }>()
 
@@ -31,7 +31,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
 
   const components = {
-    products: TableProducts,
+    assets: TableProducts,
     history: TableHistories
   }
   return components[currentTab.value]
