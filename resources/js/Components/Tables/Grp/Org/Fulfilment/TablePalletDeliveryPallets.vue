@@ -131,7 +131,6 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 </script>
 
 <template>
-	{{ props.state }}
 	<Table :resource="data" :name="tab" class="mt-5" :key="tableKey">
 
 		<!-- Column: type pallet icon -->
