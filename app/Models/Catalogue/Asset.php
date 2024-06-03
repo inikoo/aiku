@@ -142,12 +142,17 @@ class Asset extends Model implements HasMedia
 
     public function service(): HasOne
     {
-        return $this->hasOne(Service::class, 'id', 'main_outerable_id');
+        return $this->hasOne(Service::class);
     }
 
     public function rental(): HasOne
     {
-        return $this->hasOne(Rental::class, 'id', 'main_outerable_id');
+        return $this->hasOne(Rental::class);
+    }
+
+    public function product(): HasOne
+    {
+        return $this->hasOne(Product::class);
     }
 
     public function recurringBills(): MorphToMany
