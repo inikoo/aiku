@@ -49,7 +49,8 @@ watch(
     }
 );
  */
-const increment = () => {
+
+/* const increment = () => {
     const stepValue = parseFloat(props.step as string) || 1;
     setValue((parseFloat(numberValue.value) || 0) + stepValue);
     emits('input', (parseFloat(numberValue.value) || 0) + stepValue)
@@ -59,19 +60,11 @@ const decrement = () => {
     const stepValue = parseFloat(props.step as string) || 1;
     setValue((parseFloat(numberValue.value) || 0) - stepValue);
     emits('input', (parseFloat(numberValue.value) || 0) - stepValue)
-}
+} */
 
 const onChange = () => {
-    let numericPart = formattedValue.value.match(/[0-9.]+/)
-
-    if (numericPart) {
-        let priceNumber = parseFloat(numericPart);
-      
         emits('update:modelValue', priceNumber);
         emits('input', priceNumber);
-    } else {
-        console.log("Invalid price string format.");
-    }
 }
 
 
@@ -87,7 +80,7 @@ const onChange = () => {
                     border-transparent
                     focus:ring-0 focus:ring-gray-500 focus:outline-0 focus:border-transparent
                     read-only:bg-gray-100 read-only:ring-0 read-only:ring-transparent read-only:focus:border-transparent read-only:focus:border-gray-300 read-only:text-gray-500
-                " @keydown.up.prevent="increment" @keydown.down.prevent="decrement" @input="onChange"/>
+                " @input="onChange"/>
         </div>
     </div>
 </template>

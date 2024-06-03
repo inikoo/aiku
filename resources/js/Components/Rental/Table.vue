@@ -6,23 +6,19 @@
 
 <script setup lang="ts">
 import PureInput from "@/Components/Pure/PureInput.vue"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import PureInputNumber from "@/Components/Pure/PureInputNumber.vue"
 import { faExclamationCircle, faCheckCircle, faTrash, faEdit } from "@fas"
 import { faCopy } from "@fal"
 import { faTrash as farTrash } from "@far"
 import { faSpinnerThird } from "@fad"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { set, get } from "lodash"
-import { ref, watch, onMounted, onBeforeMount, isReadonly, inject } from "vue"
-import SelectQuery from "@/Components/SelectQuery.vue"
+import { ref, inject } from "vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import { notify } from "@kyvg/vue3-notification"
-import axios from "axios"
-import { v4 as uuidv4 } from "uuid"
 import Popover from "@/Components/Popover.vue"
 import { trans } from "laravel-vue-i18n"
-import Currency from "@/Components/Pure/Currency.vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
+import EmptyState from "@/Components/Utils/EmptyState.vue"
+
 
 library.add(faExclamationCircle, faCheckCircle, faSpinnerThird, faCopy, faTrash, farTrash, faEdit)
 
@@ -45,6 +41,7 @@ const props = defineProps<{
 
 const bulkData = ref([])
 const bulkDiscInput = ref(0)
+const currency = (inject('layout', layoutStructure))?.group?.currency
 
 
 const onSelectAllRows = (input) => {
@@ -55,40 +52,72 @@ const onSelectAllRows = (input) => {
     bulkData.value = value
 }
 
+
+
 const onBulkDiscount = (close: Function) => {
     for (const item of props.form[props.fieldName][props.bluprint.key]) {
+    
         if (bulkData.value.includes(item.id)) {
-            item.discount = bulkDiscInput.value       
+            item.discount = bulkDiscInput.value
+            let discountedPrice = item.price - (item.price * (bulkDiscInput.value / 100))
+            item.agreed_price = discountedPrice
         }
     }
-    
+
     bulkData.value = []
     close()
 }
 
-
-const resetValue=()=>{
-    props.form[props.fieldName][props.bluprint.key] = props.fieldData[props.bluprint.key].data
+const showEdited = () => {
+    const edited = []
+    props.form[props.fieldName][props.bluprint.key].map((item, index) => {
+        if (item.price != item.agreed_price) edited.push(item)
+    })
+    props.form[props.fieldName][props.bluprint.key] = edited
 }
 
-console.log(props)
+const showAll = () => {
+    const edited = [...props.form[props.fieldName][props.bluprint.key]];
+    // Iterate over each item in the source data array
+    props.fieldData[props.bluprint.key].data.map((item) => {
+        // Check if the current item is already present in the edited array
+        const exists = edited.find((e) => e.slug == item.slug);
+
+        // If the item is not present, add it to the edited array
+        if (!exists) {
+            edited.push(item);
+        }
+    });
+
+    // Update the form field with the new edited array
+    props.form[props.fieldName][props.bluprint.key] = edited;
+};
+
 
 
 </script>
 
 <template>
 
-    <div class="flex justify-end mb-3">
+    <div class="flex justify-between mb-3">
+        <div>
+            <Button
+                v-if="props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length"
+                :key="bluprint.key" :label="`Show Only Edited`" :type="'gray'" @click="showEdited" />
+            <Button
+                v-if="props.fieldData[props.bluprint.key].data.length != props.form[props.fieldName][props.bluprint.key].length"
+                :key="bluprint.key" :label="`Show All`" :type="'gray'" @click="showAll" />
+        </div>
         <Popover width="w-full" class="relative h-full">
             <template #button>
                 <Button :key="bulkData.length" label="Set all discount (%)"
-                    :type="bulkData.length > 0 ? 'edit' : 'disabled'"  :icon="['fal', 'list-alt']" class="mr-2" />
+                    :type="bulkData.length > 0 ? 'edit' : 'disabled'" :icon="['fal', 'list-alt']" class="mr-2" />
             </template>
 
             <template #content="{ close: closed }">
                 <div class="w-[350px]">
                     <div class="text-xs my-2 font-medium">{{ trans('Discount(%)') }}: </div>
-                    <PureInput v-model="bulkDiscInput" autofocus placeholder="1-100" type="number" :maxValue="99"
+                    <PureInputNumber v-model="bulkDiscInput" autofocus placeholder="1-100"  :maxValue="100"
                         :suffix="true" :minValue="0" @onEnter="() => onBulkDiscount(closed)">
                         <template #suffix>
                             <div
@@ -96,7 +125,7 @@ console.log(props)
                                 %
                             </div>
                         </template>
-                    </PureInput>
+                    </PureInputNumber>
 
                     <div class="flex justify-end mt-3">
                         <Button type="save" label="Set All" @click="() => onBulkDiscount(closed)" />
@@ -104,8 +133,9 @@ console.log(props)
                 </div>
             </template>
         </Popover>
-        <Button :key="bluprint.key" :label="`Reset`" :icon="['fal', 'history']" :type="'gray'" @click="resetValue"/>
+
     </div>
+
 
 
     <div class="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
@@ -114,15 +144,14 @@ console.log(props)
                 <table class="min-w-full divide-y divide-gray-300" :key="bluprint.key">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th scope="col"
-                                class="px-3 py-4  pr-3 text-left text-sm font-semibold  flex justify-center">
+                            <th scope="col" class="px-3 py-4  pr-3 text-left text-sm font-semibold flex justify-center">
                                 <input type="checkbox"
                                     class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600"
                                     :checked="(bulkData.length == form[fieldName][bluprint.key].length)"
                                     @change="onSelectAllRows" />
                             </th>
                             <th v-for="e in props.bluprint.column" cope="col"
-                                class="px-3 py-3.5 text-left text-sm font-semibold min-w-40 max-w-80">
+                                class="px-3 py-3.5 text-left text-sm font-semibold">
                                 {{ e.title }}
                             </th>
                         </tr>
@@ -131,50 +160,60 @@ console.log(props)
                     <tbody class="divide-y divide-gray-200 bg-white">
                         <tr v-for="(itemData, index) in form[fieldName][bluprint.key]" :key="itemData.email">
                             <!-- Column: Selector -->
-                            <td class="whitespace-nowrap px-3 py-4 text-sm  text-center">
+                            <td class="whitespace-nowrap px-3 py-4 text-sm  text-center w-20">
                                 <input type="checkbox" :id="itemData.id" :value="itemData.id" v-model="bulkData"
                                     class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600" />
                             </td>
                             <td v-for="e in props.bluprint.column" :key="e.key"
-                                class="whitespace-nowrap px-3 py-4 text-sm">
+                                :class="`whitespace-nowrap px-3 py-4 text-sm ${e.class}`">
+
                                 <div v-if="!e.type || e.type == 'text'">
                                     {{ itemData[e.key] }}
                                 </div>
+
                                 <div v-if="e.type == 'price'">
-                                    {{ `${itemData.currency.symbol} ${itemData[e.key] || 0}` }}
+                                    {{ `${currency?.symbol} ${itemData[e.key]}` }}
                                 </div>
+
                                 <div v-else-if="e.type == 'name'">
-                                <div>
-                                    <div>{{ itemData["code"] }}</div>
-                                    <div class="text-[10px]">{{ itemData["name"] }}</div>
+                                    <div>
+                                        <div>{{ itemData["code"] }}</div>
+                                        <div class="text-[10px]">{{ itemData["name"] }}</div>
+                                    </div>
                                 </div>
-                                    
-                                </div>
+
                                 <div v-else-if="e.type == 'inputPrice'">
-                                    <Currency 
-                                        v-model="itemData[e.key]"
-                                        :placeholder="'Input Price'" 
-                                        @input="(value)=> e?.propsOptions?.onChange(value,e,itemData)"
-                                        :currency="itemData.currency.code" 
-                                        :minValue="0" step="0.01" 
-                                        :maxValue="itemData['original_price']"  
-                                    />
+                                    <PureInputNumber v-model="itemData[e.key]" :placeholder="'Input price'" 
+                                        :maxValue="itemData['price']" :prefix="true" :minValue="0" 
+                                        @input="(value) => e?.propsOptions?.onChange(value, e, itemData)">
+                                        <template #prefix>
+                                            <div class="flex justify-center items-center pl-2">
+                                                {{ `${currency?.symbol}` }}
+                                            </div>
+                                        </template>
+                                    </PureInputNumber>
                                 </div>
+
                                 <div v-else-if="e.type == 'discount'">
-                                    <PureInput v-model="itemData[e.key]" :placeholder="'Input Discount'" type="number"
-                                        :maxValue="100" :suffix="true" :minValue="0"  @input="(value)=> e?.propsOptions?.onChange(value,e,itemData)">
+                                    <PureInputNumber v-model="itemData[e.key]" :placeholder="'Input Discount'" 
+                                        :maxValue="100" :suffix="true" :minValue="0"
+                                        @input="(value) => e?.propsOptions?.onChange(value, e, itemData)">
                                         <template #suffix>
                                             <div
                                                 class="flex justify-center items-center px-2 absolute inset-y-0 right-0 text-gray-400">
                                                 %
                                             </div>
                                         </template>
-                                    </PureInput>
+                                    </PureInputNumber>
                                 </div>
+
                             </td>
                         </tr>
                     </tbody>
                 </table>
+                <div v-if="form[fieldName][bluprint.key].length == 0">
+                <EmptyState />
+                </div>
             </div>
         </div>
     </div>
