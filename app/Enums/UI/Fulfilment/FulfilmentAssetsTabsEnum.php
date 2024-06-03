@@ -27,7 +27,7 @@ enum FulfilmentAssetsTabsEnum: string
                 'icon'  => 'fal fa-tachometer-alt-fast',
             ],
             FulfilmentAssetsTabsEnum::ASSETS => [
-                'title' => __('products list'),
+                'title' => __('assets list'),
                 'icon'  => 'fal fa-bars',
                 'type'  => 'icon',
                 'align' => 'right',
