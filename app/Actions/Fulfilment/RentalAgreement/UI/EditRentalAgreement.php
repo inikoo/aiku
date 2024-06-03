@@ -32,11 +32,11 @@ class EditRentalAgreement extends OrgAction
     {
         $rentals = [];
         foreach ($rentalAgreement->fulfilmentCustomer->rentalAgreementClauses as $clause) {
-            $price       = $clause->product->price;
+            $price       = $clause->asset->price;
             $agreedPrice = $clause->agreed_price;
 
             $rentals[] = [
-                'product_id'       => $clause->product_id,
+                'asset_id'       => $clause->asset_id,
                 'agreed_price'     => $agreedPrice,
                 'price'            => $price,
                 'discount'         => ($price - $agreedPrice) / $agreedPrice * 100

@@ -19,16 +19,16 @@ class RentalClausesResource extends JsonResource
 
         return [
             'id'                                => $this->id,
-            'rental_id'                         => $this->product->rental->id,
-            'product_id'                        => $this->product_id,
-            'slug'                              => $this->product->slug,
-            'name'                              => $this->product->name,
-            'code'                              => $this->product->code,
-            'price'                             => $this->product->rental->price,
-            'agreed_price'                      => $this->agreed_price ??  $this->product->rental->price,
+            'rental_id'                         => $this->asset->rental->id,
+            'asset_id'                        => $this->asset_id,
+            'slug'                              => $this->asset->slug,
+            'name'                              => $this->asset->name,
+            'code'                              => $this->asset->code,
+            'price'                             => $this->asset->rental->price,
+            'agreed_price'                      => $this->agreed_price ??  $this->asset->rental->price,
             'discount'                          => 0,
-            'unit'                              => $this->product->rental->unit,
-            'currency'                          => CurrencyResource::make($this->product->currency)
+            'unit'                              => $this->asset->rental->unit,
+            'currency'                          => CurrencyResource::make($this->asset->currency)
         ];
     }
 }

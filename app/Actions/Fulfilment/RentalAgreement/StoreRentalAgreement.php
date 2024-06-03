@@ -77,18 +77,18 @@ class StoreRentalAgreement extends OrgAction
             'billing_cycle'                  => ['required', Rule::enum(RentalAgreementBillingCycleEnum::class)],
             'pallets_limit'                  => ['nullable', 'integer', 'min:1', 'max:10000'],
             'rental'                         => ['sometimes', 'array'],
-            'rental.rentals.*.product_id'    => ['sometimes',
-                                         Rule::exists('products', 'id')
+            'rental.rentals.*.asset_id'    => ['sometimes',
+                                         Rule::exists('assets', 'id')
                                              ->where('shop_id', $this->fulfilment->shop_id)
                 ],
             'rental.rentals.*.agreed_price'   => ['sometimes', 'numeric', 'gt:0'],
-            'rental.services.*.product_id'    => ['sometimes',
-                                         Rule::exists('products', 'id')
+            'rental.services.*.asset_id'    => ['sometimes',
+                                         Rule::exists('assets', 'id')
                                              ->where('shop_id', $this->fulfilment->shop_id)
                 ],
             'rental.services.*.agreed_price'        => ['sometimes', 'numeric', 'gt:0'],
-            'rental.physical_goods.*.product_id'    => ['sometimes',
-                                         Rule::exists('products', 'id')
+            'rental.physical_goods.*.asset_id'    => ['sometimes',
+                                         Rule::exists('assets', 'id')
                                              ->where('shop_id', $this->fulfilment->shop_id)
                 ],
             'rental.physical_goods.*.agreed_price'  => ['sometimes', 'numeric', 'gt:0'],

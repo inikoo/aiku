@@ -17,14 +17,14 @@ class StoreRentalAgreementClause extends OrgAction
 {
     public function handle(RentalAgreement $rentalAgreement, array $modelData): RentalAgreementClause
     {
-
+        // dd($modelData);
         data_set($modelData, 'organisation_id', $rentalAgreement->organisation_id);
         data_set($modelData, 'group_id', $rentalAgreement->group_id);
         data_set($modelData, 'fulfilment_id', $rentalAgreement->fulfilment_id);
         data_set($modelData, 'fulfilment_customer_id', $rentalAgreement->fulfilment_customer_id);
 
-        $product = Asset::find($modelData['product_id']);
-        data_set($modelData, 'type', $product->type);
+        $asset = Asset::find($modelData['asset_id']);
+        data_set($modelData, 'type', $asset->type);
 
         // dd($modelData);
         /** @var RentalAgreementClause $rentalAgreementClause */
@@ -36,7 +36,7 @@ class StoreRentalAgreementClause extends OrgAction
     public function rules(): array
     {
         return [
-            'product_id'             => ['required', 'exists:products,id'],
+            'asset_id'             => ['required', 'exists:assets,id'],
             'agreed_price'           => ['required', 'integer'],
         ];
     }
