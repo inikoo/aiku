@@ -97,7 +97,6 @@ const component = computed(() => {
         pallet_returns: TablePalletReturns,
         invoices: TableInvoices,
         details: ModelDetails,
-        history: ModelChangelog,
         web_users: TableWebUsers,
         webhook: FulfilmentCustomerWebhook,
         recurring_bills: TableRecurringBills,
