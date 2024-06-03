@@ -9,8 +9,8 @@ namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\Helpers\Snapshot\UI\IndexSnapshots;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\UI\WithInertia;
-use App\Actions\Web\HasWebAuthorisation;
 use App\Actions\Web\HasWorkshopAction;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Enums\UI\Web\WebpageTabsEnum;
@@ -136,8 +136,8 @@ class ShowWebpage extends OrgAction
                 ),
                 'title'       => __('webpage'),
                 'pageHead'    => [
-                    'title'    => $webpage->code,
-                    'icon'     => [
+                    'title'   => $webpage->code,
+                    'icon'    => [
                         'title' => __('webpage'),
                         'icon'  => 'fal fa-browser'
                     ],
@@ -150,22 +150,22 @@ class ShowWebpage extends OrgAction
                 ],
 
                 WebpageTabsEnum::SHOWCASE->value => $this->tab == WebpageTabsEnum::SHOWCASE->value ?
-                    fn () => WebpageResource::make($webpage)->getArray()
-                    : Inertia::lazy(fn () => WebpageResource::make($webpage)->getArray()),
+                    fn() => WebpageResource::make($webpage)->getArray()
+                    : Inertia::lazy(fn() => WebpageResource::make($webpage)->getArray()),
 
                 WebpageTabsEnum::SNAPSHOTS->value => $this->tab == WebpageTabsEnum::SNAPSHOTS->value ?
-                    fn () => SnapshotResource::collection(IndexSnapshots::run(parent: $webpage, prefix: 'snapshots'))
-                    : Inertia::lazy(fn () => SnapshotResource::collection(IndexSnapshots::run(parent: $webpage, prefix: 'snapshots'))),
+                    fn() => SnapshotResource::collection(IndexSnapshots::run(parent: $webpage, prefix: 'snapshots'))
+                    : Inertia::lazy(fn() => SnapshotResource::collection(IndexSnapshots::run(parent: $webpage, prefix: 'snapshots'))),
 
                 WebpageTabsEnum::WEBPAGES->value => $this->tab == WebpageTabsEnum::WEBPAGES->value
                     ?
-                    fn () => WebpageResource::collection(
+                    fn() => WebpageResource::collection(
                         IndexWebpages::run(
                             parent: $webpage,
                             prefix: 'webpages'
                         )
                     )
-                    : Inertia::lazy(fn () => WebpageResource::collection(
+                    : Inertia::lazy(fn() => WebpageResource::collection(
                         IndexWebpages::run(
                             parent: $webpage,
                             prefix: 'webpages'
@@ -218,10 +218,37 @@ class ShowWebpage extends OrgAction
 
         $webpage = Webpage::where('slug', $routeParameters['webpage'])->first();
 
+
         return
             match ($routeName) {
+                'grp.org.shops.show.web.websites.show.webpages.show',
+                'grp.org.shops.show.web.websites.show.webpages.edit',
+                'grp.org.shops.show.web.websites.show.webpages.workshop'=>
+                array_merge(
+                    ShowWebsite::make()->getBreadcrumbs(
+                        'grp.org.shops.show.web.websites.show',
+                        Arr::only($routeParameters, ['organisation', 'shop', 'website'])
+                    ),
+                    $headCrumb(
+                        $webpage,
+                        [
+                            'index' => [
+                                'name'       => 'grp.org.shops.show.web.websites.show.webpages.index',
+                                'parameters' => Arr::only($routeParameters, ['organisation', 'shop', 'website'])
+                            ],
+                            'model' => [
+                                'name'       => 'grp.org.shops.show.web.websites.show.webpages.show',
+                                'parameters' => Arr::only($routeParameters, ['organisation', 'shop', 'website', 'webpage'])
+                            ]
+                        ],
+                        $suffix
+                    ),
+                ),
+
                 'grp.org.fulfilments.show.web.websites.show.webpages.show',
-                'grp.org.fulfilments.show.web.websites.show.webpages.edit' => array_merge(
+                'grp.org.fulfilments.show.web.websites.show.webpages.edit',
+                'grp.org.fulfilments.show.web.websites.show.webpages.workshop'=>
+                array_merge(
                     ShowWebsite::make()->getBreadcrumbs(
                         'grp.org.fulfilments.show.web.websites.show',
                         Arr::only($routeParameters, ['organisation', 'fulfilment', 'website'])
@@ -242,6 +269,5 @@ class ShowWebpage extends OrgAction
                     ),
                 )
             };
-
     }
 }

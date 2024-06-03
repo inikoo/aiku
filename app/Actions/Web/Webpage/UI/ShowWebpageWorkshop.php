@@ -7,37 +7,34 @@
 
 namespace App\Actions\Web\Webpage\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowWebpageWorkshop extends InertiaAction
+class ShowWebpageWorkshop extends OrgAction
+
 {
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit   = $request->user()->hasPermissionTo('websites.edit');
-        $this->canDelete = $request->user()->hasPermissionTo('websites.edit');
 
-        return $request->user()->hasPermissionTo("websites.edit");
-    }
+    use HasWebAuthorisation;
+    private Shop $parent;
 
-    public function asController(Webpage $webpage, ActionRequest $request): Webpage
+
+
+    public function asController(Organisation $organisation, Shop $shop, Website $website, Webpage $webpage, ActionRequest $request): Webpage
     {
-        $this->initialisation($request);
+        $this->parent=$shop;
+        $this->initialisationFromShop($shop, $request);
 
         return $webpage;
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWebsite(Website $website, Webpage $webpage, ActionRequest $request): Webpage
-    {
-        $this->initialisation($request);
 
-        return $webpage;
-    }
 
     public function htmlResponse(Webpage $webpage, ActionRequest $request): Response
     {
@@ -46,6 +43,7 @@ class ShowWebpageWorkshop extends InertiaAction
             [
                 'title'        => __("Webpage's workshop"),
                 'breadcrumbs'  => $this->getBreadcrumbs(
+                    $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
                 'pageHead'     => [
@@ -104,9 +102,10 @@ class ShowWebpageWorkshop extends InertiaAction
         );
     }
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(string $routeName,array $routeParameters): array
     {
         return ShowWebpage::make()->getBreadcrumbs(
+            $routeName,
             $routeParameters,
             suffix: '('.__('workshop').')'
         );

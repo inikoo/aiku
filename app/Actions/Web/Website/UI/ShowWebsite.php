@@ -12,6 +12,7 @@ use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Web\HasWorkshopAction;
 use App\Enums\UI\Web\WebsiteTabsEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
@@ -30,22 +31,11 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowWebsite extends OrgAction
 {
     use HasWorkshopAction;
+    use HasWebAuthorisation;
 
     private Fulfilment|Shop|Organisation $parent;
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->parent instanceof Shop) {
-            $this->canEdit      = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
-            $this->isSupervisor = $request->user()->hasPermissionTo("supervisor-web.{$this->shop->id}");
-            return $request->user()->hasPermissionTo("web.{$this->shop->id}.view");
-        } elseif ($this->parent instanceof Fulfilment) {
-            $this->canEdit      = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-            $this->isSupervisor = $request->user()->hasPermissionTo("supervisor-fulfilment-shop.{$this->fulfilment->id}");
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
-        }
-        return false;
-    }
+
 
     public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): Website
     {
