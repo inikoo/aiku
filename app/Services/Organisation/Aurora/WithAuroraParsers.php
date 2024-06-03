@@ -23,7 +23,7 @@ use App\Actions\SourceFetch\Aurora\FetchAuroraLocations;
 use App\Actions\SourceFetch\Aurora\FetchAuroraMailshots;
 use App\Actions\SourceFetch\Aurora\FetchAuroraOrders;
 use App\Actions\SourceFetch\Aurora\FetchAuroraOutboxes;
-use App\Actions\SourceFetch\Aurora\FetchAuroraOuters;
+use App\Actions\SourceFetch\Aurora\FetchAuroraVariants;
 use App\Actions\SourceFetch\Aurora\FetchAuroraPaymentAccounts;
 use App\Actions\SourceFetch\Aurora\FetchAuroraPayments;
 use App\Actions\SourceFetch\Aurora\FetchAuroraPaymentServiceProviders;
@@ -291,7 +291,7 @@ trait WithAuroraParsers
                 }
                 $outer=$product->mainOuterable;
             } else {
-                $outer = FetchAuroraOuters::run($this->organisationSource, $productID);
+                $outer = FetchAuroraVariants::run($this->organisationSource, $productID);
                 if($outer->historic_source_id==$organisation->id.':'.$productKey) {
                     return $outer->currentHistoricOuterable;
                 }
@@ -318,7 +318,21 @@ trait WithAuroraParsers
 
     }
 
-    public function parseProduct(string $sourceId): Asset
+    public function parseAsset(string $sourceId): Product
+    {
+        //todo
+        $product = Product::where('source_id', $sourceId)->first();
+        if (!$product) {
+            $sourceData = explode(':', $sourceId);
+
+            $product    = FetchAuroraProducts::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $product;
+    }
+
+
+    public function parseProduct(string $sourceId): ?Product
     {
 
         $product = Product::where('source_id', $sourceId)->first();

@@ -108,7 +108,7 @@ class UpdateRentalAgreement extends OrgAction
             'billing_cycle'                  => ['sometimes', 'string', Rule::in(RentalAgreementBillingCycleEnum::values())],
             'pallets_limit'                  => ['sometimes', 'integer', 'min:1', 'max:10000'],
             'rental'                         => ['sometimes', 'array'],
-            'rental.rentals.*.asset_id'    => ['sometimes',
+            'rental.rentals.*.asset_id'      => ['sometimes',
                                          Rule::exists('assets', 'id')
 
                 ],

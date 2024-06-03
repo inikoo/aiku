@@ -202,12 +202,12 @@ class ShowFamily extends OrgAction
         };
 
         $family=ProductCategory::where('slug', $routeParameters['family'])->first();
-        
+
         // dd($routeParameters['family']);
         return match ($routeName) {
             'shops.families.show' =>
             array_merge(
-                IndexShops::make()->getBreadcrumbs( $routeName, $routeParameters),
+                IndexShops::make()->getBreadcrumbs($routeName, $routeParameters),
                 $headCrumb(
                     $routeParameters['family'],
                     [
@@ -257,7 +257,7 @@ class ShowFamily extends OrgAction
                         ],
                         'model' => [
                             'name'       => 'grp.org.shops.show.catalogue.families.show',
-                            'parameters' => $routeParameters 
+                            'parameters' => $routeParameters
                         ]
                     ],
                     $suffix

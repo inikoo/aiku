@@ -22,7 +22,7 @@ trait HasAssetModel
         $table->text('description')->nullable()->fulltext();
 
         $table->decimal('price', 18)->nullable();
-        $table->unsignedSmallInteger('units')->default(1);
+        $table->decimal('units', 9, 3)->default(1);
         $table->string('unit');
 
         $table->jsonb('data');

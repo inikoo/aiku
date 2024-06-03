@@ -181,7 +181,7 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
-    public function fetchOuter($id): ?array
+    public function fetchVariant($id): ?array
     {
         return null;
     }

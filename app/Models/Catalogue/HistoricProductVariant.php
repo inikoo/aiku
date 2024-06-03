@@ -30,7 +30,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property string|null $price
  * @property string $ratio
  * @property string $unit
- * @property int $units
+ * @property string $units
  * @property int $currency_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

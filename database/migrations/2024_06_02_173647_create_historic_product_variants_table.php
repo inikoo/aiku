@@ -23,9 +23,9 @@ return new class () extends Migration {
             $table->string('code')->index()->collation('und_ns');
             $table->string('name', 255)->nullable();
             $table->decimal('price', 18)->nullable();
-            $table->decimal('ratio', 4);
+            $table->decimal('ratio', 9, 3);
             $table->string('unit');
-            $table->unsignedSmallInteger('units')->default(1);
+            $table->decimal('units', 9, 3)->default(1);
             $table->unsignedSmallInteger('currency_id');
             $table->foreign('currency_id')->references('id')->on('currencies');
             $table->timestampsTz();

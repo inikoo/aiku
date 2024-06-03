@@ -240,7 +240,7 @@ class IndexFamilies extends OrgAction
                 ]
             ];
         };
-    
+
         return match ($routeName) {
             'grp.org.shops.show.catalogue.families.index' => array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),

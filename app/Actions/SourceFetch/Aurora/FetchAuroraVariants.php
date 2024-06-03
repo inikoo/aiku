@@ -7,54 +7,64 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Catalogue\Product\StoreOuterTODELETE;
-use App\Actions\Catalogue\Product\ProductOuter;
-use App\Models\Catalogue\Product;
+use App\Actions\Catalogue\ProductVariant\StoreProductVariant;
+use App\Actions\Catalogue\ProductVariant\UpdateProductVariant;
+use App\Models\Catalogue\ProductVariant;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
-class FetchAuroraOuters extends FetchAuroraAction
+class FetchAuroraVariants extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:outers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--N|only_new : Fetch only new}  {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:variants {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--N|only_new : Fetch only new}  {--d|db_suffix=} {--r|reset}';
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Product
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?ProductVariant
     {
-        if ($outerData = $organisationSource->fetchOuter($organisationSourceId)) {
 
 
-            if ($outer = Product::withTrashed()->where('source_id', $outerData['outer']['source_id'])
+        if ($productVariantData = $organisationSource->fetchVariant($organisationSourceId)) {
+
+
+            if ($productVariant = ProductVariant::withTrashed()->where('source_id', $productVariantData['variant']['source_id'])
                 ->first()) {
+                $productVariant = UpdateProductVariant::make()->action(
+                    productVariant: $productVariant,
+                    modelData: $productVariantData['variant'],
+                );
                 try {
-                    $outer = ProductOuter::make()->action(
-                        outer: $outer,
-                        modelData: $outerData['outer'],
+                    $productVariant = UpdateProductVariant::make()->action(
+                        productVariant: $productVariant,
+                        modelData: $productVariantData['variant'],
                     );
                 } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $outerData['outer'], 'Product', 'update');
+                    $this->recordError($organisationSource, $e, $productVariantData['variant'], 'Product', 'update');
                     return null;
                 }
             } else {
+                $productVariant = StoreProductVariant::make()->action(
+                    product: $productVariantData['product'],
+                    modelData: $productVariantData['variant'],
+                );
                 try {
-                    $outer = StoreOuterTODELETE::make()->action(
-                        product: $outerData['product'],
-                        modelData: $outerData['outer'],
+                    $productVariant = StoreProductVariant::make()->action(
+                        product: $productVariantData['product'],
+                        modelData: $productVariantData['variant'],
                     );
                 } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $outerData['outer'], 'Product', 'store');
+                    $this->recordError($organisationSource, $e, $productVariantData['variant'], 'Product', 'store');
                     return null;
                 }
             }
 
 
-            $sourceData = explode(':', $outer->source_id);
+            $sourceData = explode(':', $productVariant->source_id);
 
             DB::connection('aurora')->table('Product Dimension')
                 ->where('Product ID', $sourceData[1])
-                ->update(['aiku_id' => $outer->id]);
+                ->update(['aiku_id' => $productVariant->id]);
 
-            return $outer;
+            return $productVariant;
         }
 
 

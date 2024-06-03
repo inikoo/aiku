@@ -36,7 +36,7 @@ class EditRentalAgreement extends OrgAction
             $agreedPrice = $clause->agreed_price;
 
             $rentals[] = [
-                'asset_id'       => $clause->asset_id,
+                'asset_id'         => $clause->asset_id,
                 'agreed_price'     => $agreedPrice,
                 'price'            => $price,
                 'discount'         => ($price - $agreedPrice) / $agreedPrice * 100

@@ -46,7 +46,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code mirror of asset model
  * @property string|null $name mirror of asset model
  * @property string|null $price mirror of asset model
- * @property int $units mirror of asset model
+ * @property string $units mirror of asset model
  * @property string|null $unit mirror of asset model
  * @property int $currency_id
  * @property array $data
@@ -56,15 +56,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property ProductUnitRelationshipType $unit_relationship_type
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Barcode> $barcode
  * @property-read Currency $currency
- * @property-read \App\Models\Catalogue\HistoricAsset|null $currentHistoricOuterable
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicAssets
  * @property-read \App\Models\Studio\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $images
- * @property-read Model|\Eloquent $mainOuterable
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $media
  * @property-read Model|\Eloquent $model
  * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \App\Models\Catalogue\Product|null $product
  * @property-read \Illuminate\Database\Eloquent\Collection<int, RecurringBill> $recurringBills
  * @property-read Rental|null $rental
  * @property-read \App\Models\Catalogue\AssetSalesIntervals|null $salesIntervals

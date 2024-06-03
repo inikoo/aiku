@@ -20,7 +20,7 @@ class RentalClausesResource extends JsonResource
         return [
             'id'                                => $this->id,
             'rental_id'                         => $this->asset->rental->id,
-            'asset_id'                        => $this->asset_id,
+            'asset_id'                          => $this->asset_id,
             'slug'                              => $this->asset->slug,
             'name'                              => $this->asset->name,
             'code'                              => $this->asset->code,

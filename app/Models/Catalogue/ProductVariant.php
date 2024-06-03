@@ -39,19 +39,22 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $product_id
  * @property bool $status
  * @property ProductVariantStateEnum $state
+ * @property bool $is_visible
  * @property ProductVariantUnitRelationshipType|null $unit_relationship_type
  * @property string $slug
  * @property string $code
  * @property string|null $name
  * @property string|null $price
  * @property string $unit
- * @property int $units
+ * @property string $units
  * @property int $currency_id
  * @property int|null $current_historic_asset_id
  * @property int|null $current_historic_product_variant_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $source_id
+ * @property string|null $historic_source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
  * @property-read \App\Models\SysAdmin\Group $group

@@ -12,7 +12,6 @@ use App\Actions\Catalogue\Product\Hydrators\ProductHydrateProductVariants;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\ProductVariant\ProductVariantStateEnum;
-use App\Enums\Catalogue\ProductVariant\ProductVariantUnitRelationshipType;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductVariant;
 use App\Rules\IUnique;
@@ -43,7 +42,7 @@ class StoreProductVariant extends OrgAction
         data_set($modelData, 'shop_id', $product->shop_id);
         data_set($modelData, 'currency_id', $product->currency_id);
         data_set($modelData, 'unit', $product->unit);
-        data_set($modelData, 'units', $product->units*$modelData['ratio']);
+        data_set($modelData, 'units', $product->units * $modelData['ratio']);
 
         data_set($modelData, 'status', $product->status);
         data_set(
@@ -90,23 +89,13 @@ class StoreProductVariant extends OrgAction
         return $productVariant;
     }
 
-    public function getUnitRelationshipType(array $tradeUnits): ?ProductVariantUnitRelationshipType
-    {
-        if (count($tradeUnits) == 1) {
-            return ProductVariantUnitRelationshipType::SINGLE;
-        } elseif (count($tradeUnits) > 1) {
-            return ProductVariantUnitRelationshipType::MULTIPLE;
-        }
-
-        return null;
-    }
 
     public function rules(): array
     {
         return [
-            'is_main' => ['required', 'boolean'],
-            'ratio'   => ['required', 'numeric', 'gt:0'],
-            'code'    => [
+            'is_main'            => ['required', 'boolean'],
+            'ratio'              => ['required', 'numeric', 'gt:0'],
+            'code'               => [
                 'required',
                 'max:32',
                 'alpha_dash',
@@ -114,13 +103,15 @@ class StoreProductVariant extends OrgAction
                     table: 'assets',
                     extraConditions: [
                         ['column' => 'shop_id', 'value' => $this->shop->id],
-                        ['column' => 'state', 'operator' => '!=', 'value' => ProductStateEnum::DISCONTINUED->value],
+                        ['column' => 'state', 'operator' => '!=', 'value' => ProductVariantStateEnum::DISCONTINUED->value],
                         ['column' => 'deleted_at', 'operator' => 'notNull'],
                     ]
                 ),
             ],
-            'name'    => ['required', 'max:250', 'string'],
-            'price'   => ['required', 'numeric', 'min:0'],
+            'name'               => ['required', 'max:250', 'string'],
+            'price'              => ['required', 'numeric', 'min:0'],
+            'source_id'          => ['sometimes', 'required', 'string', 'max:255'],
+            'historic_source_id' => ['sometimes', 'required', 'string', 'max:255'],
 
         ];
     }

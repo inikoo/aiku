@@ -9,7 +9,6 @@ namespace App\Actions\Studio\Media;
 
 use App\Actions\Studio\Media\Hydrators\MediaHydrateMultiplicity;
 use App\Actions\Studio\Media\Hydrators\MediaHydrateUsage;
-use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Product;
 use App\Models\Studio\Media;
 use Lorisleiva\Actions\Concerns\AsAction;

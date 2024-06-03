@@ -46,10 +46,10 @@ class StoreProduct extends OrgAction
         $tradeUnits = $modelData['trade_units'];
         data_forget($modelData, 'trade_units');
 
-        if(count($tradeUnits)==1) {
-            $units=$tradeUnits[array_key_first($tradeUnits)]['units'];
+        if (count($tradeUnits) == 1) {
+            $units = $tradeUnits[array_key_first($tradeUnits)]['units'];
         } else {
-            $units=1;
+            $units = 1;
         }
         data_set($modelData, 'units', $units);
 
@@ -93,12 +93,14 @@ class StoreProduct extends OrgAction
         StoreProductVariant::run(
             $product,
             [
-                'is_main'     => true,
-                'ratio'       => 1,
-                'code'        => $product->code,
-                'name'        => $product->name,
-                'price'       => $product->price,
-                'state'       => $product->state,
+                'is_main'            => true,
+                'ratio'              => 1,
+                'code'               => $product->code,
+                'name'               => $product->name,
+                'price'              => $product->price,
+                'state'              => $product->state,
+                'source_id'          => $product->source_id,
+                'historic_source_id' => $product->historic_source_id,
             ]
         );
         $product->refresh();

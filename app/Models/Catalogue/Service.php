@@ -37,9 +37,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $name
  * @property string|null $description
  * @property string|null $price
- * @property int $units
+ * @property string $units
  * @property string $unit
  * @property array $data
+ * @property array $settings
  * @property int $currency_id
  * @property int|null $current_historic_asset_id
  * @property \Illuminate\Support\Carbon|null $created_at

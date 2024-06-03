@@ -4,10 +4,10 @@
  * Created: Sun, 26 May 2024 00:04:36 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
+
 namespace App\Actions\Catalogue\ProductCategory;
 
 use App\Models\Catalogue\ProductCategory;
-use App\Models\HumanResources\Workplace;
 
 trait WithDepartmentSubNavigation
 {

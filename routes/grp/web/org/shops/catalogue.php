@@ -42,8 +42,8 @@ Route::name("departments.")->prefix('departments')
     ->group(function () {
         Route::get('', IndexDepartments::class)->name('index');
         Route::get('create', CreateDepartment::class)->name('create');
-       
-        
+
+
 
         Route::prefix('{department}')->group(function () {
             Route::get('', ShowDepartment::class)->name('show');

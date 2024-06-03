@@ -44,9 +44,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $name
  * @property string|null $description
  * @property string|null $price
- * @property int $units
+ * @property string $units
  * @property string $unit
  * @property array $data
+ * @property array $settings
  * @property int $currency_id
  * @property int|null $current_historic_asset_id
  * @property int|null $product_variant_id
@@ -65,6 +66,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\Currency $currency
  * @property-read Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicAssets
+ * @property-read \App\Models\Studio\Media|null $image
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $images
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $media
  * @property-read Organisation $organisation
  * @property-read \App\Models\Catalogue\ProductVariant|null $productVariant
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\ProductVariant> $productVariants
@@ -82,7 +86,7 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|Product withoutTrashed()
  * @mixin \Eloquent
  */
-class Product extends Model implements Auditable,HasMedia
+class Product extends Model implements Auditable, HasMedia
 {
     use SoftDeletes;
     use HasSlug;

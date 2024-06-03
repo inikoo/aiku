@@ -37,7 +37,7 @@ class PalletsResource extends JsonResource
     {
         $rental = Rental::find($this->rental_id) ?? null;
         // dd($rental);
-                return [
+        return [
             'id'                               => $this->id,
             'slug'                             => $this->slug,
             'reference'                        => $this->reference,
@@ -49,8 +49,8 @@ class PalletsResource extends JsonResource
             'state'                            => $this->state,
             'type_icon'                        => $this->type->typeIcon()[$this->type->value],
             'type'                             => $this->type,
-            'rental_id'                        => $rental->id ?? null,
-            'rental_name'                      => $rental->name ?? null,            
+            'rental_id'                        => $rental->id   ?? null,
+            'rental_name'                      => $rental->name ?? null,
             'state_label'                      => $this->state->labels()[$this->state->value],
             'state_icon'                       => $this->state->stateIcon()[$this->state->value],
             'status'                           => $this->status,
@@ -60,10 +60,10 @@ class PalletsResource extends JsonResource
             'location_code'                    => $this->location_code,
             'location_id'                      => $this->location_id,
             'stored_items'                     => $this->storedItems->map(fn ($storedItem) => [
-                'id'        => $storedItem->id,
-                'reference' => $storedItem->reference,
-                'notes'     => $storedItem->notes,
-                'quantity'  => (int)$storedItem->pivot->quantity,
+        'id'        => $storedItem->id,
+        'reference' => $storedItem->reference,
+        'notes'     => $storedItem->notes,
+        'quantity'  => (int)$storedItem->pivot->quantity,
             ]),
             'stored_items_quantity' => (int)$this->storedItems()->sum('quantity'),
             'updateRoute'           => match (request()->routeIs('retina.*')) {

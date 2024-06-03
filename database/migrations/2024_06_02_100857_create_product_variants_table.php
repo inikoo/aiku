@@ -18,13 +18,16 @@ return new class () extends Migration {
         Schema::create('product_variants', function (Blueprint $table) {
             $table=$this->productFields($table);
             $table->boolean('is_main')->default(false);
-            $table->decimal('ratio', 4);
+            $table->decimal('ratio', 9, 3);
 
             $table->unsignedSmallInteger('product_id')->nullable();
             $table->foreign('product_id')->references('id')->on('products');
 
             $table->boolean('status')->default(false)->index();
             $table->string('state')->default(ProductVariantStateEnum::IN_PROCESS)->index();
+
+            $table->boolean('is_visible')->default(true)->index();
+
             $table->string('unit_relationship_type')->nullable()->index();
 
             $table->string('slug')->unique()->collation('und_ns');
@@ -32,7 +35,7 @@ return new class () extends Migration {
             $table->string('name', 255)->nullable();
             $table->decimal('price', 18)->nullable();
             $table->string('unit');
-            $table->unsignedSmallInteger('units')->default(1);
+            $table->decimal('units', 9, 3)->default(1);
 
             $table->unsignedSmallInteger('currency_id');
             $table->foreign('currency_id')->references('id')->on('currencies');
@@ -40,10 +43,10 @@ return new class () extends Migration {
             $table->foreign('current_historic_asset_id')->references('id')->on('historic_assets');
             $table->unsignedInteger('current_historic_product_variant_id')->index()->nullable();
 
-
-
             $table->timestampsTz();
             $table->softDeletesTz();
+            $table->string('source_id')->nullable()->unique();
+            $table->string('historic_source_id')->nullable()->index();
         });
 
         Schema::table('products', function (Blueprint $table) {

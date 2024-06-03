@@ -10,7 +10,8 @@ namespace App\Actions\Catalogue\ProductVariant;
 use App\Actions\Catalogue\HistoricProductVariant\StoreHistoricProductVariant;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Catalogue\Asset\AssetStateEnum;
+use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Enums\Catalogue\ProductVariant\ProductVariantStateEnum;
 use App\Models\Catalogue\ProductVariant;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
@@ -26,6 +27,22 @@ class UpdateProductVariant extends OrgAction
 
     public function handle(ProductVariant $productVariant, array $modelData): ProductVariant
     {
+
+        if(Arr::has($modelData, 'state')) {
+            data_set(
+                $modelData,
+                'state',
+                match (Arr::get($modelData, 'state')) {
+                    ProductStateEnum::ACTIVE        => ProductVariantStateEnum::ACTIVE,
+                    ProductStateEnum::DISCONTINUING => ProductVariantStateEnum::DISCONTINUING,
+                    ProductStateEnum::DISCONTINUED  => ProductVariantStateEnum::DISCONTINUED,
+                    default                         => ProductVariantStateEnum::IN_PROCESS
+                }
+            );
+
+        }
+
+
 
         $productVariant  = $this->update($productVariant, $modelData);
         $changed         = $productVariant->getChanges();
@@ -77,8 +94,7 @@ class UpdateProductVariant extends OrgAction
             'rrp'         => ['sometimes', 'required', 'numeric'],
             'data'        => ['sometimes', 'array'],
             'settings'    => ['sometimes', 'array'],
-            'status'      => ['sometimes', 'required', 'boolean'],
-            'state'       => ['sometimes', 'required', Rule::enum(AssetStateEnum::class)],
+            'state'       => ['sometimes', 'required', Rule::enum(ProductStateEnum::class)],
         ];
     }
 

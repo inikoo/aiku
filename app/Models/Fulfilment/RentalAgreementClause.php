@@ -26,11 +26,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $agreed_price
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read Asset $asset
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @property-read Asset|null $product
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementClause newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementClause newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementClause query()

@@ -10,7 +10,6 @@ namespace App\Actions\SourceFetch\Aurora;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Product\UpdateProduct;
 use App\Actions\Studio\Media\SaveModelImages;
-use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Product;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
@@ -21,7 +20,7 @@ class FetchAuroraProducts extends FetchAuroraAction
 {
     public string $commandSignature = 'fetch:products {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--N|only_new : Fetch only new}  {--d|db_suffix=} {--r|reset}';
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Asset
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Product
     {
         if ($productData = $organisationSource->fetchProduct($organisationSourceId)) {
             $sourceData = explode(':', $productData['product']['source_id']);
@@ -35,19 +34,17 @@ class FetchAuroraProducts extends FetchAuroraAction
 
             /** @var Product $product */
             if ($product = Product::withTrashed()->where('source_id', $productData['product']['source_id'])->first()) {
-
                 try {
                     $product = UpdateProduct::make()->action(
                         product: $product,
                         modelData: $productData['product'],
                     );
                 } catch (Exception $e) {
-                    dd($e);
-                    $this->recordError($organisationSource, $e, $productData['product'], 'Asset', 'update');
+                    $this->recordError($organisationSource, $e, $productData['product'], 'Product', 'update');
+
                     return null;
                 }
             } else {
-
                 try {
                     $product = StoreProduct::make()->action(
                         parent: $productData['parent'],
@@ -55,8 +52,7 @@ class FetchAuroraProducts extends FetchAuroraAction
                         strict: false
                     );
                 } catch (Exception $e) {
-                    dd($e);
-                    $this->recordError($organisationSource, $e, $productData['product'], 'Asset', 'store');
+                    $this->recordError($organisationSource, $e, $productData['product'], 'Product', 'store');
 
                     return null;
                 }
@@ -70,27 +66,42 @@ class FetchAuroraProducts extends FetchAuroraAction
                 ->update(['aiku_id' => $product->id]);
 
 
-            if(count($productData['product']['images'])>0) {
-                foreach($productData['product']['images'] as $imageData) {
+            if (count($productData['product']['images']) > 0) {
+                foreach ($productData['product']['images'] as $imageData) {
                     if (isset($imageData['image_path']) and isset($imageData['filename'])) {
-                        // try {
-                        SaveModelImages::run(
-                            $product,
-                            [
-                                'path'         => $imageData['image_path'],
-                                'originalName' => $imageData['filename'],
+                        try {
+                            SaveModelImages::run(
+                                $product,
+                                [
+                                    'path'         => $imageData['image_path'],
+                                    'originalName' => $imageData['filename'],
 
-                            ],
-                            'photo',
-                            'product_images'
-                        );
-                        //} catch (Exception) {
-                        //
-                        // }
+                                ],
+                                'photo',
+                                'product_images'
+                            );
+                        } catch (Exception $e) {
+                            $this->recordError($organisationSource, $e, $imageData, 'Image', 'store');
+                        }
                     }
                 }
             }
-            return $product->asset;
+
+
+            foreach (
+                DB::connection('aurora')
+                    ->table('Product Dimension')
+                    ->where('Product Type', 'Product')
+                    ->where('is_variant', 'Yes')
+                    ->where('variant_parent_id', $sourceData[1])
+                    ->select('Product ID as source_id')
+                    ->orderBy('Product ID')->get() as $productVariantData
+            ) {
+                FetchAuroraVariants::run($organisationSource, $productVariantData->source_id);
+            }
+
+
+            return $product;
         }
 
 

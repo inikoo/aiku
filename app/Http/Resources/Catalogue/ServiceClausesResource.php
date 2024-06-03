@@ -20,7 +20,7 @@ class ServiceClausesResource extends JsonResource
         return [
             'id'                                => $clause->id,
             'rental_id'                         => $clause->asset->service->id,
-            'asset_id'                        => $clause->asset_id,
+            'asset_id'                          => $clause->asset_id,
             'slug'                              => $clause->asset->slug,
             'name'                              => $clause->asset->name,
             'code'                              => $clause->asset->code,
