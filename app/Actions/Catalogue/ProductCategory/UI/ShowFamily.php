@@ -14,6 +14,7 @@ use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\OrgAction;
 use App\Enums\UI\Catalogue\DepartmentTabsEnum;
+use App\Enums\UI\Catalogue\FamilyTabsEnum;
 use App\Http\Resources\Catalogue\DepartmentsResource;
 use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\CRM\CustomersResource;
@@ -79,9 +80,9 @@ class ShowFamily extends OrgAction
     {
 
         return Inertia::render(
-            'Org/Catalogue/Department',
+            'Org/Catalogue/Family',
             [
-                'title'                              => __('department'),
+                'title'                              => __('family'),
                 'breadcrumbs'                        => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
@@ -118,17 +119,17 @@ class ShowFamily extends OrgAction
                 ],
                 'tabs'                               => [
                     'current'    => $this->tab,
-                    'navigation' => DepartmentTabsEnum::navigation()
+                    'navigation' => FamilyTabsEnum::navigation()
                 ],
 
-                DepartmentTabsEnum::SHOWCASE->value => $this->tab == DepartmentTabsEnum::SHOWCASE->value ?
+                FamilyTabsEnum::SHOWCASE->value => $this->tab == FamilyTabsEnum::SHOWCASE->value ?
                     fn () => GetProductCategoryShowcase::run($family)
                     : Inertia::lazy(fn () => GetProductCategoryShowcase::run($family)),
 
-                DepartmentTabsEnum::CUSTOMERS->value => $this->tab == DepartmentTabsEnum::CUSTOMERS->value ?
+                    FamilyTabsEnum::CUSTOMERS->value => $this->tab == FamilyTabsEnum::CUSTOMERS->value ?
                     fn () => CustomersResource::collection(IndexCustomers::run($family))
                     : Inertia::lazy(fn () => CustomersResource::collection(IndexCustomers::run($family))),
-                DepartmentTabsEnum::MAILSHOTS->value => $this->tab == DepartmentTabsEnum::MAILSHOTS->value ?
+                    FamilyTabsEnum::MAILSHOTS->value => $this->tab == FamilyTabsEnum::MAILSHOTS->value ?
                     fn () => MailshotResource::collection(IndexMailshots::run($family))
                     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($family))),
 
@@ -160,7 +161,7 @@ class ShowFamily extends OrgAction
                     ),
 */
 
-                DepartmentTabsEnum::PRODUCTS->value  => $this->tab == DepartmentTabsEnum::PRODUCTS->value ?
+                    FamilyTabsEnum::PRODUCTS->value  => $this->tab == FamilyTabsEnum::PRODUCTS->value ?
                     fn () => ProductsResource::collection(IndexProducts::run($family))
                     : Inertia::lazy(fn () => ProductsResource::collection(IndexProducts::run($family))),
 
@@ -186,7 +187,7 @@ class ShowFamily extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('families')
+                            'label' => __('Families')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
@@ -200,10 +201,13 @@ class ShowFamily extends OrgAction
             ];
         };
 
+        $family=ProductCategory::where('slug', $routeParameters['family'])->first();
+        
+        // dd($routeParameters['family']);
         return match ($routeName) {
             'shops.families.show' =>
             array_merge(
-                IndexShops::make()->getBreadcrumbs(),
+                IndexShops::make()->getBreadcrumbs( $routeName, $routeParameters),
                 $headCrumb(
                     $routeParameters['family'],
                     [
@@ -221,22 +225,39 @@ class ShowFamily extends OrgAction
                     $suffix
                 )
             ),
-            'shops.show.families.show' =>
+            // 'grp.org.shops.show.catalogue.families.show' =>
+            // array_merge(
+            //     IndexFamilies::make()->getBreadcrumbs( $routeName , $routeParameters),
+            //     $headCrumb(
+            //         $routeParameters['family'],
+            //         [
+            //             'index' => [
+            //                 'name'       => 'grp.org.shops.show.catalogue.families.index',
+            //                 'parameters' => []
+            //             ],
+            //             'model' => [
+            //                 'name'       => 'grp.org.shops.show.catalogue.families.show',
+            //                 'parameters' => [
+            //                     $routeParameters['family']
+            //                 ]
+            //             ]
+            //         ],
+            //         $suffix
+            //     )
+            // ),
+            'grp.org.shops.show.catalogue.families.show' =>
             array_merge(
-                ShowShop::make()->getBreadcrumbs($routeParameters['shop']),
+                ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
-                    $routeParameters['family'],
+                    $family,
                     [
                         'index' => [
-                            'name'       => 'shops.show.families.index',
-                            'parameters' => [$routeParameters['shop']->slug]
+                            'name'       => 'grp.org.shops.show.catalogue.families.index',
+                            'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'shops.show.families.show',
-                            'parameters' => [
-                                $routeParameters['shop']->slug,
-                                $routeParameters['family']->slug
-                            ]
+                            'name'       => 'grp.org.shops.show.catalogue.families.show',
+                            'parameters' => $routeParameters 
                         ]
                     ],
                     $suffix

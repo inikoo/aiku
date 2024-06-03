@@ -33,10 +33,10 @@ class ShowDashboard
                     'currency'  => $organisation->currency,
                     'sales'     => $organisation->salesIntervals,
                     'invoices'  => [
-                        'number_invoices' => $organisation->accountingStats->number_invoices_type_invoice
+                        'number_invoices' => $organisation->accountingStats->number_invoices_type_invoice ?? null
                     ],
                     'refunds' => [
-                        'number_refunds' => $organisation->accountingStats->number_invoices_type_refund
+                        'number_refunds' => $organisation->accountingStats->number_invoices_type_refund ?? null
                     ]
                 ];
             })

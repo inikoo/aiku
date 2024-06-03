@@ -17,6 +17,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faChevronLeft, faChevronRight } from '@fas'
 import { faParachuteBox } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { capitalize } from '@/Composables/capitalize'
 library.add(faChevronLeft, faChevronRight, faParachuteBox)
 
 
@@ -58,6 +59,8 @@ interface MergeNavigation {
 }
 
 const layout = inject('layout', layoutStructure)
+
+// console.log('org', layout.organisationsState[layout.currentParams.organisation][`current${capitalize(layout.organisationsState[layout.currentParams.organisation].currentType)}`])
 
 // Navigation Fulfilment, Shop, and Merged
 const shopsOpenSlugs = layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.authorised_shops.filter(shop => shop.state === 'open').map(shop => shop.slug)
@@ -116,15 +119,21 @@ const activeNav = () => {
     return layout.organisationsState[layout.currentParams.organisation].currentType
 }
 
+// Method: to get current slug depend on the type ('AWF')
+const currentTypeSlug = () => {
+    const currentType = layout.organisationsState[layout.currentParams.organisation].currentType  // 'shop' || 'fulfilment'
+    return layout.organisationsState[layout.currentParams.organisation][`current${capitalize(currentType)}`]
+}
+
 // Route for arrow chevron
 const previousNavigation = () => {
-    const keySlug = layout.currentParams.shop || layout.currentParams.fulfilment  // uk
+    const keySlug = currentTypeSlug()
     const indexNavigation = mergeNavigations.findIndex(navigation => navigation.key === keySlug)  // -1, 0, 2, 3
 
     return mergeNavigations[indexNavigation-1] || undefined
 }
 const nextNavigation = () => {
-    const keySlug = layout.currentParams.shop || layout.currentParams.fulfilment  // uk
+    const keySlug = currentTypeSlug()
     const indexNavigation = mergeNavigations.findIndex(navigation => navigation.key === keySlug)  // -1, 0, 2, 3
 
     return mergeNavigations[indexNavigation+1] || undefined
@@ -175,8 +184,7 @@ const routeLabelHorizontal = () => {
         :class="layout.leftSidebar.show ? 'px-1' : 'px-0'"
         :style="{ 'box-shadow': `0 0 0 1px ${layout.app.theme[1]}55` }">
         <span v-if="false" class="text-white">
-            <!-- Horizontal -->
-            <!-- {{ currentNavigation() }} -->
+            {{ previousNavigation() }}
         </span>
         
         <!-- Label: Icon shops/warehouses and slug -->
@@ -193,14 +201,14 @@ const routeLabelHorizontal = () => {
                 </Transition>
 
                 <Transition name="slide-to-left">
-                    <div v-if="layout.leftSidebar.show" class="flex items-center gap-x-1.5">
+                    <div v-if="layout.leftSidebar.show" class="flex items-end gap-x-0.5">
                         <Transition name="spin-to-down">
-                            <span :key="currentNavigation()?.key" class="text-base leading-3 uppercase">
+                            <span :key="currentNavigation()?.key" class="text-base leading-[14px] uppercase">
                                 {{ currentNavigation()?.key }}
                             </span>
                         </Transition>
                         <Transition name="spin-to-down">
-                            <span :key="currentNavigation()?.value.type" class="text-sm capitalize leading-3">
+                            <span :key="currentNavigation()?.value.type" class="text-xxs capitalize leading-3">
                                 ({{ currentNavigation()?.value.type || currentNavigation()?.type}})
                             </span>
                         </Transition>
@@ -211,7 +219,7 @@ const routeLabelHorizontal = () => {
             
             <!-- Section: Arrow left-right -->
             <Transition name="slide-to-left">
-                <div v-if="isSomeSubnavActive() && layout.leftSidebar.show" class="absolute right-1 top-2 flex text-white text-xxs"
+                <div v-if="layout.leftSidebar.show" class="absolute right-1 top-2 flex text-white text-xxs"
                 >
                     <component :is="previousNavigation() ? Link : 'div'" :href="routeArrow(previousNavigation())" class="py-0.5 px-[1px] flex justify-center items-center rounded"
                         :class="previousNavigation() ? 'hover:bg-black/10' : 'text-white/40'"

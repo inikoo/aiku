@@ -14,6 +14,7 @@ use App\Actions\Catalogue\Asset\UI\ShowProduct;
 use App\Actions\Catalogue\ProductCategory\UI\CreateDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\CreateFamily;
 use App\Actions\Catalogue\ProductCategory\UI\EditDepartment;
+use App\Actions\Catalogue\ProductCategory\UI\EditFamily;
 use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
 use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
 use App\Actions\Catalogue\ProductCategory\UI\ShowDepartment;
@@ -56,8 +57,8 @@ Route::name("families.")->prefix('families')
         Route::get('create', CreateFamily::class)->name('create');
 
         Route::prefix('{family}')->group(function () {
-            Route::get('', ShowDepartment::class)->name('show');
-            Route::get('edit', ShowFamily::class)->name('edit');
+            Route::get('', [ShowFamily::class, 'inShop'])->name('show');
+            Route::get('edit', [EditFamily::class, 'inShop'])->name('edit');
             Route::get('products/{product}', [ShowProduct::class, 'inFamily'])->name('products.show');
         });
     });
