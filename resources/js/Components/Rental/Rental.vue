@@ -45,7 +45,6 @@ const bulkData = ref([])
 const bulkDiscInput = ref(0)
 const currency = (inject('layout', layoutStructure))?.group?.currency
 
-console.log(props)
 
 const emits = defineEmits<{
     (e: 'changeIsDirty', value: Boolean): void

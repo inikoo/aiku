@@ -8,6 +8,7 @@ import PhysicalGoodsBluprint from './Bluprint/physicalGoods.js'
 import { inject } from 'vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { cloneDeep } from 'lodash'
+import Button from '@/Components/Elements/Buttons/Button.vue'
 
 const layout = inject('layout', layoutStructure)
 
@@ -33,6 +34,8 @@ const props = defineProps<{
     }
 }>()
 
+console.log(props)
+
 
 const tabs = ref([
     {
@@ -56,11 +59,24 @@ const tabs = ref([
 ])
 
 
+const resetValue=()=>{
+    const clonedData = {
+        rentals: cloneDeep(props.fieldData?.rentals?.data),
+        physical_goods: cloneDeep(props.fieldData?.physical_goods?.data),
+        services: cloneDeep(props.fieldData?.services.data),
+    };
+    props.form.defaults({
+        [props.fieldName]: clonedData,
+    })
+    props.form.reset(props.fieldName)
+}
+
+
 
 onBeforeMount(() => {
     const clonedData = {
         rentals: cloneDeep(props.fieldData?.rentals?.data),
-        physical_goods: cloneDeep(props.fieldData?.physical_goods?.data || 0),
+        physical_goods: cloneDeep(props.fieldData?.physical_goods?.data),
         services: cloneDeep(props.fieldData?.services.data),
     };
     props.form.defaults({
@@ -88,6 +104,9 @@ onBeforeMount(() => {
                         {{ tab.title }}
                     </button>
                 </Tab>
+                <div style="margin-left: auto;">
+                       <Button  :label="`Reset`" :icon="['fal', 'history']" :type="'gray'" @click="resetValue"/>
+                </div>
             </TabList>
 
             <TabPanels class="mt-2">

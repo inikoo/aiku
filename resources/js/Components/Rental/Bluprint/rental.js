@@ -7,19 +7,22 @@ export default {
             title : 'Rental',
             key : 'name',
             type : 'name',
+            class : 'w-80'
         },
         {
             title : 'Original price',
-            key : 'original_price',
-            type : 'price'
+            key : 'price',
+            type : 'price',
+            class : 'w-80'
         },
         {
             title: 'Price',
             key: 'agreed_price',
             type: 'inputPrice',
+            class : 'w-80',
             propsOptions: {
                 onChange: (value, column, rowData) => {
-                    let discount = (1 - (value / rowData.original_price)) * 100;
+                    let discount = (1 - (parseFloat(value) / rowData.price)) * 100;
                     discount = parseFloat(discount.toFixed(2));
                     rowData.discount = discount;
                 }
@@ -29,9 +32,10 @@ export default {
             title : 'Discount',
             key : 'discount',
             type : 'discount',
+            class : 'w-80',
             propsOptions : {
                 onChange : (value,column,rowData)=> {
-                    let discountedPrice = rowData.original_price - (rowData.original_price * (value / 100))
+                    let discountedPrice = rowData.price - (rowData.price * (value / 100))
                     rowData.agreed_price = discountedPrice
                 }
             }
