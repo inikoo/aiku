@@ -60,7 +60,7 @@ const tabs = ref([
 onBeforeMount(() => {
     const clonedData = {
         rentals: cloneDeep(props.fieldData?.rentals?.data),
-        physical_goods: cloneDeep(props.fieldData?.physical_goods.data),
+        physical_goods: cloneDeep(props.fieldData?.physical_goods?.data || 0),
         services: cloneDeep(props.fieldData?.services.data),
     };
     props.form.defaults({

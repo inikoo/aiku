@@ -141,7 +141,7 @@ console.log(props)
                                     {{ itemData[e.key] }}
                                 </div>
                                 <div v-if="e.type == 'price'">
-                                     {{ `${itemData.currency.symbol} ${itemData[e.key]}` }}
+                                    {{ `${itemData.currency.symbol} ${itemData[e.key] || 0}` }}
                                 </div>
                                 <div v-else-if="e.type == 'name'">
                                 <div>

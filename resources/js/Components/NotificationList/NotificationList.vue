@@ -9,6 +9,7 @@ import { layoutStructure } from "@/Composables/useLayoutStructure"
 import Profile from "@/Pages/Grp/Profile.vue"
 import axios from "axios"
 import { notify } from "@kyvg/vue3-notification"
+import { trans } from 'laravel-vue-i18n'
 
 library.add(faEnvelope, faEnvelopeOpenText)
 
@@ -28,12 +29,6 @@ const setAllToRead = async () => {
         )
 
         layout.user.notifications.map(notif => notif.read = true)  // Manipulation data in FE
-
-        notify({
-            title: 'All notifications already marks.',
-            text: undefined,
-            type: 'success'
-        })
     } catch (error: any) {
         console.log(error)
         notify({
@@ -54,7 +49,6 @@ const setNotificationToRead = async (notifId: string) => {
                 route('grp.models.notifications.read', notifId)
             )
     
-    
         } catch (error: any) {
             console.log(error)
             notify({
@@ -69,7 +63,7 @@ const setNotificationToRead = async (notifId: string) => {
 let timer: ReturnType<typeof setTimeout> | null = null
 onMounted(async () => {
     timer = setTimeout(async () => {
-        // await setAllToRead()
+        layout.user.notifications.map(notif => setNotificationToRead(notif.id))
         timer = null
     }, 2500)
 })
@@ -83,8 +77,8 @@ onBeforeUnmount(() => {
 
 <template>
     <div class="flex items-center flex-col w-full overflow-auto min-h-11 max-h-96">
-        <div @click="() => setAllToRead()" class="place-self-end text-gray-500 hover:text-indigo-500 cursor-pointer text-sm">
-            Marks all as read
+        <div v-if="layout.user.notifications.some(notif => !notif.read)" @click="() => setAllToRead()" class="place-self-end text-gray-500 hover:text-indigo-500 cursor-pointer text-sm">
+            {{ trans('Marks all as read') }}
         </div>
         
         <ul v-if="layout.user.notifications.length" role="list" class="w-full divide-y divide-gray-100 overflow-y-auto">
@@ -97,7 +91,7 @@ onBeforeUnmount(() => {
                         <component
                             :is="notif.href ? Link : 'div'"
                             :href="notif.href"
-                            @success="() => setNotificationToRead(notif.id)"
+                            @success="() => notif.read ?? setNotificationToRead(notif.id)"
                         >
                             <span class="absolute inset-x-0 -top-px bottom-0"></span>
                             {{ notif.title }}
@@ -114,12 +108,12 @@ onBeforeUnmount(() => {
         </ul>
 
         <div v-else class="mx-auto italic text-gray-400">
-            You have no new notifications.
+            {{ trans('You have no new notifications') }}.
         </div>
 
         <div class="flex w-full justify-center border-t border-gray-200 mt-3 pt-3">
             <div @click="() => (close(), layout.stackedComponents.push({ component: Profile, data: { currentTab: 'notifications' }}))" class="cursor-pointer px-2 text-gray-400 hover:text-gray-500 font-semibold">
-                Show all notification
+                {{ trans('Show all notification') }}
             </div>
         </div>
     </div>
