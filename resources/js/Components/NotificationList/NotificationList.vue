@@ -41,9 +41,9 @@ const setAllToRead = async () => {
 
 // Method: set selected notification to read = true
 const setNotificationToRead = async (notifId: string) => {
-    props.close()
+    // props.close()
     if (layout.user.notifications.find(notif => notif.id === notifId && !notif.read)){
-        console.log('inside')
+        // console.log('inside')
         try {
             const response = await axios.patch(
                 route('grp.models.notifications.read', notifId)
@@ -91,7 +91,7 @@ onBeforeUnmount(() => {
                         <component
                             :is="notif.href ? Link : 'div'"
                             :href="notif.href"
-                            @success="() => notif.read ?? setNotificationToRead(notif.id)"
+                            @success="() => (notif.read ?? setNotificationToRead(notif.id), props.close())"
                         >
                             <span class="absolute inset-x-0 -top-px bottom-0"></span>
                             {{ notif.title }}

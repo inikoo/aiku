@@ -81,7 +81,7 @@ const props = defineProps<{
                             User type
                         </div>
                         <div class="col-span-2 font-medium capitalize">
-                            {{ data?.data?.parent_type }}
+                            {{ data?.data?.parent_type || '-' }}
                         </div>
                     </div>
 
