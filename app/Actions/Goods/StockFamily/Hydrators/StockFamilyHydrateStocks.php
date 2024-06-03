@@ -7,7 +7,10 @@
 
 namespace App\Actions\Goods\StockFamily\Hydrators;
 
+use App\Actions\Goods\StockFamily\UpdateStockFamily;
+use App\Actions\Traits\WithEnumStats;
 use App\Enums\SupplyChain\Stock\StockStateEnum;
+use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -17,6 +20,8 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class StockFamilyHydrateStocks
 {
     use AsAction;
+    use WithEnumStats;
+
 
     private StockFamily $stockFamily;
     public function __construct(StockFamily $stockFamily)
@@ -36,18 +41,51 @@ class StockFamilyHydrateStocks
             'number_stocks' => $stockFamily->stocks()->count(),
         ];
 
-        $stateCounts = Stock::where('stock_family_id', $stockFamily->id)
-            ->selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'stocks',
+                field: 'state',
+                enum: StockStateEnum::class,
+                models: Stock::class,
+                where: function ($q) use ($stockFamily) {
+                    $q->where('stock_family_id', $stockFamily->id);
+                }
+            )
+        );
 
-        foreach (StockStateEnum::cases() as $stockState) {
-            $stats['number_stocks_state_'.$stockState->snake()] = Arr::get($stateCounts, $stockState->value, 0);
-        }
 
+        UpdateStockFamily::make()->action(
+            $stockFamily,
+            [
+                'state' => $this->getStockFamilyState($stats)
+            ]
+        );
 
 
         $stockFamily->stats()->update($stats);
+    }
+
+    public function getStockFamilyState($stats): StockFamilyStateEnum
+    {
+        if($stats['number_stocks'] == 0) {
+            return StockFamilyStateEnum::IN_PROCESS;
+        }
+
+        if(Arr::get($stats, 'number_stocks_state_active', 0)>0) {
+            return StockFamilyStateEnum::ACTIVE;
+        }
+
+        if(Arr::get($stats, 'number_stocks_state_discontinuing', 0)>0) {
+            return StockFamilyStateEnum::DISCONTINUING;
+        }
+
+        if(Arr::get($stats, 'number_stocks_state_in_process', 0)>0) {
+            return StockFamilyStateEnum::IN_PROCESS;
+        }
+
+        return StockFamilyStateEnum::DISCONTINUED;
+
     }
 
 

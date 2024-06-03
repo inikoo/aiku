@@ -34,7 +34,7 @@ class LocationHydrateStocks
         $location->update(
             [
                 'has_stock_slots'        => $location->orgStocks()->where('dropshipping_pipe', false)->count() > 0,
-                'has_dropshipping_slots' => $location->orgStocks()->where('dropshipping_pipe', false)->count() > 0
+                'has_dropshipping_slots' => $location->orgStocks()->where('dropshipping_pipe', true)->count()  > 0
             ]
         );
 

@@ -33,6 +33,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $org_stock_family_id
  * @property int|null $customer_id
  * @property string $slug
+ * @property string $code
+ * @property string|null $name
+ * @property string|null $unit_value
  * @property bool $is_sellable_in_organisation
  * @property bool $is_raw_material_in_organisation
  * @property OrgStockStateEnum $state
@@ -95,7 +98,7 @@ class OrgStock extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                return $this->stock->code. ' '.$this->organisation->code;
+                return $this->code. ' '.$this->organisation->code;
             })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');

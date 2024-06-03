@@ -29,7 +29,13 @@ return new class () extends Migration {
 
             $table->unsignedInteger('customer_id')->index()->nullable();
             $table->foreign('customer_id')->references('id')->on('customers')->onUpdate('cascade')->onDelete('cascade');
+
             $table->string('slug')->unique()->collation('und_ns');
+            $table->string('code')->index()->collation('und_ns');
+            $table->string('name', 255)->nullable();
+            $table->decimal('unit_value', 16)->nullable();
+
+
 
             $table->boolean('is_sellable_in_organisation')->default(1)->index();
             $table->boolean('is_raw_material_in_organisation')->default(0)->index();

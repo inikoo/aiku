@@ -75,8 +75,6 @@ class StockFamily extends Model
 
     protected $guarded = [];
 
-
-
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()

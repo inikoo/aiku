@@ -27,7 +27,7 @@ class StoreStockFamily extends GrpAction
         $stockFamily->stats()->create();
         GroupHydrateStockFamilies::dispatch($this->group);
         StockFamilyHydrateUniversalSearch::dispatch($stockFamily);
-
+        $stockFamily->refresh();
         return $stockFamily;
     }
 

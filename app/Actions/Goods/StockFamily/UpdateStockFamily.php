@@ -30,9 +30,21 @@ class UpdateStockFamily extends GrpAction
     {
         $stockFamily = $this->update($stockFamily, $modelData, ['data']);
         StockFamilyHydrateUniversalSearch::dispatch($stockFamily);
+        $changes = $stockFamily->getChanges();
+
+        if (Arr::hasAny($changes, ['code', 'name', 'stock_family_id', 'unit_value'])) {
+            foreach ($stockFamily->orgStocksFamilies as $orgStockFamily) {
+                $orgStockFamily->update(
+                    [
+                        'code'       => $stockFamily->code,
+                        'name'       => $stockFamily->name,
+                    ]
+                );
+            }
+        }
 
         if (Arr::hasAny($stockFamily->getChanges(), ['state'])) {
-            GroupHydrateStockFamilies::dispatch($stockFamily->group);
+            GroupHydrateStockFamilies::run($stockFamily->group);
         }
 
         return $stockFamily;

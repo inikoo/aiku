@@ -12,9 +12,10 @@ use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Models\Inventory\OrgStock;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrganisationHydrateStocks
+class OrganisationHydrateOrgStocks
 {
     use AsAction;
     use WithEnumStats;
@@ -36,7 +37,7 @@ class OrganisationHydrateStocks
     {
 
         $stats = [
-            'number_stocks'                  => $organisation->orgStocks()->count(),
+            'number_org_stocks'                  => $organisation->orgStocks()->count(),
         ];
 
         $stats = array_merge(
@@ -51,6 +52,10 @@ class OrganisationHydrateStocks
                 }
             )
         );
+
+        $stats['number_current_org_stocks'] =
+            Arr::get($stats, 'number_org_stocks_state_active', 0) +
+            Arr::get($stats, 'number_org_stocks_state_discontinuing', 0);
 
         $organisation->inventoryStats()->update($stats);
     }

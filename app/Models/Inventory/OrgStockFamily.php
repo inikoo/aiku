@@ -29,6 +29,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $organisation_id
  * @property int|null $stock_family_id
  * @property string $slug
+ * @property string $code
+ * @property string|null $name
  * @property OrgStockFamilyStateEnum $state
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -77,7 +79,7 @@ class OrgStockFamily extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                return $this->stockFamily->code. ' '.$this->organisation->code;
+                return $this->code. ' '.$this->organisation->code;
             })
             ->slugsShouldBeNoLongerThan(32)
             ->doNotGenerateSlugsOnUpdate()

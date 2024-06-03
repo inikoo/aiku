@@ -146,7 +146,7 @@ class StoreEmployee extends OrgAction
             'alias'               => [
                 'required',
                 'string',
-                'max:16',
+                'max:24',
                 new IUnique(
                     table: 'employees',
                     extraConditions: [

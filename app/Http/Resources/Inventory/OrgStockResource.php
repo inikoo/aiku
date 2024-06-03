@@ -19,9 +19,9 @@ class OrgStockResource extends JsonResource
 
         return [
             'slug'               => $orgStock->slug,
-            'code'               => $orgStock->stock->code,
+            'code'               => $orgStock->code,
+            'unit_value'         => $orgStock->unit_value,
             'description'        => $orgStock->stock->description,
-            'unit_value'         => $orgStock->stock->unit_value,
             'number_locations'   => $orgStock->stats->number_locations,
             'quantity_locations' => $orgStock->quantity_in_locations,
             'family_slug'        => $orgStock->orgStockFamily->slug,

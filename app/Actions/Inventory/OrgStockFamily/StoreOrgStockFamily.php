@@ -7,7 +7,11 @@
 
 namespace App\Actions\Inventory\OrgStockFamily;
 
+use App\Actions\Inventory\OrgStockFamily\Hydrators\OrgStockFamilyHydrateUniversalSearch;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgStockFamilies;
+use App\Enums\Inventory\OrgStockFamily\OrgStockFamilyStateEnum;
+use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
 use App\Models\Inventory\OrgStockFamily;
 use App\Models\SupplyChain\StockFamily;
 use App\Models\SysAdmin\Organisation;
@@ -19,6 +23,15 @@ class StoreOrgStockFamily extends OrgAction
     {
         data_set($modelData, 'group_id', $organisation->group_id);
         data_set($modelData, 'organisation_id', $organisation->id);
+        data_set($modelData, 'code', $stockFamily->code);
+        data_set($modelData, 'name', $stockFamily->name);
+
+        data_set($modelData, 'state', match($stockFamily->state) {
+            StockFamilyStateEnum::IN_PROCESS    => OrgStockFamilyStateEnum::IN_PROCESS,
+            StockFamilyStateEnum::ACTIVE        => OrgStockFamilyStateEnum::ACTIVE,
+            StockFamilyStateEnum::DISCONTINUING => OrgStockFamilyStateEnum::DISCONTINUING,
+            StockFamilyStateEnum::DISCONTINUED  => OrgStockFamilyStateEnum::DISCONTINUED,
+        });
 
 
         /** @var OrgStockFamily $orgStockFamily */
@@ -29,6 +42,10 @@ class StoreOrgStockFamily extends OrgAction
                 'organisation_id' => $organisation->id,
             ]
         );
+
+        OrgStockFamilyHydrateUniversalSearch::dispatch($orgStockFamily);
+
+        OrganisationHydrateOrgStockFamilies::dispatch($organisation)->delay($this->hydratorsDelay);
 
 
         return $orgStockFamily;

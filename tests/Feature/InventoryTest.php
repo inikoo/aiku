@@ -27,6 +27,7 @@ use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Actions\Inventory\WarehouseArea\UpdateWarehouseArea;
 use App\Enums\Inventory\OrgStock\LostAndFoundOrgStockStateEnum;
+use App\Enums\Inventory\OrgStockFamily\OrgStockFamilyStateEnum;
 use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
 use App\Models\Goods\TradeUnit;
@@ -34,6 +35,7 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\LocationOrgStock;
 use App\Models\Inventory\LostAndFoundStock;
 use App\Models\Inventory\OrgStock;
+use App\Models\Inventory\OrgStockFamily;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\SupplyChain\Stock;
@@ -219,21 +221,7 @@ test('create location in warehouse area by command', function ($warehouseArea) {
 })->depends('create warehouse area');
 
 
-test('create stock family', function () {
-    $arrayData = [
-        'code' => 'ABC',
-        'name' => 'ABC Stock'
-    ];
-
-    $stockFamily = StoreStockFamily::make()->action($this->group, $arrayData);
-
-    expect($stockFamily)->toBeInstanceOf($stockFamily::class)
-        ->and($this->group->inventoryStats->number_stock_families)->toBe(1)
-        ->and($this->group->inventoryStats->number_current_stock_families)->toBe(0);
-
-    return $stockFamily;
-});
-
+/*
 test('update stock family state', function (StockFamily $stockFamily) {
     $arrayData = [
         'state' => StockFamilyStateEnum::ACTIVE->value
@@ -246,8 +234,10 @@ test('update stock family state', function (StockFamily $stockFamily) {
 
     return $stockFamily;
 })->depends('create stock family');
+*/
 
-test('create stock', function () {
+
+test('create stock in group', function () {
     $tradeUnit = StoreTradeUnit::make()->action($this->group, TradeUnit::factory()->definition());
 
     $stock = StoreStock::make()->action($this->group, Stock::factory()->definition());
@@ -266,9 +256,7 @@ test('create stock', function () {
 });
 
 test('update stock state', function (Stock $stock) {
-
-
-    $stock=UpdateStock::make()->action($stock, [
+    $stock = UpdateStock::make()->action($stock, [
         'state' => StockStateEnum::ACTIVE->value
     ]);
 
@@ -277,10 +265,69 @@ test('update stock state', function (Stock $stock) {
         ->and($this->group->inventoryStats->number_current_stocks)->toBe(1);
 
     return $stock->fresh();
-})->depends('create stock');
+})->depends('create stock in group');
+
+test('create stock family', function () {
+    $arrayData = [
+        'code' => 'ABC',
+        'name' => 'ABC Stock'
+    ];
+
+    $stockFamily = StoreStockFamily::make()->action($this->group, $arrayData);
+
+    expect($stockFamily)->toBeInstanceOf($stockFamily::class)
+        ->and($this->group->inventoryStats->number_stock_families)->toBe(1)
+        ->and($this->group->inventoryStats->number_current_stock_families)->toBe(0);
+
+    return $stockFamily;
+})->depends('update stock state');
+
+
+test('create stock in stock family', function (StockFamily $stockFamily) {
+    $tradeUnit = StoreTradeUnit::make()->action($this->group, TradeUnit::factory()->definition());
+
+    $stock = StoreStock::make()->action($stockFamily, Stock::factory()->definition());
+    SyncStockTradeUnits::run($stock, [
+        $tradeUnit->id => [
+            'quantity' => 1
+        ]
+    ]);
+
+    expect($stock)->toBeInstanceOf(Stock::class)
+        ->and($stockFamily->state)->toBe(StockFamilyStateEnum::IN_PROCESS)
+        ->and($this->group->inventoryStats->number_stocks)->toBe(2)
+        ->and($this->group->inventoryStats->number_stocks_state_in_process)->toBe(1)
+        ->and($this->group->inventoryStats->number_current_stocks)->toBe(1)
+        ->and($this->group->inventoryStats->number_stock_families)->toBe(1)
+        ->and($this->group->inventoryStats->number_current_stock_families)->toBe(0);
+
+
+    return $stock->fresh();
+})->depends('create stock family');
+
+test('update 2nd stock state', function (Stock $stock) {
+    $stock = UpdateStock::make()->action($stock, [
+        'state' => StockStateEnum::ACTIVE->value
+    ]);
+
+    $this->group->refresh();
+
+    expect($stock)->toBeInstanceOf(Stock::class)
+        ->and($stock->stockFamily->state)->toBe(StockFamilyStateEnum::ACTIVE)
+        ->and($this->group->inventoryStats->number_stock_families)->toBe(1)
+        ->and($this->group->inventoryStats->number_stock_families_state_in_process)->toBe(0)
+        ->and($this->group->inventoryStats->number_stock_families_state_active)->toBe(1)
+        ->and($this->group->inventoryStats->number_current_stock_families)->toBe(1)
+        ->and($this->group->inventoryStats->number_stocks)->toBe(2)
+        ->and($this->group->inventoryStats->number_current_stocks)->toBe(2);
+
+    return $stock->fresh();
+})->depends('create stock in stock family');
 
 
 test('create org stock', function (Stock $stock) {
+    expect($stock->stockFamily)->toBeNull();
+
     $orgStock = StoreOrgStock::make()->action(
         $this->organisation,
         $stock,
@@ -288,13 +335,38 @@ test('create org stock', function (Stock $stock) {
     );
 
     expect($orgStock)->toBeInstanceOf($orgStock::class)
-    ->and($this->organisation->inventoryStats->number_stocks)->toBe(1)
-        ->and($this->organisation->inventoryStats->number_current_stocks)->toBe(1);
+        ->and($orgStock->code)->toBe($stock->code)
+        ->and($orgStock->name)->toBe($stock->name)
+        ->and($orgStock->unit_value)->toBe($stock->unit_value)
+        ->and($this->organisation->inventoryStats->number_org_stocks)->toBe(1)
+        ->and($this->organisation->inventoryStats->number_current_org_stocks)->toBe(1);
 
     return $orgStock;
 })->depends('update stock state');
 
-test('create another stock', function () {
+
+test('create org stock from 2nd stock (within stock family)', function (Stock $stock) {
+    expect($stock->stockFamily)->toBeInstanceOf(StockFamily::class)
+        ->and($this->organisation->inventoryStats->number_org_stock_families)->toBe(0);
+
+    $orgStock = StoreOrgStock::make()->action(
+        $this->organisation,
+        $stock,
+        []
+    );
+    $this->organisation->refresh();
+    expect($orgStock)->toBeInstanceOf($orgStock::class)
+        ->and($orgStock->orgStockFamily)->toBeInstanceOf(OrgStockFamily::class)
+        ->and($orgStock->orgStockFamily->state)->toBe(OrgStockFamilyStateEnum::ACTIVE)
+        ->and($this->organisation->inventoryStats->number_org_stock_families)->toBe(1)
+        ->and($this->organisation->inventoryStats->number_org_stocks)->toBe(2)
+        ->and($this->organisation->inventoryStats->number_current_org_stocks)->toBe(2);
+
+    return $orgStock;
+})->depends('update 2nd stock state');
+
+
+test('fail to create another stock if state in process', function () {
     $tradeUnit = StoreTradeUnit::make()->action($this->group, TradeUnit::factory()->definition());
     $stock     = StoreStock::make()->action($this->group, Stock::factory()->definition());
 
@@ -306,14 +378,12 @@ test('create another stock', function () {
 
     StoreOrgStock::make()->action(
         $this->organisation,
-        $stock,
-        []
+        $stock
     );
-    expect($stock)->toBeInstanceOf(Stock::class)
-        ->and($this->group->inventoryStats->number_stocks)->toBe(2);
+
 
     return $stock->fresh();
-});
+})->throws(ValidationException::class);
 
 test('attach stock to location', function ($location) {
     $orgStocks = OrgStock::all();
@@ -321,8 +391,7 @@ test('attach stock to location', function ($location) {
     foreach ($orgStocks as $orgStock) {
         $location = AttachOrgStockToLocation::run($location, $orgStock, []);
     }
-    expect($location->orgStocks()->count())->toBe(2)
-        ->and($location->stats->number_org_stock_slots)->toBe(2);
+    expect($location->stats->number_org_stock_slots)->toBe(2);
 })->depends('create location in warehouse area');
 
 

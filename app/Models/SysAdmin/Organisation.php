@@ -40,6 +40,7 @@ use App\Models\HumanResources\JobPosition;
 use App\Models\HumanResources\Workplace;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\OrgStock;
+use App\Models\Inventory\OrgStockFamily;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Manufacturing\Artefact;
@@ -106,6 +107,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Asset> $assets
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\OrganisationAuthorisedModels> $authorisedModels
+ * @property-read \App\Models\SysAdmin\OrganisationCatalogueStats|null $catalogueStats
  * @property-read LaravelCollection<int, ClockingMachine> $clockingMachines
  * @property-read LaravelCollection<int, CollectionCategory> $collectionCategories
  * @property-read LaravelCollection<int, Collection> $collections
@@ -131,13 +133,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\OrganisationManufactureStats|null $manufactureStats
  * @property-read LaravelCollection<int, ManufactureTask> $manufactureTasks
- * @property-read \App\Models\SysAdmin\OrganisationCatalogueStats|null $catalogueStats
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read LaravelCollection<int, Order> $orders
  * @property-read \App\Models\SysAdmin\OrganisationOrdersIntervals|null $ordersIntervals
  * @property-read LaravelCollection<int, OrgAgent> $orgAgents
  * @property-read LaravelCollection<int, OrgPartner> $orgPartners
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
+ * @property-read LaravelCollection<int, OrgStockFamily> $orgStockFamilies
  * @property-read LaravelCollection<int, OrgStock> $orgStocks
  * @property-read LaravelCollection<int, OrgSupplier> $orgSuppliers
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
@@ -476,6 +478,11 @@ class Organisation extends Model implements HasMedia, Auditable
     public function orgStocks(): HasMany
     {
         return $this->hasMany(OrgStock::class);
+    }
+
+    public function orgStockFamilies(): HasMany
+    {
+        return $this->hasMany(OrgStockFamily::class);
     }
 
     public function fulfilments(): HasMany

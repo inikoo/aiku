@@ -18,6 +18,7 @@ enum StockStateEnum: string
     case ACTIVE            = 'active';
     case DISCONTINUING     = 'discontinuing';
     case DISCONTINUED      = 'discontinued';
+    case SUSPENDED         = 'suspended';
 
     public static function labels(): array
     {
@@ -26,6 +27,7 @@ enum StockStateEnum: string
             'active'        => __('Active'),
             'discontinuing' => __('Discontinuing'),
             'discontinued'  => __('Discontinued'),
+            'suspended'     => __('Suspended')
         ];
     }
 
@@ -52,6 +54,11 @@ enum StockStateEnum: string
                 'icon'    => 'fal fa-laugh',
                 'class'   => 'text-red-500'
             ],
+            'suspended'      => [
+                'tooltip' => __('suspended'),
+                'icon'    => 'fas fa-pause-circle',
+                'class'   => 'text-slate-300'
+            ],
         ];
     }
 
@@ -64,6 +71,7 @@ enum StockStateEnum: string
             'active'            => $stats->number_stocks_state_active,
             'discontinuing'     => $stats->number_stocks_state_discontinuing,
             'discontinued'      => $stats->number_stocks_state_discontinued,
+            'suspended'         => $stats->number_stocks_state_suspended
         ];
     }
 

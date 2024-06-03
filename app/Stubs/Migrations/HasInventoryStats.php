@@ -53,15 +53,15 @@ trait HasInventoryStats
 
     public function orgStocksStats(Blueprint $table): Blueprint
     {
-        $table->unsignedInteger('number_stock_families')->default(0);
-        $table->unsignedInteger('number_current_stock_families')->default(0)->comment('active + discontinuing');
+        $table->unsignedInteger('number_org_stock_families')->default(0);
+        $table->unsignedInteger('number_current_org_stock_families')->default(0)->comment('active + discontinuing');
 
         foreach (OrgStockFamilyStateEnum::cases() as $stockFamilyState) {
             $table->unsignedInteger('number_org_stock_families_state_'.$stockFamilyState->snake())->default(0);
         }
 
-        $table->unsignedInteger('number_stocks')->default(0);
-        $table->unsignedInteger('number_current_stocks')->default(0)->comment('active + discontinuing');
+        $table->unsignedInteger('number_org_stocks')->default(0);
+        $table->unsignedInteger('number_current_org_stocks')->default(0)->comment('active + discontinuing');
 
         foreach (OrgStockStateEnum::cases() as $stockState) {
             $table->unsignedInteger('number_org_stocks_state_'.$stockState->snake())->default(0);

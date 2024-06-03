@@ -21,6 +21,8 @@ return new class () extends Migration {
             $table->unsignedInteger('stock_family_id')->index()->nullable();
             $table->foreign('stock_family_id')->references('id')->on('stock_families')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
+            $table->string('code')->index()->collation('und_ns');
+            $table->string('name', 255)->nullable();
             $table->string('state')->default(OrgStockFamilyStateEnum::IN_PROCESS->value)->index();
             $table->jsonb('data');
             $table->timestampstz();

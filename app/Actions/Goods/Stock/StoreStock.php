@@ -24,17 +24,20 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreStock extends GrpAction
 {
-    public function handle(Group $group, $modelData): Stock
+    public function handle(Group|StockFamily $parent, $modelData): Stock
     {
-        /** @var Stock $stock */
-        $stock = $group->stocks()->create($modelData);
-        $stock->stats()->create();
-        GroupHydrateStocks::dispatch($group);
-        if ($stock->stock_family_id) {
-            StockFamilyHydrateStocks::dispatch($stock->stockFamily)->delay($this->hydratorsDelay);
-        }
-        StockHydrateUniversalSearch::dispatch($stock);
 
+        data_set($modelData, 'group_id', $this->group->id);
+
+        /** @var Stock $stock */
+        $stock = $parent->stocks()->create($modelData);
+        $stock->stats()->create();
+        GroupHydrateStocks::dispatch($this->group)->delay($this->hydratorsDelay);
+        if($parent instanceof StockFamily) {
+            StockFamilyHydrateStocks::dispatch($parent)->delay($this->hydratorsDelay);
+        }
+
+        StockHydrateUniversalSearch::dispatch($stock);
 
         return $stock;
     }
@@ -55,32 +58,33 @@ class StoreStock extends GrpAction
                 ),
             ],
             'name'            => ['required', 'string', 'max:255'],
-            'stock_family_id' => ['sometimes', 'nullable', 'exists:stock_families,id'],
             'source_id'       => ['sometimes', 'nullable', 'string'],
             'source_slug'     => ['sometimes', 'nullable', 'string'],
             'state'           => ['sometimes', 'nullable', Rule::enum(StockStateEnum::class)],
         ];
     }
 
-    public function action(Group $group, array $modelData, int $hydratorDelay = 0): Stock
+    public function action(Group|StockFamily $parent, array $modelData, int $hydratorDelay = 0): Stock
     {
+
+        if($parent instanceof Group) {
+            $group = $parent;
+        } else {
+            $group = $parent->group;
+        }
+
+
         $this->hydratorsDelay = $hydratorDelay;
         $this->initialisation($group, $modelData);
 
-        return $this->handle($group, $this->validatedData);
+        return $this->handle($parent, $this->validatedData);
     }
 
     public function inStockFamily(StockFamily $stockFamily, ActionRequest $request): Stock
     {
-        $this->fill(
-            [
-                'stock_family_id' => $stockFamily->id
-            ]
-        );
+
         $this->initialisation(group(), $request);
-
-
-        return $this->handle(group(), $this->validatedData);
+        return $this->handle($stockFamily, $this->validatedData);
     }
 
     public function htmlResponse(Stock $stock): RedirectResponse

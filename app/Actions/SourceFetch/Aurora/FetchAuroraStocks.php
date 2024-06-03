@@ -46,7 +46,7 @@ class FetchAuroraStocks extends FetchAuroraAction
             } else {
 
                 $stock = StoreStock::make()->action(
-                    group: $organisationSource->getOrganisation()->group,
+                    parent: $organisationSource->getOrganisation()->group,
                     modelData: $stockData['stock'],
                     hydratorDelay: 30
                 );

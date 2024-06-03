@@ -46,6 +46,7 @@ use Illuminate\Support\Carbon;
  * @property int $number_stocks_state_active
  * @property int $number_stocks_state_discontinuing
  * @property int $number_stocks_state_discontinued
+ * @property int $number_stocks_state_suspended
  * @property int $number_deliveries
  * @property int $number_deliveries_type_order
  * @property int $number_deliveries_type_replacement
