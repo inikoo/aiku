@@ -18,6 +18,7 @@ import Popover from "@/Components/Popover.vue"
 import { trans } from "laravel-vue-i18n"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import EmptyState from "@/Components/Utils/EmptyState.vue"
+import { get } from 'lodash'
 
 
 library.add(faExclamationCircle, faCheckCircle, faSpinnerThird, faCopy, faTrash, farTrash, faEdit)
@@ -192,6 +193,9 @@ const showAll = () => {
                                             </div>
                                         </template>
                                     </PureInputNumber>
+                                    <p v-if="get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${e.key}`])" class="mt-2 text-sm text-red-600">
+                                        {{ get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${e.key}`]) }}
+                                     </p>
                                 </div>
 
                                 <div v-else-if="e.type == 'discount'" class="w-28">
@@ -205,6 +209,9 @@ const showAll = () => {
                                             </div>
                                         </template>
                                     </PureInputNumber>
+                                    <p v-if="get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${e.key}`])" class="mt-2 text-sm text-red-600">
+                                        {{ get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${e.key}`]) }}
+                                     </p>
                                 </div>
 
                             </td>
