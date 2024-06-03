@@ -8,6 +8,7 @@
 namespace App\Http\Resources\Catalogue;
 
 use App\Http\Resources\Helpers\CurrencyResource;
+use App\Models\Fulfilment\RentalAgreementClause;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProductClausesResource extends JsonResource
