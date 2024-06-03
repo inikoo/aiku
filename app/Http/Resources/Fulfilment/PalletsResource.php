@@ -47,6 +47,7 @@ class PalletsResource extends JsonResource
             'type_icon'                        => $this->type->typeIcon()[$this->type->value],
             'type'                             => $this->type,
             'rental_id'                        => $this->rental_id,
+            'name'                             => $this->rental->name,
             'state_label'                      => $this->state->labels()[$this->state->value],
             'state_icon'                       => $this->state->stateIcon()[$this->state->value],
             'status'                           => $this->status,
