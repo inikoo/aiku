@@ -32,10 +32,8 @@ const layout = useLayoutStore()
             </div>
         </PopoverButton>
 
-        <transition enter-active-class="transition duration-200 ease-out" enter-from-class="translate-y-1 opacity-0"
-            enter-to-class="translate-y-0 opacity-100" leave-active-class="transition duration-150 ease-in"
-            leave-from-class="translate-y-0 opacity-100" leave-to-class="translate-y-1 opacity-0">
-            <PopoverPanel class="absolute bottom-full right-0 z-10 transform sm:px-0">
+        <transition name="headlessui">
+            <PopoverPanel class="absolute bottom-full right-0 z-10 sm:px-0">
                 <FooterTab tabName="activeUsers">
                     <template #default>
                         <Link v-for="(dataUser, index) in useLiveUsers().liveUsers"

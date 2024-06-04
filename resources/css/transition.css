@@ -14,9 +14,6 @@
 .headlessui-enter-active {
     transition: all 0.2s ease-out;
 }
-.headlessui-leave-active {
-    transition: all 0.15s cubic-bezier(1, 0.5, 0.8, 1);
-}
 .headlessui-enter-from {
     transform: translateY(4px);
     opacity: 0;
@@ -24,6 +21,9 @@
 .headlessui-enter-to {
     transform: translateY(0px);
     opacity: 100;
+}
+.headlessui-leave-active {
+    transition: all 0.15s ease-in;
 }
 .headlessui-leave-from {
     transform: translateY(0px);
@@ -80,7 +80,7 @@
     opacity: 0;
 }
 
-/* Transition name="slide-to-up" */
+/* Transition name="spin-to-down" */
 .spin-to-down-enter-active,
 .spin-to-down-leave-active {
     transition: all 0.1s ease;
