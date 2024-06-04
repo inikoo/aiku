@@ -27,9 +27,9 @@ const props = defineProps<{
 function webpageRoute(webpage: Webpage) {
     console.log(route().current())
     switch (route().current()) {
-      case 'grp.org.shops.show.web.websites.show.webpages.index':
+      case 'grp.org.shops.show.web.webpages.index':
             return route(
-                'grp.org.shops.show.web.websites.show.webpages.show',
+                'grp.org.shops.show.web.webpages.show',
                 [
                     route().params['organisation'],
                     route().params['shop'],
@@ -37,9 +37,9 @@ function webpageRoute(webpage: Webpage) {
                     webpage.slug
                 ]);
 
-        case 'grp.org.fulfilments.show.web.websites.show.webpages.index':
+        case 'grp.org.fulfilments.show.web.webpages.index':
             return route(
-                'grp.org.fulfilments.show.web.websites.show.webpages.show',
+                'grp.org.fulfilments.show.web.webpages.show',
                 [
                     route().params['organisation'],
                     route().params['fulfilment'],

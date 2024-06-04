@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('', IndexShops::class)->name('index');
 Route::get('create', CreateShop::class)->name('create');
-
 Route::get('{shop}', ShowShop::class)->name('show');
 Route::get('{shop}/edit', EditShop::class)->name('edit');
 
@@ -49,7 +48,7 @@ Route::prefix('{shop}')->name('show.')
         Route::name("marketing.")->prefix('marketing')
             ->group(__DIR__."/marketing.php");
 
-        Route::prefix("websites")
-            ->name("web.websites.")
+        Route::prefix("web")
+            ->name("web.")
             ->group(__DIR__."/websites.php");
     });

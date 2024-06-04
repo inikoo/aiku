@@ -7,6 +7,7 @@
 export interface Website {
     id:string,
     shop_slug?: string,
+    fulfilment_slug?: string,
     slug: string,
     state: string,
     code: string

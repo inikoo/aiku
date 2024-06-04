@@ -10,6 +10,7 @@ namespace App\Actions\Web\Webpage\UI;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
@@ -18,23 +19,24 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class ShowWebpageWorkshop extends OrgAction
-
 {
-
     use HasWebAuthorisation;
-    private Shop $parent;
-
-
 
     public function asController(Organisation $organisation, Shop $shop, Website $website, Webpage $webpage, ActionRequest $request): Webpage
     {
-        $this->parent=$shop;
+        $this->scope=$shop;
         $this->initialisationFromShop($shop, $request);
 
         return $webpage;
     }
 
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Webpage $webpage, ActionRequest $request): Webpage
+    {
+        $this->scope=$fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
+        return $webpage;
+    }
 
     public function htmlResponse(Webpage $webpage, ActionRequest $request): Response
     {
@@ -102,7 +104,7 @@ class ShowWebpageWorkshop extends OrgAction
         );
     }
 
-    public function getBreadcrumbs(string $routeName,array $routeParameters): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return ShowWebpage::make()->getBreadcrumbs(
             $routeName,

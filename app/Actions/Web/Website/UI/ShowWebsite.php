@@ -12,6 +12,7 @@ use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Web\HasWorkshopAction;
 use App\Enums\UI\Web\WebsiteTabsEnum;
@@ -39,6 +40,7 @@ class ShowWebsite extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): Website
     {
+        $this->scope  = $shop;
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(WebsiteTabsEnum::values());
         return $website;
@@ -47,6 +49,7 @@ class ShowWebsite extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Website
     {
+        $this->scope  = $fulfilment;
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(WebsiteTabsEnum::values());
 
@@ -63,7 +66,7 @@ class ShowWebsite extends OrgAction
             [
                 'title'       => __('Website'),
                 'breadcrumbs' => $this->getBreadcrumbs(
-                    $request->route()->getName(),
+                    class_basename($this->scope),
                     $request->route()->originalParameters()
                 ),
                 'navigation'  => $this->parent instanceof Organisation ? [
@@ -145,7 +148,55 @@ class ShowWebsite extends OrgAction
         return new WebsiteResource($website);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
+    public function getBreadcrumbs(string $scope, array $routeParameters, $suffix = null): array
+    {
+
+        $website=Website::where('slug', $routeParameters['website'])->first();
+
+        $modelRoute = match ($scope) {
+            'Shop' => [
+                'name'       => 'grp.org.shops.show.web.websites.show',
+                'parameters' => Arr::only($routeParameters, ['organisation','shop','website'])
+            ],
+            'Fulfilment' => [
+                'name'       => 'grp.org.fulfilments.show.web.websites.show',
+                'parameters' => Arr::only($routeParameters, ['organisation','fulfilment','website'])
+            ],
+            default => null
+        };
+
+
+        return
+            array_merge(
+                ShowOrganisationDashboard::make()->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
+                [
+                    [
+                        'type'           => 'modelWithIndex',
+                        'modelWithIndex' => [
+                            'index' => [
+                                'route' => [
+                                    'name'       => 'grp.org.websites.index',
+                                    'parameters' => Arr::only($routeParameters, 'organisation')
+                                ],
+                                'label' => __('Websites'),
+                                'icon'  => 'fal fa-bars'
+                            ],
+                            'model' => [
+                                'route' => $modelRoute,
+                                'label' => $website->code,
+                                'icon'  => 'fal fa-bars'
+                            ]
+
+
+                        ],
+                        'suffix'         => $suffix,
+                    ]
+                ]
+            );
+
+    }
+
+    public function getBreadcrumbsold(string $routeName, array $routeParameters, string $suffix = ''): array
     {
         $headCrumb = function (string $type, Website $website, array $routeParameters, string $suffix) {
             return [

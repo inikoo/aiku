@@ -70,8 +70,22 @@ class UserHydrateAuthorisedModels
             'number_authorised_warehouses'    => count($authorisedWarehouses),
             'number_authorised_productions'   => count($authorisedProductions),
         ];
-
         $user->update($stats);
+
+        foreach($user->group->organisations as $organisation) {
+            $user->revokePermissionTo('shops-view.'.$organisation->id);
+            $user->revokePermissionTo('websites-view.'.$organisation->id);
+        }
+
+        $directPermissions=[];
+        foreach($authorisedShops as $shop) {
+            $directPermissions['shops-view.'.$shop['org_id']]    = true;
+            $directPermissions['websites-view.'.$shop['org_id']] = true;
+        }
+
+        $user->givePermissionTo(array_keys($directPermissions));
+
+
     }
 
 

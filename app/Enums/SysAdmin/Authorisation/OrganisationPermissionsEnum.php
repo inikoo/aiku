@@ -31,7 +31,9 @@ enum OrganisationPermissionsEnum: string
     case INVENTORY_EDIT = 'inventory.edit';
     case INVENTORY_VIEW = 'inventory.view';
 
-    case SHOPS_VIEW       = 'shops-view';
+    case SHOPS_VIEW    = 'shops-view';
+    case WEBSITES_VIEW = 'websites-view';
+
     case FULFILMENTS_VIEW = 'fulfilments-view';
     case WAREHOUSES_VIEW  = 'warehouses-view';
     case PRODUCTIONS_VIEW = 'productions-view';
@@ -53,7 +55,7 @@ enum OrganisationPermissionsEnum: string
     case SAAS_VIEW = 'saas.view';
 
 
-    case SUPERVISOR                 = 'org-supervisor';
+    case SUPERVISOR = 'org-supervisor';
 
 
     case SUPERVISOR_HUMAN_RESOURCES = 'org-supervisor.human-resources';
@@ -76,7 +78,6 @@ enum OrganisationPermissionsEnum: string
             OrganisationPermissionsEnum::INVENTORY_VIEW,
 
 
-
             => [OrganisationTypeEnum::AGENT, OrganisationTypeEnum::SHOP],
 
 
@@ -93,7 +94,7 @@ enum OrganisationPermissionsEnum: string
             OrganisationPermissionsEnum::SAAS_EDIT,
             OrganisationPermissionsEnum::SAAS_VIEW,
 
-            => [ OrganisationTypeEnum::DIGITAL_AGENCY],
+            => [OrganisationTypeEnum::DIGITAL_AGENCY],
             default => [OrganisationTypeEnum::DIGITAL_AGENCY, OrganisationTypeEnum::AGENT, OrganisationTypeEnum::SHOP]
         };
     }
@@ -101,10 +102,9 @@ enum OrganisationPermissionsEnum: string
 
     public static function getAllValues(Organisation $organisation): array
     {
-
-        $permissionsNames    = [];
+        $permissionsNames = [];
         foreach (OrganisationPermissionsEnum::cases() as $case) {
-            if(in_array($organisation->type, $case->organisationTypes())) {
+            if (in_array($organisation->type, $case->organisationTypes())) {
                 $permissionsNames[] = self::getPermissionName($case->value, $organisation);
             }
         }

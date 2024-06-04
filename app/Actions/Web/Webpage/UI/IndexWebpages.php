@@ -23,7 +23,6 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -183,15 +182,6 @@ class IndexWebpages extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $webpages, ActionRequest $request): Response
     {
-        $scope     = $this->parent;
-        $container = null;
-        if (class_basename($scope) == 'Website') {
-            $container = [
-                'icon'    => ['fal', 'fa-globe'],
-                'tooltip' => __('Website'),
-                'label'   => Str::possessive($scope->code)
-            ];
-        }
 
         return Inertia::render(
             'Org/Web/Webpages',
@@ -203,8 +193,7 @@ class IndexWebpages extends OrgAction
                 'title'       => __('webpages'),
                 'pageHead'    => [
                     'title'     => __('webpages'),
-                    'container' => $container,
-                    'iconRight' => [
+                    'icon'      => [
                         'icon'  => ['fal', 'fa-browser'],
                         'title' => __('webpage')
                     ]
@@ -243,28 +232,28 @@ class IndexWebpages extends OrgAction
             ),
 
 
-            'grp.org.shops.show.web.websites.show.webpages.index' =>
+            'grp.org.shops.show.web.webpages.index' =>
             array_merge(
                 ShowWebsite::make()->getBreadcrumbs(
-                    'grp.org.shops.show.web.websites.show',
+                    'Shop',
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.shops.show.web.websites.show.webpages.index',
+                        'name'       => 'grp.org.shops.show.web.webpages.index',
                         'parameters' => $routeParameters
                     ]
                 )
             ),
-            'grp.org.fulfilments.show.web.websites.show.webpages.index' =>
+            'grp.org.fulfilments.show.web.webpages.index' =>
             array_merge(
                 ShowWebsite::make()->getBreadcrumbs(
-                    'grp.org.fulfilments.show.web.websites.show',
+                    'Fulfilment',
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.fulfilments.show.web.websites.show.webpages.index',
+                        'name'       => 'grp.org.fulfilments.show.web.webpages.index',
                         'parameters' => $routeParameters
                     ]
                 )

@@ -8,14 +8,17 @@
 namespace App\Actions\Web\Website\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Web\Website\GetWebsiteWorkshopCategory;
 use App\Actions\Web\Website\GetWebsiteWorkshopColorScheme;
+use App\Actions\Web\Website\GetWebsiteWorkshopLayout;
 use App\Actions\Web\Website\GetWebsiteWorkshopMenu;
 use App\Actions\Web\Website\GetWebsiteWorkshopProduct;
 use App\Enums\UI\Web\WebsiteWorkshopTabsEnum;
-use App\Http\Resources\Web\WebsiteLayoutWorkshopResource;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
 use Inertia\Inertia;
@@ -24,23 +27,38 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowWebsiteWorkshop extends OrgAction
 {
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
-        return $request->user()->hasPermissionTo("web.{$this->shop->id}.view");
+    use HasWebAuthorisation;
 
+    private Fulfilment|Shop $parent;
+
+    public function handle(Website $website): Website
+    {
+        return $website;
     }
 
     public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): Website
     {
+        $this->scope  = $shop;
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(WebsiteWorkshopTabsEnum::values());
+
         return $website;
+    }
+
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Website
+    {
+        $this->scope  = $fulfilment;
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($website);
     }
 
 
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'Org/Web/WebsiteWorkshop',
             [
@@ -49,14 +67,10 @@ class ShowWebsiteWorkshop extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'  => [
-                    'previous' => $this->getPrevious($website, $request),
-                    'next'     => $this->getNext($website, $request),
-                ],
                 'pageHead'    => [
 
-                    'title'        => __('Workshop'),
-                    'iconRight'    =>
+                    'title'     => __('Workshop'),
+                    'iconRight' =>
                         [
                             'icon'  => ['fal', 'drafting-compass'],
                             'title' => __("Website's workshop")
@@ -64,10 +78,10 @@ class ShowWebsiteWorkshop extends OrgAction
 
                     'actions' => [
                         [
-                            'type'       => 'button',
-                            'style'      => 'exit',
-                            'label'      => __('Exit workshop'),
-                            'route'      => [
+                            'type'  => 'button',
+                            'style' => 'exit',
+                            'label' => __('Exit workshop'),
+                            'route' => [
                                 'name'       => preg_replace('/workshop$/', 'show', $request->route()->getName()),
                                 'parameters' => array_values($request->route()->originalParameters()),
                             ]
@@ -86,14 +100,14 @@ class ShowWebsiteWorkshop extends OrgAction
                         fn () => GetWebsiteWorkshopColorScheme::run($website)
                     ),
 
-                WebsiteWorkshopTabsEnum::MENU->value   => $this->tab == WebsiteWorkshopTabsEnum::MENU->value
+                WebsiteWorkshopTabsEnum::MENU->value => $this->tab == WebsiteWorkshopTabsEnum::MENU->value
                     ?
                     fn () => GetWebsiteWorkshopMenu::run($website)
                     : Inertia::lazy(fn () => GetWebsiteWorkshopMenu::run($website)),
 
-                WebsiteWorkshopTabsEnum::PAGE_LAYOUT->value   => $this->tab == WebsiteWorkshopTabsEnum::PAGE_LAYOUT->value ?
-                    fn () => WebsiteLayoutWorkshopResource::make($website)
-                    : Inertia::lazy(fn () => WebsiteLayoutWorkshopResource::make($website)),
+                WebsiteWorkshopTabsEnum::LAYOUT->value => $this->tab == WebsiteWorkshopTabsEnum::LAYOUT->value ?
+                    fn () => GetWebsiteWorkshopLayout::run($this->scope, $website)
+                    : Inertia::lazy(fn () => GetWebsiteWorkshopLayout::run($this->scope, $website)),
 
                 WebsiteWorkshopTabsEnum::CATEGORY->value => $this->tab == WebsiteWorkshopTabsEnum::CATEGORY->value
                     ?
@@ -102,7 +116,7 @@ class ShowWebsiteWorkshop extends OrgAction
                         fn () => GetWebsiteWorkshopCategory::run($website)
                     ),
 
-                WebsiteWorkshopTabsEnum::PRODUCT->value  => $this->tab == WebsiteWorkshopTabsEnum::PRODUCT->value
+                WebsiteWorkshopTabsEnum::PRODUCT->value => $this->tab == WebsiteWorkshopTabsEnum::PRODUCT->value
                     ?
                     fn () => GetWebsiteWorkshopProduct::run($website)
                     : Inertia::lazy(
@@ -113,12 +127,8 @@ class ShowWebsiteWorkshop extends OrgAction
         );
     }
 
-
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
-
-
-
         $headCrumb = function (string $type, Website $website, array $routeParameters, string $suffix) {
             return [
                 [
@@ -127,7 +137,7 @@ class ShowWebsiteWorkshop extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('websites')
+                            'label' => __('Websites')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
@@ -147,7 +157,7 @@ class ShowWebsiteWorkshop extends OrgAction
             ];
         };
 
-        $website=Website::where('slug', $routeParameters['website'])->first();
+        $website = Website::where('slug', $routeParameters['website'])->first();
 
         return match ($routeName) {
             'grp.org.shops.show.web.websites.workshop' =>
@@ -170,45 +180,30 @@ class ShowWebsiteWorkshop extends OrgAction
                     $suffix
                 ),
             ),
+            'grp.org.fulfilments.show.web.websites.workshop' =>
+                array_merge(
+                    ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+                    $headCrumb(
+                        'modelWithIndex',
+                        $website,
+                        [
+                            'index' => [
+                                'name'       => 'grp.org.fulfilments.show.web.websites.index',
+                                'parameters' => $routeParameters
+                            ],
+                            'model' => [
+                                'name'       => 'grp.org.fulfilments.show.web.websites.show',
+                                'parameters' => $routeParameters
+                            ]
+                        ],
+                        $suffix
+                    ),
+                ),
 
             default => []
         };
     }
 
-    public function getPrevious(Website $website, ActionRequest $request): ?array
-    {
-        $previous = Website::where('code', '<', $website->code)->orderBy('code', 'desc')->first();
 
-        return $this->getNavigation($previous, $request->route()->getName());
-    }
-
-    public function getNext(Website $website, ActionRequest $request): ?array
-    {
-        $next = Website::where('code', '>', $website->code)->orderBy('code')->first();
-
-        return $this->getNavigation($next, $request->route()->getName());
-    }
-
-    private function getNavigation(?Website $website, string $routeName): ?array
-    {
-
-        if (!$website) {
-            return null;
-        }
-
-        return match ($routeName) {
-            'grp.org.shops.show.web.websites.workshop' => [
-                'label' => $website->name,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
-                        'organisation'=> $website->organisation->slug,
-                        'shop'        => $website->shop->slug,
-                        'website'     => $website->slug
-                    ]
-                ]
-            ]
-        };
-    }
 
 }

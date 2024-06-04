@@ -20,6 +20,11 @@ Route::prefix("shops")
     ->name("shops.")
     ->group(__DIR__."/shops/shop.php");
 
+Route::prefix("websites")
+    ->name("websites.")
+    ->group(__DIR__."/websites/website.php");
+
+
 Route::prefix("fulfilments")
     ->name("fulfilments.")
     ->group(__DIR__."/fulfilments/root.php");

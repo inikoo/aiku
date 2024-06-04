@@ -262,20 +262,24 @@ class GetShopNavigation
 
 
                             [
-                                "label"   => __("Website"),
-                                "tooltip" => __("website"),
-                                "icon"    => ["fal", "fa-globe"],
+                                "label"      => __("Website"),
+                                "tooltip"    => __("website"),
+                                "icon"       => ["fal", "fa-globe"],
+                                "root"       => "grp.org.shops.show.web.websites.",
+
                                 "route"   => [
                                     "name"       => "grp.org.shops.show.web.websites.show",
                                     "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
                                 ],
                             ],
                             [
-                                "label"   => __("webpages"),
-                                "tooltip" => __("Webpages"),
-                                "icon"    => ["fal", "fa-browser"],
+                                "label"      => __("webpages"),
+                                "tooltip"    => __("Webpages"),
+                                "icon"       => ["fal", "fa-browser"],
+                                "root"       => "grp.org.shops.show.web.webpages.",
+
                                 "route"   => [
-                                    "name"       => "grp.org.shops.show.web.websites.show.webpages.index",
+                                    "name"       => "grp.org.shops.show.web.webpages.index",
                                     "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
                                 ],
                             ],
@@ -287,7 +291,7 @@ class GetShopNavigation
                     "scope" => "websites",
                     "icon"  => ["fal", "fa-globe"],
                     "label" => __("Website"),
-                    "root"  => "grp.org.shops.show.web.websites.",
+                    "root"  => "grp.org.shops.show.web.",
                     "route" => [
                         "name"       => "grp.org.shops.show.web.websites.index",
                         "parameters" => [$shop->organisation->slug, $shop->slug],

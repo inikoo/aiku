@@ -10,8 +10,10 @@ namespace App\Actions\Web\Website\UI;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\Web\Website\WebsiteStateEnum;
-use App\Http\Resources\Web\WebsiteResource;
+use App\Http\Resources\Web\WebsitesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Catalogue\Shop;
@@ -30,52 +32,20 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexWebsites extends OrgAction
 {
+    use HasWebAuthorisation;
     private Organisation|Fulfilment|Shop $parent;
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->parent instanceof Organisation) {
-            $this->canEdit = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
 
-            return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.view");
-        } elseif ($this->parent instanceof Fulfilment) {
-            $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");
-
-            return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.view");
-        } elseif ($this->parent instanceof Shop) {
-            $this->canEdit = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
-
-            return $request->user()->hasPermissionTo("web.{$this->shop->id}.view");
-        }
-
-        return false;
-    }
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
+        $this->scope  = $organisation;
         $this->parent = $organisation;
         $this->initialisation($organisation, $request);
 
         return $this->handle($organisation);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $shop;
-        $this->initialisationFromShop($shop, $request);
-
-        return $this->handle($shop);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $fulfilment;
-        $this->initialisationFromFulfilment($fulfilment, $request);
-
-        return $this->handle($fulfilment);
-    }
 
     protected function getElementGroups(Group|Organisation|Shop|Fulfilment $parent): array
     {
@@ -137,7 +107,9 @@ class IndexWebsites extends OrgAction
 
         return $queryBuilder
             ->defaultSort('websites.code')
-            ->select(['websites.code', 'websites.name', 'websites.slug', 'websites.domain', 'status', 'websites.state'])
+            ->select(['websites.code', 'websites.name', 'websites.slug', 'websites.domain', 'status', 'websites.state','websites.shop_id',
+                      'shops.type as shop_type', 'shops.slug as shop_slug'])
+            ->leftJoin('shops', 'websites.shop_id', 'shops.id')
             ->allowedSorts([ 'code', 'name','domain','state'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -189,7 +161,7 @@ class IndexWebsites extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $websites): AnonymousResourceCollection
     {
-        return WebsiteResource::collection($websites);
+        return WebsitesResource::collection($websites);
     }
 
     public function htmlResponse(LengthAwarePaginator $websites, ActionRequest $request): Response
@@ -270,7 +242,7 @@ class IndexWebsites extends OrgAction
 
                     ]
                 ],
-                'data'     => WebsiteResource::collection($websites),
+                'data'     => WebsitesResource::collection($websites),
 
             ]
         )->table($this->tableStructure($this->parent));
@@ -294,6 +266,17 @@ class IndexWebsites extends OrgAction
 
 
         return match ($routeName) {
+            'grp.org.websites.index' =>
+            array_merge(
+                ShowDashboard::make()->getBreadcrumbs(),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ]
+                ),
+            ),
+
             'grp.org.fulfilments.show.web.websites.index' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),

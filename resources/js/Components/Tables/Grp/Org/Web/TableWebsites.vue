@@ -9,26 +9,28 @@ import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Website} from "@/types/website";
 import Icon from '@/Components/Icon.vue'
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faSkull} from "@fal"
 
-const props = defineProps<{
+library.add(faSkull)
+
+defineProps<{
     data: object,
     tab?:string
 }>()
 
 
-function websiteRoute(website: Website) {
-    console.log(route().current())
-    switch (route().current()) {
-        case 'grp.org.shops.show.web.websites.index':
-            return route(
-                'grp.org.shops.show.web.websites.show',
-                [route().params.organisation, route().params.shop, website.slug]
-            );
-        case 'grp.org.fulfilments.show.web.websites.index':
-            return route(
-                'grp.org.fulfilments.show.web.websites.show',
-                [route().params.organisation, route().params.fulfilment, website.slug]);
-    }
+function websiteShopRoute(website: Website) {
+  return route(
+    'grp.org.shops.show.web.websites.show',
+    [route().params.organisation, website.shop_slug, website.slug]);
+}
+
+function websiteFulfilmentRoute(website: Website) {
+  return route(
+    'grp.org.fulfilments.show.web.websites.show',
+    [route().params.organisation, website.fulfilment_slug, website.slug]
+  );
 }
 
 </script>
@@ -36,9 +38,12 @@ function websiteRoute(website: Website) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: website }">
-            <Link :href="websiteRoute(website)" class="primaryLink">
+            <Link v-if="website.shop_type==='fulfilment'" :href="websiteFulfilmentRoute(website)" class="primaryLink">
                 {{ website['code'] }}
             </Link>
+          <Link v-else :href="websiteShopRoute(website)" class="primaryLink">
+            {{ website['code'] }}
+          </Link>
         </template>
 
         <template #cell(state)="{ item: website }">

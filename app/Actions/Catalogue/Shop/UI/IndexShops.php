@@ -234,7 +234,7 @@ class IndexShops extends OrgAction
         if ($routeName == 'grp.org.shops.index') {
             return
                 array_merge(
-                    (new ShowDashboard())->getBreadcrumbs(),
+                    ShowDashboard::make()->getBreadcrumbs(),
                     [
                         [
                             'type'   => 'simple',

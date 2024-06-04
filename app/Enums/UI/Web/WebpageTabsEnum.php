@@ -25,7 +25,6 @@ enum WebpageTabsEnum: string
     case SNAPSHOTS            = 'snapshots';
     case CHANGELOG            = 'changelog';
 
-    case DATA                 = 'data';
 
 
     public function blueprint(): array
@@ -36,7 +35,7 @@ enum WebpageTabsEnum: string
                 'icon'  => 'fas fa-info-circle',
             ],
             WebpageTabsEnum::WEBPAGES => [
-                'title' => __('webpages'),
+                'title' => __('child webpages'),
                 'icon'  => 'fal fa-browser',
             ],
             WebpageTabsEnum::ANALYTICS => [
@@ -47,12 +46,7 @@ enum WebpageTabsEnum: string
                 'title' => __('Snapshots'),
                 'icon'  => 'fal fa-layer-group',
             ],
-            WebpageTabsEnum::DATA => [
-                'title' => __('data'),
-                'icon'  => 'fal fa-database',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
+
             WebpageTabsEnum::CHANGELOG => [
                 'title' => __('changelog'),
                 'icon'  => 'fal fa-clock',

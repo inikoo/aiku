@@ -69,7 +69,7 @@ enum RolesEnum: string
     case CUSTOMER_SERVICE_CLERK      = 'customer-service-clerk';
     case CUSTOMER_SERVICE_SUPERVISOR = 'customer-service-supervisor';
 
-    case WEBMASTER_SUPERVISOR = 'webmaster-clerk-supervisor';
+    case WEBMASTER_SUPERVISOR = 'webmaster-supervisor';
     case WEBMASTER_CLERK      = 'webmaster-clerk';
 
     case SHOPKEEPER_CLERK      = 'shopkeeper-clerk';
@@ -306,10 +306,10 @@ enum RolesEnum: string
                 OrganisationPermissionsEnum::SAAS
             ],
             RolesEnum::WEBMASTER_CLERK => [
-                ShopPermissionsEnum::WEB
+                ShopPermissionsEnum::WEB,
             ],
             RolesEnum::WEBMASTER_SUPERVISOR => [
-                ShopPermissionsEnum::SUPERVISOR_WEB
+                ShopPermissionsEnum::SUPERVISOR_WEB,
             ],
             RolesEnum::SHOPKEEPER_CLERK => [
                 ShopPermissionsEnum::PRODUCTS

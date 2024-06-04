@@ -113,7 +113,7 @@ class ShowWebpage extends OrgAction
                     $this->canEdit ? [
                         'type'  => 'button',
                         'style' => 'create',
-                        'label' => __('webpage'),
+                        'label' => __('child webpage'),
                         'route' => [
                             'name'       => 'org.websites.show.webpages.show.webpages.create',
                             'parameters' => [
@@ -150,22 +150,22 @@ class ShowWebpage extends OrgAction
                 ],
 
                 WebpageTabsEnum::SHOWCASE->value => $this->tab == WebpageTabsEnum::SHOWCASE->value ?
-                    fn() => WebpageResource::make($webpage)->getArray()
-                    : Inertia::lazy(fn() => WebpageResource::make($webpage)->getArray()),
+                    fn () => WebpageResource::make($webpage)->getArray()
+                    : Inertia::lazy(fn () => WebpageResource::make($webpage)->getArray()),
 
                 WebpageTabsEnum::SNAPSHOTS->value => $this->tab == WebpageTabsEnum::SNAPSHOTS->value ?
-                    fn() => SnapshotResource::collection(IndexSnapshots::run(parent: $webpage, prefix: 'snapshots'))
-                    : Inertia::lazy(fn() => SnapshotResource::collection(IndexSnapshots::run(parent: $webpage, prefix: 'snapshots'))),
+                    fn () => SnapshotResource::collection(IndexSnapshots::run(parent: $webpage, prefix: 'snapshots'))
+                    : Inertia::lazy(fn () => SnapshotResource::collection(IndexSnapshots::run(parent: $webpage, prefix: 'snapshots'))),
 
                 WebpageTabsEnum::WEBPAGES->value => $this->tab == WebpageTabsEnum::WEBPAGES->value
                     ?
-                    fn() => WebpageResource::collection(
+                    fn () => WebpageResource::collection(
                         IndexWebpages::run(
                             parent: $webpage,
                             prefix: 'webpages'
                         )
                     )
-                    : Inertia::lazy(fn() => WebpageResource::collection(
+                    : Inertia::lazy(fn () => WebpageResource::collection(
                         IndexWebpages::run(
                             parent: $webpage,
                             prefix: 'webpages'
@@ -221,23 +221,23 @@ class ShowWebpage extends OrgAction
 
         return
             match ($routeName) {
-                'grp.org.shops.show.web.websites.show.webpages.show',
-                'grp.org.shops.show.web.websites.show.webpages.edit',
-                'grp.org.shops.show.web.websites.show.webpages.workshop'=>
+                'grp.org.shops.show.web.webpages.show',
+                'grp.org.shops.show.web.webpages.edit',
+                'grp.org.shops.show.web.webpages.workshop'=>
                 array_merge(
                     ShowWebsite::make()->getBreadcrumbs(
-                        'grp.org.shops.show.web.websites.show',
+                        'Shop',
                         Arr::only($routeParameters, ['organisation', 'shop', 'website'])
                     ),
                     $headCrumb(
                         $webpage,
                         [
                             'index' => [
-                                'name'       => 'grp.org.shops.show.web.websites.show.webpages.index',
+                                'name'       => 'grp.org.shops.show.web.webpages.index',
                                 'parameters' => Arr::only($routeParameters, ['organisation', 'shop', 'website'])
                             ],
                             'model' => [
-                                'name'       => 'grp.org.shops.show.web.websites.show.webpages.show',
+                                'name'       => 'grp.org.shops.show.web.webpages.show',
                                 'parameters' => Arr::only($routeParameters, ['organisation', 'shop', 'website', 'webpage'])
                             ]
                         ],
@@ -245,23 +245,23 @@ class ShowWebpage extends OrgAction
                     ),
                 ),
 
-                'grp.org.fulfilments.show.web.websites.show.webpages.show',
-                'grp.org.fulfilments.show.web.websites.show.webpages.edit',
-                'grp.org.fulfilments.show.web.websites.show.webpages.workshop'=>
+                'grp.org.fulfilments.show.web.webpages.show',
+                'grp.org.fulfilments.show.web.webpages.edit',
+                'grp.org.fulfilments.show.web.webpages.workshop'=>
                 array_merge(
                     ShowWebsite::make()->getBreadcrumbs(
-                        'grp.org.fulfilments.show.web.websites.show',
+                        'Fulfilment',
                         Arr::only($routeParameters, ['organisation', 'fulfilment', 'website'])
                     ),
                     $headCrumb(
                         $webpage,
                         [
                             'index' => [
-                                'name'       => 'grp.org.fulfilments.show.web.websites.show.webpages.index',
+                                'name'       => 'grp.org.fulfilments.show.web.webpages.index',
                                 'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'website'])
                             ],
                             'model' => [
-                                'name'       => 'grp.org.fulfilments.show.web.websites.show.webpages.show',
+                                'name'       => 'grp.org.fulfilments.show.web.webpages.show',
                                 'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'website', 'webpage'])
                             ]
                         ],

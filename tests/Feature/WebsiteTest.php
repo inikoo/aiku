@@ -196,7 +196,7 @@ test('can show fulfilment website', function (Website $website) {
 test('can show webpages list in fulfilment website', function (Website $website) {
     $response = get(
         route(
-            'grp.org.fulfilments.show.web.websites.show.webpages.index',
+            'grp.org.fulfilments.show.web.webpages.index',
             [
                 $this->organisation->slug,
                 $this->fulfilment->slug,

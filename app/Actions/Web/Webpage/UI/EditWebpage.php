@@ -8,6 +8,8 @@
 namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
@@ -20,28 +22,27 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditWebpage extends OrgAction
 {
+    use HasWebAuthorisation;
+
+
     public function handle(Webpage $webpage): Webpage
     {
         return $webpage;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-    }
-
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, Webpage $webpage, ActionRequest $request): Webpage
+    public function asController(Organisation $organisation, Shop $shop, Website $website, Webpage $webpage, ActionRequest $request): Webpage
     {
-        $this->initialisation($organisation, $request);
+        $this->scope=$shop;
+        $this->initialisationFromShop($shop, $request);
 
         return $this->handle($webpage);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inWebsite(Organisation $organisation, Fulfilment $fulfilment, Website $website, Webpage $webpage, ActionRequest $request): Webpage
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Webpage $webpage, ActionRequest $request): Webpage
     {
+        $this->scope=$fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($webpage);

@@ -8,6 +8,7 @@
 namespace App\Actions\Web\Website\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -20,6 +21,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditWebsite extends OrgAction
 {
+    use HasWebAuthorisation;
+
     private Fulfilment|Shop $parent;
 
     public function handle(Website $website): Website
@@ -27,25 +30,11 @@ class EditWebsite extends OrgAction
         return $website;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->parent instanceof Shop) {
-            $this->canEdit      = $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
-            $this->isSupervisor = $request->user()->hasPermissionTo("supervisor-web.{$this->shop->id}");
 
-            return $request->user()->hasPermissionTo("web.{$this->shop->id}.view");
-        } elseif ($this->parent instanceof Fulfilment) {
-            $this->canEdit      = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-            $this->isSupervisor = $request->user()->hasPermissionTo("supervisor-fulfilment-shop.{$this->fulfilment->id}");
-
-            return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
-        }
-
-        return false;
-    }
 
     public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): Website
     {
+        $this->scope  = $shop;
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
 
@@ -55,6 +44,7 @@ class EditWebsite extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Website
     {
+        $this->scope  = $fulfilment;
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
