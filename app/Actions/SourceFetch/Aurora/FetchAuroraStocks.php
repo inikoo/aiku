@@ -14,6 +14,7 @@ use App\Actions\Inventory\OrgStock\StoreOrgStock;
 use App\Actions\Inventory\OrgStock\SyncOrgStockLocations;
 use App\Actions\Inventory\OrgStock\UpdateOrgStock;
 use App\Actions\Studio\Attachment\SaveModelAttachment;
+use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\Stock;
 use App\Services\Organisation\Aurora\WithAuroraAttachments;
@@ -73,7 +74,7 @@ class FetchAuroraStocks extends FetchAuroraAction
 
             $organisation = $organisationSource->getOrganisation();
 
-            if($effectiveStock) {
+            if($effectiveStock and $stock->state!=StockStateEnum::IN_PROCESS) {
 
                 /** @var OrgStock $orgStock */
                 if ($orgStock = $organisation->orgStocks()->where('source_id', $stockData['stock']['source_id'])->first()) {
