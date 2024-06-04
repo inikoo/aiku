@@ -58,7 +58,7 @@ const isUserMac = navigator.platform.includes('Mac')  // To check the user's Ope
             type="text"
             name="global"
             @input="onChange($event.target?.value)"
-            class="border border-gray-300 rounded appearance-none inline pl-[103px] pr-0.5 w-0 text-sm leading-none transition-[width] placeholder:text-gray-400 placeholder:italic ring-0 ring-transparent focus:ring-0 focus:ring-transparent cursor-pointer"
+            class="border border-gray-300 rounded appearance-none inline pl-[103px] pr-0.5 w-0 text-sm leading-none transition-[width] placeholder:text-gray-400 placeholder:italic ring-0 ring-transparent focus:ring-0 focus:ring-transparent cursor-text"
             :class="[value ? 'bg-gray-500 focus:border-gray-500 text-gray-500 w-full' : 'group-focus-within:w-full group-focus-within:pr-9 focus:border-gray-300']"
             :style="{
                 backgroundColor: value ? layout?.app?.theme[4] + '33' : '#fff',

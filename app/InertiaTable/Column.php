@@ -14,6 +14,8 @@ class Column implements Arrayable
     public function __construct(
         public string $key,
         public string|array $label,
+        public ?string $icon,
+        public ?string $tooltip,
         public bool $canBeHidden,
         public bool $hidden,
         public bool $sortable,
@@ -28,6 +30,8 @@ class Column implements Arrayable
         return [
             'key'                => $this->key,
             'label'              => $this->label,
+            'icon'               => $this->icon,
+            'tooltip'            => $this->tooltip,
             'can_be_hidden'      => $this->canBeHidden,
             'hidden'             => $this->hidden,
             'sortable'           => $this->sortable,
