@@ -5,7 +5,7 @@
  */
 
 import { useMilisecondToTime } from "@/Composables/useFormatTime"
-import { differenceInMilliseconds } from 'date-fns/esm'
+import { differenceInMilliseconds } from 'date-fns'
 import { defineStore } from "pinia";
 
 interface ProgressBar {
