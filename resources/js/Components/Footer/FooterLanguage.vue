@@ -13,62 +13,77 @@ import { faSpinnerThird } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faLanguage, faSpinnerThird)
 import { useLocaleStore } from "@/Stores/locale"
-import { useLayoutStore } from "@/Stores/layout"
 import FooterTab from '@/Components/Footer/FooterTab.vue'
 import { trans, loadLanguageAsync } from 'laravel-vue-i18n'
 import { useForm } from '@inertiajs/vue3'
-const form = useForm({
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
+import type { Language } from '@/types/Locale'
+import LoadingText from '@/Components/Utils/LoadingText.vue'
+
+const form = useForm<{
+    language_id: number | null
+}>({
     language_id: null,
 })
+
 const locale = useLocaleStore()
-const layout = useLayoutStore()
 
-defineProps<{
-    isTabActive: string | boolean
-}>()
-
-defineEmits<{
-    (e: 'isTabActive', value: boolean | string): void
-}>()
+const onSelectLanguage = (language: Language) => {
+    if(form.language_id != language.id) {
+        form.language_id = language.id
+        form.patch(route('grp.models.profile.update'), {
+            preserveScroll: true,
+            onSuccess: () => (
+                locale.language = language,
+                loadLanguageAsync(language.code)
+            )
+        })
+    }
+    
+}
 
 </script>
 
 <template>
-    <!-- <div class="fixed top-10 right-48 bg-red-500 "><pre>{{form}}</pre></div> -->
-    <div class="relative h-full flex z-50 select-none justify-center items-center px-8 cursor-pointer"
-        :class="[
-            isTabActive == 'language'
-                ? layout.app.name === 'org' ? 'bg-gray-200 text-gray-700' : 'bg-gray-700 text-gray-300'
-                : layout.app.name === 'org' ? 'hover:bg-gray-300' : 'text-gray-300 hover:bg-gray-600',
-            ,
-        ]"
-    >
-        <FontAwesomeIcon v-if="form.processing" icon='fad fa-spinner-third' class='animate-spin mr-2' aria-hidden='true' />
-        <FontAwesomeIcon v-else icon="fal fa-language" class="text-xs mr-1 h-5 " />
-        <div class="h-full font-extralight text-xs flex items-center gap-x-1 leading-none">
-            {{ locale.language.code }}
-        </div>
-        <div class="absolute inset-0 bg-transparent" @click="isTabActive == 'language' ? $emit('isTabActive', !isTabActive) : $emit('isTabActive', 'language')" />
-
-        <FooterTab v-if="isTabActive === 'language'" :tabName="`language`">
-            <template #default>
-                <!-- <div v-if="Object.keys(locale.languageOptions).length > 0" v-for="(option, index) in locale.languageOptions"
-                    :class="[ locale.language.id == index ? 'bg-gray-400 text-gray-100' : 'text-gray-100 hover:bg-gray-500', 'grid py-1.5']"
-                    @click="locale.language = option, loadLanguageAsync(option.code)"
-                >
-                    {{ option.name }}
-                </div> -->
-                <form v-if="Object.keys(locale.languageOptions).length > 0"
-                    @submit.prevent="form.patch(route('grp.models.profile.update'))"
-                    v-for="(option, index) in locale.languageOptions"
-                    :class="[ option.id == locale.language.id ? 'bg-gray-400' : 'hover:bg-gray-300 hover:text-gray-700 ', 'grid ']"
-                >
-                    <button @click="form.language_id = option.id, locale.language = option, loadLanguageAsync(locale.language.code)" type="submit" class="py-1.5">
-                        {{ option.name }}
-                    </button>
-                </form>
-                <div v-else class="grid pt-2.5 pb-1.5">{{ trans('Nothing to show here') }}</div>
+    <Popover v-slot="{ open }" class="relative h-full">
+        <PopoverButton :class="open ? 'bg-white/50 text-white' : 'hover:bg-white/25 text-gray-200'"
+            class="group inline-flex items-center px-3 h-full font-medium ">
+            <!-- Label: Loading on select language -->
+            <template v-if="form.processing">
+                <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin mr-2' aria-hidden='true' />
+                <LoadingText class="h-full font-extralight text-xs flex items-center gap-x-1 leading-none" />
             </template>
-        </FooterTab>
-    </div>
+
+            <!-- Label: Language -->
+            <template v-else>
+                <FontAwesomeIcon icon="fal fa-language" class="text-xs mr-1 h-5 " />
+                <div class="h-full font-extralight text-xs flex items-center gap-x-1 leading-none">
+                    {{ locale.language.name }}
+                </div>
+            </template>
+        </PopoverButton>
+
+        <transition enter-active-class="transition duration-200 ease-out" enter-from-class="translate-y-1 opacity-0"
+            enter-to-class="translate-y-0 opacity-100" leave-active-class="transition duration-150 ease-in"
+            leave-from-class="translate-y-0 opacity-100" leave-to-class="translate-y-1 opacity-0">
+            <PopoverPanel class="absolute bottom-full right-0 z-10 transform sm:px-0">
+                <FooterTab tabName="language">
+                    <template #default>
+                        <form v-if="Object.keys(locale.languageOptions).length > 0"
+                            v-for="(language, index) in locale.languageOptions"
+                            @submit.prevent="() => onSelectLanguage(language)"
+                            :class="[ language.id == locale.language.id ? 'bg-white/50' : 'hover:bg-white/20 ', 'grid ']"
+                        >
+                            <button
+                                type="submit"
+                                class="py-1.5">
+                                {{ language.name }}
+                            </button>
+                        </form>
+                        <div v-else class="grid pt-2.5 pb-1.5">{{ trans('Nothing to show here') }}</div>
+                    </template>
+                </FooterTab>
+            </PopoverPanel>
+        </transition>
+    </Popover>
 </template>

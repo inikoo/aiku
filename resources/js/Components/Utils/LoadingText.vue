@@ -10,14 +10,14 @@ const updateLoadingText = () => {
     loadingText.value = '.'.repeat(dots.value)
 }
 
-let intervalId: number | undefined
+let intervalId: ReturnType<typeof setTimeout> | null = null
 
 onMounted(() => {
     intervalId = setInterval(updateLoadingText, 400)
 })
 
 onUnmounted(() => {
-    if (intervalId !== undefined) {
+    if (intervalId !== null) {
         clearInterval(intervalId)
     }
 })
@@ -29,7 +29,3 @@ onUnmounted(() => {
         <div class="absolute bottom-0 left-full">{{ loadingText }}</div>
     </div>
 </template>
-
-<style scoped>
-/* Add any styles if necessary */
-</style>

@@ -5,12 +5,8 @@
  */
 
 import { defineStore } from 'pinia'
+import type { Language } from '@/types/Locale'
 
-interface Language {
-    id: number
-    code: string
-    name: string
-}
 
 export const useLocaleStore = defineStore('locale', {
     state: () => ({
@@ -19,7 +15,7 @@ export const useLocaleStore = defineStore('locale', {
             code: 'en',
             name: 'English',
         } as Language,
-        languageOptions: {} as Language 
+        languageOptions: {} as Language[]
     }),
 
     actions: {
