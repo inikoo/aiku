@@ -65,7 +65,7 @@ const originUrl = location.origin
                 </div>
                 <h2 :class="!data.noCapitalise? 'capitalize' : ''">
                     <span v-if="data.model" class="text-gray-400 mr-2 font-medium">{{ data.model }}</span>
-                    {{ data.title }}
+                    <span>{{ data.title }}</span>
                 </h2>
                 <FontAwesomeIcon v-if="data.iconRight"
                     v-tooltip="data.iconRight.tooltip || ''"

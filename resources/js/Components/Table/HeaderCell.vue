@@ -14,11 +14,12 @@ const props = defineProps<{
     cell: {
         key: string
         type?: string  // For width of the column
-        label: {
+        label?: {
             type: string  // 'icon', 'text'
             tooltip?: string
             data: string | string[] // 'Pallets', ['fal', 'fa-yinyang']
         } | string
+        icon?: string | string[]
         sortable: boolean
         hidden: boolean
         sorted: string
@@ -37,20 +38,32 @@ function onClick() {
     }
 }
 
-const isCellNumber = computed(() => {
+const isCellNumber = () => {
     return props.resource.some((aaa: any) => typeof aaa[props.column.key] === 'number')
-})
+}
 </script>
 
 <template>
-    <!-- <pre>{{ cell.onSort }}</pre> -->
-    <th v-show="!cell.hidden" class="font-normal">
-        <component :is="cell.sortable ? 'button' : 'div'" class="py-1" :class="[cell.type == 'avatar' || cell.type == 'icon' ? 'px-2 flex justify-center w-fit mx-auto' : 'px-6 w-full']" :dusk="cell.sortable ? `sort-${cell.key}` : null" @click.prevent="onClick">
-            <slot name="pagehead" :data="{isCellNumber : isCellNumber, cell}">
-                <div class="flex flex-row items-center" :class="{'justify-center': cell.type == 'avatar' || cell.type == 'icon', 'justify-end': isCellNumber}">
+    <!-- <pre>{{ cell.icon }}</pre> -->
+    <th v-show="!cell.hidden" class="font-normal"
+        :class="[cell.type == 'avatar' || cell.type == 'icon' ? 'px-5 w-1' : 'px-6 w-auto text-left']"
+    >
+        <component :is="cell.sortable ? 'button' : 'div'" class="py-1"
+            :dusk="cell.sortable ? `sort-${cell.key}` : null" @click.prevent="onClick">
+            <!-- <slot name="pagehead" :data="{isCellNumber : isCellNumber, cell}"> -->
+                <div class="flex items-center justify-start"
+                    :class="{'justify-center': cell.type == 'avatar' || cell.type == 'icon', 'justify-end': isCellNumber()}">
+                    
+                    <!-- Label: object -->
                     <div v-if="typeof cell.label === 'object'">
-                        <FontAwesomeIcon v-if="cell.label.type === 'icon'" :title="capitalize(cell.label.tooltip)"
-                            aria-hidden="true" :icon="cell.label.data" size="lg" />
+                        <FontAwesomeIcon
+                            v-if="cell.icon || cell.label.type === 'icon'"
+                            :icon="cell.icon || cell.label.data"
+                            v-tooltip="capitalize(cell.label.tooltip)"
+                            aria-hidden="true"
+                            size="lg"
+                            fixed-width
+                        />
 
                         <div v-else-if="cell.label.type === 'text'"  v-tooltip="cell.label.tooltip">
                             {{ cell.label.data || ''}}
@@ -60,7 +73,17 @@ const isCellNumber = computed(() => {
                         </div>
                     </div>
                     
-                    <span v-else class="capitalize text-xs md:text-sm lg:text-base" v-tooltip="cell.tooltip">{{ cell.label || ''}}</span>
+                    <!-- Simple label and icon -->
+                    <div v-else class="capitalize text-xs md:text-sm lg:text-base" v-tooltip="cell.tooltip">
+                        {{ cell.label || ''}}
+                        <FontAwesomeIcon
+                            v-if="cell.icon"
+                            :icon="cell.icon"
+                            aria-hidden="true"
+                            size="lg"
+                            fixed-width
+                        />
+                    </div>
 
                     <!-- Icon: arrow for sort -->
                     <svg v-if="cell.sortable" aria-hidden="true" class="w-3 h-3 ml-2" :class="{
@@ -77,7 +100,7 @@ const isCellNumber = computed(() => {
                             d="M41 288h238c21.4 0 32.1 25.9 17 41L177 448c-9.4 9.4-24.6 9.4-33.9 0L24 329c-15.1-15.1-4.4-41 17-41z" />
                     </svg>
                 </div>
-            </slot>
+            <!-- </slot> -->
         </component>
     </th>
 </template>

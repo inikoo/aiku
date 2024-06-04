@@ -168,8 +168,8 @@ class IndexWebpages extends OrgAction
                         default => null
                     }
                 )
-                ->column(key: 'level', label: ['fal', 'fa-sort-amount-down-alt'], canBeHidden: false, sortable: true, type: 'icon')
-                ->column(key: 'type', label: ['fal', 'fa-shapes'], canBeHidden: false, type: 'icon')
+                ->column(key: 'level', label: '', icon: 'fal fa-sort-amount-down-alt', tooltip: __('Level'), canBeHidden: false, sortable: true, type: 'icon')
+                ->column(key: 'type', label: '', icon: 'fal fa-shapes', tooltip: __('Type'), canBeHidden: false, type: 'icon')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'url', label: __('url'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('level');
