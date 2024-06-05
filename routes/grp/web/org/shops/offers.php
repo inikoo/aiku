@@ -10,9 +10,10 @@ use App\Actions\Devel\UI\EditDummy;
 use App\Actions\Devel\UI\IndexDummies;
 use App\Actions\Devel\UI\ShowDummy;
 use App\Actions\Devel\UI\ShowDummyDashboard;
+use App\Actions\UI\Dropshipping\Offers\ShowOfferDashboard;
 use Illuminate\Support\Facades\Route;
 
-Route::get('', ShowDummyDashboard::class)->name('dashboard');
+Route::get('', ShowOfferDashboard::class)->name('dashboard');
 Route::name("campaigns.")->prefix('campaigns')
     ->group(function () {
         Route::get('', IndexDummies::class)->name('index');
