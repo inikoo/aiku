@@ -7,16 +7,20 @@ DB=aiku_test
 DB_PORT=5432
 DB_COLLATE=C.UTF-8
 PHP=php8.3
+USER=aiku
+HOST=localhost
 
-PHP="${1:-PHP}"
-DB_PORT="${2:-$DB_PORT}"
-DB_COLLATE="${3:-$DB_COLLATE}"
+PHP="${1:-$PHP}"
+USER="${2:-$USER}"
+HOST="${3:-$HOST}"
+DB_PORT="${4:-$DB_PORT}"
+DB_COLLATE="${5:-$DB_COLLATE}"
 
 echo -e "✨ Resetting elasticsearch"
 ${PHP} artisan es:refresh --env=testing
 echo -e "✨ Resetting database ${ITALIC}${DB}${NONE}"
-dropdb --if-exists -p "${DB_PORT}" ${DB}
-createdb -p "${DB_PORT}" --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}" ${DB}
+dropdb --if-exists -p "${DB_PORT}" -U "${USER}" -h "${HOST}" -f -w ${DB}
+createdb -p "${DB_PORT}" -U "${USER}" -h "${HOST}"  --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}" ${DB}
 echo "🌱 Migrating and seeding database"
 ${PHP} artisan --env=testing migrate
 ${PHP} artisan --env=testing db:seed
