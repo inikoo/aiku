@@ -10,9 +10,13 @@ use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvi
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProviderAccount;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
+use App\Actions\Catalogue\Collection\StoreCollection;
+use App\Actions\Catalogue\Collection\UpdateCollection;
 use App\Actions\Catalogue\Product\DeleteProduct;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Product\UpdateProduct;
+use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
+use App\Actions\Catalogue\ProductCategory\UpdateProductCategory;
 use App\Actions\Catalogue\Service\StoreService;
 use App\Actions\Catalogue\Service\UpdateService;
 use App\Actions\Catalogue\Shop\StoreShop;
@@ -183,6 +187,17 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::prefix('fulfilment/{fulfilment:id}/services')->name('fulfilment.services.')->group(function () {
         Route::post('/', [StoreService::class, 'inFulfilment'])->name('store');
         Route::patch('{service:id}', UpdateService::class)->name('update')->withoutScopedBindings();
+    });
+
+    Route::prefix('/shop/{shop:id}/catalogue/collections')->name('catalogue.collections.')->group(function () {
+        Route::post('/', StoreCollection::class)->name('store');
+        Route::patch('{collection:id}', UpdateCollection::class)->name('update')->withoutScopedBindings();
+    });
+
+    Route::prefix('/shop/{shop:id}/catalogue/departments')->name('catalogue.departments.')->group(function () {
+        // Route::post('/', Store::class)->name('store');
+        Route::patch('{productCategory:id}', UpdateProductCategory::class)->name('update')->withoutScopedBindings();
+        Route::post('family/store/{productCategory:id}', [StoreProductCategory::class, 'inDepartment'])->name('family.store')->withoutScopedBindings();
     });
 
     Route::post('/shop/{shop:id}/customer', StoreCustomer::class)->name('shop.customer.store');

@@ -86,7 +86,7 @@ class GetShopNavigation
             $navigation["assets"] = [
                 "root"  => "grp.org.shops.show.assets.",
                 "icon"  => ["fal", "fa-ballot"],
-                "label" => __("Assets"),
+                "label" => __("Billables"),
                 "route" => [
                     "name"       => 'grp.org.shops.show.assets.dashboard',
                     "parameters" => [$shop->organisation->slug, $shop->slug],

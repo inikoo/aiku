@@ -35,6 +35,7 @@ import { isArray } from 'lodash'
 
 import { ref, onMounted } from 'vue'
 import Textarea from "@/Components/Forms/Fields/Textarea.vue"
+import TextEditor from "@/Components/Forms/Fields/TextEditor.vue"
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from '@/Composables/capitalize'
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
@@ -76,6 +77,7 @@ const getComponent = (componentName: string) => {
         'password': Password,
         'customerRoles': CustomerRoles,
         'textarea': Textarea,
+        'textEditor': TextEditor,
         'toggle': Toggle,
         'jobPosition': JobPosition,
         'senderEmail': SenderEmail,

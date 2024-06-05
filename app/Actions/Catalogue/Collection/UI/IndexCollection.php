@@ -18,6 +18,7 @@ use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -107,21 +108,54 @@ class IndexCollection extends OrgAction
                 $table->name($prefix)->pageName($prefix . 'Page');
             }
 
-            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                $table->elementGroup(
-                    key: $key,
-                    label: $elementGroup['label'],
-                    elements: $elementGroup['elements']
-                );
-            }
+            // foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+            //     $table->elementGroup(
+            //         key: $key,
+            //         label: $elementGroup['label'],
+            //         elements: $elementGroup['elements']
+            //     );
+            // }
 
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
-                ->withEmptyState([
-                    'title'   => __('No collections found'),
-                    'count'   => 0,
-                ]);
+                ->withEmptyState(                    
+                    match (class_basename($parent)) {
+                    'Organisation' => [
+                        'title'       => __("No departments found"),
+                        'description' => $canEdit && $parent->catalogueStats->number_shops == 0 ? __('Get started by creating a shop. ✨') : '',
+                        'count'       => $parent->catalogueStats->number_departments,
+                        'action'      => $canEdit && $parent->catalogueStats->number_shops == 0 ?
+                            [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new shop'),
+                            'label'   => __('shop'),
+                            'route'   => [
+                                'name'       => 'grp.org.shops.create',
+                                'parameters' => [$parent->slug]
+                            ]
+                        ] : null
+
+                    ],
+                    'Shop' => [
+                        'title'       => __("No collections found"),
+                        'description' =>  __('Get started by creating a new collection. ✨')
+                           ,
+                        'count'       => $parent->stats->number_collections,
+                        'action'      => [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new collection'),
+                            'label'   => __('collection'),
+                            'route'   => [
+                                'name'       => 'grp.org.shops.show.catalogue.collections.create', //creating
+                                    'parameters' => [$parent->organisation->slug,$parent->slug]
+                            ]
+                        ] 
+                    ],
+                    default => null
+                });
 
             $table
                 ->column(key: 'code', label: __('Code'), canBeHidden: false, sortable: true, searchable: true)
@@ -136,6 +170,16 @@ class IndexCollection extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $collections, ActionRequest $request): Response
     {
+
+        $scope     = $this->parent;
+        $container = null;
+        if (class_basename($scope) == 'Shop') {
+            $container = [
+                'icon'    => ['fal', 'fa-store-alt'],
+                'tooltip' => __('Shop'),
+                'label'   => Str::possessive($scope->name)
+            ];
+        }
         return Inertia::render(
             'Org/Catalogue/Collections',
             [
@@ -146,9 +190,22 @@ class IndexCollection extends OrgAction
                 'title'    => __('Collections'),
                 'pageHead' => [
                     'title'     => __('Collections'),
+                    'container' => $container,
                     'icon'      => [
                         'icon'  => ['fal', 'fa-cube'],
                         'title' => __('Collections')
+                    ],
+                    'actions'   => [
+                        $this->canEdit && $request->route()->getName() == 'grp.org.shops.show.catalogue.collections.index' ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new collection'),
+                            'label'   => __('collection'),
+                            'route'   => [
+                                'name'       => 'grp.org.shops.show.catalogue.collections.create',
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ] : false,
                     ]
                 ],
                 'data' => CollectionResource::collection($collections),

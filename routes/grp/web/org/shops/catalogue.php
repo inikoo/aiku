@@ -11,6 +11,8 @@ use App\Actions\Catalogue\Asset\UI\CreateProduct;
 use App\Actions\Catalogue\Asset\UI\EditProduct;
 use App\Actions\Catalogue\Asset\UI\IndexProducts;
 use App\Actions\Catalogue\Asset\UI\ShowProduct;
+use App\Actions\Catalogue\Collection\UI\CreateCollection;
+use App\Actions\Catalogue\Collection\UI\EditCollection;
 use App\Actions\Catalogue\ProductCategory\UI\CreateDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\CreateFamily;
 use App\Actions\Catalogue\ProductCategory\UI\EditDepartment;
@@ -47,9 +49,10 @@ Route::name("departments.")->prefix('departments')
 
         Route::prefix('{department}')->group(function () {
             Route::get('', ShowDepartment::class)->name('show');
-            Route::get('edit', EditDepartment::class)->name('edit');
+            Route::get('edit', [EditDepartment::class, 'inShop'])->name('edit');
             Route::get('families', [IndexFamilies::class, 'inDepartment'])->name('families.index');
-            Route::get('families/{family}', [ShowFamily::class, 'inDepartment'])->name('families.show');
+            Route::get('families/create', [CreateFamily::class, 'inDepartment'])->name('families.create'); 
+            Route::get('families/{family}', [ShowFamily::class, 'inDepartment'])->name('families.show');  
             Route::get('products/{product}', [ShowProduct::class, 'inDepartment'])->name('products.show');
         });
     });
@@ -69,11 +72,11 @@ Route::name("families.")->prefix('families')
 Route::name("collections.")->prefix('collections')
     ->group(function () {
         Route::get('', IndexCollection::class)->name('index');
-        Route::get('create', CreateDummy::class)->name('create');
+        Route::get('create', CreateCollection::class)->name('create');
 
         Route::prefix('{collection}')->group(function () {
             Route::get('', ShowCollection::class)->name('show');
-            Route::get('edit', EditDummy::class)->name('edit');
+            Route::get('edit', EditCollection::class)->name('edit');
             Route::get('products/{product}', [ShowProduct::class, 'inCollection'])->name('products.show');
         });
     });

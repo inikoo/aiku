@@ -22,7 +22,7 @@ class GetFulfilmentNavigation
         if ($user->hasPermissionTo("fulfilment-shop.$fulfilment->id.view")) {
             $navigation['assets'] = [
                 'root'  => 'grp.org.fulfilments.show.assets.',
-                'label' => __('Assets'),
+                'label' => __('Billables'),
                 'icon'  => ['fal', 'fa-ballot'],
 
                 'route' => [

@@ -46,14 +46,14 @@ class CreateDepartment extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): ActionRequest
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Response
     {
         $this->initialisationFromShop($shop, $request);
 
-        return $request;
+        return $this->handle($shop, $request);
     }
 
-    public function htmlResponse(ActionRequest $request): Response
+    public function handle(Shop $shop, ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
