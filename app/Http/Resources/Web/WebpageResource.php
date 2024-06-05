@@ -22,21 +22,46 @@ class WebpageResource extends JsonResource
         $webpage = $this;
 
         return [
-            'slug'       => $webpage->slug,
-            'level'      => $webpage->level,
-            'code'       => $webpage->code,
-            'url'        => $webpage->url,
-            'type'       => $webpage->type,
-            'typeIcon'   => match ($webpage->type) {
+            'id'              => $webpage->id,
+            'slug'            => $webpage->slug,
+            'level'           => $webpage->level,
+            'code'            => $webpage->code,
+            'url'             => $webpage->url,
+            'type'            => $webpage->type,
+            'typeIcon'        => match ($webpage->type) {
                 WebpageTypeEnum::STOREFRONT => ['fal', 'fa-home'],
                 WebpageTypeEnum::ENGAGEMENT => ['fal', 'fa-ufo-beam'],
-                WebpageTypeEnum::AUTH       => ['fal', 'fa-sign-in'],
-                WebpageTypeEnum::BLOG       => ['fal', 'fa-newspaper'],
-                default                     => ['fal', 'fa-browser']
+                WebpageTypeEnum::AUTH => ['fal', 'fa-sign-in'],
+                WebpageTypeEnum::BLOG => ['fal', 'fa-newspaper'],
+                default => ['fal', 'fa-browser']
             },
-            'purpose'    => $webpage->purpose,
-            'created_at' => $webpage->created_at,
-            'updated_at' => $webpage->updated_at,
+            'is_dirty'        => $webpage->is_dirty,
+            'compiled_layout' => $webpage->compiled_layout,
+            'purpose'         => $webpage->purpose,
+            'created_at'      => $webpage->created_at,
+            'updated_at'      => $webpage->updated_at,
+            'state'           => $webpage->state,
+            'images_upload_route' => [
+                'name'       => 'org.models.webpage.images.store',
+                'parameters' => $webpage->id
+            ],
+            'publish_route'      => [
+                'name'       => 'org.models.webpage.content.publish',
+                'parameters' => $webpage->id
+            ],
+            'set_as_ready_route'   => [
+                'name'       => 'org.models.webpage.content.publish',
+                'parameters' => $webpage->id
+            ],
+            'update_route'       => [
+                'name'       => 'org.models.webpage.content.update',
+                'parameters' => $webpage->id
+            ],
+            'load_route'         => [
+                'name'       => 'org.models.webpage.content.show',
+                'parameters' => $webpage->id
+            ],
+
         ];
     }
 }
