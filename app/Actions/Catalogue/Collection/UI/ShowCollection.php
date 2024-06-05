@@ -140,7 +140,7 @@ class ShowCollection extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('collections')
+                            'label' => __('Collections')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
@@ -227,7 +227,7 @@ class ShowCollection extends OrgAction
 
                 ]
             ],
-            'grp.org.shops.show.catalogue.products.show'=> [
+            'grp.org.shops.show.catalogue.collections.show'=> [
                 'label'=> $collection->name,
                 'route'=> [
                     'name'      => $routeName,

@@ -7,15 +7,22 @@
 
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
+use App\Actions\Catalogue\HasMarketAuthorisation;
 use App\Actions\OrgAction;
+use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
+use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 
 class CreateFamily extends OrgAction
 {
+    use HasMarketAuthorisation;
+    private Shop|ProductCategory $parent;
+
     public function authorize(ActionRequest $request): bool
     {
         if ($this->parent instanceof Organisation) {
@@ -54,7 +61,15 @@ class CreateFamily extends OrgAction
         return $request;
     }
 
-    public function htmlResponse(ActionRequest $request): Response
+    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ActionRequest $request): Response
+    {
+        $this->parent = $department;
+        $this->initialisationFromShop($shop, $request);
+        return $this->handle(parent: $department, request: $request);
+    }
+
+
+    public function handle(Shop|ProductCategory $parent, ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
@@ -72,7 +87,11 @@ class CreateFamily extends OrgAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.org.shops.show.catalogue.families.index',
+                                'name'       => class_basename($this->parent) == 'ProductCategory' 
+                                                 ? 'grp.org.shops.show.catalogue.departments.families.index'
+                                            : (class_basename($this->parent) == 'Shop' 
+                                                ? 'grp.org.shops.show.catalogue.families.index' 
+                                                : ''),
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]
@@ -84,6 +103,14 @@ class CreateFamily extends OrgAction
                             [
                                 'title'  => __('family'),
                                 'fields' => [
+                                    'type' => [
+                                        'type'     => 'select',
+                                        'label'    => __('type'),
+                                        'required' => true,
+                                        'options'  => Options::forEnum(ProductCategoryTypeEnum::class),
+                                        'value'    => ProductCategoryTypeEnum::FAMILY->value,
+                                        'readonly' => true
+                                    ],
                                     'code' => [
                                         'type'     => 'input',
                                         'label'    => __('code'),
@@ -94,6 +121,11 @@ class CreateFamily extends OrgAction
                                         'label'    => __('name'),
                                         'required' => true
                                     ],
+                                    'description' => [
+                                        'type'     => 'textEditor',
+                                        'label'    => __('name'),
+                                        'required' => true
+                                    ],
                                 ]
                             ]
                         ],
@@ -101,6 +133,14 @@ class CreateFamily extends OrgAction
                         'shops.show.families.create' => [
                             'name'      => 'grp.models.shop.family.store',
                             'arguments' => $this->shop->id
+                        ],
+                        'grp.org.shops.show.catalogue.departments.families.create' => [
+                            'name'      => 'grp.models.org.catalogue.departments.family.store',
+                            'parameters' => [
+                                'organisation' => $this->organisation->id,
+                                'shop'         => $this->shop->id,
+                                'productCategory' => $this->parent->id
+                            ]
                         ],
                         default => [
                             'name' => 'grp.models.family.store'

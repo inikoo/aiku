@@ -9,6 +9,7 @@ namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Http\Resources\Web\WebpageResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -72,34 +73,7 @@ class ShowWebpageWorkshop extends OrgAction
                         ],
                     ],
                 ],
-                'webpageID'    => $webpage->id,
-                'websiteState' => $webpage->website->state,
-                'webpageState' => $webpage->state,
-                'isDirty'      => $webpage->is_dirty,
-                'pageCode'     => $webpage->code,
-
-                'imagesUploadRoute' => [
-                    'name'       => 'org.models.webpage.images.store',
-                    'parameters' => $webpage->id
-                ],
-                'publishRoute'      => [
-                    'name'       => 'org.models.webpage.content.publish',
-                    'parameters' => $webpage->id
-                ],
-                'setAsReadyRoute'   => [
-                    'name'       => 'org.models.webpage.content.publish',
-                    'parameters' => $webpage->id
-                ],
-                'updateRoute'       => [
-                    'name'       => 'org.models.webpage.content.update',
-                    'parameters' => $webpage->id
-                ],
-                'loadRoute'         => [
-                    'name'       => 'org.models.webpage.content.show',
-                    'parameters' => $webpage->id
-                ],
-
-
+                'webpage'      => WebpageResource::make($webpage)->getArray(),
             ]
         );
     }

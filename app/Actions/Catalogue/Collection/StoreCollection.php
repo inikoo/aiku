@@ -19,6 +19,8 @@ use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreCollection extends OrgAction
@@ -96,6 +98,19 @@ class StoreCollection extends OrgAction
     {
         $this->initialisationFromShop($shop, $request);
         return $this->handle($shop, $this->validatedData);
+    }
+
+    public function htmlResponse(Collection $collection, ActionRequest $request): RedirectResponse
+    {
+            return Redirect::route('grp.org.shops.show.catalogue.collections.show', [
+                'organisation'       => $collection->organisation->slug,
+                'shop'               => $collection->shop->slug,
+                'collection'         => $collection->slug,
+            ]);
+        
+
+
+
     }
 
 
