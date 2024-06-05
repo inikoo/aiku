@@ -54,7 +54,7 @@ class WebpageResource extends JsonResource
                 'parameters' => $webpage->id
             ],
             'update_route'       => [
-                'name'       => 'org.models.webpage.content.update',
+                'name'       => 'grp.models.webpage.content.update',
                 'parameters' => $webpage->id
             ],
             'load_route'         => [
