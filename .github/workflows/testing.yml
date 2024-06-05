@@ -35,7 +35,7 @@ jobs:
           cd private
           ln -s ../../../../../artifacts/fa .
       - name: Generate database dumps 📚
-        run: ./generate_testing_db_dumps.sh aiku ${{vars.TESTING_DB_IP}}
+        run: ./generate_testing_db_dumps.sh php8.3 aiku ${{vars.TESTING_DB_IP}}
       - name: build app
         run: npm run build
       - name: Run test
