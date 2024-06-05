@@ -46,11 +46,10 @@ Route::name('websites.')->group(function () {
 Route::prefix('{website}/webpages')->name('webpages.')->group(function () {
     Route::get('', IndexWebpages::class)->name('index');
     Route::get('create', CreateWebpage::class)->name('create');
+    Route::get('edit', EditWebpage::class)->name('edit');
     Route::prefix('{webpage}')
         ->group(function () {
             Route::get('', ShowWebpage::class)->name('show');
-            Route::get('create', CreateWebpage::class)->name('create');
-            Route::get('edit', EditWebpage::class)->name('edit');
             Route::get('workshop', ShowWebpageWorkshop::class)->name('workshop');
             Route::get('workshop/preview', ShowWebpageWorkshopPreview::class)->name('preview');
             Route::get('webpages', [IndexWebpages::class, 'inWebpage'])->name('show.webpages.index');
