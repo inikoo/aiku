@@ -32,7 +32,7 @@ function loadDB($dumpName): void
         env('DB_DATABASE_TEST', 'aiku_testing').' '.
         env('DB_PORT').' '.
         env('DB_USERNAME').' '.
-        env('DB_PASSWORD').
+        env('DB_PASSWORD').' '.
         env('DB_HOST').
         ' tests/datasets/db_dumps/'.$dumpName);
 }
