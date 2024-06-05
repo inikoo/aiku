@@ -39,7 +39,11 @@ function onClick() {
 }
 
 const isCellNumber = () => {
-    return props.resource.some((aaa: any) => typeof aaa[props.column.key] === 'number')
+    if(props.resource?.length) {
+        return props.resource?.some((aaa: any) => typeof aaa[props.column.key] === 'number') || false
+    }
+    
+    return false
 }
 </script>
 

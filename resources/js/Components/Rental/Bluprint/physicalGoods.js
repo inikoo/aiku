@@ -38,7 +38,7 @@ export default {
             propsOptions : {
                 onChange : (value,column,rowData)=> {
                     let discountedPrice = rowData.price - (rowData.price * (value / 100))
-                    rowData.agreed_price = discountedPrice
+                    rowData.agreed_price = parseFloat(discountedPrice.toFixed(2))
                 }
             }
         },

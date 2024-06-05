@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onBeforeMount } from 'vue'
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
-import Rental from '@/Components/Rental/Table.vue'
+import RentalTable from '@/Components/Rental/Table.vue'
 import RentalBluprint from './Bluprint/rental.js'
 import ServicesBluprint from './Bluprint/services.js'
 import PhysicalGoodsBluprint from './Bluprint/physicalGoods.js'
@@ -23,18 +23,18 @@ const props = defineProps<{
         copyButton: boolean
         maxLength?: number
         physical_goods: {
-            data: Object
+            data: {}
         },
         rentals: {
-            data: Object
+            data: {}
         },
         services: {
-            data: Object
+            data: {}
         },
     }
 }>()
 
-console.log(props)
+// console.log(props)
 
 
 const tabs = ref([
@@ -102,19 +102,22 @@ onBeforeMount(() => {
                                 : `border-transparent text-[${layout.app.theme[0]}] hover:border-[${layout.app.theme[0]}]`,
                         ]">
                         {{ tab.title }}
+                        <span>
+                            ({{ props.form[props.fieldName][tab.tableBluprint.key].filter(xxx => xxx.price != xxx.agreed_price).length ? '+' + props.form[props.fieldName][tab.tableBluprint.key].filter(xxx => xxx.price != xxx.agreed_price).length : 0 }})
+                        </span>
                     </button>
                 </Tab>
                 <div style="margin-left: auto;">
-                       <Button  :label="`Reset`" :icon="['fal', 'history']" :type="'gray'" @click="resetValue"/>
+                    <Button  :label="`Reset`" :icon="['fal', 'history']" type="tertiary" @click="resetValue"/>
                 </div>
             </TabList>
 
             <TabPanels class="mt-2">
-                <TabPanel v-for="(posts, idx) in tabs" :key="idx" :class="[
+                <TabPanel v-for="(tab, idx) in tabs" :key="idx" :class="[
                     'rounded-xl bg-white p-3',
                     'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2',
                 ]">
-                    <Rental v-bind="props" :bluprint="posts.tableBluprint" />
+                    <RentalTable v-bind="props" :bluprint="tab.tableBluprint" />
                 </TabPanel>
             </TabPanels>
         </TabGroup>
