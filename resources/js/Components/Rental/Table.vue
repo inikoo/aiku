@@ -19,13 +19,14 @@ import { trans } from "laravel-vue-i18n"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import EmptyState from "@/Components/Utils/EmptyState.vue"
 import { get } from 'lodash'
+import { Switch } from '@headlessui/vue'
 
 
 library.add(faExclamationCircle, faCheckCircle, faSpinnerThird, faCopy, faTrash, farTrash, faEdit)
 
 const props = defineProps<{
     form: any
-    bluprint: Any
+    bluprint: any
     fieldName: string
     options?: any
     fieldData?: {
@@ -34,9 +35,9 @@ const props = defineProps<{
         readonly?: boolean
         copyButton: boolean
         maxLength?: number
-        physical_goods: Object,
-        rentals: Object,
-        services: Object
+        physical_goods: {}
+        rentals: {}
+        services: {}
     }
 }>()
 
@@ -101,17 +102,31 @@ const showAll = () => {
 <template>
 
     <div class="flex justify-between mb-3">
+        <!-- Button: Show all or only show edited field  -->
         <div>
-            <Button
-                v-if="props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length"
-                :key="bluprint.key" :label="`Show Only Edited`" :type="'gray'" @click="showEdited" />
-            <Button
-                v-if="props.fieldData[props.bluprint.key].data.length != props.form[props.fieldName][props.bluprint.key].length"
-                :key="bluprint.key" :label="`Show All`" :type="'gray'" @click="showAll" />
+            <div class="flex items-center gap-x-2">
+                <Switch
+                    @click="() => props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? showEdited() : showAll()"
+                    :class="props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? '' : ''"
+                    class="pr-1 relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors bg-white ring-1 ring-slate-300 duration-200 shadow ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+                >
+                    <!-- <span class="sr-only">Use setting</span> -->
+                    <span aria-hidden="true" :class="props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? 'translate-x-6 bg-indigo-500' : 'translate-x-0 bg-slate-300'"
+                        class="pointer-events-none inline-block h-full w-1/2 transform rounded-full  shadow-lg ring-0 transition duration-200 ease-in-out" />
+                </Switch>
+                <div
+                    @click="() => showAll()"
+                    class="text-lg leading-none font-medium cursor-pointer select-none"
+                    :class="props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? 'text-indigo-500' : ' text-gray-400'"
+                >
+                    Show All
+                </div>
+            </div>
         </div>
+
         <Popover width="w-full" class="relative h-full">
             <template #button>
-                <Button :key="bulkData.length" label="Set all discount (%)"
+                <Button v-if="bulkData.length" :key="bulkData.length" label="Set all discount (%)"
                     :type="bulkData.length > 0 ? 'edit' : 'disabled'" :icon="['fal', 'list-alt']" class="mr-2" />
             </template>
 
@@ -165,43 +180,43 @@ const showAll = () => {
                                 <input type="checkbox" :id="itemData.id" :value="itemData.id" v-model="bulkData"
                                     class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600" />
                             </td>
-                            <td v-for="e in props.bluprint.column" :key="e.key"
-                                :class="`whitespace-nowrap px-3 py-4 text-sm ${e.class}`">
+                            <td v-for="column in props.bluprint.column" :key="column.key"
+                                :class="`whitespace-nowrap px-3 py-4 text-sm ${column.class}`">
 
-                                <div v-if="!e.type || e.type == 'text'">
-                                    {{ itemData[e.key] }}
+                                <div v-if="!column.type || column.type == 'text'">
+                                    {{ itemData[column.key] }}
                                 </div>
 
-                                <div v-if="e.type == 'price'">
-                                    {{ `${currency?.symbol} ${itemData[e.key]}` }}
+                                <div v-if="column.type == 'price'">
+                                    {{ `${currency?.symbol} ${itemData[column.key]}` }}
                                 </div>
 
-                                <div v-else-if="e.type == 'name'">
+                                <div v-else-if="column.type == 'name'">
                                     <div>
                                         <div>{{ itemData["code"] }}</div>
                                         <div class="text-[10px]">{{ itemData["name"] }}</div>
                                     </div>
                                 </div>
 
-                                <div v-else-if="e.type == 'inputPrice'" class="w-28">
-                                    <PureInputNumber v-model="itemData[e.key]" :placeholder="'Input price'" 
+                                <div v-else-if="column.type == 'inputPrice'" class="w-28">
+                                    <PureInputNumber v-model="itemData[column.key]" :placeholder="'Input price'" 
                                         :maxValue="itemData['price']" :prefix="true" :minValue="0" 
-                                        @input="(value) => e?.propsOptions?.onChange(value, e, itemData)">
+                                        @input="(value) => column?.propsOptions?.onChange(value, column, itemData)">
                                         <template #prefix>
                                             <div class="flex justify-center items-center pl-2">
                                                 {{ `${currency?.symbol}` }}
                                             </div>
                                         </template>
                                     </PureInputNumber>
-                                    <p v-if="get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${e.key}`])" class="mt-2 text-sm text-red-600">
-                                        {{ get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${e.key}`]) }}
-                                     </p>
+                                    <p v-if="get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${column.key}`])" class="mt-2 text-sm text-red-600">
+                                        {{ get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${column.key}`]) }}
+                                    </p>
                                 </div>
 
-                                <div v-else-if="e.type == 'discount'" class="w-28">
-                                    <PureInputNumber v-model="itemData[e.key]" :placeholder="'Input Discount'" 
+                                <div v-else-if="column.type == 'discount'" class="w-28">
+                                    <PureInputNumber v-model="itemData[column.key]" placeholder="Input Discount" 
                                         :suffix="true" :minValue="0"
-                                        @input="(value) => e?.propsOptions?.onChange(value, e, itemData)">
+                                        @input="(value) => column?.propsOptions?.onChange(value, column, itemData)">
                                         <template #suffix>
                                             <div
                                                 class="flex justify-center items-center px-2 absolute inset-y-0 right-0 text-gray-400">
@@ -209,9 +224,10 @@ const showAll = () => {
                                             </div>
                                         </template>
                                     </PureInputNumber>
-                                    <p v-if="get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${e.key}`])" class="mt-2 text-sm text-red-600">
-                                        {{ get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${e.key}`]) }}
-                                     </p>
+
+                                    <p v-if="get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${column.key}`])" class="mt-2 text-sm text-red-600">
+                                        {{ get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${column.key}`]) }}
+                                    </p>
                                 </div>
 
                             </td>
@@ -219,7 +235,7 @@ const showAll = () => {
                     </tbody>
                 </table>
                 <div v-if="form[fieldName][bluprint.key].length == 0">
-                <EmptyState />
+                    <EmptyState />
                 </div>
             </div>
         </div>
