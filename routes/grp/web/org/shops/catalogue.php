@@ -51,7 +51,8 @@ Route::name("departments.")->prefix('departments')
             Route::get('', ShowDepartment::class)->name('show');
             Route::get('edit', [EditDepartment::class, 'inShop'])->name('edit');
             Route::get('families', [IndexFamilies::class, 'inDepartment'])->name('families.index');
-            Route::get('families/{family}', [ShowFamily::class, 'inDepartment'])->name('families.show');
+            Route::get('families/create', [CreateFamily::class, 'inDepartment'])->name('families.create'); 
+            Route::get('families/{family}', [ShowFamily::class, 'inDepartment'])->name('families.show');  
             Route::get('products/{product}', [ShowProduct::class, 'inDepartment'])->name('products.show');
         });
     });

@@ -15,6 +15,7 @@ use App\Actions\Catalogue\Collection\UpdateCollection;
 use App\Actions\Catalogue\Product\DeleteProduct;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Product\UpdateProduct;
+use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\ProductCategory\UpdateProductCategory;
 use App\Actions\Catalogue\Service\StoreService;
 use App\Actions\Catalogue\Service\UpdateService;
@@ -196,6 +197,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::prefix('/shop/{shop:id}/catalogue/departments')->name('catalogue.departments.')->group(function () {
         // Route::post('/', Store::class)->name('store');
         Route::patch('{productCategory:id}', UpdateProductCategory::class)->name('update')->withoutScopedBindings();
+        Route::post('family/store/{productCategory:id}', [StoreProductCategory::class, 'inDepartment'])->name('family.store')->withoutScopedBindings();
     });
 
     Route::post('/shop/{shop:id}/customer', StoreCustomer::class)->name('shop.customer.store');
