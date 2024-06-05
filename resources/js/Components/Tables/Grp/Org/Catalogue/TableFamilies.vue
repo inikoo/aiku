@@ -16,9 +16,7 @@ const props = defineProps<{
 }>();
 
 
-function familyRoute(family: Family) { 
-  console.log(route().current())
-  console.log(family.slug)
+function familyRoute(family: Family) {
   switch (route().current()) { 
     case "grp.shops.show":
     case "grp.org.shops.show.catalogue.families.index":

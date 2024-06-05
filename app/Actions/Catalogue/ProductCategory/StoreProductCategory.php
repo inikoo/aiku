@@ -27,11 +27,11 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreProductCategory extends OrgAction
 {
-    private Shop|ProductCategory $parent;
     public function handle(Shop|ProductCategory $parent, array $modelData): ProductCategory
     {
         if (class_basename($parent) == 'ProductCategory') {
             $modelData['shop_id'] = $parent->shop_id;
+            $modelData['product_category_id'] = $parent->id;
         } else {
             $modelData['shop_id'] = $parent->id;
         }
@@ -58,6 +58,7 @@ class StoreProductCategory extends OrgAction
                 OrganisationHydrateFamilies::dispatch($productCategory->organisation)->delay($this->hydratorsDelay);
                 ShopHydrateFamilies::dispatch($productCategory->shop)->delay($this->hydratorsDelay);
                 break;
+
         }
 
 
@@ -113,7 +114,8 @@ class StoreProductCategory extends OrgAction
         return $this->handle($shop, $this->validatedData);
     }
 
-    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $productCategory, ActionRequest $request)
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $productCategory, ActionRequest $request): ProductCategory
     {
         $this->initialisationFromShop($shop, $request);
 
@@ -130,7 +132,7 @@ class StoreProductCategory extends OrgAction
                 'family'       => $productCategory->slug,
             ]);
         } else {
-            return 'no route available';
+           abort(419);
         }
     }
     

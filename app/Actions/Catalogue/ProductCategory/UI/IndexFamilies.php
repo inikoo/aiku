@@ -68,6 +68,16 @@ class IndexFamilies extends OrgAction
 
         $queryBuilder = QueryBuilder::for(ProductCategory::class);
 
+
+        if($parent instanceof Organisation) {
+            $queryBuilder->where('product_categories.organisation_id', $parent->id);
+        } elseif($parent instanceof ProductCategory) {
+            $queryBuilder->where('product_categories.organisation_id', $parent->id);
+        } {
+            $queryBuilder->where('product_categories.shop_id', $parent->id);
+        }
+
+
         /*
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -183,14 +193,7 @@ class IndexFamilies extends OrgAction
     {
 
         $scope    =$this->parent;
-        $container=null;
-        if (class_basename($scope) == 'Shop') {
-            $container = [
-                'icon'    => ['fal', 'fa-store-alt'],
-                'tooltip' => __('Shop'),
-                'label'   => Str::possessive($scope->name)
-            ];
-        }
+
 
         return Inertia::render(
             'Org/Catalogue/Families',
@@ -202,7 +205,6 @@ class IndexFamilies extends OrgAction
                 'title'       => __('families'),
                 'pageHead'    => [
                     'title'        => __('families'),
-                    'container'    => $container,
                     'icon'         => [
                         'icon'  => ['fal', 'fa-folder'],
                         'title' => __('family')

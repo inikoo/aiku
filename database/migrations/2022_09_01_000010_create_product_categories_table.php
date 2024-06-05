@@ -23,11 +23,15 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->string('type')->index();
             $table = $this->groupOrgRelationship($table);
+            $table->unsignedSmallInteger('shop_id')->nullable();
+            $table->foreign('shop_id')->references('id')->on('shops');
+            $table->unsignedSmallInteger('department_id')->nullable();
+            $table->unsignedSmallInteger('product_category_id')->nullable();
+
             $table->string('slug')->unique()->collation('und_ns');
             $table = $this->assertCodeDescription($table);
             $table->unsignedInteger('image_id')->nullable();
-            $table->unsignedSmallInteger('shop_id')->nullable();
-            $table->foreign('shop_id')->references('id')->on('shops');
+
             $table->string('parent_type');
             $table->unsignedInteger('parent_id');
             $table->string('state')->nullable()->index();
@@ -39,11 +43,20 @@ return new class () extends Migration {
             $table->index(['parent_id', 'parent_type']);
         });
         DB::statement('CREATE INDEX ON product_categories USING gin (name gin_trgm_ops) ');
-    }
 
+        Schema::table('product_categories', function (Blueprint $table) {
+            $table->foreign('department_id')->references('id')->on('product_categories');
+            $table->foreign('product_category_id')->references('id')->on('product_categories');
+        });
+
+    }
 
     public function down(): void
     {
+        Schema::table('product_categories', function (Blueprint $table) {
+            $table->dropForeign('department_id_foreign');
+            $table->dropForeign('product_category_id_foreign');
+        });
         Schema::dropIfExists('product_categories');
     }
 };
