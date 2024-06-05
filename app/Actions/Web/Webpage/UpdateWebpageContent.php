@@ -9,6 +9,7 @@ namespace App\Actions\Web\Webpage;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Http\Resources\Web\WebpageResource;
 use App\Models\Web\Webpage;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -20,7 +21,7 @@ class UpdateWebpageContent extends OrgAction
 
     public function handle(Webpage $webpage, array $data): Webpage
     {
-        return $this->update($webpage, $data, ['compiled_layout']);
+        return $this->update($webpage, $data);
     }
 
     public function rules(): array
@@ -34,7 +35,12 @@ class UpdateWebpageContent extends OrgAction
     {
         $this->initialisationFromShop($webpage->website->shop, $request);
 
-        return $this->handle($webpage, $request->validated());
+        return $this->handle($webpage, $this->validatedData);
+    }
+
+    public function jsonResponse(Webpage $webpage):WebpageResource
+    {
+        return WebpageResource::make($webpage);
     }
 
 
