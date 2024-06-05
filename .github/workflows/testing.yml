@@ -28,13 +28,14 @@ jobs:
         run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       - name: Prepare environment
         run:  |
+          ln -s ../../../../.pgpass .pgpass
           ln -s ../../../../env.aiku.testing .env.testing
           ln -s ../../../../env.aiku.testing .env
           mkdir private
           cd private
           ln -s ../../../../../artifacts/fa .
       - name: Generate database dumps 📚
-        run: ./generate_testing_db_dumps.sh ${{vars.TESTING_DB_PORT}}
+        run: ./generate_testing_db_dumps.sh
       - name: build app
         run: npm run build
       - name: Run test
