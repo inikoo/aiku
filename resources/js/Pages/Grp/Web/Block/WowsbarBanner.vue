@@ -34,7 +34,7 @@ const onEnter = (e) => {
 
 <template>
     <div type="button" v-if="modelValue.emptyState"
-        class="relative block w-full border-2 border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+        class="relative block w-full p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
         <font-awesome-icon :icon="['fal', 'presentation']" class="mx-auto h-12 w-12 text-gray-400" />
         <span class="mt-2 block text-sm font-semibold text-gray-900">Wowsbar Banner</span>
         <div class="flex justify-center m-2">
@@ -63,9 +63,17 @@ const onEnter = (e) => {
 
                 <template #content="{ close: closed }">
                     <div class="w-[350px]">
-                       <div>
-                            <span>Height</span>
+                       <div class="mb-1">
+                            <span class="text-xs text-gray-500 pb-3">Height</span>
                             <PureInput v-model="modelValue.height"></PureInput>
+                       </div>
+                       <div class="mb-1">
+                            <span class="text-xs text-gray-500 pb-3">Width</span>
+                            <PureInput v-model="modelValue.width"></PureInput>
+                       </div>
+                       <div class="mb-1">
+                            <span class="text-xs text-gray-500 pb-3">Link</span>
+                            <PureInput v-model="modelValue.link"></PureInput>
                        </div>
                     </div>
                 </template>

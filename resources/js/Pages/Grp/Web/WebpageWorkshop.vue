@@ -25,7 +25,6 @@ const props = defineProps<{
     title: string,
     pageHead: PageHeadingTypes,
     webpage : Object
-    
 }>()
 
 console.log(props)
@@ -35,9 +34,8 @@ const data = ref([])
 
 
 const onUpdated = async() =>{
-  console.log(props.webpage.update_route)
   try {
-			await axios.patch(route(props.webpage.update_route.name, props.webpage.update_route.parameters),data)
+			await axios.patch(route(props.webpage.update_route.name, props.webpage.update_route.parameters),{compiled_layout : data.value})
 			console.log('saved')
 
 		} catch (error: any) {
@@ -61,7 +59,6 @@ const onPickBlock = (e) => {
 }
 
 const deleteBlock = (index) =>{
-  console.log('mmmm')
   data.value.splice(index,1)
   onUpdated()
 }
@@ -83,9 +80,9 @@ const setData = ()=>{
 
   <div class="mx-auto px-4 py-4 sm:px-6 lg:px-8 w-full h-screen" >
     <div class="mx-auto grid grid-cols-4 gap-1 lg:mx-0 lg:max-w-none">
-      <div class="col-span-3 h-screen">
+      <div class="col-span-3 h-screen overflow-auto border-2 border-dashed">
         <div v-if="data.length == 0"
-          class="relative block w-full h-full  border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+          class="relative block w-full h-full   border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
           <font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />
           <span class="mt-2 block text-sm font-semibold text-gray-900">You dont have block</span>
         </div>
@@ -116,8 +113,8 @@ const setData = ()=>{
             </li>
           </ul>
 
-          <div v-else
-            class="relative mt-4 block  h-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+          <div v-else :style="{height : 'calc(100vh - 8%)'}"
+            class="relative mt-4 block rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
             <font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />
             <span class="mt-2 block text-sm font-semibold text-gray-900">You dont have block</span>
           </div>
