@@ -112,8 +112,12 @@ class EditDepartment extends OrgAction
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'grp.models.department.update',
-                            'parameters' => $department->id
+                            'name'       => 'grp.models.org.catalogue.departments.update',
+                            'parameters' => [
+                                'organisation' => $department->organisation_id,
+                                'shop'         => $department->shop_id,
+                                'productCategory'   => $department->id
+                            ]
                         ],
                     ]
                 ]
