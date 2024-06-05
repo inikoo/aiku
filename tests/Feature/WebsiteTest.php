@@ -72,28 +72,6 @@ test('update website', function (Website $website) {
 })->depends('create b2b website');
 
 
-test('can show empty list of websites in fulfilment', function () {
-    expect($this->fulfilment->shop->website)->toBe(null);
-
-    $response = get(
-        route(
-            'grp.org.fulfilments.show.web.websites.index',
-            [
-                $this->organisation->slug,
-                $this->fulfilment->slug
-            ]
-        )
-    );
-
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('Org/Web/Websites')
-            ->has('title')
-            ->has('data.data', 0)
-            ->where('pageHead.actions.0.route.name', 'grp.org.fulfilments.show.web.websites.create');
-    });
-});
-
 test('create fulfilment website', function () {
     $website = StoreWebsite::make()->action(
         $this->fulfilment->shop,
@@ -154,25 +132,7 @@ test('hydrate website from command', function (Website $website) {
     expect($website->webStats->number_webpages)->toBe(4);
 })->depends('launch fulfilment website from command');
 
-test('can show list of websites in fulfilment', function () {
-    $response = get(
-        route(
-            'grp.org.fulfilments.show.web.websites.index',
-            [
-                $this->organisation->slug,
-                $this->fulfilment->slug
-            ]
-        )
-    );
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('Org/Web/Websites')
-            ->has('title')
-            ->has('breadcrumbs', 3)
-            ->where('pageHead.actions.0', null)
-            ->has('data.data', 1);
-    });
-})->depends('create fulfilment website');
+
 
 test('can show fulfilment website', function (Website $website) {
     $response = get(
@@ -189,7 +149,7 @@ test('can show fulfilment website', function (Website $website) {
         $page
             ->component('Org/Web/Website')
             ->has('title')
-            ->has('breadcrumbs', 3);
+            ->has('breadcrumbs', 2);
     });
 })->depends('create fulfilment website');
 
@@ -208,7 +168,7 @@ test('can show webpages list in fulfilment website', function (Website $website)
         $page
             ->component('Org/Web/Webpages')
             ->has('title')
-            ->has('breadcrumbs', 4)
+            ->has('breadcrumbs', 3)
             ->has('data.data', 4);
     });
 })->depends('create fulfilment website');

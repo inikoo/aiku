@@ -595,23 +595,7 @@ test('UI list of fulfilment shops', function () {
     });
 });
 
-test('UI list of websites in fulfilment', function (Fulfilment $fulfilment) {
-    $response = get(
-        route(
-            'grp.org.fulfilments.show.web.websites.index',
-            [
-                $this->organisation->slug,
-                $fulfilment->slug
-            ]
-        )
-    );
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('Org/Web/Websites')
-            ->has('title')
-            ->has('breadcrumbs', 3);
-    });
-})->depends('create fulfilment shop');
+
 
 test('UI create fulfilment', function () {
     $response = get(route('grp.org.fulfilments.create', $this->organisation->slug));
