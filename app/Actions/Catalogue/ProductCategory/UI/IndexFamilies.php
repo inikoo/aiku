@@ -208,16 +208,27 @@ class IndexFamilies extends OrgAction
                         'title' => __('family')
                     ],
                     'actions' => [
-                        $this->canEdit && (class_basename($this->parent) == 'ProductCategory' || class_basename($this->parent) == 'Shop') ? [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new family'),
-                            'label'   => __('family'),
-                            'route'   => [
-                                'name'       => 'grp.org.shops.show.catalogue.families.create',
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-                        ] : false,
+                        $this->canEdit ? (
+                            class_basename($this->parent) == 'ProductCategory' ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new family'),
+                                'label'   => __('family'),
+                                'route'   => [
+                                    'name'       => 'grp.org.shops.show.catalogue.departments.families.create',
+                                    'parameters' => $request->route()->originalParameters()
+                                ]
+                            ] : (class_basename($this->parent) == 'Shop' ? [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new family'),
+                                'label'   => __('family'),
+                                'route'   => [
+                                    'name'       => 'grp.org.shops.show.catalogue.families.create',
+                                    'parameters' => $request->route()->originalParameters()
+                                ]
+                            ] : false)
+                        ) : false,
                     ]
                 ],
                 'data'        => FamiliesResource::collection($families),
