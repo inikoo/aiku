@@ -11,6 +11,7 @@ use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvi
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\Catalogue\Collection\StoreCollection;
+use App\Actions\Catalogue\Collection\UpdateCollection;
 use App\Actions\Catalogue\Product\DeleteProduct;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Product\UpdateProduct;
@@ -188,7 +189,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 
     Route::prefix('/shop/{shop:id}/catalogue/collections')->name('catalogue.collections.')->group(function () {
         Route::post('/', StoreCollection::class)->name('store');
-        // Route::patch('{rental:id}', UpdateRental::class)->name('update')->withoutScopedBindings();
+        Route::patch('{collection:id}', UpdateCollection::class)->name('update')->withoutScopedBindings();
     });
 
     Route::post('/shop/{shop:id}/customer', StoreCustomer::class)->name('shop.customer.store');

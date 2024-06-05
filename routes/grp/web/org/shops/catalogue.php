@@ -12,6 +12,7 @@ use App\Actions\Catalogue\Asset\UI\EditProduct;
 use App\Actions\Catalogue\Asset\UI\IndexProducts;
 use App\Actions\Catalogue\Asset\UI\ShowProduct;
 use App\Actions\Catalogue\Collection\UI\CreateCollection;
+use App\Actions\Catalogue\Collection\UI\EditCollection;
 use App\Actions\Catalogue\ProductCategory\UI\CreateDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\CreateFamily;
 use App\Actions\Catalogue\ProductCategory\UI\EditDepartment;
@@ -74,7 +75,7 @@ Route::name("collections.")->prefix('collections')
 
         Route::prefix('{collection}')->group(function () {
             Route::get('', ShowCollection::class)->name('show');
-            Route::get('edit', EditDummy::class)->name('edit');
+            Route::get('edit', EditCollection::class)->name('edit');
             Route::get('products/{product}', [ShowProduct::class, 'inCollection'])->name('products.show');
         });
     });
