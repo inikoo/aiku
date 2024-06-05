@@ -36,7 +36,7 @@ class WebpageResource extends JsonResource
                 default => ['fal', 'fa-browser']
             },
             'is_dirty'        => $webpage->is_dirty,
-            'compiled_layout' => $webpage->compiled_layout,
+            'compiled_layout' => $webpage->compiled_layout ?: [],
             'purpose'         => $webpage->purpose,
             'created_at'      => $webpage->created_at,
             'updated_at'      => $webpage->updated_at,

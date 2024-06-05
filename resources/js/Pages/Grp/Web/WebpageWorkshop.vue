@@ -30,7 +30,7 @@ const props = defineProps<{
 console.log(props)
 
 const openModal = ref(false)
-const data = ref([])
+const data = ref(props.webpage.compiled_layout)
 
 
 const onUpdated = async() =>{

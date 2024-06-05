@@ -38,8 +38,7 @@ const onEnter = (e) => {
         <font-awesome-icon :icon="['fal', 'presentation']" class="mx-auto h-12 w-12 text-gray-400" />
         <span class="mt-2 block text-sm font-semibold text-gray-900">Wowsbar Banner</span>
         <div class="flex justify-center m-2">
-            <PureInput v-model="modelValue.link" :placeholder="'Banner Link'" :suffix="true"
-                @onEnter="(e) => onEnter(e)">
+            <PureInput v-model="modelValue.link" :placeholder="'Banner Link'" :suffix="true" @onEnter="(e) => onEnter(e)">
                 <template #suffix>
                     <div
                         class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer">
@@ -47,6 +46,7 @@ const onEnter = (e) => {
                     </div>
                 </template>
             </PureInput>
+            <Button class="ml-2" type="save" label="Save" @click="(e) => onEnter(e)"></Button>
         </div>
     </div>
 
