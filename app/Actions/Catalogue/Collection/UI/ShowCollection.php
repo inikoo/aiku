@@ -140,7 +140,7 @@ class ShowCollection extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('collections')
+                            'label' => __('Collections')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
