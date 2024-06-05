@@ -24,16 +24,7 @@ library.add(faCoins, faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar, faTim
 const props = defineProps<{
     title: string,
     pageHead: PageHeadingTypes,
-    webpageID : String,
-    websiteState : String,
-    webpageState : String,
-    isDirty : String,
-    pageCode : String,
-    imagesUploadRoute : Object,
-    publishRoute : Object,
-    setAsReadyRoute : Object,
-    updateRoute : Object,
-    loadRoute : Object
+    webpage : Object
     
 }>()
 
@@ -44,9 +35,9 @@ const data = ref([])
 
 
 const onUpdated = async() =>{
-  console.log('masuk')
+  console.log(props.webpage.update_route)
   try {
-			await axios.patch(route(props.updateRoute.name, props.deleteRoute.parameters),data)
+			await axios.patch(route(props.webpage.update_route.name, props.webpage.update_route.parameters),data)
 			console.log('saved')
 
 		} catch (error: any) {
