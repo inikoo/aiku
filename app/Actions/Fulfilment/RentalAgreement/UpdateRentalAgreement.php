@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\RentalAgreement;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStatus;
+use App\Actions\Fulfilment\RentalAgreementClause\StoreRentalAgreementClause;
 use App\Actions\Fulfilment\RentalAgreementClause\UpdateRentalAgreementClause;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -63,34 +64,43 @@ class UpdateRentalAgreement extends OrgAction
 
         }
 
-        $causes=Arr::get($modelData, 'rental', []);
-        // dd($causes);
-        foreach ($rentalAgreement->clauses as $clause) {
-            $assetId = $clause->asset_id;
+        if ($rentalAgreement->clauses->isEmpty()) {
+            $causes=Arr::get($modelData, 'rental', []);
+            data_forget($modelData, 'rental');
 
-            if (isset($modelData['rental']['rentals'])) {
-                foreach ($modelData['rental']['rentals'] as $rentalData) {
-                    if ($rentalData['asset_id'] === $assetId) {
-                        UpdateRentalAgreementClause::run($clause, $rentalData);
-                        break;
+           foreach ($causes as $causeData) {
+            foreach ($causeData as $data) {
+                StoreRentalAgreementClause::run($rentalAgreement, $data);
+            }
+        }
+        } else {
+            foreach ($rentalAgreement->clauses as $clause) {
+                $assetId = $clause->asset_id;
+        
+                if (isset($modelData['rental']['rentals'])) {
+                    foreach ($modelData['rental']['rentals'] as $rentalData) {
+                        if ($rentalData['asset_id'] === $assetId) {
+                            UpdateRentalAgreementClause::run($clause, $rentalData);
+                            break;
+                        }
                     }
                 }
-            }
-
-            if (isset($modelData['rental']['services'])) {
-                foreach ($modelData['rental']['services'] as $serviceData) {
-                    if ($serviceData['asset_id'] === $assetId) {
-                        UpdateRentalAgreementClause::run($clause, $serviceData);
-                        break;
+        
+                if (isset($modelData['rental']['services'])) {
+                    foreach ($modelData['rental']['services'] as $serviceData) {
+                        if ($serviceData['asset_id'] === $assetId) {
+                            UpdateRentalAgreementClause::run($clause, $serviceData);
+                            break;
+                        }
                     }
                 }
-            }
-
-            if (isset($modelData['rental']['physical_goods'])) {
-                foreach ($modelData['rental']['physical_goods'] as $physicalGoodsData) {
-                    if ($physicalGoodsData['asset_id'] === $assetId) {
-                        UpdateRentalAgreementClause::run($clause, $physicalGoodsData);
-                        break;
+        
+                if (isset($modelData['rental']['physical_goods'])) {
+                    foreach ($modelData['rental']['physical_goods'] as $physicalGoodsData) {
+                        if ($physicalGoodsData['asset_id'] === $assetId) {
+                            UpdateRentalAgreementClause::run($clause, $physicalGoodsData);
+                            break;
+                        }
                     }
                 }
             }
