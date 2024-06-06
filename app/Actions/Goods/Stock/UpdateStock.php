@@ -63,7 +63,7 @@ class UpdateStock extends GrpAction
                 if ($orgStockFamily) {
                     $orgStock->update(
                         [
-                            'org_stock_family_is' => $orgStockFamily->id
+                            'org_stock_family_id' => $orgStockFamily->id
 
                         ]
                     );
