@@ -60,8 +60,16 @@ class ShowWebpageWorkshop extends OrgAction
                             'icon'  => ['fal', 'drafting-compass'],
                             'title' => __("Webpage's workshop")
                         ],
-
                     'actions' => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'save',
+                            'label' => __('publish'),
+                            'route' => [
+                                'name'       => 'org.models.webpage.content.publish',
+                                'parameters' => $webpage->id
+                            ]
+                        ],
                         [
                             'type'  => 'button',
                             'style' => 'exit',

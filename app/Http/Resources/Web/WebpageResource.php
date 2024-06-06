@@ -45,10 +45,6 @@ class WebpageResource extends JsonResource
                 'name'       => 'org.models.webpage.images.store',
                 'parameters' => $webpage->id
             ],
-            'publish_route'      => [
-                'name'       => 'org.models.webpage.content.publish',
-                'parameters' => $webpage->id
-            ],
             'set_as_ready_route'   => [
                 'name'       => 'org.models.webpage.content.publish',
                 'parameters' => $webpage->id
@@ -57,11 +53,6 @@ class WebpageResource extends JsonResource
                 'name'       => 'grp.models.webpage.content.update',
                 'parameters' => $webpage->id
             ],
-            'load_route'         => [
-                'name'       => 'org.models.webpage.content.show',
-                'parameters' => $webpage->id
-            ],
-
         ];
     }
 }

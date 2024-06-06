@@ -17,7 +17,10 @@ import Button from '@/Components/Elements/Buttons/Button.vue';
 import Modal from "@/Components/Utils/Modal.vue"
 import BlockList from './Block/BlockList.vue'
 import WowsbarBanner from './Block/WowsbarBanner.vue'
+import ProductPage from './Block/ProductPage.vue'
+import Text from './Block/TextContent.vue'
 import axios from 'axios'
+import Action from "@/Components/Forms/Fields/Action.vue"
 
 library.add(faCoins, faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar, faTimes, faBrowser);
 
@@ -27,7 +30,6 @@ const props = defineProps<{
     webpage : Object
 }>()
 
-console.log(props)
 
 const openModal = ref(false)
 const data = ref(props.webpage.compiled_layout)
@@ -48,6 +50,8 @@ const onUpdated = async() =>{
 const getComponent = (componentName: string) => {
     const components: any = {
         'bannerWowsbar': WowsbarBanner,
+        'ProductPage' : ProductPage,
+        'text' : Text
     }
     return components[componentName] ?? null
 }
@@ -75,7 +79,11 @@ const setData = ()=>{
 <template>
 
   <Head :title="capitalize(title)" />
-  <PageHeading :data="pageHead"></PageHeading>
+  <PageHeading :data="pageHead">
+      <template #button-publish="{ action }">
+        <Action v-if="action.action" :action="action.action" :dataToSubmit="data" />
+      </template>
+  </PageHeading>
 
 
   <div class="mx-auto px-4 py-4 sm:px-6 lg:px-8 w-full h-screen" >
@@ -88,7 +96,7 @@ const setData = ()=>{
         </div>
         <div v-else>
             <div v-for="(activityItem, activityItemIdx) in data" :key="activityItem.id" class="w-full">
-              <component :is="getComponent(activityItem['type'])" :key="index" v-bind="activityItem.fieldData" v-model="activityItem.fieldValue"> </component>
+              <component :is="getComponent(activityItem['component'])" :key="index" v-bind="activityItem.fieldData" v-model="activityItem.fieldValue"> </component>
             </div>
           </div>
       </div>

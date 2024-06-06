@@ -13,6 +13,7 @@ import PureInput from "@/Components/Pure/PureInput.vue"
 import { ref } from "vue"
 import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue';
+import InputUseOption from "@/Components/Pure/InputUseOption.vue"
 
 library.add(faPresentation, faLink)
 
@@ -20,6 +21,12 @@ const props = defineProps<{
     modelValue: Object
     emptyState: Boolean
 }>()
+
+const optionWidthHeight = [
+  {label : 'px', value : 'px'},
+  {label : '%', value : '%'}
+]
+
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string | number): void
@@ -51,7 +58,7 @@ const onEnter = (e) => {
     </div>
 
     <div v-else class="relative">
-        <iframe :src="modelValue.link" :style="{ width: modelValue.width, height: modelValue.height }"
+        <iframe :src="modelValue.link" :style="{width: `${modelValue.width.value}${modelValue.width.unit}`, height: `${modelValue.height.value}${modelValue.height.unit}` }"
             title="W3Schools Free Online Web Tutorials">
         </iframe>
         <!-- Buttons -->
@@ -63,18 +70,38 @@ const onEnter = (e) => {
 
                 <template #content="{ close: closed }">
                     <div class="w-[350px]">
-                       <div class="mb-1">
+                    <div class="mx-auto grid grid-cols-2 gap-4">
+                        <div class="mb-1 ">
                             <span class="text-xs text-gray-500 pb-3">Height</span>
-                            <PureInput v-model="modelValue.height"></PureInput>
+                            <InputUseOption
+                                 v-model="modelValue.height" 
+                                 :option="optionWidthHeight"
+                                 :MultiSelectProps="{
+                                    label : 'label',
+                                    valueProp : 'value', 
+                                    placeholder : ''   
+                                 }"
+                                 />
                        </div>
                        <div class="mb-1">
                             <span class="text-xs text-gray-500 pb-3">Width</span>
-                            <PureInput v-model="modelValue.width"></PureInput>
+                            <InputUseOption
+                                 v-model="modelValue.width" 
+                                 :option="optionWidthHeight"
+                                 :MultiSelectProps="{
+                                    label : 'label',
+                                    valueProp : 'value', 
+                                    placeholder : ''   
+                                 }"
+                                 />
                        </div>
+                    </div>
+                    
                        <div class="mb-1">
                             <span class="text-xs text-gray-500 pb-3">Link</span>
                             <PureInput v-model="modelValue.link"></PureInput>
                        </div>
+                       
                     </div>
                 </template>
             </Popover>

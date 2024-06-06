@@ -274,17 +274,16 @@ const setLink = () => {
 
         <!-- Counter: Characters and Words -->
         <div v-if="_editorInstance && fieldData?.maxLength" class="text-gray-500 text-sm text-right p-1.5">
-            <span :class="fieldData?.maxLength ? limitWarning : ''">
+            <!-- <span :class="fieldData?.maxLength ? limitWarning : ''">
                 {{ charactersCount }} {{ fieldData?.maxLength ? `/ ${fieldData?.maxLength} characters` : 'characters' }}
-            </span>
+            </span> -->
             |
-            <span>
+            <!-- <span>
                 {{ wordsCount }} {{ wordsCount > 1 ? 'words' : 'word'}}
-            </span>
+            </span> -->
         </div>
     </div>
 
-    {{ form[fieldName] }}
 </template>
 
 <style lang="scss">
