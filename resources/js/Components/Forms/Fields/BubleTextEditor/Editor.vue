@@ -12,8 +12,9 @@ import ListItem from '@tiptap/extension-list-item'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faText, faUndoAlt, faRedoAlt } from '@far'
+import { faHorizontalRule } from '@far'
 import { faBold, faItalic, faUnderline, faStrikethrough, faAlignLeft, faAlignCenter, faAlignRight, faAlignJustify, faSubscript, faSuperscript, faEraser, faListUl, faListOl, faPaintBrushAlt, faTextHeight, faLink } from '@fal'
-library.add(faBold, faItalic, faUnderline, faStrikethrough, faAlignLeft, faAlignCenter, faAlignRight, faAlignJustify, faSubscript, faSuperscript, faEraser, faListUl, faListOl, faUndoAlt, faRedoAlt, faPaintBrushAlt, faTextHeight, faLink, faText)
+library.add(faBold, faHorizontalRule, faItalic, faUnderline, faStrikethrough, faAlignLeft, faAlignCenter, faAlignRight, faAlignJustify, faSubscript, faSuperscript, faEraser, faListUl, faListOl, faUndoAlt, faRedoAlt, faPaintBrushAlt, faTextHeight, faLink, faText)
 
 const props = defineProps({
     modelValue: String,
@@ -89,7 +90,7 @@ const editor = useEditor({
                 <FontAwesomeIcon icon='far fa-text' />
             </button>
             <button type="button" @click="editor.chain().focus().setHorizontalRule().run()" class="p-1">
-                <FontAwesomeIcon icon='far fa-text' />
+                <font-awesome-icon :icon="['fas', 'horizontal-rule']" />
             </button>
             <button type="button" class="p-1 disabled:text-gray-400" @click="editor.chain().focus().undo().run()"
                 :disabled="!editor.can().chain().focus().undo().run()">
