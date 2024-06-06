@@ -196,6 +196,11 @@ class Group extends Model implements HasMedia
         return $this->hasMany(SupplierProduct::class);
     }
 
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+
     public function humanResourcesStats(): HasOne
     {
         return $this->hasOne(GroupHumanResourcesStats::class);

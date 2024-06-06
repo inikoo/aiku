@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link, useForm } from '@inertiajs/vue3'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import TextStyle from '@tiptap/extension-text-style'
@@ -12,14 +12,19 @@ import ListItem from '@tiptap/extension-list-item'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faText, faUndoAlt, faRedoAlt } from '@far'
+import { faHorizontalRule, faQuoteRight } from '@fas'
 import { faBold, faItalic, faUnderline, faStrikethrough, faAlignLeft, faAlignCenter, faAlignRight, faAlignJustify, faSubscript, faSuperscript, faEraser, faListUl, faListOl, faPaintBrushAlt, faTextHeight, faLink } from '@fal'
-library.add(faBold, faItalic, faUnderline, faStrikethrough, faAlignLeft, faAlignCenter, faAlignRight, faAlignJustify, faSubscript, faSuperscript, faEraser, faListUl, faListOl, faUndoAlt, faRedoAlt, faPaintBrushAlt, faTextHeight, faLink, faText)
+library.add(faBold, faQuoteRight, faHorizontalRule, faItalic, faUnderline, faStrikethrough, faAlignLeft, faAlignCenter, faAlignRight, faAlignJustify, faSubscript, faSuperscript, faEraser, faListUl, faListOl, faUndoAlt, faRedoAlt, faPaintBrushAlt, faTextHeight, faLink, faText)
 
 const props = defineProps({
     modelValue: String,
 })
 
 const emit = defineEmits(['update:modelValue'])
+
+const onHeadingClick = (index) => {
+    editor.value.chain().focus().toggleHeading({ level: index }).run()
+}
 
 const editor = useEditor({
     content: props.modelValue,
@@ -48,7 +53,25 @@ const editor = useEditor({
 <template>
     <div>
         <section v-if="editor"
-            class="buttons text-gray-700 flex items-center flex-wrap gap-x-4 border-t border-l border-r border-gray-400 p-4">
+            class="buttons text-gray-700 flex items-center flex-wrap gap-x-4 border-t border-l border-r border-gray-400 p-1">
+
+            <div class="group relative inline-block">
+                <div class="text-xs min-w-16 p-1 appearance-none rounded cursor-pointer border border-gray-200"
+                    :class="{'bg-slate-700 text-white font-bold': editor.isActive('heading')}"
+                >
+                    Heading <span id="headingIndex"></span>
+                </div>
+                <div class="cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
+                    <div v-for="index in 6"
+                        class="block py-1.5 px-3 text-center cursor-pointer hover:bg-gray-300"
+                        :class="{ 'bg-slate-700 text-white hover:bg-slate-700': editor.isActive('heading', { level: index }) }"
+                        :style="{ fontSize: (20 - index) + 'px' }" @click="onHeadingClick(index)"  role="button">
+                        <Teleport v-if="editor.isActive('heading', { level: index })" to="#headingIndex">{{ index }}</Teleport>
+                        H{{ index }}
+                    </div>
+                </div>
+            </div>
+
             <button type="button" @click="editor.chain().focus().toggleBold().run()"
                 :class="{ 'bg-gray-200 rounded': editor.isActive('bold') }" class="p-1">
                 <FontAwesomeIcon icon='fal fa-bold' />
@@ -62,7 +85,7 @@ const editor = useEditor({
                 :class="{ 'bg-gray-200 rounded': editor.isActive('underline') }" class="p-1">
                 <FontAwesomeIcon icon='fal fa-underline' />
             </button>
-            <button type="button" @click="editor.chain().focus().toggleHeading({ level: 1 }).run()" :class="{
+            <!--    <button type="button" @click="editor.chain().focus().toggleHeading({ level: 1 }).run()" :class="{
                 'bg-gray-200 rounded': editor.isActive('heading', { level: 1 }),
             }" class="p-1">
                 <FontAwesomeIcon icon='far fa-text' />
@@ -71,8 +94,8 @@ const editor = useEditor({
                 'bg-gray-200 rounded': editor.isActive('heading', { level: 2 }),
             }" class="p-1">
                 <FontAwesomeIcon icon='far fa-text' />
-            </button>
-            <button type="button" @click="()=>{editor.chain().focus().toggleBulletList().run(),console.log(editor)}"
+            </button> -->
+            <button type="button" @click="editor.chain().focus().toggleBulletList().run()"
                 :class="{ 'bg-gray-200 rounded': editor.isActive('bulletList') }" class="p-1">
                 <FontAwesomeIcon icon='fal fa-list-ul' />
             </button>
@@ -80,16 +103,16 @@ const editor = useEditor({
                 :class="{ 'bg-gray-200 rounded': editor.isActive('orderedList') }" class="p-1">
                 <FontAwesomeIcon icon='fal fa-list-ol' />
             </button>
-            <button type="button" @click="editor.chain().focus().toggleBlockquote().run()"
+            <button type="button" @click="editor.chain().focus().setBlockquote().run()"
                 :class="{ 'bg-gray-200 rounded': editor.isActive('blockquote') }" class="p-1">
-                <FontAwesomeIcon icon='far fa-text' />
+                <font-awesome-icon :icon="['fas', 'quote-right']" />
             </button>
-            <button type="button" @click="editor.chain().focus().toggleCode().run()"
+            <!-- <button type="button" @click="editor.chain().focus().toggleCode().run()"
                 :class="{ 'bg-gray-200 rounded': editor.isActive('code') }" class="p-1">
                 <FontAwesomeIcon icon='far fa-text' />
-            </button>
+            </button> -->
             <button type="button" @click="editor.chain().focus().setHorizontalRule().run()" class="p-1">
-                <FontAwesomeIcon icon='far fa-text' />
+                <font-awesome-icon :icon="['fas', 'horizontal-rule']" />
             </button>
             <button type="button" class="p-1 disabled:text-gray-400" @click="editor.chain().focus().undo().run()"
                 :disabled="!editor.can().chain().focus().undo().run()">
@@ -103,3 +126,42 @@ const editor = useEditor({
         <EditorContent :editor="editor" />
     </div>
 </template>
+
+
+<style lang="scss">
+/* Basic editor styles */
+.tiptap {
+    >*+* {
+        margin-top: 0.75em;
+    }
+
+    blockquote {
+        padding-left: 1rem;
+        border-left: 3px solid rgba(#0D0D0D, 0.1);
+    }
+
+
+    ul,
+    ol {
+        padding: 0 1rem;
+    }
+
+    ul {
+        list-style: disc
+    }
+
+    ol {
+        list-style: decimal
+    }
+
+    .ProseMirror {
+        height: fit-content;
+        width: 100%;
+        overflow-y: auto;
+        padding-left: 0.5em;
+        padding-right: 0.5em;
+        outline: none;
+    }
+
+}
+</style>

@@ -8,6 +8,7 @@
 namespace App\Models\SysAdmin;
 
 use App\Enums\Task\TaskStatusEnum;
+use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
@@ -39,14 +40,11 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Task extends Model
 {
+    use InOrganisation;
     use HasSlug;
     use SoftDeletes;
 
     protected $guarded = [];
-
-    protected $casts = [
-        'status'        => TaskStatusEnum::class
-    ];
 
     public function getSlugOptions(): SlugOptions
     {
