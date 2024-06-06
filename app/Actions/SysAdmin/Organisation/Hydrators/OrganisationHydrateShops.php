@@ -15,7 +15,7 @@ use App\Models\Catalogue\Shop;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrganisationHydrateMarket
+class OrganisationHydrateShops
 {
     use AsAction;
     use WithEnumStats;

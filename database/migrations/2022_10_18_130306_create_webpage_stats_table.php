@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedInteger('webpage_id');
             $table->foreign('webpage_id')->references('id')->on('webpages')->onUpdate('cascade')->onDelete('cascade');
-            $table=$this->webStats($table);
+            $table=$this->getWebpagesStatsFields($table);
             $table->timestampsTz();
         });
     }

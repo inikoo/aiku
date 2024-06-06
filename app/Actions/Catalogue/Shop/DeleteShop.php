@@ -7,7 +7,9 @@
 
 namespace App\Actions\Catalogue\Shop;
 
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateShops;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWebsites;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateShops;
 use App\Models\Catalogue\Shop;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -27,7 +29,8 @@ class DeleteShop
         $shop->products()->delete();
         $shop->productCategories()->delete();
         $shop->delete();
-        OrganisationHydrateMarket::dispatch($shop->organisation);
+        GroupHydrateShops::dispatch($shop->group);
+        OrganisationHydrateShops::dispatch($shop->organisation);
         return $shop;
     }
 

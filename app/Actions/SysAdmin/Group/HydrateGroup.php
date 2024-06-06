@@ -14,6 +14,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateCollectionCategories;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateCollections;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateGuests;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateShops;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStockFamilies;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStocks;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInvoices;
@@ -37,6 +38,8 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateTradeUnits;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateUsers;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouseAreas;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouses;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWebpages;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWebsites;
 use App\Actions\Traits\WithNormalise;
 use App\Models\SysAdmin\Group;
 use Exception;
@@ -80,7 +83,9 @@ class HydrateGroup extends HydrateModel
         GroupHydrateRentals::run($group);
         GroupHydrateServices::run($group);
         GroupHydrateSubscriptions::run($group);
-
+        GroupHydrateShops::run($group);
+        GroupHydrateWebsites::run($group);
+        GroupHydrateWebpages::run($group);
 
     }
 

@@ -10,9 +10,11 @@ namespace App\Actions\Catalogue\Shop;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateUniversalSearch;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateShops;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateShops;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithModelAddressActions;
+use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\Catalogue\ShopResource;
 use App\Models\Catalogue\Shop;
@@ -47,12 +49,16 @@ class UpdateShop extends OrgAction
         }
 
 
-        $shop = $this->update($shop, $modelData, ['data', 'settings']);
+        $shop    = $this->update($shop, $modelData, ['data', 'settings']);
+        $changes = $shop->getChanges();
 
+        if (Arr::hasAny($changes, ['state'])) {
+            GroupHydrateShops::dispatch($shop->group);
+            OrganisationHydrateShops::dispatch($shop->organisation);
+        }
+        if(count($changes)>0) {
+            ShopHydrateUniversalSearch::dispatch($shop);
 
-        ShopHydrateUniversalSearch::dispatch($shop);
-        if (Arr::hasAny($shop->getChanges(), ['type', 'state'])) {
-            OrganisationHydrateMarket::dispatch($shop->organisation);
         }
 
         return $shop;
@@ -101,7 +107,8 @@ class UpdateShop extends OrgAction
             'language_id'              => ['sometimes', 'required', 'exists:languages,id'],
             'timezone_id'              => ['sometimes', 'required', 'exists:timezones,id'],
             'address'                  => ['sometimes', 'required', new ValidAddress()],
-            'collection_address'       => ['sometimes', 'required', new ValidAddress()]
+            'collection_address'       => ['sometimes', 'required', new ValidAddress()],
+            'state'                    => ['sometimes', Rule::enum(ShopStateEnum::class)]
 
         ];
     }

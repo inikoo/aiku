@@ -21,7 +21,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePayments;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCustomers;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateJobPositions;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateShops;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgPaymentServiceProviders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProductions;
@@ -35,7 +35,8 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgStocks;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSubscription;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouseAreas;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouses;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWeb;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebpages;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebsites;
 use App\Actions\Traits\WithNormalise;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SysAdmin\Organisation;
@@ -49,14 +50,15 @@ class HydrateOrganisation extends HydrateModel
     public function handle(Organisation $organisation): void
     {
         OrganisationHydrateEmployees::run($organisation);
-        OrganisationHydrateMarket::run($organisation);
+        OrganisationHydrateShops::run($organisation);
         OrganisationHydratePayments::run($organisation);
         OrganisationHydratePaymentAccounts::run($organisation);
         OrganisationHydrateOrgPaymentServiceProviders::run($organisation);
         OrganisationHydrateCustomers::run($organisation);
         OrganisationHydrateOrders::run($organisation);
         OrganisationHydratePurchaseOrders::run($organisation);
-        OrganisationHydrateWeb::run($organisation);
+        OrganisationHydrateWebsites::run($organisation);
+        OrganisationHydrateWebpages::run($organisation);
         OrganisationHydrateProspects::run($organisation);
         OrganisationHydrateJobPositions::run($organisation);
         OrganisationHydrateOrgStocks::run($organisation);

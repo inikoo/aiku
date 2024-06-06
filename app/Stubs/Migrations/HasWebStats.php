@@ -10,11 +10,35 @@ namespace App\Stubs\Migrations;
 use App\Enums\Web\Webpage\WebpagePurposeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
+use App\Enums\Web\Website\WebsiteEngineEnum;
+use App\Enums\Web\Website\WebsiteStateEnum;
+use App\Enums\Web\Website\WebsiteTypeEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasWebStats
 {
-    public function webStats(Blueprint $table): Blueprint
+    public function getWebsitesStatsFields(Blueprint $table): Blueprint
+    {
+
+        $table->unsignedInteger('number_websites')->default(0);
+        $table->unsignedInteger('number_websites_under_maintenance')->default(0);
+
+        foreach (WebsiteTypeEnum::cases() as $websiteType) {
+            $table->unsignedInteger('number_websites_type_'.$websiteType->snake())->default(0);
+        }
+        foreach (WebsiteStateEnum::cases() as $websiteState) {
+            $table->unsignedInteger('number_websites_state_'.$websiteState->snake())->default(0);
+        }
+        foreach (WebsiteEngineEnum::cases() as $websiteEngine) {
+            $table->unsignedInteger('number_websites_engine_'.$websiteEngine->snake())->default(0);
+        }
+
+
+        return $table;
+    }
+
+
+    public function getWebpagesStatsFields(Blueprint $table): Blueprint
     {
 
         $table->unsignedInteger('number_webpages')->default(0);

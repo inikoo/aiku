@@ -50,7 +50,7 @@ class StoreGroup
         $group->ordersIntervals()->create();
         $group->mailshotsIntervals()->create();
         $group->manufactureStats()->create();
-
+        $group->webStats()->create();
 
         SetGroupLogo::dispatch($group);
 

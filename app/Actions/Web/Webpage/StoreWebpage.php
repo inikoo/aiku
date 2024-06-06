@@ -9,6 +9,7 @@ namespace App\Actions\Web\Webpage;
 
 use App\Actions\Helpers\Snapshot\StoreWebpageSnapshot;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebpages;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateUniversalSearch;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateWebpages;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateWebpages;
@@ -70,7 +71,10 @@ class StoreWebpage extends OrgAction
         );
 
 
-        WebpageHydrateUniversalSearch::run($webpage);
+
+        WebpageHydrateUniversalSearch::dispatch($webpage);
+        OrganisationHydrateWebpages::dispatch($webpage->organisation);
+
         WebsiteHydrateWebpages::dispatch($webpage->website);
         if ($webpage->parent_id) {
             WebpageHydrateWebpages::dispatch($webpage->parent);

@@ -19,7 +19,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('website_id')->index();
             $table->foreign('website_id')->references('id')->on('websites');
 
-            $table=$this->webStats($table);
+            $table=$this->getWebpagesStatsFields($table);
             $table->timestampsTz();
         });
     }

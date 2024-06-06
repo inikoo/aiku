@@ -43,6 +43,8 @@ use App\Models\SupplyChain\StockFamily;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Traits\HasImage;
+use App\Models\Web\Webpage;
+use App\Models\Web\Website;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -130,7 +132,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\User> $users
  * @property-read \Illuminate\Database\Eloquent\Collection<int, WarehouseArea> $warehouseAreas
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
+ * @property-read \App\Models\SysAdmin\GroupWebStats|null $webStats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, WebUser> $webUsers
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Webpage> $webpages
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Website> $websites
  * @method static \Database\Factories\SysAdmin\GroupFactory factory($count = null, $state = [])
  * @method static Builder|Group newModelQuery()
  * @method static Builder|Group newQuery()
@@ -240,6 +245,12 @@ class Group extends Model implements HasMedia
     {
         return $this->hasOne(GroupSupplyChainStats::class);
     }
+
+    public function webStats(): HasOne
+    {
+        return $this->hasOne(GroupWebStats::class);
+    }
+
     public function organisations(): HasMany
     {
         return $this->hasMany(Organisation::class);
@@ -430,5 +441,16 @@ class Group extends Model implements HasMedia
     {
         return $this->hasMany(Barcode::class);
     }
+
+    public function websites(): HasMany
+    {
+        return $this->hasMany(Website::class);
+    }
+
+    public function webpages(): HasMany
+    {
+        return $this->hasMany(Webpage::class);
+    }
+
 
 }

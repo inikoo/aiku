@@ -9,7 +9,8 @@ namespace App\Actions\Web\Website;
 
 use App\Actions\Helpers\Snapshot\StoreWebsiteSnapshot;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWeb;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWebsites;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebsites;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateUniversalSearch;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Web\Website\WebsiteEngineEnum;
@@ -85,16 +86,16 @@ class StoreWebsite extends OrgAction
         $website->webStats()->create();
         //AddWebsiteToCloudflare::run($website);
 
-        OrganisationHydrateWeb::dispatch($shop->organisation);
+        GroupHydrateWebsites::dispatch($shop->group);
+        OrganisationHydrateWebsites::dispatch($shop->organisation);
         WebsiteHydrateUniversalSearch::dispatch($website);
 
-        if($website->engine === WebsiteEngineEnum::AIKU) {
-            $website= SeedWebsiteFixedWebpages::run($website);
+        if ($website->engine === WebsiteEngineEnum::AIKU) {
+            $website = SeedWebsiteFixedWebpages::run($website);
         }
 
 
         return $website;
-
     }
 
     public function authorize(ActionRequest $request): bool
@@ -103,11 +104,12 @@ class StoreWebsite extends OrgAction
             return true;
         }
 
-        if($this->parent instanceof Fulfilment) {
+        if ($this->parent instanceof Fulfilment) {
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->parent->id}.edit");
         } elseif ($this->parent instanceof Shop) {
             return $request->user()->hasPermissionTo("web.{$this->parent->id}.edit");
         }
+
         return false;
     }
 
@@ -174,8 +176,7 @@ class StoreWebsite extends OrgAction
 
     public function htmlResponse(Website $website): RedirectResponse
     {
-
-        if($this->parent instanceof Fulfilment) {
+        if ($this->parent instanceof Fulfilment) {
             return Redirect::route('grp.org.fulfilments.show.web.websites.show', [
                 $this->organisation->slug,
                 $this->parent->slug,
@@ -192,8 +193,8 @@ class StoreWebsite extends OrgAction
 
     public function asController(Shop $shop, ActionRequest $request): Website
     {
-        $this->parent=$shop;
-        $this->shop  = $shop;
+        $this->parent = $shop;
+        $this->shop   = $shop;
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($shop, $this->validatedData);
@@ -201,8 +202,8 @@ class StoreWebsite extends OrgAction
 
     public function inFulfilment(Fulfilment $fulfilment, ActionRequest $request): Website
     {
-        $this->parent=$fulfilment;
-        $this->shop  = $fulfilment->shop;
+        $this->parent = $fulfilment;
+        $this->shop   = $fulfilment->shop;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($fulfilment->shop, $this->validatedData);
@@ -231,18 +232,18 @@ class StoreWebsite extends OrgAction
             return 1;
         }
         $this->organisation = $shop->organisation;
-        $this->shop         =$shop;
-        if($shop->type === 'fulfilment') {
-            $this->parent=$shop->fulfilment;
+        $this->shop         = $shop;
+        if ($shop->type === 'fulfilment') {
+            $this->parent = $shop->fulfilment;
         } else {
-            $this->parent=$shop;
+            $this->parent = $shop;
         }
 
 
         $this->setRawAttributes([
-            'domain'      => $command->argument('domain'),
-            'code'        => $command->argument('code'),
-            'name'        => $command->argument('name'),
+            'domain' => $command->argument('domain'),
+            'code'   => $command->argument('code'),
+            'name'   => $command->argument('name'),
         ]);
 
 
@@ -250,6 +251,7 @@ class StoreWebsite extends OrgAction
             $validatedData = $this->validateAttributes();
         } catch (Exception $e) {
             $command->error($e->getMessage());
+
             return 1;
         }
 

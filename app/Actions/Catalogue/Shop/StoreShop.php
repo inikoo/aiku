@@ -14,7 +14,8 @@ use App\Actions\Helpers\Query\Seeders\ProspectQuerySeeder;
 use App\Actions\Mail\Outbox\SeedShopOutboxes;
 use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateMarket;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateShops;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateShops;
 use App\Actions\SysAdmin\Organisation\SeedJobPositions;
 use App\Actions\SysAdmin\Organisation\SetIconAsShopLogo;
 use App\Actions\SysAdmin\User\UserAddRoles;
@@ -47,7 +48,6 @@ class StoreShop extends OrgAction
 
     public function handle(Organisation $organisation, array $modelData): Shop
     {
-
         $warehouses = Arr::get($modelData, 'warehouses', []);
         Arr::forget($modelData, 'warehouses');
         $addressData = Arr::get($modelData, 'address');
@@ -57,6 +57,7 @@ class StoreShop extends OrgAction
 
         /** @var Shop $shop */
         $shop = $organisation->shops()->create($modelData);
+        $shop->refresh();
 
         if (Arr::get($shop->settings, 'address_link')) {
             $shop = $this->addLinkedAddress($shop);
@@ -65,7 +66,7 @@ class StoreShop extends OrgAction
         }
 
         if (Arr::get($shop->settings, 'collect_address_link', )) {
-            $shop = $this->addLinkedAddress(model:$shop, scope: 'collection', updateLocation: false, updateAddressField: 'collection_address_id');
+            $shop = $this->addLinkedAddress(model: $shop, scope: 'collection', updateLocation: false, updateAddressField: 'collection_address_id');
         }
 
 
@@ -141,7 +142,8 @@ class StoreShop extends OrgAction
             }
         }
 
-        OrganisationHydrateMarket::dispatch($organisation);
+        GroupHydrateShops::dispatch($organisation->group);
+        OrganisationHydrateShops::dispatch($organisation);
         ProspectQuerySeeder::run($shop);
         SeedShopOutboxes::run($shop);
         SeedJobPositions::run($organisation);

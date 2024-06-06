@@ -1,30 +1,29 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 04 Dec 2023 16:15:10 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 06 Jun 2024 15:24:40 Central European Summer Time, Mijas Costa, Spain
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\Organisation\Hydrators;
+namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
-use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\Group;
 use App\Models\Web\Website;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrganisationHydrateWeb implements ShouldBeUnique
+class GroupHydrateWebsites implements ShouldBeUnique
 {
     use AsAction;
     use WithEnumStats;
 
-    public function handle(Organisation $organisation): void
+    public function handle(Group $group): void
     {
         $stats = [
-            'number_websites' => $organisation->websites()->count(),
-            'number_webpages' => $organisation->webpages()->count(),
+            'number_websites' => $group->websites()->count(),
         ];
 
         $stats = array_merge(
@@ -34,8 +33,8 @@ class OrganisationHydrateWeb implements ShouldBeUnique
                 field: 'state',
                 enum: WebsiteStateEnum::class,
                 models: Website::class,
-                where: function ($q) use ($organisation) {
-                    $q->where('organisation_id', $organisation->id);
+                where: function ($q) use ($group) {
+                    $q->where('group_id', $group->id);
                 }
             )
         );
@@ -47,17 +46,13 @@ class OrganisationHydrateWeb implements ShouldBeUnique
                 field: 'type',
                 enum: WebsiteTypeEnum::class,
                 models: Website::class,
-                where: function ($q) use ($organisation) {
-                    $q->where('organisation_id', $organisation->id);
+                where: function ($q) use ($group) {
+                    $q->where('group_id', $group->id);
                 }
             )
         );
 
-        //todo , engine??
 
-
-
-
-        $organisation->webStats()->update($stats);
+        $group->webStats()->update($stats);
     }
 }
