@@ -38,7 +38,7 @@ class UpdateWebpageContent extends OrgAction
         return $this->handle($webpage, $this->validatedData);
     }
 
-    public function jsonResponse(Webpage $webpage):WebpageResource
+    public function jsonResponse(Webpage $webpage): WebpageResource
     {
         return WebpageResource::make($webpage);
     }

@@ -9,7 +9,6 @@ use App\Actions\Devel\UI\CreateDummy;
 use App\Actions\Devel\UI\EditDummy;
 use App\Actions\Devel\UI\IndexDummies;
 use App\Actions\Devel\UI\ShowDummy;
-use App\Actions\Devel\UI\ShowDummyDashboard;
 use App\Actions\UI\Dropshipping\Offers\ShowOfferDashboard;
 use Illuminate\Support\Facades\Route;
 

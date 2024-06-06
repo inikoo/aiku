@@ -68,15 +68,15 @@ class UpdateRentalAgreement extends OrgAction
             $causes=Arr::get($modelData, 'rental', []);
             data_forget($modelData, 'rental');
 
-           foreach ($causes as $causeData) {
-            foreach ($causeData as $data) {
-                StoreRentalAgreementClause::run($rentalAgreement, $data);
+            foreach ($causes as $causeData) {
+                foreach ($causeData as $data) {
+                    StoreRentalAgreementClause::run($rentalAgreement, $data);
+                }
             }
-        }
         } else {
             foreach ($rentalAgreement->clauses as $clause) {
                 $assetId = $clause->asset_id;
-        
+
                 if (isset($modelData['rental']['rentals'])) {
                     foreach ($modelData['rental']['rentals'] as $rentalData) {
                         if ($rentalData['asset_id'] === $assetId) {
@@ -85,7 +85,7 @@ class UpdateRentalAgreement extends OrgAction
                         }
                     }
                 }
-        
+
                 if (isset($modelData['rental']['services'])) {
                     foreach ($modelData['rental']['services'] as $serviceData) {
                         if ($serviceData['asset_id'] === $assetId) {
@@ -94,7 +94,7 @@ class UpdateRentalAgreement extends OrgAction
                         }
                     }
                 }
-        
+
                 if (isset($modelData['rental']['physical_goods'])) {
                     foreach ($modelData['rental']['physical_goods'] as $physicalGoodsData) {
                         if ($physicalGoodsData['asset_id'] === $assetId) {

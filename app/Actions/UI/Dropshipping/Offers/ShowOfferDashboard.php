@@ -8,9 +8,7 @@
 namespace App\Actions\UI\Dropshipping\Offers;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
-use App\Enums\UI\Dropshipping\AssetsTabsEnum;
 use App\Enums\UI\Dropshipping\OffersTabsEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Inventory\Warehouse;
@@ -67,8 +65,8 @@ class ShowOfferDashboard extends OrgAction
     {
         return
            array_merge(
-                ShowShop::make()->getBreadcrumbs($routeParameters),
-                [
+               ShowShop::make()->getBreadcrumbs($routeParameters),
+               [
                     [
                         'type'   => 'simple',
                         'simple' => [
@@ -80,7 +78,7 @@ class ShowOfferDashboard extends OrgAction
                         ]
                     ]
                 ]
-            );
+           );
     }
 
 
