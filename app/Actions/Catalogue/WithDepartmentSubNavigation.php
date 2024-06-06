@@ -27,7 +27,7 @@ trait WithDepartmentSubNavigation
             ],
             [
                 'label'    => __('Families'),
-                'number'   => $department->stats->number_families,
+                'number'   => $department->stats->number_current_families,
                 'href'     => [
                     'name'       => 'grp.org.shops.show.catalogue.departments.show.families.index',
                     'parameters' => [$this->organisation->slug, $department->shop->slug, $department->slug]
@@ -39,7 +39,7 @@ trait WithDepartmentSubNavigation
             ],
             [
                 'label'    => __('Products'),
-                'number'   => $department->stats->number_products,
+                'number'   => $department->stats->number_current_products,
                 'href'     => [
                     'name'       => 'grp.org.shops.show.catalogue.departments.show.products.index',
                     'parameters' => [$this->organisation->slug, $department->shop->slug, $department->slug]

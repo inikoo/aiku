@@ -8,6 +8,7 @@
 namespace App\Actions\Catalogue\ProductCategory;
 
 use App\Actions\Catalogue\ProductCategory\Hydrators\DepartmentHydrateSubDepartments;
+use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateFamilies;
 use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateUniversalSearch;
 use App\Actions\Catalogue\ProductCategory\Hydrators\SubDepartmentHydrateSubDepartments;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateDepartments;
@@ -74,6 +75,10 @@ class StoreProductCategory extends OrgAction
                 GroupHydrateFamilies::dispatch($productCategory->group)->delay($this->hydratorsDelay);
                 OrganisationHydrateFamilies::dispatch($productCategory->organisation)->delay($this->hydratorsDelay);
                 ShopHydrateFamilies::dispatch($productCategory->shop)->delay($this->hydratorsDelay);
+
+                if($productCategory->parent_id) {
+                    ProductCategoryHydrateFamilies::dispatch($productCategory->parent)->delay($this->hydratorsDelay);
+                }
                 break;
             case ProductCategoryTypeEnum::SUB_DEPARTMENT:
                 GroupHydrateSubDepartments::dispatch($productCategory->group)->delay($this->hydratorsDelay);

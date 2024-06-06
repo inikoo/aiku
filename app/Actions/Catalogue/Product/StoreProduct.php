@@ -9,6 +9,8 @@ namespace App\Actions\Catalogue\Product;
 
 use App\Actions\Catalogue\Asset\StoreAsset;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
+use App\Actions\Catalogue\ProductCategory\Hydrators\DepartmentHydrateProducts;
+use App\Actions\Catalogue\ProductCategory\Hydrators\FamilyHydrateProducts;
 use App\Actions\Catalogue\ProductVariant\StoreProductVariant;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\OrgAction;
@@ -143,11 +145,15 @@ class StoreProduct extends OrgAction
             ]
         );
 
-
-        OrganisationHydrateProducts::dispatch($product->organisation);
         GroupHydrateProducts::dispatch($product->group);
+        OrganisationHydrateProducts::dispatch($product->organisation);
         ShopHydrateProducts::dispatch($product->shop);
-
+        if($product->department_id) {
+            DepartmentHydrateProducts::dispatch($product->department);
+        }
+        if($product->family_id) {
+            FamilyHydrateProducts::dispatch($product->family);
+        }
         return $product;
     }
 

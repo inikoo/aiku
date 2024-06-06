@@ -10,8 +10,12 @@ namespace App\Actions\Catalogue\Product;
 use App\Actions\Catalogue\Asset\UpdateAsset;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateUniversalSearch;
+use App\Actions\Catalogue\ProductCategory\Hydrators\DepartmentHydrateProducts;
+use App\Actions\Catalogue\ProductCategory\Hydrators\FamilyHydrateProducts;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateProducts;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProducts;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProducts;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Http\Resources\Catalogue\ProductResource;
@@ -46,9 +50,18 @@ class UpdateProduct extends OrgAction
 
         UpdateAsset::run($product->asset);
 
-
         if (Arr::hasAny($changed, ['state'])) {
-            ShopHydrateProducts::dispatch($product->shop);
+
+            GroupHydrateProducts::dispatch($product->group);
+            OrganisationHydrateProducts::dispatch($product->organisation);
+            ShopHydrateProducts::run($product->shop);
+            if($product->department_id) {
+                DepartmentHydrateProducts::dispatch($product->department);
+            }
+            if($product->family_id) {
+                FamilyHydrateProducts::dispatch($product->family);
+            }
+
         }
 
         if(count($changed)>0) {

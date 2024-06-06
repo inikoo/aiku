@@ -132,6 +132,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Supplier> $suppliers
  * @property-read \App\Models\SysAdmin\GroupSupplyChainStats|null $supplyChainStats
  * @property-read \App\Models\SysAdmin\GroupSysAdminStats|null $sysadminStats
+ * @property-read LaravelCollection<int, \App\Models\SysAdmin\Task> $tasks
  * @property-read LaravelCollection<int, TradeUnit> $tradeUnits
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\User> $users
  * @property-read LaravelCollection<int, WarehouseArea> $warehouseAreas

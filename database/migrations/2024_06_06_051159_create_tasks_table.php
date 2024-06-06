@@ -5,14 +5,12 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Enums\Task\TaskStatusEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     use HasGroupOrganisationRelationship;
     public function up(): void
     {

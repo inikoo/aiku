@@ -21,6 +21,7 @@ use App\Actions\Catalogue\Service\UpdateService;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
+use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
@@ -215,13 +216,24 @@ test('create family', function ($department) {
     data_set($familyData, 'type', ProductCategoryTypeEnum::FAMILY->value);
 
     $family = StoreProductCategory::make()->action($department, $familyData);
-    expect($family)->toBeInstanceOf(ProductCategory::class);
+    $department->refresh();
 
-    return $department;
+
+    expect($family)->toBeInstanceOf(ProductCategory::class)
+        ->and($family->type)->toBe(ProductCategoryTypeEnum::FAMILY)
+        ->and($family->group->catalogueStats->number_families)->toBe(1)
+        ->and($family->organisation->catalogueStats->number_families)->toBe(1)
+        ->and($family->shop->stats->number_families)->toBe(1)
+        ->and($family->department)->toBeInstanceOf(ProductCategory::class)
+        ->and($family->department->id)->toBe($department->id)
+        ->and($department->stats->number_families)->toBe(1)
+        ->and($department->stats->number_current_families)->toBe(0);
+
+    return $family;
 })->depends('update department');
 
 
-test('create physical good product', function ($shop) {
+test('create product', function (ProductCategory $family) {
     $tradeUnits = [
         $this->tradeUnit->id => [
             'units' => 1,
@@ -237,30 +249,65 @@ test('create physical good product', function ($shop) {
         ]
     );
 
-    $product = StoreProduct::make()->action($shop, $productData);
+    $product = StoreProduct::make()->action($family, $productData);
     $product->refresh();
 
     $productVariant = $product->productVariant;
 
+
     expect($product)->toBeInstanceOf(Product::class)
+        ->and($product->state)->toBe(ProductStateEnum::IN_PROCESS)
         ->and($product->asset)->toBeInstanceOf(Asset::class)
         ->and($product->tradeUnits()->count())->toBe(1)
-        ->and($shop->organisation->catalogueStats->number_products)->toBe(1)
-        ->and($shop->organisation->catalogueStats->number_assets_type_product)->toBe(1)
-        ->and($shop->organisation->catalogueStats->number_assets_type_service)->toBe(0)
-        ->and($shop->group->catalogueStats->number_products)->toBe(1)
-        ->and($shop->group->catalogueStats->number_assets_type_product)->toBe(1)
-        ->and($shop->stats->number_products)->toBe(1)
-        ->and($shop->stats->number_assets_type_product)->toBe(1)
+        ->and($product->organisation->catalogueStats->number_products)->toBe(1)
+        ->and($product->organisation->catalogueStats->number_current_products)->toBe(0)
+        ->and($product->organisation->catalogueStats->number_assets_type_product)->toBe(1)
+        ->and($product->organisation->catalogueStats->number_assets_type_service)->toBe(0)
+        ->and($product->group->catalogueStats->number_products)->toBe(1)
+        ->and($product->group->catalogueStats->number_current_products)->toBe(0)
+        ->and($product->group->catalogueStats->number_assets_type_product)->toBe(1)
+        ->and($family->department->stats->number_products)->toBe(1)
+        ->and($family->department->stats->number_products_state_in_process)->toBe(1)
+        ->and($family->department->stats->number_current_products)->toBe(0)
+        ->and($family->stats->number_products)->toBe(1)
+        ->and($family->stats->number_current_products)->toBe(0)
+        ->and($product->department)->toBeInstanceOf(ProductCategory::class)
+        ->and($product->department->stats->number_products)->toBe(1)
+        ->and($product->department->stats->number_current_products)->toBe(0)
+        ->and($product->shop->stats->number_assets_type_product)->toBe(1)
         ->and($productVariant)->toBeInstanceOf(ProductVariant::class)
         ->and($productVariant->name)->toBe($product->name)
         ->and($productVariant->stats->number_historic_product_variants)->toBe(1);
 
 
     return $product;
-})->depends('create shop');
+})->depends('create family');
 
-test('create physical good product with many trade units', function ($shop) {
+test('update product state to active', function (Product $product) {
+    expect($product->state)->toBe(ProductStateEnum::IN_PROCESS);
+    $product = UpdateProduct::make()->action(
+        $product,
+        [
+            'state' => ProductStateEnum::ACTIVE
+        ]
+    );
+    $product->refresh();
+
+    expect($product->state)->toBe(ProductStateEnum::ACTIVE)
+        ->and($product->group->catalogueStats->number_current_products)->toBe(1)
+        ->and($product->organisation->catalogueStats->number_current_products)->toBe(1)
+        ->and($product->shop->stats->number_current_products)->toBe(1)
+        ->and($product->department->stats->number_current_products)->toBe(1)
+        ->and($product->family->stats->number_current_products)->toBe(1)
+        ->and($product->family->stats->number_products_state_active)->toBe(1)
+        ->and($product->family->state)->toBe(ProductCategoryStateEnum::ACTIVE)
+    ;
+
+    return $product;
+})->depends('create product');
+
+
+test('create product with many trade units', function ($shop) {
     $tradeUnits = [
         $this->tradeUnit->id  => [
             'units' => 1,
@@ -294,7 +341,7 @@ test('create physical good product with many trade units', function ($shop) {
         ->and($shop->organisation->catalogueStats->number_assets_type_product)->toBe(2);
 
     return $product;
-})->depends('create shop');
+})->depends('create family');
 
 test('update product', function (Product $product) {
     expect($product->name)->not->toBe('Updated Asset Name');
@@ -315,7 +362,7 @@ test('update product', function (Product $product) {
         ->and($product->name)->toBe('Updated Asset Name');
 
     return $product;
-})->depends('create physical good product');
+})->depends('create product');
 
 test('add variant to product', function (Product $product) {
     expect($product->stats->number_product_variants)->toBe(1);
@@ -386,7 +433,7 @@ test('delete product', function ($product) {
         ->and($shop->organisation->catalogueStats->number_products)->toBe(1);
 
     return $shop;
-})->depends('create physical good product');
+})->depends('create product');
 
 test('create service', function (Shop $shop) {
     $serviceData = array_merge(

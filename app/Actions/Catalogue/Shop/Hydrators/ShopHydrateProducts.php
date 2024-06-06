@@ -12,12 +12,14 @@ use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class ShopHydrateProducts
 {
     use AsAction;
     use WithEnumStats;
+
     private Shop $shop;
 
     public function __construct(Shop $shop)
@@ -29,10 +31,11 @@ class ShopHydrateProducts
     {
         return [(new WithoutOverlapping($this->shop->id))->dontRelease()];
     }
+
     public function handle(Shop $shop): void
     {
 
-        $stats         = [
+        $stats = [
             'number_products' => $shop->products->count(),
         ];
 
@@ -50,16 +53,11 @@ class ShopHydrateProducts
         );
 
 
+        $stats['number_current_products'] = Arr::get($stats, 'number_products_state_active', 0) +
+            Arr::get($stats, 'number_products_state_discontinuing', 0);
+
 
         $shop->stats()->update($stats);
-
-        $shop->stats()->update(
-            [
-                'number_current_products' =>
-                    $shop->stats->number_products_state_active +
-                    $shop->stats->number_products_state_discontinuing
-            ]
-        );
     }
 
 }

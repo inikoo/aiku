@@ -29,13 +29,9 @@ class FetchAuroraDepartment extends FetchAurora
 
 
         $this->parsedData['department'] = [
-            'type'             => ProductCategoryTypeEnum::DEPARTMENT,
-            'code'             => $code,
-            'name'             => $this->auroraModelData->{'Category Label'},
-            'state'            => match ($this->auroraModelData->{'Product Category Status'}) {
-                'In Process' => 'in-process',
-                default      => strtolower($this->auroraModelData->{'Product Category Status'})
-            },
+            'type'                  => ProductCategoryTypeEnum::DEPARTMENT,
+            'code'                  => $code,
+            'name'                  => $this->auroraModelData->{'Category Label'},
             'source_department_id'  => $this->organisation->id.':'.$this->auroraModelData->{'Category Key'},
         ];
 

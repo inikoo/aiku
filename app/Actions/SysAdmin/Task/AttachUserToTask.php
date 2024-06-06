@@ -8,14 +8,11 @@
 namespace App\Actions\SysAdmin\Task;
 
 use App\Enums\Task\TaskStatusEnum;
-use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Task;
-use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class AttachUsertoTask
 {
@@ -29,12 +26,12 @@ class AttachUsertoTask
     public function rules(): array
     {
         return [
-            'user_id' => ['required', 'exists:users,id'],
-            'task_id' => ['required', 'exists:tasks,id'],
-            'start_date' => ['sometimes', 'date'],
+            'user_id'       => ['required', 'exists:users,id'],
+            'task_id'       => ['required', 'exists:tasks,id'],
+            'start_date'    => ['sometimes', 'date'],
             'complete_date' => ['sometimes', 'date'],
-            'deadline' => ['sometimes', 'date'],
-            'status' => ['sometimes', 'string', Rule::in(TaskStatusEnum::values())],
+            'deadline'      => ['sometimes', 'date'],
+            'status'        => ['sometimes', 'string', Rule::in(TaskStatusEnum::values())],
         ];
     }
 
@@ -44,6 +41,6 @@ class AttachUsertoTask
 
         $pivotData = Arr::except($data, ['user_id', 'task_id']);
 
-        $this->handle($task, $user,  $pivotData);
+        $this->handle($task, $user, $pivotData);
     }
 }

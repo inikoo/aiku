@@ -12,6 +12,7 @@ use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Models\Catalogue\Product;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GroupHydrateProducts
@@ -49,14 +50,10 @@ class GroupHydrateProducts
             )
         );
 
+        $stats['number_current_products'] = Arr::get($stats, 'number_products_state_active', 0) +
+            Arr::get($stats, 'number_products_state_discontinuing', 0);
+
         $group->catalogueStats()->update($stats);
-        $group->catalogueStats()->update(
-            [
-                'number_current_products' =>
-                    $group->catalogueStats->number_products_state_active +
-                    $group->catalogueStats->number_products_state_discontinuing
-            ]
-        );
 
 
     }

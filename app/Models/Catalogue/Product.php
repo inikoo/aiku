@@ -64,6 +64,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\Asset|null $asset
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\Helpers\Currency $currency
+ * @property-read \App\Models\Catalogue\ProductCategory|null $department
+ * @property-read \App\Models\Catalogue\ProductCategory|null $family
  * @property-read Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicAssets
  * @property-read \App\Models\Studio\Media|null $image
@@ -153,6 +155,16 @@ class Product extends Model implements Auditable, HasMedia
     public function productVariant(): BelongsTo
     {
         return $this->belongsTo(ProductVariant::class);
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'department_id');
+    }
+
+    public function family(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'family_id');
     }
 
 

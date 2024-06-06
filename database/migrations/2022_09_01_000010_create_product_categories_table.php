@@ -23,6 +23,7 @@ return new class () extends Migration {
         Schema::create('product_categories', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('type')->index();
+            $table->string('state')->index()->default(ProductCategoryStateEnum::IN_PROCESS->value);
             $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
@@ -35,7 +36,6 @@ return new class () extends Migration {
             $table = $this->assertCodeDescription($table);
             $table->unsignedInteger('image_id')->nullable();
 
-            $table->string('state')->index()->default(ProductCategoryStateEnum::IN_PROCESS->value);
             $table->jsonb('data');
             $table->timestampstz();
             $table = $this->softDeletes($table);

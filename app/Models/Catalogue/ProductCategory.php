@@ -17,13 +17,12 @@ use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection as LaravelCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -54,16 +53,17 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $delete_comment
  * @property string|null $source_department_id
  * @property string|null $source_family_id
- * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read LaravelCollection<int, ProductCategory> $children
  * @property-read ProductCategory|null $department
  * @property-read Group $group
  * @property-read Organisation $organisation
- * @property-read Model|\Eloquent $parent
+ * @property-read ProductCategory|null $parent
  * @property-read \App\Models\Catalogue\ProductCategorySalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\ProductCategoryStats|null $stats
  * @property-read ProductCategory|null $subDepartment
- * @property-read Collection<int, ProductCategory> $subDepartments
+ * @property-read LaravelCollection<int, ProductCategory> $subDepartments
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Catalogue\ProductCategoryFactory factory($count = null, $state = [])
  * @method static Builder|ProductCategory newModelQuery()
@@ -119,11 +119,6 @@ class ProductCategory extends Model implements Auditable
         return $this->hasOne(ProductCategorySalesIntervals::class);
     }
 
-    public function parent(): MorphTo
-    {
-        return $this->morphTo();
-    }
-
     public function department(): BelongsTo
     {
         return $this->belongsTo(ProductCategory::class, 'department_id');
@@ -142,6 +137,23 @@ class ProductCategory extends Model implements Auditable
 
         return $this->hasMany(ProductCategory::class, 'sub_department_id');
     }
+
+
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(ProductCategory::class, 'parent_id');
+    }
+
+    public function families(): LaravelCollection
+    {
+        return $this->children()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
+    }
+
 
     public function products(): HasMany
     {

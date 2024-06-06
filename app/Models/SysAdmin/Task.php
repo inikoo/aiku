@@ -7,7 +7,6 @@
 
 namespace App\Models\SysAdmin;
 
-use App\Enums\Task\TaskStatusEnum;
 use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -18,17 +17,17 @@ use Spatie\Sluggable\SlugOptions;
  *
  *
  * @property int $id
+ * @property int $group_id
+ * @property int|null $organisation_id
  * @property string $slug
  * @property string $code
  * @property string $name
  * @property string|null $description
- * @property string|null $start_date
- * @property string|null $complete_date
- * @property string|null $deadline
- * @property TaskStatusEnum $status
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\SysAdmin\Organisation|null $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\User> $users
  * @method static \Illuminate\Database\Eloquent\Builder|Task newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Task newQuery()
