@@ -74,7 +74,7 @@ class FetchAuroraStocks extends FetchAuroraAction
 
             $organisation = $organisationSource->getOrganisation();
 
-            if($effectiveStock and $stock->state!=StockStateEnum::IN_PROCESS) {
+            if($effectiveStock and $effectiveStock->state!=StockStateEnum::IN_PROCESS) {
 
                 /** @var OrgStock $orgStock */
                 if ($orgStock = $organisation->orgStocks()->where('source_id', $stockData['stock']['source_id'])->first()) {
