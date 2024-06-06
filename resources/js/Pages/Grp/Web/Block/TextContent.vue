@@ -24,7 +24,7 @@ const parsedHtml = computed(() => {
     <div class="relative">
         <div class="absolute top-2 right-2 flex space-x-2">
             <Button v-if="!editMode" @click="editMode = true" :icon="['far', 'fa-pencil']" size="xs" />
-            <Button v-else :icon="['far', 'times']" size="xs" @click="editMode = false"/>
+            <Button v-else :icon="['far', 'times']" size="xs" @click="editMode = false" />
         </div>
 
         <div :class="editMode ? '' : 'hidden'">
@@ -32,6 +32,37 @@ const parsedHtml = computed(() => {
             </Editor>
         </div>
 
-        <div :class="!editMode ? '' : 'hidden'" v-html="modelValue.value"/>
+        <div class="p-4  overflow-y-auto outline-none prose max-w-none">
+            <div :class="!editMode ? '' : 'hidden'" v-html="modelValue.value" />
+        </div>
+
     </div>
 </template>
+
+
+<style lang="scss">
+/* Basic editor styles */
+
+blockquote {
+    padding-left: 1rem !important;
+    border-left: 3px solid rgba(#0D0D0D, 0.1) !important;
+}
+
+ul,
+ol {
+    padding: 0 1rem !important;
+}
+
+ul {
+    list-style: disc !important
+}
+
+ol {
+    list-style: decimal !important
+}
+
+p:empty::after {
+    content: "\00A0";
+}
+
+</style>

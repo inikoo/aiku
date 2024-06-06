@@ -325,14 +325,6 @@ const setLink = () => {
         list-style: decimal
     }
 
-	.ProseMirror {
-    height: fit-content;
-    width: 100%;
-    overflow-y: auto;
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-    outline: none;
-}
 }
 
 
