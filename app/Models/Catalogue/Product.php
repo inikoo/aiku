@@ -122,7 +122,7 @@ class Product extends Model implements Auditable, HasMedia
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                return $this->shop->slug.'-'.$this->code;
+                return $this->code.'-'.$this->shop->cpde;
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()

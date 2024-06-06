@@ -103,7 +103,9 @@ class ProductCategory extends Model implements Auditable
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('code')
+            ->generateSlugsFrom(function () {
+                return $this->code.'-'.$this->shop->cpde;
+            })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);
