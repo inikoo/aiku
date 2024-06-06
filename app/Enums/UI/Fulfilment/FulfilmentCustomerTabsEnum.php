@@ -17,6 +17,7 @@ enum FulfilmentCustomerTabsEnum: string
 
     case SHOWCASE      = 'showcase';
 
+    case AGREED_PRICES = 'agreed_prices';
 
     /*
      case PALLETS       = 'pallets';
@@ -99,6 +100,10 @@ enum FulfilmentCustomerTabsEnum: string
             ],
             FulfilmentCustomerTabsEnum::SHOWCASE => [
                 'title' => __('customer'),
+                'icon'  => 'fas fa-info-circle',
+            ],
+            FulfilmentCustomerTabsEnum::AGREED_PRICES => [
+                'title' => __('agreed prices'),
                 'icon'  => 'fas fa-info-circle',
             ],
         };
