@@ -88,8 +88,7 @@ class IndexFamilies extends OrgAction
 
 
         if (class_basename($parent) == 'Shop') {
-            $queryBuilder->where('product_categories.parent_type', 'Shop');
-            $queryBuilder->where('product_categories.parent_id', $parent->id);
+            $queryBuilder->where('product_categories.shop_id', $parent->id);
         } elseif (class_basename($parent) == 'Organisation') {
             $queryBuilder->where('product_categories.organisation_id', $parent->id);
             $queryBuilder->leftJoin('shops', 'product_categories.shop_id', 'shops.id');

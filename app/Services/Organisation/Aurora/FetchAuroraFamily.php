@@ -14,14 +14,12 @@ class FetchAuroraFamily extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $department_id = null;
         $parent        = null;
 
         if ($this->auroraModelData->{'Product Category Department Category Key'}) {
 
 
             $parent        = $this->parseDepartment($this->organisation->id.':'.$this->auroraModelData->{'Product Category Department Category Key'});
-            $department_id = $parent?->id;
 
         }
         if (!$parent) {
@@ -37,7 +35,6 @@ class FetchAuroraFamily extends FetchAurora
             'type'             => ProductCategoryTypeEnum::FAMILY,
             'code'             => $code,
             'name'             => $this->auroraModelData->{'Category Label'},
-            'department_id'    => $department_id,
             'source_family_id' => $this->organisation->id.':'.$this->auroraModelData->{'Category Key'},
         ];
 

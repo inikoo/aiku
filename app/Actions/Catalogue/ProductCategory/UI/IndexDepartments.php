@@ -80,6 +80,21 @@ class IndexDepartments extends OrgAction
         }
         */
 
+
+        if (class_basename($parent) == 'Shop') {
+            $queryBuilder->where('product_categories.shop_id', $parent->id);
+        } elseif (class_basename($parent) == 'Organisation') {
+            $queryBuilder->where('product_categories.organisation_id', $parent->id);
+            $queryBuilder->leftJoin('shops', 'product_categories.shop_id', 'shops.id');
+            $queryBuilder->addSelect(
+                'shops.slug as shop_slug',
+                'shops.code as shop_code',
+                'shops.name as shop_name',
+            );
+        }
+
+
+
         return $queryBuilder
             ->defaultSort('product_categories.code')
             ->select([
@@ -93,20 +108,6 @@ class IndexDepartments extends OrgAction
             ])
             ->leftJoin('product_category_stats', 'product_categories.id', 'product_category_stats.product_category_id')
             ->where('product_categories.type', ProductCategoryTypeEnum::DEPARTMENT)
-            ->when($parent, function ($query) use ($parent) {
-                if (class_basename($parent) == 'Shop') {
-                    $query->where('product_categories.parent_type', 'Shop');
-                    $query->where('product_categories.parent_id', $parent->id);
-                } elseif (class_basename($parent) == 'Organisation') {
-                    $query->where('product_categories.organisation_id', $parent->id);
-                    $query->leftJoin('shops', 'product_categories.shop_id', 'shops.id');
-                    $query->addSelect(
-                        'shops.slug as shop_slug',
-                        'shops.code as shop_code',
-                        'shops.name as shop_name',
-                    );
-                }
-            })
             ->allowedSorts(['code', 'name','shop_code'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)

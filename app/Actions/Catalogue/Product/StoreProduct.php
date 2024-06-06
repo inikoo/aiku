@@ -67,8 +67,13 @@ class StoreProduct extends OrgAction
         } else {
             $shop = $parent->shop;
             data_set($modelData, 'shop_id', $parent->shop_id);
+            data_set($modelData, 'department_id', $parent->department_id);
+
             if ($parent->type == ProductCategoryTypeEnum::FAMILY) {
                 data_set($modelData, 'family_id', $parent->id);
+            }
+            if ($parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
+                data_set($modelData, 'department_id', $parent->id);
             }
         }
         data_set($modelData, 'currency_id', $shop->currency_id);

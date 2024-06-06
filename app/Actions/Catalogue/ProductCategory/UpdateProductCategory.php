@@ -73,10 +73,6 @@ class UpdateProductCategory extends OrgAction
             'state'         => ['sometimes', 'required', Rule::enum(ProductCategoryStateEnum::class)],
             'description'   => ['sometimes', 'required', 'max:1500'],
             'created_at'    => ['sometimes', 'date'], // todo delete this after all fetching from aurora is done
-            'department_id' => [
-                'sometimes','nullable',
-                Rule::Exists('product_categories', 'id')->where('shop_id', $this->shop->id)->where('type', ProductCategoryTypeEnum::DEPARTMENT)
-            ]
         ];
     }
 
