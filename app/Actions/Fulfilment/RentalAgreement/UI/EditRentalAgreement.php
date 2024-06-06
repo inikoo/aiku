@@ -72,7 +72,7 @@ class EditRentalAgreement extends OrgAction
                 'value'          => $rentals
             ];
         }
-        dd($isEmpty);
+        
         return Inertia::render(
             'EditModel',
             [

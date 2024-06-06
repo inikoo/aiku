@@ -57,6 +57,7 @@ import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 import type { Navigation } from "@/types/Tabs";
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 import Modal from "@/Components/Utils/Modal.vue"
+import AgreedPriceShowcase from '@/Components/Showcases/Grp/AgreedPriceShowcase.vue'
 library.add(faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading, faFileInvoice, faExclamationTriangle)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
@@ -69,6 +70,7 @@ const props = defineProps<{
         navigation: Navigation;
     }
     showcase?: {}
+    agreed_prices?: {}
     invoices?: {}
     recurringBills?: {}
     pallets?: {}
@@ -90,6 +92,7 @@ const component = computed(() => {
 
     const components = {
         showcase: FulfilmentCustomerShowcase,
+        agreed_prices: AgreedPriceShowcase,
         pallets: TablePallets,
         stored_items: TableStoredItems,
         stored_item_returns: TableStoredItemReturn,
