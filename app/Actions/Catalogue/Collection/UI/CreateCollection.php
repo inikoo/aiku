@@ -19,7 +19,7 @@ class CreateCollection extends OrgAction
 {
     use HasMarketAuthorisation;
 
-    public function handle(Shop $shop, ActionRequest $request) : Response 
+    public function handle(Shop $shop, ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
@@ -30,7 +30,7 @@ class CreateCollection extends OrgAction
                 ),
                 'title'    => __('new collection'),
                 'pageHead' => [
-                    'title' => __('new collection'),
+                    'title'        => __('new collection'),
                     'actions'      => [
                         [
                             'type'  => 'button',
@@ -73,7 +73,7 @@ class CreateCollection extends OrgAction
                         'name'       => 'grp.models.org.catalogue.collections.store',
                         'parameters' => [
                             'organisation' => $shop->organisation_id,
-                            'shop'   => $shop->id,
+                            'shop'         => $shop->id,
                         ]
                     ]
                 ],

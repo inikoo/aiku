@@ -14,9 +14,15 @@ class FetchAuroraFamily extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $parent = null;
+        $department_id = null;
+        $parent        = null;
+
         if ($this->auroraModelData->{'Product Category Department Category Key'}) {
-            $parent = $this->parseDepartment($this->organisation->id.':'.$this->auroraModelData->{'Product Category Department Category Key'});
+
+
+            $parent        = $this->parseDepartment($this->organisation->id.':'.$this->auroraModelData->{'Product Category Department Category Key'});
+            $department_id = $parent?->id;
+
         }
         if (!$parent) {
             $parent = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Product Category Store Key'});
@@ -26,15 +32,12 @@ class FetchAuroraFamily extends FetchAurora
 
         $code = $this->cleanTradeUnitReference($this->auroraModelData->{'Category Code'});
 
+
         $this->parsedData['family'] = [
             'type'             => ProductCategoryTypeEnum::FAMILY,
             'code'             => $code,
             'name'             => $this->auroraModelData->{'Category Label'},
-            'state'            => match ($this->auroraModelData->{'Product Category Status'}) {
-                'In Process' => 'in-process',
-                'Suspended'  => 'active',
-                default      => strtolower($this->auroraModelData->{'Product Category Status'})
-            },
+            'department_id'    => $department_id,
             'source_family_id' => $this->organisation->id.':'.$this->auroraModelData->{'Category Key'},
         ];
 
@@ -43,6 +46,7 @@ class FetchAuroraFamily extends FetchAurora
             $this->parsedData['family']['created_at'] = $createdAt;
         }
     }
+
 
     protected function fetchData($id): object|null
     {

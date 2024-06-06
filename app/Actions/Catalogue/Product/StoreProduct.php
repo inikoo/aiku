@@ -23,6 +23,7 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Goods\TradeUnit;
+use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -162,7 +163,7 @@ class StoreProduct extends OrgAction
             'code'               => [
                 'required',
                 'max:32',
-                'alpha_dash',
+                new AlphaDashDot(),
                 new IUnique(
                     table: 'assets',
                     extraConditions: [

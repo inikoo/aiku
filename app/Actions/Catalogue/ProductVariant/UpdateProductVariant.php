@@ -13,6 +13,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\ProductVariant\ProductVariantStateEnum;
 use App\Models\Catalogue\ProductVariant;
+use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -78,7 +79,7 @@ class UpdateProductVariant extends OrgAction
                 'sometimes',
                 'required',
                 'max:32',
-                'alpha_dash',
+                new AlphaDashDot(),
                 new IUnique(
                     table: 'product_variants',
                     extraConditions: [

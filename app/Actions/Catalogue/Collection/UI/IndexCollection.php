@@ -119,43 +119,44 @@ class IndexCollection extends OrgAction
             $table
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
-                ->withEmptyState(                    
+                ->withEmptyState(
                     match (class_basename($parent)) {
-                    'Organisation' => [
-                        'title'       => __("No departments found"),
-                        'description' => $canEdit && $parent->catalogueStats->number_shops == 0 ? __('Get started by creating a shop. ✨') : '',
-                        'count'       => $parent->catalogueStats->number_departments,
-                        'action'      => $canEdit && $parent->catalogueStats->number_shops == 0 ?
-                            [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new shop'),
-                            'label'   => __('shop'),
-                            'route'   => [
-                                'name'       => 'grp.org.shops.create',
-                                'parameters' => [$parent->slug]
-                            ]
-                        ] : null
+                        'Organisation' => [
+                            'title'       => __("No departments found"),
+                            'description' => $canEdit && $parent->catalogueStats->number_shops == 0 ? __('Get started by creating a shop. ✨') : '',
+                            'count'       => $parent->catalogueStats->number_departments,
+                            'action'      => $canEdit && $parent->catalogueStats->number_shops == 0 ?
+                                [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new shop'),
+                                'label'   => __('shop'),
+                                'route'   => [
+                                    'name'       => 'grp.org.shops.create',
+                                    'parameters' => [$parent->slug]
+                                ]
+                            ] : null
 
-                    ],
-                    'Shop' => [
-                        'title'       => __("No collections found"),
-                        'description' =>  __('Get started by creating a new collection. ✨')
-                           ,
-                        'count'       => $parent->stats->number_collections,
-                        'action'      => [
-                            'type'    => 'button',
-                            'style'   => 'create',
-                            'tooltip' => __('new collection'),
-                            'label'   => __('collection'),
-                            'route'   => [
-                                'name'       => 'grp.org.shops.show.catalogue.collections.create', //creating
-                                    'parameters' => [$parent->organisation->slug,$parent->slug]
+                        ],
+                        'Shop' => [
+                            'title'       => __("No collections found"),
+                            'description' => __('Get started by creating a new collection. ✨')
+                               ,
+                            'count'       => $parent->stats->number_collections,
+                            'action'      => [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new collection'),
+                                'label'   => __('collection'),
+                                'route'   => [
+                                    'name'           => 'grp.org.shops.show.catalogue.collections.create', //creating
+                                        'parameters' => [$parent->organisation->slug,$parent->slug]
+                                ]
                             ]
-                        ] 
-                    ],
-                    default => null
-                });
+                        ],
+                        default => null
+                    }
+                );
 
             $table
                 ->column(key: 'code', label: __('Code'), canBeHidden: false, sortable: true, searchable: true)

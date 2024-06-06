@@ -43,7 +43,7 @@ function departmentRoute(family: Family) {
         case 'grp.org.shops.index':
             return route(
                 "grp.org.shops.show.catalogue.departments.index",
-                [route().params["organisation"], family.shop_slug,family.departmant_slug]);
+                [route().params["organisation"], family.shop_slug,family.department_slug]);
     }
 }
 

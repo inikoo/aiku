@@ -102,12 +102,12 @@ class StoreCollection extends OrgAction
 
     public function htmlResponse(Collection $collection, ActionRequest $request): RedirectResponse
     {
-            return Redirect::route('grp.org.shops.show.catalogue.collections.show', [
-                'organisation'       => $collection->organisation->slug,
-                'shop'               => $collection->shop->slug,
-                'collection'         => $collection->slug,
-            ]);
-        
+        return Redirect::route('grp.org.shops.show.catalogue.collections.show', [
+            'organisation'       => $collection->organisation->slug,
+            'shop'               => $collection->shop->slug,
+            'collection'         => $collection->slug,
+        ]);
+
 
 
 

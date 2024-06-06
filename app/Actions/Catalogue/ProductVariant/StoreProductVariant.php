@@ -14,6 +14,7 @@ use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\ProductVariant\ProductVariantStateEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductVariant;
+use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -98,7 +99,7 @@ class StoreProductVariant extends OrgAction
             'code'               => [
                 'required',
                 'max:32',
-                'alpha_dash',
+                new AlphaDashDot(),
                 new IUnique(
                     table: 'assets',
                     extraConditions: [

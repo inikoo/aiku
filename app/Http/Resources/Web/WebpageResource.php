@@ -31,16 +31,16 @@ class WebpageResource extends JsonResource
             'typeIcon'        => match ($webpage->type) {
                 WebpageTypeEnum::STOREFRONT => ['fal', 'fa-home'],
                 WebpageTypeEnum::ENGAGEMENT => ['fal', 'fa-ufo-beam'],
-                WebpageTypeEnum::AUTH => ['fal', 'fa-sign-in'],
-                WebpageTypeEnum::BLOG => ['fal', 'fa-newspaper'],
-                default => ['fal', 'fa-browser']
+                WebpageTypeEnum::AUTH       => ['fal', 'fa-sign-in'],
+                WebpageTypeEnum::BLOG       => ['fal', 'fa-newspaper'],
+                default                     => ['fal', 'fa-browser']
             },
-            'is_dirty'        => $webpage->is_dirty,
-            'compiled_layout' => $webpage->compiled_layout ?: [],
-            'purpose'         => $webpage->purpose,
-            'created_at'      => $webpage->created_at,
-            'updated_at'      => $webpage->updated_at,
-            'state'           => $webpage->state,
+            'is_dirty'            => $webpage->is_dirty,
+            'compiled_layout'     => $webpage->compiled_layout ?: [],
+            'purpose'             => $webpage->purpose,
+            'created_at'          => $webpage->created_at,
+            'updated_at'          => $webpage->updated_at,
+            'state'               => $webpage->state,
             'images_upload_route' => [
                 'name'       => 'org.models.webpage.images.store',
                 'parameters' => $webpage->id

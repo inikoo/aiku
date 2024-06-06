@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 26 May 2024 00:04:36 British Summer Time, Sheffield, UK
+ * Created: Thu, 06 Jun 2024 14:05:15 Central European Summer Time, Mijas Costa, Spain
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Catalogue\ProductCategory;
+namespace App\Actions\Catalogue;
 
 use App\Models\Catalogue\ProductCategory;
 
@@ -29,7 +29,7 @@ trait WithDepartmentSubNavigation
                 'label'    => __('Families'),
                 'number'   => $department->stats->number_families,
                 'href'     => [
-                    'name'       => 'grp.org.shops.show.catalogue.departments.families.index',
+                    'name'       => 'grp.org.shops.show.catalogue.departments.show.families.index',
                     'parameters' => [$this->organisation->slug, $department->shop->slug, $department->slug]
                 ],
                 'leftIcon' => [
@@ -37,18 +37,18 @@ trait WithDepartmentSubNavigation
                     'tooltip' => __('families')
                 ]
             ],
-            // [
-            //     'label'    => __('Clockings'),
-            //     'number'   => $workplace->stats->number_clockings,
-            //     'href'     => [
-            //         'name'       => 'grp.org.hr.workplaces.show.clockings.index',
-            //         'parameters' => [$this->organisation->slug, $workplace->slug]
-            //     ],
-            //     'leftIcon' => [
-            //         'icon'    => ['fal', 'clock'],
-            //         'tooltip' => __('clockings')
-            //     ]
-            // ]
+            [
+                'label'    => __('Products'),
+                'number'   => $department->stats->number_products,
+                'href'     => [
+                    'name'       => 'grp.org.shops.show.catalogue.departments.show.products.index',
+                    'parameters' => [$this->organisation->slug, $department->shop->slug, $department->slug]
+                ],
+                'leftIcon' => [
+                    'icon'    => ['fal', 'fa-folder'],
+                    'tooltip' => __('products')
+                ]
+            ],
         ];
     }
 

@@ -11,6 +11,7 @@ use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateUniver
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
+use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Catalogue\DepartmentsResource;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
@@ -28,7 +29,10 @@ class UpdateProductCategory extends OrgAction
 
     public function handle(ProductCategory $productCategory, array $modelData): ProductCategory
     {
+
+
         $productCategory = $this->update($productCategory, $modelData, ['data']);
+
         ProductCategoryHydrateUniversalSearch::dispatch($productCategory);
 
         return $productCategory;
@@ -43,10 +47,13 @@ class UpdateProductCategory extends OrgAction
         return $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
     }
 
+
+
+
     public function rules(): array
     {
         return [
-            'code'        => [
+            'code'          => [
                 'sometimes',
                 'max:32',
                 new AlphaDashDot(),
@@ -61,13 +68,25 @@ class UpdateProductCategory extends OrgAction
                     ]
                 ),
             ],
-            'name'        => ['sometimes', 'max:250', 'string'],
-            'image_id'    => ['sometimes', 'required', 'exists:media,id'],
-            'state'       => ['sometimes', 'required', Rule::enum(ProductCategoryStateEnum::class)],
-            'description' => ['sometimes', 'required', 'max:1500'],
-            'created_at'  => ['sometimes', 'date'], // todo delete this after all fetching from aurora is done
-
+            'name'          => ['sometimes', 'max:250', 'string'],
+            'image_id'      => ['sometimes', 'required', 'exists:media,id'],
+            'state'         => ['sometimes', 'required', Rule::enum(ProductCategoryStateEnum::class)],
+            'description'   => ['sometimes', 'required', 'max:1500'],
+            'created_at'    => ['sometimes', 'date'], // todo delete this after all fetching from aurora is done
+            'department_id' => [
+                'sometimes','nullable',
+                Rule::Exists('product_categories', 'id')->where('shop_id', $this->shop->id)->where('type', ProductCategoryTypeEnum::DEPARTMENT)
+            ]
         ];
+    }
+
+    public function prepareForValidation(ActionRequest $request): void
+    {
+
+        if($this->productCategory->type==ProductCategoryTypeEnum::DEPARTMENT) {
+            $this->set('department_id', null);
+        }
+
     }
 
     public function action(ProductCategory $productCategory, array $modelData): ProductCategory

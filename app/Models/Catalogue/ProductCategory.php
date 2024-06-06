@@ -38,12 +38,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property ProductCategoryTypeEnum $type
  * @property int $group_id
  * @property int $organisation_id
+ * @property int|null $shop_id
+ * @property int|null $department_id
+ * @property int|null $product_category_id
  * @property string $slug
  * @property string $code
  * @property string|null $name
  * @property string|null $description
  * @property int|null $image_id
- * @property int|null $shop_id
  * @property string $parent_type
  * @property int $parent_id
  * @property ProductCategoryStateEnum|null $state

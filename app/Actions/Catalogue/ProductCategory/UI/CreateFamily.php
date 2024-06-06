@@ -87,10 +87,10 @@ class CreateFamily extends OrgAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => class_basename($this->parent) == 'ProductCategory' 
-                                                 ? 'grp.org.shops.show.catalogue.departments.families.index'
-                                            : (class_basename($this->parent) == 'Shop' 
-                                                ? 'grp.org.shops.show.catalogue.families.index' 
+                                'name'       => class_basename($this->parent) == 'ProductCategory'
+                                                 ? 'grp.org.shops.show.catalogue.departments.show.families.index'
+                                            : (class_basename($this->parent) == 'Shop'
+                                                ? 'grp.org.shops.show.catalogue.families.index'
                                                 : ''),
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
@@ -134,11 +134,11 @@ class CreateFamily extends OrgAction
                             'name'      => 'grp.models.shop.family.store',
                             'arguments' => $this->shop->id
                         ],
-                        'grp.org.shops.show.catalogue.departments.families.create' => [
-                            'name'      => 'grp.models.org.catalogue.departments.family.store',
+                        'grp.org.shops.show.catalogue.departments.show.families.create' => [
+                            'name'       => 'grp.models.org.catalogue.departments.family.store',
                             'parameters' => [
-                                'organisation' => $this->organisation->id,
-                                'shop'         => $this->shop->id,
+                                'organisation'    => $this->organisation->id,
+                                'shop'            => $this->shop->id,
                                 'productCategory' => $this->parent->id
                             ]
                         ],

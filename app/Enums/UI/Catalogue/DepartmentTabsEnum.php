@@ -19,8 +19,8 @@ enum DepartmentTabsEnum: string
 
     case SHOWCASE            = 'showcase';
 
-    case FAMILIES            = 'families';
-    case PRODUCTS            = 'products';
+    // case FAMILIES            = 'families';
+    // case PRODUCTS            = 'products';
 
     case SALES               = 'sales';
     case CUSTOMERS           = 'customers';
@@ -44,6 +44,7 @@ enum DepartmentTabsEnum: string
                 'type'  => 'icon',
                 'align' => 'right',
             ],
+            /*
             DepartmentTabsEnum::PRODUCTS => [
                 'title' => __('products'),
                 'icon'  => 'fal fa-cube',
@@ -52,6 +53,7 @@ enum DepartmentTabsEnum: string
                 'title' => __('families'),
                 'icon'  => 'fal fa-cubes',
             ],
+            */
             DepartmentTabsEnum::SALES => [
                 'title' => __('sales'),
                 'icon'  => 'fal fa-money-bill-wave',

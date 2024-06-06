@@ -22,8 +22,6 @@ use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
 use App\Actions\Catalogue\ProductCategory\UI\ShowDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\ShowFamily;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
-use App\Actions\Devel\UI\CreateDummy;
-use App\Actions\Devel\UI\EditDummy;
 use Illuminate\Support\Facades\Route;
 
 Route::get('', ShowCatalogue::class)->name('dashboard');
@@ -46,14 +44,18 @@ Route::name("departments.")->prefix('departments')
         Route::get('create', CreateDepartment::class)->name('create');
 
 
-
-        Route::prefix('{department}')->group(function () {
-            Route::get('', ShowDepartment::class)->name('show');
-            Route::get('edit', [EditDepartment::class, 'inShop'])->name('edit');
-            Route::get('families', [IndexFamilies::class, 'inDepartment'])->name('families.index');
-            Route::get('families/create', [CreateFamily::class, 'inDepartment'])->name('families.create'); 
-            Route::get('families/{family}', [ShowFamily::class, 'inDepartment'])->name('families.show');  
-            Route::get('products/{product}', [ShowProduct::class, 'inDepartment'])->name('products.show');
+        Route::get('{department}/edit', [EditDepartment::class, 'inShop'])->name('edit');
+        Route::prefix('{department}')->name('show')->group(function () {
+            Route::get('', ShowDepartment::class);
+            Route::prefix('families')->name('.families.')->group(function () {
+                Route::get('', [IndexFamilies::class, 'inDepartment'])->name('index');
+                Route::get('create', [CreateFamily::class, 'inDepartment'])->name('create');
+                Route::get('{family}', [ShowFamily::class, 'inDepartment'])->name('show');
+            });
+            Route::prefix('products')->name('.products.')->group(function () {
+                Route::get('', [IndexProducts::class, 'inDepartment'])->name('index');
+                Route::get('{product}', [ShowProduct::class, 'inDepartment'])->name('show');
+            });
         });
     });
 
@@ -62,10 +64,15 @@ Route::name("families.")->prefix('families')
         Route::get('', IndexFamilies::class)->name('index');
         Route::get('create', CreateFamily::class)->name('create');
 
-        Route::prefix('{family}')->group(function () {
-            Route::get('', [ShowFamily::class, 'inShop'])->name('show');
-            Route::get('edit', [EditFamily::class, 'inShop'])->name('edit');
-            Route::get('products/{product}', [ShowProduct::class, 'inFamily'])->name('products.show');
+        Route::get('{family}/edit', [EditFamily::class, 'inShop'])->name('edit');
+
+        Route::prefix('{family}')->name('show')->group(function () {
+            Route::get('', [ShowFamily::class, 'inShop']);
+            Route::prefix('products')->name('.products.')->group(function () {
+                Route::get('', [IndexProducts::class, 'inFamily'])->name('index');
+                Route::get('{product}', [ShowProduct::class, 'inFamily'])->name('show');
+            });
+
         });
     });
 

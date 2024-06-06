@@ -28,10 +28,7 @@ class FetchAuroraVariants extends FetchAuroraAction
 
             if ($productVariant = ProductVariant::withTrashed()->where('source_id', $productVariantData['variant']['source_id'])
                 ->first()) {
-                $productVariant = UpdateProductVariant::make()->action(
-                    productVariant: $productVariant,
-                    modelData: $productVariantData['variant'],
-                );
+
                 try {
                     $productVariant = UpdateProductVariant::make()->action(
                         productVariant: $productVariant,
@@ -42,10 +39,7 @@ class FetchAuroraVariants extends FetchAuroraAction
                     return null;
                 }
             } else {
-                $productVariant = StoreProductVariant::make()->action(
-                    product: $productVariantData['product'],
-                    modelData: $productVariantData['variant'],
-                );
+
                 try {
                     $productVariant = StoreProductVariant::make()->action(
                         product: $productVariantData['product'],

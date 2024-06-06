@@ -15,36 +15,24 @@ enum FamilyTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-
-
-    case SHOWCASE            = 'showcase';
-    case PRODUCTS            = 'products';
-    case SALES               = 'sales';
-    case CUSTOMERS           = 'customers';
-    case OFFERS              = 'offers';
-    case MAILSHOTS           = 'mailshots';
-
-    case HISTORY             = 'history';
-
-    case DATA                = 'data';
-
-    case IMAGES              = 'images';
-
-
+    case SHOWCASE  = 'showcase';
+    case SALES     = 'sales';
+    case CUSTOMERS = 'customers';
+    case OFFERS    = 'offers';
+    case MAILSHOTS = 'mailshots';
+    case HISTORY   = 'history';
+    case IMAGES    = 'images';
+    case PRODUCTS  = 'products';
 
 
     public function blueprint(): array
     {
         return match ($this) {
-            FamilyTabsEnum::DATA => [
-                'title' => __('data'),
-                'icon'  => 'fal fa-database',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
             FamilyTabsEnum::PRODUCTS => [
                 'title' => __('products'),
-                'icon'  => 'fal fa-cube'
+                'icon'  => 'fal fa-cube',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
             FamilyTabsEnum::SALES => [
                 'title' => __('sales'),
@@ -53,18 +41,22 @@ enum FamilyTabsEnum: string
             FamilyTabsEnum::CUSTOMERS => [
                 'title' => __('customers'),
                 'icon'  => 'fal fa-user',
-            ],FamilyTabsEnum::OFFERS => [
+            ],
+            FamilyTabsEnum::OFFERS => [
                 'title' => __('offers'),
                 'icon'  => 'fal fa-tags',
-            ],FamilyTabsEnum::MAILSHOTS => [
+            ],
+            FamilyTabsEnum::MAILSHOTS => [
                 'title' => __('mailshots'),
                 'icon'  => 'fal fa-bullhorn',
-            ],FamilyTabsEnum::IMAGES=> [
+            ],
+            FamilyTabsEnum::IMAGES => [
                 'title' => __('images'),
                 'icon'  => 'fal fa-camera-retro',
                 'type'  => 'icon',
                 'align' => 'right',
-            ],FamilyTabsEnum::HISTORY => [
+            ],
+            FamilyTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',

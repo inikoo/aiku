@@ -20,9 +20,9 @@ class EditCollection extends OrgAction
 {
     use HasMarketAuthorisation;
 
-    public function handle(Collection $collection) : Collection 
+    public function handle(Collection $collection): Collection
     {
-        return $collection;    
+        return $collection;
     }
 
     public function asController(Organisation $organisation, Shop $shop, Collection $collection, ActionRequest $request): Collection
@@ -31,7 +31,7 @@ class EditCollection extends OrgAction
 
         return $this->handle($collection, $request);
     }
-    
+
     public function htmlResponse(Collection $collection, ActionRequest $request): Response
     {
         return Inertia::render(
@@ -79,8 +79,8 @@ class EditCollection extends OrgAction
                             'name'      => 'grp.models.org.catalogue.collections.update',
                             'parameters'=> [
                                 'organisation' => $collection->organisation_id,
-                                'shop' => $collection->shop_id, 
-                                'collection' => $collection->id
+                                'shop'         => $collection->shop_id,
+                                'collection'   => $collection->id
                                 ]
 
                         ],
@@ -88,7 +88,7 @@ class EditCollection extends OrgAction
                 ]
 
             ]
-        );  
+        );
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array

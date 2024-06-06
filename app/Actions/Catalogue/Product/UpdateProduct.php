@@ -17,6 +17,7 @@ use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Http\Resources\Catalogue\ProductResource;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Product;
+use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -74,7 +75,7 @@ class UpdateProduct extends OrgAction
                 'sometimes',
                 'required',
                 'max:32',
-                'alpha_dash',
+                new AlphaDashDot(),
                 new IUnique(
                     table: 'products',
                     extraConditions: [

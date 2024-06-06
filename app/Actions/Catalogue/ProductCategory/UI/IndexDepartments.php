@@ -18,7 +18,6 @@ use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -182,15 +181,6 @@ class IndexDepartments extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $departments, ActionRequest $request): Response
     {
-        $scope     = $this->parent;
-        $container = null;
-        if (class_basename($scope) == 'Shop') {
-            $container = [
-                'icon'    => ['fal', 'fa-store-alt'],
-                'tooltip' => __('Shop'),
-                'label'   => Str::possessive($scope->name)
-            ];
-        }
 
         return Inertia::render(
             'Org/Catalogue/Departments',
@@ -202,7 +192,6 @@ class IndexDepartments extends OrgAction
                 'title'       => __('Departments'),
                 'pageHead'    => [
                     'title'     => __('departments'),
-                    'container' => $container,
                     'icon'      => [
                         'icon'  => ['fal', 'fa-folder-tree'],
                         'title' => __('department')

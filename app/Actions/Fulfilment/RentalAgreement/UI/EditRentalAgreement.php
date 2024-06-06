@@ -23,8 +23,6 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
-use function PHPUnit\Framework\isEmpty;
-
 class EditRentalAgreement extends OrgAction
 {
     /**
@@ -46,7 +44,7 @@ class EditRentalAgreement extends OrgAction
         }
         // dd($rentalAgreement->clauses->pluck('agreed_price'));
         if ($rentalAgreement->clauses->isEmpty()) {
-            $isEmpty = true;
+            $isEmpty    = true;
             $rentalData = [
                 'type'             => 'rental',
                 'label'            => __(''),
@@ -69,10 +67,10 @@ class EditRentalAgreement extends OrgAction
                 'services'         => ServiceClausesResource::collection($rentalAgreement->clauses->where('type', 'service')),
                 'physical_goods'   => ProductClausesResource::collection($rentalAgreement->clauses->where('type', 'product')),
                 'clauses'          => $rentalAgreement->clauses,
-                'value'          => $rentals
+                'value'            => $rentals
             ];
         }
-        
+
         return Inertia::render(
             'EditModel',
             [
@@ -104,7 +102,7 @@ class EditRentalAgreement extends OrgAction
                                         'required'    => false,
                                         'value'       => $rentalAgreement->pallets_limit
                                     ],
-                                    'rental' => $rentalData,
+                                    'rental'  => $rentalData,
                                     'isEmpty' => $isEmpty
                                     ,
                                 ]

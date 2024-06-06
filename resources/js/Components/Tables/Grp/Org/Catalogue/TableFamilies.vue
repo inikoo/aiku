@@ -25,7 +25,7 @@ function familyRoute(family: Family) {
         [route().params["organisation"], route().params["shop"], family.slug]);
     case "grp.org.shops.show.catalogue.departments.show":
       return route( 
-        "grp.org.shops.show.catalogue.departments.families.show",
+        "grp.org.shops.show.catalogue.departments.show.families.show",
         [route().params["organisation"], route().params["shop"], route().params["department"], family.slug]);
     case 'grp.org.shops.index':
       return route(
@@ -35,9 +35,9 @@ function familyRoute(family: Family) {
     return route(
         "grp.org.shops.show.catalogue.families.show",
         [route().params["organisation"], route().params["shop"], family.slug]);
-    case "grp.org.shops.show.catalogue.departments.families.index":
+    case "grp.org.shops.show.catalogue.departments.show.families.index":
     return route(
-        "grp.org.shops.show.catalogue.departments.families.show",
+        "grp.org.shops.show.catalogue.departments.show.families.show",
         [route().params["organisation"], route().params["shop"], route().params["department"], family.slug]);
   }
 }
@@ -56,11 +56,8 @@ function departmentRoute(family: Family) {
         case 'grp.org.shops.index':
             return route(
                 "grp.org.shops.show.catalogue.departments.index",
-                [route().params["organisation"], family.shop_slug,family.departmant_slug]);
+                [route().params["organisation"], family.shop_slug,family.department_slug]);
         case 'grp.org.shops.show.catalogue.dashboard':
-            return route(
-                "grp.org.shops.show.catalogue.departments.show",
-                [route().params["organisation"], route().params["shop"],family.department_slug]);
         case 'grp.org.shops.show.catalogue.families.index':
             return route(
                 "grp.org.shops.show.catalogue.departments.show",
@@ -84,7 +81,7 @@ function departmentRoute(family: Family) {
           </Link>
       </template>
       <template #cell(department_code)="{ item: family }">
-          <Link :href="departmentRoute(family)" class="secondaryLink">
+          <Link v-if="family.department_slug"  :href="departmentRoute(family)" class="secondaryLink">
               {{ family["department_code"] }}
           </Link>
       </template>

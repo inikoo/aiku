@@ -8,17 +8,14 @@
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
 use App\Actions\Catalogue\HasMarketAuthorisation;
-use App\Actions\Catalogue\Asset\UI\IndexProducts;
-use App\Actions\Catalogue\ProductCategory\WithDepartmentSubNavigation;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\OrgAction;
 use App\Enums\UI\Catalogue\DepartmentTabsEnum;
 use App\Http\Resources\Catalogue\DepartmentsResource;
-use App\Http\Resources\Catalogue\FamiliesResource;
-use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Mail\MailshotResource;
@@ -136,40 +133,14 @@ class ShowDepartment extends OrgAction
                             prefix: 'mailshots'
                         )
                     )),
-                DepartmentTabsEnum::PRODUCTS->value  => $this->tab == DepartmentTabsEnum::PRODUCTS->value
-                    ?
-                    fn () => ProductsResource::collection(
-                        IndexProducts::run(
-                            parent: $department,
-                            prefix: 'products'
-                        )
-                    )
-                    : Inertia::lazy(fn () => ProductsResource::collection(
-                        IndexProducts::run(
-                            parent: $department,
-                            prefix: 'products'
-                        )
-                    )),
+
 
                 DepartmentTabsEnum::HISTORY->value => $this->tab == DepartmentTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($department))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($department))),
 
 
-                DepartmentTabsEnum::FAMILIES->value => $this->tab == DepartmentTabsEnum::FAMILIES->value
-                ?
-                fn () => FamiliesResource::collection(
-                    IndexFamilies::run(
-                        parent: $department,
-                        prefix: 'product_categories'
-                    )
-                )
-                : Inertia::lazy(fn () => FamiliesResource::collection(
-                    IndexFamilies::run(
-                        parent: $department,
-                        prefix: 'product_categories'
-                    )
-                )),
+
 
 
             ]
@@ -184,22 +155,7 @@ class ShowDepartment extends OrgAction
                 prefix: 'mailshots'
             )
         )
-            ->table(IndexFamilies::make()->tableStructure($department, prefix:'families'))
-            ->table(
-                IndexProducts::make()->tableStructure(
-                    parent: $department->shop,
-                    modelOperations: [
-                        'createLink' => $this->canEdit ? [
-                            'route' => [
-                                'name'       => 'shops.departments.show.products.create',
-                                'parameters' => array_values([$department->shop->slug])
-                            ],
-                            'label' => __('mailshot')
-                        ] : false
-                    ],
-                    prefix: 'products'
-                )
-            )
+
             ->table(IndexHistory::make()->tableStructure(prefix: DepartmentTabsEnum::HISTORY->value));
     }
 
@@ -223,7 +179,7 @@ class ShowDepartment extends OrgAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $department->slug,
+                            'label' => $department->code,
                         ],
                     ],
                     'suffix'         => $suffix,

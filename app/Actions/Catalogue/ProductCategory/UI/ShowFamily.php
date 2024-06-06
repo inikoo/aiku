@@ -8,8 +8,10 @@
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
 use App\Actions\Catalogue\Asset\UI\IndexProducts;
+use App\Actions\Catalogue\HasMarketAuthorisation;
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\Catalogue\WithFamilySubNavigation;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\OrgAction;
@@ -28,31 +30,14 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowFamily extends OrgAction
 {
+    use HasMarketAuthorisation;
+    use WithFamilySubNavigation;
+
     public function handle(ProductCategory $family): ProductCategory
     {
         return $family;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->parent instanceof Organisation) {
-            $this->canEdit = $request->user()->hasAnyPermission(
-                [
-                    'org-supervisor.'.$this->organisation->id,
-                ]
-            );
-
-            return $request->user()->hasAnyPermission(
-                [
-                    'org-supervisor.'.$this->organisation->id,
-                    'shops-view'.$this->organisation->id,
-                ]
-            );
-        } else {
-            $this->canEdit = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
-            return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");
-        }
-    }
 
     public function asController(Organisation $organisation, ProductCategory $family, ActionRequest $request): ProductCategory
     {
@@ -69,6 +54,7 @@ class ShowFamily extends OrgAction
         return $this->handle($family);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $family, ActionRequest $request): ProductCategory
     {
         $this->initialisationFromShop($shop, $request)->withTab(DepartmentTabsEnum::values());
@@ -78,23 +64,22 @@ class ShowFamily extends OrgAction
 
     public function htmlResponse(ProductCategory $family, ActionRequest $request): Response
     {
-
         return Inertia::render(
             'Org/Catalogue/Family',
             [
-                'title'                              => __('family'),
-                'breadcrumbs'                        => $this->getBreadcrumbs(
+                'title'       => __('family'),
+                'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'                            => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($family, $request),
                     'next'     => $this->getNext($family, $request),
                 ],
-                'pageHead'                           => [
-                    'title'     => $family->name,
-                    'model'     => __('family'),
-                    'icon'      => [
+                'pageHead'    => [
+                    'title'   => $family->name,
+                    'model'   => __('family'),
+                    'icon'    => [
                         'icon'  => ['fal', 'fa-folder'],
                         'title' => __('department')
                     ],
@@ -115,9 +100,11 @@ class ShowFamily extends OrgAction
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false
-                    ]
+                    ],
+                    'subNavigation' => $this->getFamilySubNavigation($family)
+
                 ],
-                'tabs'                               => [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => FamilyTabsEnum::navigation()
                 ],
@@ -126,10 +113,10 @@ class ShowFamily extends OrgAction
                     fn () => GetProductCategoryShowcase::run($family)
                     : Inertia::lazy(fn () => GetProductCategoryShowcase::run($family)),
 
-                    FamilyTabsEnum::CUSTOMERS->value => $this->tab == FamilyTabsEnum::CUSTOMERS->value ?
+                FamilyTabsEnum::CUSTOMERS->value => $this->tab == FamilyTabsEnum::CUSTOMERS->value ?
                     fn () => CustomersResource::collection(IndexCustomers::run($family))
                     : Inertia::lazy(fn () => CustomersResource::collection(IndexCustomers::run($family))),
-                    FamilyTabsEnum::MAILSHOTS->value => $this->tab == FamilyTabsEnum::MAILSHOTS->value ?
+                FamilyTabsEnum::MAILSHOTS->value => $this->tab == FamilyTabsEnum::MAILSHOTS->value ?
                     fn () => MailshotResource::collection(IndexMailshots::run($family))
                     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($family))),
 
@@ -161,7 +148,7 @@ class ShowFamily extends OrgAction
                     ),
 */
 
-                    FamilyTabsEnum::PRODUCTS->value  => $this->tab == FamilyTabsEnum::PRODUCTS->value ?
+                FamilyTabsEnum::PRODUCTS->value => $this->tab == FamilyTabsEnum::PRODUCTS->value ?
                     fn () => ProductsResource::collection(IndexProducts::run($family))
                     : Inertia::lazy(fn () => ProductsResource::collection(IndexProducts::run($family))),
 
@@ -201,7 +188,7 @@ class ShowFamily extends OrgAction
             ];
         };
 
-        $family=ProductCategory::where('slug', $routeParameters['family'])->first();
+        $family = ProductCategory::where('slug', $routeParameters['family'])->first();
 
         // dd($routeParameters['family']);
         return match ($routeName) {
@@ -263,18 +250,18 @@ class ShowFamily extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.shops.show.catalogue.departments.families.show' =>
+            'grp.org.shops.show.catalogue.departments.show.families.show' =>
             array_merge(
                 (new ShowDepartment())->getBreadcrumbs('grp.org.shops.show.catalogue.departments.show', $routeParameters),
                 $headCrumb(
                     $family,
                     [
                         'index' => [
-                            'name'       => 'grp.org.shops.show.catalogue.departments.families.index',
+                            'name'       => 'grp.org.shops.show.catalogue.departments.show.families.index',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'grp.org.shops.show.catalogue.departments.families.show',
+                            'name'       => 'grp.org.shops.show.catalogue.departments.show.families.show',
                             'parameters' => $routeParameters
 
 
@@ -290,13 +277,14 @@ class ShowFamily extends OrgAction
     public function getPrevious(ProductCategory $family, ActionRequest $request): ?array
     {
         $previous = ProductCategory::where('code', '<', $family->code)->orderBy('code', 'desc')->first();
-        return $this->getNavigation($previous, $request->route()->getName());
 
+        return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(ProductCategory $family, ActionRequest $request): ?array
     {
         $next = ProductCategory::where('code', '>', $family->code)->orderBy('code')->first();
+
         return $this->getNavigation($next, $request->route()->getName());
     }
 
@@ -305,6 +293,7 @@ class ShowFamily extends OrgAction
         if (!$family) {
             return null;
         }
+
         return match ($routeName) {
             'shops.families.show' => [
                 'label' => $family->name,

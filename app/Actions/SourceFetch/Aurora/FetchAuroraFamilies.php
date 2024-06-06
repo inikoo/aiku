@@ -24,6 +24,7 @@ class FetchAuroraFamilies extends FetchAuroraAction
 
             if ($family = ProductCategory::where('source_family_id', $familyData['family']['source_family_id'])
                 ->first()) {
+
                 $family = UpdateProductCategory::make()->action(
                     productCategory: $family,
                     modelData: $familyData['family'],
