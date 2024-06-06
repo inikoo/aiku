@@ -25,7 +25,7 @@ const layoutStore = inject('layout', layoutStructure)
 
 const props = defineProps<{
     navigation: Navigation
-    current: string
+    current: string | Number
 }>()
 
 const emits = defineEmits<{
@@ -89,7 +89,7 @@ const tabIconClass = function (isCurrent: boolean, type: string | undefined, ali
                             :class="[tabSlug === currentTab ? 'tabNavigationActive' : 'tabNavigation']"
                             class="group flex items-center py-2 px-1 font-medium capitalize text-left text-sm md:text-base w-fit"
                             :aria-current="tabSlug === currentTab ? 'page' : undefined">
-                            <FontAwesomeIcon v-if="tabLoading == tabSlug" icon="fad fa-spinner-third" class="animate-spin" :class="tabIconClass(tabSlug === currentTab, tab.type, tab.align, tab.iconClass || '')" aria-hidden="true"/>
+                            <FontAwesomeIcon v-if="tabLoading === tabSlug" icon="fad fa-spinner-third" class="animate-spin" :class="tabIconClass(tabSlug === currentTab, tab.type, tab.align, tab.iconClass || '')" aria-hidden="true"/>
                             <FontAwesomeIcon v-else-if="tab.icon" :icon="tab.icon" :class="tabIconClass(tabSlug === currentTab, tab.type, tab.align, tab.iconClass || '')" aria-hidden="true"/>
                             {{ tab.title }}
                         </button>
@@ -107,7 +107,7 @@ const tabIconClass = function (isCurrent: boolean, type: string | undefined, ali
                             :aria-current="tabSlug === currentTab ? 'page' : undefined"
                             v-tooltip="capitalize(tab.title)"
                         >
-                            <FontAwesomeIcon v-if="tabLoading == tabSlug" icon="fad fa-spinner-third" class="animate-spin h-5 w-5" aria-hidden="true"/>
+                            <FontAwesomeIcon v-if="tabLoading === tabSlug" icon="fad fa-spinner-third" class="animate-spin h-5 w-5" aria-hidden="true"/>
                             <FontAwesomeIcon v-else-if="tab.icon" :icon="tab.icon" class="h-5 w-5" aria-hidden="true"/>
                             <span v-if="tab.type!=='icon'" class="capitalize">{{ tab.title }}</span>
                         </button>

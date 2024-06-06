@@ -7,6 +7,7 @@ const props = defineProps<{
     mode?: "single" | "multiple" | "tags"
     required?: boolean
     searchable?: boolean
+    classes?: Object
     options: {
         label: string
     }[] | string[]
@@ -35,7 +36,7 @@ const onInput = (keyOption : any) => {
         <Multiselect
             :value="modelValue"
             @input="onInput"
-            :classes="{placeholder: 'text-sm text-left w-full pl-4 font-light text-gray-400'}"
+            :classes="{placeholder: 'text-sm text-left w-full pl-4 font-light text-gray-400', ...classes}"
             :options="props.options"
             :placeholder="placeholder ?? 'Select your option'"
             :canClear="!required"

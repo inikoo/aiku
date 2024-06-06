@@ -1,16 +1,54 @@
 <script setup lang="ts">
-import { faPresentation } from "@fal"
+import { faPresentation, faCube, faText } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import dataList from "../data/blogActivity.js"
 import  { cloneDeep } from 'lodash'
+import Tabs from "@/Components/Navigation/Tabs.vue"
+import { useTabChange } from "@/Composables/tab-change"
+import { ref } from 'vue'
 
-library.add(faPresentation);
+library.add(faPresentation, faCube, faText );
 const props = defineProps<{
     onPickBlock: Funcition,
 }>();
 
-const list = cloneDeep(dataList.block)
+const tabs = [
+    {
+        title : 'All',
+        key : 'all',
+        icon : []
+    },
+    {
+        title : 'Text',
+        key : 'text',
+        icon : ['fal','text']
+    },
+    {
+        title : 'Product',
+        key : 'product',
+        icon : ['fal','cube']
+    },
+    {
+        title : 'Wowsbar',
+        key : 'wowsbar',
+        icon : ['fal','presentation']
+    }
+]
+const list = ref(cloneDeep(dataList.block))
+const currentTab = ref(0)
+
+const filter = (e) => {
+    if (tabs[e].key != 'all') {
+        const filterData = cloneDeep(dataList.block).filter((item) => item.type == tabs[e].key)
+        list.value = filterData
+    } else {
+        list.value = cloneDeep(dataList.block)
+    }
+    currentTab.value = e
+}
+
+
 
 </script>
 
@@ -25,7 +63,13 @@ const list = cloneDeep(dataList.block)
                 </p>
             </div>
 
-            <section aria-labelledby="products-heading" class="mx-auto max-w-7xl overflow-hidden sm:px-6 lg:px-8">
+
+            <div class="mb-4">
+                <Tabs :current="currentTab" :navigation="tabs" @update:tab="filter"/>
+            </div>
+          
+
+            <section aria-labelledby="products-heading" class="mx-auto w-full sm:px-6 lg:px-8">
                 <h2 id="products-heading" class="sr-only">Products</h2>
 
                 <div class="-mx-px grid grid-cols-2 border-l border-gray-200 sm:mx-0 md:grid-cols-3 lg:grid-cols-4">
@@ -48,3 +92,64 @@ const list = cloneDeep(dataList.block)
         </main>
     </div>
 </template>
+
+<style lang="scss">
+#text-editor {
+
+    .highlight-prosemirror {
+        @apply px-1 py-0.5
+    }
+
+    .ProseMirror {
+        height: 300px;
+        width: 100%;
+        overflow-y: auto;
+        padding-left: 0.5em;
+        padding-right: 0.5em;
+        outline: none;
+
+        >p:first-child {
+            margin-top: 0.5em;
+        }
+
+        >h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            &:first-child {
+                margin-top: 0.5em;
+            }
+        }
+    }
+
+    a {
+        color: #e3ae00;
+    }
+
+    ul,
+    ol {
+        padding: 0 1rem;
+    }
+
+    ul {
+        list-style: disc
+    }
+
+    ol {
+        list-style: decimal
+    }
+
+	.ProseMirror {
+    height: fit-content;
+    width: 100%;
+    overflow-y: auto;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    outline: none;
+}
+}
+
+
+</style>
