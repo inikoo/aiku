@@ -222,4 +222,8 @@ class User extends Authenticatable implements HasMedia, Auditable
         return $this->morphedByMany(Production::class, 'model', 'user_has_authorised_models')->withTimestamps();
     }
 
+    public function tasks()
+    {
+        return $this->morphToMany(Task::class, 'taskable', 'users_has_tasks');
+    }
 }
