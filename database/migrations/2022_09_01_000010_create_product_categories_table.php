@@ -5,6 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Stubs\Migrations\HasAssetCodeDescription;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasSoftDeletes;
@@ -25,30 +26,30 @@ return new class () extends Migration {
             $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->unsignedSmallInteger('department_id')->nullable();
-            $table->unsignedSmallInteger('product_category_id')->nullable();
+            $table->unsignedSmallInteger('department_id')->nullable()->index();
+            $table->unsignedSmallInteger('sub_department_id')->nullable()->index();
+            $table->unsignedSmallInteger('parent_id')->nullable()->index();
+
 
             $table->string('slug')->unique()->collation('und_ns');
             $table = $this->assertCodeDescription($table);
             $table->unsignedInteger('image_id')->nullable();
 
-            $table->string('parent_type');
-            $table->unsignedInteger('parent_id');
-            $table->string('state')->nullable()->index();
+            $table->string('state')->index()->default(ProductCategoryStateEnum::IN_PROCESS->value);
             $table->jsonb('data');
             $table->timestampstz();
             $table = $this->softDeletes($table);
             $table->string('source_department_id')->nullable()->unique();
             $table->string('source_family_id')->nullable()->unique();
-            $table->index(['parent_id', 'parent_type']);
         });
         DB::statement('CREATE INDEX ON product_categories USING gin (name gin_trgm_ops) ');
 
         Schema::table('product_categories', function (Blueprint $table) {
             $table->foreign('department_id')->references('id')->on('product_categories');
-            $table->foreign('product_category_id')->references('id')->on('product_categories');
-        });
+            $table->foreign('sub_department_id')->references('id')->on('product_categories');
+            $table->foreign('parent_id')->references('id')->on('product_categories');
 
+        });
     }
 
     public function down(): void

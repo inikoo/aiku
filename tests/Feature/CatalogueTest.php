@@ -22,6 +22,7 @@ use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
+use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -80,7 +81,6 @@ test('create shop', function () {
         ->and($organisation->catalogueStats->number_shops_type_b2b)->toBe(1)
         ->and($organisation->catalogueStats->number_shops_state_in_process)->toBe(1)
         ->and($organisation->catalogueStats->number_shops_state_open)->toBe(0)
-
         ->and($shopRoles->count())->toBe(9)
         ->and($shopPermissions->count())->toBe(23);
 
@@ -115,8 +115,8 @@ test('update shop', function (Shop $shop) {
     expect($shop->state)->toBe(ShopStateEnum::IN_PROCESS)
         ->and($shop->organisation->catalogueStats->number_shops_state_in_process)->toBe(2);
     $updateData = [
-        'name' => 'Test Shop Updated',
-        'state'=> ShopStateEnum::OPEN
+        'name'  => 'Test Shop Updated',
+        'state' => ShopStateEnum::OPEN
     ];
 
     $shop = UpdateShop::make()->action($shop, $updateData);
@@ -128,7 +128,6 @@ test('update shop', function (Shop $shop) {
         ->and($shop->organisation->catalogueStats->number_shops)->toBe(2)
         ->and($shop->organisation->catalogueStats->number_shops_state_in_process)->toBe(1)
         ->and($shop->organisation->catalogueStats->number_shops_state_open)->toBe(1);
-
 })->depends('create shop');
 
 test('seed shop permissions from command', function () {
@@ -146,7 +145,7 @@ test('create website from command', function (Shop $shop) {
     $shop->group->refresh();
     expect($shop->website)->toBeInstanceOf(Website::class)
         ->and($shop->group->webStats->number_websites)->toBe(1)
-    ->and($shop->organisation->webStats->number_websites)->toBe(1);
+        ->and($shop->organisation->webStats->number_websites)->toBe(1);
 })->depends('create shop');
 
 
@@ -156,9 +155,15 @@ test('create department', function ($shop) {
 
     $department = StoreProductCategory::make()->action($shop, $departmentData);
     expect($department)->toBeInstanceOf(ProductCategory::class)
-    ->and($department->type)->toBe(ProductCategoryTypeEnum::DEPARTMENT)
+        ->and($department->state)->toBe(ProductCategoryStateEnum::IN_PROCESS)
+        ->and($department->type)->toBe(ProductCategoryTypeEnum::DEPARTMENT)
+        ->and($department->group->catalogueStats->number_departments)->toBe(1)
+        ->and($department->group->catalogueStats->number_departments_state_in_process)->toBe(1)
+        ->and($department->organisation->catalogueStats->number_departments)->toBe(1)
+        ->and($department->organisation->catalogueStats->number_departments_state_in_process)->toBe(1)
+        ->and($department->shop->stats->number_departments)->toBe(1)
+        ->and($department->shop->stats->number_departments_state_in_process)->toBe(1);
 
-    ;
 
     return $department;
 })->depends('create shop');
@@ -167,7 +172,15 @@ test('create sub department', function ($productCategory) {
     $subDepartmentData = ProductCategory::factory()->definition();
     data_set($subDepartmentData, 'type', ProductCategoryTypeEnum::SUB_DEPARTMENT->value);
     $subDepartment = StoreProductCategory::make()->action($productCategory, $subDepartmentData);
-    expect($subDepartment)->toBeInstanceOf(ProductCategory::class);
+    expect($subDepartment)->toBeInstanceOf(ProductCategory::class)
+        ->and($subDepartment->type)->toBe(ProductCategoryTypeEnum::SUB_DEPARTMENT)
+        ->and($subDepartment->group->catalogueStats->number_departments)->toBe(1)
+        ->and($subDepartment->group->catalogueStats->number_sub_departments)->toBe(1)
+        ->and($subDepartment->organisation->catalogueStats->number_departments)->toBe(1)
+        ->and($subDepartment->organisation->catalogueStats->number_sub_departments)->toBe(1)
+        ->and($subDepartment->shop->stats->number_departments)->toBe(1)
+        ->and($subDepartment->shop->stats->number_sub_departments)->toBe(1)
+        ->and($subDepartment->department->stats->number_sub_departments)->toBe(1);
 
     return $subDepartment;
 })->depends('create department');
@@ -177,7 +190,8 @@ test('create second department', function ($shop) {
     data_set($departmentData, 'type', ProductCategoryTypeEnum::DEPARTMENT->value);
 
     $department = StoreProductCategory::make()->action($shop, $departmentData);
-    expect($department)->toBeInstanceOf(ProductCategory::class);
+    expect($department)->toBeInstanceOf(ProductCategory::class)
+        ->and($department->group->catalogueStats->number_departments)->toBe(2);
 
     return $department;
 })->depends('create shop');
@@ -226,7 +240,7 @@ test('create physical good product', function ($shop) {
     $product = StoreProduct::make()->action($shop, $productData);
     $product->refresh();
 
-    $productVariant=$product->productVariant;
+    $productVariant = $product->productVariant;
 
     expect($product)->toBeInstanceOf(Product::class)
         ->and($product->asset)->toBeInstanceOf(Asset::class)
@@ -241,7 +255,6 @@ test('create physical good product', function ($shop) {
         ->and($productVariant)->toBeInstanceOf(ProductVariant::class)
         ->and($productVariant->name)->toBe($product->name)
         ->and($productVariant->stats->number_historic_product_variants)->toBe(1);
-
 
 
     return $product;
@@ -328,7 +341,6 @@ test('add variant to product', function (Product $product) {
         ->and($product->stats->number_product_variants)->toBe(2)
         ->and($product->stats->number_historic_assets)->toBe(2)
         ->and($productVariant->stats->number_historic_product_variants)->toBe(1);
-
 
 
     return $productVariant;

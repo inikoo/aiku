@@ -7,6 +7,7 @@
 
 namespace App\Models\SysAdmin;
 
+use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
@@ -16,6 +17,7 @@ use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\CollectionCategory;
 use App\Models\Catalogue\Product;
+use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Subscription;
 use App\Models\CRM\WebUser;
@@ -47,6 +49,7 @@ use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as LaravelCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -78,64 +81,65 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\GroupAccountingStats|null $accountingStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Agent> $agents
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Artefact> $artefacts
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Asset> $assets
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Barcode> $barcodes
+ * @property-read LaravelCollection<int, Agent> $agents
+ * @property-read LaravelCollection<int, Artefact> $artefacts
+ * @property-read LaravelCollection<int, Asset> $assets
+ * @property-read LaravelCollection<int, Barcode> $barcodes
  * @property-read \App\Models\SysAdmin\GroupCatalogueStats|null $catalogueStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, ClockingMachine> $clockingMachines
- * @property-read \Illuminate\Database\Eloquent\Collection<int, CollectionCategory> $collectionCategories
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Collection> $collections
+ * @property-read LaravelCollection<int, ClockingMachine> $clockingMachines
+ * @property-read LaravelCollection<int, CollectionCategory> $collectionCategories
+ * @property-read LaravelCollection<int, Collection> $collections
  * @property-read \App\Models\SysAdmin\GroupCRMStats|null $crmStats
  * @property-read Currency $currency
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Employee> $employees
+ * @property-read LaravelCollection<int, Employee> $employees
  * @property-read \App\Models\SysAdmin\GroupFulfilmentStats|null $fulfilmentStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\GroupJobPosition> $groupJobPositions
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Guest> $guests
+ * @property-read LaravelCollection<int, \App\Models\SysAdmin\GroupJobPosition> $groupJobPositions
+ * @property-read LaravelCollection<int, \App\Models\SysAdmin\Guest> $guests
  * @property-read \App\Models\SysAdmin\GroupHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\Studio\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $images
  * @property-read \App\Models\SysAdmin\GroupInventoryStats|null $inventoryStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Invoice> $invoices
- * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $jobPositions
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Location> $locations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Mailroom> $mailrooms
+ * @property-read LaravelCollection<int, Invoice> $invoices
+ * @property-read LaravelCollection<int, JobPosition> $jobPositions
+ * @property-read LaravelCollection<int, Location> $locations
+ * @property-read LaravelCollection<int, Mailroom> $mailrooms
  * @property-read \App\Models\SysAdmin\GroupMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\GroupManufactureStats|null $manufactureStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, ManufactureTask> $manufactureTasks
+ * @property-read LaravelCollection<int, ManufactureTask> $manufactureTasks
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Studio\Media> $media
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
+ * @property-read LaravelCollection<int, Order> $orders
  * @property-read \App\Models\SysAdmin\GroupOrdersIntervals|null $ordersIntervals
- * @property-read \Illuminate\Database\Eloquent\Collection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $organisations
- * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentAccount> $paymentAccounts
- * @property-read \Illuminate\Database\Eloquent\Collection<int, PaymentServiceProvider> $paymentServiceProviders
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Payment> $payments
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Production> $productions
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
- * @property-read \Illuminate\Database\Eloquent\Collection<int, PurchaseOrder> $purchaseOrders
- * @property-read \Illuminate\Database\Eloquent\Collection<int, RawMaterial> $rawMaterials
- * @property-read \Illuminate\Database\Eloquent\Collection<int, RecurringBill> $recurringBills
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Rental> $rentals
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Role> $roles
+ * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
+ * @property-read LaravelCollection<int, \App\Models\SysAdmin\Organisation> $organisations
+ * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
+ * @property-read LaravelCollection<int, PaymentServiceProvider> $paymentServiceProviders
+ * @property-read LaravelCollection<int, Payment> $payments
+ * @property-read LaravelCollection<int, ProductCategory> $productCategories
+ * @property-read LaravelCollection<int, Production> $productions
+ * @property-read LaravelCollection<int, Product> $products
+ * @property-read LaravelCollection<int, PurchaseOrder> $purchaseOrders
+ * @property-read LaravelCollection<int, RawMaterial> $rawMaterials
+ * @property-read LaravelCollection<int, RecurringBill> $recurringBills
+ * @property-read LaravelCollection<int, Rental> $rentals
+ * @property-read LaravelCollection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \App\Models\SysAdmin\GroupSalesIntervals|null $salesIntervals
  * @property-read \App\Models\SysAdmin\GroupSalesStats|null $salesStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Service> $services
- * @property-read \Illuminate\Database\Eloquent\Collection<int, StockFamily> $stockFamilies
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Stock> $stocks
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Subscription> $subscriptions
- * @property-read \Illuminate\Database\Eloquent\Collection<int, SupplierProduct> $supplierProducts
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Supplier> $suppliers
+ * @property-read LaravelCollection<int, Service> $services
+ * @property-read LaravelCollection<int, StockFamily> $stockFamilies
+ * @property-read LaravelCollection<int, Stock> $stocks
+ * @property-read LaravelCollection<int, Subscription> $subscriptions
+ * @property-read LaravelCollection<int, SupplierProduct> $supplierProducts
+ * @property-read LaravelCollection<int, Supplier> $suppliers
  * @property-read \App\Models\SysAdmin\GroupSupplyChainStats|null $supplyChainStats
  * @property-read \App\Models\SysAdmin\GroupSysAdminStats|null $sysadminStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\User> $users
- * @property-read \Illuminate\Database\Eloquent\Collection<int, WarehouseArea> $warehouseAreas
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
+ * @property-read LaravelCollection<int, TradeUnit> $tradeUnits
+ * @property-read LaravelCollection<int, \App\Models\SysAdmin\User> $users
+ * @property-read LaravelCollection<int, WarehouseArea> $warehouseAreas
+ * @property-read LaravelCollection<int, Warehouse> $warehouses
  * @property-read \App\Models\SysAdmin\GroupWebStats|null $webStats
- * @property-read \Illuminate\Database\Eloquent\Collection<int, WebUser> $webUsers
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Webpage> $webpages
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Website> $websites
+ * @property-read LaravelCollection<int, WebUser> $webUsers
+ * @property-read LaravelCollection<int, Webpage> $webpages
+ * @property-read LaravelCollection<int, Website> $websites
  * @method static \Database\Factories\SysAdmin\GroupFactory factory($count = null, $state = [])
  * @method static Builder|Group newModelQuery()
  * @method static Builder|Group newQuery()
@@ -455,6 +459,26 @@ class Group extends Model implements HasMedia
     public function webpages(): HasMany
     {
         return $this->hasMany(Webpage::class);
+    }
+
+    public function productCategories(): HasMany
+    {
+        return $this->hasMany(ProductCategory::class);
+    }
+
+    public function departments(): LaravelCollection
+    {
+        return $this->productCategories()->where('type', ProductCategoryTypeEnum::DEPARTMENT)->get();
+    }
+
+    public function subDepartments(): LaravelCollection
+    {
+        return $this->productCategories()->where('type', ProductCategoryTypeEnum::SUB_DEPARTMENT)->get();
+    }
+
+    public function families(): ?LaravelCollection
+    {
+        return $this->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
     }
 
 

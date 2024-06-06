@@ -7,7 +7,6 @@
 
 namespace App\Models\Catalogue;
 
-use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateDepartments;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Search\UniversalSearch;
@@ -21,9 +20,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -40,15 +39,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $organisation_id
  * @property int|null $shop_id
  * @property int|null $department_id
- * @property int|null $product_category_id
+ * @property int|null $sub_department_id
+ * @property int|null $parent_id
  * @property string $slug
  * @property string $code
  * @property string|null $name
  * @property string|null $description
  * @property int|null $image_id
- * @property string $parent_type
- * @property int $parent_id
- * @property ProductCategoryStateEnum|null $state
+ * @property ProductCategoryStateEnum $state
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -57,13 +55,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_department_id
  * @property string|null $source_family_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
- * @property-read Collection<int, ProductCategory> $departments
+ * @property-read ProductCategory|null $department
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $parent
  * @property-read \App\Models\Catalogue\ProductCategorySalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\ProductCategoryStats|null $stats
+ * @property-read ProductCategory|null $subDepartment
+ * @property-read Collection<int, ProductCategory> $subDepartments
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Catalogue\ProductCategoryFactory factory($count = null, $state = [])
  * @method static Builder|ProductCategory newModelQuery()
@@ -100,16 +100,6 @@ class ProductCategory extends Model implements Auditable
         return 'slug';
     }
 
-    // todo move this to the action
-    protected static function booted(): void
-    {
-        static::updated(function (ProductCategory $department) {
-            if ($department->wasChanged('state')) {
-                ShopHydrateDepartments::dispatch($department->shop);
-            }
-        });
-    }
-
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -134,9 +124,23 @@ class ProductCategory extends Model implements Auditable
         return $this->morphTo();
     }
 
-    public function departments(): MorphMany
+    public function department(): BelongsTo
     {
-        return $this->morphMany(ProductCategory::class, 'parent');
+        return $this->belongsTo(ProductCategory::class, 'department_id');
+    }
+
+    public function subDepartment(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'sub_department_id');
+    }
+
+    public function subDepartments(): HasMany
+    {
+        if($this->type==ProductCategoryTypeEnum::DEPARTMENT) {
+            return $this->hasMany(ProductCategory::class, 'department_id');
+        }
+
+        return $this->hasMany(ProductCategory::class, 'sub_department_id');
     }
 
     public function products(): HasMany

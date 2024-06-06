@@ -7,9 +7,10 @@
 
 namespace App\Actions\Catalogue\ProductCategory;
 
+use App\Actions\Catalogue\ProductCategory\Hydrators\SubDepartmentHydrateSubDepartments;
 use App\Actions\HydrateModel;
 use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateProducts;
-use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateSubdepartments;
+use App\Actions\Catalogue\ProductCategory\Hydrators\DepartmentHydrateSubDepartments;
 use App\Models\Catalogue\ProductCategory;
 use Illuminate\Support\Collection;
 
@@ -19,7 +20,8 @@ class HydrateProductCategory extends HydrateModel
 
     public function handle(ProductCategory $productCategory): void
     {
-        ProductCategoryHydrateSubdepartments::run($productCategory);
+        DepartmentHydrateSubDepartments::run($productCategory);
+        SubDepartmentHydrateSubDepartments::run($productCategory);
         ProductCategoryHydrateProducts::run($productCategory);
     }
 

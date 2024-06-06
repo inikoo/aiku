@@ -510,6 +510,11 @@ class Organisation extends Model implements HasMedia, Auditable
         return $this->productCategories()->where('type', ProductCategoryTypeEnum::DEPARTMENT)->get();
     }
 
+    public function subDepartments(): LaravelCollection
+    {
+        return $this->productCategories()->where('type', ProductCategoryTypeEnum::SUB_DEPARTMENT)->get();
+    }
+
     public function families(): ?LaravelCollection
     {
         return $this->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
