@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 04 Dec 2023 16:24:47 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 06 Jun 2024 20:18:32 Central European Summer Time, Abu Dhabi Airport
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\SysAdmin\Task;
@@ -15,7 +15,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreTask
+class UpdateTask
 {
     use AsAction;
     use WithAttributes;
