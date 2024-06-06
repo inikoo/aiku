@@ -23,6 +23,8 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
+use function PHPUnit\Framework\isEmpty;
+
 class EditRentalAgreement extends OrgAction
 {
     /**
@@ -43,7 +45,34 @@ class EditRentalAgreement extends OrgAction
             ];
         }
         // dd($rentalAgreement->clauses->pluck('agreed_price'));
-
+        if ($rentalAgreement->clauses->isEmpty()) {
+            $isEmpty = true;
+            $rentalData = [
+                'type'             => 'rental',
+                'label'            => __(''),
+                'required'         => false,
+                'full'             => true,
+                'rentals'          => RentalClausesResource::collection($rentalAgreement->fulfilmentCustomer->fulfilment->rentals),
+                'services'         => ServiceClausesResource::collection($rentalAgreement->fulfilmentCustomer->fulfilment->shop->services),
+                'physical_goods'   => ProductClausesResource::collection($rentalAgreement->fulfilmentCustomer->fulfilment->shop->products),
+                'clauses'          => $rentalAgreement->fulfilmentCustomer->rentalAgreementClauses,
+            ];
+        } else {
+            $isEmpty = false;
+            // Use the existing rental data
+            $rentalData = [
+                'type'             => 'rental',
+                'label'            => __('Rental'),
+                'required'         => false,
+                'full'             => true,
+                'rentals'          => RentalClausesResource::collection($rentalAgreement->clauses->where('type', 'rental')),
+                'services'         => ServiceClausesResource::collection($rentalAgreement->clauses->where('type', 'service')),
+                'physical_goods'   => ProductClausesResource::collection($rentalAgreement->clauses->where('type', 'product')),
+                'clauses'          => $rentalAgreement->clauses,
+                'value'          => $rentals
+            ];
+        }
+        dd($isEmpty);
         return Inertia::render(
             'EditModel',
             [
@@ -75,27 +104,9 @@ class EditRentalAgreement extends OrgAction
                                         'required'    => false,
                                         'value'       => $rentalAgreement->pallets_limit
                                     ],
-                                    'rental' => [
-                                        'type'             => 'rental',
-                                        'label'            => __('Rental'),
-                                        'required'         => false,
-                                        'full'             => true,
-                                        'rentals'          => RentalClausesResource::collection($rentalAgreement->clauses->where('type', 'rental')),
-                                        'services'         => ServiceClausesResource::collection($rentalAgreement->clauses->where('type', 'service')),
-                                        'physical_goods'   => ProductClausesResource::collection($rentalAgreement->clauses->where('type', 'product')),
-                                        'clauses'          => $rentalAgreement->clauses,
-                                        // 'indexRentalRoute' => [
-                                        //     'name'       => 'grp.org.fulfilments.show.assets.rentals.index',
-                                        //     'parameters' => [
-                                        //         'organisation' => $this->organisation->slug,
-                                        //         'fulfilment'   => $rentalAgreement->fulfilment->slug
-                                        //     ]
-                                        // ],
-                                        'value'          => $rentals
-
-
-
-                                    ],
+                                    'rental' => $rentalData,
+                                    'isEmpty' => $isEmpty
+                                    ,
                                 ]
                             ]
                         ],
