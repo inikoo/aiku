@@ -2,7 +2,7 @@ name: Backend Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main-halt" ]
 
 env:
   HOME: /home/devops
