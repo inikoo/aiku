@@ -20,22 +20,32 @@ class GetFulfilmentCustomerAgreedPrices
     public function handle(FulfilmentCustomer $fulfilmentCustomer): array
     {
         $rentalAgreement = $fulfilmentCustomer->rentalAgreement;
-        
+
         if (is_null($rentalAgreement)) {
             return ['message' => 'You have no rental agreement'];
         }
 
+        $rentalClauses = $rentalAgreement->clauses->where('type', 'rental');
+        $serviceClauses = $rentalAgreement->clauses->where('type', 'service');
+        $productClauses = $rentalAgreement->clauses->where('type', 'product');
+
         return [
             'rentals' => RentalClausesResource::collection(
-                $this->filterClauses($rentalAgreement->clauses->where('type', 'rental'))
+                $this->getClauses($rentalClauses)
             ),
             'services' => ServiceClausesResource::collection(
-                $this->filterClauses($rentalAgreement->clauses->where('type', 'service'))
+                $this->getClauses($serviceClauses)
             ),
             'physical_goods' => ProductClausesResource::collection(
-                $this->filterClauses($rentalAgreement->clauses->where('type', 'product'))
+                $this->getClauses($productClauses)
             ),
         ];
+    }
+
+    private function getClauses($clauses)
+    {
+        $filteredClauses = $this->filterClauses($clauses);
+        return $filteredClauses->isEmpty() ? $clauses : $filteredClauses;
     }
 
     private function filterClauses($clauses)

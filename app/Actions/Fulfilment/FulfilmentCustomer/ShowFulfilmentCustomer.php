@@ -125,6 +125,7 @@ class ShowFulfilmentCustomer extends OrgAction
                         ];
 
         }
+        dd( GetFulfilmentCustomerAgreedPrices::run($fulfilmentCustomer));
 
         return Inertia::render(
             'Org/Fulfilment/FulfilmentCustomer',
