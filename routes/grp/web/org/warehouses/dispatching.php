@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
+use App\Actions\Dispatching\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
 
 Route::get('/', ShowDispatchHub::class)->name('backlog');

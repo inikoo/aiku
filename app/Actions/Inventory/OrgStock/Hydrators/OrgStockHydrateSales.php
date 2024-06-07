@@ -8,7 +8,7 @@
 namespace App\Actions\Inventory\OrgStock\Hydrators;
 
 use App\Actions\Traits\WithIntervalsAggregators;
-use App\Models\Dispatch\DeliveryNoteItem;
+use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Inventory\OrgStock;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;

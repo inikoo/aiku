@@ -225,7 +225,7 @@ const optionsJob = reactive<{ [key: string]: optionsJob }>({
     },
 
     dist: {
-        department: "Dispatch",
+        department: "Dispatching",
         subDepartment: [
             {
                 slug: "dist-m",

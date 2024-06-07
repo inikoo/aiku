@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Dispatch\Shipper\StoreShipper;
-use App\Actions\Dispatch\Shipper\UpdateShipper;
-use App\Models\Dispatch\Shipper;
+use App\Actions\Dispatching\Shipper\StoreShipper;
+use App\Actions\Dispatching\Shipper\UpdateShipper;
+use App\Models\Dispatching\Shipper;
 use App\Services\Organisation\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;

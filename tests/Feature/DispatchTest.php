@@ -8,30 +8,31 @@
 namespace Tests\Feature;
 
 use App\Actions\CRM\Customer\StoreCustomer;
-use App\Actions\Dispatch\DeliveryNote\DeleteDeliveryNote;
-use App\Actions\Dispatch\DeliveryNote\StoreDeliveryNote;
-use App\Actions\Dispatch\DeliveryNote\UpdateDeliveryNote;
-use App\Actions\Dispatch\DeliveryNoteItem\StoreDeliveryNoteItem;
-use App\Actions\Dispatch\Shipment\StoreShipment;
-use App\Actions\Dispatch\Shipment\UpdateShipment;
-use App\Actions\Dispatch\Shipper\StoreShipper;
-use App\Actions\Dispatch\Shipper\UpdateShipper;
-use App\Actions\Dispatch\ShippingEvent\StoreShippingEvent;
-use App\Actions\Dispatch\ShippingEvent\UpdateShippingEvent;
+use App\Actions\Dispatching\DeliveryNote\DeleteDeliveryNote;
+use App\Actions\Dispatching\DeliveryNote\StoreDeliveryNote;
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNote;
+use App\Actions\Dispatching\DeliveryNoteItem\StoreDeliveryNoteItem;
+use App\Actions\Dispatching\Shipment\StoreShipment;
+use App\Actions\Dispatching\Shipment\UpdateShipment;
+use App\Actions\Dispatching\Shipper\StoreShipper;
+use App\Actions\Dispatching\Shipper\UpdateShipper;
+use App\Actions\Dispatching\ShippingEvent\StoreShippingEvent;
+use App\Actions\Dispatching\ShippingEvent\UpdateShippingEvent;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Transaction\StoreTransaction;
-use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\CRM\Customer;
-use App\Models\Dispatch\DeliveryNote;
-use App\Models\Dispatch\Shipment;
-use App\Models\Dispatch\ShippingEvent;
+use App\Models\Dispatching\DeliveryNote;
+use App\Models\Dispatching\Shipment;
+use App\Models\Dispatching\ShippingEvent;
 use App\Models\Helpers\Address;
 use App\Models\Catalogue\Shop;
+use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use App\Models\SupplyChain\Stock;
 use Throwable;
@@ -108,11 +109,13 @@ test('create order', function ($createdCustomer) {
         'billing_address'  => new Address(Address::factory()->definition())
     ];
 
-    $createdOrder = StoreOrder::make()->action($createdCustomer, $arrayData);
+    $order = StoreOrder::make()->action($createdCustomer, $arrayData);
 
-    expect($createdOrder->number)->toBe($arrayData['number']);
 
-    return $createdOrder;
+    expect($order)->toBeInstanceOf(Order::class)
+        ->and($order->number)->toBe($arrayData['number']);
+
+    return $order;
 })->depends('create customer');
 
 test('create delivery note', function ($createdOrder) {

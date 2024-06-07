@@ -78,7 +78,7 @@ class AppServiceProvider extends ServiceProvider
                 'Appointment'               => 'App\Models\CRM\Appointment',
                 'WebUser'                   => 'App\Models\CRM\WebUser',
 
-                // Dispatch
+                // Dispatching
                 'DeliveryNote'              => 'App\Models\Dispatch\DeliveryNote',
                 'DeliveryNoteItem'          => 'App\Models\Dispatch\DeliveryNoteItem',
                 'Event'                     => 'App\Models\Dispatch\Event',

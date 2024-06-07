@@ -7,10 +7,10 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Dispatch\DeliveryNoteItem\DeliveryNoteItemStateEnum;
-use App\Enums\Dispatch\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
-use App\Models\Dispatch\DeliveryNote;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
+use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
+use App\Models\Dispatching\DeliveryNote;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDeliveryNoteTransaction extends FetchAurora

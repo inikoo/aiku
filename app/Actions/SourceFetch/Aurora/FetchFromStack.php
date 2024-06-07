@@ -7,11 +7,11 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Dispatch\DeliveryNote\DeleteDeliveryNote;
+use App\Actions\Dispatching\DeliveryNote\DeleteDeliveryNote;
 use App\Actions\Dropshipping\CustomerClient\DeleteCustomerClient;
 use App\Actions\Traits\WithOrganisationsArgument;
 use App\Actions\Traits\WithOrganisationSource;
-use App\Models\Dispatch\DeliveryNote;
+use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\SysAdmin\Organisation;
 use App\Services\Organisation\SourceOrganisationService;

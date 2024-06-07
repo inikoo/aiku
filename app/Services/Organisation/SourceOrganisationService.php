@@ -8,7 +8,7 @@
 
 namespace App\Services\Organisation;
 
-use App\Models\Dispatch\DeliveryNote;
+use App\Models\Dispatching\DeliveryNote;
 use App\Models\SysAdmin\Organisation;
 
 interface SourceOrganisationService

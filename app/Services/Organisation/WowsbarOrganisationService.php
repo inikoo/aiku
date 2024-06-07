@@ -7,7 +7,7 @@
 
 namespace App\Services\Organisation;
 
-use App\Models\Dispatch\DeliveryNote;
+use App\Models\Dispatching\DeliveryNote;
 use App\Models\Helpers\Fetch;
 use App\Models\SysAdmin\Organisation;
 use App\Services\Organisation\Aurora\FetchAuroraCustomer;

@@ -183,7 +183,7 @@ return [
         ],
         'dist-m'   => [
             'code'               => 'dist-m',
-            'name'               => 'Dispatch supervisor',
+            'name'               => 'Dispatching supervisor',
             'scope'              => JobPositionScopeEnum::ORGANISATION,
             'team'               => 'warehouse',
             'department'         => 'warehouse',

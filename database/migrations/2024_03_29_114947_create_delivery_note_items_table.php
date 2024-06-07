@@ -5,8 +5,8 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-use App\Enums\Dispatch\DeliveryNoteItem\DeliveryNoteItemStateEnum;
-use App\Enums\Dispatch\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
+use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
+use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
