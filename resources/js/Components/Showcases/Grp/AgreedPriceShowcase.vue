@@ -60,13 +60,12 @@ const props = defineProps<{
     tab: string
 }>()
 
-console.log('sss',props)
 
-const setData = { data: props.data }
+const setData = { rental: props.data }
 
 const form = useForm(setData)
 
-const tabs = 
+const tabs =
     [
         {
             title: 'Rentals',
@@ -93,10 +92,13 @@ const tabs =
 </script>
 
 <template>
-    <Agreement :form="form" field-name="data" :fieldData="data" :tabs="tabs">
-        <template #table="{ data: tabledata }">
-             <RentalTable v-bind="tabledata.p" :bluprint="tabledata.tab.tableBluprint"/>
-        </template>
-    </Agreement>
+    <div class="p-3">
+        <Agreement :form="form" fieldName="rental" :fieldData="data" :tabs="tabs" :reset="false">
+            <template #table="{ data: tabledata }">
+                <RentalTable v-bind="tabledata.p" :bluprint="tabledata.tab.tableBluprint" />
+            </template>
+        </Agreement>
+
+    </div>
 
 </template>

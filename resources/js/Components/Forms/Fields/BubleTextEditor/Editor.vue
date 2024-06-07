@@ -8,13 +8,20 @@ import Subscript from '@tiptap/extension-subscript'
 import Superscript from '@tiptap/extension-superscript'
 import BulletList from '@tiptap/extension-bullet-list'
 import ListItem from '@tiptap/extension-list-item'
+import Heading from '@tiptap/extension-heading'
+import TextAlign from '@tiptap/extension-text-align'
+import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
+import Highlight from '@tiptap/extension-highlight'
+import { Color } from '@tiptap/extension-color'
+import FontSize from 'tiptap-extension-font-size'
+import Link from '@tiptap/extension-link'
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faText, faUndoAlt, faRedoAlt } from '@far'
-import { faHorizontalRule, faQuoteRight } from '@fas'
+import { faHorizontalRule, faQuoteRight, faMarker } from '@fas'
 import { faBold, faItalic, faUnderline, faStrikethrough, faAlignLeft, faAlignCenter, faAlignRight, faAlignJustify, faSubscript, faSuperscript, faEraser, faListUl, faListOl, faPaintBrushAlt, faTextHeight, faLink } from '@fal'
-library.add(faBold, faQuoteRight, faHorizontalRule, faItalic, faUnderline, faStrikethrough, faAlignLeft, faAlignCenter, faAlignRight, faAlignJustify, faSubscript, faSuperscript, faEraser, faListUl, faListOl, faUndoAlt, faRedoAlt, faPaintBrushAlt, faTextHeight, faLink, faText)
+library.add(faBold, faQuoteRight, faMarker, faHorizontalRule, faItalic, faUnderline, faStrikethrough, faAlignLeft, faAlignCenter, faAlignRight, faAlignJustify, faSubscript, faSuperscript, faEraser, faListUl, faListOl, faUndoAlt, faRedoAlt, faPaintBrushAlt, faTextHeight, faLink, faText)
 
 const props = defineProps({
     modelValue: String,
@@ -22,10 +29,41 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-/* const onHeadingClick = (index) => {
+const onHeadingClick = (index) => {
     editor.value.chain().focus().toggleHeading({ level: index }).run()
 }
- */
+
+const setLink = () => {
+    const previousUrl = editor.value.getAttributes('link').href
+    const url = window.prompt('URL', previousUrl)
+
+    // cancelled
+    if (url === null) {
+        return
+    }
+
+    // empty
+    if (url === '') {
+        editor.value
+            .chain()
+            .focus()
+            .extendMarkRange('link')
+            .unsetLink()
+            .run()
+
+        return
+    }
+
+    // update link
+    editor.value
+        .chain()
+        .focus()
+        .extendMarkRange('link')
+        .setLink({ href: url })
+        .run()
+}
+
+
 const editor = useEditor({
     content: props.modelValue,
     onUpdate: ({ editor }) => {
@@ -40,6 +78,24 @@ const editor = useEditor({
         TextStyle,
         BulletList,
         ListItem,
+        TextAlign.configure({
+            types: ['heading', 'paragraph'],
+        }),
+        Heading.configure({
+            levels: [1, 2, 3],
+        }),
+        Highlight.configure({
+            HTMLAttributes: {
+                class: 'highlight-prosemirror',
+            },
+            multicolor: true
+        }),
+        Color.configure({
+            types: ['textStyle'],
+        }),
+        FontSize.configure({
+            types: ['textStyle'],
+        }),
     ],
     editorProps: {
         attributes: {
@@ -57,17 +113,41 @@ const editor = useEditor({
 
             <div class="group relative inline-block">
                 <div class="text-xs min-w-16 p-1 appearance-none rounded cursor-pointer border border-gray-200"
-                    :class="{'bg-slate-700 text-white font-bold': editor.isActive('heading')}"
-                >
+                    :class="{ 'bg-slate-700 text-white font-bold': editor.isActive('heading') }">
                     Heading <span id="headingIndex"></span>
                 </div>
-                <div class="cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
-                    <div v-for="index in 6"
-                        class="block py-1.5 px-3 text-center cursor-pointer hover:bg-gray-300"
+                <div
+                    class="cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
+                    <div v-for="index in 6" class="block py-1.5 px-3 text-center cursor-pointer hover:bg-gray-300"
                         :class="{ 'bg-slate-700 text-white hover:bg-slate-700': editor.isActive('heading', { level: index }) }"
-                        :style="{ fontSize: (20 - index) + 'px' }"  role="button">
-                      <!--   <Teleport v-if="editor.isActive('heading', { level: index })" to="#headingIndex">{{ index }}</Teleport> -->
+                        :style="{ fontSize: (20 - index) + 'px' }" role="button" @click="onHeadingClick(index)">
+                        <div v-if="editor.isActive('heading', { level: index })" to="#headingIndex">{{ index }}</div>
                         H{{ index }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="group relative inline-block">
+                <div class="flex items-center text-xs min-w-10 py-1 pl-1.5 pr-0 appearance-none rounded cursor-pointer border border-gray-500"
+                    :class="{ 'bg-slate-700 text-white font-bold': editor?.getAttributes('textStyle').fontSize }">
+                    <div id="tiptapfontsize" class="pr-1.5">
+                        <span class="hidden last:inline">Text size</span>
+                    </div>
+                    <div v-if="editor?.getAttributes('textStyle').fontSize"
+                        @click="editor?.chain().focus().unsetFontSize().run()" class="px-1">
+                        <FontAwesomeIcon icon='fal fa-times' class='' fixed-width aria-hidden='true' />
+                    </div>
+                </div>
+                <div
+                    class="w-min cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
+                    <div v-for="fontsize in ['8', '9', '12', '14', '16', '20', '24', '28', '36', '44', '52', '64']"
+                        class="w-full block py-1.5 px-3 leading-none text-left cursor-pointer hover:bg-gray-300"
+                        :class="{ 'bg-slate-700 text-white hover:bg-slate-700': parseInt(_editorInstance?.getAttributes('textStyle').fontSize, 10) == fontsize }"
+                        :style="{ fontSize: fontsize + 'px' }"
+                        @click="editor?.chain().focus().setFontSize(fontsize + 'px').run()" role="button">
+                        <div v-if="parseInt(_editorInstance?.getAttributes('textStyle').fontSize, 10) == fontsize"
+                            to="#tiptapfontsize"><span>{{ fontsize }}</span></div>
+                        {{ fontsize }}
                     </div>
                 </div>
             </div>
@@ -75,7 +155,6 @@ const editor = useEditor({
             <button type="button" @click="editor.chain().focus().toggleBold().run()"
                 :class="{ 'bg-gray-200 rounded': editor.isActive('bold') }" class="p-1">
                 <FontAwesomeIcon icon='fal fa-bold' />
-
             </button>
             <button type="button" @click="editor.chain().focus().toggleItalic().run()"
                 :class="{ 'bg-gray-200 rounded': editor.isActive('italic') }" class="p-1">
@@ -85,16 +164,6 @@ const editor = useEditor({
                 :class="{ 'bg-gray-200 rounded': editor.isActive('underline') }" class="p-1">
                 <FontAwesomeIcon icon='fal fa-underline' />
             </button>
-            <!--    <button type="button" @click="editor.chain().focus().toggleHeading({ level: 1 }).run()" :class="{
-                'bg-gray-200 rounded': editor.isActive('heading', { level: 1 }),
-            }" class="p-1">
-                <FontAwesomeIcon icon='far fa-text' />
-            </button>
-            <button type="button" @click="editor.chain().focus().toggleHeading({ level: 2 }).run()" :class="{
-                'bg-gray-200 rounded': editor.isActive('heading', { level: 2 }),
-            }" class="p-1">
-                <FontAwesomeIcon icon='far fa-text' />
-            </button> -->
             <button type="button" @click="editor.chain().focus().toggleBulletList().run()"
                 :class="{ 'bg-gray-200 rounded': editor.isActive('bulletList') }" class="p-1">
                 <FontAwesomeIcon icon='fal fa-list-ul' />
@@ -107,21 +176,55 @@ const editor = useEditor({
                 :class="{ 'bg-gray-200 rounded': editor.isActive('blockquote') }" class="p-1">
                 <font-awesome-icon :icon="['fas', 'quote-right']" />
             </button>
-            <!-- <button type="button" @click="editor.chain().focus().toggleCode().run()"
-                :class="{ 'bg-gray-200 rounded': editor.isActive('code') }" class="p-1">
-                <FontAwesomeIcon icon='far fa-text' />
-            </button> -->
             <button type="button" @click="editor.chain().focus().setHorizontalRule().run()" class="p-1">
                 <font-awesome-icon :icon="['fas', 'horizontal-rule']" />
             </button>
+            <button type="button" @click="editor.chain().focus().setTextAlign('left').run()"
+                class="p-1 disabled:text-gray-400">
+                <FontAwesomeIcon icon='fal fa-align-left' />
+            </button>
+            <button type="button" @click="editor.chain().focus().setTextAlign('center').run()"
+                class="p-1 disabled:text-gray-400">
+                <FontAwesomeIcon icon='fal fa-align-center' />
+            </button>
+            <button type="button" @click="editor.chain().focus().setTextAlign('right').run()">
+                <FontAwesomeIcon icon='fal fa-align-right' />
+            </button>
+
+            <button type="button" @click="editor.chain().focus().setTextAlign('right').run()">
+                <FontAwesomeIcon icon='fal fa-align-right' />
+            </button>
+
+            <ColorPicker :color="editor?.getAttributes('highlight').color"
+                @changeColor="(color) => editor?.chain().setHighlight({ color: color.hex }).run()"
+                class="flex items-center justify-center w-6 aspect-square rounded cursor-pointer border border-gray-700"
+                :style="{ backgroundColor: editor?.getAttributes('highlight').color }">
+                <FontAwesomeIcon icon='fal fa-paint-brush-alt' class='text-gray-500' fixed-width aria-hidden='true' />
+            </ColorPicker>
+
+            <ColorPicker :color="editor?.getAttributes('textStyle').color"
+                @changeColor="(color) => editor?.chain().setColor(color.hex).run()"
+                class="flex items-center justify-center w-6 aspect-square rounded cursor-pointer border border-gray-700">
+                <FontAwesomeIcon icon='far fa-text' fixed-width aria-hidden='true'
+                    :style="{ color: editor?.getAttributes('textStyle').color || '#010101' }" />
+            </ColorPicker>
+
+
+            <button type="button" @click="setLink">
+                <FontAwesomeIcon icon='fal fa-link' />
+            </button>
+
+
             <button type="button" class="p-1 disabled:text-gray-400" @click="editor.chain().focus().undo().run()"
                 :disabled="!editor.can().chain().focus().undo().run()">
                 <FontAwesomeIcon icon='far fa-undo-alt' />
             </button>
+
             <button type="button" @click="editor.chain().focus().redo().run()"
                 :disabled="!editor.can().chain().focus().redo().run()" class="p-1 disabled:text-gray-400">
                 <FontAwesomeIcon icon='far fa-redo-alt' />
             </button>
+
         </section>
         <EditorContent :editor="editor" />
     </div>
@@ -154,13 +257,37 @@ const editor = useEditor({
         list-style: decimal
     }
 
-    .ProseMirror {
-        height: fit-content;
-        width: 100%;
-        overflow-y: auto;
-        padding-left: 0.5em;
-        padding-right: 0.5em;
-        outline: none;
+    h1 {
+        display: block;
+        font-size: 2em;
+        margin-block-start: 0.67em;
+        margin-block-end: 0.67em;
+        margin-inline-start: 0px;
+        margin-inline-end: 0px;
+        font-weight: bold;
+        unicode-bidi: isolate;
+    }
+
+    h2 {
+        display: block;
+        font-size: 1.5em;
+        margin-block-start: 0.83em;
+        margin-block-end: 0.83em;
+        margin-inline-start: 0px;
+        margin-inline-end: 0px;
+        font-weight: bold;
+        unicode-bidi: isolate;
+    }
+
+    h3 {
+        display: block;
+        font-size: 1.17em;
+        margin-block-start: 1em;
+        margin-block-end: 1em;
+        margin-inline-start: 0px;
+        margin-inline-end: 0px;
+        font-weight: bold;
+        unicode-bidi: isolate;
     }
 
 }

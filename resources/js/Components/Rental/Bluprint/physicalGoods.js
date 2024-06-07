@@ -1,9 +1,11 @@
+import Checkbox from "@/Components/Checkbox.vue";
 
 
 
 export default {
     name : 'Physical Goods',
     key : 'physical_goods',
+    checkbox : true,
     column : [
         {
             title : 'Physical Goods',

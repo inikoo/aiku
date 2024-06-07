@@ -51,6 +51,7 @@
         "@tiptap/extension-bubble-menu": "^2.2.4",
         "@tiptap/extension-character-count": "^2.0.3",
         "@tiptap/extension-color": "^2.2.3",
+        "@tiptap/extension-heading": "^2.4.0",
         "@tiptap/extension-highlight": "^2.2.3",
         "@tiptap/extension-link": "^2.2.4",
         "@tiptap/extension-list-item": "^2.0.3",

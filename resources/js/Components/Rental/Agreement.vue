@@ -17,6 +17,7 @@ const props = withDefaults(defineProps<{
     tabs?: Array
     fieldName: string
     options?: any
+    reset: Boolean
     fieldData?: {
         type: string
         placeholder: string
@@ -34,6 +35,7 @@ const props = withDefaults(defineProps<{
         },
     }
 }>(), {
+    reset : true,
     tabs: [
         {
             title: 'Rentals',
@@ -103,7 +105,7 @@ onBeforeMount(() => {
                                 : `border-transparent text-[${layout.app.theme[0]}] hover:border-[${layout.app.theme[0]}]`,
                         ]">
                         {{ tab.title }}
-                        <span>
+                        <span v-if="reset">
                             ({{ props.form[props.fieldName][tab.tableBluprint.key].filter(xxx => xxx.price !=
                                 xxx.agreed_price).length ? '+' +
                             props.form[props.fieldName][tab.tableBluprint.key].filter(xxx => xxx.price !=
@@ -111,7 +113,7 @@ onBeforeMount(() => {
                         </span>
                     </button>
                 </Tab>
-                <div style="margin-left: auto;">
+                <div style="margin-left: auto;" v-if="reset">
                     <Button :label="`Reset`" :icon="['fal', 'history']" type="tertiary" @click="resetValue" />
                 </div>
             </TabList>

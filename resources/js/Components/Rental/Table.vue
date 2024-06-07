@@ -104,7 +104,7 @@ const showAll = () => {
     <div class="flex justify-between mb-3">
         <!-- Button: Show all or only show edited field  -->
         <div>
-            <div class="flex items-center gap-x-2">
+            <div class="flex items-center gap-x-2" v-if="bluprint.checkbox">
                 <Switch
                     @click="() => props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? showEdited() : showAll()"
                     :class="props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? '' : ''"
@@ -160,7 +160,7 @@ const showAll = () => {
                 <table class="min-w-full divide-y divide-gray-300" :key="bluprint.key">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th scope="col" class="px-3 py-4  pr-3 text-left text-sm font-semibold flex justify-center">
+                            <th  v-if="bluprint.checkbox" scope="col" class="px-3 py-4  pr-3 text-left text-sm font-semibold flex justify-center">
                                 <input type="checkbox"
                                     class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600"
                                     :checked="(bulkData.length == form[fieldName][bluprint.key].length)"
@@ -176,7 +176,7 @@ const showAll = () => {
                     <tbody class="divide-y divide-gray-200 bg-white">
                         <tr v-for="(itemData, index) in form[fieldName][bluprint.key]" :key="itemData.email">
                             <!-- Column: Selector -->
-                            <td class="whitespace-nowrap px-3 py-4 text-sm  text-center w-20">
+                            <td  v-if="bluprint.checkbox" class="whitespace-nowrap px-3 py-4 text-sm  text-center w-20">
                                 <input type="checkbox" :id="itemData.id" :value="itemData.id" v-model="bulkData"
                                     class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600" />
                             </td>

@@ -2,6 +2,7 @@
 export default {
     name : 'Rentals',
     key : 'rentals',
+    checkbox : false,
     column : [
         {
             title : 'Rental',
