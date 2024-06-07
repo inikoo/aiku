@@ -11,6 +11,7 @@ use App\Actions\Catalogue\HasMarketAuthorisation;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\OrgAction;
+use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Catalogue\FamiliesResource;
 use App\InertiaTable\InertiaTable;
@@ -72,6 +73,15 @@ class IndexFamilies extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(ProductCategory::class);
+
+        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine'],
+                prefix: $prefix
+            );
+        }
 
 
 
@@ -145,6 +155,14 @@ class IndexFamilies extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
+
             $table
                 ->defaultSort('code')
                 ->withEmptyState(
@@ -177,7 +195,9 @@ class IndexFamilies extends OrgAction
                     }
                 )
                 ->withGlobalSearch()
+                ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon')
                 ->withModelOperations($modelOperations);
+                
 
             if ($parent instanceof Organisation) {
                 $table->column(key: 'shop_code', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
@@ -296,5 +316,22 @@ class IndexFamilies extends OrgAction
             ),
             default => []
         };
+    }
+
+    protected function getElementGroups($parent): array
+    {
+        return
+            [
+                'state' => [
+                    'label'    => __('State'),
+                    'elements' => array_merge_recursive(
+                        ProductCategoryStateEnum::labels(),
+                        ProductCategoryStateEnum::countFamily($parent)
+                    ),
+                    'engine'   => function ($query, $elements) {
+                        $query->whereIn('product_categories.state', $elements);
+                    }
+                ]
+            ];
     }
 }

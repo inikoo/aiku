@@ -9,19 +9,22 @@ namespace App\Actions\Dispatching\DeliveryNote;
 
 use App\Actions\InertiaAction;
 use App\Actions\Ordering\Order\UI\ShowOrder;
+use App\Actions\OrgAction;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\Dispatch\DeliveryNoteTabsEnum;
 use App\Http\Resources\Dispatching\DeliveryNoteResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Dispatching\DeliveryNote;
+use App\Models\Inventory\Warehouse;
 use App\Models\Ordering\Order;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowDeliveryNote extends InertiaAction
+class ShowDeliveryNote extends OrgAction
 {
     use AsAction;
     use WithInertia;
@@ -34,7 +37,7 @@ class ShowDeliveryNote extends InertiaAction
     public function authorize(ActionRequest $request): bool
     {
         //
-        return $request->user()->hasPermissionTo("shops.products.view");
+        return $request->user()->hasPermissionTo("dispatching.{$this->warehouse->id}.view");
     }
 
     public function inOrganisation(DeliveryNote $deliveryNote): DeliveryNote
@@ -48,6 +51,12 @@ class ShowDeliveryNote extends InertiaAction
         return $this->handle($deliveryNote);
     }
 
+    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, DeliveryNote $deliveryNote, ActionRequest $request) : DeliveryNote 
+    {
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(DeliveryNoteTabsEnum::values());
+
+        return $this->handle($deliveryNote);
+    }
     /** @noinspection PhpUnusedParameterInspection */
     public function inOrder(Order $order, DeliveryNote $deliveryNote, ActionRequest $request): DeliveryNote
     {
@@ -66,11 +75,11 @@ class ShowDeliveryNote extends InertiaAction
             'Org/Dispatching/DeliveryNote',
             [
                 'title'                                 => __('delivery_note'),
-                'breadcrumbs'                           => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()(), $deliveryNote),
-                'navigation'                            => [
-                    'previous' => $this->getPrevious($deliveryNote, $request),
-                    'next'     => $this->getNext($deliveryNote, $request),
-                ],
+                // 'breadcrumbs'                           => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()(), $deliveryNote),
+                // 'navigation'                            => [
+                //     'previous' => $this->getPrevious($deliveryNote, $request),
+                //     'next'     => $this->getNext($deliveryNote, $request),
+                // ],
                 'pageHead'      => [
                     'title' => $deliveryNote->number,
 

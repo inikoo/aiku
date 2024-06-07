@@ -6,7 +6,10 @@
  */
 
 use App\Actions\Dispatching\DeliveryNote\IndexDeliveryNotes;
+use App\Actions\Dispatching\DeliveryNote\ShowDeliveryNote;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
 
 Route::get('/', ShowDispatchHub::class)->name('backlog');
 Route::get('/delivery-notes', IndexDeliveryNotes::class)->name('delivery-notes');
+Route::get('/delivery-notes/{deliveryNote}', [ShowDeliveryNote::class, 'inWarehouse'])->name('delivery-notes.show');
+

@@ -15,7 +15,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $created_at
  * @property mixed $updated_at
  * @property string $name
- * @property string $state
+ * @property mixed $state
  * @property string $shop_slug
  * @property mixed $shop_code
  * @property mixed $shop_name
@@ -35,7 +35,11 @@ class ProductsResource extends JsonResource
             'slug'            => $this->slug,
             'code'            => $this->code,
             'name'            => $this->name,
-            'state'           => $this->state,
+            'state'              => [
+                'label' => $this->state->labels()[$this->state->value],
+                'icon'  => $this->state->stateIcon()[$this->state->value]['icon'],
+                'class' => $this->state->stateIcon()[$this->state->value]['class']
+            ],
             'created_at'      => $this->created_at,
             'updated_at'      => $this->updated_at,
             'shop_slug'       => $this->shop_slug,

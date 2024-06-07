@@ -13,7 +13,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $slug
  * @property string $shop_slug
  * @property string $department_slug
- * @property string $state
+ * @property mixed $state
  * @property string $code
  * @property string $name
  * @property string $description
@@ -37,7 +37,11 @@ class FamiliesResource extends JsonResource
             'department_slug'   => $this->department_slug,
             'department_code'   => $this->department_code,
             'department_name'   => $this->department_name,
-            'state'             => $this->state,
+            'state'              => [
+                'label' => $this->state->labels()[$this->state->value],
+                'icon'  => $this->state->stateIcon()[$this->state->value]['icon'],
+                'class' => $this->state->stateIcon()[$this->state->value]['class']
+            ],
             'code'              => $this->code,
             'name'              => $this->name,
             'description'       => $this->description,
