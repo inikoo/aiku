@@ -1,13 +1,13 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Fri, 10 Mar 2023 11:05:41 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 07 Jun 2024 11:21:47 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Dropshipping\CustomerClient\Hydrators;
+namespace App\Actions\CRM\CustomerClient\Hydrators;
 
-use App\Models\Dropshipping\CustomerClient;
+use App\Models\CRM\CustomerClient;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class CustomerClientHydrateUniversalSearch

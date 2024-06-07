@@ -25,7 +25,7 @@ class GetFulfilmentCustomerAgreedPrices
             return ['message' => 'You have no rental agreement'];
         }
 
-        $rentalClauses = $rentalAgreement->clauses->where('type', 'rental');
+        $rentalClauses  = $rentalAgreement->clauses->where('type', 'rental');
         $serviceClauses = $rentalAgreement->clauses->where('type', 'service');
         $productClauses = $rentalAgreement->clauses->where('type', 'product');
 

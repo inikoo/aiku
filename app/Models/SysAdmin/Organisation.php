@@ -564,4 +564,5 @@ class Organisation extends Model implements HasMedia, Auditable
     {
         return $this->hasMany(Asset::class);
     }
+
 }

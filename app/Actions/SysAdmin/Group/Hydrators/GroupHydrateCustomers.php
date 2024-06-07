@@ -1,40 +1,40 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 04 Dec 2023 16:15:10 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Fri, 07 Jun 2024 11:50:40 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\Organisation\Hydrators;
+namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Enums\CRM\Customer\CustomerTradeStateEnum;
 use App\Models\CRM\Customer;
-use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrganisationHydrateCustomers
+class GroupHydrateCustomers
 {
     use AsAction;
     use WithEnumStats;
-    private Organisation $organisation;
+    private Group $group;
 
-    public function __construct(Organisation $organisation)
+    public function __construct(Group $group)
     {
-        $this->organisation = $organisation;
+        $this->group = $group;
     }
 
     public function getJobMiddleware(): array
     {
-        return [(new WithoutOverlapping($this->organisation->id))->dontRelease()];
+        return [(new WithoutOverlapping($this->group->id))->dontRelease()];
     }
 
-    public function handle(Organisation $organisation): void
+    public function handle(Group $group): void
     {
         $stats = [
-            'number_customers' => $organisation->customers()->count()
+            'number_customers' => $group->customers()->count()
         ];
 
         $stats = array_merge(
@@ -44,8 +44,8 @@ class OrganisationHydrateCustomers
                 field: 'state',
                 enum: CustomerStateEnum::class,
                 models: Customer::class,
-                where: function ($q) use ($organisation) {
-                    $q->where('organisation_id', $organisation->id);
+                where: function ($q) use ($group) {
+                    $q->where('group_id', $group->id);
                 }
             )
         );
@@ -57,12 +57,12 @@ class OrganisationHydrateCustomers
                 field: 'trade_state',
                 enum: CustomerTradeStateEnum::class,
                 models: Customer::class,
-                where: function ($q) use ($organisation) {
-                    $q->where('organisation_id', $organisation->id);
+                where: function ($q) use ($group) {
+                    $q->where('group_id', $group->id);
                 }
             )
         );
 
-        $organisation->crmStats()->update($stats);
+        $group->crmStats()->update($stats);
     }
 }

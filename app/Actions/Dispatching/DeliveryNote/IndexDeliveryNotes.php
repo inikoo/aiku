@@ -105,7 +105,7 @@ class IndexDeliveryNotes extends OrgAction
                 'pageHead'       => [
                     'title' => __('delivery notes'),
                 ],
-                'data' => DeliveryNoteResource::collection($deliveryNotes),
+                'data'        => DeliveryNoteResource::collection($deliveryNotes),
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => DeliveryNotesTabsEnum::navigation(),
@@ -116,7 +116,7 @@ class IndexDeliveryNotes extends OrgAction
 
 
             ]
-        )->table($this->tableStructure(parent: $this->parent, prefix:DeliveryNotesTabsEnum::DELIVERY_NOTES->value ));
+        )->table($this->tableStructure(parent: $this->parent, prefix:DeliveryNotesTabsEnum::DELIVERY_NOTES->value));
     }
 
 

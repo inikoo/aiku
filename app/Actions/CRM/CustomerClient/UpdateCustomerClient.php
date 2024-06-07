@@ -1,19 +1,19 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Sun, 30 Oct 2022 01:03:02 Greenwich Mean Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 07 Jun 2024 11:21:47 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Dropshipping\CustomerClient;
+namespace App\Actions\CRM\CustomerClient;
 
-use App\Actions\Dropshipping\CustomerClient\Hydrators\CustomerClientHydrateUniversalSearch;
+use App\Actions\CRM\CustomerClient\Hydrators\CustomerClientHydrateUniversalSearch;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Dropshipping\CustomerClientResource;
-use App\Models\Dropshipping\CustomerClient;
+use App\Http\Resources\CRM\CustomerClientResource;
 use App\Models\Catalogue\Shop;
+use App\Models\CRM\CustomerClient;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;

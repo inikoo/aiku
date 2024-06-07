@@ -9,8 +9,8 @@ namespace App\Actions\CRM\Customer;
 
 use App\Actions\Catalogue\Product\DeleteProduct;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCustomers;
+use App\Actions\CRM\CustomerClient\DeleteCustomerClient;
 use App\Actions\CRM\WebUser\DeleteWebUser;
-use App\Actions\Dropshipping\CustomerClient\DeleteCustomerClient;
 use App\Actions\Goods\Stock\DeleteStock;
 use App\Actions\Ordering\Order\DeleteOrder;
 use App\Actions\Traits\WithActionUpdate;

@@ -15,6 +15,7 @@ use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
 use App\Actions\OrgAction;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCustomerInvoices;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCustomers;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateCustomers;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCustomers;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\CRM\Customer\CustomerStateEnum;
@@ -93,7 +94,7 @@ class StoreCustomer extends OrgAction
             addressData: $contactAddressData,
             scope: 'contact'
         );
-
+        $customer->refresh();
 
         if (Arr::get($shop->settings, 'delivery_address_link')) {
             $customer = $this->addLinkedAddress(
@@ -131,7 +132,8 @@ class StoreCustomer extends OrgAction
 
         ShopHydrateCustomers::dispatch($customer->shop)->delay($this->hydratorsDelay);
         ShopHydrateCustomerInvoices::dispatch($customer->shop)->delay($this->hydratorsDelay);
-        OrganisationHydrateCustomers::dispatch($customer->shop->organisation)->delay($this->hydratorsDelay);
+        GroupHydrateCustomers::dispatch($customer->group)->delay($this->hydratorsDelay);
+        OrganisationHydrateCustomers::dispatch($customer->organisation)->delay($this->hydratorsDelay);
 
         CustomerHydrateUniversalSearch::dispatch($customer);
 

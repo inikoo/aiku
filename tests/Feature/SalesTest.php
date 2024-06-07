@@ -8,14 +8,10 @@
 
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
-use App\Actions\CRM\Customer\StoreCustomer;
-use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
-use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
-use App\Actions\Ordering\ShippingZone\StoreShippingZone;
-use App\Actions\Ordering\ShippingZone\UpdateShippingZone;
-use App\Actions\Ordering\ShippingZoneSchema\StoreShippingZoneSchema;
-use App\Actions\Ordering\ShippingZoneSchema\UpdateShippingZoneSchema;
 use App\Actions\Catalogue\Shop\StoreShop;
+use App\Actions\CRM\Customer\StoreCustomer;
+use App\Actions\CRM\CustomerClient\StoreCustomerClient;
+use App\Actions\CRM\CustomerClient\UpdateCustomerClient;
 use App\Actions\Ordering\Order\DeleteOrder;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
@@ -25,18 +21,22 @@ use App\Actions\Ordering\Order\UpdateStateToHandlingOrder;
 use App\Actions\Ordering\Order\UpdateStateToPackedOrder;
 use App\Actions\Ordering\Order\UpdateStateToSettledOrder;
 use App\Actions\Ordering\Order\UpdateStateToSubmittedOrder;
+use App\Actions\Ordering\ShippingZone\StoreShippingZone;
+use App\Actions\Ordering\ShippingZone\UpdateShippingZone;
+use App\Actions\Ordering\ShippingZoneSchema\StoreShippingZoneSchema;
+use App\Actions\Ordering\ShippingZoneSchema\UpdateShippingZoneSchema;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Actions\Ordering\Transaction\UpdateTransaction;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Models\Accounting\Invoice;
+use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
-use App\Models\Dropshipping\CustomerClient;
+use App\Models\CRM\CustomerClient;
 use App\Models\Helpers\Address;
+use App\Models\Ordering\Order;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
-use App\Models\Catalogue\Shop;
-use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use Illuminate\Validation\ValidationException;
 
@@ -80,6 +80,12 @@ test('create other customer', function () {
         ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED);
 
     return $customer;
+});
+
+test('create some products', function () {
+
+
+
 });
 
 

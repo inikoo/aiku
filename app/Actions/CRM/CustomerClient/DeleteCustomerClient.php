@@ -1,16 +1,16 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 15 Feb 2023 17:11:34 Malaysia Time, Ubud , Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Fri, 07 Jun 2024 11:21:47 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Dropshipping\CustomerClient;
+namespace App\Actions\CRM\CustomerClient;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithOrganisationArgument;
-use App\Models\Dropshipping\CustomerClient;
+use App\Models\CRM\CustomerClient;
 use Exception;
 use Illuminate\Console\Command;
 

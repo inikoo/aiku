@@ -39,8 +39,8 @@ trait WithShopRules
             'phone'                    => 'nullable',
             'identity_document_number' => ['nullable', 'string'],
             'identity_document_type'   => ['nullable', 'string'],
-            'state'                    => ['sometimes', 'required', Rule::in(ShopStateEnum::values())],
-            'type'                     => ['required', Rule::in(ShopTypeEnum::values())],
+            'state'                    => ['sometimes', 'required', Rule::enum(ShopStateEnum::class)],
+            'type'                     => ['required', Rule::enum(ShopTypeEnum::class)],
             'country_id'               => ['required', 'exists:countries,id'],
             'currency_id'              => ['required', 'exists:currencies,id'],
             'language_id'              => ['required', 'exists:languages,id'],
@@ -51,7 +51,7 @@ trait WithShopRules
             'source_id'                => ['sometimes', 'string'],
             'warehouses'               => ['sometimes', 'array'],
             'warehouses.*'             => ['exists:warehouses,id'],
-            'address'                  => ['sometimes','required', new ValidAddress()],
+            'address'                  => ['sometimes', 'required', new ValidAddress()],
 
         ];
     }

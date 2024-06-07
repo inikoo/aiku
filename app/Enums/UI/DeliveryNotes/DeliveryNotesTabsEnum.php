@@ -15,10 +15,10 @@ enum DeliveryNotesTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case STATS     = 'stats';
+    case STATS             = 'stats';
     case DELIVERY_NOTES    = 'notes';
-    case HISTORY   = 'history';
-    case TAGS      = 'tags';
+    case HISTORY           = 'history';
+    case TAGS              = 'tags';
 
 
     public function blueprint(): array

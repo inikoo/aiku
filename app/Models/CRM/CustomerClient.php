@@ -1,16 +1,15 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Sun, 30 Oct 2022 01:04:09 Greenwich Mean Time, Sheffield, UK
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 07 Jun 2024 11:22:20 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Dropshipping;
+namespace App\Models\CRM;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
-use App\Models\CRM\Customer;
-use App\Models\Helpers\Address;
 use App\Models\Catalogue\Shop;
+use App\Models\Helpers\Address;
 use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -26,7 +25,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -62,7 +60,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Shop|null $shop
  * @property-read UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Dropshipping\CustomerClientFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\CRM\CustomerClientFactory factory($count = null, $state = [])
  * @method static Builder|CustomerClient newModelQuery()
  * @method static Builder|CustomerClient newQuery()
  * @method static Builder|CustomerClient onlyTrashed()

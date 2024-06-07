@@ -7,9 +7,9 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
-use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
-use App\Models\Dropshipping\CustomerClient;
+use App\Actions\CRM\CustomerClient\StoreCustomerClient;
+use App\Actions\CRM\CustomerClient\UpdateCustomerClient;
+use App\Models\CRM\CustomerClient;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;

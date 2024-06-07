@@ -8,6 +8,8 @@
 namespace App\Services\Organisation\Aurora;
 
 use App\Actions\Utils\Abbreviate;
+use App\Enums\Catalogue\Shop\ShopStateEnum;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Inventory\Warehouse;
 use App\Models\Catalogue\Shop;
 use Illuminate\Support\Facades\DB;
@@ -44,16 +46,27 @@ class FetchAuroraShop extends FetchAurora
             countryID: $this->parseCountryID($auroraSettings['tax_country_code'])
         );
 
+        $type = match (strtolower($this->auroraModelData->{'Store Type'})) {
+            'b2b'          => ShopTypeEnum::B2B,
+            'b2c'          => ShopTypeEnum::B2C,
+            'fulfilment'   => ShopTypeEnum::FULFILMENT,
+            'dropshipping' => ShopTypeEnum::DROPSHIPPING,
+        };
 
-        $type = strtolower($this->auroraModelData->{'Store Type'});
+        $state = Str::snake($this->auroraModelData->{'Store Status'} == 'Normal' ? 'Open' : $this->auroraModelData->{'Store Status'}, '-');
+        $state = match ($state) {
+            'in-process'   => ShopStateEnum::IN_PROCESS,
+            'open'         => ShopStateEnum::OPEN,
+            'closing-down' => ShopStateEnum::CLOSING_DOWN,
+            'closed'       => ShopStateEnum::CLOSED,
+        };
 
-
-        $settings= [
-            'can_collect'          => $this->auroraModelData->{'Store Can Collect'} === 'Yes',
-            'address_link'         => 'Organisation:default'
+        $settings = [
+            'can_collect'  => $this->auroraModelData->{'Store Can Collect'} === 'Yes',
+            'address_link' => 'Organisation:default'
         ];
 
-        if($this->auroraModelData->{'Store Can Collect'} === 'Yes') {
+        if ($this->auroraModelData->{'Store Can Collect'} === 'Yes') {
             $settings['collect_address_link'] = 'Organisation:default';
         }
 
@@ -69,7 +82,7 @@ class FetchAuroraShop extends FetchAurora
             'phone' => $this->auroraModelData->{'Store Telephone'},
 
             'identity_document_number' => $this->auroraModelData->{'Store Company Number'},
-            'state'                    => Str::snake($this->auroraModelData->{'Store Status'} == 'Normal' ? 'Open' : $this->auroraModelData->{'Store Status'}, '-'),
+            'state'                    => $state,
 
             'type' => $type,
 
@@ -84,7 +97,6 @@ class FetchAuroraShop extends FetchAurora
             'settings'    => $settings
 
         ];
-
 
 
         if ($type == 'fulfilment') {
