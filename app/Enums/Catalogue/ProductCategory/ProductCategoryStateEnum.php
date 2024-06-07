@@ -20,13 +20,59 @@ enum ProductCategoryStateEnum: string
     case DISCONTINUING = 'discontinuing';
     case DISCONTINUED  = 'discontinued';
 
-    public static function labels(): array
+    public static function labels($forElements = false): array
     {
         return [
             'in-process' => __('In Process'),
             'active'    => __('Active'),
             'discontinuing'         => __('Discontinuing'),
             'discontinued'      => __('Discontinued'),
+        ];
+    }
+
+    public static function stateIcon(): array
+    {
+        return [
+            'in-process' => [
+                'tooltip' => __('In process'),
+                'icon'    => 'fal fa-seedling',
+                'class'   => 'text-lime-500', 
+                'color'   => 'lime',  
+                'app'     => [
+                    'name' => 'seedling',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'active' => [
+                'tooltip' => __('Active'),
+                'icon'    => 'fal fa-spell-check',
+                'class'   => 'text-emerald-500',
+                'color'   => 'emerald',
+                'app'     => [
+                    'name' => 'spell-check',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'discontinuing' => [
+                'tooltip' => __('Discontinuing'),
+                'icon'    => 'fal fa-times',
+                'class'   => 'text-red-500',
+                'color'   => 'red',
+                'app'     => [
+                    'name' => 'times',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'discontinued' => [
+                'tooltip' => __('Discontinued'),
+                'icon'    => 'fal fa-skull',
+                'class'   => 'text-gray-400',
+                'color'   => 'gray',
+                'app'     => [
+                    'name' => 'check',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
         ];
     }
 

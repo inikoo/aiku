@@ -12,12 +12,11 @@ import { capitalize } from "@/Composables/capitalize"
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
 
-defineProps <{
+const props = defineProps<{
   pageHead: PageHeadingTypes
   title: string
   data: object
 }>()
-
 </script>
 
 <template>
