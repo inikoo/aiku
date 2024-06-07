@@ -8,7 +8,7 @@
 namespace App\Models\Helpers;
 
 use App\Models\CRM\Customer;
-use App\Models\Dispatch\Shipper;
+use App\Models\Dispatching\Shipper;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Warehouse;
 use App\Models\Catalogue\Shop;

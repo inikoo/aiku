@@ -7,12 +7,12 @@
 
 namespace Database\Factories\Dispatch;
 
-use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Dispatch\Shipper>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Dispatching\Shipper>
  */
 class DeliveryNoteFactory extends Factory
 {

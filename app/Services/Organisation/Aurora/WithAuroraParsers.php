@@ -48,7 +48,7 @@ use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
-use App\Models\Dispatch\Shipper;
+use App\Models\Dispatching\Shipper;
 use App\Models\Fulfilment\Rental;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Country;

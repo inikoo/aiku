@@ -46,7 +46,7 @@ class ShowDispatchHub extends OrgAction
 
 
         return Inertia::render(
-            'Dispatch/DispatchHub',
+            'Dispatching/DispatchHub',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
@@ -57,7 +57,7 @@ class ShowDispatchHub extends OrgAction
                         'icon'  => ['fal', 'fa-conveyor-belt-alt'],
                         'title' => __('locations')
                     ],
-                    'title'     => __('Dispatch backlog'),
+                    'title'     => __('Dispatching backlog'),
                             ],
 
 
@@ -77,7 +77,7 @@ class ShowDispatchHub extends OrgAction
                             'name'       => 'grp.org.warehouses.show.dispatching.backlog',
                             'parameters' => $routeParameters
                         ],
-                        'label' => __('Dispatch'),
+                        'label' => __('Dispatching'),
                     ]
                 ]
             ]

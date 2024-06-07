@@ -24,7 +24,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\Catalogue\Subscription;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
-use App\Models\Dispatch\Shipper;
+use App\Models\Dispatching\Shipper;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\RecurringBill;

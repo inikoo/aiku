@@ -7,12 +7,12 @@
 
 namespace App\Actions\SourceFetch\Aurora;
 
-use App\Actions\Dispatch\DeliveryNote\StoreDeliveryNote;
-use App\Actions\Dispatch\DeliveryNote\UpdateDeliveryNote;
-use App\Actions\Dispatch\Shipment\StoreShipment;
-use App\Actions\Dispatch\Shipment\UpdateShipment;
-use App\Models\Dispatch\DeliveryNote;
-use App\Models\Dispatch\Shipment;
+use App\Actions\Dispatching\DeliveryNote\StoreDeliveryNote;
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNote;
+use App\Actions\Dispatching\Shipment\StoreShipment;
+use App\Actions\Dispatching\Shipment\UpdateShipment;
+use App\Models\Dispatching\DeliveryNote;
+use App\Models\Dispatching\Shipment;
 use App\Services\Organisation\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;

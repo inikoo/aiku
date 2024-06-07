@@ -9,14 +9,14 @@ namespace App\Actions\Ordering\Order\UI;
 
 use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
-use App\Actions\Dispatch\DeliveryNote\IndexDeliveryNotes;
+use App\Actions\Dispatching\DeliveryNote\IndexDeliveryNotes;
 use App\Actions\InertiaAction;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\UI\Ordering\OrderTabsEnum;
 use App\Http\Resources\Accounting\InvoicesResource;
 use App\Http\Resources\Accounting\PaymentsResource;
-use App\Http\Resources\Delivery\DeliveryNoteResource;
+use App\Http\Resources\Dispatching\DeliveryNoteResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\Order;

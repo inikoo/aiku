@@ -11,7 +11,7 @@ use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Enums\Ordering\Transaction\TransactionTypeEnum;
 use App\Models\CRM\Customer;
-use App\Models\Dispatch\DeliveryNoteItem;
+use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Catalogue\Shop;
 use App\Models\Traits\InCustomer;
 use Eloquent;

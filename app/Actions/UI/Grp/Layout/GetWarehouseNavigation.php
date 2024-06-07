@@ -112,7 +112,7 @@ class GetWarehouseNavigation
 
         // if ($user->hasPermissionTo("dispatching.$warehouse->id.view")) {
         //     $navigation['dispatch'] = [
-        //         'label'   => __('Dispatch'),
+        //         'label'   => __('Dispatching'),
         //         'icon'    => ['fal', 'fa-conveyor-belt-alt'],
         //         'route'   => 'grp.dispatch.hub',
         //         'topMenu' => [

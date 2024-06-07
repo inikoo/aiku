@@ -8,7 +8,7 @@
 namespace App\Models\Inventory;
 
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
-use App\Models\Dispatch\DeliveryNote;
+use App\Models\Dispatching\DeliveryNote;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;

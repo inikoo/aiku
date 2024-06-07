@@ -215,7 +215,7 @@ class ShowPalletReturn extends OrgAction
                     'type'    => 'button',
                     'style'   => 'save',
                     'tooltip' => __('set as dispatched'),
-                    'label'   => __('Dispatch'),
+                    'label'   => __('Dispatching'),
                     'key'     => 'action',
                     'route'   => [
                         'method'     => 'post',

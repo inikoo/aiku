@@ -7,8 +7,8 @@
 
 namespace App\Services\Organisation\Aurora;
 
-use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Dispatch\DeliveryNote\DeliveryNoteStatusEnum;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Facades\DB;
 

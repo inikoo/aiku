@@ -10,7 +10,7 @@ namespace Database\Factories\Dispatch;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Dispatch\Shipper>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Dispatching\Shipper>
  */
 class ShipperFactory extends Factory
 {
