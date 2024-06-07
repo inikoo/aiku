@@ -22,21 +22,19 @@ const parsedHtml = computed(() => {
 
 <template>
     <div class="relative">
-        <div class="absolute top-2 right-2 flex space-x-2">
+        <!-- <div class="absolute top-2 right-2 flex space-x-2">
             <Button v-if="!editMode" @click="editMode = true" :icon="['far', 'fa-pencil']" size="xs" />
             <Button v-else :icon="['far', 'times']" size="xs" @click="editMode = false" />
-        </div>
+        </div> -->
 
-        <div :class="editMode ? '' : 'hidden'">
+        <div>
             <Editor v-model="modelValue.value">
             </Editor>
-            <!--             <TextEditor field-name="value" :form="modelValue"/>
- -->
         </div>
 
-        <div class="p-4  overflow-y-auto outline-none prose max-w-none">
+       <!--  <div class="p-4  overflow-y-auto outline-none prose max-w-none">
             <div :class="!editMode ? '' : 'hidden'" v-html="modelValue.value" />
-        </div>
+        </div> -->
 
     </div>
 </template>

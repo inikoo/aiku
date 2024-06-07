@@ -96,7 +96,7 @@ const setData = ()=>{
         </div>
         <div v-else>
             <div v-for="(activityItem, activityItemIdx) in data" :key="activityItem.id" class="w-full">
-              <component :is="getComponent(activityItem['component'])" :key="index" v-bind="activityItem.fieldData" v-model="activityItem.fieldValue"> </component>
+              <component :is="getComponent(activityItem['component'])" :key="activityItemIdx" v-bind="activityItem.fieldData" v-model="activityItem.fieldValue"> </component>
             </div>
           </div>
       </div>

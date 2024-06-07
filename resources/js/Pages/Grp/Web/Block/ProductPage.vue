@@ -8,23 +8,37 @@
 import { faCube, faLink } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import dataList from "../data/blogActivity.js"
 import PureInput from "@/Components/Pure/PureInput.vue"
 import { ref } from "vue"
-import Popover from '@/Components/Popover.vue'
+import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue';
 
 library.add(faCube, faLink)
 
 const props = defineProps<{
     modelValue: Object
-    emptyState: Boolean
 }>()
 
 const selectedProduct = ref(0)
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string | number): void
 }>()
+
+
+const description = ref(`
+    Introducing our <span class="font-bold">Wholesale Monkey Shaped Bath Bomb</span> weighing 90g
+    and infused with the delightful fusion of
+    Guava & Strawberry. This bulk package is perfect for retailers, spas, or anyone looking to add a
+    touch
+    of fun and tropical fragrance to their bath and body products.
+    <br>
+    Each bath bomb is meticulously crafted
+    into an adorable monkey shape, bringing a sense of whimsy and playfulness to any bathing
+    routine. The
+    attention to detail and vibrant colours make these bath bombs visually appealing and
+    irresistible to
+    customers of all ages
+                        `)
 
 const dataProduct = ref({
     images: [
@@ -43,7 +57,7 @@ const onEnter = (e) => {
 
 <template>
 
-<div type="button" v-if="modelValue.emptyState"
+    <div type="button" v-if="modelValue.emptyState"
         class="relative block w-full p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
         <font-awesome-icon :icon="['fal', 'cube']" class="mx-auto h-12 w-12 text-gray-400" />
         <span class="mt-2 block text-sm font-semibold text-gray-900">Product</span>
@@ -120,18 +134,7 @@ const onEnter = (e) => {
                 <!-- Section: Description -->
                 <div class="space-y-4 mb-6">
                     <div class="text-xs text-gray-500">
-                        Introducing our <span class="font-bold">Wholesale Monkey Shaped Bath Bomb</span> weighing 90g
-                        and infused with the delightful fusion of
-                        Guava & Strawberry. This bulk package is perfect for retailers, spas, or anyone looking to add a
-                        touch
-                        of fun and tropical fragrance to their bath and body products.
-                        <br>
-                        Each bath bomb is meticulously crafted
-                        into an adorable monkey shape, bringing a sense of whimsy and playfulness to any bathing
-                        routine. The
-                        attention to detail and vibrant colours make these bath bombs visually appealing and
-                        irresistible to
-                        customers of all ages
+                        <Editor v-model="description" :toogle="[]"/>
                     </div>
                     <div class="font-bold text-xs underline">Read More</div>
                 </div>
@@ -481,8 +484,8 @@ const onEnter = (e) => {
                 </div>
                 <div class="relative">
                     <i class="absolute top-2 right-2 text-2xl far fa-heart text-gray-500"></i>
-                    <img src="https://tailwindui.com/img/ecommerce-images/product-page-03-related-product-04.jpg" alt="aaa"
-                        class="">
+                    <img src="https://tailwindui.com/img/ecommerce-images/product-page-03-related-product-04.jpg"
+                        alt="aaa" class="">
                     <div class="mb-0.5 font-bold leading-5">
                         8x Monkey Bath Bomb 90g - Guava & Strawberry
                     </div>
