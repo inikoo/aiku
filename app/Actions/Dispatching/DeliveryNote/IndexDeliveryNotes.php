@@ -8,6 +8,8 @@
 namespace App\Actions\Dispatching\DeliveryNote;
 
 use App\Actions\OrgAction;
+use App\Actions\UI\Dispatch\ShowDispatchHub;
+use App\Enums\UI\DeliveryNotes\DeliveryNotesTabsEnum;
 use App\Http\Resources\Dispatching\DeliveryNoteResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Dispatching\DeliveryNote;
@@ -30,6 +32,7 @@ class IndexDeliveryNotes extends OrgAction
 
     public function handle(Warehouse|Shop|Order $parent, $prefix = null): LengthAwarePaginator
     {
+        // dd($parent);
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartsWith('delivery_notes.number', $value);
@@ -91,23 +94,29 @@ class IndexDeliveryNotes extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $deliveryNotes, ActionRequest $request): Response
     {
-
+        // dd(DeliveryNoteResource::collection($deliveryNotes));
         return Inertia::render(
             'Org/Dispatching/DeliveryNotes',
             [
                 'breadcrumbs'    => $this->getBreadcrumbs(
-                    $request->route()->getName(),
                     $request->route()->originalParameters(),
                 ),
                 'title'          => __('delivery notes'),
                 'pageHead'       => [
                     'title' => __('delivery notes'),
                 ],
-                'delivery_notes' => DeliveryNoteResource::collection($deliveryNotes),
+                'data' => DeliveryNoteResource::collection($deliveryNotes),
+                'tabs'        => [
+                    'current'    => $this->tab,
+                    'navigation' => DeliveryNotesTabsEnum::navigation(),
+                ],
+                DeliveryNotesTabsEnum::DELIVERY_NOTES->value => $this->tab == DeliveryNotesTabsEnum::DELIVERY_NOTES->value ?
+                    fn () => DeliveryNoteResource::collection($deliveryNotes)
+                    : Inertia::lazy(fn () => DeliveryNoteResource::collection($deliveryNotes)),
 
 
             ]
-        )->table($this->tableStructure($this->parent));
+        )->table($this->tableStructure(parent: $this->parent, prefix:DeliveryNotesTabsEnum::DELIVERY_NOTES->value ));
     }
 
 
@@ -133,22 +142,31 @@ class IndexDeliveryNotes extends OrgAction
         return $this->handle($shop);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs($routeParameters): array
     {
-        $headCrumb = function (array $routeParameters = []) use ($routeName) {
-            return [
-                $routeName => [
-                    'route'           => $routeName,
-                    'routeParameters' => $routeParameters,
-                    'modelLabel'      => [
-                        'label' => __('delivery-notes')
-                    ]
-                ],
-            ];
-        };
+        return array_merge(
+            (new ShowDispatchHub())->getBreadcrumbs($routeParameters),
+            [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => [
+                            'name'       => 'grp.org.warehouses.show.dispatching.delivery-notes',
+                            'parameters' => array_merge(
+                                [
+                                    '_query' => [
+                                        'elements[state]' => 'working'
+                                    ]
+                                ],
+                                $routeParameters
+                            )
+                        ],
+                        'label' => __('Delivery notes'),
+                        'icon'  => 'fal fa-bars',
+                    ],
 
-        return match ($routeName) {
-            default => []
-        };
+                ]
+            ]
+        );
     }
 }

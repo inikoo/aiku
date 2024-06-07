@@ -8,10 +8,16 @@
 import { Link } from "@inertiajs/vue3";
 import Table from "@/Components/Table/Table.vue";
 import { DeliveryNote } from "@/types/delivery-note";
+import { Tab } from "@headlessui/vue";
+import type {Links, Meta} from "@/types/Table";
 
 const props = defineProps<{
-    data: object
-    tab?: string
+    data: {
+    data: {}[]
+    links: Links
+    meta: Meta
+  },
+  tab?: string
 }>();
 
 
@@ -29,16 +35,21 @@ function deliveryNoteRoute(deliveryNote: DeliveryNote) {
             return route(
                 "shops.show.delivery-notes.show",
                 [deliveryNote.shop_id, deliveryNote.slug]);
+        case "grp.org.warehouses.show.dispatching.delivery-notes":
+            return route(
+                "grp.org.warehouses.show.dispatching.delivery-notes.show",
+                [route().params["organisation"], route().params["warehouse"], deliveryNote.slug]);
         default:
             return route(
-                "delivery-notes.show",
-                [deliveryNote.slug]);
+                "grp.org.warehouses.show.dispatching.delivery-notes.show",
+                [route().params["organisation"], route().params["warehouse"], deliveryNote.slug]);
     }
 }
 
 </script>
 
 <template>
+{{ data }} 
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(number)="{ item: deliveryNote }">
             <Link :href="deliveryNoteRoute(deliveryNote)">
