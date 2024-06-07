@@ -2,6 +2,7 @@
 export default {
     name : 'Services',
     key : 'services',
+    checkbox : true,
     column : [
         {
             title : 'Services',
