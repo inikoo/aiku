@@ -12,8 +12,9 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 
 const layout = inject('layout', layoutStructure)
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     form: any
+    tabs?: Array
     fieldName: string
     options?: any
     fieldData?: {
@@ -32,34 +33,34 @@ const props = defineProps<{
             data: {}
         },
     }
-}>()
-
-// console.log(props)
-
-
-const tabs = ref([
-    {
-        title: 'Rentals',
-        value: 'rentals',
-        key: 'rentals',
-        tableBluprint: RentalBluprint
-    },
-    {
-        title: 'Services',
-        value: 'services',
-        key: 'services',
-        tableBluprint: ServicesBluprint
-    },
-    {
-        title: 'Physical Goods',
-        value: 'physical_goods',
-        key: 'physical_goods',
-        tableBluprint: PhysicalGoodsBluprint
-    }
-])
+}>(), {
+    tabs: [
+        {
+            title: 'Rentals',
+            value: 'rentals',
+            key: 'rentals',
+            tableBluprint: RentalBluprint
+        },
+        {
+            title: 'Services',
+            value: 'services',
+            key: 'services',
+            tableBluprint: ServicesBluprint
+        },
+        {
+            title: 'Physical Goods',
+            value: 'physical_goods',
+            key: 'physical_goods',
+            tableBluprint: PhysicalGoodsBluprint
+        }
+    ]
+})
 
 
-const resetValue=()=>{
+
+
+
+const resetValue = () => {
     const clonedData = {
         rentals: cloneDeep(props.fieldData?.rentals?.data),
         physical_goods: cloneDeep(props.fieldData?.physical_goods?.data),
@@ -103,12 +104,15 @@ onBeforeMount(() => {
                         ]">
                         {{ tab.title }}
                         <span>
-                            ({{ props.form[props.fieldName][tab.tableBluprint.key].filter(xxx => xxx.price != xxx.agreed_price).length ? '+' + props.form[props.fieldName][tab.tableBluprint.key].filter(xxx => xxx.price != xxx.agreed_price).length : 0 }})
+                            ({{ props.form[props.fieldName][tab.tableBluprint.key].filter(xxx => xxx.price !=
+                                xxx.agreed_price).length ? '+' +
+                            props.form[props.fieldName][tab.tableBluprint.key].filter(xxx => xxx.price !=
+                                xxx.agreed_price).length : 0 }})
                         </span>
                     </button>
                 </Tab>
                 <div style="margin-left: auto;">
-                    <Button  :label="`Reset`" :icon="['fal', 'history']" type="tertiary" @click="resetValue"/>
+                    <Button :label="`Reset`" :icon="['fal', 'history']" type="tertiary" @click="resetValue" />
                 </div>
             </TabList>
 
@@ -117,7 +121,10 @@ onBeforeMount(() => {
                     'rounded-xl bg-white p-3',
                     'ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2',
                 ]">
-                    <RentalTable v-bind="props" :bluprint="tab.tableBluprint" />
+                    <slot name="table" :data="{ p: props, tab: tab }">
+                        <RentalTable v-bind="props" :bluprint="tab.tableBluprint" />
+                    </slot>
+
                 </TabPanel>
             </TabPanels>
         </TabGroup>

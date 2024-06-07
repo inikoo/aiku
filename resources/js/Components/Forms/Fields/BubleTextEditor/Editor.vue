@@ -22,10 +22,10 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-const onHeadingClick = (index) => {
+/* const onHeadingClick = (index) => {
     editor.value.chain().focus().toggleHeading({ level: index }).run()
 }
-
+ */
 const editor = useEditor({
     content: props.modelValue,
     onUpdate: ({ editor }) => {
@@ -65,8 +65,8 @@ const editor = useEditor({
                     <div v-for="index in 6"
                         class="block py-1.5 px-3 text-center cursor-pointer hover:bg-gray-300"
                         :class="{ 'bg-slate-700 text-white hover:bg-slate-700': editor.isActive('heading', { level: index }) }"
-                        :style="{ fontSize: (20 - index) + 'px' }" @click="onHeadingClick(index)"  role="button">
-                        <Teleport v-if="editor.isActive('heading', { level: index })" to="#headingIndex">{{ index }}</Teleport>
+                        :style="{ fontSize: (20 - index) + 'px' }"  role="button">
+                      <!--   <Teleport v-if="editor.isActive('heading', { level: index })" to="#headingIndex">{{ index }}</Teleport> -->
                         H{{ index }}
                     </div>
                 </div>

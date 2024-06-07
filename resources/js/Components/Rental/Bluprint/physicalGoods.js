@@ -33,7 +33,7 @@ export default {
         {
             title : 'Discount',
             key : 'discount',
-            type : 'discount',
+            type : 'inputDiscount',
             class : 'w-80',
             propsOptions : {
                 onChange : (value,column,rowData)=> {
