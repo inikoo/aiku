@@ -8,6 +8,8 @@
 namespace App\Enums\Catalogue\ProductCategory;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\Catalogue\ProductCategory;
+use App\Models\Catalogue\Shop;
 
 enum ProductCategoryStateEnum: string
 {
@@ -17,4 +19,37 @@ enum ProductCategoryStateEnum: string
     case ACTIVE        = 'active';
     case DISCONTINUING = 'discontinuing';
     case DISCONTINUED  = 'discontinued';
+
+    public static function labels(): array
+    {
+        return [
+            'in-process' => __('In Process'),
+            'active'    => __('Active'),
+            'discontinuing'         => __('Discontinuing'),
+            'discontinued'      => __('Discontinued'),
+        ];
+    }
+
+    public static function countDepartment(Shop $parent): array
+    {
+        $stats = $parent->stats;
+        return [
+            'in-process'            => $stats->number_departments_state_in_process,
+            'active'                => $stats->number_departments_state_active,
+            'discontinuing'         => $stats->number_departments_state_discontinuing,
+            'discontinued'          => $stats->number_departments_state_discontinued,
+        ];
+    }
+
+    public static function countFamily(Shop|ProductCategory $parent): array
+    {
+        $stats = $parent->stats;
+
+        return [
+            'in-process' => $stats->number_families_state_in_process,
+            'active'    => $stats->number_families_state_active,
+            'discontinuing'         => $stats->number_families_state_discontinuing,
+            'discontinued'      => $stats->number_families_state_discontinued,
+        ];
+    }
 }

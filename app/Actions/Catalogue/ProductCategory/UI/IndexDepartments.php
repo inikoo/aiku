@@ -10,6 +10,7 @@ namespace App\Actions\Catalogue\ProductCategory\UI;
 use App\Actions\Catalogue\HasMarketAuthorisation;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
+use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Catalogue\DepartmentsResource;
 use App\Models\Catalogue\ProductCategory;
@@ -68,6 +69,15 @@ class IndexDepartments extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(ProductCategory::class);
+        // dd($this->getElementGroups($parent));
+        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+            $queryBuilder->whereElementGroup(
+                key: $key,
+                allowedElements: array_keys($elementGroup['elements']),
+                engine: $elementGroup['engine'],
+                prefix: $prefix
+            );
+        }
 
         /*
         foreach ($this->elementGroups as $key => $elementGroup) {
@@ -122,7 +132,14 @@ class IndexDepartments extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
-
+            
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
 
             $table
                 ->defaultSort('code')
@@ -247,5 +264,22 @@ class IndexDepartments extends OrgAction
 
             default => []
         };
+    }
+
+    protected function getElementGroups($parent): array
+    {
+        return
+            [
+                'state' => [
+                    'label'    => __('State'),
+                    'elements' => array_merge_recursive(
+                        ProductCategoryStateEnum::labels(),
+                        ProductCategoryStateEnum::countDepartment($parent)
+                    ),
+                    'engine'   => function ($query, $elements) {
+                        $query->whereIn('product_categories.state', $elements);
+                    }
+                ]
+            ];
     }
 }
