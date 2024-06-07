@@ -35,7 +35,8 @@ const openModal = ref(false)
 const data = ref(props.webpage.compiled_layout)
 
 
-const onUpdated = async() =>{
+const onUpdated = () =>{
+  setInterval(async() => {
   try {
 			await axios.patch(route(props.webpage.update_route.name, props.webpage.update_route.parameters),{compiled_layout : data.value})
 			console.log('saved')
@@ -43,7 +44,7 @@ const onUpdated = async() =>{
 		} catch (error: any) {
 			console.log('error',error)
 		}
-
+  }, 1000)
 } 
 
 
@@ -96,7 +97,12 @@ const setData = ()=>{
         </div>
         <div v-else>
             <div v-for="(activityItem, activityItemIdx) in data" :key="activityItem.id" class="w-full">
-              <component :is="getComponent(activityItem['component'])" :key="activityItemIdx" v-bind="activityItem.fieldData" v-model="activityItem.fieldValue"> </component>
+              <component 
+                :is="getComponent(activityItem['component'])" 
+                :key="activityItemIdx" v-bind="activityItem.fieldData" 
+                v-model="activityItem.fieldValue"
+                @autoSave="onUpdated"
+                />
             </div>
           </div>
       </div>

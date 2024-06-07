@@ -14,6 +14,7 @@ import Highlight from '@tiptap/extension-highlight'
 import { Color } from '@tiptap/extension-color'
 import FontSize from 'tiptap-extension-font-size'
 import Link from '@tiptap/extension-link'
+import MenuEditor from './MenuEditor.vue'
 
 import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -26,8 +27,10 @@ library.add(faBold, faQuoteRight, faMarker, faHorizontalRule, faItalic, faUnderl
 
 const props = withDefaults(defineProps < {
     modelValue: string,
-    toogle?: Array[]
+    toogle?: Array[],
+    type?: string,
 } > (), {
+    type: 'Bubble',
     toogle: [
         'heading', 'fontSize', 'bold', 'italic', 'underline', 'bulletList',
         'orderedList', 'blockquote', 'divider', 'alignLeft', 'alignRight',
@@ -38,25 +41,26 @@ const props = withDefaults(defineProps < {
 const emit = defineEmits(['update:modelValue'])
 
 const toggleList = ref([
-    { key: 'heading', action: () => onActionClick('heading') },
-    { key: 'fontSize', action: () => onActionClick('fontSize') },
-    { key: 'bold', icon: 'fal fa-bold', action: () => onActionClick('bold') },
-    { key: 'italic', icon: 'fal fa-italic', action: () => onActionClick('italic') },
-    { key: 'underline', icon: 'fal fa-underline', action: () => onActionClick('underline') },
-    { key: 'bulletList', icon: 'fal fa-list-ul', action: () => onActionClick('bulletList') },
-    { key: 'orderedList', icon: 'fal fa-list-ol', action: () => onActionClick('orderedList') },
-    { key: 'blockquote', icon: 'fas fa-quote-right', action: () => onActionClick('blockquote') },
-    { key: 'divider', icon: 'fas fa-horizontal-rule', action: () => onActionClick('divider') },
-    { key: 'alignLeft', icon: 'fal fa-align-left', action: () => onActionClick('alignLeft') },
-    { key: 'alignRight', icon: 'fal fa-align-right', action: () => onActionClick('alignRight') },
-    { key: 'alignCenter', icon: 'fal fa-align-center', action: () => onActionClick('alignCenter') },
-    { key: 'link', icon: 'fal fa-link', action: () => onActionClick('link') },
-    { key: 'undo', icon: 'far fa-undo-alt', action: () => onActionClick('undo') },
-    { key: 'redo', icon: 'far fa-redo-alt', action: () => onActionClick('redo') },
-    { key: 'highlight', icon: 'fal fa-paint-brush-alt', action: () => onActionClick('highlight') },
-    { key: 'color', icon: 'far fa-text', action: () => onActionClick('color') },
-    { key: 'clear', icon: 'fal fa-eraser', active: 'clear', action: () => onActionClick('clear')  },
+    { key: 'heading' },
+    { key: 'fontSize', active: 'fontsize'},
+    { key: 'bold', icon: 'fal fa-bold', action: () => onActionClick('bold'), active: 'bold' },
+    { key: 'italic', icon: 'fal fa-italic', action: () => onActionClick('italic') ,active: 'italic' },
+    { key: 'underline', icon: 'fal fa-underline', action: () => onActionClick('underline'), active: 'underline' },
+    { key: 'bulletList', icon: 'fal fa-list-ul', action: () => onActionClick('bulletList'), active: 'bulletList' },
+    { key: 'orderedList', icon: 'fal fa-list-ol', action: () => onActionClick('orderedList'), active: 'orderedList' },
+    { key: 'blockquote', icon: 'fas fa-quote-right', action: () => onActionClick('blockquote'), active: 'blockquote' }, // Added missing comma here
+    { key: 'divider', icon: 'fas fa-horizontal-rule', action: () => onActionClick('divider'), active:"divider" },
+    { key: 'alignLeft', icon: 'fal fa-align-left', action: () => onActionClick('alignLeft'), active: { textAlign: 'left' } },
+    { key: 'alignRight', icon: 'fal fa-align-right', action: () => onActionClick('alignRight'), active: { textAlign: 'right' }},
+    { key: 'alignCenter', icon: 'fal fa-align-center', action: () => onActionClick('alignCenter'), active: { textAlign: 'center' } },
+    { key: 'link', icon: 'fal fa-link', action: () => onActionClick('link'), active: 'link'},
+    { key: 'undo', icon: 'far fa-undo-alt', action: () => onActionClick('undo'), active: 'undo' },
+    { key: 'redo', icon: 'far fa-redo-alt', action: () => onActionClick('redo'), active: 'redo' },
+    { key: 'highlight', icon: 'fal fa-paint-brush-alt', action: () => onActionClick('highlight'), active: 'highlightcolor' },
+    { key: 'color', icon: 'far fa-text', action: () => onActionClick('color'), active: 'textcolor' },
+    { key: 'clear', icon: 'fal fa-eraser', action: () => onActionClick('clear'), active: 'clear' },
 ]);
+
 
 const editor = useEditor({
     content: props.modelValue,
@@ -88,10 +92,9 @@ const editor = useEditor({
         }),
         Link,
     ],
-    editorProps: {
-        attributes: {
-            class: 'p-4 overflow-y-auto outline-none prose max-w-none',
-        },
+    attributes: {
+      class:
+      'border border-gray-400 p-4 min-h-[12rem] max-h-[12rem] overflow-y-auto outline-none prose max-w-none',
     },
 });
 
@@ -149,10 +152,7 @@ const onActionClick = (key: string, option: string = '') => {
     }
 }
 
-const onHeadingClick = (index: number) => {
-    if (!editor.value) return;
-    editor.value.chain().focus().toggleHeading({ level: index }).run()
-}
+
 
 const setLink = () => {
     const previousUrl = editor.value?.getAttributes('link').href;
@@ -173,90 +173,20 @@ onMounted(() => {
 
 <template>
     <div>
-        <BubbleMenu :editor="editor" :tippy-options="{ duration: 100 }" v-if="editor">
-            <section
-                class="buttons text-gray-700 flex items-center flex-wrap gap-x-4 border-t border-l border-r border-gray-400 p-1  bg-gray-200">
-
-                <template v-for="action in toggleList" :key="action.key">
-
-                    <div v-if="action.key == 'heading'" class="group relative inline-block">
-                        <div class="text-xs min-w-16 p-1 appearance-none rounded cursor-pointer border border-gray-200"
-                            :class="{ 'bg-slate-700 text-white font-bold': editor.isActive('heading') }">
-                            Heading <span id="headingIndex"></span>
-                        </div>
-                        <div
-                            class="cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
-                            <div v-for="index in 6"
-                                class="block py-1.5 px-3 text-center cursor-pointer hover:bg-gray-300"
-                                :class="{ 'bg-slate-700 text-white hover:bg-slate-700': editor.isActive('heading', { level: index }) }"
-                                :style="{ fontSize: (20 - index) + 'px' }" role="button" @click="onHeadingClick(index)">
-                                H{{ index }}
-                            </div>
-                        </div>
-                    </div>
-
-
-
-                    <div v-else-if="action.key == 'fontSize'" class="group relative inline-block">
-                        <div class="flex items-center text-xs min-w-10 py-1 pl-1.5 pr-0 appearance-none rounded cursor-pointer border border-gray-500"
-                            :class="{ 'bg-slate-700 text-white font-bold': editor?.getAttributes('textStyle').fontSize }">
-                            <div id="tiptapfontsize" class="pr-1.5">
-                                <span class="hidden last:inline">Text size</span>
-                            </div>
-                            <div v-if="editor?.getAttributes('textStyle').fontSize"
-                                @click="editor?.chain().focus().unsetFontSize().run()" class="px-1">
-                                <FontAwesomeIcon icon='fal fa-times' class='' fixed-width aria-hidden='true' />
-                            </div>
-                        </div>
-                        <div
-                            class="w-min cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
-                            <div v-for="fontsize in ['8', '9', '12', '14', '16', '20', '24', '28', '36', '44', '52', '64']"
-                                class="w-full block py-1.5 px-3 leading-none text-left cursor-pointer hover:bg-gray-300"
-                                :class="{ 'bg-slate-700 text-white hover:bg-slate-700': parseInt(editor?.getAttributes('textStyle').fontSize, 10) == fontsize }"
-                                @click="editor?.chain().focus().setFontSize(fontsize + 'px').run()" role="button">
-                                <div v-if="parseInt(editor?.getAttributes('textStyle').fontSize, 10) == fontsize"
-                                    to="#tiptapfontsize"></div>
-                                {{ fontsize }}
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <ColorPicker v-else-if="action.key == 'highlight'" :color="editor?.getAttributes('highlight').color"
-                        @changeColor="(color) => editor?.chain().setHighlight({ color: color.hex }).run()"
-                        class="flex items-center justify-center w-6 aspect-square rounded cursor-pointer border border-gray-700"
-                        :style="{ backgroundColor: editor?.getAttributes('highlight').color }">
-                        <FontAwesomeIcon icon='fal fa-paint-brush-alt' class='text-gray-500' fixed-width
-                            aria-hidden='true' />
-                    </ColorPicker>
-
-
-                    <ColorPicker v-else-if="action.key == 'color'" :color="editor?.getAttributes('textStyle').color"
-                        @changeColor="(color) => editor?.chain().setColor(color.hex).run()"
-                        class="flex items-center justify-center w-6 aspect-square rounded cursor-pointer border border-gray-700">
-                        <FontAwesomeIcon icon='far fa-text' fixed-width aria-hidden='true'
-                            :style="{ color: editor?.getAttributes('textStyle').color || '#010101' }" />
-                    </ColorPicker>
-
-
-
-                    <button v-else type="button" @click="action?.action"
-                        :class="{ 'bg-gray-200 rounded': editor.isActive(action?.active) }" class="p-1">
-                        <span v-if="action.icon">
-                            <FontAwesomeIcon :icon='action.icon' />
-                        </span>
-                    </button>
-
-
-                </template>
-
+        <BubbleMenu v-if="type == 'Bubble' && editor" :editor="editor" :tippy-options="{ duration: 100 }">
+            <section class="buttons text-gray-700 flex items-center flex-wrap gap-x-4 border-t border-l border-r border-gray-400 p-1 bg-gray-200">
+                <MenuEditor v-for="action in toggleList" :key="action.key" :editor="editor" :action="action" />
             </section>
         </BubbleMenu>
-        
+
+        <section v-else="type == 'basic' && editor" class="buttons text-gray-700 flex items-center flex-wrap gap-x-4 border border-gray-400 p-4">
+            <MenuEditor v-for="action in toggleList" :key="action.key" :editor="editor" :action="action" />
+        </section>
+
         <EditorContent :editor="editor" />
     </div>
-
 </template>
+
 
 <style lang="scss">
 /* Basic editor styles */
