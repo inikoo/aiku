@@ -205,7 +205,8 @@ class IndexProducts extends OrgAction
                             ]
                         ] : null
                     ]*/
-                );
+                )
+                ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
             if ($parent instanceof Organisation) {
                 $table->column(
                     key: 'shop_code',

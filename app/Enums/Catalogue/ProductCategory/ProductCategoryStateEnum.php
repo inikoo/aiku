@@ -53,24 +53,23 @@ enum ProductCategoryStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'discontinuing' => [
+           'discontinuing' => [
                 'tooltip' => __('Discontinuing'),
+                'icon'    => 'fal fa-exclamation-triangle',
+                'class'   => 'text-orange-500',
+                'color'   => 'orange',
+                'app'     => [
+                    'name' => 'exclamation-triangle',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'discontinued'  => [
+                'tooltip' => __('Discontinued'),
                 'icon'    => 'fal fa-times',
                 'class'   => 'text-red-500',
                 'color'   => 'red',
                 'app'     => [
                     'name' => 'times',
-                    'type' => 'font-awesome-5'
-                ]
-            ],
-            'discontinued' => [
-                'tooltip' => __('Discontinued'),
-                'icon'    => 'fal fa-skull',
-                'class'   => 'text-gray-400',
-                'color'   => 'gray',
-                'app'     => [
-                    'name' => 'check',
-                    'type' => 'font-awesome-5'
                 ]
             ],
         ];
