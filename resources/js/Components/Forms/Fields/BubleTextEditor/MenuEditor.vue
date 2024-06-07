@@ -26,7 +26,7 @@ library.add(faBold, faQuoteRight, faMarker, faHorizontalRule, faItalic, faUnderl
 
 const props = withDefaults(defineProps<{
     editor: any,
-    action: Array[],
+    action: Object,
 }>(), {
 
 });
