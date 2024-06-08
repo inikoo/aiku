@@ -5,7 +5,7 @@ on:
     branches: [ "main" ]
 
 env:
-  HOME: /home/devops
+  HOME: /home/aiku
 
 jobs:
   laravel-tests:
