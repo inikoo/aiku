@@ -29,8 +29,8 @@ class CustomerHydrateWebUsers
     public function handle(Customer $customer): void
     {
         $stats = [
-            'number_web_users'        => $customer->webUsers->count(),
-            'number_active_web_users' => $customer->webUsers->where('status', true)->count(),
+            'number_web_users'         => $customer->webUsers->count(),
+            'number_current_web_users' => $customer->webUsers->where('status', true)->count(),
         ];
         $customer->stats()->update($stats);
     }

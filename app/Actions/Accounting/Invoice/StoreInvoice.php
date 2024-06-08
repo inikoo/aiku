@@ -43,7 +43,9 @@ class StoreInvoice extends OrgAction
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
         } else {
+
             $modelData['customer_id'] = $parent->customer_id;
+
         }
         $modelData['shop_id']     = $parent->shop_id;
         $modelData['currency_id'] = $parent->shop->currency_id;
@@ -83,8 +85,10 @@ class StoreInvoice extends OrgAction
             ]
         );
 
+        if($invoice->customer_id) {
+            CustomerHydrateInvoices::dispatch($invoice->customer)->delay($this->hydratorsDelay);
+        }
 
-        CustomerHydrateInvoices::dispatch($invoice->customer)->delay($this->hydratorsDelay);
         ShopHydrateInvoices::dispatch($invoice->shop)->delay($this->hydratorsDelay);
         OrganisationHydrateInvoices::dispatch($invoice->organisation)->delay($this->hydratorsDelay);
         GroupHydrateInvoices::dispatch($invoice->group)->delay($this->hydratorsDelay);

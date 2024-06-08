@@ -7,7 +7,6 @@
 
 namespace App\Actions\Dispatching\DeliveryNote;
 
-use App\Actions\InertiaAction;
 use App\Actions\Ordering\Order\UI\ShowOrder;
 use App\Actions\OrgAction;
 use App\Actions\UI\WithInertia;
@@ -51,7 +50,7 @@ class ShowDeliveryNote extends OrgAction
         return $this->handle($deliveryNote);
     }
 
-    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, DeliveryNote $deliveryNote, ActionRequest $request) : DeliveryNote 
+    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, DeliveryNote $deliveryNote, ActionRequest $request): DeliveryNote
     {
         $this->initialisationFromWarehouse($warehouse, $request)->withTab(DeliveryNoteTabsEnum::values());
 

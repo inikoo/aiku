@@ -76,6 +76,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property CustomerTradeStateEnum $trade_state number of invoices
  * @property bool $is_fulfilment
  * @property bool $is_dropshipping
+ * @property Carbon|null $last_submitted_order_at
+ * @property Carbon|null $last_dispatched_delivery_at
+ * @property Carbon|null $last_invoiced_at
  * @property array $data
  * @property array $settings
  * @property string|null $internal_notes
@@ -93,7 +96,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\CRM\Appointment> $appointments
  * @property-read MediaCollection<int, Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
- * @property-read Collection<int, CustomerClient> $clients
+ * @property-read Collection<int, \App\Models\CRM\CustomerClient> $clients
  * @property-read Address|null $deliveryAddress
  * @property-read FulfilmentCustomer|null $fulfilmentCustomer
  * @property-read Group $group
@@ -136,14 +139,18 @@ class Customer extends Model implements HasMedia, Auditable
     use HasAttachments;
 
     protected $casts = [
-        'data'           => 'array',
-        'settings'       => 'array',
-        'location'       => 'array',
-        'migration_data' => 'array',
-        'state'          => CustomerStateEnum::class,
-        'status'         => CustomerStatusEnum::class,
-        'trade_state'    => CustomerTradeStateEnum::class
+        'data'                        => 'array',
+        'settings'                    => 'array',
+        'location'                    => 'array',
+        'migration_data'              => 'array',
+        'state'                       => CustomerStateEnum::class,
+        'status'                      => CustomerStatusEnum::class,
+        'trade_state'                 => CustomerTradeStateEnum::class,
+        'last_submitted_order_at'     => 'datetime',
+        'last_dispatched_delivery_at' => 'datetime',
+        'last_invoiced_at'            => 'datetime',
     ];
+
 
     protected $attributes = [
         'data'           => '{}',

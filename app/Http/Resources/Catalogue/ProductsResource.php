@@ -32,9 +32,9 @@ class ProductsResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'slug'            => $this->slug,
-            'code'            => $this->code,
-            'name'            => $this->name,
+            'slug'               => $this->slug,
+            'code'               => $this->code,
+            'name'               => $this->name,
             'state'              => [
                 'label' => $this->state->labels()[$this->state->value],
                 'icon'  => $this->state->stateIcon()[$this->state->value]['icon'],

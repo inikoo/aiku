@@ -55,4 +55,14 @@ trait HasWebStats
 
         return $table;
     }
+
+    public function getWebUsersStatsFields(Blueprint $table): Blueprint
+    {
+
+        $table->unsignedInteger('number_web_users')->default(0);
+        $table->unsignedInteger('number_current_web_users')->default(0);
+
+        return $table;
+    }
+
 }

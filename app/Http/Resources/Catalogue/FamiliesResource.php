@@ -30,13 +30,13 @@ class FamiliesResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'slug'              => $this->slug,
-            'shop_slug'         => $this->shop_slug,
-            'shop_code'         => $this->shop_code,
-            'shop_name'         => $this->shop_name,
-            'department_slug'   => $this->department_slug,
-            'department_code'   => $this->department_code,
-            'department_name'   => $this->department_name,
+            'slug'               => $this->slug,
+            'shop_slug'          => $this->shop_slug,
+            'shop_code'          => $this->shop_code,
+            'shop_name'          => $this->shop_name,
+            'department_slug'    => $this->department_slug,
+            'department_code'    => $this->department_code,
+            'department_name'    => $this->department_name,
             'state'              => [
                 'label' => $this->state->labels()[$this->state->value],
                 'icon'  => $this->state->stateIcon()[$this->state->value]['icon'],

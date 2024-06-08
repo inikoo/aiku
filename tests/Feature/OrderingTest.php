@@ -8,10 +8,13 @@
 
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
+use App\Actions\Catalogue\Product\StoreProduct;
+use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\CustomerClient\StoreCustomerClient;
 use App\Actions\CRM\CustomerClient\UpdateCustomerClient;
+use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Ordering\Order\DeleteOrder;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
@@ -27,12 +30,16 @@ use App\Actions\Ordering\ShippingZoneSchema\StoreShippingZoneSchema;
 use App\Actions\Ordering\ShippingZoneSchema\UpdateShippingZoneSchema;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Actions\Ordering\Transaction\UpdateTransaction;
-use App\Enums\CRM\Customer\CustomerStatusEnum;
+use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Models\Accounting\Invoice;
+use App\Models\Catalogue\HistoricAsset;
+use App\Models\Catalogue\Product;
+use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\CRM\CustomerClient;
+use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Address;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\ShippingZone;
@@ -50,39 +57,75 @@ beforeEach(function () {
         $this->user,
         $this->shop
     ) = createShop();
-});
 
 
-test('create customer', function () {
-    $customer = StoreCustomer::make()->action(
-        $this->shop,
-        Customer::factory()->definition(),
-    );
-
-    expect($customer)->toBeInstanceOf(Customer::class)
-        ->and($customer->reference)->toBe('000001')
-        ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED);
-
-    return $customer;
-});
-
-test('create other customer', function () {
-    try {
-        $customer = StoreCustomer::make()->action(
-            $this->shop,
-            Customer::factory()->definition()
+    $tradeUnit=$this->organisation->group->tradeUnits()->first();
+    if ($tradeUnit) {
+        $this->tradeUnit = $tradeUnit;
+    } else {
+        $this->tradeUnit = StoreTradeUnit::make()->action(
+            $this->organisation->group,
+            TradeUnit::factory()->definition()
         );
-    } catch (Throwable) {
-        $customer = null;
     }
-    expect($customer)->toBeInstanceOf(Customer::class)
-        ->and($customer->reference)->toBe('000002')
-        ->and($customer->status)->toBe(CustomerStatusEnum::APPROVED);
 
-    return $customer;
-});
 
-test('create some products', function () {
+    $department=$this->shop->productCategories()->where('type', ProductCategoryTypeEnum::DEPARTMENT)->first();
+    if($department) {
+        $this->department=$department;
+    } else {
+        $departmentData = ProductCategory::factory()->definition();
+        data_set($departmentData, 'type', ProductCategoryTypeEnum::DEPARTMENT->value);
+        $this->department = StoreProductCategory::make()->action(
+            $this->shop,
+            $departmentData
+        );
+    }
+
+    $family=$this->shop->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->first();
+    if($family) {
+        $this->family=$family;
+    } else {
+        $familyData = ProductCategory::factory()->definition();
+        data_set($familyData, 'type', ProductCategoryTypeEnum::FAMILY->value);
+        $this->family = StoreProductCategory::make()->action(
+            $this->shop,
+            $familyData
+        );
+    }
+
+
+
+    $product=$this->shop->products()->first();
+    if ($product) {
+        $this->product = $product;
+    } else {
+        $productData = array_merge(
+            Product::factory()->definition(),
+            [
+                'trade_units' => [
+                    $this->tradeUnit->id => ['units' => 1]
+                ],
+                'price'       => 100,
+            ]
+        );
+        $this->product = StoreProduct::make()->action(
+            $this->family,
+            $productData
+        );
+    }
+
+    $customer=$this->shop->customers()->first();
+    if ($customer) {
+        $this->customer = $customer;
+    } else {
+        $this->customer = StoreCustomer::make()->action(
+            $this->shop,
+            Customer::factory()->definition(),
+        );
+    }
+
+
 
 
 
@@ -114,7 +157,7 @@ test('update shipping zone', function ($shippingZone) {
 })->depends('create shipping zone');
 
 
-test('create order', function ($customer) {
+test('create order', function () {
     $billingAddress  = new Address(Address::factory()->definition());
     $deliveryAddress = new Address(Address::factory()->definition());
 
@@ -122,20 +165,31 @@ test('create order', function ($customer) {
     data_set($modelData, 'billing_address', $billingAddress);
     data_set($modelData, 'delivery_address', $deliveryAddress);
 
-    $order = StoreOrder::make()->action($customer, $modelData);
-    expect($order)->toBeInstanceOf(Order::class);
+    $order = StoreOrder::make()->action($this->customer, $modelData);
+    $this->customer->refresh();
+    expect($order)->toBeInstanceOf(Order::class)
+    ->and($order->customer)->toBeInstanceOf(Customer::class)
+        ->and($this->organisation->group->salesStats->number_orders)->toBe(1)
+        ->and($this->organisation->salesStats->number_orders)->toBe(1)
+        ->and($this->customer->stats->number_orders)->toBe(1)
+
+    ;
 
     return $order;
-})->depends('create customer');
+});
 
 
 test('create transaction', function ($order) {
-    $transaction = StoreTransaction::make()->action($order, Transaction::factory()->definition());
+
+    $transactionData=Transaction::factory()->definition();
+    $item           =$this->product->historicAsset;
+    expect($item)->toBeInstanceOf(HistoricAsset::class);
+    $transaction = StoreTransaction::make()->action($order, $item, $transactionData);
 
     $this->assertModelExists($transaction);
 
     return $transaction;
-})->depends('create order')->todo();
+})->depends('create order');
 
 test('update transaction', function ($transaction) {
     $order = UpdateTransaction::make()->action($transaction, Transaction::factory()->definition());
@@ -262,17 +316,17 @@ test('update customer client', function ($customerClient) {
     expect($customerClient->reference)->toBe('001');
 })->depends('create customer client');
 
-test('create invoice from customer', function ($customer) {
+test('create invoice from customer', function () {
     $invoiceData = Invoice::factory()->definition();
     data_set($invoiceData, 'billing_address', new Address(Address::factory()->definition()));
-    $invoice = StoreInvoice::make()->action($customer, $invoiceData);
+    $invoice = StoreInvoice::make()->action($this->customer, $invoiceData);
     expect($invoice)->toBeInstanceOf(Invoice::class)
         ->and($invoice->customer)->toBeInstanceOf(Customer::class)
         ->and($invoice->number)->toBe('00001')
         ->and($invoice->customer->stats->number_invoices)->toBe(1);
 
     return $invoice;
-})->depends('create customer');
+})->depends();
 
 test('update invoice from customer', function ($invoice) {
     $invoice = UpdateInvoice::make()->action($invoice, [
@@ -291,11 +345,12 @@ test('create invoice from order', function (Order $order) {
     $this->shop->refresh();
     expect($invoice)->toBeInstanceOf(Invoice::class)
         ->and($customer)->toBeInstanceOf(Customer::class)
+        ->and($invoice->customer->id)->toBe($order->customer_id)
         ->and($invoice->number)->toBe('00002')
         ->and($customer->stats->number_invoices)->toBe(2)
         ->and($this->shop->salesStats->number_invoices)->toBe(2);
-    ;
+
 
 
     return $invoice;
-})->depends('create order');
+})->depends('create order', 'update invoice from customer');

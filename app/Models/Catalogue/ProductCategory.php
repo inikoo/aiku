@@ -34,6 +34,7 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property ProductCategoryTypeEnum $type
+ * @property ProductCategoryStateEnum $state
  * @property int $group_id
  * @property int $organisation_id
  * @property int|null $shop_id
@@ -45,7 +46,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $name
  * @property string|null $description
  * @property int|null $image_id
- * @property ProductCategoryStateEnum $state
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at

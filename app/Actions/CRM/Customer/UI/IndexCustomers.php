@@ -101,12 +101,12 @@ class IndexCustomers extends OrgAction
                 'customers.slug',
                 'shops.code as shop_code',
                 'shops.slug as shop_slug',
-                'number_active_clients',
+                'number_current_clients',
                 'customers.created_at'
             ])
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
             ->leftJoin('shops', 'shops.id', 'shop_id')
-            ->allowedSorts(['reference', 'name', 'number_active_clients', 'slug', 'created_at'])
+            ->allowedSorts(['reference', 'name', 'number_current_clients', 'slug', 'created_at'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -196,7 +196,7 @@ class IndexCustomers extends OrgAction
                 ->column(key: 'created_at', label: __('since'), canBeHidden: false, sortable: true, searchable: true);
 
             if (class_basename($parent) == 'Shop' and $parent->type == 'dropshipping') {
-                $table->column(key: 'number_active_clients', label: __('clients'), canBeHidden: false, sortable: true);
+                $table->column(key: 'number_current_clients', label: __('clients'), canBeHidden: false, sortable: true);
             }
         };
     }

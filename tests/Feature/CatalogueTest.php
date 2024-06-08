@@ -30,6 +30,7 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\CollectionCategory;
+use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\ProductVariant;
@@ -258,6 +259,7 @@ test('create product', function (ProductCategory $family) {
     expect($product)->toBeInstanceOf(Product::class)
         ->and($product->state)->toBe(ProductStateEnum::IN_PROCESS)
         ->and($product->asset)->toBeInstanceOf(Asset::class)
+        ->and($product->historicAsset)->toBeInstanceOf(HistoricAsset::class)
         ->and($product->tradeUnits()->count())->toBe(1)
         ->and($product->organisation->catalogueStats->number_products)->toBe(1)
         ->and($product->organisation->catalogueStats->number_current_products)->toBe(0)

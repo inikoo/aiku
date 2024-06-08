@@ -1,20 +1,26 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Indonesia
+ * Created: Sat, 25 Mar 2023 01:58:36 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\CRM\Customer\Hydrators;
 
+use App\Actions\Traits\WithEnumStats;
+use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Models\CRM\Customer;
+use App\Models\Ordering\Order;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class CustomerHydrateClients
+class CustomerHydrateOrders
 {
     use AsAction;
+    use WithEnumStats;
+
     private Customer $customer;
+
     public function __construct(Customer $customer)
     {
         $this->customer = $customer;
@@ -28,11 +34,23 @@ class CustomerHydrateClients
     public function handle(Customer $customer): void
     {
         $stats = [
-            'number_clients'         => $customer->clients->count(),
-            'number_current_clients' => $customer->clients->where('status', true)->count(),
+            'number_orders' => $customer->orders->count(),
         ];
+
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'orders',
+                field: 'state',
+                enum: OrderStateEnum::class,
+                models: Order::class,
+                where: function ($q) use ($customer) {
+                    $q->where('customer_id', $customer->id);
+                }
+            )
+        );
+
         $customer->stats()->update($stats);
     }
-
 
 }

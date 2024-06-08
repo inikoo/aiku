@@ -23,10 +23,10 @@ enum ProductCategoryStateEnum: string
     public static function labels($forElements = false): array
     {
         return [
-            'in-process' => __('In Process'),
-            'active'    => __('Active'),
+            'in-process'            => __('In Process'),
+            'active'                => __('Active'),
             'discontinuing'         => __('Discontinuing'),
-            'discontinued'      => __('Discontinued'),
+            'discontinued'          => __('Discontinued'),
         ];
     }
 
@@ -36,8 +36,8 @@ enum ProductCategoryStateEnum: string
             'in-process' => [
                 'tooltip' => __('In process'),
                 'icon'    => 'fal fa-seedling',
-                'class'   => 'text-lime-500', 
-                'color'   => 'lime',  
+                'class'   => 'text-lime-500',
+                'color'   => 'lime',
                 'app'     => [
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
@@ -91,10 +91,10 @@ enum ProductCategoryStateEnum: string
         $stats = $parent->stats;
 
         return [
-            'in-process' => $stats->number_families_state_in_process,
-            'active'    => $stats->number_families_state_active,
+            'in-process'            => $stats->number_families_state_in_process,
+            'active'                => $stats->number_families_state_active,
             'discontinuing'         => $stats->number_families_state_discontinuing,
-            'discontinued'      => $stats->number_families_state_discontinued,
+            'discontinued'          => $stats->number_families_state_discontinued,
         ];
     }
 }

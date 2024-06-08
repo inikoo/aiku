@@ -32,7 +32,7 @@ return new class () extends Migration {
 
             $table->nullableMorphs('item');
             $table->decimal('quantity_ordered', 16, 3);
-            $table->decimal('quantity_bonus', 16, 3);
+            $table->decimal('quantity_bonus', 16, 3)->default(0);
             $table->decimal('quantity_dispatched', 16, 3)->default(0);
             $table->decimal('quantity_fail', 16, 3)->default(0);
             $table->decimal('quantity_cancelled', 16, 3)->default(0);

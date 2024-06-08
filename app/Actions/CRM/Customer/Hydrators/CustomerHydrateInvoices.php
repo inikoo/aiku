@@ -56,6 +56,7 @@ class CustomerHydrateInvoices
         ));
 
         $customer->update($updateData);
+
         $customer->stats()->update($stats);
     }
 

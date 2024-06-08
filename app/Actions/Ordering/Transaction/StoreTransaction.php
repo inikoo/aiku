@@ -31,6 +31,8 @@ class StoreTransaction extends OrgAction
         data_set($modelData, 'item_type', class_basename($item));
         data_set($modelData, 'item_id', $item->id);
 
+        data_set($modelData, 'date', now(), overwrite: false);
+
 
         /** @var Transaction $transaction */
         $transaction = $order->transactions()->create($modelData);
@@ -41,13 +43,13 @@ class StoreTransaction extends OrgAction
     public function rules(): array
     {
         return [
-            'date'                => ['required', 'date'],
+            'date'                => ['sometimes', 'required', 'date'],
             'type'                => ['required', Rule::enum(TransactionTypeEnum::class)],
-            'quantity_bonus'      => ['required', 'numeric', 'min:0'],
             'quantity_ordered'    => ['required', 'numeric', 'min:0'],
-            'quantity_dispatched' => ['required', 'numeric', 'min:0'],
-            'quantity_fail'       => ['required', 'numeric', 'min:0'],
-            'quantity_cancelled'  => ['sometimes', 'numeric', 'min:0'],
+            'quantity_bonus'      => ['sometimes','required', 'numeric', 'min:0'],
+            'quantity_dispatched' => ['sometimes','required', 'numeric', 'min:0'],
+            'quantity_fail'       => ['sometimes','required', 'numeric', 'min:0'],
+            'quantity_cancelled'  => ['sometimes','sometimes', 'numeric', 'min:0'],
 
             'source_id'        => ['sometimes', 'string'],
             'state'            => ['sometimes', Rule::enum(TransactionStateEnum::class)],
@@ -56,14 +58,14 @@ class StoreTransaction extends OrgAction
             'group_exchange'   => ['sometimes', 'numeric'],
             'org_net_amount'   => ['sometimes', 'numeric'],
             'group_net_amount' => ['sometimes', 'numeric'],
-            'tax_rate'         => ['required', 'numeric', 'min:0'],
+            'tax_rate'         => ['sometimes','required', 'numeric', 'min:0'],
             'created_at'       => ['sometimes', 'required', 'date'],
 
 
         ];
     }
 
-    public function action(Order $order, $item, array $modelData): Transaction
+    public function action(Order $order, HistoricAsset $item, array $modelData): Transaction
     {
         $this->initialisationFromShop($order->shop, $modelData);
 

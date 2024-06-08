@@ -52,7 +52,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\Dispatching\Shipper|null $shipper
  * @property-read Shop|null $shop
  * @property-read UniversalSearch|null $universalSearch
- * @method static \Database\Factories\Dispatch\ShipmentFactory factory($count = null, $state = [])
  * @method static Builder|Shipment newModelQuery()
  * @method static Builder|Shipment newQuery()
  * @method static Builder|Shipment onlyTrashed()

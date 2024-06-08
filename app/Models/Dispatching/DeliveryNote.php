@@ -92,7 +92,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Dispatching\DeliveryNoteStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Warehouse $warehouse
- * @method static \Database\Factories\Dispatch\DeliveryNoteFactory factory($count = null, $state = [])
  * @method static Builder|DeliveryNote newModelQuery()
  * @method static Builder|DeliveryNote newQuery()
  * @method static Builder|DeliveryNote onlyTrashed()

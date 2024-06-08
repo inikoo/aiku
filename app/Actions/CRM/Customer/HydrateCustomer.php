@@ -9,6 +9,7 @@ namespace App\Actions\CRM\Customer;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateInvoices;
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateOrders;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateUniversalSearch;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Actions\HydrateModel;
@@ -26,6 +27,7 @@ class HydrateCustomer extends HydrateModel
         CustomerHydrateWebUsers::run($customer);
         CustomerHydrateClients::run($customer);
         CustomerHydrateUniversalSearch::run($customer);
+        CustomerHydrateOrders::run($customer);
     }
 
     protected function getModel(string $slug): Customer

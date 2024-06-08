@@ -39,6 +39,11 @@ return new class () extends Migration {
             $table->string('trade_state')->index()->default(CustomerTradeStateEnum::NONE->value)->comment('number of invoices');
             $table->boolean('is_fulfilment')->index()->default(false);
             $table->boolean('is_dropshipping')->index()->default(false);
+
+            $table->timestampTz('last_submitted_order_at')->nullable();
+            $table->timestampTz('last_dispatched_delivery_at')->nullable();
+            $table->timestampTz('last_invoiced_at')->nullable();
+
             $table->jsonb('data');
             $table->jsonb('settings');
             $table->text('internal_notes')->nullable();

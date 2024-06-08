@@ -111,7 +111,7 @@ class StoreProduct extends OrgAction
                 'historic_source_id' => $product->historic_source_id,
             ]
         );
-        $product->refresh();
+
 
 
         $asset = StoreAsset::run(
@@ -139,7 +139,13 @@ class StoreProduct extends OrgAction
                 'source_id' => $product->historic_source_id
             ]
         );
-        $asset->update(
+
+        $asset->updateQuietly(
+            [
+                'current_historic_asset_id' => $historicAsset->id,
+            ]
+        );
+        $product->updateQuietly(
             [
                 'current_historic_asset_id' => $historicAsset->id,
             ]

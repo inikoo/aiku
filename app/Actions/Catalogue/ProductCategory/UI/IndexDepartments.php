@@ -132,7 +132,7 @@ class IndexDepartments extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
-            
+
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $table->elementGroup(
                     key: $key,

@@ -77,7 +77,7 @@ const options = {
                     <div class="text-lg">
                         {{ customer?.shop }}
                         <!-- <span class="text-gray-400">
-                            ({{ customer?.number_active_clients || 0 }} clients)
+                            ({{ customer?.number_current_clients || 0 }} clients)
                         </span> -->
                     </div>
                 </div>

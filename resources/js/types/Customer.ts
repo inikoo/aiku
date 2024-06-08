@@ -17,5 +17,5 @@ export interface FulfilmentCustomer {
     shop: string
     shop_slug: string
     shop_code: string
-    number_active_clients: number
+    number_current_clients: number
 }

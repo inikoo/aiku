@@ -20,9 +20,6 @@ use Illuminate\Support\Carbon;
  * @property int $customer_id
  * @property int $number_web_users
  * @property int $number_active_web_users
- * @property Carbon|null $last_submitted_order_at
- * @property Carbon|null $last_dispatched_delivery_at
- * @property Carbon|null $last_invoiced_at
  * @property int $number_deliveries
  * @property int $number_deliveries_type_order
  * @property int $number_deliveries_type_replacement
@@ -41,11 +38,6 @@ use Illuminate\Support\Carbon;
  */
 class CustomerStats extends Model
 {
-    protected $casts = [
-        'last_submitted_order_at'     => 'datetime',
-        'last_dispatched_delivery_at' => 'datetime',
-        'last_invoiced_at'            => 'datetime',
-    ];
     protected $guarded = [];
 
     public function customer(): BelongsTo

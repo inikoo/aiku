@@ -8,6 +8,7 @@
 namespace App\Actions\Ordering\Order;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOrders;
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateOrders;
 use App\Actions\Ordering\Order\Hydrators\OrderHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrders;
@@ -122,6 +123,11 @@ class StoreOrder extends OrgAction
 
         GroupHydrateOrders::dispatch($order->shop->group)->delay($this->hydratorsDelay);
         OrganisationHydrateOrders::dispatch($order->shop->organisation)->delay($this->hydratorsDelay);
+
+        if($order->customer_id) {
+            CustomerHydrateOrders::dispatch($order->customer)->delay($this->hydratorsDelay);
+        }
+
         if (class_basename($parent) == 'Shop') {
             ShopHydrateOrders::dispatch($parent)->delay($this->hydratorsDelay);
         } else {

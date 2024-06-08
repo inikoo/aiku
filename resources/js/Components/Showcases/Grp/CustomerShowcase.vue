@@ -40,9 +40,9 @@ const props = defineProps<{
                 <dl class="flex flex-wrap">
                     <!-- Profile: Header -->
                     <div class="flex w-full py-6">
-                        <div v-if="data.number_active_clients" class="flex-auto pl-6">
+                        <div v-if="data.number_current_clients" class="flex-auto pl-6">
                             <dt class="text-sm font-semibold leading-6 text-gray-900">Total Clients</dt>
-                            <dd class="mt-1 text-base font-semibold leading-6 text-gray-900">{{ data.number_active_clients || 0 }}</dd>
+                            <dd class="mt-1 text-base font-semibold leading-6 text-gray-900">{{ data.number_current_clients || 0 }}</dd>
                         </div>
                         <div class="flex-none self-end px-6 pt-4">
                             <dt class="sr-only">Reference</dt>

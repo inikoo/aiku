@@ -27,6 +27,11 @@ trait InAssetModel
         return $this->morphMany(HistoricAsset::class, 'model');
     }
 
+    public function historicAsset(): BelongsTo
+    {
+        return $this->belongsTo(HistoricAsset::class, 'current_historic_asset_id');
+    }
+
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
