@@ -6,6 +6,7 @@ on:
 
 env:
   HOME: /home/aiku
+  XDEBUG_MODE: coverage
 
 jobs:
   laravel-tests:
@@ -33,4 +34,11 @@ jobs:
       - name: build app
         run: npm run build
       - name: Run test
-        run: vendor/bin/pest --exclude-group=aurora-fetch
+        run: vendor/bin/pest -d memory_limit=-1 --coverage-clover clover.xml --exclude-group=aurora-fetch
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          fail_ci_if_error: false
+          file: ./clover.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
