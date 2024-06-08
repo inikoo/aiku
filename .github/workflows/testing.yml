@@ -10,7 +10,7 @@ env:
 jobs:
   laravel-tests:
     name: Run backend tests 🧪
-    runs-on: [ self-hosted, linux, x64, testing ]
+    runs-on: [ cloud ]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -35,8 +35,8 @@ jobs:
           cd private
           ln -s ../../../../../artifacts/fa .
       - name: Generate database dumps 📚
-        run: ./generate_testing_db_dumps.sh php8.3 aiku ${{vars.TESTING_DB_IP}}
+        run: ./generate_testing_db_dumps.sh php8.3 aiku
       - name: build app
         run: npm run build
       - name: Run test
-        run: vendor/bin/pest
+        run: vendor/bin/pest --exclude-group=aurora-fetch
