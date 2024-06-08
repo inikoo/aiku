@@ -51,6 +51,10 @@ function productRoute(product: Product) {
 
 <template>
   <Table :resource="data" :name="tab" class="mt-5">
+    <template #cell(state)="{ item: product }">
+      <Icon :data="product.state">
+      </Icon>
+    </template>
     <template #cell(code)="{ item: product }">
       <Link :href="productRoute(product)" class="primaryLink">
         {{ product['code'] }}

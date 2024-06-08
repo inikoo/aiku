@@ -8,6 +8,7 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Department} from "@/types/department";
+import Icon from "@/Components/Icon.vue"
 
 defineProps<{
     data: object,
@@ -45,8 +46,11 @@ function shopRoute(department: Department) {
 </script>
 
 <template>
-
     <Table :resource="data" :name="tab" class="mt-5">
+        <template #cell(state)="{ item: department }">
+            <Icon :data="department.state">
+            </Icon>
+        </template>
         <template #cell(code)="{ item: department }">
             <Link :href="departmentRoute(department)" class="primaryLink">
                 {{ department['code'] }}

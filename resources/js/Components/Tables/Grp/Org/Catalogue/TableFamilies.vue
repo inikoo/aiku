@@ -8,6 +8,7 @@
 import { Link } from "@inertiajs/vue3";
 import Table from "@/Components/Table/Table.vue";
 import { Family } from "@/types/family";
+import Icon from "@/Components/Icon.vue"
 
 
 const props = defineProps<{
@@ -70,6 +71,10 @@ function departmentRoute(family: Family) {
 
 <template>
   <Table :resource="data" :name="tab" class="mt-5">
+    <template #cell(state)="{ item: family }">
+      <Icon :data="family.state">
+      </Icon>
+    </template>
     <template #cell(code)="{ item: family }">
       <Link :href="familyRoute(family)" class="primaryLink">
         {{ family["code"] }}
