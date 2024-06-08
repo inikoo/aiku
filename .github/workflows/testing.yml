@@ -13,15 +13,9 @@ jobs:
     runs-on: [ cloud ]
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 2
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: npm-${{ hashFiles('package-lock.json') }}
-          restore-keys: npm-
       - name: Npm install
         run: npm ci --ignore-scripts
       - name: Composer install
