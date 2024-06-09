@@ -13,12 +13,14 @@ use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Ordering\Order\StoreOrder;
+use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Actions\SysAdmin\Group\StoreGroup;
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\CRM\Customer;
@@ -28,6 +30,7 @@ use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\Transaction;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
@@ -231,7 +234,7 @@ function createProduct(Shop $shop): array
     ];
 }
 
-function createOrder(Customer $customer): Order
+function createOrder(Customer $customer, Product $product): Order
 {
     $order = $customer->organisation->orders()->first();
     if (!$order) {
@@ -243,7 +246,11 @@ function createOrder(Customer $customer): Order
             'billing_address'  => new Address(Address::factory()->definition())
         ];
 
-        $order= StoreOrder::make()->action($customer, $arrayData);
+        $order = StoreOrder::make()->action($customer, $arrayData);
+
+        $transactionData = Transaction::factory()->definition();
+        $item            = $product->historicAsset;
+        StoreTransaction::make()->action($order, $item, $transactionData);
     }
 
     return $order;
