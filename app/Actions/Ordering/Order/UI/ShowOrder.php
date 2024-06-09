@@ -11,7 +11,8 @@ use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\Payment\UI\IndexPayments;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\UI\Ordering\OrderTabsEnum;
 use App\Http\Resources\Accounting\InvoicesResource;
@@ -20,61 +21,40 @@ use App\Http\Resources\Dispatching\DeliveryNoteResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\Order;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-/**
- * @property \App\Models\Ordering\Order $order
- */
-class ShowOrder extends InertiaAction
+class ShowOrder extends OrgAction
 {
     use HasUIOrder;
+    use HasOrderingAuthorisation;
 
     public function handle(Order $order): Order
     {
         return $order;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        //TODO Change permission
-        $this->canEdit = $request->user()->hasPermissionTo('shops.orders.edit');
 
-        return $request->user()->hasPermissionTo("shops.orders.view");
-    }
-
-    public function inOrganisation(Order $order, ActionRequest $request): Order
+    public function inOrganisation(Organisation $organisation, Order $order, ActionRequest $request): Order
     {
-        $this->initialisation($request)->withTab(OrderTabsEnum::values());
+        $this->scope = $organisation;
+        $this->initialisation($organisation, $request)->withTab(OrderTabsEnum::values());
+
         return $this->handle($order);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Shop $shop, Order $order, ActionRequest $request): Order
+    public function asController(Organisation $organisation, Shop $shop, Order $order, ActionRequest $request): Order
     {
-        $this->initialisation($request)->withTab(OrderTabsEnum::values());
+        $this->scope = $shop;
+        $this->initialisationFromShop($shop, $request)->withTab(OrderTabsEnum::values());
         return $this->handle($order);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    /*public function inCustomerInTenant(Customer $customer, Order $order, ActionRequest $request): Order
-    {
-        $this->initialisation($request)->withTab(OrderTabsEnum::values());
-        return $this->handle($order);
-    }*/
 
-    /** @noinspection PhpUnusedParameterInspection */
-    /*public function inCustomerInShop(Shop $shop, Customer $customer, Order $order, ActionRequest $request): Order
-    {
-        $this->initialisation($request)->withTab(OrderTabsEnum::values());
-        return $this->handle($order);
-    }
-*/
     public function htmlResponse(Order $order, ActionRequest $request): Response
     {
-
-
         return Inertia::render(
             'Ordering/Order',
             [
@@ -83,7 +63,7 @@ class ShowOrder extends InertiaAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()(),
                 ),
-                'navigation'                            => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($order, $request),
                     'next'     => $this->getNext($order, $request),
                 ],
@@ -148,11 +128,12 @@ class ShowOrder extends InertiaAction
                         ],
 
                     ],
-                    'suffix'=> $suffix
+                    'suffix'         => $suffix
 
                 ],
             ];
         };
+
         return match ($routeName) {
             'orders.show',
             'orders.edit' =>
@@ -206,7 +187,6 @@ class ShowOrder extends InertiaAction
 
     public function getPrevious(Order $order, ActionRequest $request): ?array
     {
-
         $previous = Order::where('number', '<', $order->number)->when(true, function ($query) use ($order, $request) {
             if ($request->route()->getName() == 'shops.show.orders.show') {
                 $query->where('orders.shop_id', $order->shop_id);
@@ -214,7 +194,6 @@ class ShowOrder extends InertiaAction
         })->orderBy('number', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
-
     }
 
     public function getNext(Order $order, ActionRequest $request): ?array
@@ -230,27 +209,27 @@ class ShowOrder extends InertiaAction
 
     private function getNavigation(?Order $order, string $routeName): ?array
     {
-        if(!$order) {
+        if (!$order) {
             return null;
         }
 
         return match ($routeName) {
-            'orders.show' ,
-            'shops.orders.show'=> [
-                'label'=> $order->number,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'order'=> $order->slug
+            'orders.show',
+            'shops.orders.show' => [
+                'label' => $order->number,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'order' => $order->slug
                     ]
 
                 ]
             ],
-            'shops.show.orders.show'=> [
-                'label'=> $order->number,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
+            'shops.show.orders.show' => [
+                'label' => $order->number,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
                         'shop'  => $order->shop->slug,
                         'order' => $order->slug
                     ]

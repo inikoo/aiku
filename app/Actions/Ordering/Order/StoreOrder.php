@@ -7,12 +7,8 @@
 
 namespace App\Actions\Ordering\Order;
 
-use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOrders;
-use App\Actions\CRM\Customer\Hydrators\CustomerHydrateOrders;
 use App\Actions\Ordering\Order\Hydrators\OrderHydrateUniversalSearch;
 use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrders;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrders;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Ordering\Order\OrderHandingTypeEnum;
@@ -36,6 +32,7 @@ class StoreOrder extends OrgAction
     use WithAttributes;
     use WithFixedAddressActions;
     use WithModelAddressActions;
+    use HasOrderHydrators;
 
     public int $hydratorsDelay = 0;
 
@@ -118,17 +115,7 @@ class StoreOrder extends OrgAction
             );
         }
 
-
-        HydrateOrder::make()->originalItems($order);
-
-        GroupHydrateOrders::dispatch($order->shop->group)->delay($this->hydratorsDelay);
-        OrganisationHydrateOrders::dispatch($order->shop->organisation)->delay($this->hydratorsDelay);
-
-        ShopHydrateOrders::dispatch($order->shop)->delay($this->hydratorsDelay);
-
-        if($order->customer_id) {
-            CustomerHydrateOrders::dispatch($order->customer)->delay($this->hydratorsDelay);
-        }
+        $this->orderHydrators($order);
 
         OrderHydrateUniversalSearch::dispatch($order);
 

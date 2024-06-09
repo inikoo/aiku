@@ -7,7 +7,6 @@
 
 namespace App\Actions\Ordering\Order;
 
-use App\Actions\Ordering\Order\Traits\HasHydrators;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Ordering\Order;
 use Illuminate\Validation\ValidationException;
@@ -15,7 +14,7 @@ use Illuminate\Validation\ValidationException;
 class UpdateStateToFinalizedOrder
 {
     use WithActionUpdate;
-    use HasHydrators;
+    use HasOrderHydrators;
 
     /**
      * @throws \Illuminate\Validation\ValidationException

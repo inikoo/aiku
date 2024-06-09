@@ -34,7 +34,7 @@ class DeleteOrder
             return $order;
         }
 
-        throw ValidationException::withMessages(['purchase_order' => 'You can not delete this purchase order']);
+        throw ValidationException::withMessages(['purchase_order' => 'You can not delete this order']);
     }
 
     public function asCommand(Command $command): int

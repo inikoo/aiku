@@ -15,6 +15,5 @@ enum OrderStatusEnum: string
 
     case PROCESSING = 'processing';
     case DISPATCHED = 'settled-dispatched';
-    case FAIL       = 'settled-fail';
     case CANCELLED  = 'settled-cancelled';
 }

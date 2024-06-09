@@ -7,7 +7,6 @@
 
 namespace App\Actions\Ordering\Order;
 
-use App\Actions\Ordering\Order\Traits\HasHydrators;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Models\Ordering\Order;
@@ -16,7 +15,7 @@ use Illuminate\Validation\ValidationException;
 class UpdateStateToHandlingOrder
 {
     use WithActionUpdate;
-    use HasHydrators;
+    use HasOrderHydrators;
 
     /**
      * @throws \Illuminate\Validation\ValidationException

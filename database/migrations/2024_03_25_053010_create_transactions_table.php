@@ -27,6 +27,11 @@ return new class () extends Migration {
             $table->foreign('invoice_id')->references('id')->on('invoices');
             $table->string('type');
             $table->datetimeTz('date');
+            $table->dateTimeTz('submitted_at')->nullable();
+            $table->dateTimeTz('settled_at')->nullable();
+
+
+
             $table->string('state')->default(TransactionStateEnum::CREATING->value)->index();
             $table->string('status')->default(TransactionStatusEnum::PROCESSING->value)->index();
 

@@ -64,9 +64,11 @@ return new class () extends Migration {
             $table->dateTimeTz('packed_at')->nullable();
             $table->dateTimeTz('finalised_at')->nullable();
             $table->dateTimeTz('dispatched_at')->nullable();
-            $table->dateTimeTz('settled_at')->nullable();
 
             $table->dateTimeTz('cancelled_at')->nullable();
+
+            $table->dateTimeTz('settled_at')->nullable()->comment('dispatched_at|cancelled_at');
+
 
             $table->boolean('is_invoiced')->default('false');
             $table->boolean('is_picking_on_hold')->nullable();

@@ -8,32 +8,18 @@
 namespace App\Actions\Ordering\Order;
 
 use App\Actions\HydrateModel;
+use App\Actions\Ordering\Order\Hydrators\OrderStateCreatingHydrateTransactions;
 use App\Models\Ordering\Order;
 use Illuminate\Support\Collection;
 
 class HydrateOrder extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:order {organisations?*} {--i|id=}';
+    public string $commandSignature = 'order:hydrate {organisations?*} {--s|slugs=}';
 
 
     public function handle(Order $order): void
     {
-        $this->items($order);
-    }
-
-    public function originalItems(Order $order): void
-    {
-        $order->stats()->update(
-            [
-                'number_items_at_creation'=> $order->transactions()->count()
-
-            ]
-        );
-    }
-
-    public function items(Order $order): void
-    {
-        //todo
+        OrderStateCreatingHydrateTransactions::run($order);
     }
 
 
