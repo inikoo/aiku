@@ -22,6 +22,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_orders_state_packed
  * @property int $number_orders_state_finalised
  * @property int $number_orders_state_settled
+ * @property int $number_orders_status_processing
+ * @property int $number_orders_status_settled_dispatched
+ * @property int $number_orders_status_settled_fail
+ * @property int $number_orders_status_settled_cancelled
+ * @property int $number_orders_handing_type_collection
+ * @property int $number_orders_handing_type_shipping
  * @property int $number_invoices
  * @property int $number_invoices_type_invoice
  * @property int $number_invoices_type_refund

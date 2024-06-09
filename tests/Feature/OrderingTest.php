@@ -99,13 +99,26 @@ test('create order', function () {
 
     $order = StoreOrder::make()->action($this->customer, $modelData);
     $this->customer->refresh();
-    expect($order)->toBeInstanceOf(Order::class)
-    ->and($order->customer)->toBeInstanceOf(Customer::class)
-        ->and($this->organisation->group->salesStats->number_orders)->toBe(1)
-        ->and($this->organisation->salesStats->number_orders)->toBe(1)
-        ->and($this->customer->stats->number_orders)->toBe(1)
 
-    ;
+    expect($order)->toBeInstanceOf(Order::class)
+        ->and($order->state)->toBe(OrderStateEnum::CREATING)
+    ->and($order->customer)->toBeInstanceOf(Customer::class)
+        ->and($this->group->salesStats->number_orders)->toBe(1)
+        ->and($this->group->salesStats->number_orders_state_creating)->toBe(1)
+        ->and($this->group->salesStats->number_orders_handing_type_shipping)->toBe(1)
+
+        ->and($this->organisation->salesStats->number_orders)->toBe(1)
+        ->and($this->organisation->salesStats->number_orders_state_creating)->toBe(1)
+        ->and($this->organisation->salesStats->number_orders_handing_type_shipping)->toBe(1)
+
+        ->and($this->shop->salesStats->number_orders)->toBe(1)
+        ->and($this->shop->salesStats->number_orders_state_creating)->toBe(1)
+        ->and($this->shop->salesStats->number_orders_handing_type_shipping)->toBe(1)
+        ->and($this->customer->stats->number_orders)->toBe(1)
+        ->and($this->customer->stats->number_orders_state_creating)->toBe(1)
+        ->and($this->customer->stats->number_orders_handing_type_shipping)->toBe(1)
+
+        ->and($order->stats->number_items_at_creation)->toBe(0);
 
     return $order;
 });
@@ -118,7 +131,10 @@ test('create transaction', function ($order) {
     expect($item)->toBeInstanceOf(HistoricAsset::class);
     $transaction = StoreTransaction::make()->action($order, $item, $transactionData);
 
-    $this->assertModelExists($transaction);
+    $order->refresh();
+
+    expect($transaction)->toBeInstanceOf(Transaction::class)
+        ->and($transaction->order->stats->number_items_at_creation)->toBe(1);
 
     return $transaction;
 })->depends('create order');
@@ -136,7 +152,7 @@ test('update order', function ($order) {
     $this->assertModelExists($order);
 })->depends('create order');
 
-test('update state to submit from creating order', function ($order) {
+test('update order state to submitted', function ($order) {
     try {
         $order = UpdateStateToSubmittedOrder::make()->action($order);
     } catch (ValidationException) {

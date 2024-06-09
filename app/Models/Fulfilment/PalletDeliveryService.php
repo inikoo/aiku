@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property int $quantity
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read PalletDelivery|null $palletDelivery
+ * @property-read \App\Models\Fulfilment\PalletDelivery|null $palletDelivery
  * @property-read Service|null $service
  * @method static \Illuminate\Database\Eloquent\Builder|PalletDeliveryService newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PalletDeliveryService newQuery()

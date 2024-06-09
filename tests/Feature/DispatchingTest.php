@@ -52,7 +52,7 @@ beforeEach(function () {
     )=createProduct($this->shop);
 
     $this->customer=createCustomer($this->shop);
-    $this->order   =createOrder($this->customer,$this->product);
+    $this->order   =createOrder($this->customer, $this->product);
 
 
 });

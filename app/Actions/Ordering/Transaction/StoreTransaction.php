@@ -7,7 +7,9 @@
 
 namespace App\Actions\Ordering\Transaction;
 
+use App\Actions\Ordering\Order\Hydrators\OrderStateCreatingHydrateTransactions;
 use App\Actions\OrgAction;
+use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Enums\Ordering\Transaction\TransactionTypeEnum;
@@ -36,6 +38,11 @@ class StoreTransaction extends OrgAction
 
         /** @var Transaction $transaction */
         $transaction = $order->transactions()->create($modelData);
+
+
+        if($order->state==OrderStateEnum::CREATING) {
+            OrderStateCreatingHydrateTransactions::dispatch($order);
+        }
 
         return $transaction;
     }

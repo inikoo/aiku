@@ -8,7 +8,9 @@
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
+use App\Enums\Ordering\Order\OrderHandingTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Ordering\Order;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -43,6 +45,32 @@ class OrganisationHydrateOrders
                 model: 'orders',
                 field: 'state',
                 enum: OrderStateEnum::class,
+                models: Order::class,
+                where: function ($q) use ($organisation) {
+                    $q->where('organisation_id', $organisation->id);
+                }
+            )
+        );
+
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'orders',
+                field: 'status',
+                enum: OrderStatusEnum::class,
+                models: Order::class,
+                where: function ($q) use ($organisation) {
+                    $q->where('organisation_id', $organisation->id);
+                }
+            )
+        );
+
+        $stats = array_merge(
+            $stats,
+            $this->getEnumStats(
+                model: 'orders',
+                field: 'handing_type',
+                enum: OrderHandingTypeEnum::class,
                 models: Order::class,
                 where: function ($q) use ($organisation) {
                     $q->where('organisation_id', $organisation->id);

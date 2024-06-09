@@ -8,23 +8,17 @@
 namespace App\Stubs\Migrations;
 
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Ordering\Order\OrderHandingTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\Order\OrderStatusEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasSalesStats
 {
     public function salesStatsFields(Blueprint $table): Blueprint
     {
-        $table->unsignedInteger('number_orders')->default(0);
-
-        foreach (OrderStateEnum::cases() as $case) {
-            $table->unsignedInteger('number_orders_state_' . $case->snake())->default(0);
-        }
-
-        $table->unsignedInteger('number_invoices')->default(0);
-        $table->unsignedInteger('number_invoices_type_invoice')->default(0);
-        $table->unsignedInteger('number_invoices_type_refund')->default(0);
-
+        $table=$this->ordersStatsFields($table);
+        $table=$this->invoicesStatsFields($table);
         $table=$this->deliveryNotesStatsFields($table);
 
         $table->unsignedSmallInteger('currency_id')->nullable();
@@ -33,10 +27,36 @@ trait HasSalesStats
         return $table;
     }
 
+    public function ordersStatsFields(Blueprint $table): Blueprint
+    {
+        $table->unsignedInteger('number_orders')->default(0);
+
+        foreach (OrderStateEnum::cases() as $case) {
+            $table->unsignedInteger('number_orders_state_' . $case->snake())->default(0);
+        }
+
+        foreach (OrderStatusEnum::cases() as $case) {
+            $table->unsignedInteger('number_orders_status_' . $case->snake())->default(0);
+        }
+
+        foreach (OrderHandingTypeEnum::cases() as $case) {
+            $table->unsignedInteger('number_orders_handing_type_' . $case->snake())->default(0);
+        }
+
+        return $table;
+    }
+
+    public function invoicesStatsFields(Blueprint $table): Blueprint
+    {
+        $table->unsignedInteger('number_invoices')->default(0);
+        $table->unsignedInteger('number_invoices_type_invoice')->default(0);
+        $table->unsignedInteger('number_invoices_type_refund')->default(0);
+
+        return $table;
+    }
+
     public function deliveryNotesStatsFields(Blueprint $table): Blueprint
     {
-
-
 
         $table->unsignedInteger('number_delivery_notes')->default(0);
         $table->unsignedInteger('number_delivery_notes_type_order')->default(0);

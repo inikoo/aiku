@@ -7,12 +7,14 @@
 
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Stubs\Migrations\HasPaymentStats;
+use App\Stubs\Migrations\HasSalesStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasPaymentStats;
+    use HasSalesStats;
 
     public function up(): void
     {
@@ -31,9 +33,7 @@ return new class () extends Migration {
                 $table = $this->paymentAccountStats($table);
                 $table = $this->paymentStats($table);
 
-                $table->unsignedInteger('number_invoices')->default(0);
-                $table->unsignedInteger('number_invoices_type_invoice')->default(0);
-                $table->unsignedInteger('number_invoices_type_refund')->default(0);
+                $table=$this->invoicesStatsFields($table);
 
                 $table->timestampsTz();
             });

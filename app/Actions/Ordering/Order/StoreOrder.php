@@ -124,15 +124,12 @@ class StoreOrder extends OrgAction
         GroupHydrateOrders::dispatch($order->shop->group)->delay($this->hydratorsDelay);
         OrganisationHydrateOrders::dispatch($order->shop->organisation)->delay($this->hydratorsDelay);
 
+        ShopHydrateOrders::dispatch($order->shop)->delay($this->hydratorsDelay);
+
         if($order->customer_id) {
             CustomerHydrateOrders::dispatch($order->customer)->delay($this->hydratorsDelay);
         }
 
-        if (class_basename($parent) == 'Shop') {
-            ShopHydrateOrders::dispatch($parent)->delay($this->hydratorsDelay);
-        } else {
-            ShopHydrateOrders::dispatch($parent->shop)->delay($this->hydratorsDelay);
-        }
         OrderHydrateUniversalSearch::dispatch($order);
 
         return $order->fresh();
