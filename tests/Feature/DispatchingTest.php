@@ -7,7 +7,6 @@
 
 namespace Tests\Feature;
 
-use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Dispatching\DeliveryNote\DeleteDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\StoreDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNote;
@@ -19,20 +18,13 @@ use App\Actions\Dispatching\Shipper\UpdateShipper;
 use App\Actions\Dispatching\ShippingEvent\StoreShippingEvent;
 use App\Actions\Dispatching\ShippingEvent\UpdateShippingEvent;
 use App\Actions\Goods\Stock\StoreStock;
-use App\Actions\Catalogue\Shop\StoreShop;
-use App\Actions\Inventory\Warehouse\StoreWarehouse;
-use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
-use App\Enums\Mail\Outbox\OutboxTypeEnum;
-use App\Models\CRM\Customer;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dispatching\Shipment;
 use App\Models\Dispatching\ShippingEvent;
 use App\Models\Helpers\Address;
-use App\Models\Catalogue\Shop;
-use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use App\Models\SupplyChain\Stock;
 use Throwable;
@@ -42,20 +34,26 @@ beforeAll(function () {
 });
 
 beforeEach(function () {
-    $this->organisation = createOrganisation();
+
+
+    list(
+        $this->organisation,
+        $this->user,
+        $this->shop
+    ) = createShop();
+
     $this->group        = $this->organisation->group;
 
-    $warehouse = $this->organisation->warehouses()->first();
-    if (!$warehouse) {
-        $warehouse = StoreWarehouse::make()->action(
-            $this->organisation,
-            [
-                'code' => 'ts12',
-                'name' => 'testName',
-            ]
-        );
-    }
-    $this->warehouse=$warehouse;
+    $this->warehouse= createWarehouse();
+
+    list(
+        $this->tradeUnit,
+        $this->product
+    )=createProduct($this->shop);
+
+    $this->customer=createCustomer($this->shop);
+    $this->order   =createOrder($this->customer);
+
 
 });
 
@@ -82,43 +80,9 @@ test('update shipper', function ($createdShipper) {
     expect($updatedShipper->code)->toBe($arrayData['code']);
 })->depends('create shipper');
 
-test('create shop', function () {
-    $shop = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
-
-    expect($shop->paymentAccounts()->count())->toBe(1)
-        ->and($shop->outboxes()->count())->toBe(
-            count(OutboxTypeEnum::values()) - 1
-        );
-
-    return $shop;
-});
-
-test('create customer', function ($shop) {
-    $createdCustomer = StoreCustomer::make()->action($shop, Customer::factory()->definition());
-    expect($createdCustomer)->toBeInstanceOf(Customer::class);
-
-    return $createdCustomer;
-})->depends('create shop');
-
-test('create order', function ($createdCustomer) {
-    $arrayData = [
-        'number'           => '123456',
-        'date'             => date('Y-m-d'),
-        'customer_id'      => $createdCustomer->id,
-        'delivery_address' => new Address(Address::factory()->definition()),
-        'billing_address'  => new Address(Address::factory()->definition())
-    ];
-
-    $order = StoreOrder::make()->action($createdCustomer, $arrayData);
 
 
-    expect($order)->toBeInstanceOf(Order::class)
-        ->and($order->number)->toBe($arrayData['number']);
-
-    return $order;
-})->depends('create customer');
-
-test('create delivery note', function ($createdOrder) {
+test('create delivery note', function () {
     $arrayData = [
         'number'           => 'A123456',
         'state'            => DeliveryNoteStateEnum::SUBMITTED,
@@ -130,13 +94,13 @@ test('create delivery note', function ($createdOrder) {
         'warehouse_id'     => $this->warehouse->id
     ];
 
-    $deliveryNote = StoreDeliveryNote::make()->action($createdOrder, $arrayData);
+    $deliveryNote = StoreDeliveryNote::make()->action($this->order, $arrayData);
     expect($deliveryNote)->toBeInstanceOf(DeliveryNote::class)
         ->and($deliveryNote->number)->toBe($arrayData['number']);
 
 
     return $deliveryNote;
-})->depends('create order');
+});
 
 test('update delivery note', function ($lastDeliveryNote) {
     $arrayData = [
@@ -153,10 +117,10 @@ test('update delivery note', function ($lastDeliveryNote) {
     expect($updatedDeliveryNote->number)->toBe($arrayData['number']);
 })->depends('create delivery note');
 
-test('create delivery note item', function ($customer, $order, $deliveryNote) {
+test('create delivery note item', function (DeliveryNote $deliveryNote) {
     try {
         $stock       = StoreStock::make()->action($this->group, Stock::factory()->definition());
-        $transaction = StoreTransaction::make()->action($order, Transaction::factory()->definition());
+        $transaction = StoreTransaction::make()->action($this->order, Transaction::factory()->definition());
 
         $deliveryNoteData = [
             'delivery_note_id' => $deliveryNote->id,
@@ -173,7 +137,7 @@ test('create delivery note item', function ($customer, $order, $deliveryNote) {
     }
 
     return $deliveryNoteItem;
-})->depends('create customer', 'create order', 'create delivery note')->todo();
+})->depends('create delivery note')->todo();
 
 
 test('remove delivery note', function ($deliveryNote) {

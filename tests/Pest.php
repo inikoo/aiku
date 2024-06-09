@@ -5,17 +5,29 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Actions\Catalogue\Product\StoreProduct;
+use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
+use App\Actions\CRM\Customer\StoreCustomer;
+use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Catalogue\Shop\StoreShop;
+use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\SysAdmin\Group\StoreGroup;
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
+use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+use App\Models\Catalogue\Product;
+use App\Models\Catalogue\ProductCategory;
+use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Goods\TradeUnit;
+use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
 use App\Models\Catalogue\Shop;
+use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
@@ -28,13 +40,15 @@ function loadDB($dumpName): void
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__.'/../', '.env.testing');
     $dotenv->load();
 
-    shell_exec('./devops/devel/reset_test_database.sh '.
+    shell_exec(
+        './devops/devel/reset_test_database.sh '.
         env('DB_DATABASE_TEST', 'aiku_testing').' '.
         env('DB_PORT').' '.
         env('DB_USERNAME').' '.
         env('DB_PASSWORD').' '.
         env('DB_HOST').
-        ' tests/datasets/db_dumps/'.$dumpName);
+        ' tests/datasets/db_dumps/'.$dumpName
+    );
 }
 
 function createOrganisation(): Organisation
@@ -147,4 +161,90 @@ function createWarehouse(): Warehouse
 
 
     return $warehouse;
+}
+
+
+function createCustomer(Shop $shop): Customer
+{
+    $customer = $shop->customers()->first();
+    if (!$customer) {
+        $customer = StoreCustomer::make()->action(
+            $shop,
+            Customer::factory()->definition(),
+        );
+    }
+
+    return $customer;
+}
+
+function createProduct(Shop $shop): array
+{
+    $tradeUnit = $shop->group->tradeUnits()->first();
+    if (!$tradeUnit) {
+        $tradeUnit = StoreTradeUnit::make()->action(
+            $shop->group,
+            TradeUnit::factory()->definition()
+        );
+    }
+
+    $department = $shop->productCategories()->where('type', ProductCategoryTypeEnum::DEPARTMENT)->first();
+    if (!$department) {
+        $departmentData = ProductCategory::factory()->definition();
+        data_set($departmentData, 'type', ProductCategoryTypeEnum::DEPARTMENT->value);
+        $department = StoreProductCategory::make()->action(
+            $shop,
+            $departmentData
+        );
+    }
+
+    $family = $shop->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->first();
+    if (!$family) {
+        $familyData = ProductCategory::factory()->definition();
+        data_set($familyData, 'type', ProductCategoryTypeEnum::FAMILY->value);
+        $family = StoreProductCategory::make()->action(
+            $department,
+            $familyData
+        );
+    }
+
+
+    $product = $shop->products()->first();
+    if (!$product) {
+        $productData = array_merge(
+            Product::factory()->definition(),
+            [
+                'trade_units' => [
+                    $tradeUnit->id => ['units' => 1]
+                ],
+                'price'       => 100,
+            ]
+        );
+        $product     = StoreProduct::make()->action(
+            $family,
+            $productData
+        );
+    }
+
+    return [
+        $tradeUnit,
+        $product
+    ];
+}
+
+function createOrder(Customer $customer): Order
+{
+    $order = $customer->organisation->orders()->first();
+    if (!$order) {
+        $arrayData = [
+            'number'           => '123456',
+            'date'             => date('Y-m-d'),
+            'customer_id'      => $customer->id,
+            'delivery_address' => new Address(Address::factory()->definition()),
+            'billing_address'  => new Address(Address::factory()->definition())
+        ];
+
+        $order= StoreOrder::make()->action($customer, $arrayData);
+    }
+
+    return $order;
 }

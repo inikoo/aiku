@@ -1,11 +1,11 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Wed, 12 Oct 2022 17:04:31 Central European Summer, Benalmádena, Malaga, Spain
- *  Copyright (c) 2022, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 09 Jun 2024 13:48:15 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Dispatching\DeliveryNote;
+namespace App\Actions\Dispatching\DeliveryNote\UI;
 
 use App\Actions\Ordering\Order\UI\ShowOrder;
 use App\Actions\OrgAction;

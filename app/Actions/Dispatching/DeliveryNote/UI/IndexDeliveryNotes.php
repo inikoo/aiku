@@ -1,30 +1,30 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 23 Feb 2023 16:47:00 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sun, 09 Jun 2024 13:48:15 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Dispatching\DeliveryNote;
+namespace App\Actions\Dispatching\DeliveryNote\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\Dispatch\ShowDispatchHub;
 use App\Enums\UI\DeliveryNotes\DeliveryNotesTabsEnum;
 use App\Http\Resources\Dispatching\DeliveryNoteResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Dispatching\DeliveryNote;
 use App\Models\Catalogue\Shop;
+use App\Models\Dispatching\DeliveryNote;
 use App\Models\Inventory\Warehouse;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
+use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
-use Inertia\Response;
 
 class IndexDeliveryNotes extends OrgAction
 {

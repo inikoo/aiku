@@ -8,13 +8,10 @@
 
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
-use App\Actions\Catalogue\Product\StoreProduct;
-use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\CustomerClient\StoreCustomerClient;
 use App\Actions\CRM\CustomerClient\UpdateCustomerClient;
-use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Ordering\Order\DeleteOrder;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
@@ -30,16 +27,12 @@ use App\Actions\Ordering\ShippingZoneSchema\StoreShippingZoneSchema;
 use App\Actions\Ordering\ShippingZoneSchema\UpdateShippingZoneSchema;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Actions\Ordering\Transaction\UpdateTransaction;
-use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\HistoricAsset;
-use App\Models\Catalogue\Product;
-use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\CRM\CustomerClient;
-use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Address;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\ShippingZone;
@@ -52,82 +45,21 @@ beforeAll(function () {
 });
 
 beforeEach(function () {
+
     list(
         $this->organisation,
         $this->user,
         $this->shop
     ) = createShop();
 
+    $this->group=$this->organisation->group;
 
-    $tradeUnit=$this->organisation->group->tradeUnits()->first();
-    if ($tradeUnit) {
-        $this->tradeUnit = $tradeUnit;
-    } else {
-        $this->tradeUnit = StoreTradeUnit::make()->action(
-            $this->organisation->group,
-            TradeUnit::factory()->definition()
-        );
-    }
+    list(
+        $this->tradeUnit,
+        $this->product
+    )=createProduct($this->shop);
 
-
-    $department=$this->shop->productCategories()->where('type', ProductCategoryTypeEnum::DEPARTMENT)->first();
-    if($department) {
-        $this->department=$department;
-    } else {
-        $departmentData = ProductCategory::factory()->definition();
-        data_set($departmentData, 'type', ProductCategoryTypeEnum::DEPARTMENT->value);
-        $this->department = StoreProductCategory::make()->action(
-            $this->shop,
-            $departmentData
-        );
-    }
-
-    $family=$this->shop->productCategories()->where('type', ProductCategoryTypeEnum::FAMILY)->first();
-    if($family) {
-        $this->family=$family;
-    } else {
-        $familyData = ProductCategory::factory()->definition();
-        data_set($familyData, 'type', ProductCategoryTypeEnum::FAMILY->value);
-        $this->family = StoreProductCategory::make()->action(
-            $this->shop,
-            $familyData
-        );
-    }
-
-
-
-    $product=$this->shop->products()->first();
-    if ($product) {
-        $this->product = $product;
-    } else {
-        $productData = array_merge(
-            Product::factory()->definition(),
-            [
-                'trade_units' => [
-                    $this->tradeUnit->id => ['units' => 1]
-                ],
-                'price'       => 100,
-            ]
-        );
-        $this->product = StoreProduct::make()->action(
-            $this->family,
-            $productData
-        );
-    }
-
-    $customer=$this->shop->customers()->first();
-    if ($customer) {
-        $this->customer = $customer;
-    } else {
-        $this->customer = StoreCustomer::make()->action(
-            $this->shop,
-            Customer::factory()->definition(),
-        );
-    }
-
-
-
-
+    $this->customer=createCustomer($this->shop);
 
 });
 

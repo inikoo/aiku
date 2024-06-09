@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 24 May 2023 20:59:08 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sun, 09 Jun 2024 13:48:10 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Dispatching\DeliveryNote;
+namespace App\Actions\Dispatching\DeliveryNote\UI;
 
 use App\Models\Dispatching\DeliveryNote;
 use Lorisleiva\Actions\Concerns\AsObject;
