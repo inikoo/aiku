@@ -7,7 +7,6 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Transfers\Aurora\FetchAurora;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use Illuminate\Support\Facades\DB;
 

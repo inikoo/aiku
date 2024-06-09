@@ -9,7 +9,7 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Product\UpdateProduct;
-use App\Actions\Studio\Media\SaveModelImages;
+use App\Actions\Helpers\Media\SaveModelImages;
 use App\Models\Catalogue\Product;
 use App\Transfers\SourceOrganisationService;
 use Exception;

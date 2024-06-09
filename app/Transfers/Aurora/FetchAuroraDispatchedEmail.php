@@ -7,7 +7,6 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Transfers\Aurora\FetchAurora;
 use App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum;
 use Illuminate\Support\Facades\DB;
 use Str;

@@ -7,7 +7,7 @@
 
 namespace App\Actions\CRM\WebUser;
 
-use App\Actions\Studio\Media\StoreMediaFromIcon;
+use App\Actions\Helpers\Media\StoreMediaFromIcon;
 use App\Actions\Traits\WithAttachMediaToModel;
 use App\Models\CRM\WebUser;
 use Exception;

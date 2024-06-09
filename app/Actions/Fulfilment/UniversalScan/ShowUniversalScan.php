@@ -9,8 +9,8 @@ namespace App\Actions\Fulfilment\UniversalScan;
 
 use App\Actions\OrgAction;
 use App\Http\Resources\UniversalSearch\UniversalSearchResource;
+use App\Models\Helpers\UniversalSearch;
 use App\Models\Inventory\Warehouse;
-use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Lorisleiva\Actions\ActionRequest;

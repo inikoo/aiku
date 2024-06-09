@@ -7,7 +7,6 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Transfers\Aurora\FetchAurora;
 use App\Enums\Web\Webpage\WebpagePurposeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;

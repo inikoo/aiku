@@ -46,7 +46,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\RawMaterial> $rawMaterials
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Role> $roles
  * @property-read \App\Models\Manufacturing\ProductionStats|null $stats
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|Production newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Production newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Production onlyTrashed()

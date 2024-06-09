@@ -10,6 +10,7 @@ namespace App\Models\Fulfilment;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStatusEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
+use App\Models\Inventory\Location;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
@@ -20,10 +21,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
-
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
-use App\Models\Inventory\Location;
 
 /**
  * App\Models\Fulfilment\Fulfilment\StoredItem
@@ -55,7 +54,7 @@ use App\Models\Inventory\Location;
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Location|null $location
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static Builder|StoredItem newModelQuery()
  * @method static Builder|StoredItem newQuery()
  * @method static Builder|StoredItem onlyTrashed()

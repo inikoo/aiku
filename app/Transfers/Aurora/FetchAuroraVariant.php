@@ -7,8 +7,6 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Transfers\Aurora\FetchAurora;
-use App\Transfers\Aurora\WithAuroraImages;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraVariant extends FetchAurora

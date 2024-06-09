@@ -7,7 +7,6 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Transfers\Aurora\FetchAurora;
 use App\Enums\Helpers\Barcode\BarcodeStatusEnum;
 use App\Enums\Helpers\Barcode\BarcodeTypeEnum;
 use Illuminate\Support\Facades\DB;

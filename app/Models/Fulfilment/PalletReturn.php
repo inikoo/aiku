@@ -68,7 +68,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Service> $services
  * @property-read \App\Models\Fulfilment\PalletReturnStats|null $stats
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse|null $warehouse
  * @method static \Illuminate\Database\Eloquent\Builder|PalletReturn newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PalletReturn newQuery()

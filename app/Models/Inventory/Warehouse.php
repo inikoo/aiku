@@ -15,8 +15,8 @@ use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Issue;
+use App\Models\Helpers\UniversalSearch;
 use App\Models\SysAdmin\Organisation;
-use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Role;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
@@ -37,7 +37,6 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
-
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 

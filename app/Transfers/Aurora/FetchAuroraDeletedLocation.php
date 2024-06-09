@@ -9,7 +9,6 @@ namespace App\Transfers\Aurora;
 
 use App\Actions\Transfers\Aurora\FetchAuroraWarehouseAreas;
 use App\Actions\Transfers\Aurora\FetchAuroraWarehouses;
-use App\Transfers\Aurora\FetchAurora;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDeletedLocation extends FetchAurora

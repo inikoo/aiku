@@ -47,7 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Manufacturing\Production $production
  * @property-read \App\Models\Manufacturing\ArtefactStats|null $stats
  * @property-read Stock|null $stock
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|Artefact newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Artefact newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Artefact onlyTrashed()

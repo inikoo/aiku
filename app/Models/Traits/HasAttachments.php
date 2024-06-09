@@ -7,7 +7,7 @@
 
 namespace App\Models\Traits;
 
-use App\Models\Studio\Media;
+use App\Models\Helpers\Media;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Spatie\MediaLibrary\InteractsWithMedia;
 

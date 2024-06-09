@@ -7,9 +7,6 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Transfers\Aurora\FetchAurora;
-use App\Transfers\Aurora\WithAuroraImages;
-use App\Transfers\Aurora\WithAuroraParsers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 

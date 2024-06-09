@@ -46,7 +46,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read \App\Models\Manufacturing\JobOrder $jobOrder
  * @property-read Organisation $organisation
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|JobOrderItem newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|JobOrderItem newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|JobOrderItem onlyTrashed()

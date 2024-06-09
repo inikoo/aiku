@@ -7,7 +7,6 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Transfers\Aurora\WithAuroraParsers;
 use App\Models\SysAdmin\Organisation;
 use App\Transfers\SourceOrganisationService;
 

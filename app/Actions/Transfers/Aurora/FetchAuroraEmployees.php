@@ -7,11 +7,11 @@
 
 namespace App\Actions\Transfers\Aurora;
 
+use App\Actions\Helpers\Attachment\SaveModelAttachment;
+use App\Actions\Helpers\Media\SaveModelImage;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
-use App\Actions\Studio\Attachment\SaveModelAttachment;
-use App\Actions\Studio\Media\SaveModelImage;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;

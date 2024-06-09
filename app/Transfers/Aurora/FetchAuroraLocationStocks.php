@@ -7,7 +7,6 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Transfers\Aurora\FetchAurora;
 use App\Enums\Inventory\LocationStock\LocationStockTypeEnum;
 use Illuminate\Support\Facades\DB;
 

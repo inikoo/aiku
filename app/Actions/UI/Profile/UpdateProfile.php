@@ -8,7 +8,7 @@
 namespace App\Actions\UI\Profile;
 
 use App\Actions\GrpAction;
-use App\Actions\Studio\Media\SaveModelImage;
+use App\Actions\Helpers\Media\SaveModelImage;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\UploadedFile;

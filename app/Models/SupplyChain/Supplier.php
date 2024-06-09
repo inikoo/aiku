@@ -9,10 +9,10 @@ namespace App\Models\SupplyChain;
 
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Issue;
+use App\Models\Helpers\UniversalSearch;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\StockDelivery;
-use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
@@ -68,14 +68,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\Address|null $address
  * @property-read Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read \App\Models\SupplyChain\Agent|null $agent
- * @property-read MediaCollection<int, \App\Models\Studio\Media> $attachments
+ * @property-read MediaCollection<int, \App\Models\Helpers\Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency $currency
  * @property-read Group $group
- * @property-read \App\Models\Studio\Media|null $image
- * @property-read MediaCollection<int, \App\Models\Studio\Media> $images
+ * @property-read \App\Models\Helpers\Media|null $image
+ * @property-read MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read Collection<int, Issue> $issues
- * @property-read MediaCollection<int, \App\Models\Studio\Media> $media
+ * @property-read MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Collection<int, OrgSupplier> $orgSuppliers
  * @property-read Collection<int, \App\Models\SupplyChain\SupplierProduct> $products
  * @property-read Collection<int, PurchaseOrder> $purchaseOrders

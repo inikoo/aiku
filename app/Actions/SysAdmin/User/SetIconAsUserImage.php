@@ -7,7 +7,7 @@
 
 namespace App\Actions\SysAdmin\User;
 
-use App\Actions\Studio\Media\StoreMediaFromIcon;
+use App\Actions\Helpers\Media\StoreMediaFromIcon;
 use App\Actions\Traits\WithAttachMediaToModel;
 use App\Models\SysAdmin\User;
 use Exception;

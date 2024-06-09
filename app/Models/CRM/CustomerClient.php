@@ -10,7 +10,7 @@ namespace App\Models\CRM;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
 use App\Models\Catalogue\Shop;
 use App\Models\Helpers\Address;
-use App\Models\Search\UniversalSearch;
+use App\Models\Helpers\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;

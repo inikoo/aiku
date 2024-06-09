@@ -9,7 +9,7 @@ namespace App\Models\Inventory;
 
 use App\Enums\Inventory\Location\LocationStatusEnum;
 use App\Models\Fulfilment\Pallet;
-use App\Models\Search\UniversalSearch;
+use App\Models\Helpers\UniversalSearch;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;

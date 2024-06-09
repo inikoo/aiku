@@ -10,7 +10,7 @@ namespace App\Models\HumanResources;
 use App\Actions\Utils\Abbreviate;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Models\Helpers\Timezone;
-use App\Models\Search\UniversalSearch;
+use App\Models\Helpers\UniversalSearch;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;

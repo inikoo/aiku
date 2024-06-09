@@ -11,7 +11,6 @@ use App\Models\Traits\HasTagSlug;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Query\Builder;
-
 use Spatie\Tags\Tag as BaseTag;
 
 /**
@@ -29,7 +28,7 @@ use Spatie\Tags\Tag as BaseTag;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Helpers\TagCrmStats|null $crmStats
  * @property-read mixed $translations
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static Builder|Tag containing(string $name, $locale = null)
  * @method static \Illuminate\Database\Eloquent\Builder|Tag newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Tag newQuery()

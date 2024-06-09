@@ -8,7 +8,6 @@
 namespace App\Transfers\Aurora;
 
 use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
-use App\Transfers\Aurora\FetchAurora;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;

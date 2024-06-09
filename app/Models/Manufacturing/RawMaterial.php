@@ -50,7 +50,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read \App\Models\Manufacturing\Production $production
  * @property-read \App\Models\Manufacturing\RawMaterialStats|null $stats
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|RawMaterial newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RawMaterial newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RawMaterial onlyTrashed()

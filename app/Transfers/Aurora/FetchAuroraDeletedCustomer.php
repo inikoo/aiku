@@ -7,7 +7,6 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Transfers\Aurora\FetchAurora;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use stdClass;

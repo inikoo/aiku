@@ -7,7 +7,6 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Transfers\Aurora\FetchAurora;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Facades\DB;
 

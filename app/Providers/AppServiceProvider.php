@@ -193,7 +193,7 @@ class AppServiceProvider extends ServiceProvider
                 'SupplierProductTradeUnit'                  => 'App\Models\Procurement\SupplierProductTradeUnit',
 
                 // Search
-                'UniversalSearch'                  => 'App\Models\Search\UniversalSearch',
+                'UniversalSearch'                  => 'App\Models\Helpers\UniversalSearch',
 
                 // Supply Chain
                 'Stock'                  => 'App\Models\SupplyChain\Stock',

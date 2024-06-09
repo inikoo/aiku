@@ -7,8 +7,6 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Transfers\Aurora\FetchAurora;
-use App\Transfers\Aurora\WithAuroraImages;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Language;
 use Illuminate\Support\Facades\DB;

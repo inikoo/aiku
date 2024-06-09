@@ -62,7 +62,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\RentalSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read RentalStats|null $stats
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|Rental newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Rental newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Rental onlyTrashed()

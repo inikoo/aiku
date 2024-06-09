@@ -48,7 +48,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\RentalAgreement $rentalAgreement
  * @property-read \App\Models\Fulfilment\RecurringBillStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBillTransaction> $transactions
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|RecurringBill newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RecurringBill newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RecurringBill onlyTrashed()

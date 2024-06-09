@@ -8,7 +8,7 @@
 namespace App\Models\Traits;
 
 use App\Actions\Helpers\Images\GetPictureSources;
-use App\Models\Studio\Media;
+use App\Models\Helpers\Media;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Spatie\MediaLibrary\InteractsWithMedia;

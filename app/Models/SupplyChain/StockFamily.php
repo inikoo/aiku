@@ -8,8 +8,8 @@
 namespace App\Models\SupplyChain;
 
 use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
+use App\Models\Helpers\UniversalSearch;
 use App\Models\Inventory\OrgStockFamily;
-use App\Models\Search\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;

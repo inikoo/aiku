@@ -7,8 +7,8 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\Studio\Attachment\SaveModelAttachment;
-use App\Actions\Studio\Media\SaveModelImage;
+use App\Actions\Helpers\Attachment\SaveModelAttachment;
+use App\Actions\Helpers\Media\SaveModelImage;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SupplyChain\Supplier\UpdateSupplier;

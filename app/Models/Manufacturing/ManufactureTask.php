@@ -53,7 +53,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read \App\Models\Manufacturing\Production $production
  * @property-read \App\Models\Manufacturing\ManufactureTaskStats|null $stats
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|ManufactureTask newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ManufactureTask newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ManufactureTask onlyTrashed()

@@ -58,11 +58,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Clocking> $clockings
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $jobPositions
- * @property-read MediaCollection<int, \App\Models\Studio\Media> $media
+ * @property-read MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read \App\Models\SysAdmin\GuestStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, TimeTracker> $timeTrackers
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Timesheet> $timesheets
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read \App\Models\SysAdmin\User|null $user
  * @method static \Database\Factories\SysAdmin\GuestFactory factory($count = null, $state = [])
  * @method static Builder|Guest newModelQuery()

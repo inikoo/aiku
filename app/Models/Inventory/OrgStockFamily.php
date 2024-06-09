@@ -42,7 +42,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read \App\Models\Inventory\OrgStockFamilyStats|null $stats
  * @property-read StockFamily|null $stockFamily
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamily newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamily newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamily onlyTrashed()

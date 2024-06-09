@@ -9,7 +9,7 @@ namespace App\Actions\Search\UI;
 
 use App\Actions\InertiaAction;
 use App\Http\Resources\UniversalSearch\UniversalSearchResource;
-use App\Models\Search\UniversalSearch;
+use App\Models\Helpers\UniversalSearch;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;

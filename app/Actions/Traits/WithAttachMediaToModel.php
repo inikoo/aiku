@@ -9,7 +9,7 @@ namespace App\Actions\Traits;
 
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\WebUser;
-use App\Models\Studio\Media;
+use App\Models\Helpers\Media;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;

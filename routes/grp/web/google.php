@@ -6,8 +6,8 @@
  */
 
 
-use App\Actions\Google\Drive\AuthorizeClientGoogleDrive;
-use App\Actions\Google\Drive\CallbackClientGoogleDrive;
+use App\Actions\Helpers\GoogleDrive\AuthorizeClientGoogleDrive;
+use App\Actions\Helpers\GoogleDrive\CallbackClientGoogleDrive;
 
 Route::as("drive.")->group(function () {
     Route::get("authorize", AuthorizeClientGoogleDrive::class)->name('authorize');

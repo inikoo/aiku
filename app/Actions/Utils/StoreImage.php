@@ -7,12 +7,12 @@
 
 namespace App\Actions\Utils;
 
-use App\Actions\Studio\Media\UpdateIsAnimatedMedia;
+use App\Actions\Helpers\Media\UpdateIsAnimatedMedia;
 use App\Actions\Traits\WithActionUpdate;
+use App\Models\Catalogue\Asset;
 use App\Models\CRM\Customer;
 use App\Models\Goods\TradeUnit;
 use App\Models\HumanResources\Employee;
-use App\Models\Catalogue\Asset;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\Supplier;

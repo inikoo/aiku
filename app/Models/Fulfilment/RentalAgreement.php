@@ -46,7 +46,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RentalAgreementSnapshot> $snapshot
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement onlyTrashed()

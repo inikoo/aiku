@@ -44,7 +44,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\CollectionCategorySalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\CollectionCategoryStats|null $stats
- * @property-read \App\Models\Search\UniversalSearch|null $universalSearch
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategory newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategory newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategory onlyTrashed()

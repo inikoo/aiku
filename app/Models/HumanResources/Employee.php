@@ -10,9 +10,9 @@ namespace App\Models\HumanResources;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\Miscellaneous\GenderEnum;
-use App\Models\SysAdmin\Group;
 use App\Models\Helpers\Issue;
-use App\Models\Search\UniversalSearch;
+use App\Models\Helpers\UniversalSearch;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use App\Models\Traits\HasAttachments;
@@ -75,15 +75,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
- * @property-read MediaCollection<int, \App\Models\Studio\Media> $attachments
+ * @property-read MediaCollection<int, \App\Models\Helpers\Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\HumanResources\Clocking> $clockings
  * @property-read Group $group
- * @property-read \App\Models\Studio\Media|null $image
- * @property-read MediaCollection<int, \App\Models\Studio\Media> $images
+ * @property-read \App\Models\Helpers\Media|null $image
+ * @property-read MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read Collection<int, Issue> $issues
  * @property-read Collection<int, \App\Models\HumanResources\JobPosition> $jobPositions
- * @property-read MediaCollection<int, \App\Models\Studio\Media> $media
+ * @property-read MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation
  * @property-read \App\Models\HumanResources\EmployeeStats|null $stats
  * @property-read Collection<int, \App\Models\HumanResources\TimeTracker> $timeTrackers

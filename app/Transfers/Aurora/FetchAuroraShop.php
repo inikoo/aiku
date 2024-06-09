@@ -8,7 +8,6 @@
 namespace App\Transfers\Aurora;
 
 use App\Actions\Utils\Abbreviate;
-use App\Transfers\Aurora\FetchAurora;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Inventory\Warehouse;

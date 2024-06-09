@@ -7,7 +7,7 @@
 
 namespace App\Models\Traits;
 
-use App\Models\Search\UniversalSearch;
+use App\Models\Helpers\UniversalSearch;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 trait HasUniversalSearch
