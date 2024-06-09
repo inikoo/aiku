@@ -8,8 +8,8 @@
 namespace App\Actions\Traits;
 
 use App\Models\SysAdmin\Organisation;
-use App\Services\Organisation\AuroraOrganisationService;
-use App\Services\Organisation\WowsbarOrganisationService;
+use App\Transfers\AuroraOrganisationService;
+use App\Transfers\WowsbarOrganisationService;
 use Exception;
 use Illuminate\Support\Arr;
 
