@@ -19,6 +19,7 @@
         <exclude>
             <directory>app/Transfers</directory>
             <directory>app/Actions/Transfers</directory>
+            <directory>app/Stubs</directory>
         </exclude>
     </source>
     <php>
