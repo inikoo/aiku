@@ -5,11 +5,11 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Actions\Catalogue\Shop\UI\EditShop;
-use App\Actions\Devel\UI\ShowDummyDashboard;
 use App\Actions\Catalogue\Shop\UI\CreateShop;
+use App\Actions\Catalogue\Shop\UI\EditShop;
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Stubs\UIDummies\ShowDummyDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('', IndexShops::class)->name('index');

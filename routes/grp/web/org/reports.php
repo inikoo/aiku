@@ -6,9 +6,9 @@
  */
 
 
-use App\Actions\Devel\UI\IndexDummies;
-use App\Actions\UI\Reports\IndexReports;
 use App\Actions\Reports\PostRoomRoutes;
+use App\Actions\UI\Reports\IndexReports;
+use App\Stubs\UIDummies\IndexDummies;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', IndexReports::class)->name('index');

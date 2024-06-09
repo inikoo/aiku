@@ -7,10 +7,10 @@
 
 use App\Actions\Catalogue\Asset\UI\CreateProduct;
 use App\Actions\Catalogue\Asset\UI\IndexProducts;
-use App\Actions\Devel\UI\EditDummy;
-use App\Actions\Devel\UI\IndexDummies;
-use App\Actions\Devel\UI\ShowDummy;
 use App\Actions\UI\Dropshipping\Assets\ShowAssetDashboard;
+use App\Stubs\UIDummies\EditDummy;
+use App\Stubs\UIDummies\IndexDummies;
+use App\Stubs\UIDummies\ShowDummy;
 use Illuminate\Support\Facades\Route;
 
 Route::get('', ShowAssetDashboard::class)->name('dashboard');
