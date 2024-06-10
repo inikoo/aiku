@@ -18,7 +18,7 @@ import InputUseOption from "@/Components/Pure/InputUseOption.vue"
 library.add(faPresentation, faLink)
 
 const props = defineProps<{
-    modelValue: Object
+    modelValue: any
     emptyState: Boolean
 }>()
 

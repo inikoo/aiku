@@ -11,7 +11,7 @@ import { capitalize } from "@/Composables/capitalize"
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { ref } from 'vue'
 import { faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar, faCoins, faTimes, faBrowser } from '@fal';
-import dataList from './data/blogActivity'
+import draggable from "vuedraggable"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import Modal from "@/Components/Utils/Modal.vue"
@@ -25,9 +25,9 @@ import Action from "@/Components/Forms/Fields/Action.vue"
 library.add(faCoins, faMoneyCheckAlt, faCashRegister, faFileInvoiceDollar, faTimes, faBrowser);
 
 const props = defineProps<{
-    title: string,
-    pageHead: PageHeadingTypes,
-    webpage : Object
+  title: string,
+  pageHead: PageHeadingTypes,
+  webpage: Object
 }>()
 
 
@@ -35,26 +35,26 @@ const openModal = ref(false)
 const data = ref(props.webpage.compiled_layout)
 
 
-const onUpdated = () =>{
-  setInterval(async() => {
-  try {
-			await axios.patch(route(props.webpage.update_route.name, props.webpage.update_route.parameters),{compiled_layout : data.value})
-			console.log('saved')
+const onUpdated = () => {
+  setInterval(async () => {
+    try {
+      await axios.patch(route(props.webpage.update_route.name, props.webpage.update_route.parameters), { compiled_layout: data.value })
+      console.log('saved')
 
-		} catch (error: any) {
-			console.log('error',error)
-		}
+    } catch (error: any) {
+      console.log('error', error)
+    }
   }, 1000)
-} 
+}
 
 
 const getComponent = (componentName: string) => {
-    const components: any = {
-        'bannerWowsbar': WowsbarBanner,
-        'ProductPage' : ProductPage,
-        'text' : Text
-    }
-    return components[componentName] ?? null
+  const components: any = {
+    'bannerWowsbar': WowsbarBanner,
+    'ProductPage': ProductPage,
+    'text': Text
+  }
+  return components[componentName] ?? null
 }
 
 const onPickBlock = (e) => {
@@ -63,13 +63,13 @@ const onPickBlock = (e) => {
   onUpdated()
 }
 
-const deleteBlock = (index) =>{
-  data.value.splice(index,1)
+const deleteBlock = (index) => {
+  data.value.splice(index, 1)
   onUpdated()
 }
 
 
-const setData = ()=>{
+const setData = () => {
   console.log(data.value)
 }
 
@@ -81,13 +81,13 @@ const setData = ()=>{
 
   <Head :title="capitalize(title)" />
   <PageHeading :data="pageHead">
-      <template #button-publish="{ action }">
-        <Action v-if="action.action" :action="action.action" :dataToSubmit="data" />
-      </template>
+    <template #button-publish="{ action }">
+      <Action v-if="action.action" :action="action.action" :dataToSubmit="data" />
+    </template>
   </PageHeading>
 
 
-  <div class="mx-auto px-4 py-4 sm:px-6 lg:px-8 w-full h-screen" >
+  <div class="mx-auto px-4 py-4 sm:px-6 lg:px-8 w-full h-screen">
     <div class="mx-auto grid grid-cols-4 gap-1 lg:mx-0 lg:max-w-none">
       <div class="col-span-3 h-screen overflow-auto border-2 border-dashed">
         <div v-if="data.length == 0"
@@ -96,15 +96,11 @@ const setData = ()=>{
           <span class="mt-2 block text-sm font-semibold text-gray-900">You dont have block</span>
         </div>
         <div v-else>
-            <div v-for="(activityItem, activityItemIdx) in data" :key="activityItem.id" class="w-full">
-              <component 
-                :is="getComponent(activityItem['component'])" 
-                :key="activityItemIdx" v-bind="activityItem.fieldData" 
-                v-model="activityItem.fieldValue"
-                @autoSave="onUpdated"
-                />
-            </div>
+          <div v-for="(activityItem, activityItemIdx) in data" :key="activityItem.id" class="w-full">
+            <component :is="getComponent(activityItem['component'])" :key="activityItemIdx"
+              v-bind="activityItem.fieldData" v-model="activityItem.fieldValue" @autoSave="onUpdated" />
           </div>
+        </div>
       </div>
 
       <div class="col-span-1  h-screen">
@@ -114,7 +110,7 @@ const setData = ()=>{
             <Button label="Block" type="create" size="xs" @click="() => openModal = true" />
           </div>
 
-          <ul v-if="data.length > 0" role="list" class="mt-2 space-y-1">
+          <!-- <ul v-if="data.length > 0" role="list" class="mt-2 space-y-1">
             <li v-for="(activityItem, activityItemIdx) in data" :key="activityItem.id" class="gap-x-4 w-full">
               <div class="flex-auto rounded-md p-3 ring-1 ring-inset ring-gray-200 bg-white">
                 <div class="flex justify-between gap-x-4">
@@ -125,9 +121,25 @@ const setData = ()=>{
                 </div>
               </div>
             </li>
-          </ul>
+          </ul> -->
+          
+          <draggable :list="data" v-if="data.length > 0"  ghost-class="ghost" group="column"
+            itemKey="column_id" class="mt-2 space-y-1">
+            <template #item="{ element, index }">
+              <div class="flex-auto rounded-md p-3 ring-1 ring-inset ring-gray-200 bg-white cursor-grab">
+                <div class="flex justify-between gap-x-4">
+                  <div class="py-0.5 text-xs leading-5 text-gray-500">
+                    <span class="font-medium text-gray-900">{{ element.name }}</span>
+                  </div>
+                  <div class="flex-none py-0 text-xs leading-5 text-gray-500 cursor-pointer" @click="() => deleteBlock(index)">
+                    <font-awesome-icon :icon="['fal', 'times']" /></div>
+                </div>
+              </div>
+            </template>
+          </draggable>
 
-          <div v-else :style="{height : 'calc(100vh - 8%)'}"
+
+          <div v-else :style="{ height: 'calc(100vh - 8%)' }"
             class="relative mt-4 block rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
             <font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />
             <span class="mt-2 block text-sm font-semibold text-gray-900">You dont have block</span>
@@ -144,6 +156,6 @@ const setData = ()=>{
     <BlockList :onPickBlock="onPickBlock" />
   </Modal>
 
-<div @click="setData">see data</div>
+  <div @click="setData">see data</div>
 
 </template>

@@ -39,6 +39,8 @@ import TableJobPositions from "@/Components/Tables/Grp/Org/HumanResources/TableJ
 import type {Table} from "@/types/Table.ts"
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 import type { Navigation } from "@/types/Tabs";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import Popover from '@/Components/Popover.vue'
 
 library.add(
     faIdCard,
@@ -100,8 +102,26 @@ const component = computed(() => {
 
 
 <template>
+
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead">
+        <template #tabs-Pin="{ data }">
+            <FontAwesomeIcon v-if="data.leftIcon" :title="data.leftIcon.tooltip" fixed-width aria-hidden="true"
+                :icon="data.leftIcon.icon" class="text-gray-400 pr-0.5" />
+                <Popover width="w-full" class="relative h-full">
+                <template #button>
+                    XXXXXX
+                </template>
+
+                <template #content="{ close: closed }">
+                    <div class="w-[100px]">
+                      <strong>Pin</strong> : {{ data.label }}
+                    </div>
+                </template>
+            </Popover>
+        </template>
+       
+    </PageHeading>
 
     <!--
     <div v-if="!employee.data.user || ( $page.props.flash.notification && $page.props.flash.notification.type==='newUser')"   class="m-4 bg-white shadow sm:rounded-lg max-w-2xl">
@@ -140,7 +160,7 @@ const component = computed(() => {
 
         </div>
     -->
-    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
+    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
 </template>
 

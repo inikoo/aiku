@@ -3,10 +3,9 @@ import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
 import { ref, computed } from 'vue'
 
 const props = defineProps<{
-    modelValue: Object
+    modelValue: any
 }>()
 
-console.log(props)
 const editMode = ref(false)
 
 const parsedHtml = computed(() => {

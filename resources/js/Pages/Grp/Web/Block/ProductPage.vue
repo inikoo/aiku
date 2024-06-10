@@ -16,7 +16,7 @@ import Button from '@/Components/Elements/Buttons/Button.vue';
 library.add(faCube, faLink)
 
 const props = defineProps<{
-    modelValue: Object
+    modelValue: any
 }>()
 
 const selectedProduct = ref(0)
