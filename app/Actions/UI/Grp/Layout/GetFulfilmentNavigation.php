@@ -154,70 +154,76 @@ class GetFulfilmentNavigation
 
             ];
 
-            $navigation['web'] = [
-                'root'    => 'grp.org.fulfilments.show.web.',
-                'scope'   => 'websites',
-                'icon'    => ['fal', 'fa-globe'],
-                'label'   => __('Website'),
-                'route'   =>
 
-                    $fulfilment->shop->website
-                        ?
-                        [
-                            'name'       => 'grp.org.fulfilments.show.web.websites.show',
-                            'parameters' => [
-                                $fulfilment->organisation->slug,
-                                $fulfilment->slug,
-                                $fulfilment->shop->website->slug
-                            ]
+            if ($fulfilment->shop->website) {
+                $navigation['web'] = [
+                    'root'    => 'grp.org.fulfilments.show.web.',
+                    'scope'   => 'websites',
+                    'icon'    => ['fal', 'fa-globe'],
+                    'label'   => __('Website'),
+                    'route'   =>
 
-                        ]
-                        :
-                        [
-                            'name'       => 'grp.org.fulfilments.show.web.websites.index',
-                            'parameters' => [
-                                $fulfilment->organisation->slug,
-                                $fulfilment->slug,
-                            ]
-
-                        ],
-                'topMenu' => [
-                    'subSections' =>
-
-                        [
+                        $fulfilment->shop->website
+                            ?
                             [
-                                "label"   => __("Website"),
-                                "tooltip" => __("website"),
-                                "icon"    => ["fal", "fa-globe"],
-                                'root'    => 'grp.org.fulfilments.show.web.websites.',
-                                "route"   => [
-                                    "name"       => "grp.org.fulfilments.show.web.websites.show",
-                                    "parameters" => [$fulfilment->organisation->slug, $fulfilment->slug, $fulfilment->shop->website->slug],
-                                ],
+                                'name'       => 'grp.org.fulfilments.show.web.websites.show',
+                                'parameters' => [
+                                    $fulfilment->organisation->slug,
+                                    $fulfilment->slug,
+                                    $fulfilment->shop->website->slug
+                                ]
+
+                            ]
+                            :
+                            [
+                                'name'       => 'grp.org.fulfilments.show.web.websites.index',
+                                'parameters' => [
+                                    $fulfilment->organisation->slug,
+                                    $fulfilment->slug,
+                                ]
+
                             ],
-
+                    'topMenu' => [
+                        'subSections' =>
 
                             [
-                                'label'   => __('webpages'),
-                                'tooltip' => __('Webpages'),
-                                'icon'    => ['fal', 'fa-browser'],
-                                'root'    => 'grp.org.fulfilments.show.web.webpages.',
-                                'route'   => [
-                                    'name'       => 'grp.org.fulfilments.show.web.webpages.index',
-                                    'parameters' => [
-                                        $fulfilment->organisation->slug,
-                                        $fulfilment->slug,
-                                        $fulfilment->shop->website->slug
-                                    ]
+                                [
+                                    "label"   => __("Website"),
+                                    "tooltip" => __("website"),
+                                    "icon"    => ["fal", "fa-globe"],
+                                    'root'    => 'grp.org.fulfilments.show.web.websites.',
+                                    "route"   => [
+                                        "name"       => "grp.org.fulfilments.show.web.websites.show",
+                                        "parameters" => [
+                                            $fulfilment->organisation->slug,
+                                            $fulfilment->slug,
+                                            $fulfilment->shop->website->slug
+                                        ],
+                                    ],
+                                ],
 
+
+                                [
+                                    'label'   => __('webpages'),
+                                    'tooltip' => __('Webpages'),
+                                    'icon'    => ['fal', 'fa-browser'],
+                                    'root'    => 'grp.org.fulfilments.show.web.webpages.',
+                                    'route'   => [
+                                        'name'       => 'grp.org.fulfilments.show.web.webpages.index',
+                                        'parameters' => [
+                                            $fulfilment->organisation->slug,
+                                            $fulfilment->slug,
+                                            $fulfilment->shop->website->slug
+                                        ]
+
+                                    ]
                                 ]
                             ]
-                        ]
-                ],
+                    ],
 
 
-            ];
-
+                ];
+            }
             $navigation['crm'] = [
                 'scope' => 'shops',
                 'label' => __('Customers'),

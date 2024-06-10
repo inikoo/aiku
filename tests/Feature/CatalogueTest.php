@@ -41,7 +41,10 @@ use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use App\Models\Web\Website;
 
+use Inertia\Testing\AssertableInertia;
+
 use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 
 beforeAll(function () {
     loadDB('test_base_database.dump');
@@ -592,3 +595,18 @@ test('hydrate families command', function () {
 test('hydrate products command', function () {
     $this->artisan('product:hydrate')->assertExitCode(0);
 });
+
+test('can show catalogue', function (Shop $shop) {
+
+
+    $response = get(route('grp.org.shops.show.catalogue.dashboard', [
+        $shop->organisation->slug,
+        $shop->slug
+    ]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/Shop')
+            ->has('breadcrumbs', 3);
+    });
+})->depends('create shop');
