@@ -23,7 +23,7 @@ export default {
           fieldProps : {
           }
         },  
-        {
+      /*   {
           id: 2,
           name: 'Product Page',
           icon: ['fal', 'cube'],
@@ -36,7 +36,7 @@ export default {
             emptyState : true
           },
           fieldProps : {}
-        },
+        }, */
         {
           id: 3,
           name: 'Text',
@@ -50,7 +50,7 @@ export default {
           },
           fieldProps : {}
         },
-        {
+/*         {
           id: 4,
           name: 'Family Page Offer',
           icon: ['fal', 'newspaper'],
@@ -62,7 +62,7 @@ export default {
               value : null,
           },
           fieldProps : {}
-        },
+        }, */
         {
           id: 5,
           name: 'Product List',
