@@ -43,11 +43,11 @@ return new class () extends Migration {
             $table->boolean('delivery_locked')->default(false);
 
 
-            $table->unsignedSmallInteger('billing_address_id')->index()->nullable();
+            $table->unsignedInteger('billing_address_id')->index()->nullable();
             $table->foreign('billing_address_id')->references('id')->on('addresses');
-            $table->unsignedSmallInteger('delivery_address_id')->index()->nullable();
+            $table->unsignedInteger('delivery_address_id')->index()->nullable();
             $table->foreign('delivery_address_id')->references('id')->on('addresses');
-            $table->unsignedSmallInteger('collection_address_id')->index()->nullable();
+            $table->unsignedInteger('collection_address_id')->index()->nullable();
             $table->foreign('collection_address_id')->references('id')->on('addresses');
 
 
