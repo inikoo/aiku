@@ -23,8 +23,12 @@ class FetchAuroraInvoiceTransaction extends FetchAurora
 
             $order=$this->parseOrder($this->organisation->id.':'.$this->auroraModelData->{'Order Key'});
 
+            if(!$order){
+                print "Order not found >".$this->auroraModelData->{'Order Transaction Fact Key'}."\n";
+            }
+
             $this->parsedData['transaction'] = [
-                'order_id'    => $order->id,
+                'order_id'    => $order?->id,
                 'tax_band_id' => $taxBand->id ?? null,
                 'quantity'    => $this->auroraModelData->{'Delivery Note Quantity'},
                 'net_amount'  => $this->auroraModelData->{'Order Transaction Amount'},
