@@ -68,6 +68,12 @@ class Kernel extends HttpKernel
             SubstituteBindings::class,
         ],
 
+        'dropshipping'      => [
+            ForceJsonResponse::class,
+            EnsureFrontendRequestsAreStateful::class,
+            SubstituteBindings::class,
+        ],
+
         'han'      => [
             ForceJsonResponse::class,
             EnsureFrontendRequestsAreStateful::class,

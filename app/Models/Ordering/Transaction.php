@@ -37,6 +37,9 @@ use Illuminate\Support\Carbon;
  * @property int|null $invoice_id
  * @property TransactionTypeEnum $type
  * @property string $date
+ * @property string|null $submitted_at
+ * @property string|null $in_warehouse_at
+ * @property string|null $settled_at
  * @property TransactionStateEnum $state
  * @property TransactionStatusEnum $status
  * @property string|null $item_type

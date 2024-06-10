@@ -52,12 +52,13 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as LaravelCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Carbon;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
@@ -78,6 +79,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $currency_id customer accounting currency
  * @property int|null $image_id
  * @property int $number_organisations
+ * @property string|null $dropshipping_integration_token
  * @property Carbon|null $deleted_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -135,6 +137,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupSupplyChainStats|null $supplyChainStats
  * @property-read \App\Models\SysAdmin\GroupSysAdminStats|null $sysadminStats
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Task> $tasks
+ * @property-read LaravelCollection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read LaravelCollection<int, TradeUnit> $tradeUnits
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\User> $users
  * @property-read LaravelCollection<int, WarehouseArea> $warehouseAreas
@@ -152,13 +155,14 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|Group withoutTrashed()
  * @mixin Eloquent
  */
-class Group extends Model implements HasMedia
+class Group extends Authenticatable implements HasMedia
 {
     use SoftDeletes;
     use HasSlug;
     use HasFactory;
     use InteractsWithMedia;
     use HasImage;
+    use HasApiTokens;
 
     protected $guarded = [];
 

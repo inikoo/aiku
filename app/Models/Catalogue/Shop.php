@@ -145,6 +145,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Service> $services
  * @property-read LaravelCollection<int, ShippingZoneSchema> $shippingZoneSchemas
  * @property-read \App\Models\Catalogue\ShopStats|null $stats
+ * @property-read LaravelCollection<int, Task> $tasks
  * @property-read TaxNumber|null $taxNumber
  * @property-read Timezone $timezone
  * @property-read UniversalSearch|null $universalSearch

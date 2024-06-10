@@ -42,6 +42,11 @@ class RouteServiceProvider extends ServiceProvider
             ->prefix('maya')
             ->group(base_path('routes/maya/maya-app.php'));
 
+        Route::middleware('dropshipping')
+            ->domain(config('app.domain'))
+            ->prefix('ds-api')
+            ->group(base_path('routes/dropshipping/root.php'));
+
         Route::middleware('aiku-public')
             ->domain(config('app.domain'))
             ->name('aiku-public.')

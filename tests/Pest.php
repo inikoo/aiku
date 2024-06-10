@@ -191,8 +191,8 @@ function createTradeUnits(Group $group): array
             $group,
             TradeUnit::factory()->definition()
         );
-    }else{
-        $tradeUnit=$group->tradeUnits()->first();
+    } else {
+        $tradeUnit =$group->tradeUnits()->first();
         $tradeUnit2=$group->tradeUnits()->skip(1)->first();
     }
 

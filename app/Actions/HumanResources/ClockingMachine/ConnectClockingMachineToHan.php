@@ -40,9 +40,9 @@ class ConnectClockingMachineToHan
     public function rules(): array
     {
         return [
-            'qr_code'              => ['required', 'string', 'exists:clocking_machines,qr_code'],
-            'device_name'          => ['required', 'string'],
-            'device_uuid'          => ['required', 'string', 'unique:clocking_machines,device_uuid'],
+            'qr_code'     => ['required', 'string', 'exists:clocking_machines,qr_code'],
+            'device_name' => ['required', 'string'],
+            'device_uuid' => ['required', 'string', 'unique:clocking_machines,device_uuid'],
         ];
     }
 
@@ -56,11 +56,8 @@ class ConnectClockingMachineToHan
 
     public function asController(ActionRequest $request): array
     {
-
         $this->fillFromRequest($request);
-
-        $validatedData = $this->validateAttributes();
-
+        $validatedData   = $this->validateAttributes();
         $clockingMachine = ClockingMachine::where('qr_code', $validatedData['qr_code'])->first();
 
         return $this->handle($clockingMachine, Arr::only($validatedData, ['device_name', 'device_uuid']));

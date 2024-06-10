@@ -20,7 +20,6 @@ use App\Actions\Catalogue\Service\StoreService;
 use App\Actions\Catalogue\Service\UpdateService;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
-use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
@@ -36,7 +35,6 @@ use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\ProductVariant;
 use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
-use App\Models\Goods\TradeUnit;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use App\Models\Web\Website;
@@ -56,9 +54,9 @@ beforeEach(function () {
     $this->guest        = createAdminGuest($this->organisation->group);
     $this->warehouse    = createWarehouse();
     $this->adminGuest   = createAdminGuest($this->organisation->group);
-    $this->group=$this->organisation->group;
+    $this->group        =$this->organisation->group;
 
-    list($this->tradeUnit,$this->tradeUnit2)=createTradeUnits($this->group);
+    list($this->tradeUnit, $this->tradeUnit2)=createTradeUnits($this->group);
 
     Config::set(
         'inertia.testing.page_paths',

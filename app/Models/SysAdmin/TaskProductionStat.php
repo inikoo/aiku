@@ -9,6 +9,33 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property int $task_id
+ * @property int $production_id
+ * @property int $number_users
+ * @property string $task_materials_cost
+ * @property string $task_energy_cost
+ * @property string $task_other_cost
+ * @property string $task_work_cost
+ * @property ManufactureTaskOperativeRewardTermsEnum $operative_reward_terms
+ * @property ManufactureTaskOperativeRewardAllowanceTypeEnum $operative_reward_allowance_type
+ * @property float $operative_reward_amount
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read Production $production
+ * @property-read \App\Models\SysAdmin\Task $task
+ * @method static \Illuminate\Database\Eloquent\Builder|TaskProductionStat newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|TaskProductionStat newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|TaskProductionStat onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|TaskProductionStat query()
+ * @method static \Illuminate\Database\Eloquent\Builder|TaskProductionStat withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|TaskProductionStat withoutTrashed()
+ * @mixin \Eloquent
+ */
 class TaskProductionStat extends Model
 {
     use SoftDeletes;

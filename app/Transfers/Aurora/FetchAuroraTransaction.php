@@ -32,11 +32,11 @@ class FetchAuroraTransaction extends FetchAurora
             $state = null;
             if (class_basename($historicItem) == 'HistoricAsset') {
                 $state = match ($this->auroraModelData->{'Current Dispatching State'}) {
-                    'In Process' => TransactionStateEnum::CREATING,
+                    'In Process'            => TransactionStateEnum::CREATING,
                     'Submitted by Customer' => TransactionStateEnum::SUBMITTED,
                     'Ready to Pick', 'Picking', 'Ready to Pack', 'Packing', 'Packed', 'Packed Done' => TransactionStateEnum::HANDLING,
                     'Ready to Ship' => TransactionStateEnum::FINALISED,
-                    'Dispatched' => TransactionStateEnum::DISPATCHED,
+                    'Dispatched'    => TransactionStateEnum::DISPATCHED,
                     'No Picked Due Out of Stock', 'No Picked Due No Authorised', 'No Picked Due Not Found', 'No Picked Due Other', 'Cancelled', 'Suspended', 'Cancelled by Customer' => TransactionStateEnum::CANCELLED,
                     'Unknown' => null
                 };

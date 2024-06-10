@@ -71,8 +71,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $packed_at
  * @property string|null $finalised_at
  * @property string|null $dispatched_at
- * @property string|null $settled_at
  * @property string|null $cancelled_at
+ * @property string|null $settled_at dispatched_at|cancelled_at
  * @property bool $is_invoiced
  * @property bool|null $is_picking_on_hold
  * @property bool|null $can_dispatch
