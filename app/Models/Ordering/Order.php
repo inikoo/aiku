@@ -14,7 +14,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Catalogue\Shop;
 use App\Models\Dispatching\DeliveryNote;
-use App\Models\Dropshippingx\CustomerClient;
+use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\SysAdmin\Group;

@@ -7,7 +7,7 @@
 
 namespace App\Actions\CRM\CustomerClient\Hydrators;
 
-use App\Models\Dropshippingx\CustomerClient;
+use App\Models\Dropshipping\CustomerClient;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class CustomerClientHydrateUniversalSearch

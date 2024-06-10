@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Dropshippingx;
+namespace App\Models\Dropshipping;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
 use App\Models\Catalogue\Shop;

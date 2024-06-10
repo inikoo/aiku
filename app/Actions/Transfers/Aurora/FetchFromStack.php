@@ -12,7 +12,7 @@ use App\Actions\Dispatching\DeliveryNote\DeleteDeliveryNote;
 use App\Actions\Traits\WithOrganisationsArgument;
 use App\Actions\Traits\WithOrganisationSource;
 use App\Models\Dispatching\DeliveryNote;
-use App\Models\Dropshippingx\CustomerClient;
+use App\Models\Dropshipping\CustomerClient;
 use App\Models\SysAdmin\Organisation;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Console\Command;

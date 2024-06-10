@@ -12,7 +12,7 @@ use App\Actions\CRM\CustomerClient\Hydrators\CustomerClientHydrateUniversalSearc
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Models\CRM\Customer;
-use App\Models\Dropshippingx\CustomerClient;
+use App\Models\Dropshipping\CustomerClient;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;

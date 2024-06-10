@@ -13,8 +13,8 @@ use App\Actions\Dropshipping\DropshippingCustomerPortfolio\UpdateDropshippingCus
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Shop;
 
-use App\Models\Dropshippingx\CustomerClient;
-use App\Models\Dropshippingx\DropshippingCustomerPortfolio;
+use App\Models\Dropshipping\CustomerClient;
+use App\Models\Dropshipping\DropshippingCustomerPortfolio;
 use Laravel\Sanctum\Sanctum;
 
 use function Pest\Laravel\actingAs;
