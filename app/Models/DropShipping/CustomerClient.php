@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 07 Jun 2024 11:22:20 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Created: Mon, 10 Jun 2024 19:08:06 Central European Summer Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\CRM;
+namespace App\Models\DropShipping;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
 use App\Models\Catalogue\Shop;
@@ -60,7 +60,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Shop|null $shop
  * @property-read UniversalSearch|null $universalSearch
- * @method static \Database\Factories\CRM\CustomerClientFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\DropShipping\CustomerClientFactory factory($count = null, $state = [])
  * @method static Builder|CustomerClient newModelQuery()
  * @method static Builder|CustomerClient newQuery()
  * @method static Builder|CustomerClient onlyTrashed()

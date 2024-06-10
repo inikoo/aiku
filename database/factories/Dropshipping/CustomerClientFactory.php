@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 07 Jun 2024 11:26:11 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Created: Mon, 10 Jun 2024 20:20:38 Central European Summer Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace Database\Factories\CRM;
+namespace Database\Factories\Dropshipping;
 
 use App\Models\Helpers\Address;
 use Illuminate\Database\Eloquent\Factories\Factory;

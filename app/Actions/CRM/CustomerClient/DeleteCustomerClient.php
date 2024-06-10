@@ -10,7 +10,7 @@ namespace App\Actions\CRM\CustomerClient;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithOrganisationArgument;
-use App\Models\CRM\CustomerClient;
+use App\Models\DropShipping\CustomerClient;
 use Exception;
 use Illuminate\Console\Command;
 

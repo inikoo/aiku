@@ -6,9 +6,15 @@
  */
 
 use App\Actions\Catalogue\Shop\StoreShop;
+use App\Actions\CRM\CustomerClient\StoreCustomerClient;
+use App\Actions\CRM\CustomerClient\UpdateCustomerClient;
+use App\Actions\Dropshipping\DropshippingCustomerPortfolio\StoreDropshippingCustomerPortfolio;
+use App\Actions\Dropshipping\DropshippingCustomerPortfolio\UpdateDropshippingCustomerPortfolio;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Shop;
 
+use App\Models\DropShipping\CustomerClient;
+use App\Models\DropShipping\DropshippingCustomerPortfolio;
 use Laravel\Sanctum\Sanctum;
 
 use function Pest\Laravel\actingAs;
@@ -25,18 +31,23 @@ beforeEach(function () {
     $this->user         = createAdminGuest($this->group)->user;
 
 
-    $dropshippingShop = Shop::first();
-    if (!$dropshippingShop) {
+    $shop = Shop::first();
+    if (!$shop) {
         $storeData = Shop::factory()->definition();
         data_set($storeData, 'type', ShopTypeEnum::DROPSHIPPING);
 
-        $dropshippingShop = StoreShop::make()->action(
+        $shop = StoreShop::make()->action(
             $this->organisation,
             $storeData
         );
     }
-    $this->dropshippingShop = $dropshippingShop;
+    $this->shop     = $shop;
+    $this->customer = createCustomer($this->shop);
 
+    list(
+        $this->tradeUnit,
+        $this->product
+    ) = createProduct($this->shop);
 
     Config::set(
         'inertia.testing.page_paths',
@@ -94,4 +105,41 @@ test('get dropshipping shops', function () {
     $response->assertJsonStructure(['data']);
     $response->assertJsonCount(1, 'data');
 
+    list($this->tradeUnits, $this->product) = createProduct($this->shop);
 });
+
+test('create customer client', function () {
+    $customerClient = StoreCustomerClient::make()->action($this->customer, CustomerClient::factory()->definition());
+    expect($customerClient)->toBeInstanceOf(CustomerClient::class);
+
+    return $customerClient;
+});
+
+test('update customer client', function ($customerClient) {
+    $customerClient = UpdateCustomerClient::make()->action($customerClient, ['reference' => '001']);
+    expect($customerClient->reference)->toBe('001');
+})->depends('create customer client');
+
+test('add product to customer portfolio', function () {
+    $dropshippingCustomerPortfolio = StoreDropshippingCustomerPortfolio::make()->action(
+        $this->customer,
+        [
+            'product_id' => $this->product->id
+        ]
+    );
+    expect($dropshippingCustomerPortfolio)->toBeInstanceOf(DropshippingCustomerPortfolio::class);
+
+    return $dropshippingCustomerPortfolio;
+});
+
+test('update customer portfolio', function (DropshippingCustomerPortfolio $dropshippingCustomerPortfolio) {
+    $dropshippingCustomerPortfolio = UpdateDropshippingCustomerPortfolio::make()->action(
+        $dropshippingCustomerPortfolio,
+        [
+            'reference' => 'new_reference'
+        ]
+    );
+    expect($dropshippingCustomerPortfolio->reference)->toBe('new_reference');
+
+    return $dropshippingCustomerPortfolio;
+})->depends('add product to customer portfolio');

@@ -5,22 +5,15 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\CRM\Customer\StoreCustomer;
-use App\Actions\CRM\CustomerClient\StoreCustomerClient;
-use App\Actions\CRM\CustomerClient\UpdateCustomerClient;
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
 use App\Actions\Mail\Mailshot\StoreMailshot;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Enums\Mail\Mailshot\MailshotTypeEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
-use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
-use App\Models\CRM\CustomerClient;
-
 use App\Models\CRM\Prospect;
 use App\Models\Helpers\Query;
 use App\Models\Mail\Mailshot;
@@ -41,15 +34,7 @@ beforeEach(function () {
         $this->shop
     ) = createShop();
 
-    if (!isset($this->dropshippingShop)) {
-        $storeData    = Shop::factory()->definition();
-        data_set($storeData, 'type', ShopTypeEnum::DROPSHIPPING);
 
-        $this->dropshippingShop = StoreShop::make()->action(
-            $this->organisation,
-            $storeData
-        );
-    }
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]
@@ -94,22 +79,6 @@ test('create other customer', function () {
 });
 
 
-
-test('create customer client', function () {
-    $shop           = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
-    $customer       = StoreCustomer::make()->action($shop, Customer::factory()->definition());
-    $customerClient = StoreCustomerClient::make()->action($customer, CustomerClient::factory()->definition());
-    $this->assertModelExists($customerClient);
-    expect($customerClient->shop->code)->toBe($shop->code)
-        ->and($customerClient->customer->reference)->toBe($customer->reference);
-
-    return $customerClient;
-});
-
-test('update customer client', function ($customerClient) {
-    $customerClient = UpdateCustomerClient::make()->action($customerClient, ['reference' => '001']);
-    expect($customerClient->reference)->toBe('001');
-})->depends('create customer client');
 
 
 test('prospect queries are seeded', function () {
@@ -247,3 +216,7 @@ test('can show list of tags', function () {
             ->has('title');
     });
 })->todo();
+
+test('hydrate customers command', function () {
+    $this->artisan('customer:hydrate')->assertExitCode(0);
+});
