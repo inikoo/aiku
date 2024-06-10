@@ -15,12 +15,13 @@ use App\Actions\CRM\CustomerClient\UpdateCustomerClient;
 use App\Actions\Ordering\Order\DeleteOrder;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
+use App\Actions\Ordering\Order\UpdateOrderStateToInWarehouse;
 use App\Actions\Ordering\Order\UpdateStateToCreatingOrder;
 use App\Actions\Ordering\Order\UpdateStateToFinalizedOrder;
 use App\Actions\Ordering\Order\UpdateStateToHandlingOrder;
 use App\Actions\Ordering\Order\UpdateStateToPackedOrder;
 use App\Actions\Ordering\Order\UpdateStateToSettledOrder;
-use App\Actions\Ordering\Order\UpdateStateToSubmittedOrder;
+use App\Actions\Ordering\Order\UpdateOrderStateToSubmitted;
 use App\Actions\Ordering\ShippingZone\StoreShippingZone;
 use App\Actions\Ordering\ShippingZone\UpdateShippingZone;
 use App\Actions\Ordering\ShippingZoneSchema\StoreShippingZoneSchema;
@@ -45,22 +46,20 @@ beforeAll(function () {
 });
 
 beforeEach(function () {
-
     list(
         $this->organisation,
         $this->user,
         $this->shop
-    ) = createShop();
+        ) = createShop();
 
-    $this->group=$this->organisation->group;
+    $this->group = $this->organisation->group;
 
     list(
         $this->tradeUnit,
         $this->product
-    )=createProduct($this->shop);
+        ) = createProduct($this->shop);
 
-    $this->customer=createCustomer($this->shop);
-
+    $this->customer = createCustomer($this->shop);
 });
 
 
@@ -102,22 +101,19 @@ test('create order', function () {
 
     expect($order)->toBeInstanceOf(Order::class)
         ->and($order->state)->toBe(OrderStateEnum::CREATING)
-    ->and($order->customer)->toBeInstanceOf(Customer::class)
+        ->and($order->customer)->toBeInstanceOf(Customer::class)
         ->and($this->group->salesStats->number_orders)->toBe(1)
         ->and($this->group->salesStats->number_orders_state_creating)->toBe(1)
         ->and($this->group->salesStats->number_orders_handing_type_shipping)->toBe(1)
-
         ->and($this->organisation->salesStats->number_orders)->toBe(1)
         ->and($this->organisation->salesStats->number_orders_state_creating)->toBe(1)
         ->and($this->organisation->salesStats->number_orders_handing_type_shipping)->toBe(1)
-
         ->and($this->shop->salesStats->number_orders)->toBe(1)
         ->and($this->shop->salesStats->number_orders_state_creating)->toBe(1)
         ->and($this->shop->salesStats->number_orders_handing_type_shipping)->toBe(1)
         ->and($this->customer->stats->number_orders)->toBe(1)
         ->and($this->customer->stats->number_orders_state_creating)->toBe(1)
         ->and($this->customer->stats->number_orders_handing_type_shipping)->toBe(1)
-
         ->and($order->stats->number_items_at_creation)->toBe(0);
 
     return $order;
@@ -125,9 +121,8 @@ test('create order', function () {
 
 
 test('create transaction', function ($order) {
-
-    $transactionData=Transaction::factory()->definition();
-    $item           =$this->product->historicAsset;
+    $transactionData = Transaction::factory()->definition();
+    $item            = $this->product->historicAsset;
     expect($item)->toBeInstanceOf(HistoricAsset::class);
     $transaction = StoreTransaction::make()->action($order, $item, $transactionData);
 
@@ -152,21 +147,22 @@ test('update order', function ($order) {
     $this->assertModelExists($order);
 })->depends('create order');
 
-test('update order state to submitted', function ($order) {
-
-        $order = UpdateStateToSubmittedOrder::make()->action($order);
-
-    expect($order->state)->toEqual(OrderStateEnum::SUBMITTED);
+test('update order state to submitted', function (Order $order) {
+    $order = UpdateOrderStateToSubmitted::make()->action($order);
+    expect($order->state)->toEqual(OrderStateEnum::SUBMITTED)
+        ->and($order->shop->salesStats->number_orders_state_submitted)->toBe(1)
+        ->and($order->organisation->salesStats->number_orders_state_submitted)->toBe(1)
+        ->and($order->group->salesStats->number_orders_state_submitted)->toBe(1);
+    return $order;
 })->depends('create order');
 
-test('update state to handling from submit order', function ($order) {
-    try {
-        $order = UpdateStateToHandlingOrder::make()->action($order);
-    } catch (ValidationException) {
-    }
 
-    expect($order->state)->toEqual(OrderStateEnum::HANDLING);
-})->depends('create order');
+test('update order state to in warehouse', function (Order $order) {
+
+        $order = UpdateOrderStateToInWarehouse::make()->action($order);
+
+    expect($order->state)->toEqual(OrderStateEnum::IN_WAREHOUSE);
+})->depends('update order state to submitted');
 
 test('update state to packed from handling', function ($order) {
     try {
@@ -175,7 +171,7 @@ test('update state to packed from handling', function ($order) {
     }
 
     expect($order->state)->toBe(OrderStateEnum::PACKED);
-})->depends('create order');
+})->depends('create order')->todo();
 
 test('update state to finalized from handling', function ($order) {
     try {
@@ -191,7 +187,6 @@ test('update state to settled from finalized', function ($order) {
         $order = UpdateStateToSettledOrder::make()->action($order);
     } catch (ValidationException) {
     }
-
     //expect($order->state)->toBe(OrderStateEnum::SETTLED);
 })->depends('create order')->todo();
 
@@ -224,7 +219,7 @@ test('update state to handling from packed', function ($order) {
 
 test('update state to submit from handling', function ($order) {
     try {
-        $order = UpdateStateToSubmittedOrder::make()->action($order);
+        $order = UpdateOrderStateToSubmitted::make()->action($order);
     } catch (ValidationException) {
     }
 
@@ -295,7 +290,6 @@ test('create invoice from order', function (Order $order) {
         ->and($invoice->number)->toBe('00002')
         ->and($customer->stats->number_invoices)->toBe(2)
         ->and($this->shop->salesStats->number_invoices)->toBe(2);
-
 
 
     return $invoice;

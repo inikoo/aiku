@@ -63,7 +63,7 @@ class FetchAuroraOrder extends FetchAurora
             "InWarehouse", "Packed" => OrderStateEnum::HANDLING,
             "PackedDone" => OrderStateEnum::PACKED,
             "Approved"   => OrderStateEnum::FINALISED,
-            "Dispatched" => OrderStateEnum::SETTLED,
+            "Dispatched" => OrderStateEnum::DISPATCHED,
             default      => OrderStateEnum::SUBMITTED,
         };
 
