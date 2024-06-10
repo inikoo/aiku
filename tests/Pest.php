@@ -179,15 +179,35 @@ function createCustomer(Shop $shop): Customer
     return $customer;
 }
 
-function createProduct(Shop $shop): array
+function createTradeUnits(Group $group): array
 {
-    $tradeUnit = $shop->group->tradeUnits()->first();
-    if (!$tradeUnit) {
+    $numberTradeUnits=$group->tradeUnits()->count();
+    if($numberTradeUnits<2) {
         $tradeUnit = StoreTradeUnit::make()->action(
-            $shop->group,
+            $group,
             TradeUnit::factory()->definition()
         );
+        $tradeUnit2=StoreTradeUnit::make()->action(
+            $group,
+            TradeUnit::factory()->definition()
+        );
+    }else{
+        $tradeUnit=$group->tradeUnits()->first();
+        $tradeUnit2=$group->tradeUnits()->skip(1)->first();
     }
+
+    return [
+        $tradeUnit,
+        $tradeUnit2
+    ];
+
+}
+
+
+function createProduct(Shop $shop): array
+{
+
+    $tradeUnits=createTradeUnits($shop->group);
 
     $department = $shop->productCategories()->where('type', ProductCategoryTypeEnum::DEPARTMENT)->first();
     if (!$department) {
@@ -216,7 +236,7 @@ function createProduct(Shop $shop): array
             Product::factory()->definition(),
             [
                 'trade_units' => [
-                    $tradeUnit->id => ['units' => 1]
+                    $tradeUnits[0]->id => ['units' => 1]
                 ],
                 'price'       => 100,
             ]
@@ -228,7 +248,7 @@ function createProduct(Shop $shop): array
     }
 
     return [
-        $tradeUnit,
+        $tradeUnits,
         $product
     ];
 }

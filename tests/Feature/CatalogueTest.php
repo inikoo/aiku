@@ -41,6 +41,8 @@ use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use App\Models\Web\Website;
 
+use function Pest\Laravel\actingAs;
+
 beforeAll(function () {
     loadDB('test_base_database.dump');
 });
@@ -50,20 +52,19 @@ beforeEach(function () {
     $this->organisation = createOrganisation();
     $this->guest        = createAdminGuest($this->organisation->group);
     $this->warehouse    = createWarehouse();
+    $this->adminGuest   = createAdminGuest($this->organisation->group);
+    $this->group=$this->organisation->group;
 
-    if (!isset($this->tradeUnit)) {
-        $this->tradeUnit = StoreTradeUnit::make()->action(
-            $this->organisation->group,
-            TradeUnit::factory()->definition()
-        );
-    }
+    list($this->tradeUnit,$this->tradeUnit2)=createTradeUnits($this->group);
 
-    if (!isset($this->tradeUnit2)) {
-        $this->tradeUnit2 = StoreTradeUnit::make()->action(
-            $this->organisation->group,
-            TradeUnit::factory()->definition()
-        );
-    }
+    Config::set(
+        'inertia.testing.page_paths',
+        [resource_path('js/Pages/Grp')]
+    );
+    actingAs($this->adminGuest->user);
+    setPermissionsTeamId($this->organisation->group->id);
+
+
 });
 
 test('create shop', function () {
