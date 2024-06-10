@@ -16,11 +16,11 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditFamily extends OrgAction
+class EditSubDepartment extends OrgAction
 {
-    public function handle(ProductCategory $family): ProductCategory
+    public function handle(ProductCategory $subDepartment): ProductCategory
     {
-        return $family;
+        return $subDepartment;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -44,44 +44,44 @@ class EditFamily extends OrgAction
         }
     }
 
-    public function inOrganisation(Organisation $organisation, ProductCategory $family, ActionRequest $request): ProductCategory
+    public function inOrganisation(Organisation $organisation, ProductCategory $subDepartment, ActionRequest $request): ProductCategory
     {
         $this->initialisation($organisation, $request);
 
-        return $this->handle($family);
+        return $this->handle($subDepartment);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inShop(Organisation $organisation, Shop $shop, ProductCategory $family, ActionRequest $request): ProductCategory
+    public function inShop(Organisation $organisation, Shop $shop, ProductCategory $subDepartment, ActionRequest $request): ProductCategory
     {
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle($family);
+        return $this->handle($subDepartment);
     }
 
-    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $family, ActionRequest $request): ProductCategory
+    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $subDepartment, ActionRequest $request): ProductCategory
     {
         $this->initialisationFromShop($shop, $request)->withTab(DepartmentTabsEnum::values());
 
-        return $this->handle($family);
+        return $this->handle($subDepartment);
     }
 
-    public function htmlResponse(ProductCategory $family, ActionRequest $request): Response
+    public function htmlResponse(ProductCategory $subDepartment, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('family'),
+                'title'       => __('sub department'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
                 'navigation'                            => [
-                    'previous' => $this->getPrevious($family, $request),
-                    'next'     => $this->getNext($family, $request),
+                    'previous' => $this->getPrevious($subDepartment, $request),
+                    'next'     => $this->getNext($subDepartment, $request),
                 ],
                 'pageHead'    => [
-                    'title'    => $family->code,
+                    'title'    => $subDepartment->code,
                     'actions'  => [
                         [
                             'type'  => 'button',
@@ -102,12 +102,12 @@ class EditFamily extends OrgAction
                                 'code' => [
                                     'type'  => 'input',
                                     'label' => __('code'),
-                                    'value' => $family->code
+                                    'value' => $subDepartment->code
                                 ],
                                 'name' => [
                                     'type'  => 'input',
                                     'label' => __('name'),
-                                    'value' => $family->name
+                                    'value' => $subDepartment->name
                                 ],
                             ]
                         ]
@@ -116,7 +116,7 @@ class EditFamily extends OrgAction
                     'args'      => [
                         'updateRoute' => [
                             'name'       => 'grp.models.department.update',
-                            'parameters' => $family->slug
+                            'parameters' => $subDepartment->slug
                         ],
                     ]
                 ]
@@ -127,48 +127,48 @@ class EditFamily extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return ShowFamily::make()->getBreadcrumbs(
+        return ShowSubDepartment::make()->getBreadcrumbs(
             routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('Editing').')'
         );
     }
 
-    public function getPrevious(ProductCategory $family, ActionRequest $request): ?array
+    public function getPrevious(ProductCategory $subDepartment, ActionRequest $request): ?array
     {
-        $previous = ProductCategory::where('code', '<', $family->code)->orderBy('code', 'desc')->first();
+        $previous = ProductCategory::where('code', '<', $subDepartment->code)->orderBy('code', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
 
-    public function getNext(ProductCategory $family, ActionRequest $request): ?array
+    public function getNext(ProductCategory $subDepartment, ActionRequest $request): ?array
     {
-        $next = ProductCategory::where('code', '>', $family->code)->orderBy('code')->first();
+        $next = ProductCategory::where('code', '>', $subDepartment->code)->orderBy('code')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
-    private function getNavigation(?ProductCategory $family, string $routeName): ?array
+    private function getNavigation(?ProductCategory $subDepartment, string $routeName): ?array
     {
-        if (!$family) {
+        if (!$subDepartment) {
             return null;
         }
         return match ($routeName) {
             'shops.families.edit' => [
-                'label' => $family->name,
+                'label' => $subDepartment->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'department' => $family->slug
+                        'department' => $subDepartment->slug
                     ]
                 ]
             ],
             'shops.show.families.edit' => [
-                'label' => $family->name,
+                'label' => $subDepartment->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'shop'       => $family->shop->slug,
-                        'department' => $family->slug
+                        'shop'       => $subDepartment->shop->slug,
+                        'department' => $subDepartment->slug
                     ]
                 ]
             ],

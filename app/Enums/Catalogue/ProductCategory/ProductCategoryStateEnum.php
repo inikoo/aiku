@@ -97,4 +97,16 @@ enum ProductCategoryStateEnum: string
             'discontinued'          => $stats->number_families_state_discontinued,
         ];
     }
+
+    public static function countSubDepartment(ProductCategory $parent): array
+    {
+        $stats = $parent->stats;
+
+        return [
+            'in-process'            => $stats->number_sub_departments_state_in_process,
+            'active'                => $stats->number_sub_departments_state_active,
+            'discontinuing'         => $stats->number_sub_departments_state_discontinuing,
+            'discontinued'          => $stats->number_sub_departments_state_discontinued,
+        ];
+    }
 }

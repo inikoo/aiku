@@ -15,12 +15,16 @@ use App\Actions\Catalogue\Collection\UI\CreateCollection;
 use App\Actions\Catalogue\Collection\UI\EditCollection;
 use App\Actions\Catalogue\ProductCategory\UI\CreateDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\CreateFamily;
+use App\Actions\Catalogue\ProductCategory\UI\CreateSubDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\EditDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\EditFamily;
+use App\Actions\Catalogue\ProductCategory\UI\EditSubDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
 use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
+use App\Actions\Catalogue\ProductCategory\UI\IndexSubDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\ShowDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\ShowFamily;
+use App\Actions\Catalogue\ProductCategory\UI\ShowSubDepartment;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use Illuminate\Support\Facades\Route;
 
@@ -51,10 +55,17 @@ Route::name("departments.")->prefix('departments')
                 Route::get('', [IndexFamilies::class, 'inDepartment'])->name('index');
                 Route::get('create', [CreateFamily::class, 'inDepartment'])->name('create');
                 Route::get('{family}', [ShowFamily::class, 'inDepartment'])->name('show');
+                Route::get('edit/{family}', [EditFamily::class, 'inDepartment'])->name('edit');
             });
             Route::prefix('products')->name('.products.')->group(function () {
                 Route::get('', [IndexProducts::class, 'inDepartment'])->name('index');
                 Route::get('{product}', [ShowProduct::class, 'inDepartment'])->name('show');
+            });
+            Route::prefix('sub-departments')->name('.sub-departments.')->group(function () {
+                Route::get('', [IndexSubDepartment::class, 'inDepartment'])->name('index');
+                Route::get('create', [CreateSubDepartment::class, 'inDepartment'])->name('create');
+                Route::get('{subDepartment}', [ShowSubDepartment::class, 'inDepartment'])->name('show');
+                Route::get('edit/{subDepartment}', [EditSubDepartment::class, 'inDepartment'])->name('edit');
             });
         });
     });
