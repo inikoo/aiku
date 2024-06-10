@@ -7,9 +7,7 @@
 
 namespace App\Actions\Fulfilment\Rental\UI;
 
-use App\Actions\Catalogue\Asset\UI\GetProductRental;
-use App\Actions\Catalogue\Asset\UI\GetProductService;
-use App\Actions\Catalogue\Asset\UI\GetProductShowcase;
+use App\Actions\Catalogue\Product\UI\GetProductShowcase;
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
@@ -25,7 +23,6 @@ use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\ProductCategory;
-use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Rental;

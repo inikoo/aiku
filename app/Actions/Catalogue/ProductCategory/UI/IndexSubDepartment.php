@@ -7,14 +7,12 @@
 
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
-use App\Actions\Catalogue\HasMarketAuthorisation;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
-use App\Http\Resources\Catalogue\FamiliesResource;
-use App\Http\Resources\Catalogue\SubDepartmentResource;
 use App\Http\Resources\Catalogue\SubDepartmentsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\ProductCategory;
@@ -31,7 +29,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexSubDepartment extends OrgAction
 {
-    use HasMarketAuthorisation;
+    use HaCatalogueAuthorisation;
     use WithDepartmentSubNavigation;
 
     private Shop|ProductCategory|Organisation $parent;
@@ -194,8 +192,8 @@ class IndexSubDepartment extends OrgAction
                             'count' => $parent->stats->number_families,
                         ],
                         'ProductCategory' => [
-                            'title' => __("No sub department found"),
-                            'count' => $parent->stats->number_sub_departments,
+                            'title'       => __("No sub department found"),
+                            'count'       => $parent->stats->number_sub_departments,
                             'action'      => [
                                 'type'    => 'button',
                                 'style'   => 'create',
@@ -203,7 +201,7 @@ class IndexSubDepartment extends OrgAction
                                 'label'   => __('sub department'),
                                 'route'   => [
                                     'name'           => 'grp.org.shops.show.catalogue.departments.show.sub-departments.create',
-                                    'parameters' => [
+                                    'parameters'     => [
                                         'organisation' => $parent->organisation->slug,
                                         'shop'         => $parent->shop->slug,
                                         'department'   => $parent->slug

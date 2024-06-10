@@ -59,17 +59,17 @@ class UpdateOrderStateToInWarehouse extends OrgAction
     public function afterValidator(Validator $validator): void
     {
 
-        if ($this->order->state == OrderStateEnum::CREATING ) {
+        if ($this->order->state == OrderStateEnum::CREATING) {
             $validator->errors()->add('state', __('Only submitted orders can be send to warehouse'));
-        }elseif ($this->order->state == OrderStateEnum::SUBMITTED && !$this->order->transactions->count()) {
+        } elseif ($this->order->state == OrderStateEnum::SUBMITTED && !$this->order->transactions->count()) {
             $validator->errors()->add('state', __('Order dont have any transactions to be send to warehouse'));
-        }elseif ($this->order->state == OrderStateEnum::IN_WAREHOUSE || $this->order->state == OrderStateEnum::HANDLING || $this->order->state == OrderStateEnum::PACKED) {
+        } elseif ($this->order->state == OrderStateEnum::IN_WAREHOUSE || $this->order->state == OrderStateEnum::HANDLING || $this->order->state == OrderStateEnum::PACKED) {
             $validator->errors()->add('state', __('Order already in warehouse'));
-        }elseif($this->order->state == OrderStateEnum::FINALISED) {
+        } elseif($this->order->state == OrderStateEnum::FINALISED) {
             $validator->errors()->add('state', __('Order is already finalised'));
-        }elseif ($this->order->state == OrderStateEnum::DISPATCHED) {
+        } elseif ($this->order->state == OrderStateEnum::DISPATCHED) {
             $validator->errors()->add('state', __('Order is already dispatched'));
-        }elseif ($this->order->state == OrderStateEnum::CANCELLED) {
+        } elseif ($this->order->state == OrderStateEnum::CANCELLED) {
             $validator->errors()->add('state', __('Order has been cancelled'));
         }
     }

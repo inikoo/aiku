@@ -6,25 +6,6 @@
  */
 
 
-use App\Actions\Catalogue\Asset\UI\CreateProduct;
-use App\Actions\Catalogue\Asset\UI\EditProduct;
-use App\Actions\Catalogue\Asset\UI\IndexProducts;
-use App\Actions\Catalogue\Asset\UI\RemoveProduct;
-use App\Actions\Catalogue\Asset\UI\ShowProduct;
-use App\Actions\Catalogue\ProductCategory\ExportProductCategory;
-use App\Actions\Catalogue\ProductCategory\UI\CreateDepartment;
-use App\Actions\Catalogue\ProductCategory\UI\CreateDepartments;
-use App\Actions\Catalogue\ProductCategory\UI\CreateFamily;
-use App\Actions\Catalogue\ProductCategory\UI\EditDepartment;
-use App\Actions\Catalogue\ProductCategory\UI\EditFamily;
-use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
-use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
-use App\Actions\Catalogue\ProductCategory\UI\RemoveDepartment;
-use App\Actions\Catalogue\ProductCategory\UI\RemoveFamily;
-use App\Actions\Catalogue\ProductCategory\UI\ShowDepartment;
-use App\Actions\Catalogue\ProductCategory\UI\ShowFamily;
-use App\Actions\Catalogue\Shop\ExportShops;
-use Illuminate\Support\Facades\Route;
 
 /*
 Route::get('/departments', [IndexDepartments::class, 'inOrganisation'])->name('departments.index');

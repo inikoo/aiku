@@ -7,9 +7,7 @@
 
 namespace App\Actions\Catalogue\Service\UI;
 
-use App\Actions\Catalogue\Asset\UI\GetProductRental;
-use App\Actions\Catalogue\Asset\UI\GetProductService;
-use App\Actions\Catalogue\Asset\UI\GetProductShowcase;
+use App\Actions\Catalogue\Product\UI\GetProductShowcase;
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\CRM\Customer\UI\IndexCustomers;

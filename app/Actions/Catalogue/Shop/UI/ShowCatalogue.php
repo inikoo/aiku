@@ -7,17 +7,9 @@
 
 namespace App\Actions\Catalogue\Shop\UI;
 
-use App\Actions\Catalogue\Collection\UI\IndexCollection;
-use App\Actions\Catalogue\Asset\UI\IndexProducts;
-use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
-use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
 use App\Actions\OrgAction;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\Catalogue\CatalogueTabsEnum;
-use App\Http\Resources\Catalogue\CollectionResource;
-use App\Http\Resources\Catalogue\DepartmentsResource;
-use App\Http\Resources\Catalogue\FamiliesResource;
-use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\Catalogue\ShopResource;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;

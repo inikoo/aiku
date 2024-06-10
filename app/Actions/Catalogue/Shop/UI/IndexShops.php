@@ -7,11 +7,11 @@
 
 namespace App\Actions\Catalogue\Shop\UI;
 
-use App\Actions\Catalogue\HasMarketAuthorisation;
-use App\Actions\Catalogue\Asset\UI\IndexProducts;
+use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
 use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -35,7 +35,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexShops extends OrgAction
 {
-    use HasMarketAuthorisation;
+    use HaCatalogueAuthorisation;
 
     private Organisation|Group $parent;
 

@@ -7,6 +7,7 @@
 
 namespace App\Actions\Catalogue\Asset\UI;
 
+use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\InertiaAction;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;

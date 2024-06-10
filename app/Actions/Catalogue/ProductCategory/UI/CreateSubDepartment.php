@@ -7,8 +7,8 @@
 
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
-use App\Actions\Catalogue\HasMarketAuthorisation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
@@ -20,7 +20,7 @@ use Spatie\LaravelOptions\Options;
 
 class CreateSubDepartment extends OrgAction
 {
-    use HasMarketAuthorisation;
+    use HaCatalogueAuthorisation;
     private Shop|ProductCategory $parent;
 
     public function authorize(ActionRequest $request): bool

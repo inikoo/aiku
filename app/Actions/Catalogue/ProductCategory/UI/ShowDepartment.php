@@ -7,13 +7,13 @@
 
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
-use App\Actions\Catalogue\HasMarketAuthorisation;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\DepartmentTabsEnum;
 use App\Http\Resources\Catalogue\DepartmentsResource;
 use App\Http\Resources\CRM\CustomersResource;
@@ -28,7 +28,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowDepartment extends OrgAction
 {
-    use HasMarketAuthorisation;
+    use HaCatalogueAuthorisation;
     use WithDepartmentSubNavigation;
 
 

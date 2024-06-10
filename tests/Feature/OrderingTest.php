@@ -50,14 +50,14 @@ beforeEach(function () {
         $this->organisation,
         $this->user,
         $this->shop
-        ) = createShop();
+    ) = createShop();
 
     $this->group = $this->organisation->group;
 
     list(
         $this->tradeUnit,
         $this->product
-        ) = createProduct($this->shop);
+    ) = createProduct($this->shop);
 
     $this->customer = createCustomer($this->shop);
 });
@@ -159,7 +159,7 @@ test('update order state to submitted', function (Order $order) {
 
 test('update order state to in warehouse', function (Order $order) {
 
-        $order = UpdateOrderStateToInWarehouse::make()->action($order);
+    $order = UpdateOrderStateToInWarehouse::make()->action($order);
 
     expect($order->state)->toEqual(OrderStateEnum::IN_WAREHOUSE);
 })->depends('update order state to submitted');

@@ -1,16 +1,16 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 28 Mar 2024 20:51:28 Malaysia Time, Mexico City, Mexico
+ * Created: Mon, 10 Jun 2024 11:44:14 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Catalogue;
+namespace App\Actions\Traits\Authorisations;
 
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 
-trait HasMarketAuthorisation
+trait HaCatalogueAuthorisation
 {
     public function authorize(ActionRequest $request): bool
     {

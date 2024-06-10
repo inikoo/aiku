@@ -21,7 +21,7 @@ const props = defineProps<{
 }>()
 
 function productRoute(product: Product) {
-
+console.log(route().current())
   switch (route().current()) {
 
     case "grp.org.shops.show.catalogue.products.index":
@@ -41,6 +41,14 @@ function productRoute(product: Product) {
       return route(
           'grp.org.shops.show.catalogue.departments.show.products.show',
           [route().params['organisation'], route().params['shop'], route().params['department'], product.slug]);
+    case 'grp.org.shops.show.catalogue.families.show.products.index':
+      return route(
+          'grp.org.shops.show.catalogue.families.show.products.show',
+          [route().params['organisation'], route().params['shop'], route().params['family'], product.slug]);
+    case 'grp.org.shops.show.catalogue.departments.show.families.show.products.index':
+      return route(
+          'grp.org.shops.show.catalogue.departments.show.families.show.products.show',
+          [route().params['organisation'], route().params['shop'], route().params['department'], route().params['family'], product.slug]);
     default:
       return null
   }

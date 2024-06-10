@@ -7,19 +7,12 @@
 
 namespace App\Actions\Catalogue\Collection\UI;
 
-use App\Actions\Catalogue\HasMarketAuthorisation;
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
-use App\Actions\CRM\Customer\UI\IndexCustomers;
-use App\Actions\Mail\Mailshot\IndexMailshots;
-use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\CollectionTabsEnum;
-use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Catalogue\CollectionResource;
-use App\Http\Resources\CRM\CustomersResource;
-use App\Http\Resources\Mail\MailshotResource;
-use App\Http\Resources\Sales\OrderResource;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -29,7 +22,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowCollection extends OrgAction
 {
-    use HasMarketAuthorisation;
+    use HaCatalogueAuthorisation;
 
     private Organisation|Shop $parent;
 

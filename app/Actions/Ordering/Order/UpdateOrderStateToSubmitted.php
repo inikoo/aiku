@@ -61,15 +61,15 @@ class UpdateOrderStateToSubmitted extends OrgAction
     {
         if ($this->order->state == OrderStateEnum::CREATING && !$this->order->transactions->count()) {
             $validator->errors()->add('state', __('Can not submit an order without any transactions'));
-        }elseif ($this->order->state == OrderStateEnum::SUBMITTED) {
+        } elseif ($this->order->state == OrderStateEnum::SUBMITTED) {
             $validator->errors()->add('state', __('Order is already submitted'));
-        }elseif ($this->order->state == OrderStateEnum::PACKED || $this->order->state == OrderStateEnum::HANDLING) {
+        } elseif ($this->order->state == OrderStateEnum::PACKED || $this->order->state == OrderStateEnum::HANDLING) {
             $validator->errors()->add('state', __('Order is already been picked'));
-        }elseif ($this->order->state == OrderStateEnum::FINALISED) {
+        } elseif ($this->order->state == OrderStateEnum::FINALISED) {
             $validator->errors()->add('state', __('Order is already finalised'));
-        }elseif ($this->order->state == OrderStateEnum::DISPATCHED) {
+        } elseif ($this->order->state == OrderStateEnum::DISPATCHED) {
             $validator->errors()->add('state', __('Order is already dispatched'));
-        }elseif ($this->order->state == OrderStateEnum::CANCELLED) {
+        } elseif ($this->order->state == OrderStateEnum::CANCELLED) {
             $validator->errors()->add('state', __('Order has been cancelled'));
         }
     }

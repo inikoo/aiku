@@ -7,14 +7,14 @@
 
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
-use App\Actions\Catalogue\Asset\UI\IndexProducts;
-use App\Actions\Catalogue\HasMarketAuthorisation;
+use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Catalogue\WithFamilySubNavigation;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\DepartmentTabsEnum;
 use App\Enums\UI\Catalogue\FamilyTabsEnum;
 use App\Http\Resources\Catalogue\DepartmentsResource;
@@ -30,8 +30,11 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowFamily extends OrgAction
 {
-    use HasMarketAuthorisation;
+    use HaCatalogueAuthorisation;
     use WithFamilySubNavigation;
+
+
+    private Organisation|ProductCategory $parent;
 
     public function handle(ProductCategory $family): ProductCategory
     {
@@ -41,6 +44,7 @@ class ShowFamily extends OrgAction
 
     public function asController(Organisation $organisation, ProductCategory $family, ActionRequest $request): ProductCategory
     {
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(DepartmentTabsEnum::values());
 
         return $this->handle($family);
@@ -49,6 +53,7 @@ class ShowFamily extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Organisation $organisation, Shop $shop, ProductCategory $family, ActionRequest $request): ProductCategory
     {
+        $this->parent=$family;
         $this->initialisationFromShop($shop, $request)->withTab(DepartmentTabsEnum::values());
 
         return $this->handle($family);
@@ -57,6 +62,8 @@ class ShowFamily extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $family, ActionRequest $request): ProductCategory
     {
+        $this->parent=$department;
+
         $this->initialisationFromShop($shop, $request)->withTab(DepartmentTabsEnum::values());
 
         return $this->handle($family);
@@ -101,7 +108,7 @@ class ShowFamily extends OrgAction
                             ]
                         ] : false
                     ],
-                    'subNavigation' => $this->getFamilySubNavigation($family)
+                    'subNavigation' => $this->getFamilySubNavigation($family, $this->parent, $request)
 
                 ],
                 'tabs'        => [

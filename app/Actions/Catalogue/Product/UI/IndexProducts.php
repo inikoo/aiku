@@ -1,19 +1,19 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Mon, 13 Mar 2023 15:05:41 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 10 Jun 2024 11:47:26 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Catalogue\Asset\UI;
+namespace App\Actions\Catalogue\Product\UI;
 
-use App\Actions\Catalogue\HasMarketAuthorisation;
 use App\Actions\Catalogue\ProductCategory\UI\ShowDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\ShowFamily;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\Catalogue\WithFamilySubNavigation;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
@@ -34,7 +34,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexProducts extends OrgAction
 {
-    use HasMarketAuthorisation;
+    use HaCatalogueAuthorisation;
     use WithDepartmentSubNavigation;
     use WithFamilySubNavigation;
 
@@ -233,7 +233,7 @@ class IndexProducts extends OrgAction
             if ($this->parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
                 $subNavigation = $this->getDepartmentSubNavigation($this->parent);
             } elseif ($this->parent->type == ProductCategoryTypeEnum::FAMILY) {
-                $subNavigation = $this->getFamilySubNavigation($this->parent);
+                $subNavigation = $this->getFamilySubNavigation($this->parent, $this->parent, $request);
             }
         }
 
@@ -294,6 +294,14 @@ class IndexProducts extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
+    public function inFamilyInDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $family, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $family;
+        $this->initialisationFromShop($shop, $request);
+        return $this->handle(parent: $family);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
     public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $department;
@@ -326,6 +334,8 @@ class IndexProducts extends OrgAction
             ];
         };
 
+
+
         return match ($routeName) {
             'grp.org.shops.show.catalogue.departments.show.products.index' =>
             array_merge(
@@ -341,6 +351,21 @@ class IndexProducts extends OrgAction
                     $suffix
                 )
             ),
+            'grp.org.shops.show.catalogue.departments.show.families.show.products.index' =>
+            array_merge(
+                ShowFamily::make()->getBreadcrumbs(
+                    'grp.org.shops.show.catalogue.departments.show.families.show',
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+
             'grp.org.shops.show.catalogue.families.show.products.index' =>
             array_merge(
                 ShowFamily::make()->getBreadcrumbs(
