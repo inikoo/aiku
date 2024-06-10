@@ -33,7 +33,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
-use App\Models\DropShipping\CustomerClient;
+use App\Models\Dropshippingx\CustomerClient;
 use App\Models\Helpers\Address;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\ShippingZone;

@@ -16,7 +16,7 @@ use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Order\OrderStatusEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
-use App\Models\DropShipping\CustomerClient;
+use App\Models\Dropshippingx\CustomerClient;
 use App\Models\Helpers\Address;
 use App\Models\Ordering\Order;
 use App\Rules\IUnique;

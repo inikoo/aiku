@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\DropShipping;
+namespace App\Models\Dropshippingx;
 
 use App\Models\Catalogue\Product;
 use App\Models\Traits\InCustomer;

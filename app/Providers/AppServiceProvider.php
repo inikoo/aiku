@@ -88,7 +88,7 @@ class AppServiceProvider extends ServiceProvider
                 'Shipper'                   => 'App\Models\Dispatch\Shipper',
 
                 // Dropshipping
-                'CustomerClient'         => 'App\Models\DropShipping\CustomerClient',
+                'CustomerClient'         => 'App\Models\Dropshipping\CustomerClient',
 
                 // Fulfilment
                 'FulfilmentCustomer'               => 'App\Models\Fulfilment\FulfilmentCustomer',

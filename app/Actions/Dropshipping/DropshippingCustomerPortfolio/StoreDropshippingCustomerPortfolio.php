@@ -9,7 +9,7 @@ namespace App\Actions\Dropshipping\DropshippingCustomerPortfolio;
 
 use App\Actions\OrgAction;
 use App\Models\CRM\Customer;
-use App\Models\DropShipping\DropshippingCustomerPortfolio;
+use App\Models\Dropshippingx\DropshippingCustomerPortfolio;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;

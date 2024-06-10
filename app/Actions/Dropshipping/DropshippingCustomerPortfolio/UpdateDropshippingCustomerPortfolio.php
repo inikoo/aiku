@@ -9,7 +9,7 @@ namespace App\Actions\Dropshipping\DropshippingCustomerPortfolio;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\DropShipping\DropshippingCustomerPortfolio;
+use App\Models\Dropshippingx\DropshippingCustomerPortfolio;
 use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
 

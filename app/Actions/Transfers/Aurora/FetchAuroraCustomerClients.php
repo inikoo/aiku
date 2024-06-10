@@ -9,7 +9,7 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\CRM\CustomerClient\StoreCustomerClient;
 use App\Actions\CRM\CustomerClient\UpdateCustomerClient;
-use App\Models\DropShipping\CustomerClient;
+use App\Models\Dropshippingx\CustomerClient;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
