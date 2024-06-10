@@ -62,4 +62,9 @@ class Task extends Model
     {
         return $this->morphToMany(User::class, 'taskable', 'users_has_tasks');
     }
+
+    public function assigner()
+    {
+        return $this->morphTo();
+    }
 }

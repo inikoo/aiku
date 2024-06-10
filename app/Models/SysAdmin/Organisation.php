@@ -565,4 +565,8 @@ class Organisation extends Model implements HasMedia, Auditable
         return $this->hasMany(Asset::class);
     }
 
+    public function tasks()
+    {
+        return $this->morphMany(Task::class, 'assigner');
+    }
 }

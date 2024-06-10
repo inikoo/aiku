@@ -14,6 +14,7 @@ use App\Models\Helpers\Issue;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\SysAdmin\Task;
 use App\Models\SysAdmin\User;
 use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasHistory;
@@ -218,6 +219,11 @@ class Employee extends Model implements HasMedia, Auditable
     public function clockings(): MorphMany
     {
         return $this->morphMany(Clocking::class, 'subject');
+    }
+
+    public function tasks()
+    {
+        return $this->morphMany(Task::class, 'assigner');
     }
 
 

@@ -7,19 +7,28 @@
 
 namespace App\Actions\SysAdmin\Task;
 
+use App\Actions\OrgAction;
+use App\Models\Catalogue\Shop;
+use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Task;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreTask
+class StoreTask extends OrgAction
 {
     use AsAction;
     use WithAttributes;
 
-    public function handle(Group $group, $modelData): Task
+    public function handle(Organisation|Shop|Employee $parent, $modelData): Task
     {
-        data_set($modelData, 'group_id', $group->id);
+        data_set($modelData, 'group_id', $parent->group->id);
+        if ($parent instanceof Organisation) {
+            data_set($modelData, 'organisation_id', $parent->id);
+        } else {
+            data_set($modelData, 'organisation_id', $parent->organisation->id);
+        }
 
         $task = Task::create($modelData);
 
@@ -30,14 +39,13 @@ class StoreTask
     {
         return [
             'code'              => ['required','alpha_dash','max:64','unique:tasks,code'],
-            'organisation_id'   => ['sometimes', 'exists:organisations,id'],
             'name'              => ['required', 'string', 'max:255'],
             'description'       => ['sometimes', 'string'],
         ];
     }
 
-    public function asController(Group $group): Task
+    public function asController(Organisation|Shop|Employee $parent): Task
     {
-        return $this->handle($group, $this->validatedData);
+        return $this->handle($parent, $this->validatedData);
     }
 }

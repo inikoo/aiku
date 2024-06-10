@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Enums\Task\TaskStatusEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -16,14 +17,19 @@ return new class () extends Migration {
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->unsignedSmallInteger('group_id')->index();
-            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedSmallInteger('organisation_id')->nullable();
-            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
+            $table=$this->groupOrgRelationship($table);
+            $table->unsignedSmallInteger('task_type_id')->index()->nullable();
+            $table->unsignedSmallInteger('production_id')->index()->nullable();
+            $table->boolean('is_manufacturing')->default(false);
+            $table->unsignedBigInteger('assigner_id')->nullable();
+            $table->string('assigner_type')->nullable();
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code', 64)->index()->collation('und_ns');
             $table->string('name');
+            $table->string('status')->default(TaskStatusEnum::PENDING->value);
             $table->text('description')->nullable()->fulltext();
+            $table->dateTimeTz('start_date')->nullable();
+            $table->dateTimeTz('complete_date')->nullable();
             $table->softDeletesTz();
             $table->timestampsTz();
         });

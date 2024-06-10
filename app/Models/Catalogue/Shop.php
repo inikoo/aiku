@@ -40,6 +40,7 @@ use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
+use App\Models\SysAdmin\Task;
 use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;
@@ -406,6 +407,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function rentals(): HasMany
     {
         return $this->hasMany(Rental::class);
+    }
+
+    public function tasks()
+    {
+        return $this->morphMany(Task::class, 'assigner');
     }
 
 }
