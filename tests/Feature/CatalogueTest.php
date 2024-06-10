@@ -574,3 +574,20 @@ test('update collection category', function ($collectionCategory) {
 
     return $collectionCategory;
 })->depends('create collection category');
+
+
+test('hydrate shops command', function () {
+    $this->artisan('shop:hydrate')->assertExitCode(0);
+});
+
+test('hydrate departments command', function () {
+    $this->artisan('department:hydrate')->assertExitCode(0);
+});
+
+test('hydrate families command', function () {
+    $this->artisan('family:hydrate')->assertExitCode(0);
+});
+
+test('hydrate products command', function () {
+    $this->artisan('product:hydrate')->assertExitCode(0);
+});
