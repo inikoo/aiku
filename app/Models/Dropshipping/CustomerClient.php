@@ -60,7 +60,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Shop|null $shop
  * @property-read UniversalSearch|null $universalSearch
- * @method static \Database\Factories\DropShipping\CustomerClientFactory factory($count = null, $state = [])
+ * @method static \Database\Factories\Dropshipping\CustomerClientFactory factory($count = null, $state = [])
  * @method static Builder|CustomerClient newModelQuery()
  * @method static Builder|CustomerClient newQuery()
  * @method static Builder|CustomerClient onlyTrashed()
