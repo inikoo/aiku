@@ -16,7 +16,7 @@ use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Models\Ordering\Order;
 use Illuminate\Validation\Validator;
 
-class UpdateStateToSubmittedOrder extends OrgAction
+class UpdateOrderStateToSubmitted extends OrgAction
 {
     use WithActionUpdate;
     use HasOrderHydrators;

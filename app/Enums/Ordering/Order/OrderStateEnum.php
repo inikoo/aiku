@@ -14,8 +14,8 @@ enum OrderStateEnum: string
     use EnumHelperTrait;
 
     case CREATING = 'creating';
-    case IN_WAREHOUSE = 'in_warehouse';
     case SUBMITTED = 'submitted';
+    case IN_WAREHOUSE = 'in_warehouse';
     case HANDLING = 'handling';
     case PACKED = 'packed';
     case FINALISED = 'finalised';

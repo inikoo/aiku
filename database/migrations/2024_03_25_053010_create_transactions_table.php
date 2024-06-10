@@ -28,6 +28,8 @@ return new class () extends Migration {
             $table->string('type');
             $table->datetimeTz('date');
             $table->dateTimeTz('submitted_at')->nullable();
+            $table->dateTimeTz('in_warehouse_at')->nullable();
+
             $table->dateTimeTz('settled_at')->nullable();
 
 
