@@ -32,17 +32,19 @@ class FetchAuroraTransaction extends FetchAurora
             $state = null;
             if (class_basename($historicItem) == 'HistoricAsset') {
                 $state = match ($this->auroraModelData->{'Current Dispatching State'}) {
-                    'In Process'            => TransactionStateEnum::CREATING,
+                    'In Process' => TransactionStateEnum::CREATING,
                     'Submitted by Customer' => TransactionStateEnum::SUBMITTED,
                     'Ready to Pick', 'Picking', 'Ready to Pack', 'Packing', 'Packed', 'Packed Done' => TransactionStateEnum::HANDLING,
                     'Ready to Ship' => TransactionStateEnum::FINALISED,
-                    'Dispatched', 'No Picked Due Out of Stock', 'No Picked Due No Authorised', 'No Picked Due Not Found', 'No Picked Due Other', 'Cancelled', 'Suspended', 'Cancelled by Customer' => TransactionStateEnum::SETTLED,
+                    'Dispatched' => TransactionStateEnum::DISPATCHED,
+                    'No Picked Due Out of Stock', 'No Picked Due No Authorised', 'No Picked Due Not Found', 'No Picked Due Other', 'Cancelled', 'Suspended', 'Cancelled by Customer' => TransactionStateEnum::CANCELLED,
                     'Unknown' => null
                 };
             } elseif (class_basename($historicItem) == 'HistoricService') {
                 $state = match ($this->auroraModelData->{'Current Dispatching State'}) {
                     'In Process' => TransactionStateEnum::CREATING,
-                    'Dispatched', 'Cancelled', 'Suspended', 'Cancelled by Customer' => TransactionStateEnum::SETTLED,
+                    'Dispatched' => TransactionStateEnum::DISPATCHED,
+                    'Cancelled', 'Suspended', 'Cancelled by Customer' => TransactionStateEnum::CANCELLED,
                     'No Picked Due Out of Stock', 'No Picked Due No Authorised', 'No Picked Due Not Found', 'No Picked Due Other', 'Unknown' => null,
                     default => TransactionStateEnum::SUBMITTED,
                 };
@@ -67,14 +69,13 @@ class FetchAuroraTransaction extends FetchAurora
 
             $quantityFail = round($this->auroraModelData->{'No Shipped Due Out of Stock'}, 4);
             if ($quantityFail < 0.001) {
-                $quantityFail=0;
+                $quantityFail = 0;
             }
 
             $quantityBonus = round($this->auroraModelData->{'Order Bonus Quantity'}, 4);
             if ($quantityBonus < 0.001) {
-                $quantityBonus=0;
+                $quantityBonus = 0;
             }
-
 
 
             $this->parsedData['transaction'] = [
