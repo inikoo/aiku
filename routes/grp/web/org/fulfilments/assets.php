@@ -5,9 +5,9 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Catalogue\Asset\UI\ShowProduct;
 use App\Actions\Catalogue\Product\UI\CreatePhysicalGoods;
 use App\Actions\Catalogue\Product\UI\ShowPhysicalGoods;
+use App\Actions\Catalogue\Product\UI\ShowProduct;
 use App\Actions\Catalogue\Service\UI\CreateService;
 use App\Actions\Catalogue\Service\UI\EditService;
 use App\Actions\Catalogue\Service\UI\ShowService;

@@ -6,7 +6,7 @@
  */
 
 use App\Actions\Catalogue\Asset\UI\CreateProduct;
-use App\Actions\Catalogue\Asset\UI\IndexProducts;
+use App\Actions\Catalogue\Product\UI\IndexProducts;
 use App\Actions\UI\Dropshipping\Assets\ShowAssetDashboard;
 use App\Stubs\UIDummies\EditDummy;
 use App\Stubs\UIDummies\IndexDummies;

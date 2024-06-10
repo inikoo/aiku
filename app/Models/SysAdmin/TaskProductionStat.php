@@ -20,12 +20,14 @@ class TaskProductionStat extends Model
         'operative_reward_allowance_type'     => ManufactureTaskOperativeRewardAllowanceTypeEnum::class,
     ];
 
-    public function task() : BelongsTo {
+    public function task(): BelongsTo
+    {
 
         return $this->belongsTo(Task::class);
-        
+
     }
-    public function production() : BelongsTo {
+    public function production(): BelongsTo
+    {
 
         return $this->belongsTo(Production::class);
 

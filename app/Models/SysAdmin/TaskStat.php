@@ -9,13 +9,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class TaskStat extends Model
 {
     use SoftDeletes;
-    
+
     protected $guarded = [];
 
-    public function task() : BelongsTo {
+    public function task(): BelongsTo
+    {
 
         return $this->belongsTo(Task::class);
-        
+
     }
 
 }
