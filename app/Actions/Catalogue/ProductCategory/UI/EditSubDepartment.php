@@ -8,6 +8,7 @@
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
 use App\Actions\OrgAction;
+use App\Enums\UI\Catalogue\DepartmentTabsEnum;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -54,6 +55,13 @@ class EditSubDepartment extends OrgAction
     public function inShop(Organisation $organisation, Shop $shop, ProductCategory $subDepartment, ActionRequest $request): ProductCategory
     {
         $this->initialisationFromShop($shop, $request);
+
+        return $this->handle($subDepartment);
+    }
+
+    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $subDepartment, ActionRequest $request): ProductCategory
+    {
+        $this->initialisationFromShop($shop, $request)->withTab(DepartmentTabsEnum::values());
 
         return $this->handle($subDepartment);
     }
@@ -119,7 +127,7 @@ class EditSubDepartment extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return ShowFamily::make()->getBreadcrumbs(
+        return ShowSubDepartment::make()->getBreadcrumbs(
             routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('Editing').')'
