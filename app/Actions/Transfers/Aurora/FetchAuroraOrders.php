@@ -15,6 +15,7 @@ use App\Models\Accounting\Payment;
 use App\Models\Ordering\Order;
 use App\Transfers\Aurora\WithAuroraAttachments;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -24,21 +25,19 @@ class FetchAuroraOrders extends FetchAuroraAction
 
     public string $commandSignature = 'fetch:orders {organisations?*} {--S|shop= : Shop slug}  {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments attachments full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions=false): ?Order
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions = false): ?Order
     {
         if ($orderData = $organisationSource->fetchOrder($organisationSourceId)) {
+            $order = $this->processFetchOrder($organisationSource, $orderData);
 
 
-
-            $order=$this->processFetchOrder($orderData);
-
-
-            if(!$order) {
+            if (!$order) {
                 print "Error order could not process $organisationSourceId\n";
+
                 return null;
             }
 
-            if (in_array('transactions', $this->with) or in_array('full', $this->with)  or $forceWithTransactions) {
+            if (in_array('transactions', $this->with) or in_array('full', $this->with) or $forceWithTransactions) {
                 $this->fetchTransactions($organisationSource, $order);
             }
             if (in_array('payments', $this->with) or in_array('full_todo', $this->with)) {
@@ -46,7 +45,7 @@ class FetchAuroraOrders extends FetchAuroraAction
             }
             $this->updateAurora($order);
 
-            $sourceData= explode(':', $order->source_id);
+            $sourceData = explode(':', $order->source_id);
 
 
             if (in_array('full', $this->with)) {
@@ -75,27 +74,34 @@ class FetchAuroraOrders extends FetchAuroraAction
 
 
             return $order;
-
         }
 
         return null;
     }
 
-    private function processFetchOrder($orderData): ?Order
+    private function processFetchOrder($organisationSource, $orderData): ?Order
     {
-
-        $order=null;
+        $order = null;
         if (!empty($orderData['order']['source_id']) and $order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])->first()) {
-            $order = UpdateOrder::make()->action(order: $order, modelData: ['order'], strict: false);
-
+            try {
+                $order = UpdateOrder::make()->action(order: $order, modelData: ['order'], strict: false);
+            } catch (Exception $e) {
+                $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'update');
+            }
         } elseif ($orderData['parent']) {
-            $order = StoreOrder::make()->action(
-                parent: $orderData['parent'],
-                modelData: $orderData['order'],
-                strict: false,
-                hydratorsDelay: $this->hydrateDelay
-            );
+            try {
+                $order = StoreOrder::make()->action(
+                    parent: $orderData['parent'],
+                    modelData: $orderData['order'],
+                    strict: false,
+                    hydratorsDelay: $this->hydrateDelay
+                );
+            } catch (Exception $e) {
+                //dd($e->getMessage());
+                $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'store');
 
+                return null;
+            }
         }
 
         if (in_array('attachments', $this->with)) {
@@ -112,16 +118,18 @@ class FetchAuroraOrders extends FetchAuroraAction
 
 
         return $order;
-
     }
 
 
     private function parseAttachments($staffKey): array
     {
-        $attachments            = $this->getModelAttachmentsCollection(
+        $attachments = $this->getModelAttachmentsCollection(
             'Order',
             $staffKey
-        )->map(function ($auroraAttachment) {return $this->fetchAttachment($auroraAttachment);});
+        )->map(function ($auroraAttachment) {
+            return $this->fetchAttachment($auroraAttachment);
+        });
+
         return $attachments->toArray();
     }
 
@@ -171,8 +179,7 @@ class FetchAuroraOrders extends FetchAuroraAction
         $transactionsToDelete = $order->transactions()->where('type', TransactionTypeEnum::ORDER)->pluck('source_id', 'id')->all();
 
 
-
-        $sourceData= explode(':', $order->source_id);
+        $sourceData = explode(':', $order->source_id);
         foreach (
             DB::connection('aurora')
                 ->table('Order Transaction Fact')
@@ -181,7 +188,6 @@ class FetchAuroraOrders extends FetchAuroraAction
                 ->where('Order Key', $sourceData[1])
                 ->get() as $auroraData
         ) {
-
             $transactionsToDelete = array_diff($transactionsToDelete, [$organisationSource->getOrganisation()->id.':'.$auroraData->{'Order Transaction Fact Key'}]);
             FetchTransactions::run($organisationSource, $auroraData->{'Order Transaction Fact Key'}, $order);
         }
