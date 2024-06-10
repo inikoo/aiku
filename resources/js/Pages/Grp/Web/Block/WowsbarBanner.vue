@@ -30,11 +30,13 @@ const optionWidthHeight = [
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string | number): void
+    (e: 'autoSave'): void
 }>()
 
 
 const onEnter = (e) => {
     emits('update:modelValue', { ...props.modelValue, emptyState: false })
+    emits('autoSave')
 }
 
 </script>
@@ -45,7 +47,7 @@ const onEnter = (e) => {
         <font-awesome-icon :icon="['fal', 'presentation']" class="mx-auto h-12 w-12 text-gray-400" />
         <span class="mt-2 block text-sm font-semibold text-gray-900">Wowsbar Banner</span>
         <div class="flex justify-center m-2">
-            <PureInput v-model="modelValue.link" :placeholder="'Banner Link'" :suffix="true" @onEnter="(e) => onEnter(e)">
+            <PureInput v-model="modelValue.link" :placeholder="'Banner Link'" :suffix="true" @onEnter="(e) => onEnter('a')">
                 <template #suffix>
                     <div
                         class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer">
@@ -76,6 +78,7 @@ const onEnter = (e) => {
                             <InputUseOption
                                  v-model="modelValue.height" 
                                  :option="optionWidthHeight"
+                                 @update:model-value="onEnter('b')"
                                  :MultiSelectProps="{
                                     label : 'label',
                                     valueProp : 'value', 
@@ -88,6 +91,7 @@ const onEnter = (e) => {
                             <InputUseOption
                                  v-model="modelValue.width" 
                                  :option="optionWidthHeight"
+                                 @update:model-value="onEnter('c')"
                                  :MultiSelectProps="{
                                     label : 'label',
                                     valueProp : 'value', 

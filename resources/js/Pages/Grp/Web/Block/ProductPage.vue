@@ -22,6 +22,7 @@ const props = defineProps<{
 const selectedProduct = ref(0)
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string | number): void
+    (e: 'autoSave'): void
 }>()
 
 
@@ -134,7 +135,7 @@ const onEnter = (e) => {
                 <!-- Section: Description -->
                 <div class="space-y-4 mb-6">
                     <div class="text-xs text-gray-500">
-                        <Editor v-model="description" :toogle="[]"/>
+                        <Editor v-model="description" :toogle="[]" @update:modelValue="()=>emits('autoSave')"/>
                     </div>
                     <div class="font-bold text-xs underline">Read More</div>
                 </div>

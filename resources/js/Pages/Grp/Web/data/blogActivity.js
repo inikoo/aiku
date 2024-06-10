@@ -50,6 +50,71 @@ export default {
           },
           fieldProps : {}
         },
+        {
+          id: 4,
+          name: 'Family Page Offer',
+          icon: ['fal', 'newspaper'],
+          imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-05-image-card-01.jpg',
+          imageAlt: 'Text',
+          type: 'familyPage',
+          component: 'FamilyPageOffer',
+          fieldValue : {
+              value : null,
+          },
+          fieldProps : {}
+        },
+        {
+          id: 5,
+          name: 'Product List',
+          icon: ['fal', 'cube'],
+          imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-05-image-card-01.jpg',
+          imageAlt: 'Text',
+          type: 'ProductPage',
+          component: 'ProductList',
+          fieldValue : {
+              value : null,
+          },
+          fieldProps : {}
+        },
+        {
+          id: 6,
+          name: 'CTA',
+          icon: ['fal', 'rectangle-wide'],
+          imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-05-image-card-01.jpg',
+          imageAlt: 'Text',
+          type: 'CTA',
+          component: 'CTA',
+          fieldValue : {
+              value : null,
+          },
+          fieldProps : {}
+        },
+        {
+          id: 7,
+          name: 'Rewiews',
+          icon: ['fal', 'stars'],
+          imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-05-image-card-01.jpg',
+          imageAlt: 'Text',
+          type: 'Reviews',
+          component: 'Reviews',
+          fieldValue : {
+              value : null,
+          },
+          fieldProps : {}
+        },
+        {
+          id: 8,
+          name: 'Image',
+          icon: ['fal', 'image'],
+          imageSrc: 'https://tailwindui.com/img/ecommerce-images/category-page-05-image-card-01.jpg',
+          imageAlt: 'Text',
+          type: 'Image',
+          component: 'Image',
+          fieldValue : {
+              value : null,
+          },
+          fieldProps : {}
+        },
       ]
       
 }
