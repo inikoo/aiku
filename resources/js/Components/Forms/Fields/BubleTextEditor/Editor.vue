@@ -25,11 +25,11 @@ import { faBold, faItalic, faUnderline, faStrikethrough, faAlignLeft, faAlignCen
 library.add(faBold, faQuoteRight, faMarker, faHorizontalRule, faItalic, faUnderline, faStrikethrough, faAlignLeft, faAlignCenter, faAlignRight, faAlignJustify, faSubscript, faSuperscript, faEraser, faListUl, faListOl, faUndoAlt, faRedoAlt, faPaintBrushAlt, faTextHeight, faLink, faText)
 
 
-const props = withDefaults(defineProps < {
+const props = withDefaults(defineProps<{
     modelValue: string,
     toogle?: Array[],
     type?: string,
-} > (), {
+}>(),{
     type: 'Bubble',
     toogle: [
         'heading', 'fontSize', 'bold', 'italic', 'underline', 'bulletList',

@@ -8,6 +8,11 @@ const props = defineProps<{
 
 const editMode = ref(false)
 
+const emits = defineEmits<{
+    (e: 'update:modelValue', value: string | number): void
+    (e: 'autoSave'): void
+}>()
+
 const parsedHtml = computed(() => {
     const parser = new DOMParser();
     const elem = parser.parseFromString(modelValue.value, 'text/html');
@@ -19,7 +24,7 @@ const parsedHtml = computed(() => {
 <template>
     <div class="relative">
         <div>
-            <Editor v-model="modelValue.value"/>
+            <Editor v-model="modelValue.value"  @update:modelValue="()=>emits('autoSave')"/>
         </div>
     </div>
 </template>

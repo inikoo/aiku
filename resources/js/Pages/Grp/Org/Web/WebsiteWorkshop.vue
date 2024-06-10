@@ -10,6 +10,7 @@ import WorkshopHeader from "@/Components/CMS/Workshops/HeaderWorkshop.vue"
 import WorkshopMenu from "@/Components/CMS/Workshops/Menu/MenuWorkshop.vue"
 import LayoutWorkshop from "@/Components/CMS/Workshops/LayoutWorkshop.vue"
 import WorkshopFooter from "@/Components/CMS/Workshops/Footer/FooterWorkshop.vue"
+import WorkshopProduct from "@/Components/CMS/Workshops/ProductWorkshop.vue"
 import ColorSchemeWorkshop from "@/Components/CMS/Workshops/ColorSchemeWorkshop.vue"
 import { capitalize } from "@/Composables/capitalize"
 
@@ -41,7 +42,8 @@ const component = computed(() => {
         header: WorkshopHeader,
         menu: WorkshopMenu,
         footer: WorkshopFooter,
-        layout: LayoutWorkshop
+        layout: LayoutWorkshop,
+        product : WorkshopProduct
     }
     return components[currentTab.value]
 })
