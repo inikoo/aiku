@@ -42,6 +42,7 @@ use App\Transfers\Aurora\FetchAuroraPallet;
 use App\Transfers\Aurora\FetchAuroraPayment;
 use App\Transfers\Aurora\FetchAuroraPaymentAccount;
 use App\Transfers\Aurora\FetchAuroraPaymentServiceProvider;
+use App\Transfers\Aurora\FetchAuroraPortfolio;
 use App\Transfers\Aurora\FetchAuroraProduct;
 use App\Transfers\Aurora\FetchAuroraProductStocks;
 use App\Transfers\Aurora\FetchAuroraProspect;
@@ -369,6 +370,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchBarcode($id): array
     {
         return (new FetchAuroraBarcode($this))->fetch($id);
+    }
+
+    public function fetchPortfolio($id): ?array
+    {
+        return (new FetchAuroraPortfolio($this))->fetch($id);
     }
 
 }

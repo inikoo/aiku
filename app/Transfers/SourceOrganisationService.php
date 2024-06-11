@@ -127,4 +127,6 @@ interface SourceOrganisationService
 
     public function fetchBarcode($id);
 
+    public function fetchPortfolio($id);
+
 }

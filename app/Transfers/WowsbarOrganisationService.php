@@ -322,4 +322,9 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchPortfolio($id): ?array
+    {
+        return null;
+    }
+
 }
