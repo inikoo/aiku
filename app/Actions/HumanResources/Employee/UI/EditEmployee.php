@@ -187,7 +187,19 @@ class EditEmployee extends OrgAction
                     'type'  => 'password',
                     'label' => __('password'),
 
-                ],
+                ],                
+            ]
+        ];
+
+        $sections['pin'] = [
+            'label'  => __('Pin'),
+            'icon'   => 'fal fa-key',
+            'fields' => [
+                'pin' => [
+                    'type'  => 'input',
+                    'label' => __('pin'),
+                    'value' => $employee->pin
+                ],               
             ]
         ];
 
