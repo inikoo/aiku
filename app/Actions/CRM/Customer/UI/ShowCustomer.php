@@ -87,7 +87,7 @@ class ShowCustomer extends OrgAction
     {
         $webUsersMeta = $this->getWebUserMeta($customer, $request);
 
-        $shopMeta = [];
+        $shopMeta      = [];
         $subNavigation = null;
         if ($this->parent instanceof Shop) {
             if ($this->parent->type == ShopTypeEnum::DROPSHIPPING) {

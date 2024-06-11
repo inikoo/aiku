@@ -8,7 +8,6 @@
 namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\Helpers\Country\UI\GetAddressData;
-use App\Actions\InertiaAction;
 use App\Actions\OrgAction;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Catalogue\Shop;
@@ -85,10 +84,10 @@ class CreateCustomer extends OrgAction
                             ]
                         ],
                     'route'     => [
-                        'name'     => 'grp.models.org.shop.customer.store',
+                        'name'      => 'grp.models.org.shop.customer.store',
                         'parameters'=> [
                             'organisation' => $shop->organisation_id,
-                            'shop' => $shop->id
+                            'shop'         => $shop->id
                             ]
                     ]
                 ]

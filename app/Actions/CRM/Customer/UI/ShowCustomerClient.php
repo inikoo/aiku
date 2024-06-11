@@ -7,7 +7,6 @@
 
 namespace App\Actions\CRM\Customer\UI;
 
-use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\Ordering\Order\UI\IndexOrders;
@@ -15,10 +14,8 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\Traits\WithWebUserMeta;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\UI\CRM\CustomerTabsEnum;
 use App\Http\Resources\CRM\CustomerClientResource;
-use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\CRM\WebUsersResource;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Sales\OrderResource;
@@ -75,7 +72,7 @@ class ShowCustomerClient extends OrgAction
 
     public function htmlResponse(CustomerClient $customerClient, ActionRequest $request): Response
     {
-        
+
         $shopMeta = [];
 
         if ($request->route()->getName() == 'customers.show') {
@@ -147,7 +144,7 @@ class ShowCustomerClient extends OrgAction
                 //     ),
 
             ]
-            );
+        );
         // ->table(IndexOrders::make()->tableStructure($customer))
         //     //    ->table(IndexProducts::make()->tableStructure($customer))
         //     ->table(IndexDispatchedEmails::make()->tableStructure($customer))
@@ -232,26 +229,26 @@ class ShowCustomerClient extends OrgAction
                 ),
             ),
 
-           'grp.org.shops.show.crm.customers.show.customer-clients.show'
-            =>array_merge(
-                (new ShowCustomer())->getBreadcrumbs('grp.org.shops.show.crm.customers.show', $routeParameters),
-                $headCrumb(
-                    $customerClient,
-                    [
-                        'index' => [
-                            'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.index',
-                            'parameters' => $routeParameters
-                        ],
-                        'model' => [
-                            'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.show',
-                            'parameters' => $routeParameters
+            'grp.org.shops.show.crm.customers.show.customer-clients.show'
+             => array_merge(
+                 (new ShowCustomer())->getBreadcrumbs('grp.org.shops.show.crm.customers.show', $routeParameters),
+                 $headCrumb(
+                     $customerClient,
+                     [
+                         'index' => [
+                             'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.index',
+                             'parameters' => $routeParameters
+                         ],
+                         'model' => [
+                             'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.show',
+                             'parameters' => $routeParameters
 
 
-                        ]
-                    ],
-                    $suffix
-                )
-            ),
+                         ]
+                     ],
+                     $suffix
+                 )
+             ),
             default => []
         };
     }
@@ -282,9 +279,9 @@ class ShowCustomerClient extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation' => $customerClient->organisation->slug,
-                        'shop'         => $customerClient->shop->slug,
-                        'customer'     => $customerClient->customer->slug,
+                        'organisation'   => $customerClient->organisation->slug,
+                        'shop'           => $customerClient->shop->slug,
+                        'customer'       => $customerClient->customer->slug,
                         'customerClient' => $customerClient->slug,
                     ]
 

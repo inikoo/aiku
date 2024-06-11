@@ -5,9 +5,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
- namespace App\Actions\CRM\Customer\UI;
+namespace App\Actions\CRM\Customer\UI;
 
-use App\Models\Catalogue\ProductCategory;
 use App\Models\CRM\Customer;
 
 trait WithCustomerSubNavigation

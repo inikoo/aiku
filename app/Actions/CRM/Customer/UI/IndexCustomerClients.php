@@ -7,11 +7,8 @@
 
 namespace App\Actions\CRM\Customer\UI;
 
-use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Http\Resources\CRM\CustomerClientResource;
-use App\Http\Resources\CRM\CustomersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
 use App\Models\Catalogue\Shop;
@@ -147,7 +144,7 @@ class IndexCustomerClients extends OrgAction
                         // ],
                         'Customer' => [
                         'title'       => __("No clients found"),
-                        'description' =>  __("You can add your client 🤷🏽‍♂️"),
+                        'description' => __("You can add your client 🤷🏽‍♂️"),
                         'count'       => $parent->stats->number_clients,
                         'action'      => [
                             'type'    => 'button',
@@ -223,7 +220,7 @@ class IndexCustomerClients extends OrgAction
                             'label'   => __('New Client'),
                             'route'   => [
                                  'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.create',
-                                'parameters' => [
+                                'parameters'  => [
                                     'organisation' => $scope->organisation->slug,
                                     'shop'         => $scope->shop->slug,
                                     'customer'     => $scope->slug
@@ -256,7 +253,8 @@ class IndexCustomerClients extends OrgAction
         return match ($routeName) {
             'grp.org.shops.show.crm.customers.show.customer-clients.index' =>
             array_merge(
-                ShowCustomer::make()->getBreadcrumbs('grp.org.shops.show.crm.customers.show',
+                ShowCustomer::make()->getBreadcrumbs(
+                    'grp.org.shops.show.crm.customers.show',
                     $routeParameters
                 ),
                 $headCrumb(

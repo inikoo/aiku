@@ -84,10 +84,14 @@ class StoreCustomer extends OrgAction
 
 
         $customer->stats()->create();
+
+        if($customer->is_dropshipping) {
+            $customer->dropshippingStats()->create();
+        }
+
         if ($customer->is_fulfilment) {
             StoreFulfilmentCustomerFromCustomer::run($customer, $shop);
         }
-
 
         $customer = $this->addAddressToModel(
             model: $customer,

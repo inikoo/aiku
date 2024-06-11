@@ -91,6 +91,7 @@ class StoreOrganisation
         $organisation->procurementStats()->create();
         $organisation->inventoryStats()->create();
         $organisation->accountingStats()->create();
+        $organisation->dropshippingStats()->create();
 
 
         $organisation->webStats()->create();

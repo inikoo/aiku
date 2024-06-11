@@ -8,8 +8,6 @@
 namespace App\Actions\CRM\Customer\UI;
 
 use App\Http\Resources\CRM\CustomerClientResource;
-use App\Http\Resources\CRM\CustomersResource;
-use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
 use Lorisleiva\Actions\Concerns\AsObject;
 

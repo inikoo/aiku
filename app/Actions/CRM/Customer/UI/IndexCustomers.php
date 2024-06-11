@@ -237,7 +237,7 @@ class IndexCustomers extends OrgAction
                             'label'   => __('New Customer'),
                             'route'   => [
                                  'name'       => 'grp.org.shops.show.crm.customers.create',
-                                'parameters' => [
+                                'parameters'  => [
                                     'organisation' => $scope->organisation->slug,
                                     'shop'         => $scope->slug
                                 ]

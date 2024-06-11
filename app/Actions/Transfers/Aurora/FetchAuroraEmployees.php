@@ -59,13 +59,13 @@ class FetchAuroraEmployees extends FetchAuroraAction
             if (Arr::has($employeeData, 'user')) {
                 if ($employee->user) {
                     try {
-                    UpdateUser::make()->action(
-                        $employee->user,
-                        [
-                            'legacy_password' => (string)Arr::get($employeeData, 'user.password'),
-                            'status'          => Arr::get($employeeData, 'user.status'),
-                        ]
-                    );
+                        UpdateUser::make()->action(
+                            $employee->user,
+                            [
+                                'legacy_password' => (string)Arr::get($employeeData, 'user.password'),
+                                'status'          => Arr::get($employeeData, 'user.status'),
+                            ]
+                        );
                     } catch (Exception $e) {
                         $this->recordError($organisationSource, $e, $employeeData['user'], 'User', 'update');
                         return null;
@@ -85,7 +85,7 @@ class FetchAuroraEmployees extends FetchAuroraAction
                                 ]
                             )
                         );
-                    }catch (Exception $e) {
+                    } catch (Exception $e) {
                         $this->recordError($organisationSource, $e, $employeeData['user'], 'User', 'store');
 
                         return null;
