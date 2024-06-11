@@ -37,6 +37,7 @@ use App\Models\Mail\Outbox;
 use App\Models\Mail\SenderEmail;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\ShippingZoneSchema;
+use App\Models\ShopDropshippingStat;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
@@ -413,6 +414,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function tasks()
     {
         return $this->morphMany(Task::class, 'assigner');
+    }
+
+    public function dropshippingStats(): HasOne
+    {
+        return $this->hasOne(ShopDropshippingStat::class);
     }
 
 }

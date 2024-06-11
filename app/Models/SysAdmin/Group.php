@@ -25,6 +25,7 @@ use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Rental;
 use App\Models\Goods\TradeUnit;
+use App\Models\GroupDropshippingStat;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Currency;
 use App\Models\HumanResources\ClockingMachine;
@@ -491,6 +492,11 @@ class Group extends Authenticatable implements HasMedia
     public function customers(): HasMany
     {
         return $this->hasMany(Customer::class);
+    }
+
+    public function dropshippingStats(): HasOne
+    {
+        return $this->hasOne(GroupDropshippingStat::class);
     }
 
 

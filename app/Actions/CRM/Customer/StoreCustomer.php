@@ -84,10 +84,14 @@ class StoreCustomer extends OrgAction
 
 
         $customer->stats()->create();
+
+        if($customer->is_dropshipping) {
+            $customer->dropshippingStats()->create();
+        }
+
         if ($customer->is_fulfilment) {
             StoreFulfilmentCustomerFromCustomer::run($customer, $shop);
         }
-
 
         $customer = $this->addAddressToModel(
             model: $customer,
@@ -283,6 +287,6 @@ class StoreCustomer extends OrgAction
 
     public function htmlResponse(Customer $customer): RedirectResponse
     {
-        return Redirect::route('grp.org.shops.show.crm.customers.show', [$customer->shop->slug, $customer->slug]);
+        return Redirect::route('grp.org.shops.show.crm.customers.show', [$customer->organisation->slug, $customer->shop->slug, $customer->slug]);
     }
 }

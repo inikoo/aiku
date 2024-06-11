@@ -7,20 +7,19 @@
 
 namespace App\Actions\CRM\Customer\UI;
 
-use App\Http\Resources\CRM\CustomersResource;
-use App\Models\CRM\Customer;
+use App\Http\Resources\CRM\CustomerClientResource;
+use App\Models\Dropshipping\CustomerClient;
 use Lorisleiva\Actions\Concerns\AsObject;
 
-class GetCustomerShowcase
+class GetCustomerClientShowcase
 {
     use AsObject;
 
-    public function handle(Customer $customer): array
+    public function handle(CustomerClient $customerClient): array
     {
-        // dd(CustomersResource::make($customer)->getArray());
         return [
 
-               'data'=> CustomersResource::make($customer)->getArray()
+               'data'=> CustomerClientResource::make($customerClient)->getArray()
 
 
         ];

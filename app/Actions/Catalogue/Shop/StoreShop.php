@@ -79,6 +79,9 @@ class StoreShop extends OrgAction
         $shop->orderIntervals()->create();
         $shop->mailshotsIntervals()->create();
 
+        if($shop->type === ShopTypeEnum::DROPSHIPPING) {
+            $shop->dropshippingStats()->create();
+        }
 
         $shop->serialReferences()->create(
             [

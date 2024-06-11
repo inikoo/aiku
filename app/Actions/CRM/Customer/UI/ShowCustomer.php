@@ -15,6 +15,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\Traits\WithWebUserMeta;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\UI\CRM\CustomerTabsEnum;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\CRM\WebUsersResource;
@@ -32,6 +33,7 @@ class ShowCustomer extends OrgAction
 {
     use WithActionButtons;
     use WithWebUserMeta;
+    use WithCustomerSubNavigation;
 
     private Organisation|Shop $parent;
 
@@ -85,7 +87,13 @@ class ShowCustomer extends OrgAction
     {
         $webUsersMeta = $this->getWebUserMeta($customer, $request);
 
-        $shopMeta = [];
+        $shopMeta      = [];
+        $subNavigation = null;
+        if ($this->parent instanceof Shop) {
+            if ($this->parent->type == ShopTypeEnum::DROPSHIPPING) {
+                $subNavigation = $this->getCustomerSubNavigation($customer);
+            }
+        }
 
         if ($request->route()->getName() == 'customers.show') {
             $shopMeta = [
@@ -126,6 +134,7 @@ class ShowCustomer extends OrgAction
                         $this->canDelete ? $this->getDeleteActionIcon($request) : null,
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
                     ],
+                    'subNavigation' => $subNavigation,
                 ],
                 'tabs' => [
                     'current'    => $this->tab,
