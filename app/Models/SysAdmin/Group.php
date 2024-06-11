@@ -22,6 +22,8 @@ use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Subscription;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
+use App\Models\Dropshipping\CustomerClient;
+use App\Models\Dropshipping\DropshippingCustomerPortfolio;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Rental;
 use App\Models\Goods\TradeUnit;
@@ -499,5 +501,14 @@ class Group extends Authenticatable implements HasMedia
         return $this->hasOne(GroupDropshippingStat::class);
     }
 
+    public function dropshippingCustomerPortfolios(): HasMany
+    {
+        return $this->hasMany(DropshippingCustomerPortfolio::class);
+    }
+
+    public function clients(): HasMany
+    {
+        return $this->hasMany(CustomerClient::class);
+    }
 
 }

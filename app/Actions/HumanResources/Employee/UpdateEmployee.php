@@ -138,7 +138,7 @@ class UpdateEmployee extends OrgAction
                     ]
                 ),
             ],
-            'pin'                                   => ['sometimes', new PinRule( $this->employee->organisation_id)],
+            'pin'                                   => ['sometimes', new PinRule($this->employee->organisation_id)],
             'contact_name'                          => ['sometimes', 'string', 'max:256'],
             'date_of_birth'                         => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
             'job_title'                             => ['sometimes', 'nullable', 'string', 'max:256'],

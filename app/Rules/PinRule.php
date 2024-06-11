@@ -14,7 +14,7 @@ class PinRule implements ValidationRule
      * @param  \Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
      */
 
-     protected $organisationId;
+    protected $organisationId;
 
     public function __construct($organisationId)
     {
@@ -48,7 +48,7 @@ class PinRule implements ValidationRule
         if ($letterCount < 2 || $emojiCount < 2 || $numberCount < 2) {
             $fail(__('validation.pin', ['attribute' => $attribute]));
         }
-        
+
         $exists = DB::table('employees')
         ->where('organisation_id', $this->organisationId)
         ->where('pin', $value)
