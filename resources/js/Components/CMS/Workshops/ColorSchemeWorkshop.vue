@@ -13,7 +13,9 @@ const props = defineProps<{
     data: any
 }>()
 
-const selectedColor = ref(useColorTheme[0])
+const listColorTheme = [...useColorTheme]
+
+const selectedColor = ref([...useColorTheme[0]])
 
 const onClickColor = (colorTheme: string[]) => {
     selectedColor.value = colorTheme
@@ -105,7 +107,7 @@ const onClickColor = (colorTheme: string[]) => {
                     <hr class="h-0.5 rounded-full w-full bg-gray-300" />
                 </div>
                 <div class="flex flex-wrap justify-center gap-x-2 gap-y-3">
-                    <div v-for="colorTheme in useColorTheme" @click="() => onClickColor(colorTheme)"
+                    <div v-for="colorTheme in listColorTheme" @click="() => onClickColor(colorTheme)"
                         class="flex ring-1 ring-gray-400 hover:ring-indigo-500 shadow rounded overflow-hidden w-fit cursor-pointer">
                         <div class="h-6 aspect-square" :style="{ backgroundColor: colorTheme[0] }" />
                         <div class="h-6 aspect-square" :style="{ backgroundColor: colorTheme[1] }" />
