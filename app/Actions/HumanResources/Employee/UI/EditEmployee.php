@@ -187,7 +187,7 @@ class EditEmployee extends OrgAction
                     'type'  => 'password',
                     'label' => __('password'),
 
-                ],                
+                ],
             ]
         ];
 
@@ -199,7 +199,7 @@ class EditEmployee extends OrgAction
                     'type'  => 'input',
                     'label' => __('pin'),
                     'value' => $employee->pin
-                ],               
+                ],
             ]
         ];
 

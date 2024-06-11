@@ -137,7 +137,7 @@ return [
     'uploaded'    => 'The :attribute failed to upload.',
     'url'         => 'The :attribute must be a valid URL.',
     'uuid'        => 'The :attribute must be a valid UUID.',
-    'pin'        => 'The :attribute must contain at least 2 letters from the set, 2 numbers from the set, and 2 emojis from the set.',
+    'pin'         => 'The :attribute must contain at least 2 letters from the set, 2 numbers from the set, and 2 emojis from the set.',
     'unique_pin'  => 'The  :pin already exist in this organisation',
 
     /*
