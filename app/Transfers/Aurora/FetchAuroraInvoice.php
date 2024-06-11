@@ -8,6 +8,7 @@
 namespace App\Transfers\Aurora;
 
 use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -16,22 +17,30 @@ class FetchAuroraInvoice extends FetchAurora
 {
     protected function parseModel(): void
     {
-        if (!$this->auroraModelData->{'Invoice Order Key'} and $this->auroraModelData->{'Invoice Total Amount'} == 0) {
-            // just ignore it
-            return;
-        }
-
-        if (!$this->auroraModelData->{'Invoice Order Key'}) {
-            // just ignore as well
-            return;
-        }
 
 
-        $order = $this->parseOrder($this->organisation->id.':'.$this->auroraModelData->{'Invoice Order Key'});
-        if (!$order) {
-            $this->parsedData['parent'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Invoice Customer Key'});
+        $shop= $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Invoice Store Key'});
+
+        if(!$shop->type==ShopTypeEnum::FULFILMENT) {
+            if (!$this->auroraModelData->{'Invoice Order Key'} and $this->auroraModelData->{'Invoice Total Amount'} == 0) {
+                // just ignore it
+                return;
+            }
+
+            if (!$this->auroraModelData->{'Invoice Order Key'}) {
+                // just ignore as well
+                return;
+            }
+
+
+            $order = $this->parseOrder($this->organisation->id.':'.$this->auroraModelData->{'Invoice Order Key'});
+            if (!$order) {
+                $this->parsedData['parent'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Invoice Customer Key'});
+            } else {
+                $this->parsedData['parent'] = $order;
+            }
         } else {
-            $this->parsedData['parent'] = $order;
+            $this->parsedData['parent'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Invoice Customer Key'});
         }
 
 

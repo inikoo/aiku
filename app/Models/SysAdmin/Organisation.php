@@ -116,6 +116,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read LaravelCollection<int, Customer> $customers
+ * @property-read OrganisationDropshippingStat|null $dropshippingStats
  * @property-read LaravelCollection<int, Employee> $employees
  * @property-read LaravelCollection<int, FulfilmentCustomer> $fulfilmentCustomers
  * @property-read \App\Models\SysAdmin\OrganisationFulfilmentStats|null $fulfilmentStats

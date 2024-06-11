@@ -55,17 +55,13 @@ class StoreWebpage extends OrgAction
         $snapshot = StoreWebpageSnapshot::run(
             $webpage,
             [
-                'layout' => [
-                    'src'  => null,
-                    'html' => ''
-                ]
+                'layout' => []
             ],
         );
 
         $webpage->update(
             [
                 'unpublished_snapshot_id' => $snapshot->id,
-                'compiled_layout'         => $snapshot->compiledLayout(),
 
             ]
         );

@@ -48,7 +48,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $website_id
  * @property int|null $unpublished_snapshot_id
  * @property int|null $live_snapshot_id
- * @property array $compiled_layout
+ * @property array $published_layout
  * @property string|null $ready_at
  * @property string|null $live_at
  * @property string|null $closed_at
@@ -88,24 +88,24 @@ class Webpage extends Model
     use InOrganisation;
 
     protected $casts = [
-        'data'            => 'array',
-        'settings'        => 'array',
-        'compiled_layout' => 'array',
-        'state'           => WebpageStateEnum::class,
-        'purpose'         => WebpagePurposeEnum::class,
-        'type'            => WebpageTypeEnum::class
+        'data'             => 'array',
+        'settings'         => 'array',
+        'published_layout' => 'array',
+        'state'            => WebpageStateEnum::class,
+        'purpose'          => WebpagePurposeEnum::class,
+        'type'             => WebpageTypeEnum::class
     ];
 
     protected $attributes = [
-        'data'            => '{}',
-        'settings'        => '{}',
-        'compiled_layout' => '{}',
+        'data'             => '{}',
+        'settings'         => '{}',
+        'published_layout' => '{}',
     ];
 
     protected array $auditExclude = [
         'id','slug',
         'live_snapshot_id','published_checksum',
-        'compiled_layout','unpublished_snapshot_id'
+        'published_layout','unpublished_snapshot_id'
     ];
 
     protected $guarded = [];

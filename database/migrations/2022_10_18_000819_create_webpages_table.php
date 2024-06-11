@@ -34,7 +34,7 @@ return new class () extends Migration {
             $table->foreign('website_id')->references('id')->on('websites');
             $table->unsignedSmallInteger('unpublished_snapshot_id')->nullable()->index();
             $table->unsignedSmallInteger('live_snapshot_id')->nullable()->index();
-            $table->jsonb('compiled_layout');
+            $table->jsonb('published_layout');
             $table->dateTimeTz('ready_at')->nullable();
             $table->dateTimeTz('live_at')->nullable();
             $table->dateTimeTz('closed_at')->nullable();

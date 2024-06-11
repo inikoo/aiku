@@ -32,7 +32,7 @@ use Illuminate\Support\Carbon;
  * @property int|null $historic_product_variant_id
  * @property int|null $family_id
  * @property int|null $department_id
- * @property int $order_id
+ * @property int|null $order_id
  * @property int|null $invoice_id
  * @property int|null $transaction_id
  * @property string $quantity

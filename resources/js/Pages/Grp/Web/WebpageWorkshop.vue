@@ -24,6 +24,9 @@
   import CTA from './Block/CTA.vue'
   import Rewiews from './Block/Reviews.vue'
   import Image from './Block/Image.vue'
+  import CTA2 from './Block/CTA2.vue'
+  import Gallery from './Block/Gallery.vue'
+  import Iframe from './Block/Iframe.vue'
   import axios from 'axios';
   import Action from "@/Components/Forms/Fields/Action.vue";
   import debounce from 'lodash/debounce';
@@ -37,11 +40,11 @@
   }>();
   
   const openModal = ref(false);
-  const data = ref(props.webpage.compiled_layout);
+  const data = ref(props.webpage.layout);
   
   const sendUpdate = async () => {
     try {
-      await axios.patch(route(props.webpage.update_route.name, props.webpage.update_route.parameters), { compiled_layout: data.value });
+      await axios.patch(route(props.webpage.update_route.name, props.webpage.update_route.parameters), { layout: data.value });
       console.log('saved');
     } catch (error: any) {
       console.log('error', error);
@@ -62,8 +65,11 @@
       'FamilyPageOffer': FamilyPageOffer,
       'ProductList' : ProductList,
       'CTA' : CTA,
+      'CTA2' : CTA2,
       'Reviews' : Rewiews,
-      'Image' : Image
+      'Image' : Image,
+      'Gallery' : Gallery,
+      "Iframe" : Iframe
     };
     return components[componentName] ?? null;
   };

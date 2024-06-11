@@ -21,13 +21,34 @@ class UpdateWebpageContent extends OrgAction
 
     public function handle(Webpage $webpage, array $data): Webpage
     {
+
+        $snapshot = $webpage->unpublishedSnapshot;
+
+        $snapshot->update(
+            [
+                'layout' => $data['layout']
+            ]
+        );
+
+        $isDirty = true;
+        if ($webpage->published_checksum == md5(json_encode($snapshot->layout))) {
+            $isDirty = false;
+        }
+
+        $webpage->update(
+            [
+                'is_dirty' => $isDirty
+            ]
+        );
+
+
         return $this->update($webpage, $data);
     }
 
     public function rules(): array
     {
         return [
-            'compiled_layout' => ['required', 'array'],
+            'layout' => ['required', 'array'],
         ];
     }
 
