@@ -115,6 +115,7 @@ use App\Actions\UI\Notification\MarkAllNotificationAsRead;
 use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
+use App\Actions\Web\Webpage\PublishWebpage;
 use App\Actions\Web\Webpage\UpdateWebpage;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Actions\Web\Website\LaunchWebsite;
@@ -374,6 +375,7 @@ Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
 
     Route::name('content.')->prefix('content')->group(function () {
         Route::patch('/', UpdateWebpageContent::class)->name('update');
+        Route::post('/', PublishWebpage::class)->name('publish');
     });
 });
 

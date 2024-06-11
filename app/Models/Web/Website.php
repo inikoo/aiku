@@ -56,7 +56,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property array $structure
  * @property array $layout
- * @property array $compiled_layout
+ * @property array $published_layout
  * @property int|null $unpublished_header_snapshot_id
  * @property int|null $live_header_snapshot_id
  * @property string|null $published_header_checksum
@@ -111,24 +111,24 @@ class Website extends Model implements Auditable
     use InShop;
 
     protected $casts = [
-        'type'              => WebsiteTypeEnum::class,
-        'data'              => 'array',
-        'settings'          => 'array',
-        'structure'         => 'array',
-        'layout'            => 'array',
-        'compiled_layout'   => 'array',
-        'state'             => WebsiteStateEnum::class,
-        'status'            => 'boolean',
-        'engine'            => WebsiteEngineEnum::class,
-        'cloudflare_status' => WebsiteCloudflareStatusEnum::class
+        'type'               => WebsiteTypeEnum::class,
+        'data'               => 'array',
+        'settings'           => 'array',
+        'structure'          => 'array',
+        'layout'             => 'array',
+        'published_layout'   => 'array',
+        'state'              => WebsiteStateEnum::class,
+        'status'             => 'boolean',
+        'engine'             => WebsiteEngineEnum::class,
+        'cloudflare_status'  => WebsiteCloudflareStatusEnum::class
     ];
 
     protected $attributes = [
-        'data'            => '{}',
-        'settings'        => '{}',
-        'structure'       => '{}',
-        'layout'          => '{}',
-        'compiled_layout' => '{}',
+        'data'             => '{}',
+        'settings'         => '{}',
+        'structure'        => '{}',
+        'layout'           => '{}',
+        'published_layout' => '{}',
     ];
 
     protected $guarded = [];
@@ -147,7 +147,7 @@ class Website extends Model implements Auditable
         'live_header_snapshot_id',
         'live_footer_snapshot_id',
         'storefront_id',
-        'compiled_layout',
+        'published_layout',
         'unpublished_header_snapshot_id',
         'unpublished_footer_snapshot_id',
         'published_header_checksum',

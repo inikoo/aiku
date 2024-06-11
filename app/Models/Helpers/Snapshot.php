@@ -13,7 +13,6 @@ use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
-use Illuminate\Support\Arr;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -99,13 +98,6 @@ class Snapshot extends Model
 
 
 
-    public function compiledLayout(): array|string
-    {
-        return match (class_basename($this->parent)) {
-            'Website', 'Webpage' => Arr::get($this->layout, 'html'),
-            default => [],
-        };
-    }
 
 
 }

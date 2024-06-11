@@ -10,6 +10,7 @@ namespace App\Actions\Web\Webpage;
 use App\Actions\Helpers\Deployment\StoreDeployment;
 use App\Actions\Helpers\Snapshot\StoreWebpageSnapshot;
 use App\Actions\Helpers\Snapshot\UpdateSnapshot;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
@@ -18,7 +19,7 @@ use App\Models\Web\Webpage;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
-class PublishWebpage
+class PublishWebpage extends OrgAction
 {
     use WithActionUpdate;
 
@@ -36,12 +37,9 @@ class PublishWebpage
             ]);
         }
 
-        $layout = $webpage->unpublishedSnapshot->layout;
+        $currentUnpublishedLayout = $webpage->unpublishedSnapshot->layout;
 
 
-        if($layout!='' and  Arr::get($layout, 'html')) {
-            $layout['html'] = Arr::get($layout, 'html');
-        }
 
         /** @var Snapshot $snapshot */
         $snapshot = StoreWebpageSnapshot::run(
@@ -49,7 +47,7 @@ class PublishWebpage
             [
                 'state'          => SnapshotStateEnum::LIVE,
                 'published_at'   => now(),
-                'layout'         => $layout,
+                'layout'         => $currentUnpublishedLayout,
                 'first_commit'   => $firstCommit,
                 'comment'        => Arr::get($modelData, 'comment'),
                 'publisher_id'   => Arr::get($modelData, 'publisher_id'),
@@ -66,14 +64,11 @@ class PublishWebpage
             ]
         );
 
-        $compiledLayout = $snapshot->compiledLayout();
-
-
         $updateData = [
-            'live_snapshot_id'   => $snapshot->id,
-            'compiled_layout'    => $compiledLayout,
-            'published_checksum' => md5(json_encode($snapshot->layout)),
-            'state'              => WebpageStateEnum::LIVE,
+            'live_snapshot_id'    => $snapshot->id,
+            'published_layout'    => $snapshot->layout,
+            'published_checksum'  => md5(json_encode($snapshot->layout)),
+            'state'               => WebpageStateEnum::LIVE,
         ];
 
         if ($webpage->state == WebpageStateEnum::IN_PROCESS or $webpage->state == WebpageStateEnum::READY) {
@@ -87,7 +82,7 @@ class PublishWebpage
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->isAction) {
+        if ($this->asAction) {
             return true;
         }
 
@@ -108,7 +103,7 @@ class PublishWebpage
         $request->merge(
             [
                 'publisher_id'   => $request->user()->id,
-                'publisher_type' => 'OrganisationUser'
+                'publisher_type' => 'User'
             ]
         );
     }
@@ -123,7 +118,7 @@ class PublishWebpage
 
     public function action(Webpage $webpage, $modelData): Webpage
     {
-        $this->isAction = true;
+        $this->asAction = true;
         $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 

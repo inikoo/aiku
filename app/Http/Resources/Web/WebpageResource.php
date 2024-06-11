@@ -22,13 +22,13 @@ class WebpageResource extends JsonResource
         $webpage = $this;
 
         return [
-            'id'              => $webpage->id,
-            'slug'            => $webpage->slug,
-            'level'           => $webpage->level,
-            'code'            => $webpage->code,
-            'url'             => $webpage->url,
-            'type'            => $webpage->type,
-            'typeIcon'        => match ($webpage->type) {
+            'id'                  => $webpage->id,
+            'slug'                => $webpage->slug,
+            'level'               => $webpage->level,
+            'code'                => $webpage->code,
+            'url'                 => $webpage->url,
+            'type'                => $webpage->type,
+            'typeIcon'            => match ($webpage->type) {
                 WebpageTypeEnum::STOREFRONT => ['fal', 'fa-home'],
                 WebpageTypeEnum::ENGAGEMENT => ['fal', 'fa-ufo-beam'],
                 WebpageTypeEnum::AUTH       => ['fal', 'fa-sign-in'],
@@ -36,7 +36,7 @@ class WebpageResource extends JsonResource
                 default                     => ['fal', 'fa-browser']
             },
             'is_dirty'            => $webpage->is_dirty,
-            'compiled_layout'     => $webpage->compiled_layout ?: [],
+            'layout'              => $webpage->unpublishedSnapshot->layout ?: [],
             'purpose'             => $webpage->purpose,
             'created_at'          => $webpage->created_at,
             'updated_at'          => $webpage->updated_at,
@@ -45,11 +45,7 @@ class WebpageResource extends JsonResource
                 'name'       => 'org.models.webpage.images.store',
                 'parameters' => $webpage->id
             ],
-            'set_as_ready_route'   => [
-                'name'       => 'org.models.webpage.content.publish',
-                'parameters' => $webpage->id
-            ],
-            'update_route'       => [
+            'update_route'        => [
                 'name'       => 'grp.models.webpage.content.update',
                 'parameters' => $webpage->id
             ],

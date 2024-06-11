@@ -40,11 +40,11 @@
   }>();
   
   const openModal = ref(false);
-  const data = ref(props.webpage.compiled_layout);
+  const data = ref(props.webpage.layout);
   
   const sendUpdate = async () => {
     try {
-      await axios.patch(route(props.webpage.update_route.name, props.webpage.update_route.parameters), { compiled_layout: data.value });
+      await axios.patch(route(props.webpage.update_route.name, props.webpage.update_route.parameters), { layout: data.value });
       console.log('saved');
     } catch (error: any) {
       console.log('error', error);
