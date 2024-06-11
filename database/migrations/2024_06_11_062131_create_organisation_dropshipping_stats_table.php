@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 11 Jun 2024 10:22:44 Central European Summer Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 use App\Stubs\Migrations\HasDropshippingStats;
 use Illuminate\Database\Migrations\Migration;
@@ -14,9 +19,7 @@ return new class () extends Migration {
             $table->id();
             $table->unsignedSmallInteger('organisation_id');
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
-
-            $this->stats($table);
-
+            $this->dropshippingStats($table);
             $table->timestampsTz();
         });
     }
