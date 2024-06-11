@@ -7,10 +7,10 @@
 
 namespace App\Actions\Mail\Mailshot\UI;
 
-use App\Actions\Mail\PostRoom\ShowPostRoom;
+use App\Actions\Mail\PostRoom\UI\ShowPostRoom;
 use App\Actions\UI\Marketing\MarketingHub;
-use App\Models\Mail\PostRoom;
 use App\Models\Mail\Outbox;
+use App\Models\Mail\PostRoom;
 use App\Models\SysAdmin\Organisation;
 
 trait HasUIMailshots

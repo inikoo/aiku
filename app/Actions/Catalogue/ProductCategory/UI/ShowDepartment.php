@@ -11,7 +11,7 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\Mail\Mailshot\IndexMailshots;
+use App\Actions\Mail\Mailshot\UI\IndexMailshots;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\DepartmentTabsEnum;

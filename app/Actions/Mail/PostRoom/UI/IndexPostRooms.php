@@ -1,16 +1,16 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Fri, 17 Mar 2023 14:13:34 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 11 Jun 2024 22:36:14 Central European Summer Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Mail\PostRoom;
+namespace App\Actions\Mail\PostRoom\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
-use App\Actions\Mail\Mailshot\IndexMailshots;
-use App\Actions\Mail\Outbox\IndexOutboxes;
+use App\Actions\Mail\DispatchedEmail\UI\IndexDispatchedEmails;
+use App\Actions\Mail\Mailshot\UI\IndexMailshots;
+use App\Actions\Mail\Outbox\UI\IndexOutboxes;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\Mail\PostRoom\PostRoomsTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;

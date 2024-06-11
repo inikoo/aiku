@@ -1,28 +1,27 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Thu, 16 Mar 2023 08:17:51 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 11 Jun 2024 22:36:41 Central European Summer Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Mail\Mailshot;
+namespace App\Actions\Mail\Mailshot\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\Mail\Mailshot\UI\HasUIMailshots;
 use App\Http\Resources\Mail\MailshotResource;
-use App\Models\Mail\PostRoom;
+use App\InertiaTable\InertiaTable;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
+use App\Models\Mail\PostRoom;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use App\InertiaTable\InertiaTable;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexMailshots extends InertiaAction
 {

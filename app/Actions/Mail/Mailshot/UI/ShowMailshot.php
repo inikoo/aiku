@@ -1,17 +1,17 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Thu, 16 Mar 2023 08:17:53 Central European Standard Time, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 11 Jun 2024 22:36:41 Central European Summer Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Mail\Mailshot;
+namespace App\Actions\Mail\Mailshot\UI;
 
 use App\Actions\InertiaAction;
 use App\Http\Resources\Mail\MailshotResource;
-use App\Models\Mail\PostRoom;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
+use App\Models\Mail\PostRoom;
 use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;

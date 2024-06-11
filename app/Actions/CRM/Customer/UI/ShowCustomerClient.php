@@ -7,18 +7,12 @@
 
 namespace App\Actions\CRM\Customer\UI;
 
-use App\Actions\CRM\WebUser\IndexWebUsers;
-use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
-use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\Traits\WithWebUserMeta;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\UI\CRM\CustomerTabsEnum;
 use App\Http\Resources\CRM\CustomerClientResource;
-use App\Http\Resources\CRM\WebUsersResource;
-use App\Http\Resources\Mail\DispatchedEmailResource;
-use App\Http\Resources\Sales\OrderResource;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
