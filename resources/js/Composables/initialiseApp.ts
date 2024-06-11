@@ -11,7 +11,7 @@ export const initialiseApp = () => {
     const layout = useLayoutStore()
     const locale = useLocaleStore()
 
-    // Declaring here cuz some component failing retrieve on first load (EmployeePosition.vue) 
+    // Declaring here cuz some component failing retrieve on first load (EmployeePosition.vue)
     layout.currentParams = route().v().params
 
     const storageLayout = JSON.parse(localStorage.getItem('layout') ?? '{}')  // Get layout from localStorage

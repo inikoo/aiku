@@ -13,6 +13,7 @@ import WorkshopFooter from "@/Components/CMS/Workshops/Footer/FooterWorkshop.vue
 import WorkshopProduct from "@/Components/CMS/Workshops/ProductWorkshop.vue"
 import ColorSchemeWorkshop from "@/Components/CMS/Workshops/ColorSchemeWorkshop.vue"
 import { capitalize } from "@/Composables/capitalize"
+import {useLayoutStore} from "@/Stores/layout";
 
 library.add( faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faCube, faPalette, faCheeseburger, faDraftingCompass,faWindow )
 
