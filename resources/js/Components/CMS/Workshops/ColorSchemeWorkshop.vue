@@ -7,6 +7,7 @@ import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faPaintBrushAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import {useLayoutStore} from "@/Stores/layout";
 library.add(faPaintBrushAlt)
 
 const props = defineProps<{
