@@ -21,7 +21,9 @@ class FetchAuroraInvoice extends FetchAurora
 
         $shop= $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Invoice Store Key'});
 
-        if(!$shop->type==ShopTypeEnum::FULFILMENT) {
+
+        if($shop->type!=ShopTypeEnum::FULFILMENT) {
+
             if (!$this->auroraModelData->{'Invoice Order Key'} and $this->auroraModelData->{'Invoice Total Amount'} == 0) {
                 // just ignore it
                 return;
@@ -34,6 +36,9 @@ class FetchAuroraInvoice extends FetchAurora
 
 
             $order = $this->parseOrder($this->organisation->id.':'.$this->auroraModelData->{'Invoice Order Key'});
+
+
+
             if (!$order) {
                 $this->parsedData['parent'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Invoice Customer Key'});
             } else {
@@ -42,6 +47,7 @@ class FetchAuroraInvoice extends FetchAurora
         } else {
             $this->parsedData['parent'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Invoice Customer Key'});
         }
+
 
 
         $data = [];
@@ -80,6 +86,7 @@ class FetchAuroraInvoice extends FetchAurora
             'currency_id'     => $this->parseCurrencyID($this->auroraModelData->{'Invoice Currency'}),
 
         ];
+
     }
 
 

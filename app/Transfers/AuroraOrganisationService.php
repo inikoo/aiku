@@ -7,6 +7,7 @@
 
 namespace App\Transfers;
 
+use App\Models\Accounting\Invoice;
 use App\Transfers\Aurora\FetchAuroraAgent;
 use App\Transfers\Aurora\FetchAuroraArtefact;
 use App\Transfers\Aurora\FetchAuroraBarcode;
@@ -72,7 +73,7 @@ use Illuminate\Support\Facades\DB;
 class AuroraOrganisationService implements SourceOrganisationService
 {
     public Organisation $organisation;
-    public ?Fetch $fetch=null;
+    public ?Fetch $fetch = null;
 
     public function initialisation(Organisation $organisation, string $databaseSuffix = ''): void
     {
@@ -195,9 +196,9 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraDeliveryNoteTransaction($this))->fetchDeliveryNoteTransaction($id, $deliveryNote);
     }
 
-    public function fetchInvoiceTransaction($id): ?array
+    public function fetchInvoiceTransaction($id, Invoice $invoice, bool $isFulfilment): ?array
     {
-        return (new FetchAuroraInvoiceTransaction($this))->fetch($id);
+        return (new FetchAuroraInvoiceTransaction($this))->fetchInvoiceTransaction($id, $invoice, $isFulfilment);
     }
 
     public function fetchHistoricAsset($id): ?array

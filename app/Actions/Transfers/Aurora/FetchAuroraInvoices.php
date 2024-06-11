@@ -72,7 +72,7 @@ class FetchAuroraInvoices extends FetchAuroraAction
 
                     return $invoice;
                 }
-                print "Warning order $organisationSourceId do not have customer\n";
+                print "Warning invoice $organisationSourceId do not have customer\n";
             }
         }
 

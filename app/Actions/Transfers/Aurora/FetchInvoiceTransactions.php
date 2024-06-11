@@ -8,6 +8,7 @@
 namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceTransaction;
 use App\Transfers\SourceOrganisationService;
@@ -22,7 +23,11 @@ class FetchInvoiceTransactions
     {
 
 
-        if ($transactionData = $organisationSource->fetchInvoiceTransaction(id: $source_id)) {
+        if ($transactionData = $organisationSource->fetchInvoiceTransaction(
+            id: $source_id,
+            invoice:$invoice,
+            isFulfilment:$invoice->shop->type===ShopTypeEnum::FULFILMENT
+        )) {
             if (!InvoiceTransaction::where('source_id', $transactionData['transaction']['source_id'])
                 ->first()) {
 
