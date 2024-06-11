@@ -71,7 +71,7 @@ class PublishWebsiteMarginal
 
         $updateData = [
             "live_{$marginal}_snapshot_id"    => $snapshot->id,
-            "published_layout->$marginal"     => $snapshot->compiledLayout(),
+            "published_layout->$marginal"     => $snapshot->layout,
             "published_{$marginal}_checksum"  => md5(json_encode($snapshot->layout)),
         ];
 

@@ -12,7 +12,7 @@ use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Enums\Web\Webpage\WebpageStateEnum;
-use App\Http\Resources\Web\WebpageResource;
+use App\Http\Resources\Web\WebpagesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
@@ -177,7 +177,7 @@ class IndexWebpages extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $webpages): AnonymousResourceCollection
     {
-        return WebpageResource::collection($webpages);
+        return WebpagesResource::collection($webpages);
     }
 
     public function htmlResponse(LengthAwarePaginator $webpages, ActionRequest $request): Response
@@ -198,7 +198,7 @@ class IndexWebpages extends OrgAction
                         'title' => __('webpage')
                     ]
                 ],
-                'data'        => WebpageResource::collection($webpages),
+                'data'        => WebpagesResource::collection($webpages),
 
             ]
         )->table($this->tableStructure($this->parent));

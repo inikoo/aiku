@@ -49,9 +49,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $unpublished_snapshot_id
  * @property int|null $live_snapshot_id
  * @property array $published_layout
- * @property string|null $ready_at
- * @property string|null $live_at
- * @property string|null $closed_at
+ * @property Carbon|null $ready_at
+ * @property Carbon|null $live_at
+ * @property Carbon|null $closed_at
  * @property string|null $published_checksum
  * @property bool $is_dirty
  * @property array $data
@@ -93,7 +93,10 @@ class Webpage extends Model
         'published_layout' => 'array',
         'state'            => WebpageStateEnum::class,
         'purpose'          => WebpagePurposeEnum::class,
-        'type'             => WebpageTypeEnum::class
+        'type'             => WebpageTypeEnum::class,
+        'ready_at'         => 'datetime',
+        'live_at'          => 'datetime',
+        'closed_at'        => 'datetime'
     ];
 
     protected $attributes = [
@@ -103,9 +106,12 @@ class Webpage extends Model
     ];
 
     protected array $auditExclude = [
-        'id','slug',
-        'live_snapshot_id','published_checksum',
-        'published_layout','unpublished_snapshot_id'
+        'id',
+        'slug',
+        'live_snapshot_id',
+        'published_checksum',
+        'published_layout',
+        'unpublished_snapshot_id'
     ];
 
     protected $guarded = [];
@@ -139,6 +145,7 @@ class Webpage extends Model
     {
         return $this->morphMany(Snapshot::class, 'parent');
     }
+
     public function unpublishedSnapshot(): BelongsTo
     {
         return $this->belongsTo(Snapshot::class, 'unpublished_snapshot_id');

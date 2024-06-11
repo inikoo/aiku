@@ -12,13 +12,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasWebStats;
+
     public function up(): void
     {
         Schema::create('webpage_stats', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('webpage_id');
             $table->foreign('webpage_id')->references('id')->on('webpages')->onUpdate('cascade')->onDelete('cascade');
-            $table=$this->getWebpagesStatsFields($table);
+            $table = $this->getContentBlocksFields($table);
+            $table = $this->getSnapshotsFields($table);
+            $table = $this->getDeploymentsFields($table);
+            $table = $this->getWebpagesStatsFields($table);
             $table->timestampsTz();
         });
     }

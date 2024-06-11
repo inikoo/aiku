@@ -9,11 +9,15 @@ use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
 use App\Actions\Web\Website\UpdateWebsite;
+use App\Enums\Web\Webpage\WebpageStateEnum;
+use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
+use App\Models\Helpers\Snapshot;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 
+use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -81,8 +85,21 @@ test('create fulfilment website', function () {
 
     expect($website)->toBeInstanceOf(Website::class)
         ->and($website->type)->toBe(WebsiteTypeEnum::FULFILMENT)
+        ->and($website->state)->toBe(WebsiteStateEnum::IN_PROCESS)
         ->and($website->storefront)->toBeInstanceOf(Webpage::class)
         ->and($website->webStats->number_webpages)->toBe(4);
+
+    /** @var Webpage $homeWebpage */
+    $homeWebpage = $website->webpages()->first();
+    expect($homeWebpage->type)->toBe(WebpageTypeEnum::STOREFRONT)
+        ->and($homeWebpage->state)->toBe(WebpageStateEnum::READY)
+        ->and($homeWebpage->ready_at)->toBeInstanceOf(Carbon::class)
+        ->and($homeWebpage->level)->toBe(1)
+        ->and($homeWebpage->stats->number_webpages)->toBe(3)
+        ->and($homeWebpage->stats->number_snapshots)->toBe(1)
+        ->and($homeWebpage->stats->number_deployments)->toBe(0)
+        ->and($homeWebpage->unpublishedSnapshot)->toBeInstanceOf(Snapshot::class)
+        ->and($homeWebpage->unpublishedSnapshot->layout)->toBeArray();
 
     return $website;
 });
@@ -118,6 +135,14 @@ test('launch fulfilment website from command', function (Website $website) {
 
     expect($website->state)->toBe(WebsiteStateEnum::LIVE);
 
+    /** @var Webpage $homeWebpage */
+    $homeWebpage = $website->webpages()->first();
+    expect($homeWebpage->type)->toBe(WebpageTypeEnum::STOREFRONT)
+        ->and($homeWebpage->ready_at)->toBeInstanceOf(Carbon::class)
+        ->and($homeWebpage->live_at)->toBeInstanceOf(Carbon::class)
+        ->and($homeWebpage->stats->number_snapshots)->toBe(2)
+        ->and($homeWebpage->stats->number_deployments)->toBe(1);
+
     return $website;
 })->depends('create fulfilment website');
 
@@ -131,7 +156,6 @@ test('hydrate website from command', function (Website $website) {
 
     expect($website->webStats->number_webpages)->toBe(4);
 })->depends('launch fulfilment website from command');
-
 
 
 test('can show fulfilment website', function (Website $website) {
