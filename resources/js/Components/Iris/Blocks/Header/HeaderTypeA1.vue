@@ -9,6 +9,8 @@ import { faSearch, faArrowRight, faChevronDown } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { Link } from '@inertiajs/vue3'
+import IrisSearch from '@/Components/Iris/Blocks/Header/IrisSearch.vue'
+
 library.add(faSearch, faArrowRight, faChevronDown)
 
 const props = defineProps<{
@@ -41,6 +43,9 @@ const componentList = (componentName: string) => {
     <div class="grid grid-cols-3 h-24 items-center">
         <component v-for="component in data" :is="componentList(component.name)" :data="component.data" />
 
+        <div class="justify-self-end pr-7">
+            <IrisSearch />
+        </div>
         <!-- <Image1 :data="data" />
 
         <Headline1 :data="data" /> -->
