@@ -10,7 +10,7 @@ namespace App\Actions\Mail\DispatchedEmail;
 use App\Actions\InertiaAction;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Models\Mail\DispatchedEmail;
-use App\Models\Mail\Mailroom;
+use App\Models\Mail\PostRoom;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
 use Inertia\Inertia;
@@ -54,7 +54,7 @@ class ShowDispatchedEmail extends InertiaAction
 
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inMailroomInShop(Outbox $outbox, DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
+    public function inPostRoomInShop(Outbox $outbox, DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
     {
 
         $this->initialisation($request);
@@ -62,7 +62,7 @@ class ShowDispatchedEmail extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inMailroomInOutboxInMailshotInShop(Mailroom $mailroom, Outbox $outbox, DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
+    public function inPostRoomInOutboxInMailshotInShop(PostRoom $postRoom, Outbox $outbox, DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
     {
 
         $this->initialisation($request);
@@ -70,7 +70,7 @@ class ShowDispatchedEmail extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inMailroomInMailshotInShop(Mailroom $mailroom, DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
+    public function inPostRoomInMailshotInShop(PostRoom $postRoom, DispatchedEmail $dispatchedEmail, ActionRequest $request): DispatchedEmail
     {
 
         $this->initialisation($request);

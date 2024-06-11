@@ -17,7 +17,7 @@ trait HasMailshotsStats
         $table->unsignedSmallInteger('number_mailshots')->default(0);
 
         foreach (MailshotStateEnum::cases() as $state) {
-            $table->unsignedInteger('number_mailroom_state_'.$state->snake())->default(0);
+            $table->unsignedInteger('number_post_room_state_'.$state->snake())->default(0);
         }
 
 

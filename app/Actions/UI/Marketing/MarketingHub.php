@@ -67,9 +67,9 @@ class MarketingHub extends InertiaAction
                     [
                         [
                             [
-                                'name'  => __('mailroom'),
+                                'name'  => __('post room'),
                                 'icon'  => ['fal', 'fa-mailbox'],
-                                'href'  => ['grp.marketing.mailrooms.index'],
+                                'href'  => ['grp.marketing.post_rooms.index'],
                                 'index' => [
                                     'number' => $routeParameters['shop']
                                 ]
@@ -110,9 +110,9 @@ class MarketingHub extends InertiaAction
                     default => [
                         [
                             [
-                                'name'  => __('mailroom'),
+                                'name'  => __('post room'),
                                 'icon'  => ['fal', 'fa-mailbox'],
-                                'href'  => ['grp.marketing.mailrooms.index'],
+                                'href'  => ['grp.marketing.post_rooms.index'],
                                 'index' => [
                                     'number' => $this->outbox
                                 ]

@@ -10,7 +10,7 @@ namespace App\Actions\Mail\Mailshot;
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\UI\HasUIMailshots;
 use App\Http\Resources\Mail\MailshotResource;
-use App\Models\Mail\Mailroom;
+use App\Models\Mail\PostRoom;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
 use App\Models\SysAdmin\Organisation;
@@ -29,7 +29,7 @@ class IndexMailshots extends InertiaAction
     use HasUIMailshots;
 
 
-    public function handle(Outbox|Mailroom|Organisation $parent, $prefix=null): LengthAwarePaginator
+    public function handle(Outbox|PostRoom|Organisation $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -59,13 +59,13 @@ class IndexMailshots extends InertiaAction
                 'mailshots.id',
                 'mailshots.data',
                 'outboxes.slug as outboxes_slug',
-                'mailrooms.id as mailroom_id'
+                'post_rooms.id as post_room_id'
             ])
             ->leftJoin('outboxes', 'mailshots.outbox_id', 'outboxes.id')
-            ->leftJoin('mailrooms', 'outboxes.mailroom_id', 'mailrooms.id')
+            ->leftJoin('post_rooms', 'outboxes.post_room_id', 'post_rooms.id')
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Mail') {
-                    $query->where('mailshots.mailroom_id', $parent->id);
+                    $query->where('mailshots.post_room_id', $parent->id);
                 }
             })
             ->allowedSorts(['mailshots.state', 'mailshots.data'])
@@ -146,10 +146,10 @@ class IndexMailshots extends InertiaAction
         return $this->handle(app('currentTenant'));
     }
 
-    public function inShop(Mailroom $mailroom, ActionRequest $request): LengthAwarePaginator
+    public function inShop(PostRoom $postRoom, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
-        return $this->handle($mailroom);
+        return $this->handle($postRoom);
     }
 
     /** @noinspection PhpUnused */
@@ -160,7 +160,7 @@ class IndexMailshots extends InertiaAction
     }
 
     /** @noinspection PhpUnused */
-    public function inMailroomInShop(Mailroom $mailroom, Outbox $outbox, ActionRequest $request): LengthAwarePaginator
+    public function inPostRoomInShop(PostRoom $postRoom, Outbox $outbox, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
         return $this->handle($outbox);

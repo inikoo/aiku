@@ -8,10 +8,10 @@
 namespace App\Actions\Mail\Outbox;
 
 use App\Actions\InertiaAction;
-use App\Actions\Mail\Mailroom\ShowMailroom;
+use App\Actions\Mail\PostRoom\ShowPostRoom;
 use App\Actions\UI\Marketing\MarketingHub;
 use App\Http\Resources\Mail\OutboxResource;
-use App\Models\Mail\Mailroom;
+use App\Models\Mail\PostRoom;
 use App\Models\Mail\Outbox;
 use App\Models\SysAdmin\Organisation;
 use Closure;
@@ -26,7 +26,7 @@ use App\Services\QueryBuilder;
 
 class IndexOutboxes extends InertiaAction
 {
-    public function handle(Mailroom|Organisation $parent, $prefix=null): LengthAwarePaginator
+    public function handle(PostRoom|Organisation $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -51,12 +51,12 @@ class IndexOutboxes extends InertiaAction
 
         return $queryBuilder
             ->defaultSort('outboxes.name')
-            ->select(['outboxes.name', 'outboxes.slug', 'outboxes.data', 'mailrooms.id as mailrooms_id'])
+            ->select(['outboxes.name', 'outboxes.slug', 'outboxes.data', 'post_rooms.id as post_rooms_id'])
             ->leftJoin('outbox_stats', 'outbox_stats.id', 'outbox_stats.outbox_id')
-            ->leftJoin('mailrooms', 'mailroom_id', 'mailrooms.id')
+            ->leftJoin('post_rooms', 'post_room_id', 'post_rooms.id')
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Mail') {
-                    $query->where('outboxes.mailroom_id', $parent->id);
+                    $query->where('outboxes.post_room_id', $parent->id);
                 }
             })
             ->allowedSorts(['name', 'data'])
@@ -126,13 +126,13 @@ class IndexOutboxes extends InertiaAction
     }
 
     /** @noinspection PhpUnused */
-    public function inMailroom(Mailroom $mailroom, ActionRequest $request): LengthAwarePaginator
+    public function inPostRoom(PostRoom $postRoom, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
-        return $this->handle($mailroom);
+        return $this->handle($postRoom);
     }
 
-    public function getBreadcrumbs(string $routeName, Mailroom|Organisation $parent): array
+    public function getBreadcrumbs(string $routeName, PostRoom|Organisation $parent): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
@@ -155,9 +155,9 @@ class IndexOutboxes extends InertiaAction
                 ),
                 $headCrumb()
             ),
-            'mail.mailrooms.show.outboxes.index' =>
+            'mail.post_rooms.show.outboxes.index' =>
             array_merge(
-                (new ShowMailroom())->getBreadcrumbs($parent),
+                (new ShowPostRoom())->getBreadcrumbs($parent),
                 $headCrumb([$parent->slug])
             ),
             default => []

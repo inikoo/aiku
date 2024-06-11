@@ -5,22 +5,22 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Mail\Mailroom;
+namespace App\Actions\Mail\PostRoom;
 
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Mail\MailroomResource;
-use App\Models\Mail\Mailroom;
+use App\Http\Resources\Mail\PostRoomResource;
+use App\Models\Mail\PostRoom;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateMailroom
+class UpdatePostRoom
 {
     use WithActionUpdate;
 
     private bool $asAction=false;
 
-    public function handle(Mailroom $mailroom, array $modelData): Mailroom
+    public function handle(PostRoom $postRoom, array $modelData): PostRoom
     {
-        return $this->update($mailroom, $modelData, ['data']);
+        return $this->update($postRoom, $modelData, ['data']);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -33,28 +33,28 @@ class UpdateMailroom
     public function rules(): array
     {
         return [
-            'code'         => ['sometimes', 'required', 'unique:mailrooms', 'between:2,9', 'alpha_dash'],
+            'code'         => ['sometimes', 'required', 'unique:post_rooms', 'between:2,9', 'alpha_dash'],
             'name'         => ['sometimes', 'required', 'max:250', 'string'],
         ];
     }
 
-    public function asController(Mailroom $mailroom, ActionRequest $request): Mailroom
+    public function asController(PostRoom $postRoom, ActionRequest $request): PostRoom
     {
         $request->validate();
-        return $this->handle($mailroom, $request->all());
+        return $this->handle($postRoom, $request->all());
     }
 
-    public function action(Mailroom $mailroom, $modelData): Mailroom
+    public function action(PostRoom $postRoom, $modelData): PostRoom
     {
         $this->asAction=true;
         $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($mailroom, $validatedData);
+        return $this->handle($postRoom, $validatedData);
     }
 
-    public function jsonResponse(Mailroom $mailroom): MailroomResource
+    public function jsonResponse(PostRoom $postRoom): PostRoomResource
     {
-        return new MailroomResource($mailroom);
+        return new PostRoomResource($postRoom);
     }
 }

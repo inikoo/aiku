@@ -7,7 +7,7 @@
 
 namespace App\Actions\Mail\Outbox;
 
-use App\Models\Mail\Mailroom;
+use App\Models\Mail\PostRoom;
 use App\Models\Mail\Outbox;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -20,10 +20,10 @@ class StoreOutbox
 
     private bool $asAction=false;
 
-    public function handle(Mailroom $mailroom, array $modelData): Outbox
+    public function handle(PostRoom $postRoom, array $modelData): Outbox
     {
         /** @var Outbox $outbox */
-        $outbox = $mailroom->outboxes()->create($modelData);
+        $outbox = $postRoom->outboxes()->create($modelData);
         $outbox->stats()->create();
 
         return $outbox;
@@ -45,12 +45,12 @@ class StoreOutbox
         ];
     }
 
-    public function action(Mailroom $mailroom, array $modelData): Outbox
+    public function action(PostRoom $postRoom, array $modelData): Outbox
     {
         $this->asAction=true;
         $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
-        return $this->handle($mailroom, $validatedData);
+        return $this->handle($postRoom, $validatedData);
     }
 }

@@ -7,19 +7,19 @@
 <script setup lang="ts">
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import {Mailroom} from "@/types/mailroom.ts";
-const props = defineProps<{
+import {PostRoom} from "@/types/postRoom";
+defineProps<{
     data: object,
     tab?:string,
 }>()
 
 
-function mailRoute(mailroom: Mailroom) {
+function mailRoute(postRoom: PostRoom) {
     switch (route().current()) {
-        case 'mail.mailrooms.index':
+        case 'mail.post_rooms.index':
             return route(
-                'mail.mailrooms.show',
-                [mailroom.code]);
+                'mail.post_rooms.show',
+                [postRoom.code]);
     }
 }
 
@@ -27,9 +27,9 @@ function mailRoute(mailroom: Mailroom) {
 
 <template>
     <Table :resource="data" :name="tab"  class="mt-5">
-        <template #cell(code)="{ item: mailroom }">
-            <Link :href="mailRoute(mailroom)">
-                {{ mailroom['code'] }}
+        <template #cell(code)="{ item: postRoom }">
+            <Link :href="mailRoute(postRoom)">
+                {{ postRoom['code'] }}
             </Link>
         </template>
     </Table>

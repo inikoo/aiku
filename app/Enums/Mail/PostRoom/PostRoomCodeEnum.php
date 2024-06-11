@@ -5,11 +5,11 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Mail\Mailroom;
+namespace App\Enums\Mail\PostRoom;
 
 use App\Enums\EnumHelperTrait;
 
-enum MailroomCodeEnum: string
+enum PostRoomCodeEnum: string
 {
     use EnumHelperTrait;
 
@@ -22,11 +22,11 @@ enum MailroomCodeEnum: string
     public function label(): string
     {
         return match ($this) {
-            MailroomCodeEnum::MARKETING             => 'Deals',
-            MailroomCodeEnum::LEADS                 => 'Leads',
-            MailroomCodeEnum::CUSTOMER_NOTIFICATION => 'Customer notifications',
-            MailroomCodeEnum::USER_NOTIFICATION     => 'User notifications',
-            MailroomCodeEnum::TESTS                 => 'tests',
+            PostRoomCodeEnum::MARKETING             => 'Deals',
+            PostRoomCodeEnum::LEADS                 => 'Leads',
+            PostRoomCodeEnum::CUSTOMER_NOTIFICATION => 'Customer notifications',
+            PostRoomCodeEnum::USER_NOTIFICATION     => 'User notifications',
+            PostRoomCodeEnum::TESTS                 => 'tests',
         };
     }
 }

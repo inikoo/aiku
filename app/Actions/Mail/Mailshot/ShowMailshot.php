@@ -9,7 +9,7 @@ namespace App\Actions\Mail\Mailshot;
 
 use App\Actions\InertiaAction;
 use App\Http\Resources\Mail\MailshotResource;
-use App\Models\Mail\Mailroom;
+use App\Models\Mail\PostRoom;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
 use Inertia\Inertia;
@@ -49,7 +49,7 @@ class ShowMailshot extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inMailroomInOutboxInShop(Mailroom $mailroom, Outbox $outbox, Mailshot $mailshot, ActionRequest $request): Mailshot
+    public function inPostRoomInOutboxInShop(PostRoom $postRoom, Outbox $outbox, Mailshot $mailshot, ActionRequest $request): Mailshot
     {
 
         $this->initialisation($request);
@@ -57,7 +57,7 @@ class ShowMailshot extends InertiaAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inMailroom(Mailroom $mailroom, Mailshot $mailshot, ActionRequest $request): Mailshot
+    public function inPostRoom(PostRoom $postRoom, Mailshot $mailshot, ActionRequest $request): Mailshot
     {
 
         $this->initialisation($request);

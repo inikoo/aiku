@@ -9,7 +9,7 @@ namespace Database\Factories\Mail;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-class MailroomFactory extends Factory
+class PostRoomFactory extends Factory
 {
     public function definition(): array
     {

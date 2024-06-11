@@ -21,7 +21,7 @@ use App\Actions\SysAdmin\User\UserRemoveRoles;
 use App\Actions\SysAdmin\User\UserSyncRoles;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Helpers\Currency;
-use App\Models\Mail\Mailroom;
+use App\Models\Mail\PostRoom;
 use App\Models\SysAdmin\Admin;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
@@ -96,9 +96,9 @@ test('update group name', function (Group $group) {
 })->depends('create group');
 
 
-test('mailrooms seeded correctly', function () {
-    $mailrooms = Mailroom::all();
-    expect($mailrooms->count())->toBe(10);
+test('post rooms seeded correctly', function () {
+    $postRooms = PostRoom::all();
+    expect($postRooms->count())->toBe(10);
 });
 
 test('create a system admin', function () {

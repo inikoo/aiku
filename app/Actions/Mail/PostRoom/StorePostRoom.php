@@ -5,41 +5,41 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Mail\Mailroom;
+namespace App\Actions\Mail\PostRoom;
 
-use App\Enums\Mail\Mailroom\MailroomCodeEnum;
-use App\Models\Mail\Mailroom;
+use App\Enums\Mail\PostRoom\PostRoomCodeEnum;
+use App\Models\Mail\PostRoom;
 use App\Models\SysAdmin\Group;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreMailroom
+class StorePostRoom
 {
     use AsAction;
     use WithAttributes;
 
     private bool $asAction = false;
 
-    public function handle(Group $group, array $modelData): Mailroom
+    public function handle(Group $group, array $modelData): PostRoom
     {
-        /** @var Mailroom $mailroom */
-        $mailroom = $group->mailrooms()->create($modelData);
-        $mailroom->stats()->create();
+        /** @var PostRoom $postRoom */
+        $postRoom = $group->postRooms()->create($modelData);
+        $postRoom->stats()->create();
 
-        return $mailroom;
+        return $postRoom;
     }
 
 
     public function rules(): array
     {
         return [
-            'code' => [Rule::enum(MailroomCodeEnum::class)],
+            'code' => [Rule::enum(PostRoomCodeEnum::class)],
             'name' => ['required', 'string'],
         ];
     }
 
-    public function action(Group $group, array $modelData): Mailroom
+    public function action(Group $group, array $modelData): PostRoom
     {
         $this->asAction = true;
         $this->setRawAttributes($modelData);

@@ -7,7 +7,7 @@
 
 namespace App\Models\Mail;
 
-use App\Enums\Mail\Mailroom\MailroomCodeEnum;
+use App\Enums\Mail\PostRoom\PostRoomCodeEnum;
 use App\Models\SysAdmin\Group;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -26,25 +26,25 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property string $slug
- * @property MailroomCodeEnum $code
+ * @property PostRoomCodeEnum $code
  * @property string $name
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Group $group
  * @property-read Collection<int, \App\Models\Mail\Outbox> $outboxes
- * @property-read \App\Models\Mail\MailroomStats|null $stats
- * @method static Builder|Mailroom newModelQuery()
- * @method static Builder|Mailroom newQuery()
- * @method static Builder|Mailroom query()
+ * @property-read \App\Models\Mail\PostRoomStats|null $stats
+ * @method static Builder|PostRoom newModelQuery()
+ * @method static Builder|PostRoom newQuery()
+ * @method static Builder|PostRoom query()
  * @mixin Eloquent
  */
-class Mailroom extends Model
+class PostRoom extends Model
 {
     use HasSlug;
 
     protected $casts = [
-        'code' => MailroomCodeEnum::class,
+        'code' => PostRoomCodeEnum::class,
         'data' => 'array',
     ];
 
@@ -71,7 +71,7 @@ class Mailroom extends Model
 
     public function stats(): HasOne
     {
-        return $this->hasOne(MailroomStats::class);
+        return $this->hasOne(PostRoomStats::class);
     }
 
     public function outboxes(): HasMany

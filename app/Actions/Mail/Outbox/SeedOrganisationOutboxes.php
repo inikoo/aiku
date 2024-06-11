@@ -8,7 +8,7 @@
 namespace App\Actions\Mail\Outbox;
 
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
-use App\Models\Mail\Mailroom;
+use App\Models\Mail\PostRoom;
 use App\Models\Mail\Outbox;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -20,12 +20,12 @@ class SeedOrganisationOutboxes
     {
         foreach (OutboxTypeEnum::cases() as $case) {
             if ($case->scope() == 'organisation') {
-                $mailroom = Mailroom::where('code', $case->mailroomCode()->value)->first();
+                $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
 
                 $outboxType = str($case->value)->camel()->kebab()->value();
                 if (!Outbox::where('type', $outboxType)->exists()) {
                     StoreOutbox::run(
-                        $mailroom,
+                        $postRoom,
                         [
                             'name'    => $case->label(),
                             'type'    => $outboxType,

@@ -19,7 +19,7 @@ import { capitalize } from "@/Composables/capitalize"
 
 library.add(faCreditCard, faMoneyCheckAlt, faCashRegister);
 
-const props = defineProps(['title', 'pageHead', 'mailroom', 'flatTreeMaps']);
+const props = defineProps(['title', 'pageHead', 'post_room', 'flatTreeMaps']);
 
 
 </script>

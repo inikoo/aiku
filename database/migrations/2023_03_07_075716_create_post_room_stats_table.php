@@ -17,24 +17,22 @@ return new class () extends Migration {
     use HasMailshotsStats;
     use HasOutboxesStats;
 
-    public function up()
+    public function up(): void
     {
-        Schema::create('mailroom_stats', function (Blueprint $table) {
+        Schema::create('post_room_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('mailroom_id')->nullable();
-            $table->foreign('mailroom_id')->references('id')->on('mailrooms');
-
+            $table->unsignedSmallInteger('post_room_id')->nullable();
+            $table->foreign('post_room_id')->references('id')->on('post_rooms');
             $table=$this->outboxesStats($table);
             $table=$this->mailshotsStats($table);
             $table=$this->dispatchedEmailStats($table);
-
             $table->timestampsTz();
         });
     }
 
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('mailroom_stats');
+        Schema::dropIfExists('post_room_stats');
     }
 };

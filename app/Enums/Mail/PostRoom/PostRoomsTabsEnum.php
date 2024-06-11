@@ -1,41 +1,41 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 19 Jun 2023 20:10:15 Malaysia Time, Pantai Lembeng, Bali, Id
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 11 Jun 2024 19:39:10 Central European Summer Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Enums\UI;
+namespace App\Enums\Mail\PostRoom;
 
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
 
-enum MailroomsTabsEnum: string
+enum PostRoomsTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
 
-    case MAILROOMS          = 'mailrooms';
-    case OUTBOXES           = 'outboxes';
-    case MAILSHOTS          = 'mailshots';
-    case DISPATCHED_EMAILS  = 'dispatched_emails';
+    case POST_ROOMS          = 'post_rooms';
+    case OUTBOXES            = 'outboxes';
+    case MAILSHOTS           = 'mailshots';
+    case DISPATCHED_EMAILS   = 'dispatched_emails';
 
     public function blueprint(): array
     {
         return match ($this) {
-            MailroomsTabsEnum::MAILROOMS => [
-                'title' => __('mailrooms'),
+            PostRoomsTabsEnum::POST_ROOMS => [
+                'title' => __('post rooms'),
                 'icon'  => 'fal fa-mailbox',
             ],
-            MailroomsTabsEnum::OUTBOXES => [
+            PostRoomsTabsEnum::OUTBOXES => [
                 'title' => __('outboxes'),
                 'icon'  => 'fal fa-inbox-out',
             ],
-            MailroomsTabsEnum::MAILSHOTS => [
+            PostRoomsTabsEnum::MAILSHOTS => [
                 'title' => __('mailshots'),
                 'icon'  => 'fal fa-folder',
             ],
-            MailroomsTabsEnum::DISPATCHED_EMAILS => [
+            PostRoomsTabsEnum::DISPATCHED_EMAILS => [
                 'title' => __('dispatched_emails'),
                 'icon'  => 'fal fa-envelope',
             ],

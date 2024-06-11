@@ -27,7 +27,7 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Mail\Outbox
  *
  * @property int $id
- * @property int|null $mailroom_id
+ * @property int|null $post_room_id
  * @property int|null $shop_id
  * @property string $slug
  * @property string $type

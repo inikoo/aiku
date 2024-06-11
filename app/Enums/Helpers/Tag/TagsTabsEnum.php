@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 15 Nov 2023 03:22:19 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 11 Jun 2024 19:39:58 Central European Summer Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Enums\UI;
+namespace App\Enums\Helpers\Tag;
 
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;

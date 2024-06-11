@@ -7,7 +7,7 @@
 export interface Outbox {
 
     slug: string
-    mailroom_id:string,
+    post_room_id:string,
     data: string,
     created_at: string
     updated_at: string

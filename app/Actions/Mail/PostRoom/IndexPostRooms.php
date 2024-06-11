@@ -5,20 +5,20 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace App\Actions\Mail\Mailroom;
+namespace App\Actions\Mail\PostRoom;
 
 use App\Actions\InertiaAction;
 use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
 use App\Actions\Mail\Mailshot\IndexMailshots;
 use App\Actions\Mail\Outbox\IndexOutboxes;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
-use App\Enums\UI\MailroomsTabsEnum;
+use App\Enums\Mail\PostRoom\PostRoomsTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
-use App\Http\Resources\Mail\MailroomResource;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Mail\OutboxResource;
+use App\Http\Resources\Mail\PostRoomResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Mail\Mailroom;
+use App\Models\Mail\PostRoom;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -28,14 +28,14 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexMailrooms extends InertiaAction
+class IndexPostRooms extends InertiaAction
 {
     public function handle($prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->where('mailrooms.code', '~*', "\y$value\y")
-                    ->orWhere('mailrooms.data', '=', $value);
+                $query->where('post_rooms.code', '~*', "\y$value\y")
+                    ->orWhere('post_rooms.data', '=', $value);
             });
         });
 
@@ -43,7 +43,7 @@ class IndexMailrooms extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(Mailroom::class);
+        $queryBuilder=QueryBuilder::for(PostRoom::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
@@ -54,9 +54,9 @@ class IndexMailrooms extends InertiaAction
         }
 
         return $queryBuilder
-            ->defaultSort('mailrooms.code')
+            ->defaultSort('post_rooms.code')
             ->select(['code', 'number_outboxes', 'number_mailshots', 'number_dispatched_emails'])
-            ->leftJoin('mailroom_stats', 'mailrooms.id', 'mailroom_stats.mailroom_id')
+            ->leftJoin('post_room_stats', 'post_rooms.id', 'post_room_stats.post_room_id')
             ->allowedSorts(['code', 'number_outboxes', 'number_mailshots', 'number_dispatched_emails'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -96,52 +96,52 @@ class IndexMailrooms extends InertiaAction
 
     public function jsonResponse(): AnonymousResourceCollection
     {
-        return MailroomResource::collection($this->handle());
+        return PostRoomResource::collection($this->handle());
     }
 
 
-    public function htmlResponse(LengthAwarePaginator $mailroom, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $postRoom, ActionRequest $request): Response
     {
         $scope=app('currentTenant');
 
         return Inertia::render(
-            'Mail/Mailrooms',
+            'Mail/PostRooms',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('mailroom'),
+                'title'       => __('post room'),
                 'pageHead'    => [
-                    'title'   => __('mailroom'),
-                    'create'  => $this->canEdit && $request->route()->getName()=='mail.mailrooms.index' ? [
+                    'title'   => __('post room'),
+                    'create'  => $this->canEdit && $request->route()->getName()=='mail.post_rooms.index' ? [
                         'route' => [
                             'name'       => 'shops.create',
                             'parameters' => array_values($request->route()->originalParameters())
                         ],
-                        'label'    => __('mailroom'),
+                        'label'    => __('post room'),
                     ] : false,
                 ],
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => MailroomsTabsEnum::navigation(),
+                    'navigation' => PostRoomsTabsEnum::navigation(),
                 ],
 
 
-                MailroomsTabsEnum::MAILROOMS->value => $this->tab == MailroomsTabsEnum::MAILROOMS->value ?
-                    fn () => MailroomResource::collection($mailroom)
-                    : Inertia::lazy(fn () => MailroomResource::collection($mailroom)),
+                PostRoomsTabsEnum::POST_ROOMS->value => $this->tab == PostRoomsTabsEnum::POST_ROOMS->value ?
+                    fn () => PostRoomResource::collection($postRoom)
+                    : Inertia::lazy(fn () => PostRoomResource::collection($postRoom)),
 
-                MailroomsTabsEnum::OUTBOXES->value => $this->tab == MailroomsTabsEnum::OUTBOXES->value ?
-                    fn () => OutboxResource::collection(IndexOutboxes::run($scope, MailroomsTabsEnum::OUTBOXES->value))
-                    : Inertia::lazy(fn () => OutboxResource::collection(IndexOutboxes::run($scope, MailroomsTabsEnum::OUTBOXES->value))),
+                PostRoomsTabsEnum::OUTBOXES->value => $this->tab == PostRoomsTabsEnum::OUTBOXES->value ?
+                    fn () => OutboxResource::collection(IndexOutboxes::run($scope, PostRoomsTabsEnum::OUTBOXES->value))
+                    : Inertia::lazy(fn () => OutboxResource::collection(IndexOutboxes::run($scope, PostRoomsTabsEnum::OUTBOXES->value))),
 
-                MailroomsTabsEnum::MAILSHOTS->value => $this->tab == MailroomsTabsEnum::MAILSHOTS->value ?
+                PostRoomsTabsEnum::MAILSHOTS->value => $this->tab == PostRoomsTabsEnum::MAILSHOTS->value ?
                     fn () => MailshotResource::collection(IndexMailshots::run($scope))
                     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($scope))),
 
-                MailroomsTabsEnum::DISPATCHED_EMAILS->value => $this->tab == MailroomsTabsEnum::DISPATCHED_EMAILS->value ?
+                PostRoomsTabsEnum::DISPATCHED_EMAILS->value => $this->tab == PostRoomsTabsEnum::DISPATCHED_EMAILS->value ?
                     fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($scope))
                     : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($scope))),
             ]
-        )->table($this->tableStructure(prefix: 'mailrooms'))
+        )->table($this->tableStructure(prefix: 'post_rooms'))
             ->table(IndexOutboxes::make()->tableStructure(parent:$scope, prefix: 'outboxes'))
             ->table(IndexMailshots::make()->tableStructure(parent:$scope, prefix: 'mailshots'))
             ->table(IndexDispatchedEmails::make()->tableStructure(parent:$scope, prefix: 'dispatched_emails'));
@@ -169,9 +169,9 @@ class IndexMailrooms extends InertiaAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => [
-                            'name' => 'mail.mailrooms.index'
+                            'name' => 'mail.post_rooms.index'
                         ],
-                        'label' => __('mailrooms'),
+                        'label' => __('post rooms'),
                         'icon'  => 'fal fa-bars'
                     ],
                     'suffix'=> $suffix

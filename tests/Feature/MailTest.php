@@ -22,7 +22,7 @@ beforeAll(function () {
 
 beforeEach(function () {
     $this->organisation = createOrganisation();
-    $this->group        = group();
+    $this->group        = $this->organisation->group;
 });
 
 test('get outbox from shop', function () {

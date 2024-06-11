@@ -131,10 +131,10 @@ class StoreShop extends OrgAction
 
         foreach (OutboxTypeEnum::cases() as $case) {
             if ($case->scope() == 'shop') {
-                $mailroom = $organisation->group->mailrooms()->where('code', $case->mailroomCode()->value)->first();
+                $postRoom = $organisation->group->postRooms()->where('code', $case->postRoomCode()->value)->first();
 
                 StoreOutbox::run(
-                    $mailroom,
+                    $postRoom,
                     [
                         'shop_id' => $shop->id,
                         'name'    => $case->label(),

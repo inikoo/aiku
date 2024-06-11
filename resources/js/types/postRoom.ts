@@ -4,7 +4,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-export interface Mailroom {
+export interface PostRoom {
 
     code:string,
     data: string,

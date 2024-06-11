@@ -18,7 +18,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $updated_at
  *
  */
-class MailroomResource extends JsonResource
+class PostRoomResource extends JsonResource
 {
     public function toArray($request): array
     {

@@ -14,10 +14,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 
 /**
- * App\Models\Mail\MailroomStats
+ * App\Models\Mail\PostRoomStats
  *
  * @property int $id
- * @property int|null $mailroom_id
+ * @property int|null $post_room_id
  * @property int $number_outboxes
  * @property int $number_outbox_type_basket_low_stock
  * @property int $number_outbox_type_basket_reminder_1
@@ -45,13 +45,13 @@ use Illuminate\Support\Carbon;
  * @property int $number_outbox_state_active
  * @property int $number_outbox_state_suspended
  * @property int $number_mailshots
- * @property int $number_mailroom_state_in_process
- * @property int $number_mailroom_state_ready
- * @property int $number_mailroom_state_scheduled
- * @property int $number_mailroom_state_sending
- * @property int $number_mailroom_state_sent
- * @property int $number_mailroom_state_cancelled
- * @property int $number_mailroom_state_stopped
+ * @property int $number_post_room_state_in_process
+ * @property int $number_post_room_state_ready
+ * @property int $number_post_room_state_scheduled
+ * @property int $number_post_room_state_sending
+ * @property int $number_post_room_state_sent
+ * @property int $number_post_room_state_cancelled
+ * @property int $number_post_room_state_stopped
  * @property int $number_dispatched_emails
  * @property int $number_dispatched_emails_state_ready
  * @property int $number_dispatched_emails_state_error
@@ -67,20 +67,20 @@ use Illuminate\Support\Carbon;
  * @property int $number_provoked_unsubscribe
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read \App\Models\Mail\Mailroom|null $mailroom
- * @method static Builder|MailroomStats newModelQuery()
- * @method static Builder|MailroomStats newQuery()
- * @method static Builder|MailroomStats query()
+ * @property-read \App\Models\Mail\PostRoom|null $postRoom
+ * @method static Builder|PostRoomStats newModelQuery()
+ * @method static Builder|PostRoomStats newQuery()
+ * @method static Builder|PostRoomStats query()
  * @mixin Eloquent
  */
-class MailroomStats extends Model
+class PostRoomStats extends Model
 {
-    protected $table = 'mailroom_stats';
+    protected $table = 'post_room_stats';
 
     protected $guarded = [];
 
-    public function mailroom(): BelongsTo
+    public function postRoom(): BelongsTo
     {
-        return $this->belongsTo(Mailroom::class);
+        return $this->belongsTo(PostRoom::class);
     }
 }

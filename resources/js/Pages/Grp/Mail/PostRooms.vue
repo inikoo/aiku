@@ -11,7 +11,7 @@ import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { computed, ref } from "vue";
 
-import TableMailrooms from "@/Components/Tables/TableMailrooms.vue";
+import TablePostRooms from "@/Components/Tables/TablePostRooms.vue";
 import TableOutboxes from "@/Components/Tables/TableOutboxes.vue";
 import TableMailshots from "@/Components/Tables/TableMailshots.vue";
 import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue";
@@ -25,7 +25,7 @@ const props = defineProps <{
         navigation: object;
     },
     title: string
-    mailrooms?: object
+    post_rooms?: object
     outboxes?: object
     mailshots?: object
     dispatched_emails?: object
@@ -38,7 +38,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const component = computed(() => {
 
     const components = {
-        mailrooms: TableMailrooms,
+        post_rooms: TablePostRooms,
         outboxes: TableOutboxes,
         mailshots: TableMailshots,
         dispatched_emails: TableDispatchedEmails,

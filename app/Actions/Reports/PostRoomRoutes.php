@@ -7,14 +7,14 @@
 
 namespace App\Actions\Reports;
 
-use App\Actions\Mail\Mailroom\IndexMailrooms;
+use App\Actions\Mail\PostRoom\IndexPostRooms;
 use Illuminate\Support\Facades\Route;
 
 class PostRoomRoutes
 {
     public function __invoke($parent): void
     {
-        Route::get('/mailrooms', [IndexMailrooms::class, $parent == 'organisation' ? 'inOrganisation' : 'inShop'])->name('mailrooms.index');
+        Route::get('/post_rooms', [IndexPostRooms::class, $parent == 'organisation' ? 'inOrganisation' : 'inShop'])->name('post_rooms.index');
 
     }
 }

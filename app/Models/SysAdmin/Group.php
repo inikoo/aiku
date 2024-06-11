@@ -36,7 +36,7 @@ use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
-use App\Models\Mail\Mailroom;
+use App\Models\Mail\PostRoom;
 use App\Models\Manufacturing\Artefact;
 use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
@@ -112,7 +112,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Invoice> $invoices
  * @property-read LaravelCollection<int, JobPosition> $jobPositions
  * @property-read LaravelCollection<int, Location> $locations
- * @property-read LaravelCollection<int, Mailroom> $mailrooms
  * @property-read \App\Models\SysAdmin\GroupMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\GroupManufactureStats|null $manufactureStats
  * @property-read LaravelCollection<int, ManufactureTask> $manufactureTasks
@@ -124,6 +123,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
  * @property-read LaravelCollection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read LaravelCollection<int, Payment> $payments
+ * @property-read LaravelCollection<int, PostRoom> $postRooms
  * @property-read LaravelCollection<int, ProductCategory> $productCategories
  * @property-read LaravelCollection<int, Production> $productions
  * @property-read LaravelCollection<int, Product> $products
@@ -278,9 +278,9 @@ class Group extends Authenticatable implements HasMedia
         return $this->hasMany(Organisation::class);
     }
 
-    public function mailrooms(): HasMany
+    public function postRooms(): HasMany
     {
-        return $this->hasMany(Mailroom::class);
+        return $this->hasMany(PostRoom::class);
     }
 
     public function users(): HasMany

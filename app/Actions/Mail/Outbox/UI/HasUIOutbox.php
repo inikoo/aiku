@@ -7,7 +7,7 @@
 
 namespace App\Actions\Mail\Outbox\UI;
 
-use App\Actions\Mail\Mailroom\ShowMailroom;
+use App\Actions\Mail\PostRoom\ShowPostRoom;
 use App\Actions\UI\Marketing\MarketingHub;
 use App\Models\Mail\Outbox;
 
@@ -41,8 +41,8 @@ trait HasUIOutbox
                 (new MarketingHub())->getBreadcrumbs(),
                 $headCrumb([$outbox->slug])
             ),
-            'mail.mailrooms.show.outboxes.show' => array_merge(
-                (new ShowMailroom())->getBreadcrumbs($outbox->parent),
+            'mail.post_rooms.show.outboxes.show' => array_merge(
+                (new ShowPostRoom())->getBreadcrumbs($outbox->parent),
                 $headCrumb([$outbox->id, $outbox->slug])
             ),
             default => []

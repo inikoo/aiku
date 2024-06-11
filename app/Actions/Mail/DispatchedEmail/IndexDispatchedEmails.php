@@ -8,11 +8,11 @@
 namespace App\Actions\Mail\DispatchedEmail;
 
 use App\Actions\InertiaAction;
-use App\Actions\Mail\Mailroom\ShowMailroom;
+use App\Actions\Mail\PostRoom\ShowPostRoom;
 use App\Actions\UI\Marketing\MarketingHub;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Models\Mail\DispatchedEmail;
-use App\Models\Mail\Mailroom;
+use App\Models\Mail\PostRoom;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
 use App\Models\Catalogue\Shop;
@@ -29,7 +29,7 @@ use App\Services\QueryBuilder;
 
 class IndexDispatchedEmails extends InertiaAction
 {
-    public function handle(Mailshot|Outbox|Mailroom|Organisation|Shop $parent, $prefix=null): LengthAwarePaginator
+    public function handle(Mailshot|Outbox|PostRoom|Organisation|Shop $parent, $prefix=null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -63,13 +63,13 @@ class IndexDispatchedEmails extends InertiaAction
                 'outboxes.slug as outboxes_id'
             ])
             ->leftJoin('outboxes', 'dispatched_emails.outbox_id', 'outboxes.id')
-            ->leftJoin('mailrooms', 'outboxes.mailroom_id', 'mailrooms.id')
+            ->leftJoin('post_rooms', 'outboxes.post_room_id', 'post_rooms.id')
             ->when($parent, function ($query) use ($parent) {
                 if (class_basename($parent) == 'Mail') {
-                    $query->where('outboxes.mailroom_id', $parent->id);
+                    $query->where('outboxes.post_room_id', $parent->id);
                 }
                 if (class_basename($parent) == 'Outbox') {
-                    $query->where('dispatched_emails.mailroom_id', $parent->id);
+                    $query->where('dispatched_emails.post_room_id', $parent->id);
                 }
                 if (class_basename($parent) == 'Mailshot') {
                     $query->where('dispatched_emails.mailshot_id', $parent->id);
@@ -150,21 +150,21 @@ class IndexDispatchedEmails extends InertiaAction
     }
 
     /** @noinspection PhpUnused */
-    public function inMailroomInShop(Outbox $outbox, ActionRequest $request): LengthAwarePaginator
+    public function inPostRoomInShop(Outbox $outbox, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
         return $this->handle($outbox);
     }
 
 
-    public function inMailroomInOutboxInShop(Mailroom $mailroom, Outbox $outbox, ActionRequest $request): LengthAwarePaginator
+    public function inPostRoomInOutboxInShop(PostRoom $postRoom, Outbox $outbox, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request);
         return $this->handle($outbox);
     }
 
 
-    public function getBreadcrumbs(string $routeName, Mailshot|Outbox|Mailroom|Organisation $parent): array
+    public function getBreadcrumbs(string $routeName, Mailshot|Outbox|PostRoom|Organisation $parent): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
@@ -187,9 +187,9 @@ class IndexDispatchedEmails extends InertiaAction
                 ),
                 $headCrumb()
             ),
-            'mail.mailrooms.show.dispatched-emails.index' =>
+            'mail.post_rooms.show.dispatched-emails.index' =>
             array_merge(
-                (new ShowMailroom())->getBreadcrumbs($parent),
+                (new ShowPostRoom())->getBreadcrumbs($parent),
                 $headCrumb([$parent->slug])
             ),
             default => []

@@ -14,8 +14,8 @@ return new class () extends Migration {
     {
         Schema::create('outboxes', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('mailroom_id')->nullable();
-            $table->foreign('mailroom_id')->references('id')->on('mailrooms');
+            $table->unsignedSmallInteger('post_room_id')->nullable();
+            $table->foreign('post_room_id')->references('id')->on('post_rooms');
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->string('slug')->unique()->collation('und_ns');

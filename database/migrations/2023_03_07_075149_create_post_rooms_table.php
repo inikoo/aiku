@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('mailrooms', function (Blueprint $table) {
+        Schema::create('post_rooms', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_id')->index();
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
@@ -27,6 +27,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('mailrooms');
+        Schema::dropIfExists('post_rooms');
     }
 };
