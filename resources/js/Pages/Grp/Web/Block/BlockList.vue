@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { faPresentation, faCube, faText, faImage } from "@fal"
+import { faPresentation, faCube, faText, faImage, faImages, faPaperclip } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import dataList from "../data/blogActivity.js"
@@ -8,7 +8,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue"
 import { useTabChange } from "@/Composables/tab-change"
 import { ref } from 'vue'
 
-library.add(faPresentation, faCube, faText, faImage );
+library.add(faPresentation, faCube, faText, faImage, faImages, faPaperclip );
 const props = defineProps<{
     onPickBlock: Funcition,
 }>();

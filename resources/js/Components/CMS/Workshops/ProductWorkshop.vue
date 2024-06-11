@@ -5,13 +5,15 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
 import { ref } from "vue"
+import Selector from './Editor/Selector.vue'
+import DataSet from './DataSet/Product.js'
 
 library.add(faCube, faLink, faStar, faCircle, faChevronDown, faChevronLeft, faChevronRight, faHeart, faSeedling, faHandPaper, faFish, faMedal, faSquare)
 
 const selectedProduct = ref(0)
 const emits = defineEmits(['update:modelValue', 'autoSave'])
 
-
+const data = ref(DataSet)
 
 const dataProduct = ref({
     images: [
@@ -45,33 +47,39 @@ const option = [
             <div id="app" class="text-gray-600">
                 <div class="grid grid-cols-5 gap-x-10 mb-12">
                     <div class="col-span-3">
-                        <div class="font-bold text-2xl">
-                            8x Monkey Bath Bomb 90g - Guava & Strawberry
+                        <div>
+                            <Selector v-model="data.title">
+                                <template #content-area>
+                                    <div :style="data.title">8x Monkey Bath Bomb 90g - Guava & Strawberry</div>
+                                </template>
+                            </Selector>
                         </div>
+
 
                         <div class="mb-1 flex gap-x-10">
                             <div class="text-sm">
                                 Product code: BKB-07
                             </div>
                             <div class="flex gap-x-[1px] items-center">
-                                <i class="fas fa-star text-[9px] text-gray-600"></i>
-                                <i class="fas fa-star text-[9px] text-gray-600"></i>
-                                <i class="fas fa-star text-[9px] text-gray-600"></i>
-                                <i class="fas fa-star text-[9px] text-gray-600"></i>
-                                <i class="fas fa-star text-[9px] text-gray-600"></i>
+                                <FontAwesomeIcon icon="fas fa-star text-[9px] text-gray-600"></FontAwesomeIcon>
+                                <FontAwesomeIcon icon="fas fa-star text-[9px] text-gray-600"></FontAwesomeIcon>
+                                <FontAwesomeIcon icon="fas fa-star text-[9px] text-gray-600"></FontAwesomeIcon>
+                                <FontAwesomeIcon icon="fas fa-star text-[9px] text-gray-600"></FontAwesomeIcon>
+                                <FontAwesomeIcon icon="fas fa-star text-[9px] text-gray-600"></FontAwesomeIcon>
                                 <span class="ml-1 text-xs">41</span>
                             </div>
                         </div>
 
                         <div class="mb-1 flex justify-between">
                             <div>
-                                <i class="fas fa-circle text-sm text-green-600"></i>
+                                <FontAwesomeIcon icon="fas fa-circle" class="text-sm text-green-600"></FontAwesomeIcon>
                                 <span class="ml-1 text-sm">(41)</span>
                             </div>
                             <div>
                                 RRP: £3.95/Piece
                             </div>
                         </div>
+
                         <!-- Images product -->
                         <div class="grid grid-cols-5 mb-10 gap-x-2">
                             <div class="flex flex-col gap-y-1.5">
@@ -121,56 +129,72 @@ const option = [
                         <!-- Section: Label -->
                         <div class="flex gap-x-10 text-gray-400 mb-6">
                             <div class="flex items-center gap-x-1">
-                                <i class="fas fa-seedling text-sm"></i>
+                                <FontAwesomeIcon icon="fas fa-seedling " class="text-sm"></FontAwesomeIcon>
                                 <div class="text-xs">Vegan</div>
                             </div>
                             <div class="flex items-center gap-x-1">
-                                <i class="fas fa-hand-paper text-sm"></i>
+                                <FontAwesomeIcon icon="fas fa-hand-paper" class="text-sm"></FontAwesomeIcon>
                                 <div class="text-xs">Handmade</div>
                             </div>
                             <div class="flex items-center gap-x-1">
-                                <i class="fas fa-fish text-sm"></i>
+                                <FontAwesomeIcon icon="fas fa-fish" class="text-sm"></FontAwesomeIcon>
                                 <div class="text-xs">Cruelty Free</div>
                             </div>
                             <div class="flex items-center gap-x-2">
-                                <i class="fas fa-square fa-rotate-by text-sm" style="--fa-rotate-angle: 45deg;"></i>
+                                <FontAwesomeIcon icon="fas fa-square" class="fa-rotate-by text-sm"
+                                    style="--fa-rotate-angle: 45deg;"></FontAwesomeIcon>
                                 <div class="text-xs">Plastic Free</div>
                             </div>
                         </div>
 
                         <div class="mb-2 flex gap-x-4 items-center w-fit cursor-pointer">
                             <div class="font-bold">Product Specification & Documentation</div>
-                            <i class="fas fa-chevron-down text-gray-400"></i>
+                            <FontAwesomeIcon icon="fas fa-chevron-down " class="text-gray-400"></FontAwesomeIcon>
                         </div>
 
                         <div class="flex items-center gap-x-4 font-bold cursor-pointer">
                             <div>Customer Reviews </div>
                             <div class="flex gap-x-[1px] items-center">
-                                <i class="fas fa-star text-[9px] text-gray-600"></i>
-                                <i class="fas fa-star text-[9px] text-gray-600"></i>
-                                <i class="fas fa-star text-[9px] text-gray-600"></i>
-                                <i class="fas fa-star text-[9px] text-gray-600"></i>
-                                <i class="fas fa-star text-[9px] text-gray-600"></i>
+                                <FontAwesomeIcon icon="fas fa-star" class="text-[9px] text-gray-600"></FontAwesomeIcon>
+                                <FontAwesomeIcon icon="fas fa-star" class="text-[9px] text-gray-600"></FontAwesomeIcon>
+                                <FontAwesomeIcon icon="fas fa-star" class="text-[9px] text-gray-600"></FontAwesomeIcon>
+                                <FontAwesomeIcon icon="fas fa-star" class="text-[9px] text-gray-600"></FontAwesomeIcon>
+                                <FontAwesomeIcon icon="fas fa-star" class="text-[9px] text-gray-600"></FontAwesomeIcon>
                                 <span class="ml-1 font-normal text-xs">41</span>
                             </div>
-                            <i class="fas fa-chevron-down text-gray-400"></i>
+                            <FontAwesomeIcon icon="fas fa-chevron-do" class="wn text-gray-400"></FontAwesomeIcon>
                         </div>
                     </div>
 
                     <!-- Column: Right -->
                     <div class="col-span-2">
-                        <div class="mb-2 font-semibold text-2xl">
-                            £9.60 (£1.20/Piece)
+                        <div class="mb-2">
+                            <Selector v-model="data.price_non_member">
+                                <template #content-area>
+                                    <div :style="data.price_non_member">£9.60 (£1.20/Piece)</div>
+                                </template>
+                            </Selector>
                         </div>
-                        <div class="mb-2 font-semibold text-2xl text-orange-500">
-                            £8.00 (£1.00/Piece)
+                        <div class="mb-2">
+                            <Selector v-model="data.price_member">
+                                <template #content-area>
+                                    <div :style="data.price_member">£8.00 (£1.00/Piece)</div>
+                                </template>
+                            </Selector>
                         </div>
 
-                        <div class="mb-2 space-x-2">
-                            <i class="fas fa-medal text-orange-500"></i>
-                            <span class="bg-orange-500 text-white py-0.5 px-1 rounded-md">Member Price</span>
-                            <span class="text-xs underline cursor-pointer">Membership Info</span>
-                        </div>
+                        <div>  
+                            <Selector v-model="data.member_price">
+                                <template #content-area>
+                                    <div class="mb-2 space-x-2">
+                                        <FontAwesomeIcon icon="fas fa-medal" :style="{ color : data.member_price.backgroundColor}"></FontAwesomeIcon>
+                                        <span class="py-0.5 px-1 rounded-md"  :style="{...data.member_price}">Member Price</span>
+                                        <span class="text-xs underline cursor-pointer">Membership Info</span>
+                                    </div>
+                                </template>
+                            </Selector>
+                         </div>
+
 
                         <div class="mb-8">
                             <div class="mb-0.5 text-xs text-gray-500">NOT A MEMBER?</div>
@@ -199,17 +223,20 @@ const option = [
                                 Buy Now Pay Later
                                 <img src="https://pastpay.com/wp-content/uploads/2023/07/PastPay-logo-dark-edge.png"
                                     class="h-3" alt="">
-                                <i class="fas fa-chevron-right text-sm text-gray-500"></i>
+                                <FontAwesomeIcon icon="fas fa-chevron-right" class=" text-sm text-gray-500">
+                                </FontAwesomeIcon>
                             </div>
                             <div
                                 class="flex items-center gap-x-4 border-t border-gray-400 pl-3 font-bold text-gray-600 py-1">
                                 Delivery Info
-                                <i class="fas fa-chevron-right text-sm text-gray-500"></i>
+                                <FontAwesomeIcon icon="fas fa-chevron-right" class=" text-sm text-gray-500">
+                                </FontAwesomeIcon>
                             </div>
                             <div
                                 class="flex items-center gap-x-4 border-t border-gray-400 pl-3 font-bold text-gray-600 py-1">
                                 Return Policy
-                                <i class="fas fa-chevron-right text-sm text-gray-500"></i>
+                                <FontAwesomeIcon icon="fas fa-chevron-right" class=" text-sm text-gray-500">
+                                </FontAwesomeIcon>
                             </div>
                         </div>
 
@@ -236,7 +263,8 @@ const option = [
                             <details class="cursor-pointer border-b-2 border-gray-300 py-2 pl-1.5 ">
                                 <summary class="flex justify-between font-bold text-sm">
                                     <span>How do they come packaged?</span>
-                                    <i class="fas fa-chevron-down text-sm text-gray-500"></i>
+                                    <FontAwesomeIcon icon="fas fa-chevron-down" class=" text-sm text-gray-500">
+                                    </FontAwesomeIcon>
                                 </summary>
                                 <p class="mt-1 text-sm">Details about packaging.</p>
                             </details>
@@ -244,7 +272,8 @@ const option = [
                             <details class="cursor-pointer mt-1 border-b-2 border-gray-300 py-2 pl-1.5 ">
                                 <summary class="flex justify-between font-bold text-sm">
                                     <span>Do the bath bombs Fizz or Foam?</span>
-                                    <i class="fas fa-chevron-down text-sm text-gray-500"></i>
+                                    <FontAwesomeIcon icon="fas fa-chevron-down " class="text-sm text-gray-500">
+                                    </FontAwesomeIcon>
                                 </summary>
                                 <p class="mt-1 text-sm">Details about Fizz or Foam.</p>
                             </details>
@@ -252,8 +281,9 @@ const option = [
                             <details class="cursor-pointer mt-1 py-2 pl-1.5 ">
                                 <summary class="flex justify-between font-bold text-sm">
                                     <span>Are they safe for children?</span>
-                                    <i class="fas fa-chevron-down text-sm text-gray-500"></i>
-                                </summary>
+                                    <FontAwesomeIcon icon="fas fa-chevron-down" class=" text-sm text-gray-500">
+                                    </FontAwesomeIcon>
+                                </summary>+
                                 <p class="mt-1 text-sm">Details about safety for children.</p>
                             </details>
                         </div>

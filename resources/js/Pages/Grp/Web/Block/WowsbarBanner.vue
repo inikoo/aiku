@@ -61,7 +61,7 @@ const onEnter = (e) => {
 
     <div v-else class="relative">
         <iframe :src="modelValue.link" :style="{width: `${modelValue.width.value}${modelValue.width.unit}`, height: `${modelValue.height.value}${modelValue.height.unit}` }"
-            title="W3Schools Free Online Web Tutorials">
+            title="Wowsbar banner">
         </iframe>
         <!-- Buttons -->
         <div class="absolute top-2 right-2 flex space-x-2">
