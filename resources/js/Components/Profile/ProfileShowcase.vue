@@ -129,7 +129,7 @@ const props = defineProps<{
 
             <div class="mt-8 flex flex-col items-center gap-y-1">
                 <div class="text-gray-400 italic">Don't have the app?</div>
-                <a href="https://github.com/inikoo/maya/releases/tag/v0.0.6" target="_blank"
+                <a href="https://github.com/inikoo/maya/releases" target="_blank"
                     class="text-blue-700 hover:underline flex items-center gap-x-2">
                     <FontAwesomeIcon icon='fab fa-android' class='' size="xl" fixed-width aria-hidden='true' />
 
