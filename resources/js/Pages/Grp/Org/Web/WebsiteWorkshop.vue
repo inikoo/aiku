@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faCube, faPalette, faCheeseburger, faDraftingCompass,faWindow } from '@fal'
+import { faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faCube, faPalette, faCheeseburger, faDraftingCompass, faWindow } from '@fal'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { computed, ref } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
@@ -13,9 +13,9 @@ import WorkshopFooter from "@/Components/CMS/Workshops/Footer/FooterWorkshop.vue
 import WorkshopProduct from "@/Components/CMS/Workshops/ProductWorkshop.vue"
 import ColorSchemeWorkshop from "@/Components/CMS/Workshops/ColorSchemeWorkshop.vue"
 import { capitalize } from "@/Composables/capitalize"
-import {useLayoutStore} from "@/Stores/layout";
+import { useLayoutStore } from "@/Stores/layout"
 
-library.add( faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faCube, faPalette, faCheeseburger, faDraftingCompass,faWindow )
+library.add(faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faCube, faPalette, faCheeseburger, faDraftingCompass, faWindow)
 
 const props = defineProps<{
     title: string,
@@ -30,7 +30,7 @@ const props = defineProps<{
     footer?: {}
     category?: {}
     product?: {}
-  layout: {}
+    website_layout: {}
 }>()
 
 let currentTab = ref(props.tabs?.current)
@@ -43,8 +43,8 @@ const component = computed(() => {
         header: WorkshopHeader,
         menu: WorkshopMenu,
         footer: WorkshopFooter,
-        layout: LayoutWorkshop,
-        product : WorkshopProduct
+        website_layout: LayoutWorkshop,
+        product: WorkshopProduct
     }
     return components[currentTab.value]
 })

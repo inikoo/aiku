@@ -3,13 +3,10 @@ import { Link } from '@inertiajs/vue3'
 import { routeType } from '@/types/route'
 const props = defineProps<{
     data: {
-        footerRoute: routeType,
-        headerRoute: routeType,
-    
+        footerRoute: routeType
+        headerRoute: routeType
     }
 }>()
-
-console.log(props.data)
 
 </script>
 
@@ -50,7 +47,7 @@ console.log(props.data)
             </div>
         </div>
 
-        <Link :href="data?.data?.footerRoute?.name ? route(data.footerRoute?.name, data.footerRoute?.parameters) : '#'"
+        <Link :href="data?.footerRoute?.name ? route(data.footerRoute?.name, data.footerRoute?.parameters) : '#'"
             class="bg-blue-100 hover:bg-blue-400 cursor-pointer w-full h-24 flex justify-center items-center text-2xl">
             Footer
         </Link>
