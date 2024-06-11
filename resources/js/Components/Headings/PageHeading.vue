@@ -85,7 +85,7 @@ const originUrl = location.origin
             <!-- Section: mini Tabs -->
             <div v-if="data.meta" class="mt-1 flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-0.5 text-gray-500 text-xs pt-2">
                 <div v-for="item in data.meta" class="flex items-center">
-                <slot :name="`tabs-${item.leftIcon.tooltip}`" :data="item">
+                <slot :name="`tabs-${item.leftIcon?.tooltip}`" :data="item">
                         <FontAwesomeIcon v-if="item.leftIcon"
                         :title="item.leftIcon.tooltip"
                         fixed-width
