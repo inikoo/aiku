@@ -105,7 +105,7 @@ class ShowWebsiteWorkshop extends OrgAction
                     fn () => GetWebsiteWorkshopMenu::run($website)
                     : Inertia::lazy(fn () => GetWebsiteWorkshopMenu::run($website)),
 
-                WebsiteWorkshopTabsEnum::LAYOUT->value => $this->tab == WebsiteWorkshopTabsEnum::LAYOUT->value ?
+                WebsiteWorkshopTabsEnum::WEBSITE_LAYOUT->value => $this->tab == WebsiteWorkshopTabsEnum::WEBSITE_LAYOUT->value ?
                     fn () => GetWebsiteWorkshopLayout::run($this->scope, $website)
                     : Inertia::lazy(fn () => GetWebsiteWorkshopLayout::run($this->scope, $website)),
 
