@@ -10,10 +10,12 @@ namespace App\Actions\CRM\Customer\UI;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Http\Resources\CRM\CustomerClientResource;
 use App\Http\Resources\CRM\CustomersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
 use App\Models\Catalogue\Shop;
+use App\Models\Dropshipping\CustomerClient;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -24,10 +26,10 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexCustomers extends OrgAction
+class IndexCustomerClients extends OrgAction
 {
-    private Shop|Organisation $parent;
-    private bool $canCreateShop = false;
+    private Customer $parent;
+    // private bool $canCreateShop = false;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -37,32 +39,23 @@ class IndexCustomers extends OrgAction
         return $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
     }
 
-    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->initialisation($organisation, $request);
-        $this->parent = $organisation;
-
-        return $this->handle($this->parent);
-    }
-
-
-    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
+    public function inCustomer(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisationFromShop($shop, $request);
-        $this->parent = $shop;
+        $this->parent = $customer;
 
-        return $this->handle($shop);
+        return $this->handle($customer);
     }
 
 
-    public function handle(Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Customer $parent, $prefix = null): LengthAwarePaginator
     {
         // dd($parent->type);
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('customers.name', $value)
-                    ->orWhereStartWith('customers.email', $value)
-                    ->orWhere('customers.reference', '=', $value);
+                $query->whereAnyWordStartWith('customer_clients.name', $value)
+                    ->orWhereStartWith('customer_clients.email', $value)
+                    ->orWhere('customer_clients.reference', '=', $value);
             });
         });
 
@@ -70,13 +63,11 @@ class IndexCustomers extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(Customer::class);
+        $queryBuilder = QueryBuilder::for(CustomerClient::class);
 
 
-        if (class_basename($parent) == 'Shop') {
-            $queryBuilder->where('customers.shop_id', $parent->id);
-        } else {
-            $queryBuilder->where('customers.organisation_id', $parent->id);
+        if (class_basename($parent) == 'Customer') {
+            $queryBuilder->where('customer_clients.customer_id', $parent->id);
         }
 
 
@@ -93,21 +84,19 @@ class IndexCustomers extends OrgAction
 
 
         return $queryBuilder
-            ->defaultSort('customers.slug')
+            ->defaultSort('customer_clients.slug')
             ->select([
-                'customers.location',
-                'reference',
-                'customers.id',
-                'customers.name',
-                'customers.slug',
-                'shops.code as shop_code',
-                'shops.slug as shop_slug',
-                'number_current_clients',
-                'customers.created_at'
+                'customer_clients.location',
+                'customer_clients.reference',
+                'customer_clients.id',
+                'customer_clients.name',
+                'customer_clients.slug',
+                'customers.reference as customer_reference',
+                'customers.slug as customer_slug',
+                'customer_clients.created_at'
             ])
-            ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
-            ->leftJoin('shops', 'shops.id', 'shop_id')
-            ->allowedSorts(['reference', 'name', 'number_current_clients', 'slug', 'created_at'])
+            ->leftJoin('customers', 'customers.id', 'customer_id')
+            ->allowedSorts(['reference', 'name', 'slug', 'created_at'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -128,51 +117,52 @@ class IndexCustomers extends OrgAction
                 ->withGlobalSearch()
                 ->withEmptyState(
                     match (class_basename($parent)) {
-                        'Organisation' => [
-                            'title'       => __("No customers found"),
-                            'description' => $this->canCreateShop && $parent->catalogueStats->number_shops == 0 ? __('Get started by creating a shop. ✨')
-                                : __("In fact, is no even a shop yet 🤷🏽‍♂️"),
-                            'count'       => $parent->crmStats->number_customers,
-                            'action'      => $this->canCreateShop && $parent->catalogueStats->number_shops == 0
-                                ? [
-                                    'type'    => 'button',
-                                    'style'   => 'create',
-                                    'tooltip' => __('new shop'),
-                                    'label'   => __('shop'),
-                                    'route'   => [
-                                        'name' => 'shops.create',
-                                    ]
-                                ]
-                                :
-                                [
-                                    'type'    => 'button',
-                                    'style'   => 'create',
-                                    'tooltip' => __('new customer'),
-                                    'label'   => __('customer'),
-                                    'route'   => [
-                                        'name' => 'shops.create',
-                                    ]
-                                ]
+                        // 'Organisation' => [
+                        //     'title'       => __("No customers found"),
+                        //     'description' => $this->canCreateShop && $parent->catalogueStats->number_shops == 0 ? __('Get started by creating a shop. ✨')
+                        //         : __("In fact, is no even a shop yet 🤷🏽‍♂️"),
+                        //     'count'       => $parent->crmStats->number_customers,
+                        //     'action'      => $this->canCreateShop && $parent->catalogueStats->number_shops == 0
+                        //         ? [
+                        //             'type'    => 'button',
+                        //             'style'   => 'create',
+                        //             'tooltip' => __('new shop'),
+                        //             'label'   => __('shop'),
+                        //             'route'   => [
+                        //                 'name' => 'shops.create',
+                        //             ]
+                        //         ]
+                        //         :
+                        //         [
+                        //             'type'    => 'button',
+                        //             'style'   => 'create',
+                        //             'tooltip' => __('new customer'),
+                        //             'label'   => __('customer'),
+                        //             'route'   => [
+                        //                 'name' => 'shops.create',
+                        //             ]
+                        //         ]
 
 
-                        ],
-                        'Shop' => [
-                        'title'       => __("No customers found"),
-                        'description' => ($parent->type == ShopTypeEnum::FULFILMENT || $parent->type == ShopTypeEnum::DROPSHIPPING) ? __("You can add your customer 🤷🏽‍♂️") : null,
-                        'count'       => $parent->crmStats->number_customers,
-                        'action'      => ($parent->type == ShopTypeEnum::FULFILMENT || $parent->type == ShopTypeEnum::DROPSHIPPING) ? [
+                        // ],
+                        'Customer' => [
+                        'title'       => __("No clients found"),
+                        'description' =>  __("You can add your client 🤷🏽‍♂️"),
+                        'count'       => $parent->stats->number_clients,
+                        'action'      => [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('new customer'),
-                            'label'   => __('customer'),
+                            'tooltip' => __('new client'),
+                            'label'   => __('client'),
                             'route'   => [
-                                'name'       => 'grp.org.shops.show.crm.customers.create',
+                                'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.create',
                                 'parameters' => [
                                     'organisation' => $parent->organisation->slug,
-                                    'shop'         => $parent->slug
+                                    'shop'         => $parent->shop->slug,
+                                    'customer'     => $parent->slug
                                 ]
                             ]
-                        ] : null
+                        ]
                     ],
                         default => null
                     }
@@ -194,58 +184,55 @@ class IndexCustomers extends OrgAction
                     ]
                     */
                 )
-                ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'slug', label: __('slug'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'location', label: __('location'), canBeHidden: false, searchable: true)
                 ->column(key: 'created_at', label: __('since'), canBeHidden: false, sortable: true, searchable: true);
-
-            if (class_basename($parent) == 'Shop' and $parent->type == 'dropshipping') {
-                $table->column(key: 'number_current_clients', label: __('clients'), canBeHidden: false, sortable: true);
-            }
         };
     }
 
-    public function jsonResponse(LengthAwarePaginator $customers): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $customerClients): AnonymousResourceCollection
     {
-        return CustomersResource::collection($customers);
+        return CustomerClientResource::collection($customerClients);
     }
 
-    public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $customerClients, ActionRequest $request): Response
     {
         $scope     = $this->parent;
 
 
         return Inertia::render(
-            'Org/Shop/CRM/Customers',
+            'Org/Shop/CRM/CustomerClients',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('customers'),
+                'title'       => __('customer clients'),
                 'pageHead'    => [
-                    'title'     => __('customers'),
+                    'title'     => __('customer clients'),
                     'icon'      => [
                         'icon'  => ['fal', 'fa-user'],
-                        'title' => __('customer')
+                        'title' => __('customer client')
                     ],
                     'actions' => [
                         [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('New Customer'),
-                            'label'   => __('New Customer'),
+                            'tooltip' => __('New Client'),
+                            'label'   => __('New Client'),
                             'route'   => [
-                                 'name'       => 'grp.org.shops.show.crm.customers.create',
+                                 'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.create',
                                 'parameters' => [
                                     'organisation' => $scope->organisation->slug,
-                                    'shop'         => $scope->slug
+                                    'shop'         => $scope->shop->slug,
+                                    'customer'     => $scope->slug
                                 ]
                             ]
                         ],
                     ],
                 ],
-                'data'        => CustomersResource::collection($customers),
+                'data'        => CustomerClientResource::collection($customerClients),
 
             ]
         )->table($this->tableStructure($this->parent));
@@ -259,7 +246,7 @@ class IndexCustomers extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('Customers'),
+                        'label' => __('Clients'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],
@@ -267,14 +254,14 @@ class IndexCustomers extends OrgAction
         };
 
         return match ($routeName) {
-            'grp.org.shops.show.crm.customers.index' =>
+            'grp.org.shops.show.crm.customers.show.customer-clients.index' =>
             array_merge(
-                ShowShop::make()->getBreadcrumbs(
+                ShowCustomer::make()->getBreadcrumbs('grp.org.shops.show.crm.customers.show',
                     $routeParameters
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.shops.show.crm.customers.index',
+                        'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.index',
                         'parameters' => $routeParameters
                     ]
                 )

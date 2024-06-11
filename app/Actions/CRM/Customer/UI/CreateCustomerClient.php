@@ -12,15 +12,16 @@ use App\Actions\InertiaAction;
 use App\Actions\OrgAction;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Catalogue\Shop;
+use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateCustomer extends OrgAction
+class CreateCustomerClient extends OrgAction
 {
-    public function handle(Shop $shop, ActionRequest $request): Response
+    public function handle(Customer $customer, ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
@@ -29,12 +30,12 @@ class CreateCustomer extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('new customer'),
+                'title'       => __('new client'),
                 'pageHead'    => [
-                    'title'        => __('new customer'),
+                    'title'        => __('new client'),
                     'icon'         => [
                         'icon'  => ['fal', 'fa-user'],
-                        'title' => __('customer')
+                        'title' => __('client')
                     ],
                     'actions'      => [
                         [
@@ -65,13 +66,21 @@ class CreateCustomer extends OrgAction
                                         'type'  => 'input',
                                         'label' => __('contact name')
                                     ],
+                                    'email' => [
+                                        'type'  => 'input',
+                                        'label' => __('email')
+                                    ],
+                                    'phone' => [
+                                        'type'  => 'input',
+                                        'label' => __('phone')
+                                    ],
                                     'address'      => [
                                         'type'    => 'address',
                                         'label'   => __('Address'),
                                         'value'   => AddressFormFieldsResource::make(
                                             new Address(
                                                 [
-                                                    'country_id' => $shop->country_id,
+                                                    'country_id' => $customer->shop->country_id,
 
                                                 ]
                                             )
@@ -85,10 +94,11 @@ class CreateCustomer extends OrgAction
                             ]
                         ],
                     'route'     => [
-                        'name'     => 'grp.models.org.shop.customer.store',
+                        'name'     => 'grp.models.org.shop.customer.client.store',
                         'parameters'=> [
-                            'organisation' => $shop->organisation_id,
-                            'shop' => $shop->id
+                            'organisation' => $customer->organisation_id,
+                            'shop' => $customer->shop_id,
+                            'customer' => $customer->id
                             ]
                     ]
                 ]
@@ -103,16 +113,16 @@ class CreateCustomer extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Response
+    public function inCustomer(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): Response
     {
         $this->initialisationFromShop($shop, $request);
-        return $this->handle($shop, $request);
+        return $this->handle($customer, $request);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return array_merge(
-            IndexCustomers::make()->getBreadcrumbs(
+            IndexCustomerClients::make()->getBreadcrumbs(
                 routeName: preg_replace('/create$/', 'index', $routeName),
                 routeParameters: $routeParameters,
             ),
@@ -120,7 +130,7 @@ class CreateCustomer extends OrgAction
                 [
                     'type'          => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('Creating customer'),
+                        'label' => __('Creating Client'),
                     ]
                 ]
             ]

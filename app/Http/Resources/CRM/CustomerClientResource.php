@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\CRM;
 
+use App\Http\Resources\HasSelfCall;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -22,6 +23,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class CustomerClientResource extends JsonResource
 {
+    use HasSelfCall;
+
     public function toArray($request): array
     {
         return [
@@ -30,6 +33,7 @@ class CustomerClientResource extends JsonResource
             'name'                  => $this->name,
             'contact_name'          => $this->contact_name,
             'company_name'          => $this->company_name,
+            'location'               => $this->location,
             'email'                 => $this->email,
             'phone'                 => $this->phone,
             'created_at'            => $this->created_at,

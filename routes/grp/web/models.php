@@ -23,6 +23,7 @@ use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\SyncPaymentAccountToShop;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
+use App\Actions\CRM\CustomerClient\StoreCustomerClient;
 use App\Actions\CRM\Prospect\ImportShopProspects;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\CRM\WebUser\UpdateWebUser;
@@ -205,6 +206,8 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('/shop/{shop:id}/customer', StoreCustomer::class)->name('shop.customer.store');
     Route::patch('/shop/{shop:id}/customer/{customer:id}', UpdateCustomer::class)->name('shop.customer.update')->withoutScopedBindings();
     Route::post('/shop/{shop:id}/fulfilment/{fulfilment:id}/customer', StoreFulfilmentCustomer::class)->name('shop.fulfilment-customer.store')->withoutScopedBindings();
+
+    Route::post('/shop/{shop:id}/customer/{customer:id}/client', [StoreCustomerClient::class, 'inCustomer'])->name('shop.customer.client.store')->withoutScopedBindings();
 
     Route::post('/shop/{shop:id}/product/', [StoreProduct::class, 'inShop'])->name('show.product.store');
     Route::delete('/shop/{shop:id}/product/{product:id}', [DeleteProduct::class, 'inShop'])->name('shop.product.delete');
