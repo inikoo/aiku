@@ -3,25 +3,25 @@ import { Link } from '@inertiajs/vue3'
 import { routeType } from '@/types/route'
 const props = defineProps<{
     data: {
-        data: {
-            footerRoute: routeType,
-            headerRoute: routeType,
-        }
-
+        footerRoute: routeType,
+        headerRoute: routeType,
+    
     }
 }>()
+
+console.log(props.data)
 
 </script>
 
 <template>
     <div class="max-w-2xl mx-auto mt-8 shadow-2xl">
         <Link as="div" href="" class="bg-orange-100 hover:bg-orange-400 cursor-pointer w-full h-8 text-center">
-        Notification
+            Notification
         </Link>
 
-        <Link as="div" :href="route(data.data.headerRoute?.name, data.data.headerRoute?.parameters)"
+        <Link as="div" :href="data?.headerRoute?.name ? route(data.headerRoute?.name, data.headerRoute?.parameters) : '#'"
             class="bg-lime-100 hover:bg-lime-400 cursor-pointer w-full h-40 text-4xl flex items-center justify-center">
-        Header
+            Header
         </Link>
 
         <div class="bg-slate-100 w-full h-[400px] grid grid-cols-9">
@@ -50,9 +50,9 @@ const props = defineProps<{
             </div>
         </div>
 
-        <Link :href="route(data.data.footerRoute?.name, data.data.footerRoute?.parameters)"
+        <Link :href="data?.data?.footerRoute?.name ? route(data.footerRoute?.name, data.footerRoute?.parameters) : '#'"
             class="bg-blue-100 hover:bg-blue-400 cursor-pointer w-full h-24 flex justify-center items-center text-2xl">
-        Footer
+            Footer
         </Link>
     </div>
 </template>
