@@ -7,6 +7,7 @@
 
 namespace App\Actions\Mail\PostRoom;
 
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePostRooms;
 use App\Enums\Mail\PostRoom\PostRoomCodeEnum;
 use App\Models\Mail\PostRoom;
 use App\Models\SysAdmin\Group;
@@ -26,7 +27,7 @@ class StorePostRoom
         /** @var PostRoom $postRoom */
         $postRoom = $group->postRooms()->create($modelData);
         $postRoom->stats()->create();
-
+        GroupHydratePostRooms::run($group);
         return $postRoom;
     }
 

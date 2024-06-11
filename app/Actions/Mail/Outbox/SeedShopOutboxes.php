@@ -26,14 +26,13 @@ class SeedShopOutboxes
                 $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
 
 
-                $outboxType = str($case->value)->camel()->kebab()->value();
-                if (!Outbox::where('shop_id', $shop->id)->where('type', $outboxType)->exists()) {
+                if (!Outbox::where('shop_id', $shop->id)->where('type', $case)->exists()) {
                     StoreOutbox::run(
                         $postRoom,
+                        $shop,
                         [
-                            'shop_id' => $shop->id,
                             'name'    => $case->label(),
-                            'type'    => $outboxType,
+                            'type'    => $case,
                             'state'   => $case->defaultState()
 
                         ]
@@ -43,7 +42,7 @@ class SeedShopOutboxes
         }
     }
 
-    public string $commandSignature = 'shop:seed-outboxes {shop}';
+    public string $commandSignature = 'shop:seed-outboxes {shop : The shop slug}';
 
     public function asCommand(Command $command): int
     {

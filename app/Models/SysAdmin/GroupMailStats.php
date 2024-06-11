@@ -7,17 +7,14 @@
 
 namespace App\Models\SysAdmin;
 
-use Eloquent;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
- * App\Models\SysAdmin\OrganisationMailStats
+ *
  *
  * @property int $id
- * @property int $organisation_id
+ * @property int $group_id
  * @property int $number_post_rooms
  * @property int $number_outboxes
  * @property int $number_outboxes_type_basket_low_stock
@@ -66,22 +63,22 @@ use Illuminate\Support\Carbon;
  * @property int $number_dispatched_emails_state_spam
  * @property int $number_dispatched_emails_state_unsubscribed
  * @property int $number_provoked_unsubscribe
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @method static Builder|OrganisationMailStats newModelQuery()
- * @method static Builder|OrganisationMailStats newQuery()
- * @method static Builder|OrganisationMailStats query()
- * @mixin Eloquent
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupMailStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupMailStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|GroupMailStats query()
+ * @mixin \Eloquent
  */
-class OrganisationMailStats extends Model
+class GroupMailStats extends Model
 {
-    protected $table = 'organisation_mail_stats';
+    protected $table = 'group_mail_stats';
 
     protected $guarded = [];
 
-    public function organisation(): BelongsTo
+    public function group(): BelongsTo
     {
-        return $this->belongsTo(Organisation::class);
+        return $this->belongsTo(Group::class);
     }
 }

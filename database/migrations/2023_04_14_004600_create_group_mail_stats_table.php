@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 17 Mar 2023 16:50:23 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 11 Jun 2024 20:25:31 Central European Summer Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 
@@ -14,15 +14,18 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     use HasMailStats;
 
+
     public function up(): void
     {
-        Schema::create('post_room_stats', function (Blueprint $table) {
+        Schema::create('group_mail_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('post_room_id')->nullable();
-            $table->foreign('post_room_id')->references('id')->on('post_rooms');
+            $table->unsignedSmallInteger('group_id');
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+            $table=$this->postRoomsStats($table);
             $table=$this->outboxesStats($table);
             $table=$this->mailshotsStats($table);
             $table=$this->dispatchedEmailStats($table);
+
             $table->timestampsTz();
         });
     }
@@ -30,6 +33,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('post_room_stats');
+        Schema::dropIfExists('group_mail_stats');
     }
 };

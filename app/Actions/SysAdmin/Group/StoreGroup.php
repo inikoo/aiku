@@ -58,6 +58,7 @@ class StoreGroup
         $group->manufactureStats()->create();
         $group->webStats()->create();
         $group->dropshippingStats()->create();
+        $group->mailStats()->create();
 
         SetGroupLogo::dispatch($group);
 

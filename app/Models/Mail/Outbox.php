@@ -8,13 +8,15 @@
 namespace App\Models\Mail;
 
 use App\Actions\Utils\Abbreviate;
+use App\Enums\Mail\Outbox\OutboxStateEnum;
+use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Catalogue\Shop;
+use App\Models\Traits\InShop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -27,19 +29,23 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Mail\Outbox
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property int|null $post_room_id
  * @property int|null $shop_id
  * @property string $slug
- * @property string $type
+ * @property OutboxTypeEnum $type
  * @property string $name
- * @property string $state
+ * @property OutboxStateEnum $state
  * @property array $data
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Mail\DispatchedEmail> $dispatchedEmails
+ * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Collection<int, \App\Models\Mail\Mailshot> $mailshots
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read Shop|null $shop
  * @property-read \App\Models\Mail\OutboxStats|null $stats
  * @method static \Database\Factories\Mail\OutboxFactory factory($count = null, $state = [])
@@ -56,6 +62,7 @@ class Outbox extends Model
     use SoftDeletes;
     use HasSlug;
     use HasFactory;
+    use InShop;
 
     protected $table = 'outboxes';
 
@@ -65,7 +72,9 @@ class Outbox extends Model
     }
 
     protected $casts = [
-        'data' => 'array',
+        'data'  => 'array',
+        'type'  => OutboxTypeEnum::class,
+        'state' => OutboxStateEnum::class
     ];
 
     protected $attributes = [
@@ -78,13 +87,13 @@ class Outbox extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                if ($this->type=='reorder-reminder') {
-                    $abbreviation='ror';
+                if ($this->type == 'reorder-reminder') {
+                    $abbreviation = 'ror';
                 } else {
-                    $abbreviation= Abbreviate::run($this->type);
+                    $abbreviation = Abbreviate::run($this->type->value);
                 }
-                if($this->shop_id) {
-                    $abbreviation.=' '.$this->shop->slug;
+                if ($this->shop_id) {
+                    $abbreviation .= ' '.$this->shop->slug;
                 }
 
                 return $abbreviation;
@@ -94,10 +103,6 @@ class Outbox extends Model
             ->slugsShouldBeNoLongerThan(64);
     }
 
-    public function shop(): BelongsTo
-    {
-        return $this->belongsTo(Shop::class);
-    }
 
     public function stats(): HasOne
     {
