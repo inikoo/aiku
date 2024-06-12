@@ -73,10 +73,10 @@ class EditOutbox extends InertiaAction
                                     'label' => __('contact name'),
                                     'value' => $outbox->name
                                 ],
-                                'mailroom_id' => [
+                                'post_room_id' => [
                                     'type'  => 'input',
-                                    'label' => __('mailroom'),
-                                    'value' => $outbox->mailroom_id
+                                    'label' => __('post room'),
+                                    'value' => $outbox->post_room_id
                                 ],
                             ]
                         ]

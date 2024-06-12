@@ -189,7 +189,9 @@ class IndexDepartments extends OrgAction
                 $table->column(key: 'shop_code', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
             };
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-            ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'current_families', label: __('current families'), canBeHidden: false, sortable: true, searchable: true)
+            ->column(key: 'current_products', label: __('current products'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 

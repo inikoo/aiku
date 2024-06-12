@@ -36,7 +36,8 @@ use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
-use App\Models\Mail\Mailroom;
+use App\Models\Mail\Outbox;
+use App\Models\Mail\PostRoom;
 use App\Models\Manufacturing\Artefact;
 use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
@@ -92,12 +93,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Asset> $assets
  * @property-read LaravelCollection<int, Barcode> $barcodes
  * @property-read \App\Models\SysAdmin\GroupCatalogueStats|null $catalogueStats
+ * @property-read LaravelCollection<int, CustomerClient> $clients
  * @property-read LaravelCollection<int, ClockingMachine> $clockingMachines
  * @property-read LaravelCollection<int, CollectionCategory> $collectionCategories
  * @property-read LaravelCollection<int, Collection> $collections
  * @property-read \App\Models\SysAdmin\GroupCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read LaravelCollection<int, Customer> $customers
+ * @property-read LaravelCollection<int, DropshippingCustomerPortfolio> $dropshippingCustomerPortfolios
  * @property-read GroupDropshippingStat|null $dropshippingStats
  * @property-read LaravelCollection<int, Employee> $employees
  * @property-read \App\Models\SysAdmin\GroupFulfilmentStats|null $fulfilmentStats
@@ -110,7 +113,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Invoice> $invoices
  * @property-read LaravelCollection<int, JobPosition> $jobPositions
  * @property-read LaravelCollection<int, Location> $locations
- * @property-read LaravelCollection<int, Mailroom> $mailrooms
+ * @property-read \App\Models\SysAdmin\GroupMailStats|null $mailStats
  * @property-read \App\Models\SysAdmin\GroupMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\GroupManufactureStats|null $manufactureStats
  * @property-read LaravelCollection<int, ManufactureTask> $manufactureTasks
@@ -119,9 +122,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupOrdersIntervals|null $ordersIntervals
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Organisation> $organisations
+ * @property-read LaravelCollection<int, Outbox> $outboxes
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
  * @property-read LaravelCollection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read LaravelCollection<int, Payment> $payments
+ * @property-read LaravelCollection<int, PostRoom> $postRooms
  * @property-read LaravelCollection<int, ProductCategory> $productCategories
  * @property-read LaravelCollection<int, Production> $productions
  * @property-read LaravelCollection<int, Product> $products
@@ -271,14 +276,19 @@ class Group extends Authenticatable implements HasMedia
         return $this->hasOne(GroupWebStats::class);
     }
 
+    public function mailStats(): HasOne
+    {
+        return $this->hasOne(GroupMailStats::class);
+    }
+
     public function organisations(): HasMany
     {
         return $this->hasMany(Organisation::class);
     }
 
-    public function mailrooms(): HasMany
+    public function postRooms(): HasMany
     {
-        return $this->hasMany(Mailroom::class);
+        return $this->hasMany(PostRoom::class);
     }
 
     public function users(): HasMany
@@ -510,6 +520,11 @@ class Group extends Authenticatable implements HasMedia
     public function clients(): HasMany
     {
         return $this->hasMany(CustomerClient::class);
+    }
+
+    public function outboxes(): HasMany
+    {
+        return $this->hasMany(Outbox::class);
     }
 
 }

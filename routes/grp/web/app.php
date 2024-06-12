@@ -10,6 +10,11 @@ use App\Actions\UI\Grp\IndexGroups;
 use App\Actions\UI\Grp\ShowGroup;
 use App\Actions\UI\Notification\IndexNotification;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+Route::get('/searchxx', function () {
+    return Inertia::render('SearchDummy');
+})->name('searchxx');  // for testing Luigi search
 
 Route::middleware(["auth"])->group(function () {
     Route::get('/', function () {

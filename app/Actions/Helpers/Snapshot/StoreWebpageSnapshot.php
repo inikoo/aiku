@@ -7,6 +7,7 @@
 
 namespace App\Actions\Helpers\Snapshot;
 
+use App\Actions\Web\Webpage\Hydrators\WebpageHydrateSnapshots;
 use App\Models\Helpers\Snapshot;
 use App\Models\Web\Webpage;
 use Illuminate\Support\Arr;
@@ -32,6 +33,9 @@ class StoreWebpageSnapshot
         $webpage->snapshots()->save($snapshot);
         $snapshot->generateSlug();
         $snapshot->saveQuietly();
+
+
+        WebpageHydrateSnapshots::dispatch($webpage);
 
         return $snapshot;
     }

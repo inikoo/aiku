@@ -9,7 +9,7 @@ namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\WebUser\IndexWebUsers;
-use App\Actions\Mail\DispatchedEmail\IndexDispatchedEmails;
+use App\Actions\Mail\DispatchedEmail\UI\IndexDispatchedEmails;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;

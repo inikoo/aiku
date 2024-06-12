@@ -5,17 +5,20 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    use HasGroupOrganisationRelationship;
+    public function up(): void
     {
         Schema::create('outboxes', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('mailroom_id')->nullable();
-            $table->foreign('mailroom_id')->references('id')->on('mailrooms');
+            $table=$this->groupOrgRelationship($table);
+            $table->unsignedSmallInteger('post_room_id')->nullable();
+            $table->foreign('post_room_id')->references('id')->on('post_rooms');
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->string('slug')->unique()->collation('und_ns');
@@ -25,12 +28,12 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->string('source_id')->nullable();
+            $table->string('source_id')->nullable()->index();
         });
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('outboxes');
     }

@@ -14,6 +14,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateDepartments;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateFamilies;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateInvoices;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateLocations;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOutboxes;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProducts;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRawMaterials;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePaymentAccounts;
@@ -67,6 +68,7 @@ class HydrateOrganisation extends HydrateModel
         OrganisationHydrateSales::run($organisation);
         OrganisationHydrateSubscription::run($organisation);
         OrganisationHydrateServices::run($organisation);
+        OrganisationHydrateOutboxes::run($organisation);
 
         if($organisation->type==OrganisationTypeEnum::SHOP) {
             OrganisationHydrateDepartments::run($organisation);

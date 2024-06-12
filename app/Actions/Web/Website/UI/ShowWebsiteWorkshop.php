@@ -51,7 +51,7 @@ class ShowWebsiteWorkshop extends OrgAction
     {
         $this->scope  = $fulfilment;
         $this->parent = $fulfilment;
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(WebsiteWorkshopTabsEnum::values());
 
         return $this->handle($website);
     }

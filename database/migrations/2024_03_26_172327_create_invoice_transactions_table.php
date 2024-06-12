@@ -70,7 +70,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
 
-            $table->string('source_id')->nullable();
+            $table->string('source_id')->nullable()->index();
             $table->unsignedInteger('source_alt_id')->nullable();
             $table->index(['model_type', 'model_id']);
         });

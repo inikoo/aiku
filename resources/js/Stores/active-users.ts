@@ -73,7 +73,7 @@ export const useLiveUsers = defineStore('useLiveUsers', {
                 .joining((user) => {
                     console.log('Someone join')
                     // if UserA join, then others send their data to UserA
-                    window.Echo.join(`grp.live.users`).whisper(`sendTo${user.id}`, this.liveUsers[usePage().props.auth.user.id])
+                    window.Echo.join(`grp.live.users`).whisper(`sendTo${user.id}`, this.liveUsers[usePage().props.auth.user?.id])
                 })
 
                 .leaving((user: {id: number, alias: string, name: string}) => {
@@ -97,7 +97,7 @@ export const useLiveUsers = defineStore('useLiveUsers', {
                     // console.log('qwer', this.liveUsers)
                 })
 
-                .listenForWhisper(`sendTo${usePage().props.auth.user.id}`, (otherUser: LiveUser) => {
+                .listenForWhisper(`sendTo${usePage().props.auth.user?.id}`, (otherUser: LiveUser) => {
                     // console.log('receive the emit')
                     // On the first load and on navigating page
                     this.liveUsers[otherUser.id] = otherUser

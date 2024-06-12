@@ -47,6 +47,7 @@ class FamiliesResource extends JsonResource
             'description'       => $this->description,
             'created_at'        => $this->created_at,
             'updated_at'        => $this->updated_at,
+            'current_products'  => $this->stats->number_products ?? 0
         ];
     }
 }

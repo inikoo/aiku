@@ -11,7 +11,7 @@ use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Mail\Mailshot\IndexMailshots;
+use App\Actions\Mail\Mailshot\UI\IndexMailshots;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
 use App\Enums\UI\Catalogue\ProductTabsEnum;

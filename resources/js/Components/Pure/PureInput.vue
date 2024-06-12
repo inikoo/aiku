@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<{
     pattern?: string 
     clear?:boolean
     suffix?:Boolean
-    step?:String
+    step?: number
 }>(), {
     caret: true,
     type: 'text'

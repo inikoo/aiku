@@ -21,16 +21,13 @@ class StoreDropshippingCustomerPortfolio extends OrgAction
 
     public function handle(Customer $customer, array $modelData): DropshippingCustomerPortfolio
     {
-
-
         data_set($modelData, 'group_id', $customer->group_id);
         data_set($modelData, 'organisation_id', $customer->organisation_id);
         data_set($modelData, 'shop_id', $customer->organisation_id);
 
 
-
         /** @var DropshippingCustomerPortfolio $dropshippingCustomerPortfolio */
-        $dropshippingCustomerPortfolio =  $customer->dropshippingCustomerPortfolios()->create($modelData);
+        $dropshippingCustomerPortfolio = $customer->dropshippingCustomerPortfolios()->create($modelData);
         $dropshippingCustomerPortfolio->stats()->create();
 
         HydrateDropshippingCustomerPortfolio::dispatch($dropshippingCustomerPortfolio);
@@ -51,18 +48,25 @@ class StoreDropshippingCustomerPortfolio extends OrgAction
     public function rules(): array
     {
         return [
-            'product_id' => ['required', Rule::Exists('products', 'id')->where('shop_id', $this->shop->id)],
-            'source_id'  => 'sometimes|string|max:255',
-            'created_at' => 'sometimes|date',
-            'reference'  => ['sometimes','string', 'max:255',
-                            new IUnique(
-                                table: 'dropshipping_customer_portfolios',
-                                extraConditions: [
-                                    ['column' => 'customer_id', 'value' => $this->customer->id],
-                                    ['column' => 'status', 'value' => true],
-                                ]
-                            ),
+            'product_id'      => ['required', Rule::Exists('products', 'id')->where('shop_id', $this->shop->id)],
+            'reference'       => [
+                'sometimes',
+                'nullable',
+                'string',
+                'max:255',
+                new IUnique(
+                    table: 'dropshipping_customer_portfolios',
+                    extraConditions: [
+                        ['column' => 'customer_id', 'value' => $this->customer->id],
+                        ['column' => 'status', 'value' => true],
+                    ]
+                ),
             ],
+            'status'          => 'sometimes|boolean',
+            'created_at'      => 'sometimes|date',
+            'last_added_at'   => 'sometimes|date',
+            'last_removed_at' => 'sometimes|date',
+            'source_id'       => 'sometimes|string|max:255',
         ];
     }
 
@@ -72,6 +76,7 @@ class StoreDropshippingCustomerPortfolio extends OrgAction
         $this->asAction = true;
         $this->customer = $customer;
         $this->initialisationFromShop($customer->shop, $modelData);
+
         return $this->handle($customer, $this->validatedData);
     }
 

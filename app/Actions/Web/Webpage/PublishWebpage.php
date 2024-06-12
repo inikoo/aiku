@@ -55,7 +55,7 @@ class PublishWebpage extends OrgAction
             ]
         );
 
-        StoreDeployment::run(
+        $deployment=StoreDeployment::run(
             $webpage,
             [
                 'snapshot_id'    => $snapshot->id,
@@ -63,6 +63,10 @@ class PublishWebpage extends OrgAction
                 'publisher_type' => Arr::get($modelData, 'publisher_type'),
             ]
         );
+
+        $webpage->stats()->update([
+            'last_deployed_at' => $deployment->date
+        ]);
 
         $updateData = [
             'live_snapshot_id'    => $snapshot->id,
@@ -76,6 +80,10 @@ class PublishWebpage extends OrgAction
         }
 
         $webpage->update($updateData);
+
+
+
+
 
         return $webpage;
     }

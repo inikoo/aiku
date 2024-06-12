@@ -7,50 +7,76 @@
 
 namespace App\Actions\Mail\Outbox;
 
-use App\Models\Mail\Mailroom;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOutboxes;
+use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOutboxes;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOutboxes;
+use App\Enums\Mail\Outbox\OutboxTypeEnum;
+use App\Models\Catalogue\Shop;
+use App\Models\Mail\PostRoom;
 use App\Models\Mail\Outbox;
+use App\Models\SysAdmin\Organisation;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreOutbox
+class StoreOutbox extends OrgAction
 {
     use AsAction;
     use WithAttributes;
 
-    private bool $asAction=false;
 
-    public function handle(Mailroom $mailroom, array $modelData): Outbox
+    public function handle(PostRoom $postRoom, Organisation|Shop $parent, array $modelData): Outbox
     {
+        data_set($modelData, 'group_id', $parent->group_id);
+
+        if ($parent instanceof Shop) {
+            data_set($modelData, 'organisation_id', $parent->organisation_id);
+            data_set($modelData, 'shop_id', $parent->id);
+        } else {
+            data_set($modelData, 'organisation_id', $parent->id);
+        }
+
         /** @var Outbox $outbox */
-        $outbox = $mailroom->outboxes()->create($modelData);
+        $outbox = $postRoom->outboxes()->create($modelData);
         $outbox->stats()->create();
+        GroupHydrateOutboxes::run($outbox->group);
+        OrganisationHydrateOutboxes::run($outbox->organisation);
+        if ($outbox->shop_id) {
+            ShopHydrateOutboxes::run($outbox->shop);
+        }
 
         return $outbox;
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("mail.edit");
     }
 
     public function rules(): array
     {
         return [
-            'type'         => ['required', 'unique:outboxes', 'between:2,64', 'alpha_dash'],
-            'name'         => ['required', 'max:250', 'string'],
+            'type' => ['required', Rule::enum(OutboxTypeEnum::class)],
+            'name' => ['required', 'max:250', 'string'],
         ];
     }
 
-    public function action(Mailroom $mailroom, array $modelData): Outbox
+    public function action(PostRoom $postRoom, Organisation|Shop $parent, array $modelData): Outbox
     {
-        $this->asAction=true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->asAction = true;
+        if ($parent instanceof Shop) {
+            $organisation = $parent->organisation;
+        } else {
+            $organisation = $parent;
+        }
+        $this->initialisation($organisation, $modelData);
 
-        return $this->handle($mailroom, $validatedData);
+        return $this->handle($postRoom, $parent, $this->validatedData);
     }
 }

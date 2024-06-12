@@ -7,9 +7,9 @@
 
 namespace App\Actions\SysAdmin\Group;
 
-use App\Actions\Mail\Mailroom\StoreMailroom;
+use App\Actions\Mail\PostRoom\StorePostRoom;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateJobPositions;
-use App\Enums\Mail\Mailroom\MailroomCodeEnum;
+use App\Enums\Mail\PostRoom\PostRoomCodeEnum;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Language;
@@ -38,8 +38,6 @@ class StoreGroup
             ]
         );
 
-
-
         app()->instance('group', $group);
         SeedGroupPermissions::run($group);
         SeedGroupPaymentServiceProviders::run($group);
@@ -60,11 +58,12 @@ class StoreGroup
         $group->manufactureStats()->create();
         $group->webStats()->create();
         $group->dropshippingStats()->create();
+        $group->mailStats()->create();
 
         SetGroupLogo::dispatch($group);
 
-        foreach (MailroomCodeEnum::cases() as $case) {
-            StoreMailroom::run(
+        foreach (PostRoomCodeEnum::cases() as $case) {
+            StorePostRoom::run(
                 $group,
                 [
                     'name' => $case->label(),

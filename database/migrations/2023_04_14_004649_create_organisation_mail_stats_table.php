@@ -5,17 +5,14 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Stubs\Migrations\HasDispatchedEmailsStats;
-use App\Stubs\Migrations\HasMailshotsStats;
-use App\Stubs\Migrations\HasOutboxesStats;
+
+use App\Stubs\Migrations\HasMailStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use HasDispatchedEmailsStats;
-    use HasMailshotsStats;
-    use HasOutboxesStats;
+    use HasMailStats;
 
 
     public function up(): void
@@ -24,6 +21,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('organisation_id');
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
+            $table=$this->postRoomsStats($table);
             $table=$this->outboxesStats($table);
             $table=$this->mailshotsStats($table);
             $table=$this->dispatchedEmailStats($table);

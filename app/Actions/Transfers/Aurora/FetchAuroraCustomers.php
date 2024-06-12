@@ -117,7 +117,8 @@ class FetchAuroraCustomers extends FetchAuroraAction
                 }
             }
 
-            if ($customer->shop->type == 'dropshipping' and in_array('clients', $with)) {
+
+            if ($customer->shop->type ==ShopTypeEnum::DROPSHIPPING and in_array('clients', $with)) {
                 foreach (
                     DB::connection('aurora')
                         ->table('Customer Client Dimension')

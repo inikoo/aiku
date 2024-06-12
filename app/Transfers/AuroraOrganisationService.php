@@ -7,6 +7,7 @@
 
 namespace App\Transfers;
 
+use App\Models\Accounting\Invoice;
 use App\Transfers\Aurora\FetchAuroraAgent;
 use App\Transfers\Aurora\FetchAuroraArtefact;
 use App\Transfers\Aurora\FetchAuroraBarcode;
@@ -41,6 +42,7 @@ use App\Transfers\Aurora\FetchAuroraPallet;
 use App\Transfers\Aurora\FetchAuroraPayment;
 use App\Transfers\Aurora\FetchAuroraPaymentAccount;
 use App\Transfers\Aurora\FetchAuroraPaymentServiceProvider;
+use App\Transfers\Aurora\FetchAuroraPortfolio;
 use App\Transfers\Aurora\FetchAuroraProduct;
 use App\Transfers\Aurora\FetchAuroraProductStocks;
 use App\Transfers\Aurora\FetchAuroraProspect;
@@ -72,7 +74,7 @@ use Illuminate\Support\Facades\DB;
 class AuroraOrganisationService implements SourceOrganisationService
 {
     public Organisation $organisation;
-    public ?Fetch $fetch=null;
+    public ?Fetch $fetch = null;
 
     public function initialisation(Organisation $organisation, string $databaseSuffix = ''): void
     {
@@ -195,9 +197,9 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraDeliveryNoteTransaction($this))->fetchDeliveryNoteTransaction($id, $deliveryNote);
     }
 
-    public function fetchInvoiceTransaction($id): ?array
+    public function fetchInvoiceTransaction($id, Invoice $invoice, bool $isFulfilment): ?array
     {
-        return (new FetchAuroraInvoiceTransaction($this))->fetch($id);
+        return (new FetchAuroraInvoiceTransaction($this))->fetchInvoiceTransaction($id, $invoice, $isFulfilment);
     }
 
     public function fetchHistoricAsset($id): ?array
@@ -368,6 +370,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchBarcode($id): array
     {
         return (new FetchAuroraBarcode($this))->fetch($id);
+    }
+
+    public function fetchPortfolio($id): ?array
+    {
+        return (new FetchAuroraPortfolio($this))->fetch($id);
     }
 
 }

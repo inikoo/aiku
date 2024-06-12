@@ -17,8 +17,8 @@ const props = defineProps<{
 
 function outboxRoute(outbox: Outbox) {
     switch (route().current()) {
-        case "mail.mailrooms.show.outboxes.index":
-            return [outbox["mailrooms_slug"], outbox.slug];
+        case "mail.post_rooms.show.outboxes.index":
+            return [outbox["post_room_slug"], outbox.slug];
 
         default:
             return [outbox.slug];

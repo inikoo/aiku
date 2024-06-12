@@ -7,6 +7,7 @@
 
 namespace App\Transfers;
 
+use App\Models\Accounting\Invoice;
 use App\Transfers\Aurora\FetchAuroraCustomer;
 use App\Transfers\Aurora\FetchAuroraProspect;
 use App\Transfers\Aurora\FetchAuroraShop;
@@ -23,7 +24,7 @@ use Illuminate\Support\Facades\DB;
 class WowsbarOrganisationService implements SourceOrganisationService
 {
     public Organisation $organisation;
-    public ?Fetch $fetch=null;
+    public ?Fetch $fetch = null;
 
     public function initialisation(Organisation $organisation, string $databaseSuffix = ''): void
     {
@@ -146,7 +147,7 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
-    public function fetchInvoiceTransaction($id): ?array
+    public function fetchInvoiceTransaction($id, Invoice $invoice, bool $isFulfilment): ?array
     {
         return null;
     }
@@ -269,13 +270,11 @@ class WowsbarOrganisationService implements SourceOrganisationService
     public function fetchMailshot($id): ?array
     {
         return null;
-
     }
 
     public function fetchDispatchedEmail($id): ?array
     {
         return null;
-
     }
 
     public function fetchProspect($id): ?array
@@ -319,6 +318,11 @@ class WowsbarOrganisationService implements SourceOrganisationService
     }
 
     public function fetchBarcode($id): ?array
+    {
+        return null;
+    }
+
+    public function fetchPortfolio($id): ?array
     {
         return null;
     }

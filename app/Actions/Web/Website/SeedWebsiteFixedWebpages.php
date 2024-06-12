@@ -34,6 +34,7 @@ class SeedWebsiteFixedWebpages extends OrgAction
             'purpose'  => WebpagePurposeEnum::STOREFRONT,
             'is_fixed' => true,
             'state'    => WebpageStateEnum::READY,
+            'ready_at' => now(),
         ]);
 
         $website->update(

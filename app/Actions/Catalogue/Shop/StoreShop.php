@@ -12,7 +12,6 @@ use App\Actions\Fulfilment\Fulfilment\StoreFulfilment;
 use App\Actions\Helpers\Currency\SetCurrencyHistoricFields;
 use App\Actions\Helpers\Query\Seeders\ProspectQuerySeeder;
 use App\Actions\Mail\Outbox\SeedShopOutboxes;
-use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateShops;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateShops;
@@ -24,7 +23,6 @@ use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
-use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Helpers\Country;
@@ -128,22 +126,6 @@ class StoreShop extends OrgAction
         $paymentAccount->slug = 'accounts-'.$shop->slug;
         $paymentAccount->save();
         $shop = AttachPaymentAccountToShop::run($shop, $paymentAccount);
-
-        foreach (OutboxTypeEnum::cases() as $case) {
-            if ($case->scope() == 'shop') {
-                $mailroom = $organisation->group->mailrooms()->where('code', $case->mailroomCode()->value)->first();
-
-                StoreOutbox::run(
-                    $mailroom,
-                    [
-                        'shop_id' => $shop->id,
-                        'name'    => $case->label(),
-                        'type'    => str($case->value)->camel()->kebab()->value(),
-
-                    ]
-                );
-            }
-        }
 
         GroupHydrateShops::dispatch($organisation->group);
         OrganisationHydrateShops::dispatch($organisation);

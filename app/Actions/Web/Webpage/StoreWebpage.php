@@ -55,7 +55,9 @@ class StoreWebpage extends OrgAction
         $snapshot = StoreWebpageSnapshot::run(
             $webpage,
             [
-                'layout' => []
+                'layout' => [
+                    'blocks'=> []
+                ]
             ],
         );
 

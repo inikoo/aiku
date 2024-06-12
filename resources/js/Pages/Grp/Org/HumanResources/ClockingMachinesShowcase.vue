@@ -44,7 +44,7 @@ console.log(props.data)
 
     <div class="ring-1 ring-gray-300 shadow rounded-2xl p-6 m-2 w-1/3 h-fit">
             <div class="font-semibold">Download  App</div>
-            <a href="https://github.com/inikoo/han/releases/tag/V0.0.1"  target="_blank"  class="flex items-end gap-x-2 mt-2">
+            <a href="https://github.com/inikoo/han/releases"  target="_blank"  class="flex items-end gap-x-2 mt-2">
                 <font-awesome-icon :icon="['fab', 'android']" />
                     <div class="text-gray-400 text-sm leading-4">
                         Android
