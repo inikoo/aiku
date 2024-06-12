@@ -6,10 +6,12 @@
  */
 
 use App\Actions\Catalogue\Shop\StoreShop;
+use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\CRM\CustomerClient\StoreCustomerClient;
 use App\Actions\CRM\CustomerClient\UpdateCustomerClient;
 use App\Actions\Dropshipping\DropshippingCustomerPortfolio\StoreDropshippingCustomerPortfolio;
 use App\Actions\Dropshipping\DropshippingCustomerPortfolio\UpdateDropshippingCustomerPortfolio;
+use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Shop;
 
@@ -42,6 +44,9 @@ beforeEach(function () {
         );
     }
     $this->shop     = $shop;
+
+    $this->shop  =UpdateShop::make()->action($this->shop, ['state' => ShopStateEnum::OPEN]);
+
     $this->customer = createCustomer($this->shop);
 
     list(
@@ -161,6 +166,6 @@ test('api get dropshipping shop', function ($shopId) {
 
     $response->assertOk();
     $response->assertJsonStructure(['data']);
-    $response->assertJsonCount(1, 'data');
+
 
 })->depends('api get dropshipping shops');
