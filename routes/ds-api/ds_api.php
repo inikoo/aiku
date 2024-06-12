@@ -6,8 +6,10 @@
  */
 
 use App\Actions\Dropshipping\Api\IndexDropshippingCustomers;
+use App\Actions\Dropshipping\Api\IndexDropshippingProducts;
 use App\Actions\Dropshipping\Api\IndexDropshippingShops;
 use App\Actions\Dropshipping\Api\ShowDropshippingCustomer;
+use App\Actions\Dropshipping\Api\ShowDropshippingProduct;
 use App\Actions\Dropshipping\Api\ShowDropshippingShop;
 use App\Actions\Dropshipping\ConnectToDroppings;
 use Illuminate\Support\Facades\Route;
@@ -20,11 +22,13 @@ Route::name('ds_api.')->group(function () {
             Route::prefix('{shop:id}')->name('show')->group(function () {
                 Route::get('', ShowDropshippingShop::class);
                 Route::get('customers', IndexDropshippingCustomers::class)->name('.customers.index');
+                Route::get('products', IndexDropshippingProducts::class)->name('.products.index');
+
             });
         });
 
         Route::get('customers/{customer:id}', ShowDropshippingCustomer::class)->name('customers.show');
-
+        Route::get('products/{product:id}', ShowDropshippingProduct::class)->name('products.show');
 
     });
 
