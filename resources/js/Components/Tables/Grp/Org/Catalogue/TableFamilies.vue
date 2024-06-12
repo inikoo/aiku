@@ -98,7 +98,7 @@ function departmentRoute(family: Family) {
           </Link>
       </template>
       <template #cell(current_products)="{ item: family }">
-          <Link :href="productRoute(family)" class="secondaryLink">
+          <Link :href="productRoute(family)" class="primaryLink">
               {{ family["current_products"] }}
           </Link>
       </template>
