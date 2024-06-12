@@ -12,7 +12,7 @@ use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class GroupHydrateDropshipping
+class GroupHydrateCustomerClients
 {
     use AsAction;
 
@@ -31,8 +31,8 @@ class GroupHydrateDropshipping
     public function handle(Group $group): void
     {
         $stats = [
-            'number_dropshipping_customer_portfolios'            => $group->dropshippingCustomerPortfolios()->count(),
-            'number_current_dropshipping_customer_portfolios'    => $group->dropshippingCustomerPortfolios()->where('status', true)->count()
+            'number_customer_clients'                            => $group->clients()->count(),
+            'number_current_customer_clients'                    => $group->clients()->where('status', true)->count()
         ];
 
         foreach (ProductStateEnum::cases() as $case) {

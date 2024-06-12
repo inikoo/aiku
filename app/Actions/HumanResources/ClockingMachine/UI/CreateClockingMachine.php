@@ -24,7 +24,7 @@ class CreateClockingMachine extends OrgAction
         //  dd(Options::forEnum(ClockingMachineTypeEnum::class),);
 
         // dd($parent);
-        $workplaces = [];
+        $workplaces     = [];
         $workplaceValue = null;
 
         if ($parent instanceof Organisation) {
@@ -55,7 +55,7 @@ class CreateClockingMachine extends OrgAction
                 'options' => $workplaces,
                 'label'   => __('workplace'),
             ];
-            
+
             if ($workplaceValue !== null) {
                 $fields['workplace_id']['value'] = $workplaceValue;
             }

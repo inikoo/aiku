@@ -8,9 +8,11 @@
 namespace App\Models\Dropshipping;
 
 use App\Models\Catalogue\Product;
+use App\Models\DropshippingCustomerPortfolioStats;
 use App\Models\Traits\InCustomer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  *
@@ -62,6 +64,11 @@ class DropshippingCustomerPortfolio extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(DropshippingCustomerPortfolioStats::class);
     }
 
 }

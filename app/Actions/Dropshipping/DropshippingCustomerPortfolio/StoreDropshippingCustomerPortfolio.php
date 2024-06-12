@@ -7,6 +7,7 @@
 
 namespace App\Actions\Dropshipping\DropshippingCustomerPortfolio;
 
+use App\Actions\Dropshipping\DropshippingCustomerPortfolio\Hydrators\HydrateDropshippingCustomerPortfolio;
 use App\Actions\OrgAction;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\DropshippingCustomerPortfolio;
@@ -27,9 +28,9 @@ class StoreDropshippingCustomerPortfolio extends OrgAction
 
         /** @var DropshippingCustomerPortfolio $dropshippingCustomerPortfolio */
         $dropshippingCustomerPortfolio = $customer->dropshippingCustomerPortfolios()->create($modelData);
+        $dropshippingCustomerPortfolio->stats()->create();
 
-
-        //todo put the hydrators here
+        HydrateDropshippingCustomerPortfolio::dispatch($dropshippingCustomerPortfolio);
 
         return $dropshippingCustomerPortfolio;
     }
