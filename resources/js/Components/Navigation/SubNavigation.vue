@@ -25,36 +25,64 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="-mt-2 flex flex-col sm:flex-row">
-        <div class="flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-3 gap-y-1 items-end text-gray-400 text-xs">
-            <div v-for="subNav, itemIdx in dataNavigation" class="flex items-center -ml-1 first:text-indigo-500"
+    <!-- <div class="flex flex-col sm:flex-row"> -->
+        <div class="select-none w-full flex flex-col sm:mt-0 sm:flex-row mb-1 border-gray-300 gap-y-1 items-end text-gray-400 text-xs">
+            <!-- Tab: Home/dashboard -->
+            <div 
+                class="py-1 px-1 flex items-center"
                 :class="[
-                    layout.currentRoute.includes(subNav.href?.name) ? `text-gray-500` : ``
+                    layout.currentRoute === dataNavigation[0].href.name ? 'text-indigo-500 px-1 bg-white border-x border-t rounded-t-md border-gray-300' : 'border-b border-gray-300'
                 ]"
             >
-                <Link v-if="subNav.href?.name"
-                    :href="route(subNav.href.name, subNav.href.parameters)"
-                    class="relative group py-1 px-1.5 flex items-center hover:text-gray-600 transition-all"
+                <component :is="dataNavigation[0].href?.name ? Link : 'div'"  class="flex items-center py-1.5 px-3 rounded"
+                    :href="dataNavigation[0].href.name ? route(dataNavigation[0].href.name, dataNavigation[0].href.parameters) : '#'"
+                    :class="[
+                        layout.currentRoute === dataNavigation[0].href.name ? `` : `bg-gray-100 hover:bg-gray-200 text-gray-600`
+                    ]"
+                    :style="{
+                        backgroundColor: layout.currentRoute === dataNavigation[0].href.name ? layout?.app?.theme[4] + '22' : '',
+                        color: layout.currentRoute === dataNavigation[0].href.name ? `color-mix(in srgb, ${layout?.app?.theme[4]} 50%, black)` : ''
+                    }"
                 >
+                    <FontAwesomeIcon v-if="dataNavigation[0].leftIcon" :icon="dataNavigation[0].leftIcon.icon" v-tooltip="capitalize(dataNavigation[0].leftIcon.tooltip)" aria-hidden="true" class="pr-1" />
+                    <MetaLabel :item="dataNavigation[0]" />
+                </component>
+            </div>
+
+            <!-- Tabs -->
+            <component :is="subNav.href?.name ? Link : 'div'" v-for="subNav, itemIdx in [...dataNavigation].slice(1)"
+                :href="subNav.href?.name ? route(subNav.href.name, subNav.href.parameters) : '#'"
+                class="py-1.5 flex items-center"
+                :class="[
+                    layout.currentRoute.includes(subNav.href?.name) ? `tabSubNavActive` : `tabSubNav`
+                ]"
+            >
+                <div class="py-1 px-1.5 flex items-center">
                     <FontAwesomeIcon v-if="subNav.leftIcon" :icon="subNav.leftIcon.icon" v-tooltip="capitalize(subNav.leftIcon.tooltip)" aria-hidden="true" class="pr-1" />
                     <MetaLabel :item="subNav" />
-                    <!-- <div
-                        class=""
-                        :class="[
-                            $page.url.startsWith((route(subNav.href.name, subNav.href.parameters)).replace(new RegExp(originUrl, 'g'), '')) ? `bottomNavigationActive` : `bottomNavigation`
-                        ]"
-                    /> -->
-                    <div v-if="itemIdx !== 0" :class="[
-                            layout.currentRoute.includes(subNav.href.name) ? `bottomNavigationSecondaryActive` : `bottomNavigationSecondary`
-                        ]"
-                    />
-                </Link>
-                
-                <span v-else>
-                    <FontAwesomeIcon v-if="subNav.leftIcon" :icon="subNav.leftIcon.icon" :title="capitalize(subNav.leftIcon.tooltip)" aria-hidden="true" class="pr-2" />
-                    <MetaLabel :item="subNav" />
-                </span>
-            </div>
+                </div>
+            </component>
+
+            <!-- <div class="border-b border-gray-300 px-1"></div> -->
+
         </div>
-    </div>
+    <!-- </div> -->
 </template>
+
+<style lang="scss" scoped>
+.tabSubNavActive {
+    @apply px-1 bg-white border-x border-t rounded-t-md border-gray-300;
+
+    color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 40%, black)`') !important;
+}
+
+.tabSubNav {
+    @apply px-2 border-b border-gray-300;
+
+    color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 80%, black)`') !important;
+
+    &:hover {
+        color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 60%, black)`') !important;
+    }
+}
+</style>

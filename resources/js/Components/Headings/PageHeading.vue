@@ -38,7 +38,7 @@ const originUrl = location.origin
 
 <template>
     <div class="mx-4 py-4 md:pb-2 md:pt-3 lg:py-2 grid grid-flow-col justify-between items-center">
-        <div>
+        <div class="">
             <!-- Sub Navigation -->
             <SubNavigation v-if="data.subNavigation" :dataNavigation="data.subNavigation" />
 
