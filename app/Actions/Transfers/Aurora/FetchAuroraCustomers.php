@@ -133,7 +133,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
             if ($customer->shop->type ==ShopTypeEnum::DROPSHIPPING and in_array('portfolio', $with)) {
                 foreach (
                     DB::connection('aurora')
-                        ->table('Customer Portfolio fact')
+                        ->table('Customer Portfolio Fact')
                         ->where('Customer Portfolio Customer Key', $sourceData[1])
                         ->select('Customer Portfolio Key as source_id')
                         ->orderBy('source_id')->get() as $portfolio
