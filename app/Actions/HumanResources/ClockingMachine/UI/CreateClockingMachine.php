@@ -25,10 +25,16 @@ class CreateClockingMachine extends OrgAction
 
         // dd($parent);
         $workplaces = [];
+        $workplaceValue = null;
+
         if ($parent instanceof Organisation) {
             $workplaces = $parent->workplaces()->get()->map(function ($workplace) {
                 return ['value' => $workplace->id, 'label' => $workplace->name];
             })->toArray();
+
+            if (count($workplaces) === 1) {
+                $workplaceValue = $workplaces[0]['value'];
+            }
         }
 
         $fields = [
@@ -49,6 +55,10 @@ class CreateClockingMachine extends OrgAction
                 'options' => $workplaces,
                 'label'   => __('workplace'),
             ];
+            
+            if ($workplaceValue !== null) {
+                $fields['workplace_id']['value'] = $workplaceValue;
+            }
         }
         return Inertia::render(
             'CreateModel',
