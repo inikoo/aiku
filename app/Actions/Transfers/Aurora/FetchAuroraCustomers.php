@@ -207,8 +207,8 @@ class FetchAuroraCustomers extends FetchAuroraAction
             $sourceData = explode(':', $this->shop->source_id);
             $query->where('Customer Store Key', $sourceData[1]);
         }
-
         return $query;
+
     }
 
     public function count(): ?int

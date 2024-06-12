@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraPortfolios extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:portfolios {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:portfolios {organisations?*} {--s|source_id=} {--d|db_suffix=} {--S|shop= : Shop slug} {--N|only_new : Fetch only new} ';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?DropshippingCustomerPortfolio
     {
@@ -33,6 +33,12 @@ class FetchAuroraPortfolios extends FetchAuroraAction
                     modelData: $portfolioData['portfolio'],
                 );
             }
+            $sourceData = explode(':', $dropshippingCustomerPortfolio->source_id);
+
+
+            DB::connection('aurora')->table('Customer Portfolio Fact')
+                ->where('Customer Portfolio Key', $sourceData[1])
+                ->update(['aiku_id' => $dropshippingCustomerPortfolio->id]);
 
             return $dropshippingCustomerPortfolio;
         }
@@ -42,15 +48,36 @@ class FetchAuroraPortfolios extends FetchAuroraAction
 
     public function getModelsQuery(): Builder
     {
-        return DB::connection('aurora')
+        $query= DB::connection('aurora')
             ->table('Customer Portfolio Fact')
             ->select('Customer Portfolio Key as source_id')
             ->orderBy('source_id');
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        if ($this->shop) {
+            $sourceData = explode(':', $this->shop->source_id);
+            $query->where('Customer Portfolio Store Key', $sourceData[1]);
+        }
+
+        return $query;
     }
 
     public function count(): ?int
     {
-        return DB::connection('aurora')->table('Customer Portfolio Fact')->count();
+        $query= DB::connection('aurora')->table('Customer Portfolio Fact');
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        if ($this->shop) {
+            $sourceData = explode(':', $this->shop->source_id);
+            $query->where('Customer Portfolio Store Key', $sourceData[1]);
+        }
+        return $query->count();
     }
 
 
