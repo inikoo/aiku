@@ -8,7 +8,7 @@
 namespace App\Actions\Mail\Outbox;
 
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
-use App\Models\Mail\Mailroom;
+use App\Models\Mail\PostRoom;
 use App\Models\Mail\Outbox;
 use App\Models\Catalogue\Shop;
 use Exception;
@@ -23,17 +23,16 @@ class SeedShopOutboxes
     {
         foreach (OutboxTypeEnum::cases() as $case) {
             if ($case->scope() == 'shop') {
-                $mailroom = Mailroom::where('code', $case->mailroomCode()->value)->first();
+                $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
 
 
-                $outboxType = str($case->value)->camel()->kebab()->value();
-                if (!Outbox::where('shop_id', $shop->id)->where('type', $outboxType)->exists()) {
+                if (!Outbox::where('shop_id', $shop->id)->where('type', $case)->exists()) {
                     StoreOutbox::run(
-                        $mailroom,
+                        $postRoom,
+                        $shop,
                         [
-                            'shop_id' => $shop->id,
                             'name'    => $case->label(),
-                            'type'    => $outboxType,
+                            'type'    => $case,
                             'state'   => $case->defaultState()
 
                         ]
@@ -43,7 +42,7 @@ class SeedShopOutboxes
         }
     }
 
-    public string $commandSignature = 'shop:seed-outboxes {shop}';
+    public string $commandSignature = 'shop:seed-outboxes {shop : The shop slug}';
 
     public function asCommand(Command $command): int
     {

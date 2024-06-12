@@ -11,8 +11,10 @@ use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
 use App\Actions\CRM\CustomerClient\Hydrators\CustomerClientHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithModelAddressActions;
+use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
@@ -72,16 +74,16 @@ class StoreCustomerClient extends OrgAction
 
         ];
 
-        if ($this->strict) {
-            $strictRules = [
-                'phone' => ['nullable', 'phone:AUTO'],
-                'email' => [
-                    'nullable',
-                    'email',
-                ],
-            ];
-            $rules       = array_merge($rules, $strictRules);
-        }
+        // if ($this->strict) {
+        //     $strictRules = [
+        //         'phone' => ['nullable', 'phone:AUTO'],
+        //         'email' => [
+        //             'nullable',
+        //             'email',
+        //         ],
+        //     ];
+        //     $rules       = array_merge($rules, $strictRules);
+        // }
 
         return $rules;
     }
@@ -90,6 +92,14 @@ class StoreCustomerClient extends OrgAction
     {
         $this->asAction = true;
         $this->initialisationFromShop($customer->shop, $modelData);
+
+        return $this->handle($customer, $this->validatedData);
+    }
+
+    public function inCustomer(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): CustomerClient
+    {
+        $this->asAction = true;
+        $this->initialisationFromShop($customer->shop, $request);
 
         return $this->handle($customer, $this->validatedData);
     }

@@ -48,7 +48,6 @@ class FetchAuroraCustomers extends FetchAuroraAction
                     $this->recordChange($organisationSource, $customer->wasChanged());
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $customerData['customer'], 'Customer', 'update');
-
                     return null;
                 }
             } else {
@@ -118,7 +117,8 @@ class FetchAuroraCustomers extends FetchAuroraAction
                 }
             }
 
-            if ($customer->shop->type == 'dropshipping' and in_array('clients', $with)) {
+
+            if ($customer->shop->type ==ShopTypeEnum::DROPSHIPPING and in_array('clients', $with)) {
                 foreach (
                     DB::connection('aurora')
                         ->table('Customer Client Dimension')

@@ -44,11 +44,13 @@ use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\OrgStockFamily;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\Mail\Outbox;
 use App\Models\Manufacturing\Artefact;
 use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
 use App\Models\Ordering\Order;
+use App\Models\OrganisationDropshippingStat;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
@@ -115,6 +117,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read LaravelCollection<int, Customer> $customers
+ * @property-read OrganisationDropshippingStat|null $dropshippingStats
  * @property-read LaravelCollection<int, Employee> $employees
  * @property-read LaravelCollection<int, FulfilmentCustomer> $fulfilmentCustomers
  * @property-read \App\Models\SysAdmin\OrganisationFulfilmentStats|null $fulfilmentStats
@@ -142,6 +145,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, OrgStockFamily> $orgStockFamilies
  * @property-read LaravelCollection<int, OrgStock> $orgStocks
  * @property-read LaravelCollection<int, OrgSupplier> $orgSuppliers
+ * @property-read LaravelCollection<int, Outbox> $outboxes
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
  * @property-read LaravelCollection<int, PaymentServiceProvider> $paymentServiceProviders
  * @property-read LaravelCollection<int, Payment> $payments
@@ -569,5 +573,15 @@ class Organisation extends Model implements HasMedia, Auditable
     public function tasks()
     {
         return $this->morphMany(Task::class, 'assigner');
+    }
+
+    public function dropshippingStats(): HasOne
+    {
+        return $this->hasOne(OrganisationDropshippingStat::class);
+    }
+
+    public function outboxes(): HasMany
+    {
+        return $this->hasMany(Outbox::class);
     }
 }

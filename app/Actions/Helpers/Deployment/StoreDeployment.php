@@ -7,9 +7,9 @@
 
 namespace App\Actions\Helpers\Deployment;
 
+use App\Actions\Web\Webpage\Hydrators\WebpageHydrateDeployments;
 use App\Models\Helpers\Deployment;
 use App\Models\Mail\EmailTemplate;
-use App\Models\Portfolio\Banner;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -18,13 +18,17 @@ class StoreDeployment
 {
     use AsAction;
 
-    public function handle(Banner|Website|Webpage|EmailTemplate $model, array $modelData): Deployment
+    public function handle(Website|Webpage|EmailTemplate $model, array $modelData): Deployment
     {
 
         /** @var Deployment $deployment */
         $deployment=$model->deployments()->create($modelData);
         $deployment->generateSlug();
         $deployment->saveQuietly();
+
+        if($deployment->model_type=='Webpage') {
+            WebpageHydrateDeployments::dispatch($model);
+        }
 
 
         return $deployment;

@@ -31,6 +31,7 @@ class ShowWebpageWorkshop extends OrgAction
         return $webpage;
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Webpage $webpage, ActionRequest $request): Webpage
     {
         $this->scope=$fulfilment;
@@ -67,7 +68,8 @@ class ShowWebpageWorkshop extends OrgAction
                             'label' => __('publish'),
                             'route' => [
                                 'name'       => 'org.models.webpage.content.publish',
-                                'parameters' => $webpage->id
+                                'parameters' => $webpage->id,
+                                'method'     => 'post'
                             ]
                         ],
                         [

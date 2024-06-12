@@ -11,7 +11,6 @@ use App\Models\Catalogue\Product;
 use App\Models\Traits\InCustomer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  *
@@ -38,15 +37,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @method static \Illuminate\Database\Eloquent\Builder|DropshippingCustomerPortfolio newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|DropshippingCustomerPortfolio newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DropshippingCustomerPortfolio onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|DropshippingCustomerPortfolio query()
- * @method static \Illuminate\Database\Eloquent\Builder|DropshippingCustomerPortfolio withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|DropshippingCustomerPortfolio withoutTrashed()
  * @mixin \Eloquent
  */
 class DropshippingCustomerPortfolio extends Model
 {
-    use SoftDeletes;
     use InCustomer;
 
     protected $casts = [

@@ -45,7 +45,7 @@ class UpdateDropshippingCustomerPortfolio extends OrgAction
     public function rules(): array
     {
         return [
-            'reference' => ['sometimes','string', 'max:255',
+            'reference' => ['sometimes', 'nullable','string', 'max:255',
                             new IUnique(
                                 table: 'dropshipping_customer_portfolios',
                                 extraConditions: [
@@ -55,6 +55,11 @@ class UpdateDropshippingCustomerPortfolio extends OrgAction
                                 ]
                             ),
                 ],
+            'status'          => 'sometimes|boolean',
+            'created_at'      => 'sometimes|date',
+            'last_added_at'   => 'sometimes|date',
+            'last_removed_at' => 'sometimes|date',
+            'source_id'       => 'sometimes|string|max:255',
         ];
     }
 

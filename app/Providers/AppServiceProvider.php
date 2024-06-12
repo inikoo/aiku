@@ -149,7 +149,7 @@ class AppServiceProvider extends ServiceProvider
                 'EmailTemplate'                          => 'App\Models\Mail\EmailTemplate',
                 'EmailTemplateCategory'                  => 'App\Models\Mail\EmailTemplateCategory',
                 'EmailTrackingEvent'                     => 'App\Models\Mail\EmailTrackingEvent',
-                'Mailroom'                               => 'App\Models\Mail\Mailroom',
+                'PostRoom'                               => 'App\Models\Mail\PostRoom',
                 'Mailshot'                               => 'App\Models\Mail\Mailshot',
                 'Outbox'                                 => 'App\Models\Mail\Outbox',
                 'SenderEmail'                            => 'App\Models\Mail\SenderEmail',

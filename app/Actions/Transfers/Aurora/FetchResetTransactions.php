@@ -67,7 +67,7 @@ class FetchResetTransactions
                 DB::connection('aurora')->table('Email Tracking Event Dimension')
                     ->update([$aikuIdField => null]);
 
-                $command->line("✅ mailroom \t\t".$this->stepTime());
+                $command->line("✅ post rooms \t\t".$this->stepTime());
 
 
                 DB::connection('aurora')->table('Timesheet Dimension')

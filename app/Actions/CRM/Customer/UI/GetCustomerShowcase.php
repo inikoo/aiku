@@ -17,6 +17,7 @@ class GetCustomerShowcase
 
     public function handle(Customer $customer): array
     {
+        // dd(CustomersResource::make($customer)->getArray());
         return [
 
                'data'=> CustomersResource::make($customer)->getArray()

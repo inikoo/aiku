@@ -8,15 +8,16 @@
 namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\Helpers\Country\UI\GetAddressData;
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Helpers\Address;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateCustomer extends InertiaAction
+class CreateCustomer extends OrgAction
 {
     public function handle(Shop $shop, ActionRequest $request): Response
     {
@@ -83,8 +84,11 @@ class CreateCustomer extends InertiaAction
                             ]
                         ],
                     'route'     => [
-                        'name'     => 'grp.models.shop.customer.store',
-                        'arguments'=> [$shop->id]
+                        'name'      => 'grp.models.org.shop.customer.store',
+                        'parameters'=> [
+                            'organisation' => $shop->organisation_id,
+                            'shop'         => $shop->id
+                            ]
                     ]
                 ]
 
@@ -98,9 +102,9 @@ class CreateCustomer extends InertiaAction
     }
 
 
-    public function asController(Shop $shop, ActionRequest $request): Response
+    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Response
     {
-        $this->initialisation($request);
+        $this->initialisationFromShop($shop, $request);
         return $this->handle($shop, $request);
     }
 

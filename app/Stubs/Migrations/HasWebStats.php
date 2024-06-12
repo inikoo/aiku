@@ -7,6 +7,7 @@
 
 namespace App\Stubs\Migrations;
 
+use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Enums\Web\Webpage\WebpagePurposeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
@@ -38,6 +39,15 @@ trait HasWebStats
     }
 
 
+    public function getSnapshotsFields(Blueprint $table): Blueprint
+    {
+        $table->unsignedInteger('number_snapshots')->default(0);
+        foreach (SnapshotStateEnum::cases() as $case) {
+            $table->unsignedSmallInteger('number_snapshots_state_'.$case->snake())->default(0);
+        }
+        return $table;
+    }
+
     public function getWebpagesStatsFields(Blueprint $table): Blueprint
     {
 
@@ -52,7 +62,6 @@ trait HasWebStats
             $table->unsignedSmallInteger('number_webpages_purpose_'.$case->snake())->default(0);
         }
 
-
         return $table;
     }
 
@@ -61,6 +70,23 @@ trait HasWebStats
 
         $table->unsignedInteger('number_web_users')->default(0);
         $table->unsignedInteger('number_current_web_users')->default(0);
+
+        return $table;
+    }
+
+    public function getDeploymentsFields(Blueprint $table): Blueprint
+    {
+        $table->unsignedInteger('number_deployments')->default(0);
+        $table->dateTimeTz('last_deployed_at')->nullable();
+
+        return $table;
+    }
+
+    public function getContentBlocksFields(Blueprint $table): Blueprint
+    {
+        $table->unsignedInteger('number_blocks')->default(0);
+        $table->unsignedInteger('number_visible_blocks')->default(0);
+        $table->unsignedInteger('number_published_blocks')->default(0);
 
         return $table;
     }

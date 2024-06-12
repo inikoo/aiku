@@ -75,11 +75,11 @@ class StoreWebsite extends OrgAction
         );
         $website->update(
             [
-                'unpublished_header_snapshot_id' => $headerSnapshot->id,
-                'unpublished_footer_snapshot_id' => $footerSnapshot->id,
-                'compiled_layout'                => [
-                    'header' => $headerSnapshot->compiledLayout(),
-                    'footer' => $footerSnapshot->compiledLayout()
+                'unpublished_header_snapshot_id'  => $headerSnapshot->id,
+                'unpublished_footer_snapshot_id'  => $footerSnapshot->id,
+                'published_layout'                => [
+                    'header' => $headerSnapshot->layout,
+                    'footer' => $footerSnapshot->layout
                 ]
             ]
         );

@@ -37,6 +37,7 @@ use App\Models\Mail\Outbox;
 use App\Models\Mail\SenderEmail;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\ShippingZoneSchema;
+use App\Models\ShopDropshippingStat;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
@@ -116,6 +117,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read LaravelCollection<int, Customer> $customers
+ * @property-read ShopDropshippingStat|null $dropshippingStats
  * @property-read Fulfilment|null $fulfilment
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
@@ -413,6 +415,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function tasks()
     {
         return $this->morphMany(Task::class, 'assigner');
+    }
+
+    public function dropshippingStats(): HasOne
+    {
+        return $this->hasOne(ShopDropshippingStat::class);
     }
 
 }

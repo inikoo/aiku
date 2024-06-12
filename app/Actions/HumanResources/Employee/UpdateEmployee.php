@@ -21,6 +21,7 @@ use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
+use App\Rules\PinRule;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -137,6 +138,7 @@ class UpdateEmployee extends OrgAction
                     ]
                 ),
             ],
+            'pin'                                   => ['sometimes', new PinRule($this->employee->organisation_id)],
             'contact_name'                          => ['sometimes', 'string', 'max:256'],
             'date_of_birth'                         => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
             'job_title'                             => ['sometimes', 'nullable', 'string', 'max:256'],

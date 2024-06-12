@@ -48,10 +48,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $website_id
  * @property int|null $unpublished_snapshot_id
  * @property int|null $live_snapshot_id
- * @property array $compiled_layout
- * @property string|null $ready_at
- * @property string|null $live_at
- * @property string|null $closed_at
+ * @property array $published_layout
+ * @property Carbon|null $ready_at
+ * @property Carbon|null $live_at
+ * @property Carbon|null $closed_at
  * @property string|null $published_checksum
  * @property bool $is_dirty
  * @property array $data
@@ -88,24 +88,30 @@ class Webpage extends Model
     use InOrganisation;
 
     protected $casts = [
-        'data'            => 'array',
-        'settings'        => 'array',
-        'compiled_layout' => 'array',
-        'state'           => WebpageStateEnum::class,
-        'purpose'         => WebpagePurposeEnum::class,
-        'type'            => WebpageTypeEnum::class
+        'data'             => 'array',
+        'settings'         => 'array',
+        'published_layout' => 'array',
+        'state'            => WebpageStateEnum::class,
+        'purpose'          => WebpagePurposeEnum::class,
+        'type'             => WebpageTypeEnum::class,
+        'ready_at'         => 'datetime',
+        'live_at'          => 'datetime',
+        'closed_at'        => 'datetime'
     ];
 
     protected $attributes = [
-        'data'            => '{}',
-        'settings'        => '{}',
-        'compiled_layout' => '{}',
+        'data'             => '{}',
+        'settings'         => '{}',
+        'published_layout' => '{}',
     ];
 
     protected array $auditExclude = [
-        'id','slug',
-        'live_snapshot_id','published_checksum',
-        'compiled_layout','unpublished_snapshot_id'
+        'id',
+        'slug',
+        'live_snapshot_id',
+        'published_checksum',
+        'published_layout',
+        'unpublished_snapshot_id'
     ];
 
     protected $guarded = [];
@@ -139,6 +145,7 @@ class Webpage extends Model
     {
         return $this->morphMany(Snapshot::class, 'parent');
     }
+
     public function unpublishedSnapshot(): BelongsTo
     {
         return $this->belongsTo(Snapshot::class, 'unpublished_snapshot_id');

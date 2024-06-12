@@ -15,6 +15,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
+use App\Models\CustomerDropshippingStat;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\DropshippingCustomerPortfolio;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -101,6 +102,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, CustomerClient> $clients
  * @property-read Address|null $deliveryAddress
  * @property-read Collection<int, DropshippingCustomerPortfolio> $dropshippingCustomerPortfolios
+ * @property-read CustomerDropshippingStat|null $dropshippingStats
  * @property-read FulfilmentCustomer|null $fulfilmentCustomer
  * @property-read Group $group
  * @property-read Media|null $image
@@ -322,5 +324,10 @@ class Customer extends Model implements HasMedia, Auditable
     public function dropshippingCustomerPortfolios(): HasMany
     {
         return $this->hasMany(DropshippingCustomerPortfolio::class);
+    }
+
+    public function dropshippingStats(): HasOne
+    {
+        return $this->hasOne(CustomerDropshippingStat::class);
     }
 }

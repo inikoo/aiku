@@ -56,8 +56,7 @@ class StoreWebpage extends OrgAction
             $webpage,
             [
                 'layout' => [
-                    'src'  => null,
-                    'html' => ''
+                    'blocks'=> []
                 ]
             ],
         );
@@ -65,7 +64,6 @@ class StoreWebpage extends OrgAction
         $webpage->update(
             [
                 'unpublished_snapshot_id' => $snapshot->id,
-                'compiled_layout'         => $snapshot->compiledLayout(),
 
             ]
         );

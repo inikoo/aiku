@@ -43,6 +43,11 @@ trait WithFamilySubNavigation
                 'name'       => 'grp.org.shops.show.catalogue.departments.show.sub_departments.show.products.index',
                 'parameters' => $routeParameters
             ];
+        } elseif ($parent->type == ProductCategoryTypeEnum::FAMILY) {
+            $productRoute = [
+                'name'       => 'grp.org.shops.show.catalogue.families.show.products.index',
+                'parameters' => $routeParameters
+            ];
         }
 
 

@@ -191,6 +191,18 @@ class EditEmployee extends OrgAction
             ]
         ];
 
+        $sections['pin'] = [
+            'label'  => __('Pin'),
+            'icon'   => 'fal fa-key',
+            'fields' => [
+                'pin' => [
+                    'type'  => 'input',
+                    'label' => __('pin'),
+                    'value' => $employee->pin
+                ],
+            ]
+        ];
+
         $currentSection = 'properties';
         if ($request->has('section') and Arr::has($sections, $request->get('section'))) {
             $currentSection = $request->get('section');

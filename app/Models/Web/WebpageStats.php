@@ -18,6 +18,15 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int $webpage_id
+ * @property int $number_blocks
+ * @property int $number_visible_blocks
+ * @property int $number_published_blocks
+ * @property int $number_snapshots
+ * @property int $number_snapshots_state_unpublished
+ * @property int $number_snapshots_state_live
+ * @property int $number_snapshots_state_historic
+ * @property int $number_deployments
+ * @property string|null $last_deployed_at
  * @property int $number_webpages
  * @property int $number_webpages_state_in_process
  * @property int $number_webpages_state_ready

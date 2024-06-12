@@ -8,7 +8,7 @@
 namespace App\Actions\Mail\Mailshot\UI;
 
 use App\Actions\InertiaAction;
-use App\Models\Mail\Mailroom;
+use App\Models\Mail\PostRoom;
 use App\Models\Mail\Outbox;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -19,7 +19,7 @@ class CreateMailshot extends InertiaAction
 {
     use HasUIMailshots;
 
-    private Outbox|Mailroom|Organisation $parent;
+    private Outbox|PostRoom|Organisation $parent;
     public function handle(): Response
     {
         return Inertia::render(

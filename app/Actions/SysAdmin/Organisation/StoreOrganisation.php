@@ -9,6 +9,7 @@ namespace App\Actions\SysAdmin\Organisation;
 
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
 use App\Actions\Helpers\Currency\SetCurrencyHistoricFields;
+use App\Actions\Mail\Outbox\SeedOrganisationOutboxes;
 use App\Actions\Procurement\OrgPartner\StoreOrgPartner;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\Traits\WithModelAddressActions;
@@ -57,6 +58,7 @@ class StoreOrganisation
 
         SeedOrganisationPermissions::run($organisation);
         SeedJobPositions::run($organisation);
+        SeedOrganisationOutboxes::run($organisation);
 
         $organisation = $this->addAddressToModel($organisation, $addressData);
 
@@ -91,6 +93,7 @@ class StoreOrganisation
         $organisation->procurementStats()->create();
         $organisation->inventoryStats()->create();
         $organisation->accountingStats()->create();
+        $organisation->dropshippingStats()->create();
 
 
         $organisation->webStats()->create();

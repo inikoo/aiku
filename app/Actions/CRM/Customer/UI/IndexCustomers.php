@@ -57,6 +57,7 @@ class IndexCustomers extends OrgAction
 
     public function handle(Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
     {
+        // dd($parent->type);
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('customers.name', $value)
@@ -156,20 +157,23 @@ class IndexCustomers extends OrgAction
 
                         ],
                         'Shop' => [
-                            'title'       => __("No customers found"),
-                            'description' => $parent->type == ShopTypeEnum::FULFILMENT ? __("You can add your customer 🤷🏽‍♂️") : null,
-                            'count'       => $parent->crmStats->number_customers,
-                            'action'      => $parent->type == ShopTypeEnum::FULFILMENT ? [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('new customer'),
-                                'label'   => __('customer'),
-                                'route'   => [
-                                    'name'       => 'grp.org.shops.show.crm.customers.create',
-                                    'parameters' => [$parent->slug]
+                        'title'       => __("No customers found"),
+                        'description' => ($parent->type == ShopTypeEnum::FULFILMENT || $parent->type == ShopTypeEnum::DROPSHIPPING) ? __("You can add your customer 🤷🏽‍♂️") : null,
+                        'count'       => $parent->crmStats->number_customers,
+                        'action'      => ($parent->type == ShopTypeEnum::FULFILMENT || $parent->type == ShopTypeEnum::DROPSHIPPING) ? [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('new customer'),
+                            'label'   => __('customer'),
+                            'route'   => [
+                                'name'       => 'grp.org.shops.show.crm.customers.create',
+                                'parameters' => [
+                                    'organisation' => $parent->organisation->slug,
+                                    'shop'         => $parent->slug
                                 ]
-                            ] : null
-                        ],
+                            ]
+                        ] : null
+                    ],
                         default => null
                     }
                     /*
@@ -224,7 +228,22 @@ class IndexCustomers extends OrgAction
                     'icon'      => [
                         'icon'  => ['fal', 'fa-user'],
                         'title' => __('customer')
-                    ]
+                    ],
+                    'actions' => [
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('New Customer'),
+                            'label'   => __('New Customer'),
+                            'route'   => [
+                                 'name'       => 'grp.org.shops.show.crm.customers.create',
+                                'parameters'  => [
+                                    'organisation' => $scope->organisation->slug,
+                                    'shop'         => $scope->slug
+                                ]
+                            ]
+                        ],
+                    ],
                 ],
                 'data'        => CustomersResource::collection($customers),
 

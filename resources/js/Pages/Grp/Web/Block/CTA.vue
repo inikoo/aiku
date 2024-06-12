@@ -9,11 +9,18 @@ import { faCube, faLink } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { ref } from "vue"
 import Button from '@/Components/Elements/Buttons/Button.vue';
+import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
 
 library.add(faCube, faLink)
 
 const props = defineProps<{
     modelValue: any
+}>()
+
+
+const emits = defineEmits<{
+    (e: 'update:modelValue', value: string | number): void
+    (e: 'autoSave'): void
 }>()
 
 
@@ -25,16 +32,12 @@ const props = defineProps<{
             <div class="col-span-2 relative">
                 <img src="https://tailwindui.com/img/ecommerce-images/home-page-01-hero-full-width.jpg"
                     alt="Informative Image" class="w-full h-full object-cover rounded-md">
-                <!-- <div class="absolute inset-0 flex items-center justify-center bg-black/30">
-                    <i class="fas fa-play text-white/90 text-6xl"></i>
-                </div> -->
             </div>
 
             <div class="flex flex-col px-14 pt-14">
-                <h2 class="text-lg font-bold text-white mb-10">What ingredients should be considered when selecting body
-                    and hand soaps?</h2>
-                <p class="text-[9px] text-white mb-14">Provide your customers with informed advice.</p>
-                <button class="place-self-center bg-white text-gray-800 py-2 px-8 w-max">Read The Blog</button>
+                <Editor v-model="modelValue.headline"  @update:modelValue="()=>emits('autoSave')"/>
+                <Editor v-model="modelValue.description"  @update:modelValue="()=>emits('autoSave')"/>
+                <button class="place-self-center bg-white text-gray-800 py-2 px-8 w-max"><Editor v-model="modelValue.button"  @update:modelValue="()=>emits('autoSave')" :toogle="[]"/></button>
             </div>
         </div>
     </div>

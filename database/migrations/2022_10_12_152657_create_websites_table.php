@@ -36,7 +36,7 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->jsonb('structure');
             $table->jsonb('layout');
-            $table->jsonb('compiled_layout');
+            $table->jsonb('published_layout');
             $table->unsignedSmallInteger('unpublished_header_snapshot_id')->nullable()->index();
             $table->unsignedSmallInteger('live_header_snapshot_id')->nullable()->index();
             $table->string('published_header_checksum')->nullable()->index();

@@ -55,7 +55,7 @@ Route::prefix('employees')->as('employees.')->group(function () {
         Route::as('show.')->group(function () {
             Route::get('/positions', [IndexJobPositions::class,'inEmployee'])->name('positions.index');
 
-            Route::get('timesheets', [IndexEmployees::class,'inEmployee'])->name('timesheets.index');
+            Route::get('timesheets', [IndexTimesheets::class,'inEmployee'])->name('timesheets.index');
             Route::get('timesheets/export', ExportEmployeeTimesheets::class)->name('timesheets.export');
             Route::get('timesheets/{timesheet}', [ShowTimesheet::class, 'inEmployee'])->name('timesheets.show');
         });

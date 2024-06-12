@@ -8,7 +8,7 @@
 namespace App\Enums\Mail\Outbox;
 
 use App\Enums\EnumHelperTrait;
-use App\Enums\Mail\Mailroom\MailroomCodeEnum;
+use App\Enums\Mail\PostRoom\PostRoomCodeEnum;
 
 enum OutboxTypeEnum: string
 {
@@ -90,7 +90,7 @@ enum OutboxTypeEnum: string
 
 
 
-    public function mailroomCode(): MailroomCodeEnum
+    public function postRoomCode(): PostRoomCodeEnum
     {
         return match ($this) {
             OutboxTypeEnum::BASKET_LOW_STOCK,
@@ -104,26 +104,26 @@ enum OutboxTypeEnum: string
             OutboxTypeEnum::DELIVERY_CONFIRMATION,
             OutboxTypeEnum::OOS_NOTIFICATION,
             OutboxTypeEnum::ORDER_CONFIRMATION
-            => MailroomCodeEnum::CUSTOMER_NOTIFICATION,
+            => PostRoomCodeEnum::CUSTOMER_NOTIFICATION,
 
             OutboxTypeEnum::DELIVERY_NOTE_DISPATCHED,
             OutboxTypeEnum::DELIVERY_NOTE_UNDISPATCHED,
             OutboxTypeEnum::INVOICE_DELETED,
             OutboxTypeEnum::NEW_ORDER,
             OutboxTypeEnum::NEW_CUSTOMER
-            => MailroomCodeEnum::USER_NOTIFICATION,
+            => PostRoomCodeEnum::USER_NOTIFICATION,
 
             OutboxTypeEnum::SHOP_PROSPECT
-            => MailroomCodeEnum::LEADS,
+            => PostRoomCodeEnum::LEADS,
 
             OutboxTypeEnum::MARKETING,
             OutboxTypeEnum::NEWSLETTER,
             OutboxTypeEnum::ABANDONED_CART,
             OutboxTypeEnum::REORDER_REMINDER
-            => MailroomCodeEnum::MARKETING,
+            => PostRoomCodeEnum::MARKETING,
 
             OutboxTypeEnum::TEST,
-            => MailroomCodeEnum::TESTS,
+            => PostRoomCodeEnum::TESTS,
         };
     }
 }

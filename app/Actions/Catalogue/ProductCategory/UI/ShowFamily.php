@@ -12,7 +12,7 @@ use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Catalogue\WithFamilySubNavigation;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
-use App\Actions\Mail\Mailshot\IndexMailshots;
+use App\Actions\Mail\Mailshot\UI\IndexMailshots;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\DepartmentTabsEnum;

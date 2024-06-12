@@ -44,7 +44,7 @@ return new class () extends Migration {
 
 
 
-            $table->unsignedInteger('order_id');
+            $table->unsignedInteger('order_id')->nullable();
             $table->foreign('order_id')->references('id')->on('orders');
             $table->unsignedInteger('invoice_id')->nullable();
             $table->foreign('invoice_id')->references('id')->on('invoices');
@@ -70,7 +70,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->softDeletesTz();
 
-            $table->string('source_id')->nullable();
+            $table->string('source_id')->nullable()->index();
             $table->unsignedInteger('source_alt_id')->nullable();
             $table->index(['model_type', 'model_id']);
         });

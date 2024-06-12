@@ -7,15 +7,15 @@
 
 namespace App\Actions\Mail\Mailshot\UI;
 
-use App\Actions\Mail\Mailroom\ShowMailroom;
+use App\Actions\Mail\PostRoom\UI\ShowPostRoom;
 use App\Actions\UI\Marketing\MarketingHub;
-use App\Models\Mail\Mailroom;
 use App\Models\Mail\Outbox;
+use App\Models\Mail\PostRoom;
 use App\Models\SysAdmin\Organisation;
 
 trait HasUIMailshots
 {
-    public function getBreadcrumbs(string $routeName, Outbox|Mailroom|Organisation $parent): array
+    public function getBreadcrumbs(string $routeName, Outbox|PostRoom|Organisation $parent): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
@@ -35,9 +35,9 @@ trait HasUIMailshots
                 (new MarketingHub())->getBreadcrumbs(),
                 $headCrumb()
             ),
-            'mail.mailrooms.show.mailshots.show' =>
+            'mail.post_rooms.show.mailshots.show' =>
             array_merge(
-                (new ShowMailroom())->getBreadcrumbs($parent),
+                (new ShowPostRoom())->getBreadcrumbs($parent),
                 $headCrumb([$parent->slug])
             ),
             default => []

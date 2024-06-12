@@ -23,6 +23,7 @@ use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\SyncPaymentAccountToShop;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
+use App\Actions\CRM\CustomerClient\StoreCustomerClient;
 use App\Actions\CRM\Prospect\ImportShopProspects;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\CRM\WebUser\UpdateWebUser;
@@ -114,6 +115,7 @@ use App\Actions\UI\Notification\MarkAllNotificationAsRead;
 use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
 use App\Actions\UI\Profile\UpdateProfile;
+use App\Actions\Web\Webpage\PublishWebpage;
 use App\Actions\Web\Webpage\UpdateWebpage;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Actions\Web\Website\LaunchWebsite;
@@ -205,6 +207,8 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::post('/shop/{shop:id}/customer', StoreCustomer::class)->name('shop.customer.store');
     Route::patch('/shop/{shop:id}/customer/{customer:id}', UpdateCustomer::class)->name('shop.customer.update')->withoutScopedBindings();
     Route::post('/shop/{shop:id}/fulfilment/{fulfilment:id}/customer', StoreFulfilmentCustomer::class)->name('shop.fulfilment-customer.store')->withoutScopedBindings();
+
+    Route::post('/shop/{shop:id}/customer/{customer:id}/client', [StoreCustomerClient::class, 'inCustomer'])->name('shop.customer.client.store')->withoutScopedBindings();
 
     Route::post('/shop/{shop:id}/product/', [StoreProduct::class, 'inShop'])->name('show.product.store');
     Route::delete('/shop/{shop:id}/product/{product:id}', [DeleteProduct::class, 'inShop'])->name('shop.product.delete');
@@ -371,6 +375,7 @@ Route::name('webpage.')->prefix('webpage/{webpage:id}')->group(function () {
 
     Route::name('content.')->prefix('content')->group(function () {
         Route::patch('/', UpdateWebpageContent::class)->name('update');
+        Route::post('/', PublishWebpage::class)->name('publish');
     });
 });
 
