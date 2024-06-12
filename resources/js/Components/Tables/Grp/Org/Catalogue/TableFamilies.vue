@@ -51,6 +51,18 @@ function shopRoute(family: Family) {
                 [route().params["organisation"], family.shop_slug]);
     }
 }
+function productRoute(family: Family) {
+    switch (route().current()) {
+        case 'grp.org.shops.show.catalogue.departments.show.families.index':
+            return route(
+                "grp.org.shops.show.catalogue.departments.show.families.show.products.index",
+                [route().params["organisation"], route().params["shop"], route().params["department"], family.slug]);
+        case 'grp.org.shops.show.catalogue.families.index':
+            return route(
+                "grp.org.shops.show.catalogue.families.show.products.index",
+                [route().params["organisation"], route().params["shop"], family.slug]);
+    }
+}
 
 function departmentRoute(family: Family) {
     switch (route().current()) {
@@ -83,6 +95,11 @@ function departmentRoute(family: Family) {
       <template #cell(shop_code)="{ item: family }">
           <Link :href="shopRoute(family)" class="secondaryLink">
               {{ family["shop_code"] }}
+          </Link>
+      </template>
+      <template #cell(current_products)="{ item: family }">
+          <Link :href="productRoute(family)" class="secondaryLink">
+              {{ family["current_products"] }}
           </Link>
       </template>
       <template #cell(department_code)="{ item: family }">

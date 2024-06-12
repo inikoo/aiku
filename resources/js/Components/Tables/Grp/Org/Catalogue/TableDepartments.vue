@@ -43,6 +43,24 @@ function shopRoute(department: Department) {
     }
 }
 
+function familyRoute(department: Department) {
+    switch (route().current()) {
+        case 'grp.org.shops.show.catalogue.departments.index':
+            return route(
+                "grp.org.shops.show.catalogue.departments.show.families.index",
+                [route().params["organisation"], route().params['shop'], department.slug]);
+    }
+}
+
+function productRoute(department: Department) {
+    switch (route().current()) {
+        case 'grp.org.shops.show.catalogue.departments.index':
+            return route(
+                "grp.org.shops.show.catalogue.departments.show.products.index",
+                [route().params["organisation"], route().params['shop'], department.slug]);
+    }
+}
+
 </script>
 
 <template>
@@ -54,6 +72,16 @@ function shopRoute(department: Department) {
         <template #cell(code)="{ item: department }">
             <Link :href="departmentRoute(department)" class="primaryLink">
                 {{ department['code'] }}
+            </Link>
+        </template>
+        <template #cell(current_families)="{ item: department }">
+            <Link :href="familyRoute(department)" class="primaryLink">
+                {{ department['current_families'] }}
+            </Link>
+        </template>
+        <template #cell(current_products)="{ item: department }">
+            <Link :href="productRoute(department)" class="primaryLink">
+                {{ department['current_products'] }}
             </Link>
         </template>
         <template #cell(shop_code)="{ item: department }">
