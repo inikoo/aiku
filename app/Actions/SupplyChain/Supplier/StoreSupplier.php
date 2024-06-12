@@ -59,7 +59,7 @@ class StoreSupplier extends GrpAction
         $supplier->stats()->create();
         SetCurrencyHistoricFields::run($supplier->currency, $supplier->created_at);
 
-        $supplier=$this->addAddressToModel($supplier, $addressData, 'contact');
+        $supplier = $this->addAddressToModel($supplier, $addressData, 'contact');
 
 
         $supplier->refresh();
@@ -100,6 +100,7 @@ class StoreSupplier extends GrpAction
             'source_id'    => ['sometimes', 'nullable', 'string'],
             'source_slug'  => ['sometimes', 'nullable', 'string'],
             'deleted_at'   => ['sometimes', 'nullable', 'date'],
+            'status'       => ['sometimes', 'required', 'boolean'],
         ];
     }
 

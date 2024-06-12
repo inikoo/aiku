@@ -26,6 +26,7 @@ trait FetchSuppliersTrait
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Supplier
     {
         $supplierData = $this->fetch($organisationSource, $organisationSourceId);
+
         if (!$supplierData) {
             return null;
         }
