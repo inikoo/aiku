@@ -16,7 +16,7 @@ use App\Models\Catalogue\Shop;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowDropshippingShop extends OrgAction
+class ShowShop extends OrgAction
 {
     use AsAction;
     use WithInertia;

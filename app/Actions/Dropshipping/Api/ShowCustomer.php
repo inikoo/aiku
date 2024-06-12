@@ -13,7 +13,7 @@ use App\Http\Resources\Api\Dropshipping\CustomersResource;
 use App\Models\CRM\Customer;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowDropshippingCustomer extends GrpAction
+class ShowCustomer extends GrpAction
 {
     private Customer $customer;
 

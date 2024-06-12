@@ -10,7 +10,7 @@ namespace App\Actions\Dropshipping\Api;
 use App\Actions\GrpAction;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Http\Resources\Api\Dropshipping\ShopResource;
+use App\Http\Resources\Api\Dropshipping\ShopsResource;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
 use App\Services\QueryBuilder;
@@ -18,7 +18,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
 
-class IndexDropshippingShops extends GrpAction
+class IndexShops extends GrpAction
 {
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
@@ -39,7 +39,7 @@ class IndexDropshippingShops extends GrpAction
 
         return $queryBuilder
             ->defaultSort('shops.code')
-            ->select(['code', 'id', 'name', 'slug', 'type', 'state'])
+            ->select(['id'])
             ->allowedSorts(['code', 'name', 'type', 'state'])
             ->withPaginator(null)
             ->withQueryString();
@@ -48,7 +48,7 @@ class IndexDropshippingShops extends GrpAction
 
     public function jsonResponse($shops): AnonymousResourceCollection
     {
-        return ShopResource::collection($shops);
+        return ShopsResource::collection($shops);
     }
 
 

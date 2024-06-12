@@ -31,6 +31,7 @@ class CustomersResource extends JsonResource
             'email'                  => $customer->email,
             'phone'                  => $customer->phone,
             'created_at'             => $customer->created_at,
+            'updated_at'             => $customer->updated_at,
         ];
     }
 }

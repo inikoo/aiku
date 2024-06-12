@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\Api\Dropshipping;
 
+use App\Models\Catalogue\Shop;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -17,12 +18,12 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $warehouse_area_slug
  * @property mixed $type
  */
-class ShopResource extends JsonResource
+class ShopsResource extends JsonResource
 {
     public function toArray($request): array
     {
-        /** @var \App\Models\Catalogue\Shop $shop */
-        $shop = $this;
+        /** @var Shop $shop */
+        $shop = Shop::find($this->id);
 
         return [
             'id'      => $shop->id,

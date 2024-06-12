@@ -5,30 +5,35 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Dropshipping\Api\IndexDropshippingCustomers;
-use App\Actions\Dropshipping\Api\IndexDropshippingProducts;
-use App\Actions\Dropshipping\Api\IndexDropshippingShops;
-use App\Actions\Dropshipping\Api\ShowDropshippingCustomer;
-use App\Actions\Dropshipping\Api\ShowDropshippingProduct;
-use App\Actions\Dropshipping\Api\ShowDropshippingShop;
+use App\Actions\Dropshipping\Api\IndexCustomerPortfolio;
+use App\Actions\Dropshipping\Api\IndexCustomers;
+use App\Actions\Dropshipping\Api\IndexProducts;
+use App\Actions\Dropshipping\Api\IndexShops;
+use App\Actions\Dropshipping\Api\IndexProductCustomers;
+use App\Actions\Dropshipping\Api\ShowCustomer;
+use App\Actions\Dropshipping\Api\ShowProduct;
+use App\Actions\Dropshipping\Api\ShowShop;
 use App\Actions\Dropshipping\ConnectToDroppings;
 use Illuminate\Support\Facades\Route;
 
 Route::name('ds_api.')->group(function () {
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::prefix('shops')->name('shops.')->group(function () {
-            Route::get('', IndexDropshippingShops::class)->name('index');
+            Route::get('', IndexShops::class)->name('index');
 
             Route::prefix('{shop:id}')->name('show')->group(function () {
-                Route::get('', ShowDropshippingShop::class);
-                Route::get('customers', IndexDropshippingCustomers::class)->name('.customers.index');
-                Route::get('products', IndexDropshippingProducts::class)->name('.products.index');
+                Route::get('', ShowShop::class);
+                Route::get('customers', IndexCustomers::class)->name('.customers.index');
+                Route::get('products', IndexProducts::class)->name('.products.index');
 
             });
         });
 
-        Route::get('customers/{customer:id}', ShowDropshippingCustomer::class)->name('customers.show');
-        Route::get('products/{product:id}', ShowDropshippingProduct::class)->name('products.show');
+        Route::get('customers/{customer:id}', ShowCustomer::class)->name('customers.show');
+        Route::get('customers/{customer:id}/products', IndexCustomerPortfolio::class)->name('customers.show.products.index');
+
+        Route::get('products/{product:id}', ShowProduct::class)->name('products.show');
+        Route::get('products/{product:id}/customers', IndexProductCustomers::class)->name('products.show.customers.index');
 
     });
 

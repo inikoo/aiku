@@ -13,7 +13,7 @@ use App\Http\Resources\Api\Dropshipping\ProductsResource;
 use App\Models\Catalogue\Product;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowDropshippingProduct extends GrpAction
+class ShowProduct extends GrpAction
 {
     private Product $product;
 

@@ -43,9 +43,9 @@ beforeEach(function () {
             $storeData
         );
     }
-    $this->shop     = $shop;
+    $this->shop = $shop;
 
-    $this->shop  =UpdateShop::make()->action($this->shop, ['state' => ShopStateEnum::OPEN]);
+    $this->shop = UpdateShop::make()->action($this->shop, ['state' => ShopStateEnum::OPEN]);
 
     $this->customer = createCustomer($this->shop);
 
@@ -60,7 +60,6 @@ beforeEach(function () {
     );
     actingAs($this->user);
 });
-
 
 
 test('create customer client', function () {
@@ -150,7 +149,6 @@ test('api get dropshipping shops', function () {
     $response->assertJsonCount(1, 'data');
 
     return $response->json('data.0.id');
-
 });
 
 test('api show shop', function ($shopId) {
@@ -166,8 +164,6 @@ test('api show shop', function ($shopId) {
 
     $response->assertOk();
     $response->assertJsonStructure(['data']);
-
-
 })->depends('api get dropshipping shops');
 
 test('api index customers', function ($shopId) {
@@ -182,8 +178,6 @@ test('api index customers', function ($shopId) {
 
     $response->assertOk();
     $response->assertJsonStructure(['data']);
-
-
 })->depends('api get dropshipping shops');
 
 test('api show customer', function () {
@@ -199,12 +193,10 @@ test('api show customer', function () {
 
     $response->assertOk();
     $response->assertJsonStructure(['data']);
-
 });
 
 test('api index products in shop', function ($shopId) {
     Sanctum::actingAs($this->group);
-
     $response = getJson(
         route(
             'ds_api.shops.show.products.index',
@@ -214,14 +206,10 @@ test('api index products in shop', function ($shopId) {
 
     $response->assertOk();
     $response->assertJsonStructure(['data']);
-
-
 })->depends('api get dropshipping shops');
 
 test('api show product', function () {
     Sanctum::actingAs($this->group);
-
-
     $response = getJson(
         route(
             'ds_api.products.show',
@@ -231,5 +219,30 @@ test('api show product', function () {
 
     $response->assertOk();
     $response->assertJsonStructure(['data']);
+});
 
+test('api index products in customer ', function ($shopId) {
+    Sanctum::actingAs($this->group);
+    $response = getJson(
+        route(
+            'ds_api.customers.show.products.index',
+            [$shopId]
+        )
+    );
+
+    $response->assertOk();
+    $response->assertJsonStructure(['data']);
+})->depends('api get dropshipping shops');
+
+test('api index customers in product', function () {
+    Sanctum::actingAs($this->group);
+    $response = getJson(
+        route(
+            'ds_api.products.show.customers.index',
+            [$this->product->id]
+        )
+    );
+
+    $response->assertOk();
+    $response->assertJsonStructure(['data']);
 });

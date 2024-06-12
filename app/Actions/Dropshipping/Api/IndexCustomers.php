@@ -17,7 +17,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
 
-class IndexDropshippingCustomers extends OrgAction
+class IndexCustomers extends OrgAction
 {
     public function prepareForValidation(ActionRequest $request): void
     {
