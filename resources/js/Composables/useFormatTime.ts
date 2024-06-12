@@ -139,8 +139,8 @@ export const useSecondsToMS = (seconds?: number) => {
 
     // console.log('wew', duration)
     const strHour = duration.hours ? duration.hours : '00'
-    const strMinutes = duration.minutes?.toString().padStart(2, '0')
-    const strSeconds = duration.seconds?.toString().padStart(2, '0')
+    const strMinutes = duration.minutes?.toString().padStart(2, '0') || '00'
+    const strSeconds = duration.seconds?.toString().padStart(2, '0') || '00'
 
     return strHour + ':' + strMinutes + ':' + strSeconds
 }

@@ -43,8 +43,8 @@ const onPinTab = () => {
         <!-- The options list -->
         <div class="w-full shadow-lg flex-row items-start text-[11px] leading-none"
             :style="{
-                background: layout.app.theme[6],
-                color: layout.app.theme[7]
+                background: `color-mix(in srgb, ${layout?.app?.theme[0]} 10%, white)`,
+                color: `color-mix(in srgb, ${layout?.app?.theme[1]} 30%, black)`
             }"
         >
             <div class="flex flex-col justify-center text-center pt-0.5 pb-3 gap-y-1">
