@@ -34,6 +34,7 @@ return new class () extends Migration {
             $table->foreign('currency_id')->references('id')->on('currencies');
             $table->jsonb('settings');
             $table->jsonb('data');
+            $table->dateTimeTz('archived_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_slug')->index()->nullable();
