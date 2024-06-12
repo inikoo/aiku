@@ -119,7 +119,7 @@ test('get dropshipping access token', function () {
 
     $response = postJson(
         route(
-            'dropshipping.connect',
+            'ds_api.connect',
             [
                 'token' => $token
             ]
@@ -140,7 +140,7 @@ test('api get dropshipping shops', function () {
 
     $response = getJson(
         route(
-            'dropshipping.shops.index'
+            'ds_api.shops.index'
         )
     );
 
@@ -153,13 +153,13 @@ test('api get dropshipping shops', function () {
 
 });
 
-test('api get dropshipping shop', function ($shopId) {
+test('api show shop', function ($shopId) {
     Sanctum::actingAs($this->group);
 
 
     $response = getJson(
         route(
-            'dropshipping.shops.show',
+            'ds_api.shops.show',
             [$shopId]
         )
     );
@@ -169,3 +169,37 @@ test('api get dropshipping shop', function ($shopId) {
 
 
 })->depends('api get dropshipping shops');
+
+test('api index customers', function ($shopId) {
+    Sanctum::actingAs($this->group);
+
+
+    $response = getJson(
+        route(
+            'ds_api.shops.show.customers.index',
+            [$shopId]
+        )
+    );
+
+    $response->assertOk();
+    $response->assertJsonStructure(['data']);
+
+
+})->depends('api get dropshipping shops');
+
+test('api show customer', function () {
+    Sanctum::actingAs($this->group);
+
+
+    $response = getJson(
+        route(
+            'ds_api.customers.show',
+            [$this->customer->id]
+        )
+    );
+
+    $response->assertOk();
+    $response->assertJsonStructure(['data']);
+
+
+});

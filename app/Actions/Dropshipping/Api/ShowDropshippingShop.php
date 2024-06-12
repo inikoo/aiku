@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 12 Jun 2024 12:27:35 Central European Summer Time, Kuala Lumpur, Malaysia
+ * Created: Wed, 12 Jun 2024 13:35:32 Central European Summer Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Catalogue\Shop\Api;
+namespace App\Actions\Dropshipping\Api;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\WithInertia;

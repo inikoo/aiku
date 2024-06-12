@@ -1,11 +1,11 @@
 <?php
 /*
- * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
- * Created: Thu, 18 May 2023 14:27:33 Central European Summer, Malaga, Spain
- * Copyright (c) 2023, Inikoo LTD
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 12 Jun 2024 13:35:32 Central European Summer Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Catalogue\Shop\Api;
+namespace App\Actions\Dropshipping\Api;
 
 use App\Actions\GrpAction;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
