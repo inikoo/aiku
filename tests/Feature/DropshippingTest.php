@@ -56,57 +56,7 @@ beforeEach(function () {
     actingAs($this->user);
 });
 
-test('update group dropshipping_integration_token', function () {
-    expect($this->group->dropshipping_integration_token)->toHaveLength(34)->toStartWith('1:');
-    $command = join(
-        ' ',
-        [
-            'group:seed-integration-token',
-            $this->group->slug,
-            'test_token'
-        ]
-    );
-    $this->group->refresh();
-    $this->artisan($command)->assertExitCode(0);
-    expect($this->group->dropshipping_integration_token)->not->toBe('test_token');
-});
 
-test('get dropshipping access token', function () {
-    $token = $this->group->dropshipping_integration_token;
-
-    $response = postJson(
-        route(
-            'dropshipping.connect',
-            [
-                'dropshipping_integration_token' => $token
-            ]
-        )
-    );
-
-
-    $response->assertOk();
-    $response->assertJsonStructure([
-        'token',
-    ]);
-
-    $this->token = $response->json('token');
-});
-
-test('get dropshipping shops', function () {
-    Sanctum::actingAs($this->group);
-
-    $response = getJson(
-        route(
-            'dropshipping.shops.index'
-        )
-    );
-
-    $response->assertOk();
-    $response->assertJsonStructure(['data']);
-    $response->assertJsonCount(1, 'data');
-
-    list($this->tradeUnits, $this->product) = createProduct($this->shop);
-});
 
 test('create customer client', function () {
     $customerClient = StoreCustomerClient::make()->action($this->customer, CustomerClient::factory()->definition());
@@ -143,3 +93,74 @@ test('update customer portfolio', function (DropshippingCustomerPortfolio $drops
 
     return $dropshippingCustomerPortfolio;
 })->depends('add product to customer portfolio');
+
+
+test('update group dropshipping_integration_token', function () {
+    expect($this->group->dropshipping_integration_token)->toHaveLength(34)->toStartWith('1:');
+    $command = join(
+        ' ',
+        [
+            'group:seed-integration-token',
+            $this->group->id.':test_token'
+        ]
+    );
+    $this->group->refresh();
+    $this->artisan($command)->assertExitCode(0);
+    expect($this->group->dropshipping_integration_token)->not->toBe('test_token');
+});
+
+test('get dropshipping access token', function () {
+    $token = $this->group->dropshipping_integration_token;
+
+    $response = postJson(
+        route(
+            'dropshipping.connect',
+            [
+                'token' => $token
+            ]
+        )
+    );
+
+
+    $response->assertOk();
+    $response->assertJsonStructure([
+        'api-key',
+    ]);
+
+    $this->token = $response->json('token');
+});
+
+test('api get dropshipping shops', function () {
+    Sanctum::actingAs($this->group);
+
+    $response = getJson(
+        route(
+            'dropshipping.shops.index'
+        )
+    );
+
+
+    $response->assertOk();
+    $response->assertJsonStructure(['data']);
+    $response->assertJsonCount(1, 'data');
+
+    return $response->json('data.0.id');
+
+});
+
+test('api get dropshipping shop', function ($shopId) {
+    Sanctum::actingAs($this->group);
+
+
+    $response = getJson(
+        route(
+            'dropshipping.shops.show',
+            [$shopId]
+        )
+    );
+
+    $response->assertOk();
+    $response->assertJsonStructure(['data']);
+    $response->assertJsonCount(1, 'data');
+
+})->depends('api get dropshipping shops');

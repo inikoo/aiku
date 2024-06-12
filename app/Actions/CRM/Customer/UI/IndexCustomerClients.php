@@ -25,9 +25,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexCustomerClients extends OrgAction
 {
-    private Customer $parent;
     // private bool $canCreateShop = false;
     use WithCustomerSubNavigation;
+    private Customer $parent;
 
     public function authorize(ActionRequest $request): bool
     {

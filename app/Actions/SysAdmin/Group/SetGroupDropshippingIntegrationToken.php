@@ -10,40 +10,40 @@ namespace App\Actions\SysAdmin\Group;
 use App\Models\SysAdmin\Group;
 use Exception;
 use Illuminate\Console\Command;
-use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SeedGroupDropshippingIntegrationToken
+class SetGroupDropshippingIntegrationToken
 {
     use AsAction;
 
     public function handle(Group $group, string $token): Group
     {
-        $group->update(['dropshipping_integration_token' => $group->id.':'.$token]);
+        $group->update(['dropshipping_integration_token' => $token]);
         return $group;
     }
 
 
-    public string $commandSignature = 'group:seed-integration-token {slug : The slug of the group} {token?} ';
+    public string $commandSignature = 'group:seed-integration-token  {token?} ';
 
 
     public function asCommand(Command $command): int
     {
 
+        $tokenData = explode(':', $command->argument('token'));
+        if(count($tokenData)!=2) {
+            $command->error('Invalid token format');
+            return 1;
+        }
+
+
         try {
-            $group = Group::where('slug', $command->argument('slug'))->firstOrFail();
+            $group = Group::where('id', $tokenData[0])->firstOrFail();
         } catch (Exception $exception) {
             $command->error('Group not found');
             return 1;
         }
 
-        if(!$command->argument('token')) {
-            $token= bin2hex(Str::random(32));
-        } else {
-            $token = $command->argument('token');
-        }
-
-        $group=$this->handle($group, $token);
+        $group=$this->handle($group, $command->argument('token'));
 
         $command->info('Token: '.$group->dropshipping_integration_token);
 

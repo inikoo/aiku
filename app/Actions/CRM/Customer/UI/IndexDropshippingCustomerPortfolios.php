@@ -8,12 +8,10 @@
 namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\OrgAction;
-use App\Http\Resources\CRM\CustomerClientResource;
 use App\Http\Resources\CRM\DropshippingCustomerPortfolioResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
 use App\Models\Catalogue\Shop;
-use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\DropshippingCustomerPortfolio;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -27,9 +25,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexDropshippingCustomerPortfolios extends OrgAction
 {
-    private Customer $parent;
     // private bool $canCreateShop = false;
     use WithCustomerSubNavigation;
+    private Customer $parent;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -196,7 +194,7 @@ class IndexDropshippingCustomerPortfolios extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $portfolio, ActionRequest $request): Response
     {
-        $scope     = $this->parent;
+        $scope         = $this->parent;
         $subNavigation = null;
         if ($this->parent instanceof Customer) {
             if ($this->parent->is_dropshipping == true) {

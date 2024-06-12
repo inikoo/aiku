@@ -8,8 +8,9 @@
 namespace App\Actions\Catalogue\Shop\Api;
 
 use App\Actions\GrpAction;
+use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Http\Resources\Catalogue\ShopResource;
+use App\Http\Resources\Api\Dropshipping\ShopResource;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
 use App\Services\QueryBuilder;
@@ -21,21 +22,19 @@ class IndexDropshippingShops extends GrpAction
 {
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
-        $group= $request->user();
+        $group = $request->user();
         $this->initialisation($group, $request);
+
         return $this->handle($group);
     }
 
 
     public function handle(Group $group): LengthAwarePaginator
     {
-
-
         $queryBuilder = QueryBuilder::for(Shop::class);
         $queryBuilder->where('type', '=', ShopTypeEnum::DROPSHIPPING);
         $queryBuilder->where('group_id', $group->id);
-
-
+        $queryBuilder->whereIn('state', [ShopStateEnum::OPEN, ShopStateEnum::CLOSING_DOWN]);
 
 
         return $queryBuilder

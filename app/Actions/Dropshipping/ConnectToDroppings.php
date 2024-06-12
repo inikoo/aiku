@@ -25,14 +25,14 @@ class ConnectToDroppings
     public function handle(Group $group): array
     {
         return [
-            'token' => $group->createToken('dropshipping_integration')->plainTextToken,
+            'api-key' => $group->createToken('ds-api')->plainTextToken,
         ];
     }
 
     public function rules(): array
     {
         return [
-            'dropshipping_integration_token' => ['required', 'string', 'exists:groups,dropshipping_integration_token'],
+            'token' => ['required', 'string', 'exists:groups,dropshipping_integration_token'],
         ];
     }
 
@@ -42,7 +42,7 @@ class ConnectToDroppings
 
         $validatedData = $this->validateAttributes();
 
-        $group = Group::where('dropshipping_integration_token', $validatedData['dropshipping_integration_token'])->first();
+        $group = Group::where('dropshipping_integration_token', $validatedData['token'])->first();
 
         return $this->handle($group);
     }

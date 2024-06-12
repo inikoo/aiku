@@ -6,6 +6,7 @@
  */
 
 use App\Actions\Catalogue\Shop\Api\IndexDropshippingShops;
+use App\Actions\Catalogue\Shop\Api\ShowDropshippingShop;
 use App\Actions\Dropshipping\ConnectToDroppings;
 use Illuminate\Support\Facades\Route;
 
@@ -13,6 +14,7 @@ Route::name('dropshipping.')->group(function () {
     Route::middleware(['auth:sanctum'])->group(function () {
 
         Route::get('shops', IndexDropshippingShops::class)->name('shops.index');
+        Route::get('shops/{shop:id}', ShowDropshippingShop::class)->name('shops.show');
 
 
     });
