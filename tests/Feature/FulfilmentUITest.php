@@ -89,3 +89,17 @@ test('UI Index fulfilment rentals', function () {
             ->has('breadcrumbs', 4);
     });  
 });
+
+test('UI Index fulfilment services', function () {
+    $response = $this->get(route('grp.org.fulfilments.show.assets.services.index', [$this->organisation->slug, $this->fulfilment->slug]));
+
+    expect(ServicesTabsEnum::SERVICES->value)->toBe('services');
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Rentals')
+            ->has('title')
+            ->has('tabs')
+            ->has('breadcrumbs', 4);
+    });  
+});
