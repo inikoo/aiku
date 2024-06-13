@@ -25,12 +25,12 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="select-none w-full flex flex-wrap sm:mt-0 mb-1 border-gray-300 gap-y-1 items-end text-gray-400 text-xs">
+    <div class="select-none w-full flex flex-wrap px-4 sm:mt-0 sm:mb-1 border-gray-300 sm:gap-y-1 items-end text-gray-400 text-xs">
         <!-- Tab: Home/dashboard -->
         <div v-if="dataNavigation.length"
-            class="py-1 px-1 flex items-center transition-all"
+            class="py-1 flex items-center transition-all"
             :class="[
-                layout.currentRoute === dataNavigation[0]?.href?.name ? 'text-indigo-500 px-1 bg-white sm:border-r sm:border-t rounded-t-md rounded-tl-none border-gray-300' : 'tabSubNav'
+                layout.currentRoute === dataNavigation[0]?.href?.name ? 'text-indigo-500 px-1 bg-white sm:border-r sm:border-t rounded-t-md rounded-tl-none border-gray-300' : 'tabSubNav -ml-2 md:ml-0'
             ]"
         >
             <component :is="dataNavigation[0].href?.name ? Link : 'div'" 
@@ -72,7 +72,7 @@ const props = defineProps<{
 
 <style lang="scss" scoped>
 .tabSubNavActive {
-    @apply px-1 bg-white border sm:border-b-transparent rounded-md sm:rounded-b-none sm:rounded-t-md border-gray-300;
+    @apply px-2 bg-white border sm:border-b-transparent rounded-md sm:rounded-b-none sm:rounded-t-md border-gray-300;
 
     color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 40%, black)`') !important;
 }

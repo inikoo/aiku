@@ -84,10 +84,10 @@ onMounted(() => {
 
 <template>
     <!-- <pre>{{ data }}</pre> -->
-    <div class="grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-7xl lg:grid-cols-2 lg:px-8 pt-4">
-        <!-- Section: data -->
+    <div class="grid max-w-2xl grid-cols-1 gap-x-8 gap-y-4 lg:gap-y-16 lg:max-w-7xl lg:grid-cols-2 px-4 lg:px-8 pb-10 pt-4">
+        <!-- Section: field data -->
         <dl class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 sm:gap-y-8 lg:gap-x-8">
-            <div class="col-span-2 border-t border-gray-200 pt-4">
+            <div class="col-span-2 ">
                 <dt class="font-medium">{{ blueprint.note.label }}</dt>
                 <dd class="mt-2 text-sm text-gray-500 text-justify">
                     <PureTextarea :modelValue="blueprint.note.value" :rows="5" :placeholder="trans('No note from customer.')" disabled />
@@ -141,11 +141,10 @@ onMounted(() => {
                     <span v-else class="text-gray-400 italic">No items in this pallet.</span>
                 </dd>
             </div>
-
         </dl>
 
         <!-- Section: Barcode -->
-        <div class="flex justify-end gap-4 sm:gap-6 lg:gap-8">
+        <div class="row-start-1 lg:row-start-auto flex justify-center lg:justify-end gap-4 sm:gap-6 lg:gap-8">
             <svg id="palletBarcode" class="rounded-lg bg-gray-100" />
         </div>
     </div>

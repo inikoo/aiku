@@ -9,9 +9,11 @@ export interface Action {
     iconRight?: string | string[]
     style?: string
     route?: routeType
+    href?: routeType  // Safety for old code, should be in 'route' 
     tooltip?: string
     button?: Button[]
     target?: string  // '_blank'
+    disabled?: boolean  // To open modal purpose in page heading (Fulfilment - Customer - Add delivery)
     
     buttonGroup?: {
         // If type = buttonGroup
