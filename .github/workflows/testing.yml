@@ -31,8 +31,6 @@ jobs:
           ln -s ../../../../../artifacts/fa .
       - name: Generate database dumps 📚
         run: ./generate_testing_db_dumps.sh php8.3 aiku
-      - name: build app
-        run: npm run build
       - name: Run test
         run: vendor/bin/pest -d memory_limit=-1 --coverage-clover clover.xml --exclude-group=aurora-fetch
       - name: Upload coverage to Codecov
