@@ -40,7 +40,7 @@ const originUrl = location.origin
     <!-- Sub Navigation -->
     <SubNavigation v-if="data.subNavigation?.length" :dataNavigation="data.subNavigation" />
     
-    <div class="mx-4 py-4 md:pb-2 md:pt-3 lg:py-2 grid grid-flow-col justify-between items-center">
+    <div class="mx-4 pt-2 pb-4 sm:py-4 md:pb-2 md:pt-3 lg:py-2 grid grid-flow-col justify-between items-center">
         <div class="">
 
             <!-- Section: Main Title -->
@@ -62,27 +62,28 @@ const originUrl = location.origin
                         :icon="data.icon.icon || data.icon"
                         size="sm"
                         fixed-width />
-
                 </div>
                 
-                <h2 :class="data.noCapitalise ? '' : 'capitalize'">
-                    <span v-if="data.model" class="text-gray-400 mr-2 font-medium block sm:inline">{{ data.model }}</span>
-                    <span>{{ data.title }}</span>
-                </h2>
-                
-                <FontAwesomeIcon v-if="data.iconRight"
-                    v-tooltip="data.iconRight.tooltip || ''"
-                    :icon="data.iconRight.icon" class="h-4" :class="data.iconRight.class"
-                    aria-hidden="true"
-                />
-                
-
-                <!-- Section: After Title -->
-                <slot name="afterTitle">
-                    <div v-if="data.after_title" class="text-gray-400 font-normal text-lg leading-none">
-                        {{ data.after_title.label }}
-                    </div>
-                </slot>
+                <div class="flex flex-col sm:flex-row gap-y-1.5 gap-x-3">
+                    <h2 :class="data.noCapitalise ? '' : 'capitalize'" class="">
+                        <span v-if="data.model" class="text-gray-400 mr-2 font-medium block sm:inline">{{ data.model }}</span>
+                        <span class="mt-1 sm:mt-0 inline-block">{{ data.title }}</span>
+                    </h2>
+                    
+                    <!-- Section: After Title -->
+                    <slot name="afterTitle">
+                        <div class="flex gap-x-2 items-center">
+                            <FontAwesomeIcon v-if="data.iconRight"
+                                v-tooltip="data.iconRight.tooltip || ''"
+                                :icon="data.iconRight.icon" class="h-4" :class="data.iconRight.class"
+                                aria-hidden="true"
+                            />
+                            <div v-if="data.after_title" class="text-gray-400 font-normal text-lg leading-none">
+                                {{ data.after_title.label }}
+                            </div>
+                        </div>
+                    </slot>
+                </div>
             </div>
 
             <!-- Section: mini Tabs -->

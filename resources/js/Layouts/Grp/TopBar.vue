@@ -59,7 +59,7 @@ const label = {
 </script>
 
 <template>
-    <Disclosure as="nav" class=" fixed top-0 z-[21] w-full bg-gray-50 text-gray-700" v-slot="{ open }">
+    <Disclosure as="nav" class="fixed top-0 z-[21] w-full bg-gray-50 text-gray-700" v-slot="{ open }">
         <div class="px-0">
             <div class="flex h-11 lg:h-10 flex-shrink-0">
                 <div class="flex">
