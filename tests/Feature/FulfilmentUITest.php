@@ -97,7 +97,7 @@ test('UI Index fulfilment services', function () {
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Fulfilment/Rentals')
+            ->component('Org/Fulfilment/Services')
             ->has('title')
             ->has('tabs')
             ->has('breadcrumbs', 4);
