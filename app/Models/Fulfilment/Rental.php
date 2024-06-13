@@ -94,6 +94,11 @@ class Rental extends Model implements Auditable
         'data'     => '{}',
         'settings' => '{}',
     ];
+    
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     public function getSlugOptions(): SlugOptions
     {

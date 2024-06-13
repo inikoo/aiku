@@ -92,6 +92,11 @@ class Service extends Model implements Auditable
         'settings' => '{}',
     ];
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+    
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()

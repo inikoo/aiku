@@ -79,6 +79,7 @@ class IndexFulfilmentRentals extends OrgAction
             ->defaultSort('rentals.id')
             ->select([
                 'rentals.id',
+                'rentals.slug',
                 'rentals.state',
                 'rentals.auto_assign_asset',
                 'rentals.auto_assign_asset_type',

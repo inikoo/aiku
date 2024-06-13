@@ -7,7 +7,6 @@
 
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
-use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -34,10 +33,6 @@ class GroupHydrateCustomerClients
             'number_customer_clients'                            => $group->clients()->count(),
             'number_current_customer_clients'                    => $group->clients()->where('status', true)->count()
         ];
-
-        foreach (ProductStateEnum::cases() as $case) {
-            $stats['number_products_state_'.$case->snake()] = $group->products()->where('state', $case->value)->count();
-        }
 
         $group->dropshippingStats()->update($stats);
     }

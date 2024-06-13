@@ -26,6 +26,7 @@ class FetchAuroraPurchaseOrder extends FetchAurora
 
 
         if (in_array($this->auroraModelData->{'Purchase Order Parent'}, ['Parcel', 'Container'])) {
+            print_r($this->auroraModelData);
             return;
         }
 
@@ -54,17 +55,23 @@ class FetchAuroraPurchaseOrder extends FetchAurora
                 ->where("Supplier Key", $this->auroraModelData->{'Purchase Order Parent Key'})
                 ->first();
 
-            if ($supplierData) {
 
-                if($supplierData->aiku_ignore) {
+            if ($supplierData) {
+                if($supplierData->aiku_ignore=='Yes') {
+
+                   // print $this->auroraModelData->{'Purchase Order Key'}.' '.$this->auroraModelData->{'Purchase Order Parent'}.' '.$this->auroraModelData->{'Purchase Order Parent Key'}.' '.$supplierData->{'Supplier Name'}. " is ignored\n";
+
                     return;
                 }
 
                 $supplierSourceSlug = Str::kebab(strtolower($supplierData->{'Supplier Code'}));
+
+
                 $parent             = $this->parseSupplier(
                     $supplierSourceSlug,
                     $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Parent Key'}
                 );
+
             } else {
                 $parent = FetchAuroraDeletedSuppliers::run($this->organisationSource, $this->auroraModelData->{'Purchase Order Parent Key'});
             }

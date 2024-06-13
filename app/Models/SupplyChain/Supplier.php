@@ -109,12 +109,13 @@ class Supplier extends Model implements HasMedia, Auditable
         'settings'    => 'array',
         'location'    => 'array',
         'status'      => 'boolean',
+        'archived_at' => 'datetime'
     ];
 
     protected $attributes = [
-        'data'        => '{}',
-        'settings'    => '{}',
-        'location'    => '{}',
+        'data'     => '{}',
+        'settings' => '{}',
+        'location' => '{}',
 
     ];
 

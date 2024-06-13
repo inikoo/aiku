@@ -44,7 +44,7 @@ class FetchAuroraStockDelivery extends FetchAurora
 
             if ($supplierData) {
 
-                if($supplierData->aiku_ignore) {
+                if($supplierData->aiku_ignore=='Yes') {
                     return;
                 }
 

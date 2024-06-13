@@ -61,6 +61,7 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
                     return $purchaseOrder;
                 }
                 print "Warning purchase order ".$purchaseOrderData['purchase_order']['number']."  Id:$organisationSourceId do not have parent\n";
+                dd($purchaseOrderData);
             }
         }
 

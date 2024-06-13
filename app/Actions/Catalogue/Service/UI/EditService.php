@@ -14,6 +14,7 @@ use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\Fulfilment\Rental;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -22,9 +23,9 @@ use Spatie\LaravelOptions\Options;
 
 class EditService extends OrgAction
 {
-    public function handle(Asset $product): Asset
+    public function handle(Service $service): Service
     {
-        return $product;
+        return $service;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -50,32 +51,32 @@ class EditService extends OrgAction
     //     return $this->handle($product);
     // }
 
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Service $service, ActionRequest $request): Asset
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Service $service, ActionRequest $request): Service
     {
         $this->parent= $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
-        return $this->handle($service->product);
+        return $this->handle($service);
     }
 
     /**
      * @throws \Exception
      */
-    public function htmlResponse(Asset $product, ActionRequest $request): Response
+    public function htmlResponse(Service $service, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('product'),
+                'title'       => __('service'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
                 'navigation'                            => [
-                    'previous' => $this->getPrevious($product, $request),
-                    'next'     => $this->getNext($product, $request),
+                    'previous' => $this->getPrevious($service, $request),
+                    'next'     => $this->getNext($service, $request),
                 ],
                 'pageHead'    => [
-                    'title'    => $product->code,
+                    'title'    => $service->code,
                     'icon'     =>
                         [
                             'icon'  => ['fal', 'fa-cube'],
@@ -100,29 +101,36 @@ class EditService extends OrgAction
                                 'code' => [
                                     'type'  => 'input',
                                     'label' => __('code'),
-                                    'value' => $product->code
+                                    'value' => $service->code,
+                                    'readonly' => true
                                 ],
                                 'name' => [
                                     'type'  => 'input',
                                     'label' => __('label'),
-                                    'value' => $product->name
+                                    'value' => $service->name,
+                                    'readonly' => true
                                 ],
                                 'description' => [
                                     'type'  => 'input',
                                     'label' => __('description'),
-                                    'value' => $product->description
+                                    'value' => $service->description
+                                ],
+                                'unit' => [
+                                    'type'     => 'input',
+                                    'label'    => __('unit'),
+                                    'value'    => $service->unit,
+                                    'readonly' => true
                                 ],
                                 'units' => [
-                                    'type'     => 'select',
+                                    'type'     => 'input',
                                     'label'    => __('units'),
-                                    'value'    => $product->service->unit,
-                                    'options'  => Options::forEnum(RentalUnitEnum::class)
+                                    'value'    => $service->units,
                                 ],
                                 'price' => [
                                     'type'    => 'input',
                                     'label'   => __('price'),
                                     'required'=> true,
-                                    'value'   => $product->service->price
+                                    'value'   => $service->price
                                 ],
                                 // 'type' => [
                                 //     'type'          => 'select',
@@ -140,7 +148,7 @@ class EditService extends OrgAction
                     'args'      => [
                         'updateRoute' => [
                             'name'       => 'grp.models.product.update',
-                            'parameters' => $product->id
+                            'parameters' => $service->id
 
                         ],
                     ]
@@ -159,42 +167,42 @@ class EditService extends OrgAction
         );
     }
 
-    public function getPrevious(Asset $product, ActionRequest $request): ?array
+    public function getPrevious(Service $service, ActionRequest $request): ?array
     {
-        $previous = Asset::where('slug', '<', $product->slug)->orderBy('slug', 'desc')->first();
+        $previous = Service::where('slug', '<', $service->slug)->orderBy('slug', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
 
-    public function getNext(Asset $product, ActionRequest $request): ?array
+    public function getNext(Service $service, ActionRequest $request): ?array
     {
-        $next = Asset::where('slug', '>', $product->slug)->orderBy('slug')->first();
+        $next = Service::where('slug', '>', $service->slug)->orderBy('slug')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
-    private function getNavigation(?Asset $product, string $routeName): ?array
+    private function getNavigation(?Service $service, string $routeName): ?array
     {
-        if(!$product) {
+        if(!$service) {
             return null;
         }
         return match ($routeName) {
             'shops.products.edit'=> [
-                'label'=> $product->name,
+                'label'=> $service->name,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'product'=> $product->slug
+                        'product'=> $service->slug
                     ]
 
                 ]
             ],
             'shops.show.products.edit'=> [
-                'label'=> $product->name,
+                'label'=> $service->name,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'shop'   => $product->shop->slug,
-                        'product'=> $product->slug
+                        'shop'   => $service->shop->slug,
+                        'product'=> $service->slug
                     ]
 
                 ]

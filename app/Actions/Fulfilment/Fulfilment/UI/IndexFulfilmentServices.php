@@ -79,6 +79,7 @@ class IndexFulfilmentServices extends OrgAction
             ->defaultSort('services.id')
             ->select([
                 'services.id',
+                'services.slug',
                 'services.state',
                 'services.created_at',
                 'services.price',

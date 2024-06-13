@@ -25,6 +25,8 @@ use App\Models\Catalogue\Subscription;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Dispatching\Shipper;
+use App\Models\Dropshipping\CustomerClient;
+use App\Models\Dropshipping\DropshippingCustomerPortfolio;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\RecurringBill;
@@ -583,5 +585,15 @@ class Organisation extends Model implements HasMedia, Auditable
     public function outboxes(): HasMany
     {
         return $this->hasMany(Outbox::class);
+    }
+
+    public function dropshippingCustomerPortfolios(): HasMany
+    {
+        return $this->hasMany(DropshippingCustomerPortfolio::class);
+    }
+
+    public function clients(): HasMany
+    {
+        return $this->hasMany(CustomerClient::class);
     }
 }

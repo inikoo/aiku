@@ -25,8 +25,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexCustomerClients extends OrgAction
 {
-    private Customer $parent;
     // private bool $canCreateShop = false;
+    use WithCustomerSubNavigation;
+    private Customer $parent;
 
     public function authorize(ActionRequest $request): bool
     {
@@ -197,7 +198,12 @@ class IndexCustomerClients extends OrgAction
     {
         $scope     = $this->parent;
 
-
+        $subNavigation = null;
+        if ($this->parent instanceof Customer) {
+            if ($this->parent->is_dropshipping == true) {
+                $subNavigation = $this->getCustomerSubNavigation($this->parent);
+            }
+        }
         return Inertia::render(
             'Org/Shop/CRM/CustomerClients',
             [
@@ -228,6 +234,7 @@ class IndexCustomerClients extends OrgAction
                             ]
                         ],
                     ],
+                    'subNavigation' => $subNavigation,
                 ],
                 'data'        => CustomerClientResource::collection($customerClients),
 
