@@ -22,9 +22,9 @@ use Spatie\LaravelOptions\Options;
 
 class EditRental extends OrgAction
 {
-    public function handle(Asset $product): Asset
+    public function handle(Rental $rental): Rental
     {
-        return $product;
+        return $rental;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -50,36 +50,36 @@ class EditRental extends OrgAction
     //     return $this->handle($product);
     // }
 
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Rental $rental, ActionRequest $request): Asset
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Rental $rental, ActionRequest $request): Rental
     {
         $this->parent= $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
-        return $this->handle($rental->product);
+        return $this->handle($rental);
     }
 
     /**
      * @throws \Exception
      */
-    public function htmlResponse(Asset $product, ActionRequest $request): Response
+    public function htmlResponse(Rental $rental, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('product'),
+                'title'       => __('rental'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
                 'navigation'                            => [
-                    'previous' => $this->getPrevious($product, $request),
-                    'next'     => $this->getNext($product, $request),
+                    'previous' => $this->getPrevious($rental, $request),
+                    'next'     => $this->getNext($rental, $request),
                 ],
                 'pageHead'    => [
-                    'title'    => $product->code,
+                    'title'    => $rental->code,
                     'icon'     =>
                         [
                             'icon'  => ['fal', 'fa-cube'],
-                            'title' => __('product')
+                            'title' => __('rental')
                         ],
                     'actions'  => [
                         [
@@ -100,29 +100,36 @@ class EditRental extends OrgAction
                                 'code' => [
                                     'type'  => 'input',
                                     'label' => __('code'),
-                                    'value' => $product->code
+                                    'value' => $rental->code,
+                                    'readonly' => true
                                 ],
                                 'name' => [
                                     'type'  => 'input',
                                     'label' => __('label'),
-                                    'value' => $product->name
+                                    'value' => $rental->name,
+                                    'readonly' => true
                                 ],
                                 'description' => [
                                     'type'  => 'input',
                                     'label' => __('description'),
-                                    'value' => $product->description
+                                    'value' => $rental->description
+                                ],
+                                'unit' => [
+                                    'type'     => 'select',
+                                    'label'    => __('unit'),
+                                    'value'    => $rental->unit,
+                                    'options'  => Options::forEnum(RentalUnitEnum::class)
                                 ],
                                 'units' => [
-                                    'type'     => 'select',
+                                    'type'     => 'input',
                                     'label'    => __('units'),
-                                    'value'    => $product->rental->unit,
-                                    'options'  => Options::forEnum(RentalUnitEnum::class)
+                                    'value'    => $rental->units,
                                 ],
                                 'price' => [
                                     'type'    => 'input',
                                     'label'   => __('price'),
                                     'required'=> true,
-                                    'value'   => $product->rental->price
+                                    'value'   => $rental->price
                                 ],
                                 // 'type' => [
                                 //     'type'          => 'select',
@@ -140,7 +147,7 @@ class EditRental extends OrgAction
                     'args'      => [
                         'updateRoute' => [
                             'name'       => 'grp.models.product.update',
-                            'parameters' => $product->id
+                            'parameters' => $rental->id
 
                         ],
                     ]
@@ -159,42 +166,42 @@ class EditRental extends OrgAction
         );
     }
 
-    public function getPrevious(Asset $product, ActionRequest $request): ?array
+    public function getPrevious(Rental $rental, ActionRequest $request): ?array
     {
-        $previous = Asset::where('slug', '<', $product->slug)->orderBy('slug', 'desc')->first();
+        $previous = Rental::where('slug', '<', $rental->slug)->orderBy('slug', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
 
-    public function getNext(Asset $product, ActionRequest $request): ?array
+    public function getNext(Rental $rental, ActionRequest $request): ?array
     {
-        $next = Asset::where('slug', '>', $product->slug)->orderBy('slug')->first();
+        $next = Rental::where('slug', '>', $rental->slug)->orderBy('slug')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
-    private function getNavigation(?Asset $product, string $routeName): ?array
+    private function getNavigation(?Rental $rental, string $routeName): ?array
     {
-        if(!$product) {
+        if(!$rental) {
             return null;
         }
         return match ($routeName) {
             'shops.products.edit'=> [
-                'label'=> $product->name,
+                'label'=>$rental->name,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'product'=> $product->slug
+                        'product'=> $rental->slug
                     ]
 
                 ]
             ],
             'shops.show.products.edit'=> [
-                'label'=> $product->name,
+                'label'=> $rental->name,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [
-                        'shop'   => $product->shop->slug,
-                        'product'=> $product->slug
+                        'shop'   => $rental->shop->slug,
+                        'product'=> $rental->slug
                     ]
 
                 ]
