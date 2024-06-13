@@ -10,12 +10,9 @@ namespace App\Actions\Catalogue\Product\UI;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
-use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Models\Catalogue\Asset;
-use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\Rental;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -100,9 +97,9 @@ class EditPhysicalGoods extends OrgAction
                             'title'  => __('id'),
                             'fields' => [
                                 'code' => [
-                                    'type'  => 'input',
-                                    'label' => __('code'),
-                                    'value' => $asset->code,
+                                    'type'     => 'input',
+                                    'label'    => __('code'),
+                                    'value'    => $asset->code,
                                     'readonly' => true
                                 ],
                                 'name' => [

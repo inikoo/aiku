@@ -101,7 +101,7 @@ class ShowWebUser extends OrgAction
                     ],
 
                 ],
-                'webUser'     => new WebUserResource($webUser)
+                'data'     => new WebUserResource($webUser)
             ]
         );
     }

@@ -95,7 +95,7 @@ class Fulfilment extends Model
 
     public function warehouses(): BelongsToMany
     {
-        return $this->belongsToMany(Warehouse::class);
+        return $this->belongsToMany(Warehouse::class)->withTimestamps();
     }
 
     public function serialReferences(): MorphMany

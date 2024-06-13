@@ -16,7 +16,7 @@ enum FulfilmentAssetTabsEnum: string
     use HasTabs;
 
     case SHOWCASE   = 'showcase';
-    case HISTORY = 'history';
+    case HISTORY    = 'history';
 
 
 
