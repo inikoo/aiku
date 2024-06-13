@@ -49,7 +49,7 @@ function loadDB(): void
         env('DB_USERNAME').' '.
         env('DB_PASSWORD').' '.
         env('DB_HOST').
-        ' tests/datasets/db_dumps/aiku'
+        ' tests/datasets/db_dumps/aiku.dump'
     );
 }
 

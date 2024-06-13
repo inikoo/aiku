@@ -25,6 +25,5 @@ echo "🌱 Migrating and seeding database"
 ${PHP} artisan --env=testing migrate
 ${PHP} artisan --env=testing db:seed
 echo -e "💾 Saving ${PURPLE}fresh_with_assets.dump${NONE}"
-rm -rf tests/datasets/db_dumps/aiku
-pg_dump -j 16 -Fd -p "${DB_PORT}" -U "${USER}"  -f "tests/datasets/db_dumps/aiku" ${DB}
+pg_dump -Fc -p "${DB_PORT}" -U "${USER}" -f "tests/datasets/db_dumps/aiku.dump" ${DB}
 echo "Test DB dumped 👍"
