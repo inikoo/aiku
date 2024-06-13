@@ -32,6 +32,7 @@ class PhysicalGoodsResource extends JsonResource
             'id'                     => $this->id,
             'code'                   => $this->code,
             'name'                   => $this->name,
+            'slug'                   => $this->slug,
             'price'                  => $this->price,
             'currency_code'          => $this->currency_code,
             'unit'                   => $this->unit,

@@ -42,6 +42,6 @@ Route::get('services/{service}/edit', [EditService::class, 'inFulfilment'])->nam
 
 Route::get('physical-goods', IndexFulfilmentPhysicalGoods::class)->name('outers.index');
 Route::get('physical-goods/create', CreatePhysicalGoods::class)->name('outers.create');
-Route::get('physical-goods/{outer:id}', [ShowPhysicalGoods::class, 'inFulfilment'])->name('outers.show')->withoutScopedBindings();
+Route::get('physical-goods/{asset}', [ShowPhysicalGoods::class, 'inFulfilment'])->name('outers.show')->withoutScopedBindings();
 
 Route::get('shipping', IndexDummies::class)->name('shipping.index');
