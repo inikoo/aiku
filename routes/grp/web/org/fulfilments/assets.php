@@ -6,6 +6,7 @@
  */
 
 use App\Actions\Catalogue\Product\UI\CreatePhysicalGoods;
+use App\Actions\Catalogue\Product\UI\EditPhysicalGoods;
 use App\Actions\Catalogue\Product\UI\ShowPhysicalGoods;
 use App\Actions\Catalogue\Product\UI\ShowProduct;
 use App\Actions\Catalogue\Service\UI\CreateService;
@@ -42,6 +43,7 @@ Route::get('services/{service}/edit', [EditService::class, 'inFulfilment'])->nam
 
 Route::get('physical-goods', IndexFulfilmentPhysicalGoods::class)->name('outers.index');
 Route::get('physical-goods/create', CreatePhysicalGoods::class)->name('outers.create');
-Route::get('physical-goods/{asset}', [ShowPhysicalGoods::class, 'inFulfilment'])->name('outers.show')->withoutScopedBindings();
+Route::get('physical-goods/{asset}', [ShowPhysicalGoods::class, 'inFulfilment'])->name('outers.show');
+Route::get('physical-goods/{asset}/edit', [EditPhysicalGoods::class, 'inFulfilment'])->name('outers.edit');
 
 Route::get('shipping', IndexDummies::class)->name('shipping.index');
