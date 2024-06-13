@@ -103,3 +103,12 @@ test('UI Index fulfilment services', function () {
             ->has('breadcrumbs', 4);
     });  
 });
+
+test('UI create fulfilment customer', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.create', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 4);
+    });
+});
