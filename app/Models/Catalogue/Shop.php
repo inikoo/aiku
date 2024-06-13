@@ -23,6 +23,8 @@ use App\Models\CRM\Appointment;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Deals\OfferCampaign;
+use App\Models\Dropshipping\CustomerClient;
+use App\Models\Dropshipping\DropshippingCustomerPortfolio;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Rental;
 use App\Models\Helpers\Address;
@@ -422,4 +424,13 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasOne(ShopDropshippingStat::class);
     }
 
+    public function dropshippingCustomerPortfolios(): HasMany
+    {
+        return $this->hasMany(DropshippingCustomerPortfolio::class);
+    }
+
+    public function clients(): HasMany
+    {
+        return $this->hasMany(CustomerClient::class);
+    }
 }
