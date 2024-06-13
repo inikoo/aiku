@@ -8,7 +8,6 @@
 namespace App\Actions\Catalogue\Product\UI;
 
 use App\Models\Catalogue\Asset;
-use App\Models\Catalogue\Service;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetPhysicalGoodShowcase

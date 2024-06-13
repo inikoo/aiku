@@ -98,15 +98,15 @@ class EditRental extends OrgAction
                             'title'  => __('id'),
                             'fields' => [
                                 'code' => [
-                                    'type'  => 'input',
-                                    'label' => __('code'),
-                                    'value' => $rental->code,
+                                    'type'     => 'input',
+                                    'label'    => __('code'),
+                                    'value'    => $rental->code,
                                     'readonly' => true
                                 ],
                                 'name' => [
-                                    'type'  => 'input',
-                                    'label' => __('label'),
-                                    'value' => $rental->name,
+                                    'type'     => 'input',
+                                    'label'    => __('label'),
+                                    'value'    => $rental->name,
                                     'readonly' => true
                                 ],
                                 'description' => [
@@ -186,7 +186,7 @@ class EditRental extends OrgAction
         }
         return match ($routeName) {
             'shops.products.edit'=> [
-                'label'=>$rental->name,
+                'label'=> $rental->name,
                 'route'=> [
                     'name'      => $routeName,
                     'parameters'=> [

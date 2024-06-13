@@ -9,21 +9,11 @@ namespace App\Actions\Catalogue\Product\UI;
 
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
-use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentAssets;
-use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
-use App\Actions\Mail\Mailshot\UI\IndexMailshots;
-use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
-use App\Enums\UI\Catalogue\ProductTabsEnum;
-use App\Enums\UI\Catalogue\ServiceTabsEnum;
 use App\Enums\UI\Fulfilment\FulfilmentAssetTabsEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
-use App\Http\Resources\CRM\CustomersResource;
-use App\Http\Resources\Mail\MailshotResource;
-use App\Http\Resources\Sales\OrderResource;
 use App\Models\Catalogue\Asset;
-use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
@@ -281,7 +271,7 @@ class ShowPhysicalGoods extends OrgAction
                     'parameters' => [
                         'organisation' => $this->parent->slug,
                         'fulfilment'   => $asset->shop->slug,
-                        'asset'      => $asset->slug,
+                        'asset'        => $asset->slug,
                     ],
                 ],
             ],

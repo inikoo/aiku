@@ -59,7 +59,7 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             if ($supplierData) {
                 if($supplierData->aiku_ignore=='Yes') {
 
-                   // print $this->auroraModelData->{'Purchase Order Key'}.' '.$this->auroraModelData->{'Purchase Order Parent'}.' '.$this->auroraModelData->{'Purchase Order Parent Key'}.' '.$supplierData->{'Supplier Name'}. " is ignored\n";
+                    // print $this->auroraModelData->{'Purchase Order Key'}.' '.$this->auroraModelData->{'Purchase Order Parent'}.' '.$this->auroraModelData->{'Purchase Order Parent Key'}.' '.$supplierData->{'Supplier Name'}. " is ignored\n";
 
                     return;
                 }

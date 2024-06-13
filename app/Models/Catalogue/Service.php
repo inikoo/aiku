@@ -96,7 +96,7 @@ class Service extends Model implements Auditable
     {
         return 'slug';
     }
-    
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()

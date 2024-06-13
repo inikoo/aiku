@@ -40,7 +40,7 @@ class SyncPhysicalGoodToPalletDelivery extends OrgAction
     public function rules(): array
     {
         return [
-            'outer_id'   => ['required', 'integer', Rule::exists('outers', 'id')],
+            'outer_id'   => ['required', 'integer', Rule::exists('products', 'id')],
             'quantity'   => ['required', 'integer', 'min:1']
         ];
     }

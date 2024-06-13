@@ -53,8 +53,8 @@ class IndexServiceInPalletReturn extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for($parent->services());
-        $queryBuilder->join('products', 'services.product_id', '=', 'products.id');
-        $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
+        $queryBuilder->join('assets', 'services.asset_id', '=', 'assets.id');
+        $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -73,10 +73,10 @@ class IndexServiceInPalletReturn extends OrgAction
                 'services.created_at',
                 'services.price',
                 'services.unit',
-                'products.name',
-                'products.code',
-                'products.price',
-                'products.description',
+                'assets.name',
+                'assets.code',
+                'assets.price',
+                'assets.description',
                 'currencies.code as currency_code',
                 'pallet_return_services.quantity'
             ]);
