@@ -53,7 +53,7 @@ class IndexPhysicalGoodInPalletReturn extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for($parent->physicalGoods());
-        $queryBuilder->join('products', 'outers.product_id', '=', 'products.id');
+        $queryBuilder->join('assets', 'products.asset_id', '=', 'assets.id');
         $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
@@ -66,11 +66,11 @@ class IndexPhysicalGoodInPalletReturn extends OrgAction
         }
 
         $queryBuilder
-            ->defaultSort('outers.id')
+            ->defaultSort('products.id')
             ->select([
-                'outers.id',
-                'outers.name',
-                'outers.code',
+                'products.id',
+                'products.name',
+                'products.code',
                 'products.price',
                 'products.description',
                 'currencies.code as currency_code',

@@ -9,12 +9,10 @@ namespace App\Actions\Catalogue\Service\UI;
 
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
-use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\Rental;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -99,15 +97,15 @@ class EditService extends OrgAction
                             'title'  => __('id'),
                             'fields' => [
                                 'code' => [
-                                    'type'  => 'input',
-                                    'label' => __('code'),
-                                    'value' => $service->code,
+                                    'type'     => 'input',
+                                    'label'    => __('code'),
+                                    'value'    => $service->code,
                                     'readonly' => true
                                 ],
                                 'name' => [
-                                    'type'  => 'input',
-                                    'label' => __('label'),
-                                    'value' => $service->name,
+                                    'type'     => 'input',
+                                    'label'    => __('label'),
+                                    'value'    => $service->name,
                                     'readonly' => true
                                 ],
                                 'description' => [

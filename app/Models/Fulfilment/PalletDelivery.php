@@ -162,7 +162,7 @@ class PalletDelivery extends Model
 
     public function physicalGoods(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'pallet_delivery_physical_goods')
+        return $this->belongsToMany(Product::class, 'pallet_delivery_physical_goods', 'pallet_delivery_id', 'outer_id')
             ->withTimestamps();
     }
 

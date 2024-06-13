@@ -7,7 +7,6 @@
 
 namespace App\Actions\Fulfilment\Rental\UI;
 
-use App\Models\Catalogue\Service;
 use App\Models\Fulfilment\Rental;
 use Lorisleiva\Actions\Concerns\AsObject;
 
