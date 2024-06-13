@@ -28,7 +28,7 @@ function rentalRoute(rental: {}) {
         case "grp.org.fulfilments.show.assets.rentals.index":
             return route(
                 'grp.org.fulfilments.show.assets.rentals.show',
-                [route().params['organisation'], route().params['fulfilment'], rental.id])
+                [route().params['organisation'], route().params['fulfilment'], rental.slug])
         default:
             return null
     }

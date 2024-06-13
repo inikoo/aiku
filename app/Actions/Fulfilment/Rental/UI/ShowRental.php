@@ -11,14 +11,17 @@ use App\Actions\Catalogue\Product\UI\GetProductShowcase;
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
+use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentAssets;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Mail\Mailshot\UI\IndexMailshots;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Enums\UI\Catalogue\ServiceTabsEnum;
+use App\Enums\UI\Fulfilment\FulfilmentRentalTabsEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\CRM\CustomersResource;
+use App\Http\Resources\Fulfilment\RentalsResource;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\Models\Catalogue\Asset;
@@ -35,9 +38,9 @@ class ShowRental extends OrgAction
 {
     private Organisation|Shop|Fulfilment|ProductCategory $parent;
 
-    public function handle(Asset $product): Asset
+    public function handle(Rental $rental): Rental
     {
-        return $product;
+        return $rental;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -59,51 +62,51 @@ class ShowRental extends OrgAction
 
     }
 
-    public function inOrganisation(Organisation $organisation, Asset $product, ActionRequest $request): Asset
+    public function inOrganisation(Organisation $organisation, Rental $rental, ActionRequest $request): Rental
     {
         $this->parent= $organisation;
-        $this->initialisation($organisation, $request)->withTab(ProductTabsEnum::values());
-        return $this->handle($product);
+        $this->initialisation($organisation, $request)->withTab(FulfilmentRentalTabsEnum::values());
+        return $this->handle($rental);
     }
 
-    public function asController(Organisation $organisation, Shop $shop, Asset $product, ActionRequest $request): Asset
+    public function asController(Organisation $organisation, Shop $shop, Rental $rental, ActionRequest $request): Rental
     {
         $this->parent= $shop;
-        $this->initialisationFromShop($shop, $request)->withTab(ProductTabsEnum::values());
-        return $this->handle($product);
+        $this->initialisationFromShop($shop, $request)->withTab(FulfilmentRentalTabsEnum::values());
+        return $this->handle($rental);
     }
 
-    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, Asset $product, ActionRequest $request): Asset
+    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, Rental $rental, ActionRequest $request): Rental
     {
         $this->parent= $department;
-        $this->initialisationFromShop($shop, $request)->withTab(ProductTabsEnum::values());
+        $this->initialisationFromShop($shop, $request)->withTab(FulfilmentRentalTabsEnum::values());
 
-        return $this->handle($product);
+        return $this->handle($rental);
     }
 
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Rental $rental, ActionRequest $request): Asset
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Rental $rental, ActionRequest $request): Rental
     {
         $this->parent= $fulfilment;
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(ProductTabsEnum::values());
-        return $this->handle($rental->product);
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(FulfilmentRentalTabsEnum::values());
+        return $this->handle($rental);
     }
 
-    public function htmlResponse(Asset $product, ActionRequest $request): Response
+    public function htmlResponse(Rental $rental, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Catalogue/Asset',
+            'Org/Fulfilment/Rental',
             [
-                'title'       => __('product'),
+                'title'       => __('rental'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'                            => [
-                    'previous' => $this->getPrevious($product, $request),
-                    'next'     => $this->getNext($product, $request),
+                'navigation'   => [
+                    'previous' => $this->getPrevious($rental, $request),
+                    'next'     => $this->getNext($rental, $request),
                 ],
                 'pageHead'    => [
-                    'title'   => $product->code,
+                    'title'   => $rental->code,
                     'model'   => __('rental'),
                     'icon'    =>
                         [
@@ -131,58 +134,25 @@ class ShowRental extends OrgAction
                 ],
                 'tabs'=> [
                     'current'    => $this->tab,
-                    'navigation' => ServiceTabsEnum::navigation()
+                    'navigation' => FulfilmentRentalTabsEnum::navigation()
                 ],
 
 
-                ServiceTabsEnum::SHOWCASE->value => $this->tab == ServiceTabsEnum::SHOWCASE->value ?
-                    fn () => GetProductShowcase::run($product)
-                    : Inertia::lazy(fn () => GetProductShowcase::run($product)),
-
-                ServiceTabsEnum::ORDERS->value => $this->tab == ServiceTabsEnum::ORDERS->value ?
-                    fn () => OrderResource::collection(IndexOrders::run($product))
-                    : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($product))),
-
-                ServiceTabsEnum::CUSTOMERS->value => $this->tab == ServiceTabsEnum::CUSTOMERS->value ?
-                    fn () => CustomersResource::collection(IndexCustomers::run($product))
-                    : Inertia::lazy(fn () => CustomersResource::collection(IndexCustomers::run($product))),
-
-                ServiceTabsEnum::MAILSHOTS->value => $this->tab == ServiceTabsEnum::MAILSHOTS->value ?
-                    fn () => MailshotResource::collection(IndexMailshots::run($product))
-                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($product))),
-
-                // ProductTabsEnum::SERVICE->value => $this->tab == ProductTabsEnum::SERVICE->value ?
-                //     fn () => GetProductService::run($product)
-                //     : Inertia::lazy(fn () => GetProductService::run($product)),
-
-                // ProductTabsEnum::RENTAL->value => $this->tab == ProductTabsEnum::RENTAL->value ?
-                //     fn () => GetProductRental::run($product)
-                //     : Inertia::lazy(fn () => GetProductRental::run($product)),
-
-                // ProductTabsEnum::SERVICE->value => $this->tab == ProductTabsEnum::SERVICE->value ?
-                //     fn () => MailshotResource::collection(IndexMailshots::run($product))
-                //     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($product))),
-
-                /*
-                ProductTabsEnum::IMAGES->value => $this->tab == ProductTabsEnum::IMAGES->value ?
-                    fn () => ImagesResource::collection(IndexImages::run($product))
-                    : Inertia::lazy(fn () => ImagesResource::collection(IndexImages::run($product))),
-                */
-
+                FulfilmentRentalTabsEnum::SHOWCASE->value => $this->tab == FulfilmentRentalTabsEnum::SHOWCASE->value ?
+                    fn () => GetRentalShowcase::run($rental)
+                    : Inertia::lazy(fn () => GetRentalShowcase::run($rental)),
             ]
-        )->table(IndexOrders::make()->tableStructure($product))
-            ->table(IndexCustomers::make()->tableStructure($product))
-            ->table(IndexMailshots::make()->tableStructure($product));
+        );
     }
 
-    public function jsonResponse(Asset $product): ProductsResource
+    public function jsonResponse(Rental $rental): RentalsResource
     {
-        return new ProductsResource($product);
+        return new RentalsResource($rental);
     }
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
-        $headCrumb = function (Asset $product, array $routeParameters, $suffix) {
+        $headCrumb = function (Rental $rental, array $routeParameters, $suffix) {
             return [
 
                 [
@@ -190,11 +160,11 @@ class ShowRental extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('products')
+                            'label' => __('rentals')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $product->slug,
+                            'label' => $rental->slug,
                         ],
                     ],
                     'suffix'         => $suffix,
@@ -204,7 +174,7 @@ class ShowRental extends OrgAction
             ];
         };
 
-        $rental = Rental::where('id', $routeParameters['rental'])->first();
+        $rental = Rental::where('slug', $routeParameters['rental'])->first();
 
         return match ($routeName) {
             'shops.products.show' =>
@@ -243,18 +213,18 @@ class ShowRental extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.fulfilments.show.assets.show' =>
+            'grp.org.fulfilments.show.assets.rentals.show' =>
             array_merge(
-                ShowFulfilment::make()->getBreadcrumbs($routeParameters),
+                (new IndexFulfilmentAssets())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     $rental,
                     [
                         'index' => [
-                            'name'       => 'grp.org.fulfilments.show.assets.index',
+                            'name'       => 'grp.org.fulfilments.show.assets.rentals.index',
                             'parameters' => $routeParameters
                         ],
                         'model' => [
-                            'name'       => 'grp.org.fulfilments.show.assets.show',
+                            'name'       => 'grp.org.fulfilments.show.assets.rentals.show',
                             'parameters' => $routeParameters
                         ]
                     ],
@@ -265,54 +235,34 @@ class ShowRental extends OrgAction
         };
     }
 
-    public function getPrevious(Asset $product, ActionRequest $request): ?array
+    public function getPrevious(Rental $rental, ActionRequest $request): ?array
     {
-        $previous = Asset::where('slug', '<', $product->slug)->orderBy('slug', 'desc')->first();
+        $previous = Rental::where('slug', '<', $rental->slug)->orderBy('slug', 'desc')->first();
         return $this->getNavigation($previous, $request->route()->getName());
 
     }
 
-    public function getNext(Asset $product, ActionRequest $request): ?array
+    public function getNext(Rental $rental, ActionRequest $request): ?array
     {
-        $next = Asset::where('slug', '>', $product->slug)->orderBy('slug')->first();
+        $next = Rental::where('slug', '>', $rental->slug)->orderBy('slug')->first();
         return $this->getNavigation($next, $request->route()->getName());
     }
 
-    private function getNavigation(?Asset $product, string $routeName): ?array
+    private function getNavigation(?Rental $rental, string $routeName): ?array
     {
-        if (!$product) {
+        if (!$rental) {
             return null;
         }
 
         return match ($routeName) {
-            'shops.products.show' => [
-                'label' => $product->name,
+            'grp.org.fulfilments.show.assets.rentals.show' => [
+                'label' => $rental->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'product' => $product->slug,
-                    ],
-                ],
-            ],
-            'grp.org.shops.show.catalogue.products.show' => [
-                'label' => $product->name,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
-                        'organisation' => $this->parent->slug,
-                        'shop'         => $product->shop->slug,
-                        'product'      => $product->slug,
-                    ],
-                ],
-            ],
-            'grp.org.fulfilments.show.assets.show' => [
-                'label' => $product->name,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
-                        'organisation' => $this->parent->slug,
-                        'fulfilment'   => $product->shop->fulfilment->slug,
-                        'product'      => $product->slug,
+                       'organisation'   => $rental->organisation->slug,
+                        'fulfilment'    => $rental->asset->shop->slug,
+                        'rental'        => $rental->slug
                     ],
                 ],
             ],
