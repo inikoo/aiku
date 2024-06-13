@@ -16,7 +16,7 @@ DB_SUFFIX=_base
 
 echo -e "🧼 Migrating warehouse models"
 
-${PHP} artisan fetch:timesheets -d "${DB_SUFFIX}"
+${PHP} artisan fetch:warehouses -d "${DB_SUFFIX}"
 ${PHP} artisan fetch:warehouse-area -d "${DB_SUFFIX}"
 ${PHP} artisan fetch:locations -d "${DB_SUFFIX}"
 ${PHP} artisan fetch:deleted-locations -d "${DB_SUFFIX}"
