@@ -52,7 +52,6 @@ class StoreFulfilment extends OrgAction
             ]);
         }
 
-
         foreach($warehouses as $warehouseID) {
             $warehouse = Warehouse::find($warehouseID);
             AttachWarehouseToFulfilment::run($fulfilment, $warehouse);
