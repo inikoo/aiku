@@ -26,6 +26,7 @@ trait FetchSuppliersTrait
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Supplier
     {
         $supplierData = $this->fetch($organisationSource, $organisationSourceId);
+
         if (!$supplierData) {
             return null;
         }
@@ -61,6 +62,7 @@ trait FetchSuppliersTrait
         }
         $organisation = $organisationSource->getOrganisation();
 
+
         if ($supplier) {
             $orgSupplier = OrgSupplier::where('organisation_id', $organisation->id)->where('supplier_id', $supplier->id)->first();
             if ($orgSupplier) {
@@ -86,7 +88,8 @@ trait FetchSuppliersTrait
             }
 
 
-        } elseif ($baseSupplier) {
+        }
+        elseif ($baseSupplier) {
             $orgSupplier = OrgSupplier::where('organisation_id', $organisation->id)->where('supplier_id', $baseSupplier->id)->first();
             if ($orgSupplier) {
                 return $supplier;

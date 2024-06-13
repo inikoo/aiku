@@ -134,6 +134,7 @@ const label = {
                                             : layoutStore.group?.label
                                     "
                                 />
+                                
                                 <transition>
                                     <MenuItems
                                         class="px-1 py-1 space-y-2.5 min-w-24 w-fit max-w-96 absolute left-0 mt-2 origin-top-right rounded-lg bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
@@ -176,7 +177,6 @@ const label = {
                                 </transition>
                             </Menu>
 
-                            <!-- {{ layoutStore.isShopPage && layoutStore.organisationsState[layoutStore.currentParams.organisation].currentShop }} -->
                             <!-- Dropdown: Shops and Fulfilment-->
                             <Menu v-if="layoutStore.currentParams?.organisation && (layoutStore.isShopPage || layoutStore.isFulfilmentPage)"
                                 as="div" class="relative inline-block text-left"

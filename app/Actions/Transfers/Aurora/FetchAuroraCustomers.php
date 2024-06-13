@@ -28,7 +28,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
 {
     use WithAuroraAttachments;
 
-    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users attachments} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users attachments portfolio} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Customer
@@ -130,6 +130,18 @@ class FetchAuroraCustomers extends FetchAuroraAction
                 }
             }
 
+            if ($customer->shop->type ==ShopTypeEnum::DROPSHIPPING and in_array('portfolio', $with)) {
+                foreach (
+                    DB::connection('aurora')
+                        ->table('Customer Portfolio Fact')
+                        ->where('Customer Portfolio Customer Key', $sourceData[1])
+                        ->select('Customer Portfolio Key as source_id')
+                        ->orderBy('source_id')->get() as $portfolio
+                ) {
+                    FetchAuroraPortfolios::run($organisationSource, $portfolio->source_id);
+                }
+            }
+
             if (in_array('orders', $with)) {
                 foreach (
                     DB::connection('aurora')
@@ -207,8 +219,8 @@ class FetchAuroraCustomers extends FetchAuroraAction
             $sourceData = explode(':', $this->shop->source_id);
             $query->where('Customer Store Key', $sourceData[1]);
         }
-
         return $query;
+
     }
 
     public function count(): ?int

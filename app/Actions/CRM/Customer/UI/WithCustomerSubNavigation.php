@@ -39,11 +39,11 @@ trait WithCustomerSubNavigation
             ],
             [
                 'label'    => __('Portofolios'),
-                // 'number'   => $customer->dropshippingCustomerPortfolios->count(),
-                // 'href'     => [
-                //     'name'       => 'grp.org.shops.show.catalogue.departments.show.products.index',
-                //     'parameters' => [$this->organisation->slug, $department->shop->slug, $department->slug]
-                // ],
+                'number'   => $customer->dropshippingCustomerPortfolios->count(),
+                'href'     => [
+                    'name'       => 'grp.org.shops.show.crm.customers.show.portfolios.index',
+                    'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
+                ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-folder'],
                     'tooltip' => __('portofolios')

@@ -41,9 +41,13 @@ class FetchAuroraSupplier extends FetchAurora
             $this->parsedData['parent'] = $this->organisation->group;
         }
 
-        $deletedAt = $this->parseDate($this->auroraModelData->{'Supplier Valid To'});
-        if ($this->auroraModelData->{'Supplier Type'} != 'Archived') {
-            $deletedAt = null;
+
+        $status = true;
+
+        $archivedAt = $this->parseDate($this->auroraModelData->{'Supplier Valid To'});
+        if ($this->auroraModelData->{'Supplier Type'} == 'Archived') {
+            $status     = false;
+            $archivedAt = null;
         }
         $phone = $this->auroraModelData->{'Supplier Main Plain Mobile'};
         if ($phone == '') {
@@ -57,9 +61,7 @@ class FetchAuroraSupplier extends FetchAurora
         }
 
         $sourceSlug = Str::kebab(strtolower($this->auroraModelData->{'Supplier Code'}));
-        if ($deletedAt) {
-            $sourceSlug .= '-deleted';
-        }
+
 
         $this->parsedData['supplier'] =
             [
@@ -73,9 +75,10 @@ class FetchAuroraSupplier extends FetchAurora
                 'source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Supplier Key'},
                 'source_slug'  => $sourceSlug,
                 'created_at'   => $this->parseDate($this->auroraModelData->{'Supplier Valid From'}),
-                'deleted_at'   => $deletedAt,
-                'address'      => $this->parseAddress(prefix: 'Supplier Contact', auAddressData: $this->auroraModelData)
-
+                'deleted_at'   => $archivedAt,
+                'address'      => $this->parseAddress(prefix: 'Supplier Contact', auAddressData: $this->auroraModelData),
+                'archived_at'  => $archivedAt,
+                'status'       => $status
             ];
 
         $this->parsePhoto();

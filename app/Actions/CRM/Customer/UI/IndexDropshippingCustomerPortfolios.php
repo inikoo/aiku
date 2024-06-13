@@ -8,11 +8,11 @@
 namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\OrgAction;
-use App\Http\Resources\CRM\CustomerClientResource;
+use App\Http\Resources\CRM\DropshippingCustomerPortfolioResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
 use App\Models\Catalogue\Shop;
-use App\Models\Dropshipping\CustomerClient;
+use App\Models\Dropshipping\DropshippingCustomerPortfolio;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -23,7 +23,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexCustomerClients extends OrgAction
+class IndexDropshippingCustomerPortfolios extends OrgAction
 {
     // private bool $canCreateShop = false;
     use WithCustomerSubNavigation;
@@ -51,9 +51,7 @@ class IndexCustomerClients extends OrgAction
         // dd($parent->type);
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('customer_clients.name', $value)
-                    ->orWhereStartWith('customer_clients.email', $value)
-                    ->orWhere('customer_clients.reference', '=', $value);
+                $query->whereAnyWordStartWith('dropshipping_customer_portfolios.reference', $value);
             });
         });
 
@@ -61,11 +59,11 @@ class IndexCustomerClients extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder = QueryBuilder::for(CustomerClient::class);
+        $queryBuilder = QueryBuilder::for(DropshippingCustomerPortfolio::class);
 
 
         if (class_basename($parent) == 'Customer') {
-            $queryBuilder->where('customer_clients.customer_id', $parent->id);
+            $queryBuilder->where('dropshipping_customer_portfolios.customer_id', $parent->id);
         }
 
 
@@ -82,19 +80,18 @@ class IndexCustomerClients extends OrgAction
 
 
         return $queryBuilder
-            ->defaultSort('customer_clients.slug')
+            ->defaultSort('dropshipping_customer_portfolios.reference')
             ->select([
-                'customer_clients.location',
-                'customer_clients.reference',
-                'customer_clients.id',
-                'customer_clients.name',
-                'customer_clients.slug',
-                'customers.reference as customer_reference',
-                'customers.slug as customer_slug',
-                'customer_clients.created_at'
+                'dropshipping_customer_portfolios.reference',
+                'dropshipping_customer_portfolios.status',
+                'dropshipping_customer_portfolios.id',
+                'products.code as product_code',
+                'products.name as product_name',
+                'products.slug as slug',
+                'dropshipping_customer_portfolios.created_at'
             ])
-            ->leftJoin('customers', 'customers.id', 'customer_id')
-            ->allowedSorts(['reference', 'name', 'slug', 'created_at'])
+            ->leftJoin('products', 'products.id', 'product_id')
+            ->allowedSorts(['reference', 'created_at'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -144,14 +141,14 @@ class IndexCustomerClients extends OrgAction
 
                         // ],
                         'Customer' => [
-                        'title'       => __("No clients found"),
-                        'description' => __("You can add your client 🤷🏽‍♂️"),
+                        'title'       => __("No portfolios found"),
+                        'description' => __("You can add your portfolio 🤷🏽‍♂️"),
                         'count'       => $parent->stats->number_clients,
                         'action'      => [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('new client'),
-                            'label'   => __('client'),
+                            'tooltip' => __('new portfolio'),
+                            'label'   => __('portfolio'),
                             'route'   => [
                                 'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.create',
                                 'parameters' => [
@@ -182,48 +179,49 @@ class IndexCustomerClients extends OrgAction
                     ]
                     */
                 )
-                ->column(key: 'slug', label: __('slug'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'location', label: __('location'), canBeHidden: false, searchable: true)
-                ->column(key: 'created_at', label: __('since'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'product_code', label: __('product'), canBeHidden: false, searchable: true)
+                ->column(key: 'product_name', label: __('product name'), canBeHidden: false, searchable: true)
+                ->column(key: 'reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'created_at', label: __('created at'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'action', label: __('action'), canBeHidden: false, sortable: false, searchable: false);
         };
     }
 
-    public function jsonResponse(LengthAwarePaginator $customerClients): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $portfolio): AnonymousResourceCollection
     {
-        return CustomerClientResource::collection($customerClients);
+        return DropshippingCustomerPortfolioResource::collection($portfolio);
     }
 
-    public function htmlResponse(LengthAwarePaginator $customerClients, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $portfolio, ActionRequest $request): Response
     {
-        $scope     = $this->parent;
-
+        $scope         = $this->parent;
         $subNavigation = null;
         if ($this->parent instanceof Customer) {
             if ($this->parent->is_dropshipping == true) {
                 $subNavigation = $this->getCustomerSubNavigation($this->parent);
             }
         }
+
         return Inertia::render(
-            'Org/Shop/CRM/CustomerClients',
+            'Org/Shop/CRM/DropshippingCustomerPortfolios',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('customer clients'),
+                'title'       => __('portfolios'),
                 'pageHead'    => [
-                    'title'     => __('customer clients'),
+                    'title'     => __('portfolios'),
                     'icon'      => [
                         'icon'  => ['fal', 'fa-user'],
-                        'title' => __('customer client')
+                        'title' => __('portfolios')
                     ],
                     'actions' => [
                         [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('New Client'),
-                            'label'   => __('New Client'),
+                            'tooltip' => __('Add Product'),
+                            'label'   => __('New Item'),
                             'route'   => [
                                  'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.create',
                                 'parameters'  => [
@@ -236,7 +234,7 @@ class IndexCustomerClients extends OrgAction
                     ],
                     'subNavigation' => $subNavigation,
                 ],
-                'data'        => CustomerClientResource::collection($customerClients),
+                'data'        => DropshippingCustomerPortfolioResource::collection($portfolio),
 
             ]
         )->table($this->tableStructure($this->parent));
@@ -250,7 +248,7 @@ class IndexCustomerClients extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('Clients'),
+                        'label' => __('Portfolios'),
                         'icon'  => 'fal fa-bars'
                     ],
                 ],
@@ -258,7 +256,7 @@ class IndexCustomerClients extends OrgAction
         };
 
         return match ($routeName) {
-            'grp.org.shops.show.crm.customers.show.customer-clients.index' =>
+            'grp.org.shops.show.crm.customers.show.portfolios.index' =>
             array_merge(
                 ShowCustomer::make()->getBreadcrumbs(
                     'grp.org.shops.show.crm.customers.show',
@@ -266,7 +264,7 @@ class IndexCustomerClients extends OrgAction
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.index',
+                        'name'       => 'grp.org.shops.show.crm.customers.show.portfolios.index',
                         'parameters' => $routeParameters
                     ]
                 )

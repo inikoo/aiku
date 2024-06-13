@@ -69,3 +69,5 @@ push.sh
 /create_wowsbar_organisations.sh
 /public/aiku-public/*
 /storage/app/var/*
+
+reset_db.sh

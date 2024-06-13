@@ -26,14 +26,14 @@ const props = defineProps<{
 
 
 
-const componentList = (componentName: string) => {
-    const components: any = {
-        'Image1': Image1,
-        'Headline1': Headline1
-    }
+// const componentList = (componentName: string) => {
+//     const components: any = {
+//         'Image1': Image1,
+//         'Headline1': Headline1
+//     }
 
-    return components[componentName]
-}
+//     return components[componentName]
+// }
 
 // const inputSearch = ref()
 // const inputValue = ref('')
@@ -41,11 +41,14 @@ const componentList = (componentName: string) => {
 
 <template>
     <div class="grid grid-cols-3 h-24 items-center">
-        <component v-for="component in data" :is="componentList(component.name)" :data="component.data" />
+        <!-- <component v-for="component in data" :is="componentList(component.name)" :data="component.data" /> -->
+        <Image1 :data="data[0].data" />
 
-        <div class="justify-self-end pr-7">
+        <div class="justify-self-center pr-7">
             <IrisSearch />
         </div>
+
+        <Headline1 :data="data[1].data"/>
         <!-- <Image1 :data="data" />
 
         <Headline1 :data="data" /> -->
