@@ -4,25 +4,32 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 
-<script setup>
-import {Head} from '@inertiajs/vue3';
-import PageHeading from '@/Components/Headings/PageHeading.vue';
-import {library} from '@fortawesome/fontawesome-svg-core';
-import {faGlobe} from '@fal';
+<script setup lang="ts">
+import { Head } from '@inertiajs/vue3'
+import PageHeading from '@/Components/Headings/PageHeading.vue'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faGlobe } from '@fal'
 import { capitalize } from "@/Composables/capitalize"
+import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 
-library.add(faGlobe);
+library.add(faGlobe)
 
-const props = defineProps(['title', 'pageHead', 'customer']);
+// const props = defineProps(['title', 'pageHead', 'customer']);
 
+const props = defineProps<{
+    title: string
+    pageHead: TSPageHeading
+}>()
 
 
 </script>
 
 
 <template>
-    <Head :title="capitalize(title)"/>
+    <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
 
+    <div>
+        Web user data
+    </div>
 </template>
-

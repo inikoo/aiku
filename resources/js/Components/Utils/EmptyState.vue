@@ -71,7 +71,7 @@ const isLoading = ref(false)
         <p v-if="data?.description" class="text-sm text-gray-500 inline-block">{{ data?.description }}</p>
 
         <slot name='button-empty-state'>
-            <Link v-if="data?.action" as="div" :href="route(data?.action.route.name, data?.action.route.parameters)" @start="() => isLoading = true" :method="data?.action?.route?.method" class="mt-4 block">
+            <Link v-if="data?.action" as="div" :href="data?.action?.route?.name ? route(data?.action.route.name, data?.action.route.parameters) : '#'" @start="() => isLoading = true" :method="data?.action?.route?.method" class="mt-4 block">
                 <Button :style="data?.action.style" :icon="data?.action.icon" :label="data?.action.tooltip" :loading="isLoading" />
             </Link>
         </slot>
