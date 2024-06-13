@@ -99,9 +99,13 @@ class FetchAuroraShop extends FetchAurora
         ];
 
 
-        if ($type == 'fulfilment') {
-            $this->parsedData['shop']['warehouses'] = [Warehouse::first()->id];
+        if ($type == ShopTypeEnum::FULFILMENT) {
+            /** @var Warehouse $warehouse */
+            $warehouse                              =$this->organisation->warehouses()->first();
+            $this->parsedData['shop']['warehouses'] = [$warehouse->id];
         }
+
+
     }
 
 
