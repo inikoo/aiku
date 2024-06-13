@@ -54,7 +54,7 @@ class SetPalletAsDamaged extends OrgAction
     public function rules(): array
     {
         return [
-            'message' => ['required', 'string']
+            'message' => ['nullable', 'string']
         ];
     }
 

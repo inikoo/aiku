@@ -15,6 +15,8 @@ import Popover from "@/Components/Popover.vue"
 import { trans } from "laravel-vue-i18n"
 import PureTextarea from '@/Components/Pure/PureTextarea.vue'
 import { routeType } from "@/types/route"
+import { notify } from "@kyvg/vue3-notification"
+import { layoutStructure } from "@/Composables/useLayoutStructure"
 
 library.add(faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote, faSquare);
 
@@ -27,9 +29,10 @@ const props = defineProps<{
     }
 }>()
 
+const layout = inject('layout', layoutStructure)
 
 const loading = ref(false)
-const status = ref('damaged')
+const palletStatus = ref('damaged')
 const form = useForm({ message: '' })
 const errorMessage = ref('')
 
@@ -47,25 +50,34 @@ const errorMessage = ref('')
 }
  */
 
-
- const SendData=(routes: routeType, close: Function)=>{
+ 
+// Method: set pallet status as 'damaged' or 'lost'
+const setPalletStatus = (routes: routeType, close: Function) => {
+    const routeToVisit = palletStatus.value === 'damaged' ? route('grp.org.warehouses.show.fulfilment.damaged_pallets.index', layout.currentParams) : route('grp.org.warehouses.show.fulfilment.lost_pallets.index', layout.currentParams)
     form.patch(route(
         routes.name,
         routes.parameters
     ), {
         preserveScroll: true,
-        onStart:()=>{loading.value = true},
+        onStart: () => { loading.value = true },
         onSuccess: () => {
             close()
-            // loading.value = false
-            console.log('hereds')
+            notify({
+                title: `Succesfully set the pallet as ${palletStatus.value}.`,
+                text: '',
+                type: 'success',
+                data: {
+                    html: `<div class="hover:underline cursor-pointer">See ${palletStatus.value} pallets list</div>`,
+                    function: () => router.visit(routeToVisit)
+                }
+            })
         },
         onError: (errors) => {
             console.log('errors', errors)
             errorMessage.value = errors
             // loading.value = false
         },
-        onFinish: ()=>{loading.value = false}
+        onFinish: () => { loading.value = false }
     })
 }
 
@@ -85,12 +97,12 @@ const typePallet = [
         <template #content="{ close }">
             <div class="w-[250px]">
                 <span class="text-xs mt-2">{{ trans('Status') }}: </span>
-                <div class="flex items-center mb-3">
-                    <div v-for="(typeData, typeIdx) in typePallet" :key="typeIdx" class="relative py-1 mr-4">
+                <div class="flex items-center mb-3 gap-x-4">
+                    <div v-for="(typeData, typeIdx) in typePallet" :key="typeIdx" class="relative py-1">
                         <input type="radio" :id="typeData.value" :value="typeData.value"
-                            :checked="status == typeData.value" @input="()=>status = typeData.value"
+                            :checked="palletStatus == typeData.value" @input="() => palletStatus = typeData.value"
                             class="rounded-full border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer">
-                        <label :for="typeData.value" class="ml-2 select-none cursor-pointer">{{ typeData.label }}</label>
+                        <label :for="typeData.value" class="pl-2 select-none cursor-pointer">{{ typeData.label }}</label>
                     </div>
                 </div>
 
@@ -108,7 +120,7 @@ const typePallet = [
             </div>
 
             <div class="flex justify-end mt-3">
-                <Button :style="'save'" :loading="loading" @click="SendData( status == 'damaged' ? item.setAsDamaged : item.setAsLost, close)" />
+                <Button :style="'save'" :loading="loading" @click="setPalletStatus( palletStatus == 'damaged' ? item.setAsDamaged : item.setAsLost, close)" />
             </div>
         </template>
     </Popover>

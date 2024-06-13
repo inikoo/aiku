@@ -5,26 +5,22 @@
   -->
 
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
-import PageHeading from '@/Components/Headings/PageHeading.vue';
+import { Head, router } from '@inertiajs/vue3'
+import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
-import TablePallets from "@/Components/Tables/Grp/Org/Inventory/Fulfilment/TablePallets.vue";
+import TablePallets from "@/Components/Tables/Grp/Org/Inventory/Fulfilment/TablePallets.vue"
 import Action from "@/Components/Forms/Fields/Action.vue"
-import { useForm } from '@inertiajs/vue3';
-import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
-import { library } from "@fortawesome/fontawesome-svg-core";
-import {
-  faStickyNote,
+import { useForm } from '@inertiajs/vue3'
+import { PageHeading as PageHeadingTypes } from "@/types/PageHeading"
+import { library } from "@fortawesome/fontawesome-svg-core"
 
-} from '@fal';
-library.add(
-  faStickyNote,
-)
+import { faStickyNote, } from '@fal'
+library.add( faStickyNote, )
 
-defineProps<{
-  data: object
-  title: string
-  pageHead: PageHeadingTypes
+const props = defineProps<{
+    data: {}
+    title: string
+    pageHead: PageHeadingTypes
 }>()
 
 const form = useForm({ pallet: [] })
@@ -32,15 +28,15 @@ const form = useForm({ pallet: [] })
 </script>
 
 <template>
+    <Head :title="capitalize(title)" />
+    <PageHeading :data="pageHead">
+        <template #button-new-delivery="{ action: action }">
+            <div v-if="form.pallet.length > 0">
+                <Action v-if="action.action" :action="action.action" />
+            </div>
+            <div v-else></div>
+        </template>
+    </PageHeading>
 
-  <Head :title="capitalize(title)" />
-  <PageHeading :data="pageHead">
-    <template #button-new-delivery="{ action: action }">
-      <div v-if="form.pallet.length > 0">
-        <Action v-if="action.action" :action="action.action" />
-      </div>
-      <div v-else></div>
-    </template>
-  </PageHeading>
-  <TablePallets :data="data" :tab="'pallets'" :form="form" :dataToSubmit="form.data()" />
+    <TablePallets :data="data" :tab="'pallets'" :form="form" :dataToSubmit="form.data()" />
 </template>

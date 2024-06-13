@@ -2,20 +2,26 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faTimesCircle, faCheckCircle, faExclamationCircle, faInfoCircle } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
+
 library.add(faTimesCircle, faCheckCircle, faExclamationCircle, faInfoCircle)
+
 
 const props = defineProps<{
     notification: {
         class: string
         item: {
+            data?: {
+                html?: string
+                function: Function
+            }
             id: number
             title: string
             text: string
+            html: string
             type: string
             state: number
             speed: number
             length: number
-            data: {},
             timer: number
         }
         close: Function
@@ -46,6 +52,9 @@ const props = defineProps<{
             <p v-if="props.notification.item.text" class="text-sm truncate mb-0 max-w-full">
                 {{ props.notification.item.text }}
             </p>
+            <div @click.stop="(e) => (props.notification.item.data?.function())" v-html="props.notification.item.data?.html">
+                
+            </div>
         </div>
     </div>
 </template>
