@@ -162,7 +162,7 @@ class IndexPallets extends OrgAction
 
             $emptyStateData = [
                 'icons' => ['fal fa-pallet'],
-                'title' => '',
+                'title' => __('No pallets found'),
                 'count' => match (class_basename($parent)) {
                     'FulfilmentCustomer' => $parent->number_pallets,
                     default              => $parent->stats->number_pallets
@@ -229,12 +229,13 @@ class IndexPallets extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('pallets'),
+                'title'       => __('Returned Pallets'),
                 'pageHead'    => [
-                    'title' => $this->parent instanceof Fulfilment ? __('pallets') : __('customer pallets'),
+                    'title' => $this->parent instanceof Fulfilment ? __('Returned Pallets') : __('Customer Pallets'),
                     'icon'  => [
                         'icon' => ['fal', 'fa-pallet'],
                     ],
+                    // 'model' => __('Returned'),
 
                     'subNavigation' => $subNavigation,
                     'actions'       => [

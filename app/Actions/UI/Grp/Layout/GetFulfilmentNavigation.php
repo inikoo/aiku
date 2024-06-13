@@ -142,7 +142,7 @@ class GetFulfilmentNavigation
                             'label'   => __('invoices'),
                             'tooltip' => __('Invoices'),
                             'icon'    => ['fal', 'fa-file-invoice-dollar'],
-                            'root'    => 'grp.org.fulfilments.show.operations.invoiced.',
+                            'root'    => 'grp.org.fulfilments.show.operations.invoices.',
                             'route'   => [
                                 'name'       => 'grp.org.fulfilments.show.operations.invoices.index',
                                 'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]

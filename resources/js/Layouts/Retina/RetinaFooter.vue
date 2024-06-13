@@ -27,7 +27,7 @@ library.add(faHeart, faComputerClassic, faDiscord)
 </script>
 
 <template>
-    <footer class="z-20 fixed w-screen bottom-0 right-0  text-white bg-black">
+    <footer class="z-20 fixed w-screen bottom-0 left-0  text-white bg-black">
         <!-- Helper: Product background (close popup purpose) -->
         <div class="fixed z-40 right-0 top-0 bg-transparent w-screen h-screen" @click="isTabActive = !isTabActive"
             :class="[isTabActive ? '' : 'hidden']" />

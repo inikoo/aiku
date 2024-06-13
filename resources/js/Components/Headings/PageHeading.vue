@@ -37,10 +37,11 @@ const originUrl = location.origin
 
 
 <template>
+    <!-- Sub Navigation -->
+    <SubNavigation v-if="data.subNavigation?.length" :dataNavigation="data.subNavigation" />
+    
     <div class="mx-4 py-4 md:pb-2 md:pt-3 lg:py-2 grid grid-flow-col justify-between items-center">
         <div class="">
-            <!-- Sub Navigation -->
-            <SubNavigation v-if="data.subNavigation" :dataNavigation="data.subNavigation" />
 
             <!-- Section: Main Title -->
             <div class="flex leading-none py-1 items-center gap-x-2 font-bold text-gray-700 text-2xl tracking-tight ">
@@ -63,10 +64,12 @@ const originUrl = location.origin
                         fixed-width />
 
                 </div>
-                <h2 :class="!data.noCapitalise? 'capitalize' : ''">
-                    <span v-if="data.model" class="text-gray-400 mr-2 font-medium">{{ data.model }}</span>
+                
+                <h2 :class="data.noCapitalise ? '' : 'capitalize'">
+                    <span v-if="data.model" class="text-gray-400 mr-2 font-medium block sm:inline">{{ data.model }}</span>
                     <span>{{ data.title }}</span>
                 </h2>
+                
                 <FontAwesomeIcon v-if="data.iconRight"
                     v-tooltip="data.iconRight.tooltip || ''"
                     :icon="data.iconRight.icon" class="h-4" :class="data.iconRight.class"
@@ -106,7 +109,7 @@ const originUrl = location.origin
 
         <!-- Section: Button and/or ButtonGroup -->
         <slot name="button" :dataPageHead="{ ...props }">
-            <div class="flex items-center gap-2 rounded-md">
+            <div class="flex flex-col items-end sm:flex-row sm:items-center gap-2 rounded-md">
                 <template v-for="action in data.actions">
                     <template v-if="action">
                         <!-- Button -->

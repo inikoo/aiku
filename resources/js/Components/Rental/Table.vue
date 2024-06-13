@@ -239,7 +239,7 @@ const showAll = () => {
                         </tr>
                     </tbody>
                 </table>
-                <div v-if="form[fieldName][bluprint.key].length == 0">
+                <div v-if="form[fieldName]?.[bluprint?.key]?.length == 0">
                     <EmptyState />
                 </div>
             </div>

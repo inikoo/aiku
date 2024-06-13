@@ -80,7 +80,7 @@ onBeforeMount(() => {
     const clonedData = {
         rentals: cloneDeep(props.fieldData?.rentals?.data),
         physical_goods: cloneDeep(props.fieldData?.physical_goods?.data),
-        services: cloneDeep(props.fieldData?.services.data),
+        services: cloneDeep(props.fieldData?.services?.data),
     };
     props.form.defaults({
         [props.fieldName]: clonedData,
