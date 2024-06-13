@@ -7,7 +7,6 @@
 
 namespace App\Actions\Ordering\Order;
 
-use App\Actions\Ordering\Transaction\UpdateTransaction;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
@@ -46,7 +45,7 @@ class UpdateOrderStateToInWarehouse extends OrgAction
             if ($transaction->submitted_at == null) {
                 data_set($transactionDate, 'in_warehouse_at', $date);
             }
-            UpdateTransaction::run($transaction, $transactionDate);
+            $transaction->update($transactionDate);
         }
 
         $this->update($order, $modelData);

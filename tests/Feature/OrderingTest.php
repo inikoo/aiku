@@ -114,7 +114,7 @@ test('create order', function () {
         ->and($this->customer->stats->number_orders)->toBe(1)
         ->and($this->customer->stats->number_orders_state_creating)->toBe(1)
         ->and($this->customer->stats->number_orders_handing_type_shipping)->toBe(1)
-        ->and($order->stats->number_items_at_creation)->toBe(0);
+        ->and($order->stats->number_transactions_at_creation)->toBe(0);
 
     return $order;
 });
@@ -129,7 +129,9 @@ test('create transaction', function ($order) {
     $order->refresh();
 
     expect($transaction)->toBeInstanceOf(Transaction::class)
-        ->and($transaction->order->stats->number_items_at_creation)->toBe(1);
+        ->and($transaction->order->stats->number_transactions_at_creation)->toBe(1)
+    ->and($order->stats->number_transactions)->toBe(1)
+    ;
 
     return $transaction;
 })->depends('create order');
@@ -152,13 +154,14 @@ test('update order state to submitted', function (Order $order) {
     expect($order->state)->toEqual(OrderStateEnum::SUBMITTED)
         ->and($order->shop->salesStats->number_orders_state_submitted)->toBe(1)
         ->and($order->organisation->salesStats->number_orders_state_submitted)->toBe(1)
-        ->and($order->group->salesStats->number_orders_state_submitted)->toBe(1);
+        ->and($order->group->salesStats->number_orders_state_submitted)->toBe(1)
+        ->and($order->stats->number_transactions)->toBe(1);
+
     return $order;
 })->depends('create order');
 
 
 test('update order state to in warehouse', function (Order $order) {
-
     $order = UpdateOrderStateToInWarehouse::make()->action($order);
 
     expect($order->state)->toEqual(OrderStateEnum::IN_WAREHOUSE);

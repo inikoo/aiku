@@ -18,12 +18,26 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property int $order_id
- * @property int $number_items_at_creation
- * @property int $number_cancelled_items
- * @property int $number_add_up_items
- * @property int $number_cut_off_items
- * @property int $number_items_dispatched
- * @property int $number_items current number of items
+ * @property int $number_transactions_at_creation
+ * @property int $number_add_up_transactions
+ * @property int $number_cut_off_transactions
+ * @property int $number_transactions transactions including cancelled
+ * @property int $number_current_transactions transactions excluding cancelled
+ * @property int $number_transactions_state_creating
+ * @property int $number_transactions_state_submitted
+ * @property int $number_transactions_state_in_warehouse
+ * @property int $number_transactions_state_handling
+ * @property int $number_transactions_state_packed
+ * @property int $number_transactions_state_finalised
+ * @property int $number_transactions_state_dispatched
+ * @property int $number_transactions_state_cancelled
+ * @property int $number_transactions_status_processing
+ * @property int $number_transactions_status_settled_dispatched
+ * @property int $number_transactions_status_settled_with_missing
+ * @property int $number_transactions_status_settled_fail
+ * @property int $number_transactions_status_settled_cancelled
+ * @property int $number_transactions_type_order
+ * @property int $number_transactions_type_refund
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read \App\Models\Ordering\Order $order
