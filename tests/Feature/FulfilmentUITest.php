@@ -9,6 +9,8 @@ use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentAssets;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Enums\UI\Fulfilment\FulfilmentAssetsTabsEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
+use App\Enums\UI\Fulfilment\RentalsTabsEnum;
+use App\Enums\UI\Fulfilment\ServicesTabsEnum;
 use App\Models\Inventory\Location;
 use Illuminate\Http\Request;
 use Inertia\Testing\AssertableInertia;
@@ -68,6 +70,20 @@ test('UI Index fulfilment physical goods', function () {
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Fulfilment/PhysicalGoods')
+            ->has('title')
+            ->has('tabs')
+            ->has('breadcrumbs', 4);
+    });  
+});
+
+test('UI Index fulfilment rentals', function () {
+    $response = $this->get(route('grp.org.fulfilments.show.assets.rentals.index', [$this->organisation->slug, $this->fulfilment->slug]));
+
+    expect(RentalsTabsEnum::RENTALS->value)->toBe('rentals');
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Rentals')
             ->has('title')
             ->has('tabs')
             ->has('breadcrumbs', 4);
