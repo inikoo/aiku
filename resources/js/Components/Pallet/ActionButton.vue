@@ -5,25 +5,33 @@
   -->
 
 <script setup lang="ts">
-import { router, useForm } from "@inertiajs/vue3";
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faTrashAlt } from "@far";
-import { faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote, faSquare } from "@fal";
-import Button from "@/Components/Elements/Buttons/Button.vue";
-import { inject, ref } from "vue";
-import Popover from "@/Components/Popover.vue";
+import { router, useForm } from "@inertiajs/vue3"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faTrashAlt } from "@far"
+import { faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote, faSquare } from "@fal"
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import { inject, ref } from "vue"
+import Popover from "@/Components/Popover.vue"
 import { trans } from "laravel-vue-i18n"
+import PureTextarea from '@/Components/Pure/PureTextarea.vue'
+import { routeType } from "@/types/route"
 
 library.add(faTrashAlt, faSignOutAlt, faSpellCheck, faCheck, faTimes, faCheckDouble, faCross, faFragile, faGhost, faBoxUp, faStickyNote, faSquare);
 
 const props = defineProps<{
-    item: Object
-}>();
+    item: {
+        index: number
+        status: string  // storing, etc
+        setAsDamaged: routeType
+        setAsLost: routeType
+    }
+}>()
 
 
 const loading = ref(false)
 const status = ref('damaged')
 const form = useForm({ message: '' })
+const errorMessage = ref('')
 
 /* const onUpdateStatus = (routes, data, type) => {
     router.patch(route(routes.name, routes.parameters), data, {
@@ -40,7 +48,7 @@ const form = useForm({ message: '' })
  */
 
 
- const SendData=(routes,close)=>{
+ const SendData=(routes: routeType, close: Function)=>{
     form.patch(route(
         routes.name,
         routes.parameters
@@ -49,10 +57,13 @@ const form = useForm({ message: '' })
         onStart:()=>{loading.value = true},
         onSuccess: () => {
             close()
-            loading.value = false
+            // loading.value = false
+            console.log('hereds')
         },
         onError: (errors) => {
-            loading.value = false
+            console.log('errors', errors)
+            errorMessage.value = errors
+            // loading.value = false
         },
         onFinish: ()=>{loading.value = false}
     })
@@ -68,28 +79,31 @@ const typePallet = [
 <template>
     <Popover v-if="item.status === 'storing'" width="w-full" class="relative">
         <template #button>
-            <Button :key="item.index" iconRight="fal fa-fragile" :size="'xs'" type="negative" />
+            <Button :key="item.index" iconRight="fal fa-fragile" v-tooltip="trans('Set pallet as damaged')" :size="'xs'" type="negative" />
         </template>
+
         <template #content="{ close }">
             <div class="w-[250px]">
-
-                <span class="text-xs  my-2">{{ trans('Status') }}: </span>
-                <div class="flex items-center">
-                    <div v-for="(typeData, typeIdx) in typePallet" :key="typeIdx" class="relative py-3 mr-4">
-                        <div>
-                            <input type="checkbox" :id="typeData.value" :value="typeData.value"
-                                :checked="status == typeData.value" @input="()=>status = typeData.value"
-                                class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4">
-                            <label :for="typeData.value" class="ml-2">{{ typeData.label }}</label>
-                        </div>
+                <span class="text-xs mt-2">{{ trans('Status') }}: </span>
+                <div class="flex items-center mb-3">
+                    <div v-for="(typeData, typeIdx) in typePallet" :key="typeIdx" class="relative py-1 mr-4">
+                        <input type="radio" :id="typeData.value" :value="typeData.value"
+                            :checked="status == typeData.value" @input="()=>status = typeData.value"
+                            class="rounded-full border-gray-300 text-indigo-600 focus:ring-indigo-500 h-4 w-4 cursor-pointer">
+                        <label :for="typeData.value" class="ml-2 select-none cursor-pointer">{{ typeData.label }}</label>
                     </div>
                 </div>
 
 
-                <label for="message]" class="text-xs  my-2">{{ trans('Message') }}:</label>
-                <div class="rounded-md shadow-sm">
-                    <textarea v-model.trim="form.message" id="message" name="message" placeholder="message..." rows="3"
-                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                <label for="message" class="text-xs">{{ trans('Message') }}:</label>
+                <div class="mt-1">
+                    <!-- <textarea v-model.trim="form.message" id="message" name="message" rows="3"
+                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" /> -->
+                    <PureTextarea v-model.trim="form.message" name="message" placeholder="Add detail about the pallet's status" />
+                </div>
+
+                <div v-if="errorMessage" class="text-red-500 text-xs italic">
+                    {{ errorMessage }}
                 </div>
             </div>
 

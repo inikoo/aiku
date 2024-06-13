@@ -5,6 +5,7 @@ import { Action } from "@/types/Action"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faPencil, faTrashAlt } from "@fal"
 import { ref } from "vue"
+import { notify } from "@kyvg/vue3-notification"
 
 library.add( faPencil, faTrashAlt )
 
@@ -13,19 +14,31 @@ const props = defineProps<{
     dataToSubmit?: any
 }>()
 
-const loading = ref(false)
+const isLoading = ref(false)
 
 const handleClick = (action: Action) => {
     const href = action.route?.name ? route(action.route?.name, action.route?.parameters) : action.href?.name ? route(action.href?.name, action.href?.parameters) : '#'
-    const method = action.route?.method ?? 'get'
+    const method = action.route?.method || 'get'
     const data = action.route?.method !== 'get' ? props.dataToSubmit : null
+
     router[method](
         href,
         data,
         {
-            onBefore: () => { loading.value = true },
-            onerror: () => { loading.value = false }
-            /*     onFinish: (visit) => { loading.value = false }, */
+            onBefore: () => {
+                isLoading.value = true
+            },
+            onSuccess: () => {
+                null
+            },
+            onError: (error: {} | string) => {
+                isLoading.value = false
+                notify({
+                    title: 'Something went wrong.',
+                    text: typeof error === 'string' ? error : Object.values(error || {}).join(', '),
+                    type: 'error',
+                })
+            }
         })
 };
 
@@ -38,7 +51,7 @@ const handleClick = (action: Action) => {
         <slot v-for="(button, index) in action.buttonGroup" :name="'button' + index">
             <Link
                 :href="button.route?.name ? route(button.route?.name, button.route?.parameters) : action.href?.name ? route(action.href?.name, action.href?.parameters) : '#'"
-                class="" :method="button.route?.method ?? 'get'" as="a" :target="button.target">
+                class="" :method="button.route?.method || 'get'" as="a" :target="button.target">
                 <Button :style="button.style" :label="button.label" :icon="button.icon" :iconRight="button.iconRight"
                     :key="`ActionButton${button.label}${button.style}`" :tooltip="button.tooltip"
                     class="rounded-none text-sm border-none focus:ring-transparent focus:ring-offset-transparent focus:ring-0">
@@ -53,12 +66,12 @@ const handleClick = (action: Action) => {
         <a v-if="action.target" :href="route(action.route?.name, action.route?.parameters)" :target="action.target">
             <Button :style="action.style" :label="action.label"
             :icon="action.icon" :iconRight="action.iconRight" :key="`ActionButton${action.label}${action.style}`"
-            :tooltip="action.tooltip" :loading="loading" />
+            :tooltip="action.tooltip" :loading="isLoading" />
         </a>
 
         <Button v-else @click="handleClick(action)" :style="action.style" :label="action.label"
             :icon="action.icon" :iconRight="action.iconRight" :key="`ActionButton${action.label}${action.style}`"
-            :tooltip="action.tooltip" :loading="loading" />
+            :tooltip="action.tooltip" :loading="isLoading" />
     </template>
 
 </template>

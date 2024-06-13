@@ -104,7 +104,7 @@ enum FulfilmentCustomerTabsEnum: string
             ],
             FulfilmentCustomerTabsEnum::AGREED_PRICES => [
                 'title' => __('agreed prices'),
-                'icon'  => 'fas fa-info-circle',
+                'icon'  => 'fal fa-usd-circle',
             ],
         };
     }
