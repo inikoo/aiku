@@ -27,7 +27,7 @@ function serviceRoute(service: {}) {
         case "grp.org.fulfilments.show.assets.services.index":
             return route(
                 'grp.org.fulfilments.show.assets.services.show',
-                [route().params['organisation'], route().params['fulfilment'], service.id])
+                [route().params['organisation'], route().params['fulfilment'], service.slug])
         default:
             return null
     }
