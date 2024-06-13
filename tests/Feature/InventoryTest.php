@@ -43,7 +43,7 @@ use App\Models\SupplyChain\StockFamily;
 use Illuminate\Validation\ValidationException;
 
 beforeAll(function () {
-    loadDB('test_base_database.dump');
+    loadDB();
 });
 
 beforeEach(function () {

@@ -39,7 +39,7 @@ use function Pest\Laravel\{get};
 use function Pest\Laravel\{actingAs};
 
 beforeAll(function () {
-    loadDB('test_base_database.dump');
+    loadDB();
     Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
 });
 

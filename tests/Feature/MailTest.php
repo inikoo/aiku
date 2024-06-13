@@ -18,7 +18,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\Mail\Outbox;
 
 beforeAll(function () {
-    loadDB('test_base_database.dump');
+    loadDB();
 });
 
 

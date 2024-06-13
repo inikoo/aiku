@@ -30,7 +30,7 @@ use App\Models\SupplyChain\Stock;
 use Throwable;
 
 beforeAll(function () {
-    loadDB('test_base_database.dump');
+    loadDB();
 });
 
 beforeEach(function () {
