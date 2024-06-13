@@ -5,10 +5,14 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentAssets;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Enums\UI\Fulfilment\FulfilmentAssetsTabsEnum;
+use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
 use App\Models\Inventory\Location;
+use Illuminate\Http\Request;
 use Inertia\Testing\AssertableInertia;
+use Lorisleiva\Actions\ActionRequest;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
@@ -43,12 +47,29 @@ beforeEach(function () {
 });
 
 test('UI Index fulfilment assets', function () {
-    $response = get(route('grp.org.fulfilments.show.assets.index', [$this->organisation->slug, $this->fulfilment->slug ]));
+    $response = $this->get(route('grp.org.fulfilments.show.assets.index', [$this->organisation->slug, $this->fulfilment->slug]));
+
     expect(FulfilmentAssetsTabsEnum::DASHBOARD->value)->toBe('dashboard');
+
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Fulfilment/Products')
-            ->has('title')->has('tabs')
+            ->has('title')
+            ->has('tabs')
             ->has('breadcrumbs', 3);
-    });
+    });  
+});
+
+test('UI Index fulfilment physical goods', function () {
+    $response = $this->get(route('grp.org.fulfilments.show.assets.outers.index', [$this->organisation->slug, $this->fulfilment->slug]));
+
+    expect(PhysicalGoodsTabsEnum::PHYSICAL_GOODS->value)->toBe('physical_goods');
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PhysicalGoods')
+            ->has('title')
+            ->has('tabs')
+            ->has('breadcrumbs', 4);
+    });  
 });
