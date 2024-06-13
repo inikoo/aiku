@@ -17,8 +17,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
-      - name: Npm install
-        run: npm ci --ignore-scripts
       - name: Composer install
         run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       - name: Prepare environment
@@ -26,15 +24,27 @@ jobs:
           ln -s ../../../../.pgpass .pgpass
           ln -s ../../../../env.aiku.testing .env.testing
           ln -s ../../../../env.aiku.testing .env
-          ln -s ../../../../../artifacts/public/grp public/grp
-          ln -s ../../../../../artifacts/public/iris public/iris
-          ln -s ../../../../../artifacts/public/retina public/retina
-          ln -s ../../../../../artifacts/public/aiku-public public/aiku-public
+          ln -s ../../../../artifacts/public/grp public/grp
+          ln -s ../../../../artifacts/public/iris public/iris
+          ln -s ../../../../artifacts/public/retina public/retina
+          ln -s ../../../../artifacts/public/aiku-public public/aiku-public
           mkdir private
           cd private
           ln -s ../../../../../artifacts/fa .
+
+      - name: Get changed files
+        id: changed-db-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            app/Enums/**
+            app/Stubs/**
+            database/migrations/**
       - name: Generate database dumps 📚
-        run: ./generate_testing_db_dumps.sh php8.3 aiku
+        if: steps.changed-db-files.outputs.any_changed == 'true'
+        run: ./generate_testing_db_dumps.sh php8.3 aiku;cp tests/datasets/db_dumps/aiku.dump ../../../../artifacts/
+      - name: Retrieve db dumps
+        run: cp ../../../../artifacts/aiku.dump tests/datasets/db_dumps/
       - name: Run test
         run: vendor/bin/pest -d memory_limit=-1 --coverage-clover clover.xml --exclude-group=aurora-fetch
       - name: Upload coverage to Codecov
