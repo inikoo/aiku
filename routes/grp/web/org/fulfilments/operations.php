@@ -24,7 +24,7 @@ Route::get('', ShowFulfilment::class)->name('dashboard');
 Route::get('/pallets', IndexPallets::class)->name('pallets.index');
 Route::get('/returned-pallets', IndexPallets::class)->name('returned_pallets.index');
 
-Route::get('/pallets/{pallet}', ShowPallet::class)->name('pallets.show');
+Route::get('/pallets/{pallet}', [ShowPallet::class, 'inFulfilment'])->name('pallets.show');
 //Route::get('/pallets/create', CreatePallet::class)->name('pallets.create');
 Route::get('/pallets/{pallet}/edit', [EditPallet::class, 'inFulfilment'])->name('pallets.edit');
 

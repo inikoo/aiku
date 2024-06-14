@@ -84,6 +84,14 @@ class ShowPallet extends OrgAction
         return $this->handle($pallet);
     }
 
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Pallet $pallet, ActionRequest $request): Pallet
+    {
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletTabsEnum::values());
+
+        return $this->handle($pallet);
+    }
+
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, Pallet $pallet, ActionRequest $request): Pallet
     {
@@ -210,7 +218,7 @@ class ShowPallet extends OrgAction
 
         return match (class_basename($parent)) {
             'Warehouse'    => $this->getBreadcrumbsFromWarehouse($pallet, $routeName, $suffix),
-            'Organisation' => $this->getBreadcrumbsFromFulfilment($pallet, $routeName, $suffix),
+            'Organisation', 'Fulfilment' => $this->getBreadcrumbsFromFulfilment($pallet, $routeName, $suffix),
             default        => $this->getBreadcrumbsFromFulfilmentCustomer($pallet, $routeName, $suffix),
         };
     }
@@ -254,14 +262,14 @@ class ShowPallet extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.index',
+                                'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
                             'label' => __('Pallets')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.show',
+                                'name'       => 'grp.org.fulfilments.show.operations.pallets.show',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
                             'label' => $pallet->reference,
