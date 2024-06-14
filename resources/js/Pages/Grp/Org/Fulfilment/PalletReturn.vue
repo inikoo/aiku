@@ -5,11 +5,12 @@
   -->
 
 <script setup lang="ts">
-import {Head, Link, useForm} from "@inertiajs/vue3"
+import { Head, useForm } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
-import { computed, onMounted, ref, watch, inject } from 'vue'
+import { computed, ref, watch } from 'vue'
+import type { Component } from 'vue'
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import Timeline from "@/Components/Utils/Timeline.vue"
@@ -19,39 +20,38 @@ import BoxNote from "@/Components/Pallet/BoxNote.vue"
 import TablePalletReturn from "@/Components/PalletReturn/tablePalletReturn.vue"
 import TablePalletReturnsDelivery from "@/Components/Tables/Grp/Org/Fulfilment/TablePalletReturnPallets.vue"
 import { routeType } from '@/types/route'
-import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
+import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
 import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn"
 import Tag from "@/Components/Tag.vue"
-import BoxStatPallet from "@/Components/Pallet/BoxStatPallet.vue"
-import JsBarcode from "jsbarcode"
-import { BoxStats, PDRNotes } from '@/types/Pallet'
+import { BoxStats, PDRNotes, PalletReturn } from '@/types/Pallet'
+import BoxStatsPalletReturn from '@/Pages/Grp/Org/Fulfilment/Return/BoxStatsPalletReturn.vue'
 
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { trans } from "laravel-vue-i18n"
-import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue";
-import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue";
-import {get} from "lodash";
-import PureInput from "@/Components/Pure/PureInput.vue";
-import PureMultiselect from "@/Components/Pure/PureMultiselect.vue";
-import Popover from "@/Components/Popover.vue";
-import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue";
+import TableServices from "@/Components/Tables/Grp/Org/Fulfilment/TableServices.vue"
+import TablePhysicalGoods from "@/Components/Tables/Grp/Org/Fulfilment/TablePhysicalGoods.vue"
+import { get } from "lodash"
+import PureInput from "@/Components/Pure/PureInput.vue"
+import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
+import Popover from "@/Components/Popover.vue"
+import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue"
+import { Tabs as TSTabs } from "@/types/Tabs"
 
 library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt )
 
-const layout = inject('layout', {})
-
 const props = defineProps<{
     title: string
-    tabs: {}
+    tabs: TSTabs
     pallets?: {}
     stored_items?: {}
     services?: {}
     service_lists?: {}
     physical_good_lists?: {}
     physical_goods?: {}
-    data?: {}
+    data: {
+        data: PalletReturn
+    }
     history?: {}
     pageHead: PageHeadingTypes
     updateRoute: routeType
@@ -64,11 +64,11 @@ const props = defineProps<{
     notes_data: PDRNotes[]
 }>()
 
-// console.log('qwewqewq', props.box_stats)
+// console.log('qwewqewq', props.data)
 
-let currentTab = ref(props.tabs.current)
+const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
-const timeline = ref({ ...props.data.data })
+const timeline = ref({ ...props.data?.data })
 const openModal = ref(false)
 const loading = ref(false)
 
@@ -76,7 +76,7 @@ const formAddService = useForm({ service_id: '', quantity: 1 })
 const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1 })
 
 const component = computed(() => {
-    const components = {
+    const components: Component = {
         pallets: TablePalletReturnsDelivery,
         stored_items: TableStoredItems,
         services: TableServices,
@@ -95,14 +95,6 @@ watch(
     { deep: true }
 )
 
-onMounted(() => {
-    JsBarcode('#palletReturnBarcode', 'par-' + route().v().params.palletDelivery, {
-        lineColor: "rgb(41 37 36)",
-        width: 2,
-        height: '50%',
-        displayValue: false
-    })
-})
 
 // Method: Add single service
 const handleFormSubmitAddService = (data: {}, closedPopover: Function) => {
@@ -150,14 +142,14 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
-        <template #button-group-add-pallet="{ action: action }">
+        <template #button-group-add-pallet="{ action }">
             <Button :style="action.button.style" :label="action.button.label" :icon="action.button.icon"
                 :iconRight="action.button.iconRight" :key="`ActionButton${action.button.label}${action.button.style}`"
                 :tooltip="action.button.tooltip" @click="() => (openModal = true)" />
         </template>
 
         <!-- Button: Add service (single) -->
-        <template #button-group-add-service="{ action: action }">
+        <template #button-group-add-service="{ action }">
             <div class="relative" v-if="currentTab === 'services'">
                 <Popover width="w-full">
                     <template #button>
@@ -199,7 +191,7 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
         </template>
 
         <!-- Button: Add physical good (single) -->
-        <template #button-group-add-physical-good="{ action: action }">
+        <template #button-group-add-physical-good="{ action }">
             <div class="relative" v-if="currentTab === 'physical_goods'">
                 <Popover width="w-full">
                     <template #button>
@@ -255,123 +247,8 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
         <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="Object.entries(timeline.timeline).length" />
     </div>
 
-    <!-- Section: Box -->
-    <div class="h-min grid grid-cols-4 border-b border-gray-200 divide-x divide-gray-300">
-        <!-- Box: Customer -->
-        <BoxStatPallet class="py-2 px-3">
-            <!-- Field: Reference -->
-            <Link as="a" v-if="box_stats.fulfilment_customer.customer.reference"
-                :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, box_stats.fulfilment_customer.fulfilment.slug, box_stats.fulfilment_customer.slug])"
-                class="flex items-center w-fit flex-none gap-x-2 cursor-pointer secondaryLink">
-                <dt v-tooltip="'Company name'" class="flex-none">
-                    <span class="sr-only">Reference</span>
-                    <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.reference }}</dd>
-            </Link>
-
-            <!-- Field: Contact name -->
-            <div v-if="box_stats.fulfilment_customer.customer.contact_name" class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Contact name'" class="flex-none">
-                    <span class="sr-only">Contact name</span>
-                    <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.contact_name }}</dd>
-            </div>
-
-
-            <!-- Field: Company name -->
-            <div v-if="box_stats.fulfilment_customer.customer.company_name" class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Company name'" class="flex-none">
-                    <span class="sr-only">Company name</span>
-                    <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.company_name }}</dd>
-            </div>
-
-            <!-- Field: Email -->
-            <div v-if="box_stats.fulfilment_customer?.customer.email" class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Email'" class="flex-none">
-                    <span class="sr-only">Email</span>
-                    <FontAwesomeIcon icon='fal fa-envelope' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer?.customer.email }}</dd>
-            </div>
-
-            <!-- Field: Phone -->
-            <div v-if="box_stats.fulfilment_customer?.customer.phone" class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Phone'" class="flex-none">
-                    <span class="sr-only">Phone</span>
-                    <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer?.customer.phone }}</dd>
-            </div>
-
-            <!-- Field: Location -->
-            <div v-if="box_stats.fulfilment_customer?.customer?.location?.length" class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Phone'" class="flex-none">
-                    <span class="sr-only">Location</span>
-                    <FontAwesomeIcon icon='fal fa-map-marker-alt' size="xs" class='text-gray-400' fixed-width aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer?.customer.location.join(", ") }}</dd>
-            </div>
-        </BoxStatPallet>
-
-
-        <BoxStatPallet class="py-2 px-3" :label="capitalize(data?.data.state)"
-            icon="fal fa-truck-couch">
-            <div class="flex items-center w-full flex-none gap-x-2">
-                <dt class="flex-none">
-                    <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
-                    <FontAwesomeIcon :icon='box_stats.delivery_status.icon' :class='box_stats.delivery_status.class'
-                        fixed-width aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.delivery_status.tooltip }}</dd>
-            </div>
-        </BoxStatPallet>
-
-        <!-- Box: Pallet -->
-        <BoxStatPallet class="py-2 px-3" :percentage="0">
-            <div class="flex items-end gap-x-3 mb-1">
-                <dt class="flex-none">
-                    <span class="sr-only">Total pallet</span>
-                    <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-gray-600 leading-6 text-lg font-medium ">{{ data?.data.number_pallets }}</dd>
-            </div>
-
-            <div class="flex items-end gap-x-3 mb-1">
-                <dt class="flex-none">
-                    <span class="sr-only">Services</span>
-                    <FontAwesomeIcon icon='fal fa-concierge-bell' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ data?.data.number_pallets }}</dd>
-            </div>
-
-            <div class="flex items-end gap-x-3 mb-1">
-                <dt class="flex-none">
-                    <span class="sr-only">Physical Goods</span>
-                    <FontAwesomeIcon icon='fal fa-cube' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ data?.data.number_pallets }}</dd>
-            </div>
-
-        </BoxStatPallet>
-
-
-        <!-- Box: Barcode -->
-        <BoxStatPallet>
-            <div class="h-full w-full px-2 flex flex-col items-center -mt-2">
-                <svg id="palletReturnBarcode" class="w-full" />
-                <div class="text-xxs md:text-xxs text-gray-500 -mt-1">
-                    par-{{ route().params.palletReturn }}
-                </div>
-            </div>
-        </BoxStatPallet>
-    </div>
+    <!-- Section: Box Stats -->
+    <BoxStatsPalletReturn :dataPalletReturn="data.data" :boxStats="box_stats" />
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]" :state="timeline.state" :key="timeline.state" :tab="currentTab" />

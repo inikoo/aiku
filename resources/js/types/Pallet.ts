@@ -99,7 +99,17 @@ export interface PalletDelivery {
     reference: string
     state: string
     timeline: Timeline[]
-    estimated_delivery_date : string
+    estimated_delivery_date: string
+}
+
+export interface PalletReturn {
+    id: number
+    reference: string
+    state: string
+    timeline: {
+        [key: string]: Timeline
+    }
+    number_pallets: number
 }
 
 // Box Stats in Pallet Delivery
@@ -121,6 +131,7 @@ export interface BoxStats {
             name: string
             slug: string
         }
+        slug: string
         number_pallet_deliveries: number
         number_pallet_returns: number
         number_pallets: number

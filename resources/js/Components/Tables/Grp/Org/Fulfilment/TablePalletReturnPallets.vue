@@ -16,7 +16,7 @@ import '@/Composables/Icon/PalletReturnStateEnum'  // Import all icon for State
 
 import Icon from "@/Components/Icon.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue'
-import { inject } from 'vue'
+import { inject, ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { trans } from "laravel-vue-i18n"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
@@ -24,6 +24,7 @@ import { layoutStructure } from "@/Composables/useLayoutStructure"
 const layout = inject('layout', layoutStructure)
 
 library.add(faTrashAlt, faSignOutAlt, faTimes, faShare, faCross, faPaperPlane)
+
 const props = defineProps<{
     data: {}
     tab?: string
@@ -31,9 +32,12 @@ const props = defineProps<{
     app?: string // 'retina'
 }>()
 
+const isDeleteLoading = ref<boolean | string>(false)
+
 function customerRoute(pallet: {}) {
     return route(pallet.deleteFromReturnRoute.name, pallet.deleteFromReturnRoute.parameters)
 }
+
 </script>
 
 <template>
@@ -89,8 +93,11 @@ function customerRoute(pallet: {}) {
         <!-- Column: Actions -->
         <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in-process' || props.state == 'picking'">
             <div v-if="props.state == 'in-process'">
-                <Link as="div" :href="customerRoute(pallet)" v-tooltip="trans('Unselect this pallet')" method="delete">
-                    <Button icon="fal fa-trash-alt" type="negative" />
+                <Link as="div" :href="customerRoute(pallet)" v-tooltip="trans('Unselect this pallet')" method="delete"
+                    @start="() => isDeleteLoading = pallet.id"
+                    @finish="() => isDeleteLoading = false"
+                >
+                    <Button icon="fal fa-trash-alt" type="negative" :loading="pallet.id === isDeleteLoading" />
                 </Link>
             </div>
 
