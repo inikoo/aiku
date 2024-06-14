@@ -131,6 +131,24 @@ test('UI create fulfilment customer', function () {
     });
 });
 
+test('UI show fulfilment customer', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->fulfilmentCustomer->slug]));
+    $response->assertInertia(function (AssertableInertia $page){
+        $page
+            ->component('Org/Fulfilment/FulfilmentCustomer')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->customer->name)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
 test('UI edit fulfilment customer', function () {
     $response = get(route('grp.org.fulfilments.show.crm.customers.show.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
