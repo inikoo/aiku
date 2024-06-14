@@ -120,7 +120,7 @@ onMounted(() => {
                     <Link v-if="blueprint.location.value.route?.name" :href="route(blueprint.location.value.route.name, blueprint.location.value.route.parameters)" class="primaryLink">
                         {{ blueprint.location.value.resource.code }}
                     </Link>
-                    <span v-else>{{ blueprint.location.value.resource.code }}</span>
+                    <span v-else>{{ blueprint?.location?.value?.resource?.code }}</span>
                 </dd>
             </div>
 

@@ -14,6 +14,7 @@ import WorkshopProduct from "@/Components/CMS/Workshops/ProductWorkshop.vue"
 import ColorSchemeWorkshop from "@/Components/CMS/Workshops/ColorSchemeWorkshop.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { useLayoutStore } from "@/Stores/layout"
+import CategoryWorkshop from '@/Components/CMS/Workshops/CategoryWorkshop.vue'
 
 library.add(faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faCube, faPalette, faCheeseburger, faDraftingCompass, faWindow)
 
@@ -44,6 +45,7 @@ const component = computed(() => {
         menu: WorkshopMenu,
         footer: WorkshopFooter,
         website_layout: LayoutWorkshop,
+        category: CategoryWorkshop,
         product: WorkshopProduct
     }
     return components[currentTab.value]
