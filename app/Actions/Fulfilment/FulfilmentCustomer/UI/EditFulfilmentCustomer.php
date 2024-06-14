@@ -98,12 +98,7 @@ class EditFulfilmentCustomer extends OrgAction
                     'args'      => [
                         'updateRoute' => [
                             'name'      => 'grp.models.fulfilment-customer.update',
-                            'parameters'=> [
-                                'organisation'               => $fulfilmentCustomer->organisation->id,
-                                'shop'                       => $fulfilmentCustomer->fulfilment->shop->id,
-                                'fulfilment'                 => $fulfilmentCustomer->fulfilment->id,
-                                'fulfilmentCustomer'         => $fulfilmentCustomer->id
-                            ]
+                            'parameters'=> [$fulfilmentCustomer->id]   
                         ],
                     ]
 
