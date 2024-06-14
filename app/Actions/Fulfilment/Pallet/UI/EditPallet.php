@@ -132,6 +132,14 @@ class EditPallet extends OrgAction
         return $this->handle($storedItem);
     }
 
+    public function inFulfilment(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, Pallet $pallet, ActionRequest $request): Pallet
+    {
+        $this->parent = $organisation;
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($pallet);
+    }
+
     public function inWarehouse(Organisation $organisation, Warehouse $warehouse, Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->parent = $warehouse;

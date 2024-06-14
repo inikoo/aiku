@@ -152,9 +152,19 @@ class ShowPallet extends OrgAction
                             'type'    => 'button',
                             'style'   => 'edit',
                             'tooltip' => __('edit stored items'),
-                            'label'   => __('Edit'),
+                            'label'   => __('Edit Stored Items'),
                             'route'   => [
                                 'name'       => 'grp.org.warehouses.show.fulfilment.pallets.edit',
+                                'parameters' => array_values(request()->route()->originalParameters())
+                            ]
+                        ],
+                        [
+                            'type'    => 'button',
+                            'style'   => 'edit',
+                            'tooltip' => __('edit pallet'),
+                            'label'   => __('Edit'),
+                            'route'   => [
+                                'name'       => 'grp.org.fulfilments.show.operations.pallets.edit',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ]
                         ],
