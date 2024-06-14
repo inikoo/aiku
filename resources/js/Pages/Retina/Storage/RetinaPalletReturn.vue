@@ -20,9 +20,6 @@ import TablePalletReturnsDelivery from "@/Components/Tables/Grp/Org/Fulfilment/T
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn.ts"
-import { trans } from "laravel-vue-i18n"
-import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
-import PureTextarea from "@/Components/Pure/PureTextarea.vue"
 
 const props = defineProps<{
 	title: string
@@ -84,11 +81,11 @@ watch(
 
     <!-- Todo -->
     <!-- Box: Notes -->
-    <!-- <BoxStatsPalletDelivery class="pb-2 pt-6 px-2" tooltip="Notes">
+    <!-- <BoxStatPallet class="pb-2 pt-6 px-2" tooltip="Notes">
         <div class="h-full w-full px-2 flex flex-col items-center">
             <PureTextarea full :placeholder="trans('Enter notes for this pallet return')" />
         </div>
-    </BoxStatsPalletDelivery> -->
+    </BoxStatPallet> -->
 
 	<Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     

@@ -22,7 +22,7 @@ import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
 import palletReturnDescriptor from "@/Components/PalletReturn/Descriptor/PalletReturn"
 import Tag from "@/Components/Tag.vue"
-import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
+import BoxStatPallet from "@/Components/Pallet/BoxStatPallet.vue"
 import JsBarcode from "jsbarcode"
 import { BoxStats, PDRNotes } from '@/types/Pallet'
 
@@ -255,7 +255,7 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
     <!-- Section: Box -->
     <div class="h-min grid grid-cols-4 border-b border-gray-200 divide-x divide-gray-300">
         <!-- Box: Customer -->
-        <BoxStatsPalletDelivery class="py-2 px-3">
+        <BoxStatPallet class="py-2 px-3">
             <!-- Field: Reference -->
             <Link as="a" v-if="box_stats.fulfilment_customer.customer.reference"
                 :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, box_stats.fulfilment_customer.fulfilment.slug, box_stats.fulfilment_customer.slug])"
@@ -312,10 +312,10 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
                 </dt>
                 <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer?.customer.location.join(", ") }}</dd>
             </div>
-        </BoxStatsPalletDelivery>
+        </BoxStatPallet>
 
 
-        <BoxStatsPalletDelivery class="py-2 px-3" :label="capitalize(data?.data.state)"
+        <BoxStatPallet class="py-2 px-3" :label="capitalize(data?.data.state)"
             icon="fal fa-truck-couch">
             <div class="flex items-center w-full flex-none gap-x-2">
                 <dt class="flex-none">
@@ -325,10 +325,10 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
                 </dt>
                 <dd class="text-xs text-gray-500">{{ box_stats.delivery_status.tooltip }}</dd>
             </div>
-        </BoxStatsPalletDelivery>
+        </BoxStatPallet>
 
         <!-- Box: Pallet -->
-        <BoxStatsPalletDelivery class="py-2 px-3" :percentage="0">
+        <BoxStatPallet class="py-2 px-3" :percentage="0">
             <div class="flex items-end gap-x-3 mb-1">
                 <dt class="flex-none">
                     <span class="sr-only">Total pallet</span>
@@ -356,18 +356,18 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
                 <dd class="text-gray-600 leading-6 text-lg font-medium">{{ data?.data.number_pallets }}</dd>
             </div>
 
-        </BoxStatsPalletDelivery>
+        </BoxStatPallet>
 
 
         <!-- Box: Barcode -->
-        <BoxStatsPalletDelivery>
+        <BoxStatPallet>
             <div class="h-full w-full px-2 flex flex-col items-center -mt-2">
                 <svg id="palletReturnBarcode" class="w-full" />
                 <div class="text-xxs md:text-xxs text-gray-500 -mt-1">
                     par-{{ route().params.palletReturn }}
                 </div>
             </div>
-        </BoxStatsPalletDelivery>
+        </BoxStatPallet>
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />

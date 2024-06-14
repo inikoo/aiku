@@ -47,7 +47,7 @@ const props = defineProps<{
         
 
         <!-- Box: Calculation -->
-        <!-- <BoxStatsPalletDelivery class="col-span-2 py-5 px-3">
+        <!-- <BoxStatPallet class="col-span-2 py-5 px-3">
             <div class="px-4 max-w-xl">
                 <div class="px-5 py-5 border-2 border-gray-300 rounded-md shadow text-gray-500">
                     <div class="mb-4 space-y-1">
@@ -116,7 +116,7 @@ const props = defineProps<{
                     </div>
                 </div>
             </div>
-        </BoxStatsPalletDelivery> -->
+        </BoxStatPallet> -->
     </div>
 
     <!-- <Table resources="" /> -->

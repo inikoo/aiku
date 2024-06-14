@@ -25,16 +25,13 @@ import UploadExcel from '@/Components/Upload/UploadExcel.vue'
 import { trans } from "laravel-vue-i18n"
 import { routeType } from '@/types/route'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
-import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
-import JsBarcode from 'jsbarcode'
 import { PalletDelivery, BoxStats, PDRNotes } from '@/types/Pallet'
 import { Table as TableTS } from '@/types/Table'
 import { Tabs as TSTabs } from '@/types/Tabs'
-import DatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
-import { useFormatTime, useDaysLeftFromToday } from '@/Composables/useFormatTime'
 import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
+import BoxStatsPalletDelivery from '@/Pages/Grp/Org/Fulfilment/Delivery/BoxStatsPalletDelivery.vue'
 
 import '@/Composables/Icon/PalletDeliveryStateEnum'
 
@@ -92,7 +89,6 @@ const formAddService = useForm({ service_id: '', quantity: 1 })
 const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1 })
 const formMultiplePallet = useForm({ number_pallets: 1, type : 'pallet' })
 const tableKey = ref(1)  // To re-render Table after click Confirm (so the Table retrieve the new props)
-const estimatedDate = ref(null);
 const typePallet = [
     { label : 'Pallet', value : 'pallet'},
     { label : 'Box', value : 'box'},
@@ -220,13 +216,6 @@ const component = computed(() => {
 
 })
 
-const disableBeforeToday=(date)=>{
-      const today = new Date();
-      // Set time to 00:00:00 for comparison purposes
-      today.setHours(0, 0, 0, 0);
-      return date < today;
-    }
-
 watch(() => props.data, (newValue) => {
     timeline.value = newValue.data
 }, { deep: true })
@@ -235,16 +224,9 @@ watch(() => props.data.data.estimated_delivery_date, (newValue) => {
     onChangeEstimateDate()
 }, { })
 
-onMounted(() => {
-    JsBarcode('#palletDeliveryBarcode', 'pad-' + route().v().params.palletDelivery, {
-        lineColor: "rgb(41 37 36)",
-        width: 2,
-        height: '50%',
-        displayValue: false
-    });
-})
 
-console.log(currentTab.value)
+
+// console.log(currentTab.value)
 
 </script>
 
@@ -476,167 +458,12 @@ console.log(currentTab.value)
     </div>
 
     <!-- Section: Timeline -->
-    <div v-if="timeline.state != 'in-process'" class="border-b border-gray-200 pb-2">
+    <div v-if="timeline.state != 'in-process'" class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
         <Timeline :options="timeline.timeline" :state="timeline.state" :slidesPerView="6" />
     </div>
 
     <!-- Box -->
-    <div class="h-min grid grid-cols-4 border-b border-gray-200 divide-x divide-gray-300">
-        <!-- Box: Customer -->
-        <BoxStatsPalletDelivery class="py-2 px-3" :label="data?.data.customer_name" icon="fal fa-user">
-            <!-- Field: Reference -->
-            <Link as="a" v-if="box_stats.fulfilment_customer.customer.reference"
-                :href="route('grp.org.fulfilments.show.crm.customers.show', [route().params.organisation, box_stats.fulfilment_customer.fulfilment.slug, box_stats.fulfilment_customer.slug])"
-                class="flex items-center w-fit flex-none gap-x-2 cursor-pointer secondaryLink">
-            <dt v-tooltip="'Company name'" class="flex-none">
-                <span class="sr-only">Reference</span>
-                <FontAwesomeIcon icon='fal fa-id-card-alt' size="xs" class='text-gray-400' fixed-width
-                    aria-hidden='true' />
-            </dt>
-            <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.reference }}</dd>
-            </Link>
-
-            <!-- Field: Contact name -->
-            <div v-if="box_stats.fulfilment_customer.customer.contact_name"
-                class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Contact name'" class="flex-none">
-                    <span class="sr-only">Contact name</span>
-                    <FontAwesomeIcon icon='fal fa-user' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.contact_name }}</dd>
-            </div>
-
-
-            <!-- Field: Company name -->
-            <div v-if="box_stats.fulfilment_customer.customer.company_name"
-                class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Company name'" class="flex-none">
-                    <span class="sr-only">Company name</span>
-                    <FontAwesomeIcon icon='fal fa-building' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer.customer.company_name }}</dd>
-            </div>
-
-            <!-- Field: Email -->
-            <div v-if="box_stats.fulfilment_customer?.customer.email"
-                class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Email'" class="flex-none">
-                    <span class="sr-only">Email</span>
-                    <FontAwesomeIcon icon='fal fa-envelope' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer?.customer.email }}</dd>
-            </div>
-
-            <!-- Field: Phone -->
-            <div v-if="box_stats.fulfilment_customer?.customer.phone"
-                class="flex items-center w-full flex-none gap-x-2">
-                <dt v-tooltip="'Phone'" class="flex-none">
-                    <span class="sr-only">Phone</span>
-                    <FontAwesomeIcon icon='fal fa-phone' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500">{{ box_stats.fulfilment_customer?.customer.phone }}</dd>
-            </div>
-        </BoxStatsPalletDelivery>
-
-        <!-- Box: Status -->
-        <BoxStatsPalletDelivery class="py-2 px-3" :label="capitalize(data?.data.state)" icon="fal fa-truck-couch">
-        <!-- <pre>{{ data.data }}</pre> -->
-            <div class="flex items-center w-full flex-none gap-x-2 mb-2">
-                <dt class="flex-none">
-                    <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
-                    <FontAwesomeIcon :icon='box_stats.delivery_status.icon' :class='box_stats.delivery_status.class'
-                        fixed-width aria-hidden='true' />
-                </dt>
-                <dd class="text-xs text-gray-500" :class='box_stats.delivery_status.class'>{{
-                    box_stats.delivery_status.tooltip }}</dd>
-            </div>
-
-            <!-- Set estimated date -->
-            <div class="flex items-center w-full gap-x-2">
-                <dt v-tooltip="'Estimated received date'" class="flex-none">
-                    <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
-                    <FontAwesomeIcon :icon="['fal', 'calendar-day']" class="text-gray-400" fixed-width aria-hidden='true' />
-                </dt>
-
-                <div v-if="(box_stats.delivery_status.tooltip === 'Received' || box_stats.delivery_status.tooltip === 'Booking in' || box_stats.delivery_status.tooltip == 'Booked In')">
-                    <dd class="text-xs text-gray-500">
-                        {{ data?.data.estimated_delivery_date ? useFormatTime(data?.data?.estimated_delivery_date) : 'Not Set' }}
-                    </dd>
-                </div>
-
-                <Popover v-else position="">
-                    <template #button>
-                        <div v-if="data?.data.estimated_delivery_date"
-                            v-tooltip="useDaysLeftFromToday(data?.data.estimated_delivery_date)"
-                            class="group text-xs text-gray-500"
-                        >
-                            {{ useFormatTime(data?.data?.estimated_delivery_date) }}
-                            <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='text-gray-400 group-hover:text-gray-600' fixed-width aria-hidden='true' />
-                        </div>
-
-                        <div v-else class="text-xs text-gray-500 hover:text-gray-600 underline">
-                            {{ trans('Set estimated date') }}
-                        </div>
-                    </template>
-
-                    <template #content="{ close }">
-                        <DatePicker
-                            v-model="data.data.estimated_delivery_date"
-                            inline
-                            auto-apply
-                            :disabled-dates="disableBeforeToday"
-                            :enable-time-picker="false"
-                        />
-                    </template>
-                </Popover>
-            </div>
-        </BoxStatsPalletDelivery>
-
-        <!-- Box: Pallet -->
-        <BoxStatsPalletDelivery class="py-2 px-3" :percentage="0">
-            <div v-tooltip="trans('Total Pallet')" class="flex items-end w-fit pr-2 gap-x-3 mb-1">
-                <dt class="flex-none">
-                    <span class="sr-only">Total pallet</span>
-                    <FontAwesomeIcon icon='fal fa-pallet' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-gray-600 leading-6 text-lg font-medium ">{{ data?.data.number_pallets || 0 }}</dd>
-            </div>
-
-            <div v-tooltip="trans('Total Services')" class="flex items-end w-fit pr-2 gap-x-3 mb-1">
-                <dt class="flex-none">
-                    <span class="sr-only">Services</span>
-                    <FontAwesomeIcon icon='fal fa-concierge-bell' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ data?.data.number_services }}</dd>
-            </div>
-
-            <div v-tooltip="trans('Total Physical Goods')" class="flex items-end w-fit pr-2 gap-x-3 mb-1">
-                <dt class="flex-none">
-                    <span class="sr-only">Physical Goods</span>
-                    <FontAwesomeIcon icon='fal fa-cube' size="xs" class='text-gray-400' fixed-width
-                        aria-hidden='true' />
-                </dt>
-                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ data?.data.number_physical_goods }}</dd>
-            </div>
-
-        </BoxStatsPalletDelivery>
-
-        <!-- Box: Barcode -->
-        <BoxStatsPalletDelivery>
-            <div class="h-full w-full px-2 flex flex-col items-center -mt-2 isolate">
-                <svg id="palletDeliveryBarcode" class="w-full" />
-                <div class="text-xxs md:text-xxs text-gray-500 -mt-1 z-10">
-                    pad-{{ route().params.palletDelivery }}
-                </div>
-            </div>
-        </BoxStatsPalletDelivery>
-    </div>
+    <BoxStatsPalletDelivery :dataPalletDelivery="data.data" :boxStats="box_stats" />
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
 
