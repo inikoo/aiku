@@ -89,6 +89,7 @@ class ShowEmployee extends OrgAction
                     'meta'          => [
                         [
                             'label'    => $employee->worker_number,
+                            'key'      => 'worker_number',
                             'leftIcon' => [
                                 'icon'    => 'fal fa-id-card',
                                 'tooltip' => __('Worker number')
@@ -97,6 +98,7 @@ class ShowEmployee extends OrgAction
 
                         [
                             'label'    => Arr::get(explode(':', $employee->pin), 1),
+                            'key'      => 'pin',
                             'leftIcon' => [
                                 'icon'    => 'fal fa-key',
                                 'tooltip' => __('Pin')
@@ -106,6 +108,7 @@ class ShowEmployee extends OrgAction
                         $employee->user ?
                             [
                                 'label'    => $employee->user->username,
+                                'key'      => 'user',
                                 'leftIcon' => [
                                     'icon'    => 'fal fa-user',
                                     'tooltip' => __('User')
