@@ -16,14 +16,16 @@ import '@/Composables/Icon/PalletReturnStateEnum'  // Import all icon for State
 
 import Icon from "@/Components/Icon.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue'
-import { inject } from 'vue'
+import { inject, ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { trans } from "laravel-vue-i18n"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
+import { routeType } from "@/types/route"
 
 const layout = inject('layout', layoutStructure)
 
 library.add(faTrashAlt, faSignOutAlt, faTimes, faShare, faCross, faPaperPlane)
+
 const props = defineProps<{
     data: {}
     tab?: string
@@ -31,9 +33,9 @@ const props = defineProps<{
     app?: string // 'retina'
 }>()
 
-function customerRoute(pallet: {}) {
-    return route(pallet.deleteFromReturnRoute.name, pallet.deleteFromReturnRoute.parameters)
-}
+const isDeleteLoading = ref<boolean | string>(false)
+const isNotPickedLoading = ref(false)
+const isReceivedLoading = ref(false)
 </script>
 
 <template>
@@ -88,9 +90,14 @@ function customerRoute(pallet: {}) {
 
         <!-- Column: Actions -->
         <template #cell(actions)="{ item: pallet }" v-if="props.state == 'in-process' || props.state == 'picking'">
+            <!-- <pre>{{ pallet.state }}</pre> -->
+            
             <div v-if="props.state == 'in-process'">
-                <Link as="div" :href="customerRoute(pallet)" v-tooltip="trans('Unselect this pallet')" method="delete">
-                    <Button icon="fal fa-trash-alt" type="negative" />
+                <Link as="div" :href="route(pallet.deleteFromReturnRoute.name, pallet.deleteFromReturnRoute.parameters)" v-tooltip="trans('Unselect this pallet')" method="delete"
+                    @start="() => isDeleteLoading = pallet.id"
+                    @finish="() => isDeleteLoading = false"
+                >
+                    <Button icon="fal fa-trash-alt" type="negative" :loading="pallet.id === isDeleteLoading" />
                 </Link>
             </div>
 
@@ -98,21 +105,24 @@ function customerRoute(pallet: {}) {
             <div v-if="props.state == 'picking' && layout.app.name == 'Aiku'" class="flex gap-x-1 ">
                 <Link v-if="pallet.state !== 'not-picked'" as="div"
                     :href="route(pallet.updateRoute.name, pallet.updateRoute.parameters)"
-                    :data="{state: 'not-picked'}"
+                    :data="{ state: 'not-picked' }"
+                    @start="() => isNotPickedLoading = pallet.id"
+                    @finish="() => isNotPickedLoading = false"
                     method="patch"
                     v-tooltip="`Set as not picked`"
                 >
-                    <Button icon="fal fa-times" type="negative" />
-                    <!-- <FontAwesomeIcon icon='fal fa-times' class='' fixed-width aria-hidden='true' /> -->
+                    <Button icon="fal fa-times" type="negative" key="button_not_picked" :loading="isNotPickedLoading === pallet.id" />
                 </Link>
 
                 <Link v-if="pallet.state !== 'picked'" as="div"
                     :href="route(pallet.updateRoute.name, pallet.updateRoute.parameters)"
-                    :data="{state: 'picked'}"
+                    :data="{ state: 'picked' }"
+                    @start="() => isReceivedLoading = pallet.id"
+                    @finish="() => isReceivedLoading = false"
                     method="patch"
                     v-tooltip="`Set as picked`"    
                 >
-                    <Button icon="fal fa-check" type="positive" />
+                    <Button icon="fal fa-check" type="positive" key="button_picked" :loading="isReceivedLoading === pallet.id" />
                 </Link>
             </div>
         </template>

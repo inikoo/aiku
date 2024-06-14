@@ -204,7 +204,7 @@ const hasOnlyData = computed(() => {
 
 // Data of list users
 const compResourceData = computed(() => {
-    if (Object.keys(props.resource).length === 0) {
+    if (Object.keys(props.resource || {}).length === 0) {
         return props.data;
     }
 
@@ -216,7 +216,7 @@ const compResourceData = computed(() => {
 
 // Meta Page (Previous/next link, current page, data per page)
 const compResourceMeta = computed(() => {
-    if (Object.keys(props.resource).length === 0) {
+    if (Object.keys(props.resource || {}).length === 0) {
         return props.meta;
     }
 

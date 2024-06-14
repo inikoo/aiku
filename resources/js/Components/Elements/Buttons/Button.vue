@@ -196,6 +196,7 @@ const getActionIcon = (icon: any) => {
 
     &:disabled {
         background-color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4]} 50%, grey)`') !important;
+        cursor: not-allowed;
     }
 }
 
@@ -215,6 +216,7 @@ const getActionIcon = (icon: any) => {
 
     &:disabled {
         background-color: v-bind('`color-mix(in srgb, ${layout?.app?.theme[4] + "22"} 70%, black)`') !important;
+        cursor: not-allowed;
     }
 }
 </style>

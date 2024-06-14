@@ -75,7 +75,7 @@ const useFormatTime = (dateIso: string | Date, OptionsTime?: OptionsTime) => {
 </script>
 
 <template>
-    <div class="w-full py-2 flex flex-col isolate">
+    <div class="w-full py-5 sm:py-2 flex flex-col isolate">
         <Swiper ref="_swiperRef" :slideToClickedSlide="false" :slidesPerView="slidesPerView"
             :centerInsufficientSlides="true" :pagination="{ clickable: true, }" class="w-full h-fit isolate">
             <template v-for="(step, stepIndex) in finalOptions" :key="stepIndex">
