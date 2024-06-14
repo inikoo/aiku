@@ -40,7 +40,7 @@ enum PalletDeliveryTabsEnum: string
                 'icon'  => 'fal fa-concierge-bell',
             ],
             PalletDeliveryTabsEnum::PHYSICAL_GOODS => [
-                'title' => __('physical_goods'),
+                'title' => __('physical goods'),
                 'icon'  => 'fal fa-cube',
             ],
         };

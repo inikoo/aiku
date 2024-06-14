@@ -155,7 +155,7 @@ class IndexLostPalletsInWarehouse extends OrgAction
                 ),
                 'title'       => __('pallets'),
                 'pageHead'    => [
-                    'title'         => __('Returned pallets'),
+                    'title'         => __('Lost pallets'),
                     'icon'          => ['fal', 'fa-pallet'],
                     'subNavigation' => $this->getPalletsInWarehouseSubNavigation($this->parent, $request)
 

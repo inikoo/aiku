@@ -32,7 +32,7 @@ jobs:
           cd private
           ln -s ../../../../../artifacts/fa .
 
-      - name: Get changed files
+      - name: Get db changed files
         id: changed-db-files
         uses: tj-actions/changed-files@v44
         with:
@@ -40,19 +40,30 @@ jobs:
             app/Enums/**
             app/Stubs/**
             database/migrations/**
+      - name: Get coverage changed files
+        id: changed-coverage-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            app/**
+            tests/**
+            database/migrations/**
       - name: Generate database dumps 📚
         if: steps.changed-db-files.outputs.any_changed == 'true'
         run: ./generate_testing_db_dumps.sh php8.3 aiku;cp tests/datasets/db_dumps/aiku.dump ../../../../artifacts/
       - name: Retrieve db dumps
         run: cp ../../../../artifacts/aiku.dump tests/datasets/db_dumps/
-      - name: Run test
+      - name: Run test with coverage
+        if: steps.changed-coverage-files.outputs.any_changed == 'true'
         run: vendor/bin/pest -d memory_limit=-1 --coverage-clover clover.xml --exclude-group=aurora-fetch
+      - name: Run test without coverage
+        if: steps.changed-coverage-files.outputs.any_changed != 'true'
+        run: vendor/bin/pest --exclude-group=aurora-fetch
       - name: Upload coverage to Codecov
+        if: steps.changed-coverage-files.outputs.any_changed == 'true'
         uses: codecov/codecov-action@v4
         with:
           fail_ci_if_error: false
           file: ./clover.xml
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
-      - name: clean up
-        run: rm -rf clover.xml
