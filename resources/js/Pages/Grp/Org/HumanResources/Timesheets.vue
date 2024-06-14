@@ -14,45 +14,23 @@ import { startOfWeek, startOfMonth, startOfQuarter, startOfYear, addDays, addWee
 
 import { format, parse, getYear, getMonth, getDate } from 'date-fns'
 import { getISOWeek, getISOWeekYear, parseISO } from 'date-fns'
-import { computed, ref } from "vue"
-import type { Component } from "vue"
+import { computed, ref, watch } from 'vue'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 
 
 import { faChevronLeft, faChevronRight } from '@fas'
-import {faCalendarAlt, faUser, faUsers} from '@fal'
+import { faCalendarAlt } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import type {Navigation} from "@/types/Tabs";
-import {useTabChange} from "@/Composables/tab-change";
-import TableTimeTrackers from "@/Components/Tables/Grp/Org/HumanResources/TableTimeTrackers.vue";
-import TableClockings from "@/Components/Tables/Grp/Org/HumanResources/TableClockings.vue";
-import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
-import Tabs from "@/Components/Navigation/Tabs.vue";
-library.add(faChevronLeft, faChevronRight, faCalendarAlt, faUser, faUsers)
+library.add(faChevronLeft, faChevronRight, faCalendarAlt)
 
-const props = defineProps<{
+defineProps<{
     pageHead: PageHeadingTypes
     title: string
-    employees: {}
-    employee: {}
-    tabs: {
-        current: string
-        navigation: Navigation
-    },
+    data: {}
 }>()
 
-const currentTab = ref(props.tabs.current)
-const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
-const component = computed(() => {
-    const components: Component = {
-        employees: TableSheets,
-        employee: TableSheets
-    }
-
-    return components[currentTab.value]
-})
 
 function periodLabel(period: any) {
     if (!period) return false
@@ -112,6 +90,5 @@ function periodLabel(period: any) {
         </template>
     </PageHeading>
 
-    <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab"></component>
+    <TableSheets :data="data" />
 </template>

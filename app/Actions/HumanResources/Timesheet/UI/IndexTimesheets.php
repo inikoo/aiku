@@ -164,23 +164,29 @@ class IndexTimesheets extends OrgAction
                     'navigation' => TimesheetsTabsEnum::navigation()
                 ],
 
-                TimesheetsTabsEnum::ALL_EMPLOYEES->value => $this->tab == TimesheetsTabsEnum::ALL_EMPLOYEES->value ?
-                    fn () => TimesheetsResource::collection($timesheets)
-                    : Inertia::lazy(fn () => TimesheetsResource::collection($timesheets)),
-
-                TimesheetsTabsEnum::PER_EMPLOYEE->value => $this->tab == TimesheetsTabsEnum::PER_EMPLOYEE->value ?
-                    fn () => TimesheetsResource::collection($timesheets)
-                    : Inertia::lazy(fn () => TimesheetsResource::collection($timesheets)),
+                'data' => TimesheetsResource::collection($timesheets)
 
             ]
-        )->table($this->tableStructure($this->parent, prefix: TimesheetsTabsEnum::ALL_EMPLOYEES->value));
+        )->table($this->tableStructure($this->parent, modelOperations: [
+
+                'createLink' => [
+                    [
+                        'route' => [
+                            'name'       => 'grp.org.hr.timesheets.index',
+                            'parameters' => array_values($request->route()->originalParameters())
+                        ],
+                        'label' => __('per employee')
+                    ]
+                ]
+
+        ]));
     }
 
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $organisation;
-        $this->initialisation($organisation, $request)->withTab(TimesheetsTabsEnum::values());
+        $this->initialisation($organisation, $request);
 
         return $this->handle($organisation);
     }
@@ -188,7 +194,7 @@ class IndexTimesheets extends OrgAction
     public function inEmployee(Organisation $organisation, Employee $employee, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $employee;
-        $this->initialisation($organisation, $request)->withTab(TimesheetsTabsEnum::values());
+        $this->initialisation($organisation, $request);
 
         return $this->handle($employee);
     }
@@ -196,7 +202,7 @@ class IndexTimesheets extends OrgAction
     public function inGuest(Organisation $organisation, Guest $guest, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $guest;
-        $this->initialisation($organisation, $request)->withTab(TimesheetsTabsEnum::values());
+        $this->initialisation($organisation, $request);
 
         return $this->handle($guest);
     }
