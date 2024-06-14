@@ -117,7 +117,7 @@ class EditPallet extends OrgAction
                     'args' => [
                         'updateRoute' => [
                             'name'       => 'grp.models.pallet.update',
-                            'parameters' => $pallet->id
+                            'parameters' => [$pallet->id]
                         ],
                     ]
                 ],
