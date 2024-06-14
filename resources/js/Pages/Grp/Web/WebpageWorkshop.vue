@@ -94,7 +94,6 @@ const setData = () => {
 };
 
 const onPublish = (action) => {
-  console.log(action)
   router[action.method](
     route(action?.name, action?.parameters),
     { comment: comment.value, publishLayout: data.value },

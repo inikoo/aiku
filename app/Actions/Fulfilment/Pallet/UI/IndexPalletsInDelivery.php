@@ -158,7 +158,7 @@ class IndexPalletsInDelivery extends OrgAction
                     ($palletDelivery instanceof PalletReturn and ($palletDelivery->state == PalletReturnStateEnum::DISPATCHED or $palletDelivery->state == PalletReturnStateEnum::CANCEL))
                 )
             ) {
-                $table->column(key: 'stored_items', label: ' ', canBeHidden: false, searchable: true);
+                $table->column(key: 'stored_items', label: 'Stored Items', canBeHidden: false, searchable: true);
                 $table->column(key: 'actions', label: ' ', canBeHidden: false, searchable: true);
             }
 
