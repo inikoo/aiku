@@ -21,6 +21,7 @@ use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
+use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\Rental\StoreRental;
@@ -315,7 +316,10 @@ test('create pallet delivery', function ($fulfilmentCustomer) {
 })->depends('create fulfilment customer');
 
 test('update pallet delivery notes', function (PalletDelivery $palletDelivery) {
-    $palletDelivery->update(
+
+
+    UpdatePalletDelivery::make()->action(
+        $palletDelivery,
         [
             'customer_notes' => 'Note A',
             'public_notes'   => 'Note B',
@@ -328,7 +332,8 @@ test('update pallet delivery notes', function (PalletDelivery $palletDelivery) {
         ->and($palletDelivery->public_notes)->toBe('Note B')
         ->and($palletDelivery->internal_notes)->toBe('Note C');
 
-    $palletDelivery->update(
+    UpdatePalletDelivery::make()->action(
+        $palletDelivery,
         [
             'customer_notes' => '',
 

@@ -14,8 +14,6 @@ use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
-use Exception;
-use Illuminate\Console\Command;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -84,13 +82,10 @@ class UpdatePalletDelivery extends OrgAction
         return $this->handle($palletDelivery, $this->validatedData);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function action(Organisation $organisation, PalletDelivery $palletDelivery, $modelData): PalletDelivery
+    public function action(PalletDelivery $palletDelivery, $modelData): PalletDelivery
     {
         $this->action = true;
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $modelData);
-        $this->setRawAttributes($modelData);
-
         return $this->handle($palletDelivery, $this->validatedData);
     }
 
@@ -111,31 +106,4 @@ class UpdatePalletDelivery extends OrgAction
         };
     }
 
-    public string $commandSignature = 'pallet-deliveries:update {pallet-delivery}';
-
-    public function asCommand(Command $command): int
-    {
-        $this->asAction = true;
-
-        try {
-            $palletDelivery = PalletDelivery::where('slug', $command->argument('pallet-delivery'))->firstOrFail();
-        } catch (Exception $e) {
-            $command->error($e->getMessage());
-            return 1;
-        }
-
-        try {
-            $this->initialisationFromFulfilment($palletDelivery->fulfilment, []);
-        } catch (Exception $e) {
-            $command->error($e->getMessage());
-
-            return 1;
-        }
-
-        $palletDelivery = $this->handle($palletDelivery, modelData: $this->validatedData);
-
-        $command->info("Pallet delivery $palletDelivery->reference updated successfully 🎉");
-
-        return 0;
-    }
 }
