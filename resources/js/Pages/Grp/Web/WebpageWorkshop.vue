@@ -99,7 +99,7 @@ const onPublish = (action) => {
     { comment: comment.value, publishLayout: data.value },
     {
       onBefore: () => {
-        isLoading.value = true
+        isLoading.value = true  
       },
       onSuccess: () => {
         null
@@ -115,7 +115,6 @@ const onPublish = (action) => {
     })
 }
 
-console.log(props)
 </script>
 
 
