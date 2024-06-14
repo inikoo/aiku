@@ -62,16 +62,16 @@ class EditPallet extends OrgAction
                 'title'       => __('stored items'),
                 'pageHead'    => [
                     'title'     => __('stored items'),
-                    // 'actions'   => [
-                    //     [
-                    //         'type'  => 'button',
-                    //         'style' => 'exitEdit',
-                    //         'route' => [
-                    //             'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
-                    //             'parameters' => array_values($request->route()->originalParameters())
-                    //         ]
-                    //     ]
-                    // ]
+                    'actions'   => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'exitEdit',
+                            'route' => [
+                                'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
+                        ]
+                    ]
                 ],
                 'formData' => [
                     'blueprint' => [
@@ -117,7 +117,7 @@ class EditPallet extends OrgAction
                     'args' => [
                         'updateRoute' => [
                             'name'       => 'grp.models.pallet.update',
-                            'parameters' => $storedItem->id
+                            'parameters' => [$storedItem->id]
                         ],
                     ]
                 ],
