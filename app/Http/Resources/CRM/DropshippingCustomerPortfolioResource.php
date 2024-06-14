@@ -31,6 +31,7 @@ class DropshippingCustomerPortfolioResource extends JsonResource
             'created_at'             => $portfolio->created_at,
             'routes'=> [
                 'delete_route' => [
+                    'method' => 'delete',
                     'name' => 'grp.models.org.shop.customer.portfolio.delete',
                     'parameters' => [
                         'organisation' => $portfolio->organisation_id,
