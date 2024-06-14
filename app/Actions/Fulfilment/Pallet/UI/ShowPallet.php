@@ -152,9 +152,19 @@ class ShowPallet extends OrgAction
                             'type'    => 'button',
                             'style'   => 'edit',
                             'tooltip' => __('edit stored items'),
-                            'label'   => __('Edit'),
+                            'label'   => __('Edit Stored Items'),
                             'route'   => [
                                 'name'       => 'grp.org.warehouses.show.fulfilment.pallets.edit',
+                                'parameters' => array_values(request()->route()->originalParameters())
+                            ]
+                        ],
+                        [
+                            'type'    => 'button',
+                            'style'   => 'edit',
+                            'tooltip' => __('edit pallet'),
+                            'label'   => __('Edit'),
+                            'route'   => [
+                                'name'       => 'grp.org.fulfilments.show.operations.pallets.edit',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ]
                         ],
@@ -188,7 +198,7 @@ class ShowPallet extends OrgAction
 
             ]
         )->table(IndexHistory::make()->tableStructure(prefix: PalletTabsEnum::HISTORY->value))
-            ->table(IndexStoredItems::make()->tableStructure($pallet->storedItems));
+            ->table(IndexStoredItems::make()->tableStructure($pallet->storedItems, prefix: PalletTabsEnum::STORED_ITEMS->value));
     }
 
 
@@ -326,19 +336,30 @@ class ShowPallet extends OrgAction
                     ]
                 ]
             ],
+            'grp.org.warehouses.show.fulfilment.pallets.show'=> [
+                'label'=> $pallet->slug,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'organisation'       => $pallet->organisation->slug,
+                        'warehouse'          => $pallet->warehouse->slug,
+                        'pallet'             => $pallet->slug
+                    ]
+                ]
+            ],
 
-            // 'grp.org.fulfilments.show.operations.pallets.show'=> [
-            //     'label'=> $pallet->number,
-            //     'route'=> [
-            //         'name'      => $routeName,
-            //         'parameters'=> [
-            //             'organisation'=> $pallet->organisation->slug,
-            //             'fulfilment'  => $this->parent->slug,
-            //             'pallet'     => $pallet->slug
-            //         ]
+            'grp.org.fulfilments.show.operations.pallets.show'=> [
+                'label'=> $pallet->number,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'organisation'=> $pallet->organisation->slug,
+                        'fulfilment'  => $pallet->fulfilment->slug,
+                        'pallet'      =>  $pallet->slug
+                    ]
 
-            //     ]
-            // ],
+                ]
+            ],
 
             // 'grp.org.fulfilments.show.crm.customers.show.invoices.show'=> [
             //     'label'=> $invoice->number,
@@ -353,6 +374,7 @@ class ShowPallet extends OrgAction
 
             //     ]
             // ],
+            default => null,
         };
     }
 }

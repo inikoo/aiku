@@ -36,6 +36,7 @@ import {get} from "lodash";
 import PureInput from "@/Components/Pure/PureInput.vue";
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue";
 import Popover from "@/Components/Popover.vue";
+import TableStoredItems from "@/Components/Tables/Grp/Org/Fulfilment/TableStoredItems.vue";
 
 library.add(faIdCardAlt, faUser, faBuilding, faEnvelope, faPhone, faMapMarkerAlt )
 
@@ -45,6 +46,7 @@ const props = defineProps<{
     title: string
     tabs: {}
     pallets?: {}
+    stored_items?: {}
     services?: {}
     service_lists?: {}
     physical_good_lists?: {}
@@ -76,6 +78,7 @@ const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1 })
 const component = computed(() => {
     const components = {
         pallets: TablePalletReturnsDelivery,
+        stored_items: TableStoredItems,
         services: TableServices,
         physical_goods: TablePhysicalGoods,
         history: TableHistories,

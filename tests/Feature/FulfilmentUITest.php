@@ -7,17 +7,21 @@
 
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
+use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\UI\Fulfilment\FulfilmentAssetsTabsEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
 use App\Enums\UI\Fulfilment\RentalsTabsEnum;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Inventory\Location;
 use Inertia\Testing\AssertableInertia;
 
+use function Deployer\has;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 
@@ -59,12 +63,31 @@ beforeEach(function () {
 
     $this->customer = createCustomer($this->shop);
 
+
+    $pallet = Pallet::first();
+    if (!$pallet) {
+        $storeData = Pallet::factory()->definition();
+        data_set($storeData, 'state', PalletStateEnum::SUBMITTED);
+        data_set($storeData, 'warehouse_id', $this->warehouse->id);
+
+
+
+        $pallet = StorePallet::make()->action(
+            $this->customer->fulfilmentCustomer,
+            $storeData
+        );
+    }
+
+    $this->pallet = $pallet;
+
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]
     );
     actingAs($this->adminGuest->user);
 });
+
+// Indexes
 
 test('UI Index fulfilment assets', function () {
     $response = $this->get(route('grp.org.fulfilments.show.assets.index', [$this->organisation->slug, $this->fulfilment->slug]));
@@ -122,6 +145,8 @@ test('UI Index fulfilment services', function () {
     });
 });
 
+// Fulfilment Customer
+
 test('UI create fulfilment customer', function () {
     $response = get(route('grp.org.fulfilments.show.crm.customers.create', [$this->organisation->slug, $this->fulfilment->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
@@ -133,7 +158,7 @@ test('UI create fulfilment customer', function () {
 
 test('UI show fulfilment customer', function () {
     $response = get(route('grp.org.fulfilments.show.crm.customers.show', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->fulfilmentCustomer->slug]));
-    $response->assertInertia(function (AssertableInertia $page){
+    $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Fulfilment/FulfilmentCustomer')
             ->has('title')
@@ -164,5 +189,47 @@ test('UI edit fulfilment customer', function () {
                         ->where('parameters', [$this->customer->fulfilmentCustomer->id])
             )
             ->has('breadcrumbs', 3);
+    });
+});
+
+// Pallets
+
+test('UI Index pallets', function () {
+    $response = $this->get(route('grp.org.fulfilments.show.operations.pallets.index', [$this->organisation->slug, $this->fulfilment->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Pallets')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Returned Pallets')
+                        ->has('subNavigation')
+                        ->has('actions')
+                        ->has('meta')
+                        ->etc()
+            )
+            ->has('data');
+    });
+});
+
+test('UI show pallet', function () {
+    $response = get(route('grp.org.fulfilments.show.operations.pallets.show', [$this->organisation->slug, $this->fulfilment->slug, $this->pallet->slug]));
+    $response->assertInertia(function (AssertableInertia $page){
+        $page
+            ->component('Org/Fulfilment/Pallet')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->pallet->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
     });
 });

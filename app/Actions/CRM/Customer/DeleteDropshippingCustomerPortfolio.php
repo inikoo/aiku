@@ -44,8 +44,8 @@ class DeleteDropshippingCustomerPortfolio extends OrgAction
 
 
 
-    public function htmlResponse(Customer $customer): RedirectResponse
+    public function htmlResponse(DropshippingCustomerPortfolio $portfolio): RedirectResponse
     {
-        return Redirect::route('grp.org.shops.show.crm.customers.show.portfolios.index', [$customer->organisation->slug, $customer->shop->slug, $customer->slug]);
+        return Redirect::route('grp.org.shops.show.crm.customers.show.portfolios.index', [$portfolio->organisation->slug, $portfolio->shop->slug, $portfolio->customer->slug]);
     }
 }

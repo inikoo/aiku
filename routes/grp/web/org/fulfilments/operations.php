@@ -9,6 +9,7 @@ use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Accounting\Invoice\UI\ShowInvoice;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\Pallet\UI\CreatePallet;
+use App\Actions\Fulfilment\Pallet\UI\EditPallet;
 use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\PalletDelivery\UI\IndexPalletDeliveries;
@@ -25,6 +26,7 @@ Route::get('/returned-pallets', IndexPallets::class)->name('returned_pallets.ind
 
 Route::get('/pallets/{pallet}', ShowPallet::class)->name('pallets.show');
 Route::get('/pallets/create', CreatePallet::class)->name('pallets.create');
+Route::get('/pallets/{pallet}/edit', [EditPallet::class, 'inFulfilment'])->name('pallets.edit');
 
 Route::get('deliveries', IndexPalletDeliveries::class)->name('pallet-deliveries.index');
 Route::get('deliveries/{palletDelivery}', ShowPalletDelivery::class)->name('pallet-deliveries.show');
