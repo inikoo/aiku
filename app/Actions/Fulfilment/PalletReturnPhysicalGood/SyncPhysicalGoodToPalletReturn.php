@@ -28,8 +28,8 @@ class SyncPhysicalGoodToPalletReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
-        $palletReturn->services()->syncWithoutDetaching([
-            $modelData['service_id'] => ['quantity' => $modelData['quantity']]
+        $palletReturn->physicalGoods()->syncWithoutDetaching([
+            $modelData['outer_id'] => ['quantity' => $modelData['quantity']]
         ]);
 
         PalletReturnHydrateServices::dispatch($palletReturn);
@@ -40,7 +40,7 @@ class SyncPhysicalGoodToPalletReturn extends OrgAction
     public function rules(): array
     {
         return [
-            'service_id' => ['required', 'integer', Rule::exists('services', 'id')],
+            'outer_id'   => ['required', 'integer', Rule::exists('products', 'id')],
             'quantity'   => ['required', 'integer', 'min:1']
         ];
     }
@@ -57,15 +57,15 @@ class SyncPhysicalGoodToPalletReturn extends OrgAction
         $routeName = $request->route()->getName();
 
         return match ($routeName) {
-            'grp.models.pallet-return.service.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
+            'grp.models.pallet-return.physical_good.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_returns.show', [
                 'organisation'           => $palletReturn->organisation->slug,
                 'fulfilment'             => $palletReturn->fulfilment->slug,
                 'fulfilmentCustomer'     => $palletReturn->fulfilmentCustomer->slug,
-                'palletDelivery'         => $palletReturn->slug,
-                'tab'                    => PalletReturnTabsEnum::SERVICES->value
+                'palletReturn'           => $palletReturn->slug,
+                'tab'                    => PalletReturnTabsEnum::PHYSICAL_GOODS->value
             ]),
             default => Redirect::route('retina.storage.pallet-returns.show', [
-                'palletDelivery'     => $palletReturn->slug
+                'palletReturn'     => $palletReturn->slug
             ])
         };
     }
