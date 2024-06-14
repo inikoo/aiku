@@ -19,7 +19,7 @@ import OperationsInvoiceShowcase from "@/Components/Showcases/Grp/Fulfilment/Ope
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import { capitalize } from "@/Composables/capitalize"
 import { trans } from 'laravel-vue-i18n'
-import BoxStatsPalletDelivery from '@/Components/Pallet/BoxStatsPalletDelivery.vue'
+import BoxStatPallet from '@/Components/Pallet/BoxStatPallet.vue'
 import { Calculation, ProductTransaction } from '@/types/Invoices'
 import { routeType } from '@/types/route'
 import PDFSvg from '@/../art/app/pdf.svg'
@@ -155,7 +155,7 @@ const boxInvoiceInformation = [
     
     <div class="grid grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
         <!-- Box: Customer -->
-        <BoxStatsPalletDelivery class=" pb-2 py-5 px-3" :tooltip="trans('Customer')" icon="fal fa-user">
+        <BoxStatPallet class=" pb-2 py-5 px-3" :tooltip="trans('Customer')" icon="fal fa-user">
             <!-- Field: Registration Number -->
             <Link as="a" v-if="showcase?.customer.reference"
                 :href="'#'"
@@ -217,10 +217,10 @@ const boxInvoiceInformation = [
                 </dt>
                 <dd class="text-xs text-gray-500">{{ showcase?.customer.phone }}</dd>
             </div>
-        </BoxStatsPalletDelivery>
+        </BoxStatPallet>
 
         <!-- Section: Invoice Information (looping) -->
-        <BoxStatsPalletDelivery class="col-start-4 pb-2 py-5 px-3" :tooltip="trans('Invoice information')">
+        <BoxStatPallet class="col-start-4 pb-2 py-5 px-3" :tooltip="trans('Invoice information')">
             <div class="pt-1 text-gray-500">
                 <template v-for="invoiceGroup in boxInvoiceInformation">
                     <div class="space-y-1">
@@ -234,7 +234,7 @@ const boxInvoiceInformation = [
                     <hr class="last:hidden my-1.5 border-gray-300">
                 </template>
             </div>
-        </BoxStatsPalletDelivery>
+        </BoxStatPallet>
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
