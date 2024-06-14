@@ -14,7 +14,7 @@ use App\Models\SysAdmin\Group;
 uses()->group('aurora-fetch');
 
 beforeAll(function () {
-    loadDB('test_base_database.dump');
+    loadDB();
 });
 
 beforeEach(function () {

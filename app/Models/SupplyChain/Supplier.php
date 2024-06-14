@@ -60,6 +60,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $currency_id
  * @property array $settings
  * @property array $data
+ * @property Carbon|null $archived_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at

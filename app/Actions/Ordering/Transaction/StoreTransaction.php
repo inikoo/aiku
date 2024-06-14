@@ -7,9 +7,8 @@
 
 namespace App\Actions\Ordering\Transaction;
 
-use App\Actions\Ordering\Order\Hydrators\OrderStateCreatingHydrateTransactions;
+use App\Actions\Ordering\Order\Hydrators\OrderHydrateTransactions;
 use App\Actions\OrgAction;
-use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Enums\Ordering\Transaction\TransactionTypeEnum;
@@ -40,9 +39,8 @@ class StoreTransaction extends OrgAction
         $transaction = $order->transactions()->create($modelData);
 
 
-        if($order->state==OrderStateEnum::CREATING) {
-            OrderStateCreatingHydrateTransactions::dispatch($order);
-        }
+        OrderHydrateTransactions::dispatch($order);
+
 
         return $transaction;
     }
@@ -53,10 +51,10 @@ class StoreTransaction extends OrgAction
             'date'                => ['sometimes', 'required', 'date'],
             'type'                => ['required', Rule::enum(TransactionTypeEnum::class)],
             'quantity_ordered'    => ['required', 'numeric', 'min:0'],
-            'quantity_bonus'      => ['sometimes','required', 'numeric', 'min:0'],
-            'quantity_dispatched' => ['sometimes','required', 'numeric', 'min:0'],
-            'quantity_fail'       => ['sometimes','required', 'numeric', 'min:0'],
-            'quantity_cancelled'  => ['sometimes','sometimes', 'numeric', 'min:0'],
+            'quantity_bonus'      => ['sometimes', 'required', 'numeric', 'min:0'],
+            'quantity_dispatched' => ['sometimes', 'required', 'numeric', 'min:0'],
+            'quantity_fail'       => ['sometimes', 'required', 'numeric', 'min:0'],
+            'quantity_cancelled'  => ['sometimes', 'sometimes', 'numeric', 'min:0'],
 
             'source_id'        => ['sometimes', 'string'],
             'state'            => ['sometimes', Rule::enum(TransactionStateEnum::class)],
@@ -65,7 +63,7 @@ class StoreTransaction extends OrgAction
             'group_exchange'   => ['sometimes', 'numeric'],
             'org_net_amount'   => ['sometimes', 'numeric'],
             'group_net_amount' => ['sometimes', 'numeric'],
-            'tax_rate'         => ['sometimes','required', 'numeric', 'min:0'],
+            'tax_rate'         => ['sometimes', 'required', 'numeric', 'min:0'],
             'created_at'       => ['sometimes', 'required', 'date'],
 
 

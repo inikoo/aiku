@@ -86,7 +86,7 @@ class IndexAgents extends GrpAction
             ->leftJoin('organisations', 'organisation_id', 'organisations.id')
             ->leftJoin('agent_stats', 'agent_stats.agent_id', '=', 'agents.id')
             ->defaultSort('organisations.code')
-            ->select(['organisations.code', 'name', 'agents.slug', 'number_suppliers', 'number_supplier_products', 'location'])
+            ->select(['organisations.code', 'agents.name', 'agents.slug', 'number_suppliers', 'number_supplier_products', 'location'])
             ->allowedFilters([$globalSearch])
             ->allowedSorts(['code', 'name', 'number_suppliers', 'number_supplier_products'])
             ->withPaginator($prefix)

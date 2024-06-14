@@ -9,7 +9,7 @@ namespace App\Actions\SupplyChain\Supplier\UI;
 
 use App\Actions\GrpAction;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
-use App\Http\Resources\Procurement\SupplierResource;
+use App\Http\Resources\Procurement\SuppliersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
@@ -81,9 +81,9 @@ class IndexSuppliers extends GrpAction
 
         return $queryBuilder
             ->defaultSort('suppliers.code')
-            ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'suppliers.location as supplier_locations', 'number_supplier_products', 'number_purchase_orders'])
+            ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'suppliers.location as location', 'number_supplier_products', 'number_purchase_orders'])
             ->leftJoin('supplier_stats', 'supplier_stats.supplier_id', 'suppliers.id')
-            ->allowedSorts(['code', 'name', 'agent_name', 'supplier_locations', 'number_supplier_products', 'number_purchase_orders'])
+            ->allowedSorts(['code', 'name', 'agent_name', 'location', 'number_supplier_products', 'number_purchase_orders'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -144,7 +144,7 @@ class IndexSuppliers extends GrpAction
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'supplier_locations', label: __('location'), canBeHidden: false)
+                ->column(key: 'location', label: __('location'), canBeHidden: false)
                 ->column(key: 'number_supplier_products', label: __('products'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_purchase_orders', label: __('purchase orders'), canBeHidden: false, sortable: true, searchable: true)
                 ->defaultSort('code');
@@ -177,7 +177,7 @@ class IndexSuppliers extends GrpAction
 
     public function jsonResponse(LengthAwarePaginator $suppliers): AnonymousResourceCollection
     {
-        return SupplierResource::collection($suppliers);
+        return SuppliersResource::collection($suppliers);
     }
 
     public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request): Response
@@ -195,7 +195,7 @@ class IndexSuppliers extends GrpAction
                         ],
                     'title' => __('suppliers'),
                 ],
-                'data'        => SupplierResource::collection($suppliers),
+                'data'        => SuppliersResource::collection($suppliers),
 
 
             ]

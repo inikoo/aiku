@@ -19,7 +19,7 @@ use function Pest\Laravel\{getJson};
 use function Pest\Laravel\{postJson};
 
 beforeAll(function () {
-    loadDB('test_base_database.dump');
+    loadDB();
 });
 
 beforeEach(function () {

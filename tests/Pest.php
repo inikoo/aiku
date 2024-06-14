@@ -37,7 +37,7 @@ use Illuminate\Foundation\Testing\TestCase;
 
 uses(TestCase::class)->in('Feature');
 
-function loadDB($dumpName): void
+function loadDB(): void
 {
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__.'/../', '.env.testing');
     $dotenv->load();
@@ -49,7 +49,7 @@ function loadDB($dumpName): void
         env('DB_USERNAME').' '.
         env('DB_PASSWORD').' '.
         env('DB_HOST').
-        ' tests/datasets/db_dumps/'.$dumpName
+        ' tests/datasets/db_dumps/aiku.dump'
     );
 }
 

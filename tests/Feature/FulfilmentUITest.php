@@ -7,8 +7,6 @@
 
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
-use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentAssets;
-use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -17,17 +15,14 @@ use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
 use App\Enums\UI\Fulfilment\RentalsTabsEnum;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
 use App\Models\Catalogue\Shop;
-use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Inventory\Location;
-use Illuminate\Http\Request;
 use Inertia\Testing\AssertableInertia;
-use Lorisleiva\Actions\ActionRequest;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 
 beforeAll(function () {
-    loadDB('test_base_database.dump');
+    loadDB();
 });
 
 beforeEach(function () {
@@ -51,7 +46,7 @@ beforeEach(function () {
     if (!$shop) {
         $storeData = Shop::factory()->definition();
         data_set($storeData, 'type', ShopTypeEnum::FULFILMENT);
-        data_set($storeData,'warehouses',[$this->warehouse->id]);
+        data_set($storeData, 'warehouses', [$this->warehouse->id]);
 
         $shop = StoreShop::make()->action(
             $this->organisation,
@@ -82,7 +77,7 @@ test('UI Index fulfilment assets', function () {
             ->has('title')
             ->has('tabs')
             ->has('breadcrumbs', 3);
-    });  
+    });
 });
 
 test('UI Index fulfilment physical goods', function () {
@@ -96,7 +91,7 @@ test('UI Index fulfilment physical goods', function () {
             ->has('title')
             ->has('tabs')
             ->has('breadcrumbs', 4);
-    });  
+    });
 });
 
 test('UI Index fulfilment rentals', function () {
@@ -110,7 +105,7 @@ test('UI Index fulfilment rentals', function () {
             ->has('title')
             ->has('tabs')
             ->has('breadcrumbs', 4);
-    });  
+    });
 });
 
 test('UI Index fulfilment services', function () {
@@ -124,7 +119,7 @@ test('UI Index fulfilment services', function () {
             ->has('title')
             ->has('tabs')
             ->has('breadcrumbs', 4);
-    });  
+    });
 });
 
 test('UI create fulfilment customer', function () {
@@ -144,12 +139,12 @@ test('UI edit fulfilment customer', function () {
             ->has('title')
             ->has('formData.blueprint.0.fields', 4)
             ->has('pageHead')
-            ->has('formData.args.updateRoute', fn (AssertableInertia $page) => $page
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
                         ->where('name', 'grp.models.fulfilment-customer.update')
                         ->where('parameters', [$this->customer->fulfilmentCustomer->id])
-                    )
+            )
             ->has('breadcrumbs', 3);
     });
 });
-
-
