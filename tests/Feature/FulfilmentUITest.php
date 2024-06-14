@@ -263,7 +263,7 @@ test('UI Index damaged pallets', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', 'Returned pallets')
+                        ->where('title', 'Damaged pallets')
                         ->has('subNavigation')
                         ->etc()
             )
