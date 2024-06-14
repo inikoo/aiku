@@ -13,8 +13,6 @@ use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInDelivery;
-use App\Actions\Fulfilment\PalletDeliveryPhysicalGood\UI\IndexPhysicalGoodInPalletDelivery;
-use App\Actions\Fulfilment\PalletDeliveryService\UI\IndexServiceInPalletDelivery;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;

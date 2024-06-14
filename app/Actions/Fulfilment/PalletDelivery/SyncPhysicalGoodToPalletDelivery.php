@@ -1,13 +1,13 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Wed, 24 Jan 2024 16:14:16 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 14 Jun 2024 22:48:09 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\PalletDeliveryService;
+namespace App\Actions\Fulfilment\PalletDelivery;
 
-use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateServices;
+use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydratePhysicalGoods;
 use App\Actions\OrgAction;
 use App\Enums\UI\Fulfilment\PalletDeliveryTabsEnum;
 use App\Models\CRM\Customer;
@@ -19,7 +19,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class SyncServiceToPalletDelivery extends OrgAction
+class SyncPhysicalGoodToPalletDelivery extends OrgAction
 {
     use AsAction;
     use WithAttributes;
@@ -28,11 +28,11 @@ class SyncServiceToPalletDelivery extends OrgAction
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
-        $palletDelivery->services()->syncWithoutDetaching([
-            $modelData['service_id'] => ['quantity' => $modelData['quantity']]
+        $palletDelivery->physicalGoods()->syncWithoutDetaching([
+            $modelData['outer_id'] => ['quantity' => $modelData['quantity']]
         ]);
 
-        PalletDeliveryHydrateServices::dispatch($palletDelivery);
+        PalletDeliveryHydratePhysicalGoods::dispatch($palletDelivery);
 
         return $palletDelivery;
     }
@@ -40,7 +40,7 @@ class SyncServiceToPalletDelivery extends OrgAction
     public function rules(): array
     {
         return [
-            'service_id' => ['required', 'integer', Rule::exists('services', 'id')],
+            'outer_id'   => ['required', 'integer', Rule::exists('products', 'id')],
             'quantity'   => ['required', 'integer', 'min:1']
         ];
     }
@@ -57,12 +57,12 @@ class SyncServiceToPalletDelivery extends OrgAction
         $routeName = $request->route()->getName();
 
         return match ($routeName) {
-            'grp.models.pallet-delivery.service.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show', [
+            'grp.models.pallet-delivery.physical_good.store' => Redirect::route('grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show', [
                 'organisation'           => $palletDelivery->organisation->slug,
                 'fulfilment'             => $palletDelivery->fulfilment->slug,
                 'fulfilmentCustomer'     => $palletDelivery->fulfilmentCustomer->slug,
                 'palletDelivery'         => $palletDelivery->slug,
-                'tab'                    => PalletDeliveryTabsEnum::SERVICES->value
+                'tab'                    => PalletDeliveryTabsEnum::PHYSICAL_GOODS->value
             ]),
             default => Redirect::route('retina.storage.pallet-deliveries.show', [
                 'palletDelivery'     => $palletDelivery->slug
