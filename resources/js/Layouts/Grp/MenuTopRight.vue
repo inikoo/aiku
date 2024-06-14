@@ -51,13 +51,13 @@ const isUserMac = navigator.platform.includes('Mac')  // To check the user's Ope
 <template>
     <!-- Avatar Group -->
     <div class="flex justify-between gap-x-2">
-        <div class="flex items-center gap-x-8 divide-x divide-gray-200">
+        <div class="flex items-center gap-x-0 sm:gap-x-4 sm:divide-x divide-gray-200">
             <!-- Button: Search -->
             <button @click="showSearchDialog = !showSearchDialog" id="search"
                 class="h-7 w-fit flex items-center justify-center gap-x-3 ring-1 ring-gray-300 rounded-md px-3 text-gray-500 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
                 <span class="sr-only">{{ trans("Search") }}</span>
                 <FontAwesomeIcon aria-hidden="true" size="sm" icon="fa-regular fa-search" />
-                <div class="whitespace-nowrap flex items-center justify-end text-gray-500/80 tracking-tight space-x-1">
+                <div class="hidden whitespace-nowrap md:flex items-center justify-end text-gray-500/80 tracking-tight space-x-1">
                     <span v-if="isUserMac" class="ring-1 ring-gray-400 bg-gray-100 px-2 leading-none text-xl rounded">⌘</span>
                     <span v-else class="ring-1 ring-gray-400 bg-gray-100 px-2 py-0.5 text-xs rounded">Ctrl</span>
                     <span class="ring-1 ring-gray-400 bg-gray-100 px-1.5 py-0.5 text-xs rounded">K</span>
@@ -65,7 +65,7 @@ const isUserMac = navigator.platform.includes('Mac')  // To check the user's Ope
                 <SearchBar :isOpen="showSearchDialog" @close="(e) => showSearchDialog = e" />
             </button>
 
-            <div class="pl-4 flex items-center gap-x-2">
+            <div class="pl-2 sm:pl-4 flex items-center gap-x-2">
                 <div @click="() => layout.stackedComponents.push({ component: Profile, data: { currentTab: 'todo' }})">
                     <Button label="To do" size="xs" :style="'tertiary'" />
                 </div>

@@ -8,7 +8,7 @@
 namespace App\Actions\Ordering\Order;
 
 use App\Actions\HydrateModel;
-use App\Actions\Ordering\Order\Hydrators\OrderStateCreatingHydrateTransactions;
+use App\Actions\Ordering\Order\Hydrators\OrderHydrateTransactions;
 use App\Models\Ordering\Order;
 use Illuminate\Support\Collection;
 
@@ -19,7 +19,7 @@ class HydrateOrder extends HydrateModel
 
     public function handle(Order $order): void
     {
-        OrderStateCreatingHydrateTransactions::run($order);
+        OrderHydrateTransactions::run($order);
     }
 
 

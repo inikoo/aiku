@@ -634,14 +634,14 @@ watch(selectRow, () => {
             v-if="queryBuilderProps.emptyState?.count === 0 && compResourceMeta.total === 0">
             <EmptyState :data="queryBuilderProps.emptyState">
                 <template #button-empty-state>
-                    <div>
-                        <!--  <pre>{{ queryBuilderProps.emptyState }}</pre> -->
-                        <Link v-if="queryBuilderProps.emptyState?.action" as="div"
-                            :href="route(queryBuilderProps.emptyState?.action.route.name, queryBuilderProps.emptyState?.action.route.parameters)"
+                    <!-- <pre>{{ Object.values(queryBuilderProps.emptyState?.action).length }}</pre> -->
+                    <div> <!-- div to replace in case v-if empty  -->
+                        <Link v-if="Object.values(queryBuilderProps.emptyState?.action || {}).length" as="div"
+                            :href="queryBuilderProps.emptyState?.action?.route?.name ? route(queryBuilderProps.emptyState?.action.route.name, queryBuilderProps.emptyState?.action.route.parameters) : '#'"
                             :method="queryBuilderProps.emptyState?.action?.route?.method" class="mt-4 block">
-                        <Button :style="queryBuilderProps.emptyState?.action.style"
-                            :icon="queryBuilderProps.emptyState?.action.icon"
-                            :label="queryBuilderProps.emptyState?.action.tooltip" />
+                            <Button :style="queryBuilderProps.emptyState?.action.style"
+                                :icon="queryBuilderProps.emptyState?.action.icon"
+                                :label="queryBuilderProps.emptyState?.action.tooltip" />
                         </Link>
                     </div>
                 </template>
@@ -652,9 +652,9 @@ watch(selectRow, () => {
         <!--suppress HtmlUnknownAttribute -->
         <fieldset v-else ref="tableFieldset" :key="`table-${name}`" :dusk="`table-${name}`" class="min-w-0"
             :class="{ 'opacity-75': isVisiting }">
-            <div class="my-0">
+            <div class="py-2 sm:py-0 my-0">
                 <!-- Wrapper -->
-                <div class="grid grid-flow-col justify-between items-center flex-nowrap px-4">
+                <div class="grid grid-flow-col justify-between items-center flex-nowrap px-3 sm:px-4">
 
                     <!-- Left Section: Records, Model Operations, MO Bulk, Search -->
                     <div class="h-fit flex gap-x-1 items-center my-0.5">

@@ -23,7 +23,7 @@ use App\Models\CRM\Customer;
 use App\Models\Catalogue\Shop;
 
 beforeAll(function () {
-    loadDB('test_base_database.dump');
+    loadDB();
 });
 
 

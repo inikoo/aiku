@@ -22,7 +22,7 @@ use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 
 beforeAll(function () {
-    loadDB('test_base_database.dump');
+    loadDB();
 });
 
 

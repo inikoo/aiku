@@ -19,7 +19,7 @@ use App\Models\Deals\OfferCampaign;
 use App\Models\Deals\OfferComponent;
 
 beforeAll(function () {
-    loadDB('test_base_database.dump');
+    loadDB();
 });
 
 

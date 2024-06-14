@@ -103,8 +103,7 @@ class EditRentalAgreement extends OrgAction
                                         'value'       => $rentalAgreement->pallets_limit
                                     ],
                                     'rental'  => $rentalData,
-                                    'isEmpty' => $isEmpty
-                                    ,
+                                    // 'isEmpty' => $isEmpty,
                                 ]
                             ]
                         ],

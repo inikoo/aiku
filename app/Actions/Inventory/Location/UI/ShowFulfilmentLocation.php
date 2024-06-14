@@ -42,7 +42,7 @@ class ShowFulfilmentLocation extends OrgAction
     public function asController(Organisation $organisation, Warehouse $warehouse, Location $location, ActionRequest $request): Location
     {
         $this->parent = $warehouse;
-        $this->initialisationFromWarehouse($warehouse, $request);
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(FulfilmentLocationTabsEnum::values());
 
         return $this->handle($location);
     }

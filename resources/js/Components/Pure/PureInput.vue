@@ -20,13 +20,14 @@ const props = withDefaults(defineProps<{
     copyButton?: boolean
     autofocus?: boolean
     required?: boolean
+    disabled?: boolean
     autocomplete?: string
     minValue?: string | number
     maxValue?: string | number
     caret?: boolean
     pattern?: string 
     clear?:boolean
-    suffix?:Boolean
+    suffix?: boolean
     step?: number
 }>(), {
     caret: true,
@@ -90,6 +91,7 @@ defineExpose({
                 :placeholder="placeholder"
                 :maxlength="maxLength"
                 :autofocus="autofocus"
+                :disabled
                 :min="minValue"
                 :max="maxValue"
                 :required="required"

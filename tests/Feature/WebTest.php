@@ -24,7 +24,7 @@ use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 
 beforeAll(function () {
-    loadDB('test_base_database.dump');
+    loadDB();
 });
 beforeEach(function () {
     list(

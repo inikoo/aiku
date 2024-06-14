@@ -182,19 +182,19 @@ class IndexPalletDeliveries extends OrgAction
                                 : 'You have rental agreement but its ' . $parent->rentalAgreement->state->value)),
                             'count'       => $parent->number_pallet_deliveries,
                             'action'      => $hasRentalAgreementActive ? [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('Create new delivery'),
-                                'label'   => __('New delivery'),
-                                'options' => [
-                                    'warehouses' => WarehouseResource::collection($parent->fulfilment->warehouses)
-                                ],
-                                'disabled' => !$this->hasRentalAgreement($parent),
-                                'route'    => [
-                                    'method'     => 'post',
-                                    'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
-                                    'parameters' => [$parent->id]
-                                ]
+                                // 'type'    => 'button',
+                                // 'style'   => 'create',
+                                // 'tooltip' => __('Create new delivery'),
+                                // 'label'   => __('New delivery'),
+                                // 'options' => [
+                                //     'warehouses' => WarehouseResource::collection($parent->fulfilment->warehouses)
+                                // ],
+                                // 'disabled' => !$this->hasRentalAgreement($parent),
+                                // 'route'    => [
+                                //     'method'     => 'post',
+                                //     'name'       => 'grp.models.fulfilment-customer.pallet-delivery.store',
+                                //     'parameters' => [$parent->id]
+                                // ]
                             ] : (!$parent->rentalAgreement ? [
                                 'type'    => 'button',
                                 'style'   => 'create',

@@ -64,6 +64,7 @@ const props = defineProps<{
                 }
             }
         }
+        fullLayout: boolean
         args: {
             updateRoute: routeType
         }

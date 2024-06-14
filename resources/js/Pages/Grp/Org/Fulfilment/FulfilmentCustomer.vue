@@ -32,6 +32,7 @@ import Multiselect from "@vueform/multiselect"
 import { Link } from "@inertiajs/vue3"
 import { get } from 'lodash'
 import axios from 'axios'
+import { Action } from '@/types/Action'
 
 import { trans } from 'laravel-vue-i18n'
 import {
@@ -48,7 +49,7 @@ import {
     faShare,
     faTruckLoading,
     faFileInvoice,
-    faExclamationTriangle
+    faExclamationTriangle, faUsdCircle
 } from '@fal'
 import { notify } from '@kyvg/vue3-notification'
 import FulfilmentCustomerWebhook from "@/Components/Showcases/Grp/FulfilmentCustomerWebhook.vue";
@@ -58,7 +59,7 @@ import type { Navigation } from "@/types/Tabs";
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 import Modal from "@/Components/Utils/Modal.vue"
 import AgreedPriceShowcase from '@/Components/Showcases/Grp/AgreedPriceShowcase.vue'
-library.add(faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading, faFileInvoice, faExclamationTriangle)
+library.add(faStickyNote, faUser, faNarwhal, faTruckCouch, faPallet, faFileInvoiceDollar, faSignOutAlt, faPaperclip, faPaperPlane, faCheckDouble, faShare, faTruckLoading, faFileInvoice, faExclamationTriangle, faUsdCircle)
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
@@ -119,46 +120,59 @@ const isModalOpen = ref(false)
 const layout = inject('layout')
 const loadingCreatePalletDelivery = ref(false)
 
-function setIsOpen(value) {
-    isOpen.value = value
-}
+// function setIsOpen(value) {
+//     isOpen.value = value
+// }
 
-const webUserForm = useForm({
-    // username: props["customer"].email,
-    username: null,
-    password: null,
-})
-
-
-const sendWarehouse = async (data: object) => {
-    try {
-        const response = await axios.post(
-            route(data.route?.name, data.route?.parameters),
-            { warehouse_id: get(warehouseValue.value, 'id') }
-        )
-        router.visit(route(response.data.route.name, response.data.route.parameters))
-    } catch (error) {
-        console.log('error', error)
-        errorMessage.value = error.response.data.message
-    }
-}
+// const webUserForm = useForm({
+//     // username: props["customer"].email,
+//     username: null,
+//     password: null,
+// })
 
 
-const warehouseChange = (value) => {
-    errorMessage.value = null
-    warehouseValue.value = value
-}
+// const sendWarehouse = async (data: object) => {
+//     try {
+//         const response = await axios.post(
+//             route(data.route?.name, data.route?.parameters),
+//             { warehouse_id: get(warehouseValue.value, 'id') }
+//         )
+//         router.visit(route(response.data.route.name, response.data.route.parameters))
+//     } catch (error) {
+//         console.log('error', error)
+//         errorMessage.value = error.response.data.message
+//     }
+// }
 
-const onButtonCreateDeliveryClick = (action: object) => {
-    console.log(action)
+
+// const warehouseChange = (value) => {
+//     errorMessage.value = null
+//     warehouseValue.value = value
+// }
+
+const onButtonCreateDeliveryClick = (action: Action) => {
+    console.log('action', action)
     if (action.disabled) isModalOpen.value = true
+    
     else {
-        router[action.route.method](
-        route(action.route.name,action.route.parameters),
-        {
-            onBefore: () => { loadingCreatePalletDelivery.value = true },
-            onError: () => { loadingCreatePalletDelivery.value = false }
-        })
+        router[action.route?.method || 'get'](
+            route(action.route?.name || 'grp', action.route?.parameters),
+            {},
+            {
+                onBefore: () => { loadingCreatePalletDelivery.value = true },
+                onSuccess: () => {
+                    console.log('on sucess aciton')
+                },
+                onError: (error: {}) => {
+                    loadingCreatePalletDelivery.value = false,
+                    notify({
+                        title: 'Something went wrong.',
+                        text: Object.values(error || {}).join(', '),
+                        type: 'error',
+                    })
+                }
+            }
+        )
     }
 }
 
@@ -185,7 +199,7 @@ console.log(props)
 </script>
 
 <template>
-    <!-- {{currentTab}} -->
+    <!-- {{currentTab}} --> 
 
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
@@ -225,12 +239,12 @@ console.log(props)
 </template> -->
 
 
-        <template #button-delivery="{ action: action }">
+        <!-- <template #button-delivery="{ action: action }">
             <Button :style="action.action.disabled ? 'gray' : action.action.style" :label="action.action.label"
                 :icon="['fas', 'plus']" :iconRight="action.action.iconRight"
                 @click="() => onButtonCreateDeliveryClick(action.action)" :loading="loadingCreatePalletDelivery"
                 :key="`ActionButton${action.action.label}${action.action.style}`" :tooltip="action.action.tooltip" />
-        </template>
+        </template> -->
 
     </PageHeading>
 

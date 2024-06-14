@@ -5,30 +5,46 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Enums\Ordering\Transaction\TransactionStateEnum;
+use App\Enums\Ordering\Transaction\TransactionStatusEnum;
+use App\Enums\Ordering\Transaction\TransactionTypeEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    public function up()
+    public function up(): void
     {
         Schema::create('order_stats', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('order_id')->index();
             $table->foreign('order_id')->references('id')->on('orders');
-            $table->unsignedSmallInteger('number_items_at_creation')->default(0);
-            $table->unsignedSmallInteger('number_cancelled_items')->default(0);
-            $table->unsignedSmallInteger('number_add_up_items')->default(0);
-            $table->unsignedSmallInteger('number_cut_off_items')->default(0);
-            $table->unsignedSmallInteger('number_items_dispatched')->default(0);
-            $table->unsignedSmallInteger('number_items')->default(0)->comment('current number of items');
+
+            $table->unsignedSmallInteger('number_transactions_at_creation')->default(0);
+            $table->unsignedSmallInteger('number_add_up_transactions')->default(0);
+            $table->unsignedSmallInteger('number_cut_off_transactions')->default(0);
+
+            $table->unsignedSmallInteger('number_transactions')->default(0)->comment('transactions including cancelled');
+            $table->unsignedSmallInteger('number_current_transactions')->default(0)->comment('transactions excluding cancelled');
+
+            foreach (TransactionStateEnum::cases() as $case) {
+                $table->unsignedInteger('number_transactions_state_'.$case->snake())->default(0);
+            }
+
+            foreach (TransactionStatusEnum::cases() as $case) {
+                $table->unsignedInteger('number_transactions_status_'.$case->snake())->default(0);
+            }
+
+            foreach (TransactionTypeEnum::cases() as $case) {
+                $table->unsignedInteger('number_transactions_type_'.$case->snake())->default(0);
+            }
 
             $table->timestampsTz();
         });
     }
 
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('order_stats');
     }

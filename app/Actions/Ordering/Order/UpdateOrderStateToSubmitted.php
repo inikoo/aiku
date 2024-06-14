@@ -7,7 +7,6 @@
 
 namespace App\Actions\Ordering\Order;
 
-use App\Actions\Ordering\Transaction\UpdateTransaction;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
@@ -47,7 +46,7 @@ class UpdateOrderStateToSubmitted extends OrgAction
                 data_set($transactionDate, 'submitted_at', $date);
             }
 
-            UpdateTransaction::run($transaction, $transactionDate);
+            $transaction->update($transactionDate);
         }
 
         $this->update($order, $modelData);

@@ -31,7 +31,6 @@ class EditFulfilmentCustomer extends OrgAction
     }
 
 
-
     public function asController(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): FulfilmentCustomer
     {
         $this->initialisationFromFulfilment($fulfilment, $request);
@@ -49,7 +48,7 @@ class EditFulfilmentCustomer extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'                            => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($fulfilmentCustomer, $request),
                     'next'     => $this->getNext($fulfilmentCustomer, $request),
                 ],
@@ -97,13 +96,8 @@ class EditFulfilmentCustomer extends OrgAction
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'      => 'grp.models.fulfilment-customer.update',
-                            'parameters'=> [
-                                'organisation'               => $fulfilmentCustomer->organisation->id,
-                                'shop'                       => $fulfilmentCustomer->fulfilment->shop->id,
-                                'fulfilment'                 => $fulfilmentCustomer->fulfilment->id,
-                                'fulfilmentCustomer'         => $fulfilmentCustomer->id
-                            ]
+                            'name'       => 'grp.models.fulfilment-customer.update',
+                            'parameters' => [$fulfilmentCustomer->id]
                         ],
                     ]
 
@@ -123,7 +117,6 @@ class EditFulfilmentCustomer extends OrgAction
 
     public function getPrevious(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): ?array
     {
-
         $previous = FulfilmentCustomer::where('slug', '<', $fulfilmentCustomer->slug)->when(true, function ($query) use ($fulfilmentCustomer, $request) {
             if ($request->route()->getName() == 'shops.show.customers.show') {
                 $query->where('customers.shop_id', $fulfilmentCustomer->shop_id);
@@ -131,7 +124,6 @@ class EditFulfilmentCustomer extends OrgAction
         })->orderBy('slug', 'desc')->first();
 
         return $this->getNavigation($previous, $request->route()->getName());
-
     }
 
     public function getNext(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): ?array
@@ -147,19 +139,19 @@ class EditFulfilmentCustomer extends OrgAction
 
     private function getNavigation(?FulfilmentCustomer $fulfilmentCustomer, string $routeName): ?array
     {
-        if(!$fulfilmentCustomer) {
+        if (!$fulfilmentCustomer) {
             return null;
         }
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show.edit'=> [
-                'label'=> $fulfilmentCustomer->customer->contact_name,
-                'route'=> [
-                    'name'      => $routeName,
-                    'parameters'=> [
-                        'organisation'      => $fulfilmentCustomer->organisation->slug,
-                        'fulfilment'        => $fulfilmentCustomer->fulfilment->slug,
-                        'fulfilmentCustomer'=> $fulfilmentCustomer->slug
+            'grp.org.fulfilments.show.crm.customers.show.edit' => [
+                'label' => $fulfilmentCustomer->customer->contact_name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation'       => $fulfilmentCustomer->organisation->slug,
+                        'fulfilment'         => $fulfilmentCustomer->fulfilment->slug,
+                        'fulfilmentCustomer' => $fulfilmentCustomer->slug
                     ]
                 ]
             ]
