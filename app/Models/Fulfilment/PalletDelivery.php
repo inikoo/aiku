@@ -114,11 +114,6 @@ class PalletDelivery extends Model
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
     }
 
-    public function customer(): BelongsTo
-    {
-        return $this->belongsTo(Customer::class);
-    }
-
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);

@@ -20,6 +20,8 @@ use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\StartBookingPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
+use App\Actions\Fulfilment\PalletReturn\SendPalletReturnNotification;
+use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\Rental\StoreRental;
 use App\Actions\Fulfilment\Rental\UpdateRental;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
@@ -31,6 +33,7 @@ use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
@@ -41,6 +44,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Rental;
 use App\Models\Fulfilment\RentalAgreement;
@@ -580,6 +584,29 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
 })->depends('set location of third pallet in the pallet delivery');
 
 
+test('create pallet return', function (PalletDelivery $palletDelivery) {
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
+
+    $fulfilmentCustomer=$palletDelivery->fulfilmentCustomer;
+
+    $palletReturn = StorePalletReturn::make()->action(
+        $fulfilmentCustomer,
+        [
+            'warehouse_id' => $this->warehouse->id,
+        ]
+    );
+    $fulfilmentCustomer->refresh();
+    expect($palletReturn)->toBeInstanceOf(PalletReturn::class)
+        ->and($palletReturn->state)->toBe(PalletReturnStateEnum::IN_PROCESS)
+        ->and($palletReturn->number_pallets)->toBe(0)
+        ->and($fulfilmentCustomer->fulfilment->stats->number_pallet_returns)->toBe(1)
+        ->and($fulfilmentCustomer->number_pallet_returns)->toBe(1)
+    ->and($fulfilmentCustomer->number_pallet_returns_state_in_process)->toBe(1);
+
+    return $palletReturn;
+})->depends('set pallet delivery as booked in');
 
 test('create pallet no delivery', function (Fulfilment $fulfilment) {
     $customer = StoreCustomer::make()->action(

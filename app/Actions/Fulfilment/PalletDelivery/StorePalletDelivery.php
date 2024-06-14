@@ -10,7 +10,7 @@ namespace App\Actions\Fulfilment\PalletDelivery;
 use App\Actions\Fulfilment\Fulfilment\Hydrators\FulfilmentHydratePalletDeliveries;
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydratePalletDeliveries;
 use App\Actions\Fulfilment\PalletDelivery\Hydrators\PalletDeliveryHydrateUniversalSearch;
-use App\Actions\Helpers\SerialReference\GetSerialReference;
+use App\Actions\Fulfilment\WithDeliverableStoreProcessing;
 use App\Actions\Catalogue\HasRentalAgreement;
 use App\Actions\OrgAction;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
@@ -18,55 +18,27 @@ use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
-use Exception;
-use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 use Symfony\Component\HttpFoundation\Response;
 
 class StorePalletDelivery extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
     use HasRentalAgreement;
+    use WithDeliverableStoreProcessing;
+
 
     public Customer $customer;
-    /**
-     * @var true
-     */
+
     private bool $action = false;
-    /**
-     * @var \App\Models\Fulfilment\FulfilmentCustomer
-     */
     private FulfilmentCustomer $fulfilmentCustomer;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): PalletDelivery
     {
-        data_set($modelData, 'group_id', $fulfilmentCustomer->group_id);
-        data_set($modelData, 'organisation_id', $fulfilmentCustomer->organisation_id);
-        data_set($modelData, 'fulfilment_id', $fulfilmentCustomer->fulfilment_id);
-        data_set($modelData, 'in_process_at', now());
 
-        data_set($modelData, 'ulid', Str::ulid());
-
-        if (!Arr::get($modelData, 'reference')) {
-            data_set(
-                $modelData,
-                'reference',
-                GetSerialReference::run(
-                    container: $fulfilmentCustomer,
-                    modelType: SerialReferenceModelEnum::PALLET_DELIVERY
-                )
-            );
-
-        }
-
-
+        $modelData=$this->processData($modelData, $fulfilmentCustomer, SerialReferenceModelEnum::PALLET_DELIVERY);
 
         /** @var PalletDelivery $palletDelivery */
         $palletDelivery = $fulfilmentCustomer->palletDeliveries()->create($modelData);
@@ -101,7 +73,9 @@ class StorePalletDelivery extends OrgAction
     public function prepareForValidation(ActionRequest $request): void
     {
         if($this->fulfilment->warehouses()->count()==1) {
-            $this->fill(['warehouse_id' =>$this->fulfilment->warehouses()->first()->id]);
+            /** @var Warehouse $warehouse */
+            $warehouse = $this->fulfilment->warehouses()->first();
+            $this->fill(['warehouse_id' =>$warehouse->id]);
         }
     }
 
@@ -184,33 +158,7 @@ class StorePalletDelivery extends OrgAction
         };
     }
 
-    public string $commandSignature = 'pallet-deliveries:create {fulfilment-customer}';
 
-    public function asCommand(Command $command): int
-    {
-        $this->asAction = true;
-
-        try {
-            $fulfilmentCustomer = FulfilmentCustomer::where('slug', $command->argument('fulfilment-customer'))->firstOrFail();
-        } catch (Exception $e) {
-            $command->error($e->getMessage());
-            return 1;
-        }
-
-        try {
-            $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, []);
-        } catch (Exception $e) {
-            $command->error($e->getMessage());
-
-            return 1;
-        }
-
-        $palletDelivery = $this->handle($fulfilmentCustomer, modelData: $this->validatedData);
-
-        $command->info("Pallet delivery $palletDelivery->reference created successfully 🎉");
-
-        return 0;
-    }
 
 
 }
