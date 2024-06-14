@@ -79,7 +79,7 @@ class ShowPallet extends OrgAction
     public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->parent = $organisation;
-        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(PalletTabsEnum::values());
 
         return $this->handle($pallet);
     }
@@ -345,7 +345,7 @@ class ShowPallet extends OrgAction
                     'parameters'=> [
                         'organisation'=> $pallet->organisation->slug,
                         'fulfilment'  => $pallet->fulfilment->slug,
-                        'pallet'      =>  $pallet->slug
+                        'pallet'      => $pallet->slug
                     ]
 
                 ]

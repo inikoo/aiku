@@ -59,19 +59,19 @@ class EditPallet extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('stored items'),
+                'title'       => __('pallet'),
                 'pageHead'    => [
-                    'title'     => __('stored items'),
-                    // 'actions'   => [
-                    //     [
-                    //         'type'  => 'button',
-                    //         'style' => 'exitEdit',
-                    //         'route' => [
-                    //             'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
-                    //             'parameters' => array_values($request->route()->originalParameters())
-                    //         ]
-                    //     ]
-                    // ]
+                    'title'      => __('pallet'),
+                     'actions'   => [
+                         [
+                             'type'  => 'button',
+                             'style' => 'exitEdit',
+                             'route' => [
+                                 'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
+                                 'parameters' => array_values($request->route()->originalParameters())
+                             ]
+                         ]
+                     ]
                 ],
                 'formData' => [
                     'blueprint' => [

@@ -18,7 +18,6 @@ use App\Models\Catalogue\Shop;
 use App\Models\Inventory\Location;
 use Inertia\Testing\AssertableInertia;
 
-use function Deployer\has;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 
