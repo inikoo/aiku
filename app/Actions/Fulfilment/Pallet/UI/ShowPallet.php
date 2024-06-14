@@ -338,18 +338,18 @@ class ShowPallet extends OrgAction
                 ]
             ],
 
-            // 'grp.org.fulfilments.show.operations.pallets.show'=> [
-            //     'label'=> $pallet->number,
-            //     'route'=> [
-            //         'name'      => $routeName,
-            //         'parameters'=> [
-            //             'organisation'=> $pallet->organisation->slug,
-            //             'fulfilment'  => $this->parent->slug,
-            //             'pallet'     => $pallet->slug
-            //         ]
+            'grp.org.fulfilments.show.operations.pallets.show'=> [
+                'label'=> $pallet->number,
+                'route'=> [
+                    'name'      => $routeName,
+                    'parameters'=> [
+                        'organisation'=> $pallet->organisation->slug,
+                        'fulfilment'  => $pallet->fulfilment->slug,
+                        'pallet'      =>  $pallet->slug
+                    ]
 
-            //     ]
-            // ],
+                ]
+            ],
 
             // 'grp.org.fulfilments.show.crm.customers.show.invoices.show'=> [
             //     'label'=> $invoice->number,
@@ -364,6 +364,7 @@ class ShowPallet extends OrgAction
 
             //     ]
             // ],
+            default => null,
         };
     }
 }

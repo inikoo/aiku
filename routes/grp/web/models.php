@@ -21,6 +21,7 @@ use App\Actions\Catalogue\Service\StoreService;
 use App\Actions\Catalogue\Service\UpdateService;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\SyncPaymentAccountToShop;
+use App\Actions\CRM\Customer\DeleteDropshippingCustomerPortfolio;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
 use App\Actions\CRM\CustomerClient\StoreCustomerClient;
@@ -212,6 +213,8 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 
     Route::post('/shop/{shop:id}/product/', [StoreProduct::class, 'inShop'])->name('show.product.store');
     Route::delete('/shop/{shop:id}/product/{product:id}', [DeleteProduct::class, 'inShop'])->name('shop.product.delete');
+
+    Route::delete('shop/{shop:id}/customer/{customer:id}/portfolio/{portfolio:id}', DeleteDropshippingCustomerPortfolio::class)->name('shop.customer.portfolio.delete')->withoutScopedBindings();
 
     Route::post('/product/', StoreProduct::class)->name('product.store');
     Route::patch('/product/{product:id}', UpdateProduct::class)->name('product.update');
