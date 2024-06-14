@@ -7,14 +7,17 @@
 
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
+use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\UI\Fulfilment\FulfilmentAssetsTabsEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
 use App\Enums\UI\Fulfilment\RentalsTabsEnum;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Pallet;
 use App\Models\Inventory\Location;
 use Inertia\Testing\AssertableInertia;
 
@@ -58,6 +61,23 @@ beforeEach(function () {
     $this->shop = UpdateShop::make()->action($this->shop, ['state' => ShopStateEnum::OPEN]);
 
     $this->customer = createCustomer($this->shop);
+
+
+    $pallet = Pallet::first();
+    if (!$pallet) {
+        $storeData = Pallet::factory()->definition();
+        data_set($storeData, 'state', PalletStateEnum::SUBMITTED);
+        data_set($storeData, 'warehouse_id', $this->warehouse->id);
+
+
+
+        $pallet = StorePallet::make()->action(
+            $this->customer->fulfilmentCustomer,
+            $storeData
+        );
+    }
+
+    $this->pallet = $pallet;
 
     Config::set(
         'inertia.testing.page_paths',
@@ -192,5 +212,41 @@ test('UI Index pallets', function () {
                         ->etc()
             )
             ->has('data');
+    });
+});
+
+test('UI show pallet', function () {
+    $response = get(route('grp.org.fulfilments.show.operations.pallets.show', [$this->organisation->slug, $this->fulfilment->slug, $this->pallet->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Pallet')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->pallet->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+test('UI edit pallet', function () {
+    $response = get(route('grp.org.fulfilments.show.operations.pallets.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->pallet->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 3)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.pallet.update')
+                        ->where('parameters', [$this->pallet->id])
+            )
+            ->has('breadcrumbs', 3);
     });
 });

@@ -14,6 +14,7 @@ use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Inventory\Warehouse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
@@ -55,16 +56,18 @@ class StoreMultiplePalletsFromDelivery extends OrgAction
     public function prepareForValidation(ActionRequest $request): void
     {
         if ($this->fulfilment->warehouses()->count() == 1) {
-            $this->fill(['warehouse_id' => $this->fulfilment->warehouses()->first()->id]);
+            /** @var Warehouse $warehouse */
+            $warehouse = $this->fulfilment->warehouses()->first();
+            $this->fill(['warehouse_id' => $warehouse->id]);
         }
     }
 
     public function rules(): array
     {
         return [
-            'warehouse_id'       => ['required', 'integer', 'exists:warehouses,id'],
-            'number_pallets'     => ['required', 'integer', 'min:1', 'max:1000'],
-            'type'               => ['required', Rule::in(PalletTypeEnum::values())]
+            'warehouse_id'   => ['required', 'integer', 'exists:warehouses,id'],
+            'number_pallets' => ['required', 'integer', 'min:1', 'max:1000'],
+            'type'           => ['required', Rule::enum(PalletTypeEnum::class)],
         ];
     }
 

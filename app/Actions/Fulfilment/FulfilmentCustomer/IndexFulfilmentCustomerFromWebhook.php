@@ -30,7 +30,7 @@ class IndexFulfilmentCustomerFromWebhook
     public function rules(): array
     {
         return [
-            'type' => ['required', Rule::in(CustomerWebhookTypeEnum::values())]
+            'type' => ['required', Rule::enum(CustomerWebhookTypeEnum::class)]
         ];
     }
 

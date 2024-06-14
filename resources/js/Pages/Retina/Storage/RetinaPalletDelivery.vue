@@ -19,7 +19,7 @@ import { Table } from '@/types/Table'
 import { PalletDelivery, PDBoxStats } from '@/types/Pallet'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import { PageHeading as PageHeadingTypes } from  '@/types/PageHeading'
-import BoxStatsPalletDelivery from "@/Components/Pallet/BoxStatsPalletDelivery.vue"
+import BoxStatPallet from "@/Components/Pallet/BoxStatPallet.vue"
 import DatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import { useFormatTime } from '@/Composables/useFormatTime';
@@ -313,7 +313,7 @@ const typePallet = [
     <!-- Box: Stats -->
     <div class="h-min grid grid-cols-4 border-b border-gray-200 divide-x divide-gray-300">
         <!-- Box: Status -->
-        <BoxStatsPalletDelivery :color="{bgColor: layout.app.theme[0], textColor: layout.app.theme[1]}"
+        <BoxStatPallet :color="{bgColor: layout.app.theme[0], textColor: layout.app.theme[1]}"
             class=" pb-2 py-5 px-3" :tooltip="trans('Detail')" :label="capitalize(data?.data.state)"
             icon="fal fa-truck-couch">
             <div class="flex items-center w-full flex-none gap-x-2 mb-2">
@@ -348,10 +348,10 @@ const typePallet = [
                     </template>
                 </Popover>
             </div>
-        </BoxStatsPalletDelivery>
+        </BoxStatPallet>
 
         <!-- Box: Pallet -->
-        <BoxStatsPalletDelivery :color="{bgColor: layout.app.theme[0], textColor: layout.app.theme[1]}"
+        <BoxStatPallet :color="{bgColor: layout.app.theme[0], textColor: layout.app.theme[1]}"
             class=" pb-2 py-5 px-3" :tooltip="trans('Pallets')" :percentage="0">
             <div class="flex items-end gap-x-3">
                 <dt class="flex-none">
@@ -361,7 +361,7 @@ const typePallet = [
                 </dt>
                 <dd class="text-gray-600 leading-none text-3xl font-medium">{{ data?.data.number_pallets }}</dd>
             </div>
-        </BoxStatsPalletDelivery>
+        </BoxStatPallet>
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />

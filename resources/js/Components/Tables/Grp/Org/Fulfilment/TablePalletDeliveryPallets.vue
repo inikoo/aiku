@@ -158,6 +158,7 @@ const onSavedError = (error: {}, pallet: { form: {} }) => {
 					<FontAwesomeIcon icon='fal fa-sticky-note' class='text-gray-400' fixed-width aria-hidden='true' />
 					{{ item.notes }}
 				</span>
+                <span v-else class="text-gray-400 text-xs">-</span>
 			</div>
 		</template>
 
