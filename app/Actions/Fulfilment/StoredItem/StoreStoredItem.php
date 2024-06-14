@@ -62,7 +62,7 @@ class StoreStoredItem
     {
         return [
             'reference'   => ['required', 'unique:stored_items', 'between:2,9', 'alpha'],
-            'type'        => ['sometimes', Rule::in(StoredItemTypeEnum::values())],
+            'type'        => ['sometimes', Rule::enum(StoredItemTypeEnum::class)],
             'location_id' => ['sometimes', 'exists:locations,id']
         ];
     }

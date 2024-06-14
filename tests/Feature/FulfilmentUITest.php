@@ -21,7 +21,6 @@ use App\Models\Fulfilment\Pallet;
 use App\Models\Inventory\Location;
 use Inertia\Testing\AssertableInertia;
 
-use function Deployer\has;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 
@@ -218,7 +217,7 @@ test('UI Index pallets', function () {
 
 test('UI show pallet', function () {
     $response = get(route('grp.org.fulfilments.show.operations.pallets.show', [$this->organisation->slug, $this->fulfilment->slug, $this->pallet->slug]));
-    $response->assertInertia(function (AssertableInertia $page){
+    $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Fulfilment/Pallet')
             ->has('title')

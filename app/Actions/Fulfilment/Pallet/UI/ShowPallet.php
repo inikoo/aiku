@@ -355,7 +355,7 @@ class ShowPallet extends OrgAction
                     'parameters'=> [
                         'organisation'=> $pallet->organisation->slug,
                         'fulfilment'  => $pallet->fulfilment->slug,
-                        'pallet'      =>  $pallet->slug
+                        'pallet'      => $pallet->slug
                     ]
 
                 ]

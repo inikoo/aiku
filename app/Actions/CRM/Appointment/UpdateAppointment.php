@@ -45,8 +45,8 @@ class UpdateAppointment
             'name'                     => ['sometimes', 'string'],
             'schedule_at'              => ['sometimes'],
             'description'              => ['sometimes', 'string', 'max:255'],
-            'type'                     => ['sometimes', Rule::in(AppointmentTypeEnum::values())],
-            'event'                    => ['sometimes', Rule::in(AppointmentEventEnum::values())],
+            'type'                     => ['sometimes', Rule::enum(AppointmentTypeEnum::class)],
+            'event'                    => ['sometimes', Rule::enum(AppointmentEventEnum::class)],
             'event_address'            => ['sometimes', 'string']
         ];
     }
