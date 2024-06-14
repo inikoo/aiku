@@ -233,3 +233,21 @@ test('UI show pallet', function () {
 
     });
 });
+
+test('UI edit pallet', function () {
+    $response = get(route('grp.org.fulfilments.show.operations.pallets.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->pallet->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 3)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.pallet.update')
+                        ->where('parameters', [$this->pallet->id])
+            )
+            ->has('breadcrumbs', 3);
+    });
+});
