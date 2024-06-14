@@ -330,3 +330,26 @@ test('UI Index lost pallets in warehouse', function () {
             ->has('data');
     });
 });
+
+// Pallet Delivery
+
+test('UI Index pallet deliveries', function () {
+    $response = $this->get(route('grp.org.fulfilments.show.operations.pallet-deliveries.index', [$this->organisation->slug, $this->fulfilment->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletDeliveries')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'deliveries')
+                        ->has('subNavigation')
+                        ->has('actions')
+                        ->etc()
+            )
+            ->has('data');
+    });
+});
