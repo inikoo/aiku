@@ -26,7 +26,9 @@ class DeleteDropshippingCustomerPortfolio extends OrgAction
 
     public function handle (DropshippingCustomerPortfolio $portfolio): DropshippingCustomerPortfolio
     {
-        $portfolio->stats()->delete();
+        if ($portfolio->stats()->exists()) {
+            $portfolio->stats()->delete();
+        }
         $portfolio->delete();
 
         return $portfolio;
