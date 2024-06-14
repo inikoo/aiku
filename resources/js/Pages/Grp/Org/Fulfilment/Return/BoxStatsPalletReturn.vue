@@ -79,7 +79,7 @@ onMounted(() => {
                     <FontAwesomeIcon icon='fal fa-envelope' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-xs text-gray-500 w-full pr-4 break-words leading-none">ddddddd{{ boxStats.fulfilment_customer?.customer.email }}</dd>
+                <dd class="text-xs text-gray-500 w-full pr-4 break-words leading-none">{{ boxStats.fulfilment_customer?.customer.email }}</dd>
             </div>
 
             <!-- Field: Phone -->

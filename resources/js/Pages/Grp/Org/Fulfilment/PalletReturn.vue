@@ -254,7 +254,7 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
     <component :is="component" :data="props[currentTab]" :state="timeline.state" :key="timeline.state" :tab="currentTab" />
 
     <Modal :isOpen="openModal" @onClose="openModal = false">
-        <div class="min-h-72 max-h-96 px-2 overflow-auto">
+        <div class="">
             <TablePalletReturn
 				:dataRoute="palletRoute.index"
                 :saveRoute="palletRoute.store"
