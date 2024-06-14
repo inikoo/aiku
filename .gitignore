@@ -71,3 +71,4 @@ push.sh
 /storage/app/var/*
 
 reset_db.sh
+/tests/datasets/db_dumps/aiku/*

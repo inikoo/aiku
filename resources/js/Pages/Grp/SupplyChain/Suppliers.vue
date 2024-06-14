@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import {Head} from '@inertiajs/vue3';
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import TableMarketplaceSuppliers from "@/Components/Tables/Grp/Org/Procurement/TableMarketplaceSuppliers.vue";
+import TableSuppliers from "@/Components/Tables/Grp/SupplyChain/TableSuppliers.vue";
 import { capitalize } from "@/Composables/capitalize"
 
 const props = defineProps <{
@@ -20,6 +20,6 @@ const props = defineProps <{
 <template>
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <TableMarketplaceSuppliers :data="data" />
+    <TableSuppliers :data="data" />
 </template>
 

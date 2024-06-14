@@ -12,7 +12,7 @@ DB_PORT="${1:-$DB_PORT}"
 DB_COLLATE="${2:-$DB_COLLATE}"
 PHP="${3:-$PHP}"
 
-DB_SUFFIX="${DB_SUFFIX}"
+DB_SUFFIX=_base
 
 echo -e "🧼 Migrating ds models"
 
