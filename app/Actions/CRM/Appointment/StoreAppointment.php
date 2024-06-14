@@ -8,6 +8,7 @@
 namespace App\Actions\CRM\Appointment;
 
 use App\Actions\CRM\Customer\StoreCustomer;
+use App\Actions\OrgAction;
 use App\Enums\CRM\Appointment\AppointmentEventEnum;
 use App\Enums\CRM\Appointment\AppointmentTypeEnum;
 use App\Models\CRM\Customer;
@@ -19,19 +20,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\AsCommand;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 use Throwable;
 
-class StoreAppointment
+class StoreAppointment extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
-    use AsCommand;
-
-    private bool $asAction = false;
-
     public Customer|Shop $parent;
 
     public function handle(Shop $shop, array $modelData): Model
@@ -78,8 +70,8 @@ class StoreAppointment
             'email'                    => ['sometimes', 'email'],
             'schedule_at'              => ['required'],
             'description'              => ['nullable', 'string', 'max:255'],
-            'type'                     => ['required', Rule::in(AppointmentTypeEnum::values())],
-            'event'                    => ['required', Rule::in(AppointmentEventEnum::values())],
+            'type'                     => ['required', Rule::enum(AppointmentTypeEnum::class)],
+            'event'                    => ['required', Rule::enum(AppointmentEventEnum::class)],
             'event_address'            => ['required', 'string']
         ];
     }
@@ -147,7 +139,7 @@ class StoreAppointment
             return 1;
         }
 
-        $this->handle($shop->customers()->first(), $validatedData);
+        $this->handle($shop, $validatedData);
 
         $command->info("Appointment created successfully 🎉");
 

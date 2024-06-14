@@ -15,6 +15,7 @@ use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Inventory\Warehouse;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
@@ -66,14 +67,16 @@ class StorePalletFromDelivery extends OrgAction
     public function prepareForValidation(ActionRequest $request): void
     {
         if($this->fulfilment->warehouses()->count()==1) {
-            $this->fill(['warehouse_id' =>$this->fulfilment->warehouses()->first()->id]);
+            /** @var Warehouse $warehouse */
+            $warehouse = $this->fulfilment->warehouses()->first();
+            $this->fill(['warehouse_id' =>$warehouse->id]);
         }
     }
 
     public function rules(): array
     {
         return [
-            'type'               => ['nullable', Rule::in(PalletTypeEnum::values())],
+            'type'               => ['nullable', Rule::enum(PalletTypeEnum::class)],
             'customer_reference' => ['nullable'],
             'notes'              => ['nullable', 'string','max:1024']
         ];

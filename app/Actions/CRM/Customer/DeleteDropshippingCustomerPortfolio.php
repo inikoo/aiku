@@ -24,7 +24,7 @@ class DeleteDropshippingCustomerPortfolio extends OrgAction
     use WithAttributes;
 
 
-    public function handle (DropshippingCustomerPortfolio $portfolio): DropshippingCustomerPortfolio
+    public function handle(DropshippingCustomerPortfolio $portfolio): DropshippingCustomerPortfolio
     {
         if ($portfolio->stats()->exists()) {
             $portfolio->stats()->delete();

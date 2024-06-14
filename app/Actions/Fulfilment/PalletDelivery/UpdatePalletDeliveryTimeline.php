@@ -61,7 +61,7 @@ class UpdatePalletDeliveryTimeline extends OrgAction
     public function rules(): array
     {
         return [
-            'state' => ['required', Rule::in(PalletDeliveryStateEnum::values())],
+            'state' => ['required', Rule::enum(PalletDeliveryStateEnum::class)],
         ];
     }
 
