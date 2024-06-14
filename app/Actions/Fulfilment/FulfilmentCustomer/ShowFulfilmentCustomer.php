@@ -67,6 +67,10 @@ class ShowFulfilmentCustomer extends OrgAction
 
         $navigation = FulfilmentCustomerTabsEnum::navigation();
 
+        if (!$fulfilmentCustomer->rentalAgreement) {
+            unset($navigation[FulfilmentCustomerTabsEnum::AGREED_PRICES->value]);
+        }
+
         /*
                 if (!$fulfilmentCustomer->pallets_storage) {
                     unset($navigation[FulfilmentCustomerTabsEnum::PALLETS->value]);
