@@ -270,3 +270,23 @@ test('UI Index damaged pallets', function () {
             ->has('data');
     });
 });
+
+test('UI Index returned pallets', function () {
+    $response = $this->get(route('grp.org.warehouses.show.fulfilment.returned_pallets.index', [$this->organisation->slug, $this->warehouse->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Pallets')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Returned pallets')
+                        ->has('subNavigation')
+                        ->etc()
+            )
+            ->has('data');
+    });
+});
