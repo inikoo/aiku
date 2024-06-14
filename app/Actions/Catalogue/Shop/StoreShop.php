@@ -95,8 +95,12 @@ class StoreShop extends OrgAction
         );
 
         if ($shop->type == ShopTypeEnum::FULFILMENT) {
-            //it must use run to bypass rules
-            StoreFulfilment::make()->run($shop, $warehouses, []);
+            StoreFulfilment::make()->make()->action(
+                $shop,
+                [
+                    'warehouses' => $warehouses,
+                ]
+            );
         } else {
             SeedShopPermissions::run($shop);
 

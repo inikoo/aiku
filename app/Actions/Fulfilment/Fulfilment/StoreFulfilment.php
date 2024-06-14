@@ -7,7 +7,6 @@
 
 namespace App\Actions\Fulfilment\Fulfilment;
 
-use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\Traits\Rules\WithShopRules;
@@ -17,21 +16,23 @@ use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Catalogue\Shop;
-use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
+use Arr;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreFulfilment extends OrgAction
 {
     use WithShopRules;
 
-    public function handle(Shop $shop, array $warehouses, array $modelData): Fulfilment
+    public function handle(Shop $shop, array $modelData): Fulfilment
     {
         data_set($modelData, 'group_id', $shop->group_id);
         data_set($modelData, 'organisation_id', $shop->organisation_id);
 
+
+        $warehouses= $modelData['warehouses'];
+        Arr::forget($modelData, 'warehouses');
 
         /** @var Fulfilment $fulfilment */
         $fulfilment = $shop->fulfilment()->create($modelData);
@@ -65,8 +66,6 @@ class StoreFulfilment extends OrgAction
             ]
         );
 
-
-
         return $fulfilment;
     }
 
@@ -82,37 +81,24 @@ class StoreFulfilment extends OrgAction
 
     public function rules(ActionRequest $request): array
     {
-        return $this->getStoreShopRules();
+        return [
+
+            'warehouses'               => ['sometimes', 'array'],
+            'warehouses.*'             => [Rule::Exists('warehouses', 'id')->where('organisation_id', $this->organisation->id)],
+
+        ];
     }
 
 
-    public function asController(Organisation $organisation, ActionRequest $request): Fulfilment
-    {
-        $this->initialisation($organisation, $request);
-        $shop = StoreShop::make()->action($organisation, $this->validatedData);
-
-        return $shop->fulfilment;
-    }
-
-
-    public function action(Shop $shop, array $warehouses, $modelData, $hydratorDelay = 0): Fulfilment
+    public function action(Shop $shop, $modelData, $hydratorDelay = 0): Fulfilment
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorDelay;
         $this->initialisation($shop->organisation, $modelData);
 
-        return $this->handle($shop, $warehouses, $this->validatedData);
+        return $this->handle($shop, $this->validatedData);
     }
 
-    public function htmlResponse(Fulfilment $fulfilment): RedirectResponse
-    {
-        return Redirect::route(
-            'grp.org.fulfilments.show.operations.dashboard',
-            [
-                $this->organisation->slug,
-                $fulfilment->slug
-            ]
-        );
-    }
+
 
 }

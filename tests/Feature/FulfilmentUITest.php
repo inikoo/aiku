@@ -13,6 +13,7 @@ use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\UI\Fulfilment\FulfilmentAssetsTabsEnum;
+use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
 use App\Enums\UI\Fulfilment\RentalsTabsEnum;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
@@ -85,6 +86,69 @@ beforeEach(function () {
     );
     actingAs($this->adminGuest->user);
 });
+
+test('UI list of fulfilment shops', function () {
+    $response = get(route('grp.org.fulfilments.index', $this->organisation->slug));
+    expect(FulfilmentsTabsEnum::FULFILMENT_SHOPS->value)->toBe('fulfilments');
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Fulfilments')
+            ->has('title')->has('tabs')->has(FulfilmentsTabsEnum::FULFILMENT_SHOPS->value.'.data')
+            ->has('breadcrumbs', 2);
+    });
+});
+
+test('UI create fulfilment', function () {
+    $response = get(route('grp.org.fulfilments.create', $this->organisation->slug));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 3);
+    });
+});
+
+test('UI show fulfilment shop', function () {
+
+    $fulfilment=$this->shop->fulfilment;
+    $response  = get(
+        route(
+            'grp.org.fulfilments.show.operations.dashboard',
+            [
+                $this->organisation->slug,
+                $fulfilment->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Fulfilment')
+            ->has('title')->has('tabs')
+            ->has('breadcrumbs', 2);
+    });
+});
+
+
+test('UI show fulfilment shop customers list', function () {
+
+    $fulfilment=$this->shop->fulfilment;
+
+    $response = get(
+        route(
+            'grp.org.fulfilments.show.crm.customers.index',
+            [
+                $this->organisation->slug,
+                $fulfilment->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/FulfilmentCustomers')
+            ->has('title')
+            ->has('breadcrumbs', 3);
+    });
+});
+
 
 // Indexes
 

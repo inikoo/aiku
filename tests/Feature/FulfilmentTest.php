@@ -35,7 +35,6 @@ use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
@@ -52,10 +51,8 @@ use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
 use App\Models\Web\Website;
 use Illuminate\Support\Carbon;
-use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\get;
 
 beforeAll(function () {
     loadDB();
@@ -103,9 +100,6 @@ test('create fulfilment shop', function () {
     $warehouseRoles        = Role::where('scope_type', 'Warehouse')->where('scope_id', $this->warehouse->id)->get();
     $warehousePermissions  = Permission::where('scope_type', 'Warehouse')->where('scope_id', $this->warehouse->id)->get();
 
-
-    //  dd($fulfilmentPermissions->pluck('name'));
-
     expect($shop)->toBeInstanceOf(Shop::class)
         ->and($shop->fulfilment)->toBeInstanceOf(Fulfilment::class)
         ->and($organisation->catalogueStats->number_shops)->toBe(1)
@@ -129,6 +123,8 @@ test('create fulfilment shop', function () {
 
     return $shop->fulfilment;
 });
+
+
 
 test('create rental product to fulfilment shop', function (Fulfilment $fulfilment) {
     $rental = StoreRental::make()->action(
@@ -584,84 +580,6 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
 })->depends('set location of third pallet in the pallet delivery');
 
 
-test('UI list of fulfilment shops', function () {
-    $response = get(route('grp.org.fulfilments.index', $this->organisation->slug));
-    expect(FulfilmentsTabsEnum::FULFILMENT_SHOPS->value)->toBe('fulfilments');
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('Org/Fulfilment/Fulfilments')
-            ->has('title')->has('tabs')->has(FulfilmentsTabsEnum::FULFILMENT_SHOPS->value.'.data')
-            ->has('breadcrumbs', 2);
-    });
-});
-
-
-
-test('UI create fulfilment', function () {
-    $response = get(route('grp.org.fulfilments.create', $this->organisation->slug));
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('CreateModel')
-            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 3);
-    });
-});
-
-
-test('UI show fulfilment shop', function (Fulfilment $fulfilment) {
-    $response = get(
-        route(
-            'grp.org.fulfilments.show.operations.dashboard',
-            [
-                $this->organisation->slug,
-                $fulfilment->slug
-            ]
-        )
-    );
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('Org/Fulfilment/Fulfilment')
-            ->has('title')->has('tabs')
-            ->has('breadcrumbs', 2);
-    });
-})->depends('create fulfilment shop');
-
-
-test('UI show fulfilment shop customers list', function (Fulfilment $fulfilment) {
-    $response = get(
-        route(
-            'grp.org.fulfilments.show.crm.customers.index',
-            [
-                $this->organisation->slug,
-                $fulfilment->slug
-            ]
-        )
-    );
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('Org/Fulfilment/FulfilmentCustomers')
-            ->has('title')
-            ->has('breadcrumbs', 3);
-    });
-})->depends('create fulfilment shop');
-
-test('UI show fulfilment pallet list', function (Fulfilment $fulfilment) {
-    $response = get(
-        route(
-            'grp.org.fulfilments.show.pallets.index',
-            [
-                $this->organisation->slug,
-                $fulfilment->slug
-            ]
-        )
-    );
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('Org/Fulfilment/Pallets')
-            ->has('title')
-            ->has('breadcrumbs', 3);
-    });
-})->depends('create fulfilment shop')->todo();
-
 
 test('create pallet no delivery', function (Fulfilment $fulfilment) {
     $customer = StoreCustomer::make()->action(
@@ -692,3 +610,7 @@ test('create pallet no delivery', function (Fulfilment $fulfilment) {
 
     return $pallet;
 })->depends('create fulfilment shop');
+
+test('hydrate shops command', function () {
+    $this->artisan('fulfilment:hydrate '.$this->organisation->slug)->assertExitCode(0);
+});
