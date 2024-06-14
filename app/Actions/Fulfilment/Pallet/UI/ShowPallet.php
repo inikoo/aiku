@@ -108,6 +108,13 @@ class ShowPallet extends OrgAction
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
         }
 
+        $routeName = null;
+        if ($this->parent instanceof Warehouse) {
+            $routeName = 'grp.org.warehouses.show.fulfilment.pallets.edit';
+        } elseif ($this->parent instanceof Fulfilment) {
+            $routeName = 'grp.org.fulfilments.show.operations.pallets.edit';
+        }
+
 
         return Inertia::render(
             'Org/Fulfilment/Pallet',
@@ -151,20 +158,10 @@ class ShowPallet extends OrgAction
                         [
                             'type'    => 'button',
                             'style'   => 'edit',
-                            'tooltip' => __('edit stored items'),
-                            'label'   => __('Edit Stored Items'),
-                            'route'   => [
-                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.edit',
-                                'parameters' => array_values(request()->route()->originalParameters())
-                            ]
-                        ],
-                        [
-                            'type'    => 'button',
-                            'style'   => 'edit',
                             'tooltip' => __('edit pallet'),
                             'label'   => __('Edit'),
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.operations.pallets.edit',
+                                'name'       => $routeName,
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ]
                         ],
