@@ -29,10 +29,10 @@ class DropshippingCustomerPortfolioResource extends JsonResource
             'product_code'           => $portfolio->product_code,
             'slug'                   => $portfolio->slug,
             'created_at'             => $portfolio->created_at,
-            'routes'=> [
+            'routes'                 => [
                 'delete_route' => [
-                    'method' => 'delete',
-                    'name' => 'grp.models.org.shop.customer.portfolio.delete',
+                    'method'     => 'delete',
+                    'name'       => 'grp.models.org.shop.customer.portfolio.delete',
                     'parameters' => [
                         'organisation' => $portfolio->organisation_id,
                         'shop'         => $portfolio->shop_id,

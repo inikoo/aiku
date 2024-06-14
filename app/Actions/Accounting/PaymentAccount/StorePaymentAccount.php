@@ -19,6 +19,7 @@ use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -33,7 +34,7 @@ class StorePaymentAccount extends OrgAction
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
 
-        if($parent instanceof OrgPaymentServiceProvider) {
+        if ($parent instanceof OrgPaymentServiceProvider) {
             data_set($modelData, 'payment_service_provider_id', $parent->payment_service_provider_id);
         }
 
@@ -41,7 +42,7 @@ class StorePaymentAccount extends OrgAction
         $paymentAccount = $parent->accounts()->create($modelData);
         $paymentAccount->stats()->create();
 
-        if($paymentAccount->type==PaymentAccountTypeEnum::ACCOUNT) {
+        if ($paymentAccount->type == PaymentAccountTypeEnum::ACCOUNT) {
             $paymentAccount->serialReferences()->create(
                 [
                     'model'           => SerialReferenceModelEnum::PAYMENT,
@@ -55,7 +56,6 @@ class StorePaymentAccount extends OrgAction
         OrganisationHydratePaymentAccounts::dispatch($parent->organisation);
         GroupHydratePaymentAccounts::dispatch($parent->group);
         OrgPaymentServiceProviderHydratePaymentAccounts::dispatch($parent);
-
 
 
         return $paymentAccount;
@@ -73,8 +73,8 @@ class StorePaymentAccount extends OrgAction
     public function rules(): array
     {
         return [
-            'type'      => ['required', Rule::in(PaymentAccountTypeEnum::values())],
-            'code'      => [
+            'type'        => ['required', Rule::enum(PaymentAccountTypeEnum::class)],
+            'code'        => [
                 'required',
                 'max:16',
                 'alpha_dash',
@@ -82,14 +82,15 @@ class StorePaymentAccount extends OrgAction
                     table: 'payment_accounts',
                     extraConditions: [
                         [
-                            'column' => 'organisation_id', 'value' => $this->organisation->id
+                            'column' => 'organisation_id',
+                            'value'  => $this->organisation->id
                         ],
                     ]
                 ),
             ],
-            'name'       => ['required', 'max:250', 'string'],
-            'is_accounts'=> ['sometimes', 'boolean'],
-            'source_id'  => ['sometimes', 'string'],
+            'name'        => ['required', 'max:250', 'string'],
+            'is_accounts' => ['sometimes', 'boolean'],
+            'source_id'   => ['sometimes', 'string'],
         ];
     }
 
@@ -137,14 +138,36 @@ class StorePaymentAccount extends OrgAction
         return $this->handle($orgPaymentServiceProvider, $this->validatedData);
     }
 
-    public string $commandSignature = 'payment-account:create {provider} {type}';
+    public string $commandSignature = 'payment-account:create {provider} {type} {code}';
 
     public function asCommand(Command $command): int
     {
-        $provider = OrgPaymentServiceProvider::where('slug', $command->argument('provider'))->first();
-        $type     = $command->argument('type');
+        try {
+            $provider = OrgPaymentServiceProvider::where('slug', $command->argument('provider'))->firstOrFail();
+        } catch (Exception) {
+            $command->error('Provider not found');
 
-        // $this->handle($provider, $modelData);
+            return 1;
+        }
+
+
+        $this->setRawAttributes(
+            [
+                'code' => $command->argument('code'),
+                'type' => $command->argument('type')
+            ]
+        );
+
+        try {
+            $validatedData = $this->validateAttributes();
+        } catch (Exception $e) {
+            $command->error($e->getMessage());
+
+            return 1;
+        }
+
+
+        $this->handle($provider, $validatedData);
 
         return 0;
     }

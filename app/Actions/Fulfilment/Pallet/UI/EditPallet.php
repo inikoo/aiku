@@ -50,7 +50,7 @@ class EditPallet extends OrgAction
     }
 
 
-    public function htmlResponse(Pallet $storedItem, ActionRequest $request): Response
+    public function htmlResponse(Pallet $pallet, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
@@ -59,19 +59,19 @@ class EditPallet extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('stored items'),
+                'title'       => __('edit pallet'),
                 'pageHead'    => [
-                    'title'     => __('stored items'),
-                    // 'actions'   => [
-                    //     [
-                    //         'type'  => 'button',
-                    //         'style' => 'exitEdit',
-                    //         'route' => [
-                    //             'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
-                    //             'parameters' => array_values($request->route()->originalParameters())
-                    //         ]
-                    //     ]
-                    // ]
+                    'title'      => __('edit pallet'),
+                     'actions'   => [
+                         [
+                             'type'  => 'button',
+                             'style' => 'exitEdit',
+                             'route' => [
+                                 'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
+                                 'parameters' => array_values($request->route()->originalParameters())
+                             ]
+                         ]
+                     ]
                 ],
                 'formData' => [
                     'blueprint' => [
@@ -82,19 +82,19 @@ class EditPallet extends OrgAction
                                 'reference' => [
                                     'type'    => 'input',
                                     'label'   => __('reference'),
-                                    'value'   => $storedItem->reference,
+                                    'value'   => $pallet->reference,
                                     'required'=> true
                                 ],
                                 'customer_reference' => [
                                     'type'    => 'input',
                                     'label'   => __('customer_reference'),
-                                    'value'   => $storedItem->customer_reference,
+                                    'value'   => $pallet->customer_reference,
                                     'required'=> true
                                 ],
                                 'notes' => [
                                     'type'    => 'input',
                                     'label'   => __('notes'),
-                                    'value'   => $storedItem->notes,
+                                    'value'   => $pallet->notes,
                                     'required'=> true
                                 ],
                                 // 'type' => [
@@ -117,7 +117,7 @@ class EditPallet extends OrgAction
                     'args' => [
                         'updateRoute' => [
                             'name'       => 'grp.models.pallet.update',
-                            'parameters' => $storedItem->id
+                            'parameters' => [$pallet->id]
                         ],
                     ]
                 ],
@@ -125,16 +125,16 @@ class EditPallet extends OrgAction
         );
     }
 
-    public function asController(Organisation $organisation, Pallet $storedItem, ActionRequest $request): Pallet
+    public function asController(Organisation $organisation, Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->initialisation($organisation, $request);
 
-        return $this->handle($storedItem);
+        return $this->handle($pallet);
     }
 
-    public function inFulfilment(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, Pallet $pallet, ActionRequest $request): Pallet
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Pallet $pallet, ActionRequest $request): Pallet
     {
-        $this->parent = $organisation;
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($pallet);
@@ -147,7 +147,6 @@ class EditPallet extends OrgAction
 
         return $this->handle($pallet);
     }
-
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {

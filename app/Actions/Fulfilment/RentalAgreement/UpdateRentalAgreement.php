@@ -115,7 +115,7 @@ class UpdateRentalAgreement extends OrgAction
     public function rules(): array
     {
         return [
-            'billing_cycle'                  => ['sometimes', 'string', Rule::in(RentalAgreementBillingCycleEnum::values())],
+            'billing_cycle'                  => ['sometimes', 'string', Rule::enum(RentalAgreementBillingCycleEnum::class)],
             'pallets_limit'                  => ['sometimes', 'integer', 'min:1', 'max:10000'],
             'rental'                         => ['sometimes', 'array'],
             'rental.rentals.*.asset_id'      => ['sometimes',
@@ -138,11 +138,6 @@ class UpdateRentalAgreement extends OrgAction
             // 'rental.physical_goods.*.price'         => ['sometimes', 'numeric', 'gt:0'],
         ];
     }
-
-    // public function afterValidator($validator)
-    // {
-    //     dd($validator);
-    // }
 
     public function action(FulfilmentCustomer $fulfilmentCustomer, RentalAgreement $rentalAgreement, array $modelData): RentalAgreement
     {

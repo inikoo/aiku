@@ -56,9 +56,8 @@ class UpdateShop extends OrgAction
             GroupHydrateShops::dispatch($shop->group);
             OrganisationHydrateShops::dispatch($shop->organisation);
         }
-        if(count($changes)>0) {
+        if (count($changes) > 0) {
             ShopHydrateUniversalSearch::dispatch($shop);
-
         }
 
         return $shop;
@@ -102,7 +101,7 @@ class UpdateShop extends OrgAction
             'phone'                    => ['sometimes', 'nullable'],
             'identity_document_number' => ['sometimes', 'nullable', 'string'],
             'identity_document_type'   => ['sometimes', 'nullable', 'string'],
-            'type'                     => ['sometimes', 'required', Rule::in(ShopTypeEnum::values())],
+            'type'                     => ['sometimes', 'required', Rule::enum(ShopTypeEnum::class)],
             'currency_id'              => ['sometimes', 'required', 'exists:currencies,id'],
             'language_id'              => ['sometimes', 'required', 'exists:languages,id'],
             'timezone_id'              => ['sometimes', 'required', 'exists:timezones,id'],

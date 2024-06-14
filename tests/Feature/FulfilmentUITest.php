@@ -21,7 +21,6 @@ use App\Models\Fulfilment\Pallet;
 use App\Models\Inventory\Location;
 use Inertia\Testing\AssertableInertia;
 
-use function Deployer\has;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 
@@ -218,7 +217,7 @@ test('UI Index pallets', function () {
 
 test('UI show pallet', function () {
     $response = get(route('grp.org.fulfilments.show.operations.pallets.show', [$this->organisation->slug, $this->fulfilment->slug, $this->pallet->slug]));
-    $response->assertInertia(function (AssertableInertia $page){
+    $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Fulfilment/Pallet')
             ->has('title')
@@ -231,5 +230,63 @@ test('UI show pallet', function () {
             )
             ->has('tabs');
 
+    });
+});
+
+test('UI edit pallet', function () {
+    $response = get(route('grp.org.fulfilments.show.operations.pallets.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->pallet->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 3)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.pallet.update')
+                        ->where('parameters', [$this->pallet->id])
+            )
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index damaged pallets', function () {
+    $response = $this->get(route('grp.org.warehouses.show.fulfilment.damaged_pallets.index', [$this->organisation->slug, $this->warehouse->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Pallets')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Damaged pallets')
+                        ->has('subNavigation')
+                        ->etc()
+            )
+            ->has('data');
+    });
+});
+
+test('UI Index returned pallets', function () {
+    $response = $this->get(route('grp.org.warehouses.show.fulfilment.returned_pallets.index', [$this->organisation->slug, $this->warehouse->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Pallets')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Returned pallets')
+                        ->has('subNavigation')
+                        ->etc()
+            )
+            ->has('data');
     });
 });

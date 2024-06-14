@@ -8,9 +8,9 @@
 namespace App\Actions\Fulfilment\StoredItem;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStoredItems;
+use App\Actions\OrgAction;
 use App\Enums\Fulfilment\StoredItem\StoredItemTypeEnum;
 use App\Models\CRM\WebUser;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\StoredItem;
@@ -21,13 +21,12 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreStoredItem
+class StoreStoredItem extends OrgAction
 {
     use AsAction;
     use WithAttributes;
 
     public FulfilmentCustomer $fulfilmentCustomer;
-    private Fulfilment $fulfilment;
 
     public function handle(FulfilmentCustomer|Pallet $parent, array $modelData): StoredItem
     {
@@ -50,7 +49,6 @@ class StoreStoredItem
     public function authorize(ActionRequest $request): bool
     {
         if ($request->user() instanceof WebUser) {
-            // TODO: Raul please do the permission for the web user
             return true;
         }
 
@@ -62,7 +60,7 @@ class StoreStoredItem
     {
         return [
             'reference'   => ['required', 'unique:stored_items', 'between:2,9', 'alpha'],
-            'type'        => ['sometimes', Rule::in(StoredItemTypeEnum::values())],
+            'type'        => ['sometimes', Rule::enum(StoredItemTypeEnum::class)],
             'location_id' => ['sometimes', 'exists:locations,id']
         ];
     }
@@ -72,7 +70,7 @@ class StoreStoredItem
         $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->fulfilment         = $fulfilmentCustomer->fulfilment;
 
-        $this->setRawAttributes($request->all());
+        $this->initialisation($fulfilmentCustomer->organisation, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validateAttributes());
     }
@@ -82,7 +80,7 @@ class StoreStoredItem
         /** @var FulfilmentCustomer $fulfilmentCustomer */
         $fulfilmentCustomer = $request->user()->customer->fulfilmentCustomer;
 
-        $this->setRawAttributes($request->all());
+        $this->initialisation($fulfilmentCustomer->organisation, $request);
 
         $this->fulfilment         = $fulfilmentCustomer->fulfilment;
         $this->fulfilmentCustomer = $fulfilmentCustomer;
@@ -95,7 +93,7 @@ class StoreStoredItem
         $this->fulfilmentCustomer = $pallet->fulfilmentCustomer;
         $this->fulfilment         = $pallet->fulfilment;
 
-        $this->setRawAttributes($request->all());
+        $this->initialisation($pallet->organisation, $request);
 
         return $this->handle($pallet, $this->validateAttributes());
     }

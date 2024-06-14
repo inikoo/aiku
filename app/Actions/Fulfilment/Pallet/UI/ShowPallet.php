@@ -79,6 +79,14 @@ class ShowPallet extends OrgAction
     public function asController(Organisation $organisation, Warehouse $warehouse, Fulfilment $fulfilment, Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->parent = $organisation;
+        $this->initialisation($organisation, $request)->withTab(PalletTabsEnum::values());
+
+        return $this->handle($pallet);
+    }
+
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Pallet $pallet, ActionRequest $request): Pallet
+    {
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletTabsEnum::values());
 
         return $this->handle($pallet);
@@ -106,6 +114,13 @@ class ShowPallet extends OrgAction
 
         if ($this->parent instanceof FulfilmentCustomer) {
             $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        }
+
+        $routeName = null;
+        if ($this->parent instanceof Warehouse) {
+            $routeName = 'grp.org.warehouses.show.fulfilment.pallets.edit';
+        } elseif ($this->parent instanceof Fulfilment) {
+            $routeName = 'grp.org.fulfilments.show.operations.pallets.edit';
         }
 
 
@@ -151,20 +166,10 @@ class ShowPallet extends OrgAction
                         [
                             'type'    => 'button',
                             'style'   => 'edit',
-                            'tooltip' => __('edit stored items'),
-                            'label'   => __('Edit Stored Items'),
-                            'route'   => [
-                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.edit',
-                                'parameters' => array_values(request()->route()->originalParameters())
-                            ]
-                        ],
-                        [
-                            'type'    => 'button',
-                            'style'   => 'edit',
                             'tooltip' => __('edit pallet'),
                             'label'   => __('Edit'),
                             'route'   => [
-                                'name'       => 'grp.org.fulfilments.show.operations.pallets.edit',
+                                'name'       => $routeName,
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ]
                         ],
@@ -213,7 +218,7 @@ class ShowPallet extends OrgAction
 
         return match (class_basename($parent)) {
             'Warehouse'    => $this->getBreadcrumbsFromWarehouse($pallet, $routeName, $suffix),
-            'Organisation' => $this->getBreadcrumbsFromFulfilment($pallet, $routeName, $suffix),
+            'Organisation', 'Fulfilment' => $this->getBreadcrumbsFromFulfilment($pallet, $routeName, $suffix),
             default        => $this->getBreadcrumbsFromFulfilmentCustomer($pallet, $routeName, $suffix),
         };
     }
@@ -257,14 +262,14 @@ class ShowPallet extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => [
-                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.index',
+                                'name'       => 'grp.org.fulfilments.show.operations.pallets.index',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
                             'label' => __('Pallets')
                         ],
                         'model' => [
                             'route' => [
-                                'name'       => 'grp.org.warehouses.show.fulfilment.pallets.show',
+                                'name'       => 'grp.org.fulfilments.show.operations.pallets.show',
                                 'parameters' => array_values(request()->route()->originalParameters())
                             ],
                             'label' => $pallet->reference,
@@ -355,7 +360,7 @@ class ShowPallet extends OrgAction
                     'parameters'=> [
                         'organisation'=> $pallet->organisation->slug,
                         'fulfilment'  => $pallet->fulfilment->slug,
-                        'pallet'      =>  $pallet->slug
+                        'pallet'      => $pallet->slug
                     ]
 
                 ]

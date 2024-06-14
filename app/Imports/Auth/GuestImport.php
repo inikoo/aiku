@@ -6,6 +6,7 @@ use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Enums\SysAdmin\Guest\GuestTypeEnum;
 use App\Imports\WithImport;
 use App\Models\SysAdmin\Group;
+use App\Rules\IUnique;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -72,8 +73,12 @@ class GuestImport implements ToCollection, WithHeadingRow, SkipsOnFailure, WithV
     public function rules(): array
     {
         return [
-            'type'            => ['required', Rule::in(GuestTypeEnum::values())],
-            'username'        => ['required', 'iunique:users', 'alpha_dash:ascii'],
+            'type'            => ['required', Rule::enum(GuestTypeEnum::class)],
+            'username'        => ['required',  'alpha_dash:ascii',
+                                  new IUnique(
+                                      table: 'users'
+                                  ),
+                ],
             'password'        => ['sometimes', 'string', 'min:8', 'max:64'],
             'reset_password'  => ['sometimes', 'boolean'],
             'company_name'    => ['nullable', 'string', 'max:255'],
@@ -82,7 +87,14 @@ class GuestImport implements ToCollection, WithHeadingRow, SkipsOnFailure, WithV
             'email'           => ['nullable', 'email'],
             'positions'       => ['required', 'array'],
             'positions.*'     => ['exists:job_positions,slug'],
-            'alias'           => ['required', 'iunique:guests', 'string', 'max:16'],
+            'alias'           => ['required', 'string', 'max:16',
+                                  new IUnique(
+                                      table: 'guests',
+                                      extraConditions: [
+                                          ['column' => 'group_id', 'value' => app('group')->id],
+                                      ]
+                                  ),
+                ],
         ];
     }
 }
