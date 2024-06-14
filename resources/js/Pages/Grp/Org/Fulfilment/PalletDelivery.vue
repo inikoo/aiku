@@ -561,7 +561,7 @@ console.log(currentTab.value)
                     <span class="sr-only">{{ box_stats.delivery_status.tooltip }}</span>
                     <FontAwesomeIcon :icon="['fal', 'calendar-day']" class="text-gray-400" fixed-width aria-hidden='true' />
                 </dt>
-                
+
                 <div v-if="(box_stats.delivery_status.tooltip === 'Received' || box_stats.delivery_status.tooltip === 'Booking in' || box_stats.delivery_status.tooltip == 'Booked In')">
                     <dd class="text-xs text-gray-500">
                         {{ data?.data.estimated_delivery_date ? useFormatTime(data?.data?.estimated_delivery_date) : 'Not Set' }}

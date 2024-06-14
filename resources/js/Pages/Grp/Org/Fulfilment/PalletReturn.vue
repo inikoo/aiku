@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { Head, Link } from "@inertiajs/vue3"
+import {Head, Link, useForm} from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import { capitalize } from "@/Composables/capitalize"
 import Tabs from "@/Components/Navigation/Tabs.vue"
@@ -46,6 +46,8 @@ const props = defineProps<{
     tabs: {}
     pallets?: {}
     services?: {}
+    service_lists?: {}
+    physical_good_lists?: {}
     physical_goods?: {}
     data?: {}
     history?: {}
@@ -66,6 +68,10 @@ let currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const timeline = ref({ ...props.data.data })
 const openModal = ref(false)
+const loading = ref(false)
+
+const formAddService = useForm({ service_id: '', quantity: 1 })
+const formAddPhysicalGood = useForm({ outer_id: '', quantity: 1 })
 
 const component = computed(() => {
     const components = {
@@ -95,7 +101,45 @@ onMounted(() => {
     })
 })
 
-console.log(props)
+// Method: Add single service
+const handleFormSubmitAddService = (data: {}, closedPopover: Function) => {
+    loading.value = true
+    formAddService.post(route(
+        data.route.name,
+        data.route.parameters
+    ), {
+        preserveScroll: true,
+        onSuccess: () => {
+            closedPopover()
+            formAddService.reset('quantity', 'service_id')
+            loading.value = false
+        },
+        onError: (errors) => {
+            loading.value = false
+            console.error('Error during form submission:', errors)
+        },
+    })
+}
+
+// Method: Add single service
+const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
+    loading.value = true
+    formAddPhysicalGood.post(route(
+        data.route.name,
+        data.route.parameters
+    ), {
+        preserveScroll: true,
+        onSuccess: () => {
+            closedPopover()
+            formAddPhysicalGood.reset('quantity', 'outer_id')
+            loading.value = false
+        },
+        onError: (errors) => {
+            loading.value = false
+            console.error('Error during form submission:', errors)
+        },
+    })
+}
 
 </script>
 

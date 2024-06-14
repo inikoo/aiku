@@ -12,6 +12,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class WebUserResource extends JsonResource
 {
+    public static $wrap = null;
+
     public function toArray($request): array
     {
         /** @var WebUser $webUser */
