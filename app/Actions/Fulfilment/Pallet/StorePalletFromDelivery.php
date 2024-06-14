@@ -40,7 +40,10 @@ class StorePalletFromDelivery extends OrgAction
         data_set($modelData, 'fulfilment_customer_id', $palletDelivery->fulfilment_customer_id);
         data_set($modelData, 'warehouse_id', $palletDelivery->warehouse_id);
         data_set($modelData, 'pallet_delivery_id', $palletDelivery->id);
-        data_set($modelData, 'type', Arr::get($modelData, 'type'));
+
+        if(Arr::get($modelData, 'type')) {
+            data_set($modelData, 'type', Arr::get($modelData, 'type'));
+        }
 
         $pallet = StorePallet::make()->action($palletDelivery->fulfilmentCustomer, $modelData);
 

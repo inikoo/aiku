@@ -42,6 +42,15 @@ trait IsAddress
         return $formatter->format($this->getAdr());
     }
 
+    public function getHtml(): string
+    {
+        $addressFormatRepository = new AddressFormatRepository();
+        $countryRepository       = new CountryRepository();
+        $subdivisionRepository   = new SubdivisionRepository();
+        $formatter               = new DefaultFormatter($addressFormatRepository, $countryRepository, $subdivisionRepository);
+        return $formatter->format($this->getAdr());
+    }
+
     public function getChecksum(): string
     {
 

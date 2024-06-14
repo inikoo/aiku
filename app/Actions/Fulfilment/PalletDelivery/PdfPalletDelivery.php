@@ -24,12 +24,11 @@ class PdfPalletDelivery
     /**
      * @throws \Mpdf\MpdfException
      */
-    public function handle(PalletDelivery $palletDelivery): Response
+    public function handle(PalletDelivery $palletDelivery)
     {
-        $filename = 'pallet-delivery-' . $palletDelivery->slug . '.pdf';
 
         $config = [
-            'title'                  => $filename,
+            'title'                  => $palletDelivery->reference,
             'margin_left'            => 8,
             'margin_right'           => 8,
             'margin_top'             => 2,
@@ -38,14 +37,12 @@ class PdfPalletDelivery
             'auto_page_break_margin' => 10
         ];
 
-        $pdf = PDF::chunkLoadView('<html-separator/>', 'pickings.templates.pdf.delivery', [
-            'filename' => $filename,
+        return PDF::chunkLoadView('<html-separator/>', 'pickings.templates.pdf.delivery', [
+            'filename' => $palletDelivery->reference,
             'delivery' => $palletDelivery,
             'customer' => $palletDelivery->fulfilmentCustomer->customer,
             'shop'     => $palletDelivery->fulfilment->shop
         ], [], $config);
-
-        return $pdf->stream($filename);
     }
 
     /**
@@ -53,6 +50,10 @@ class PdfPalletDelivery
      */
     public function asController(PalletDelivery $palletDelivery, ActionRequest $request): Response
     {
-        return $this->handle($palletDelivery);
+        $filename = 'pallet-delivery-' . $palletDelivery->slug . '.pdf';
+
+        $pdf= $this->handle($palletDelivery);
+        return $pdf->stream($filename);
+
     }
 }

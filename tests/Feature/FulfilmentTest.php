@@ -14,6 +14,7 @@ use App\Actions\Fulfilment\Pallet\StoreMultiplePalletsFromDelivery;
 use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Actions\Fulfilment\PalletDelivery\DeletePalletInDelivery;
+use App\Actions\Fulfilment\PalletDelivery\PdfPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\SetPalletDeliveryAsBookedIn;
 use App\Actions\Fulfilment\PalletDelivery\ConfirmPalletDelivery;
 use App\Actions\Fulfilment\PalletDelivery\ReceivedPalletDelivery;
@@ -290,6 +291,9 @@ test('update rental agreement', function (RentalAgreement $rentalAgreement) {
     return $rentalAgreement;
 })->depends('create rental agreement');
 
+
+
+
 test('create pallet delivery', function ($fulfilmentCustomer) {
     SendPalletDeliveryNotification::shouldRun()
         ->andReturn();
@@ -334,7 +338,6 @@ test('update pallet delivery notes', function (PalletDelivery $palletDelivery) {
 
     return $palletDelivery;
 })->depends('create pallet delivery');
-
 
 test('add pallet to pallet delivery', function (PalletDelivery $palletDelivery) {
     $pallet = StorePalletFromDelivery::make()->action(
@@ -451,7 +454,6 @@ test('start booking-in pallet delivery', function (PalletDelivery $palletDeliver
     return $palletDelivery;
 })->depends('receive pallet delivery');
 
-
 test('set location of first pallet in the pallet delivery', function (PalletDelivery $palletDelivery) {
     $pallet = $palletDelivery->pallets->first();
     /** @var Location $location */
@@ -486,6 +488,15 @@ test('set rental to first pallet in the pallet delivery', function (PalletDelive
     return $palletDelivery;
 })->depends('set location of first pallet in the pallet delivery');
 
+test('can create pallet delivery pdf', function (PalletDelivery $palletDelivery) {
+
+    $pdf=PdfPalletDelivery::run($palletDelivery);
+    expect($pdf->output())->toBeString();
+
+    return $palletDelivery;
+})->depends('set rental to first pallet in the pallet delivery');
+
+
 test('set second pallet in the pallet delivery as not delivered', function (PalletDelivery $palletDelivery) {
     $pallet = $palletDelivery->pallets->skip(1)->first();
 
@@ -498,6 +509,26 @@ test('set second pallet in the pallet delivery as not delivered', function (Pall
 
     return $palletDelivery;
 })->depends('set location of first pallet in the pallet delivery');
+
+
+test('create pallet delivery that was not delivered by marking items', function ($fulfilmentCustomer) {
+    SendPalletDeliveryNotification::shouldRun()
+        ->andReturn();
+
+    $palletDelivery = StorePalletDelivery::make()->action($fulfilmentCustomer, ['warehouse_id' => $this->warehouse->id,]);
+    $pallet         = StorePalletFromDelivery::make()->action($palletDelivery, []);
+    $palletDelivery = ConfirmPalletDelivery::make()->action($palletDelivery);
+    $palletDelivery = ReceivedPalletDelivery::make()->action($palletDelivery);
+
+    expect($palletDelivery->stats->number_pallets)->toBe(1)
+        ->and($palletDelivery->state)->toBe(PalletDeliveryStateEnum::RECEIVED);
+    SetPalletAsNotReceived::make()->action($pallet);
+    $palletDelivery->refresh();
+    expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::NOT_RECEIVED);
+
+    return $palletDelivery;
+})->depends('create fulfilment customer');
+
 
 test('set location of third pallet in the pallet delivery', function (PalletDelivery $palletDelivery) {
     $pallet = $palletDelivery->pallets->last();
@@ -638,6 +669,14 @@ test('create pallet no delivery', function (Fulfilment $fulfilment) {
     return $pallet;
 })->depends('create fulfilment shop');
 
-test('hydrate shops command', function () {
+test('hydrate fulfilment command', function () {
     $this->artisan('fulfilment:hydrate '.$this->organisation->slug)->assertExitCode(0);
+});
+
+test('hydrate fulfilment customer command', function () {
+    $this->artisan('fulfilment-customer:hydrate '.$this->organisation->slug)->assertExitCode(0);
+});
+
+test('hydrate pallet delivery command', function () {
+    $this->artisan('pallet-delivery:hydrate  '.$this->organisation->slug)->assertExitCode(0);
 });

@@ -12,7 +12,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Models\Fulfilment\PalletDelivery;
-use Lorisleiva\Actions\ActionRequest;
 
 class NotReceivedPalletDelivery extends OrgAction
 {
@@ -21,6 +20,11 @@ class NotReceivedPalletDelivery extends OrgAction
 
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
+
+        if($palletDelivery->state != PalletDeliveryStateEnum::RECEIVED) {
+            abort(419);
+        }
+
         $modelData['not_received_at'] = now();
         $modelData['state']           = PalletDeliveryStateEnum::NOT_RECEIVED;
 
@@ -32,12 +36,5 @@ class NotReceivedPalletDelivery extends OrgAction
         return $palletDelivery;
     }
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if($request->only('state') != PalletDeliveryStateEnum::RECEIVED->value) {
-            return false;
-        }
 
-        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
-    }
 }

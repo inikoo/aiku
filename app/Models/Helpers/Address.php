@@ -63,10 +63,6 @@ class Address extends Model
                     $address->checksum     = $address->getChecksum();
                     $address->save();
                 }
-
-
-
-
             }
         );
     }

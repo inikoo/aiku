@@ -98,21 +98,11 @@
         <tr>
             <td style="width:250px;padding-left:10px;">
                 {{ $shop->name }}
+                @if ($shop->address)
                 <div style="font-size:7pt">
-                    {{ $shop->company_name }}
+                    {!! $shop->address->getHtml() !!}
                 </div>
-                <div style="font-size:7pt">
-                    Unit 15
-                </div>
-                <div style="font-size:7pt">
-                    Parkwood Business Park
-                </div>
-                <div style="font-size:7pt">
-                    Parkwood Road
-                </div>
-                <div style="font-size:7pt">
-                    Sheffield S3 8AL
-                </div>
+                @endif
                 <div style="font-size:7pt">
                     {{ $shop->website['domain'] }}
                 </div>
@@ -174,27 +164,7 @@
         </td>
     </tr>
 </table>
-<table width="100%" style="font-family: sans-serif;" cellpadding="10">
-    <tr>
-        <td width="45%" style="border: 0.1mm solid #888888;">
-            <span style="font-size: 7pt; color: #555555; font-family: sans-serif;">Delivery address:</span>
-            <div>
-                {{ $customer->addresses[0]['address_line_1'] }}
-            </div>
-            <div>
-                {{ $customer->addresses[0]['address_line'] }}
-            </div>
-            <div>
-                {{ $customer->addresses[0]['administrative_area'] }}
-            </div>
-            <div>
-                {{ $customer->addresses[0]->country['name'] }}
-            </div>
-        </td>
-        <td width="10%">&nbsp;</td>
-        <td width="45%">&nbsp;</td>
-    </tr>
-</table>
+
 <br>
 
 <table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse;" cellpadding="8">

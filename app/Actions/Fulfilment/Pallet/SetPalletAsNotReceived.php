@@ -7,7 +7,6 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
-use App\Actions\Fulfilment\PalletDelivery\UpdatePalletDeliveryStateFromItems;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
@@ -33,11 +32,7 @@ class SetPalletAsNotReceived extends OrgAction
         data_set($modelData, 'set_as_not_received_at', now());
 
 
-        $pallet = UpdatePallet::run($pallet, $modelData, ['data']);
-
-        UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
-
-        return $pallet;
+        return UpdatePallet::run($pallet, $modelData, ['data']);
     }
 
     public function authorize(ActionRequest $request): bool
