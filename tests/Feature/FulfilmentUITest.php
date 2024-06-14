@@ -18,6 +18,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\Inventory\Location;
 use Inertia\Testing\AssertableInertia;
 
+use function Deployer\has;
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 
@@ -65,6 +66,8 @@ beforeEach(function () {
     );
     actingAs($this->adminGuest->user);
 });
+
+// Indexes
 
 test('UI Index fulfilment assets', function () {
     $response = $this->get(route('grp.org.fulfilments.show.assets.index', [$this->organisation->slug, $this->fulfilment->slug]));
@@ -122,6 +125,8 @@ test('UI Index fulfilment services', function () {
     });
 });
 
+// Fulfilment Customer
+
 test('UI create fulfilment customer', function () {
     $response = get(route('grp.org.fulfilments.show.crm.customers.create', [$this->organisation->slug, $this->fulfilment->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
@@ -164,5 +169,29 @@ test('UI edit fulfilment customer', function () {
                         ->where('parameters', [$this->customer->fulfilmentCustomer->id])
             )
             ->has('breadcrumbs', 3);
+    });
+});
+
+// Pallets
+
+test('UI Index pallets', function () {
+    $response = $this->get(route('grp.org.fulfilments.show.operations.pallets.index', [$this->organisation->slug, $this->fulfilment->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Pallets')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Returned Pallets')
+                        ->has('subNavigation')
+                        ->has('actions')
+                        ->has('meta')
+                        ->etc()
+            )
+            ->has('data');
     });
 });
