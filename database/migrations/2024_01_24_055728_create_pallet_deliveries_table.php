@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryHandingTypeEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Stubs\Migrations\HasFulfilmentDelivery;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
@@ -29,6 +30,14 @@ return new class () extends Migration {
             foreach (PalletDeliveryStateEnum::cases() as $state) {
                 $table->dateTimeTz("{$state->snake()}_at")->nullable();
             }
+
+            $table->unsignedInteger('delivery_address_id')->index()->nullable();
+            $table->foreign('delivery_address_id')->references('id')->on('addresses');
+            $table->unsignedInteger('collection_address_id')->index()->nullable();
+            $table->foreign('collection_address_id')->references('id')->on('addresses');
+
+            $table->string('handing_type')->default(PalletDeliveryHandingTypeEnum::SHIPPING->value)->index();
+
             $table->date('estimated_delivery_date')->nullable();
             $table->dateTimeTz('date')->nullable();
             $table->text('customer_notes')->nullable();
