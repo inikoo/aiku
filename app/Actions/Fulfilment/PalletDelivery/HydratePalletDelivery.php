@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 
 class HydratePalletDelivery extends HydrateModel
 {
-    public string $commandSignature = 'pallet-delivery:hydrate {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'hydrate:pallet-deliveries {organisations?*} {--s|slugs=}';
 
 
     public function handle(PalletDelivery $palletDelivery): void

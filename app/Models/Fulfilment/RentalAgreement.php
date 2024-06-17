@@ -15,7 +15,9 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InFulfilmentCustomer;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
@@ -31,6 +33,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $reference
  * @property int $fulfilment_customer_id
  * @property int $fulfilment_id
+ * @property int|null $current_snapshot_id
  * @property RentalAgreementStateEnum $state
  * @property RentalAgreementBillingCycleEnum $billing_cycle
  * @property int|null $pallets_limit Agreed max number pallets space allocated
@@ -45,7 +48,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RentalAgreementSnapshot> $snapshot
+ * @property-read \App\Models\Fulfilment\RentalAgreementSnapshot|null $snapshot
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RentalAgreementSnapshot> $snapshots
+ * @property-read \App\Models\Fulfilment\RentalAgreementStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement newQuery()
@@ -103,7 +108,12 @@ class RentalAgreement extends Model implements Auditable
         return $this->hasMany(RecurringBill::class);
     }
 
-    public function snapshot(): HasMany
+    public function snapshot(): BelongsTo
+    {
+        return $this->belongsTo(RentalAgreementSnapshot::class, 'current_snapshot_id');
+    }
+
+    public function snapshots(): HasMany
     {
         return $this->hasMany(RentalAgreementSnapshot::class);
     }
@@ -111,6 +121,11 @@ class RentalAgreement extends Model implements Auditable
     public function clauses(): HasMany
     {
         return $this->hasMany(RentalAgreementClause::class);
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(RentalAgreementStats::class);
     }
 
 

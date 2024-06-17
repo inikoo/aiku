@@ -7,11 +7,11 @@
 
 namespace App\Actions\Fulfilment\RentalAgreementClause;
 
+use App\Actions\Fulfilment\RentalAgreement\Hydrators\RentalAgreementHydrateClauses;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Fulfilment\RentalAgreementClause\RentalAgreementCauseStateEnum;
 use App\Models\Fulfilment\RentalAgreementClause;
-use Illuminate\Support\Arr;
-use Lorisleiva\Actions\ActionRequest;
 
 class UpdateRentalAgreementClause extends OrgAction
 {
@@ -19,33 +19,44 @@ class UpdateRentalAgreementClause extends OrgAction
 
     public function handle(RentalAgreementClause $rentalAgreementClause, array $modelData): RentalAgreementClause
     {
-        $modelData = Arr::only($modelData, 'agreed_price');
-        /** @var \App\Models\Fulfilment\RentalAgreementClause $rentalAgreementClause */
-        $rentalAgreementClause = $this->update($rentalAgreementClause, $modelData);
 
-        return $rentalAgreementClause;
+        $rentalAgreementClause->update(
+            [
+                'state'      => RentalAgreementCauseStateEnum::UPDATED
+            ]
+        );
+        $rentalAgreementClause->delete();
+
+        $updatedModel=StoreRentalAgreementClause::run(
+            $rentalAgreementClause->rentalAgreement,
+            [
+            'asset_id'       => $rentalAgreementClause->asset_id,
+            'percentage_off' => $modelData['percentage_off'],
+            'state'          => match ($rentalAgreementClause->rentalAgreement->state) {
+                RentalAgreementCauseStateEnum::ACTIVE => RentalAgreementCauseStateEnum::ACTIVE,
+                default                               => RentalAgreementCauseStateEnum::DRAFT
+            }
+        ]
+        );
+
+        RentalAgreementHydrateClauses::dispatch($rentalAgreementClause->rentalAgreement);
+
+        return $updatedModel;
     }
 
     public function rules(): array
     {
         return [
-            'asset_id'               => ['required', 'exists:assets,id'],
-            'agreed_price'           => ['required', 'integer'],
+            'percentage_off'           => ['required', 'numeric','min:0','max:100'],
         ];
     }
 
     public function action(RentalAgreementClause $rentalAgreementClause, array $modelData): RentalAgreementClause
     {
-        $this->asAction       = true;
-        $this->initialisationFromShop($rentalAgreementClause->rental->shop, $modelData);
+        $this->initialisation($rentalAgreementClause->organisation, $modelData);
 
         return $this->handle($rentalAgreementClause, $this->validatedData);
     }
 
-    public function asController(RentalAgreementClause $rentalAgreementClause, ActionRequest $request): RentalAgreementClause
-    {
-        $this->initialisationFromShop($rentalAgreementClause->rental->shop, $request);
 
-        return $this->handle($rentalAgreementClause, $this->validatedData);
-    }
 }

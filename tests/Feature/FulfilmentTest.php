@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Catalogue\Service\StoreService;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
@@ -27,6 +28,7 @@ use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Fulfilment\Rental\StoreRental;
 use App\Actions\Fulfilment\Rental\UpdateRental;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
+use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Web\Website\StoreWebsite;
@@ -41,6 +43,7 @@ use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
+use App\Models\Catalogue\Service;
 use App\Models\CRM\Customer;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -50,6 +53,7 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Rental;
 use App\Models\Fulfilment\RentalAgreement;
+use App\Models\Fulfilment\RentalAgreementStats;
 use App\Models\Inventory\Location;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
@@ -90,8 +94,6 @@ beforeEach(function () {
 });
 
 test('create fulfilment shop', function () {
-
-
     $organisation = $this->organisation;
     $storeData    = Shop::factory()->definition();
     data_set($storeData, 'type', ShopTypeEnum::FULFILMENT->value);
@@ -131,6 +133,36 @@ test('create fulfilment shop', function () {
 });
 
 
+test('create services in fulfilment shop', function (Fulfilment $fulfilment) {
+    $service1 = StoreService::make()->action(
+        $fulfilment->shop,
+        [
+            'price' => 100,
+            'unit'  => 'job',
+            'code'  => 'Ser-01',
+            'name'  => 'Service 1',
+        ]
+    );
+    $service2 = StoreService::make()->action(
+        $fulfilment->shop,
+        [
+            'price' => 111,
+            'unit'  => 'job',
+            'code'  => 'Ser-02',
+            'name'  => 'Service 2',
+        ]
+    );
+
+
+    expect($service1)->toBeInstanceOf(Service::class)
+        ->and($service1->asset)->toBeInstanceOf(Asset::class)
+        ->and($service2->organisation->catalogueStats->number_assets_type_service)->toBe(2)
+        ->and($service2->organisation->catalogueStats->number_assets)->toBe(2)
+        ->and($service2->shop->stats->number_assets)->toBe(2)
+        ->and($service2->stats->number_historic_assets)->toBe(1);
+
+    return $service1;
+})->depends('create fulfilment shop');
 
 test('create rental product to fulfilment shop', function (Fulfilment $fulfilment) {
     $rental = StoreRental::make()->action(
@@ -149,8 +181,9 @@ test('create rental product to fulfilment shop', function (Fulfilment $fulfilmen
 
     expect($rental)->toBeInstanceOf(Rental::class)
         ->and($rental->asset)->toBeInstanceOf(Asset::class)
-        ->and($rental->organisation->catalogueStats->number_assets)->toBe(1)
-        ->and($rental->shop->stats->number_assets)->toBe(1)
+        ->and($rental->organisation->catalogueStats->number_assets)->toBe(3)
+        ->and($rental->organisation->catalogueStats->number_assets_type_rental)->toBe(1)
+        ->and($rental->shop->stats->number_assets)->toBe(3)
         ->and($rental->stats->number_historic_assets)->toBe(1);
 
     return $rental;
@@ -260,39 +293,81 @@ test('create rental agreement', function (FulfilmentCustomer $fulfilmentCustomer
         [
             'billing_cycle' => RentalAgreementBillingCycleEnum::MONTHLY,
             'pallets_limit' => null,
-            'causes'        => [
-                [
-                    'product_id'   => $fulfilmentCustomer->fulfilment->rentals->first()->product_id,
-                    'agreed_price' => 100,
-                ],
-                [
-                    'product_id'   => $fulfilmentCustomer->fulfilment->rentals->last()->product_id,
-                    'agreed_price' => 200,
-                ],
+            'clauses'       => [
+                'rentals' => [
+                    [
+                        'asset_id'       => $fulfilmentCustomer->fulfilment->rentals->first()->asset_id,
+                        'percentage_off' => 10,
+                    ],
+                    [
+                        'asset_id'       => $fulfilmentCustomer->fulfilment->rentals->last()->asset_id,
+                        'percentage_off' => 20,
+                    ],
+                ]
             ]
         ]
     );
-
+    $rentalAgreement->refresh();
     expect($rentalAgreement)->toBeInstanceOf(RentalAgreement::class)
-        ->and($fulfilmentCustomer->rentalAgreement)->toBeInstanceOf(RentalAgreement::class);
+        ->and($fulfilmentCustomer->rentalAgreement)->toBeInstanceOf(RentalAgreement::class)
+        ->and($rentalAgreement->state)->toBe(RentalAgreementStateEnum::DRAFT)
+        ->and($rentalAgreement->stats)->toBeInstanceOf(RentalAgreementStats::class)
+        ->and($rentalAgreement->stats->number_rental_agreement_clauses)->toBe(2)
+        ->and($rentalAgreement->stats->number_rental_agreement_clauses_type_rental)->toBe(2)
+        ->and($rentalAgreement->clauses->first()->asset)->toBeInstanceOf(Asset::class)
+        ->and($rentalAgreement->clauses->last()->asset)->toBeInstanceOf(Asset::class)
+        ->and($rentalAgreement->stats->number_rental_agreement_snapshots)->toBe(1);
 
     return $rentalAgreement;
 })->depends('create fulfilment customer');
 
 test('update rental agreement', function (RentalAgreement $rentalAgreement) {
-    $rentalAgreement->update([
-        'billing_cycle' => RentalAgreementBillingCycleEnum::WEEKLY,
-        'pallets_limit' => 10,
-        'state'         => RentalAgreementStateEnum::ACTIVE
-    ]);
-
+    UpdateRentalAgreement::make()->action(
+        $rentalAgreement,
+        [
+            'billing_cycle' => RentalAgreementBillingCycleEnum::WEEKLY,
+            'pallets_limit' => 10,
+            'state'         => RentalAgreementStateEnum::ACTIVE
+        ]
+    );
+    $rentalAgreement->refresh();
     expect($rentalAgreement->billing_cycle)->toBe(RentalAgreementBillingCycleEnum::WEEKLY)
-        ->and($rentalAgreement->pallets_limit)->toBe(10);
+        ->and($rentalAgreement->pallets_limit)->toBe(10)
+        ->and($rentalAgreement->state)->toBe(RentalAgreementStateEnum::DRAFT)
+        ->and($rentalAgreement->stats->number_rental_agreement_snapshots)->toBe(2);
+
 
     return $rentalAgreement;
 })->depends('create rental agreement');
 
+test('update rental agreement cause', function (RentalAgreement $rentalAgreement) {
+    $rentalAgreement = UpdateRentalAgreement::make()->action(
+        $rentalAgreement,
+        [
+            'clauses' => [
+                'rentals' => [
+                    [
+                        'asset_id'       => $rentalAgreement->fulfilmentCustomer->fulfilment->rentals->first()->asset_id,
+                        'percentage_off' => 30,
+                    ],
+                    [
+                        'asset_id'       => $rentalAgreement->fulfilmentCustomer->fulfilment->rentals->last()->asset_id,
+                        'percentage_off' => 50,
+                    ],
+                ]
+            ]
+        ]
+    );
+    $rentalAgreement->refresh();
+    expect($rentalAgreement->stats->number_rental_agreement_clauses)->toBe(2)
+        ->and($rentalAgreement->stats->number_rental_agreement_clauses_type_rental)->toBe(2)
+        ->and($rentalAgreement->clauses->first()->percentage_off)->toEqualWithDelta(30, .001)
+        ->and($rentalAgreement->clauses->last()->percentage_off)->toEqualWithDelta(50, .001)
+        ->and($rentalAgreement->stats->number_rental_agreement_snapshots)->toBe(3);
 
+
+    return $rentalAgreement;
+})->depends('create rental agreement');
 
 
 test('create pallet delivery', function ($fulfilmentCustomer) {
@@ -316,8 +391,6 @@ test('create pallet delivery', function ($fulfilmentCustomer) {
 })->depends('create fulfilment customer');
 
 test('update pallet delivery notes', function (PalletDelivery $palletDelivery) {
-
-
     UpdatePalletDelivery::make()->action(
         $palletDelivery,
         [
@@ -494,8 +567,7 @@ test('set rental to first pallet in the pallet delivery', function (PalletDelive
 })->depends('set location of first pallet in the pallet delivery');
 
 test('can create pallet delivery pdf', function (PalletDelivery $palletDelivery) {
-
-    $pdf=PdfPalletDelivery::run($palletDelivery);
+    $pdf = PdfPalletDelivery::run($palletDelivery);
     expect($pdf->output())->toBeString();
 
     return $palletDelivery;
@@ -625,7 +697,7 @@ test('create pallet return', function (PalletDelivery $palletDelivery) {
         ->andReturn();
 
 
-    $fulfilmentCustomer=$palletDelivery->fulfilmentCustomer;
+    $fulfilmentCustomer = $palletDelivery->fulfilmentCustomer;
 
     $palletReturn = StorePalletReturn::make()->action(
         $fulfilmentCustomer,
@@ -639,7 +711,7 @@ test('create pallet return', function (PalletDelivery $palletDelivery) {
         ->and($palletReturn->number_pallets)->toBe(0)
         ->and($fulfilmentCustomer->fulfilment->stats->number_pallet_returns)->toBe(1)
         ->and($fulfilmentCustomer->number_pallet_returns)->toBe(1)
-    ->and($fulfilmentCustomer->number_pallet_returns_state_in_process)->toBe(1);
+        ->and($fulfilmentCustomer->number_pallet_returns_state_in_process)->toBe(1);
 
     return $palletReturn;
 })->depends('set pallet delivery as booked in');
@@ -675,13 +747,17 @@ test('create pallet no delivery', function (Fulfilment $fulfilment) {
 })->depends('create fulfilment shop');
 
 test('hydrate fulfilment command', function () {
-    $this->artisan('fulfilment:hydrate '.$this->organisation->slug)->assertExitCode(0);
+    $this->artisan('hydrate:fulfilments '.$this->organisation->slug)->assertExitCode(0);
 });
 
 test('hydrate fulfilment customer command', function () {
-    $this->artisan('fulfilment-customer:hydrate '.$this->organisation->slug)->assertExitCode(0);
+    $this->artisan('hydrate:fulfilment-customers '.$this->organisation->slug)->assertExitCode(0);
 });
 
 test('hydrate pallet delivery command', function () {
-    $this->artisan('pallet-delivery:hydrate  '.$this->organisation->slug)->assertExitCode(0);
+    $this->artisan('hydrate:pallet-deliveries  '.$this->organisation->slug)->assertExitCode(0);
+});
+
+test('hydrate rental agreements command', function () {
+    $this->artisan('hydrate:rental-agreements  '.$this->organisation->slug)->assertExitCode(0);
 });

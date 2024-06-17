@@ -8,16 +8,21 @@
 namespace App\Models\Fulfilment;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  *
  *
  * @property int $id
  * @property int $rental_agreement_id
- * @property string $data
- * @property string $date
+ * @property array $data
+ * @property bool $is_first_snapshot
+ * @property int $clauses_added
+ * @property int $clauses_removed
+ * @property int $clauses_updated
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Fulfilment\RentalAgreement $rentalAgreement
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementSnapshot newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementSnapshot newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementSnapshot query()
@@ -25,4 +30,19 @@ use Illuminate\Database\Eloquent\Model;
  */
 class RentalAgreementSnapshot extends Model
 {
+    protected $guarded = [];
+
+    protected $casts = [
+        'data'                        => 'array',
+    ];
+
+
+    protected $attributes = [
+        'data'           => '{}',
+    ];
+
+    public function rentalAgreement(): BelongsTo
+    {
+        return $this->belongsTo(RentalAgreement::class);
+    }
 }

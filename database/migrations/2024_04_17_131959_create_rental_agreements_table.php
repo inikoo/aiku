@@ -26,6 +26,7 @@ return new class () extends Migration {
             $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
             $table->unsignedInteger('fulfilment_id');
             $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
+            $table->unsignedInteger('current_snapshot_id')->nullable()->index();
             $table->string('state')->index()->default(RentalAgreementStateEnum::DRAFT);
             $table->string('billing_cycle')->default(RentalAgreementBillingCycleEnum::WEEKLY->value);
             $table->unsignedSmallInteger('pallets_limit')->nullable()->comment('Agreed max number pallets space allocated');

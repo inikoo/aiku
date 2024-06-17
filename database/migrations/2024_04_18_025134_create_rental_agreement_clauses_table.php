@@ -17,15 +17,16 @@ return new class () extends Migration {
             $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
             $table->unsignedInteger('fulfilment_customer_id');
             $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
+            $table->string('state')->index();
+            $table->string('type')->index();
             $table->unsignedInteger('asset_id');
             $table->foreign('asset_id')->references('id')->on('assets');
-
-            $table->unsignedInteger('rental_agreement_id');
+            $table->unsignedInteger('rental_agreement_id')->index();
             $table->foreign('rental_agreement_id')->references('id')->on('rental_agreements');
-            $table->string('type')->nullable();
-
-            $table->decimal('agreed_price');
+            $table->unsignedInteger('rental_agreement_snapshot_id')->nullable()->index();
+            $table->decimal('percentage_off');
             $table->timestampsTz();
+            $table->softDeletesTz();
         });
     }
 

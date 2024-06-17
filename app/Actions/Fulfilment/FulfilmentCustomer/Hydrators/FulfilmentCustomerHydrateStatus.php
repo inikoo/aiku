@@ -39,7 +39,7 @@ class FulfilmentCustomerHydrateStatus
             if ($fulfilmentCustomer->rentalAgreement->state == RentalAgreementStateEnum::ACTIVE) {
                 $status = FulfilmentCustomerStatus::ACTIVE;
 
-            } elseif ($fulfilmentCustomer->rentalAgreement->state == RentalAgreementStateEnum::EXPIRED) {
+            } elseif ($fulfilmentCustomer->rentalAgreement->state == RentalAgreementStateEnum::CLOSED) {
                 $status = FulfilmentCustomerStatus::LOST;
             }
         }

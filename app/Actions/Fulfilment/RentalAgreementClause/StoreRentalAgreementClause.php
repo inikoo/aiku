@@ -7,7 +7,10 @@
 
 namespace App\Actions\Fulfilment\RentalAgreementClause;
 
+use App\Actions\Fulfilment\RentalAgreement\Hydrators\RentalAgreementHydrateClauses;
 use App\Actions\OrgAction;
+use App\Enums\Catalogue\Asset\AssetTypeEnum;
+use App\Enums\Fulfilment\RentalAgreementClause\RentalAgreementClauseTypeEnum;
 use App\Models\Catalogue\Asset;
 use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Fulfilment\RentalAgreementClause;
@@ -17,18 +20,26 @@ class StoreRentalAgreementClause extends OrgAction
 {
     public function handle(RentalAgreement $rentalAgreement, array $modelData): RentalAgreementClause
     {
-        // dd($modelData);
+
         data_set($modelData, 'organisation_id', $rentalAgreement->organisation_id);
         data_set($modelData, 'group_id', $rentalAgreement->group_id);
         data_set($modelData, 'fulfilment_id', $rentalAgreement->fulfilment_id);
         data_set($modelData, 'fulfilment_customer_id', $rentalAgreement->fulfilment_customer_id);
 
         $asset = Asset::find($modelData['asset_id']);
-        data_set($modelData, 'type', $asset->type);
+        data_set(
+            $modelData,
+            'type',
+            match($asset->type) {
+                AssetTypeEnum::PRODUCT=> RentalAgreementClauseTypeEnum::PRODUCT,
+                AssetTypeEnum::SERVICE=> RentalAgreementClauseTypeEnum::SERVICE,
+                default               => RentalAgreementClauseTypeEnum::RENTAL
+            }
+        );
 
-        // dd($modelData);
         /** @var RentalAgreementClause $rentalAgreementClause */
         $rentalAgreementClause = $rentalAgreement->clauses()->create($modelData);
+        RentalAgreementHydrateClauses::dispatch($rentalAgreement);
 
         return $rentalAgreementClause;
     }
@@ -36,8 +47,8 @@ class StoreRentalAgreementClause extends OrgAction
     public function rules(): array
     {
         return [
-            'asset_id'               => ['required', 'exists:assets,id'],
-            'agreed_price'           => ['required', 'integer'],
+            'asset_id'                 => ['required', 'exists:assets,id'],
+            'percentage_off'           => ['required', 'numeric','min:0','max:100'],
         ];
     }
 

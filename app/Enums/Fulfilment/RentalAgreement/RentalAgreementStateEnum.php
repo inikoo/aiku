@@ -15,5 +15,5 @@ enum RentalAgreementStateEnum: string
 
     case DRAFT              = 'draft';
     case ACTIVE             = 'active';
-    case EXPIRED            = 'expired';
+    case CLOSED             = 'closed';
 }

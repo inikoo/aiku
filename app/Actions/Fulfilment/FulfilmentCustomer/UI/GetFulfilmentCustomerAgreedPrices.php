@@ -31,27 +31,16 @@ class GetFulfilmentCustomerAgreedPrices
 
         return [
             'rentals' => RentalClausesResource::collection(
-                $this->getClauses($rentalClauses)
+                $rentalClauses
             ),
             'services' => ServiceClausesResource::collection(
-                $this->getClauses($serviceClauses)
+                $serviceClauses
             ),
             'physical_goods' => ProductClausesResource::collection(
-                $this->getClauses($productClauses)
+                $productClauses
             ),
         ];
     }
 
-    private function getClauses($clauses)
-    {
-        $filteredClauses = $this->filterClauses($clauses);
-        return $filteredClauses->isEmpty() ? $clauses : $filteredClauses;
-    }
 
-    private function filterClauses($clauses)
-    {
-        return $clauses->filter(function ($clause) {
-            return $clause->agreed_price !== $clause->asset->price;
-        });
-    }
 }

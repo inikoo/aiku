@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 23 May 2024 09:45:43 British Summer Time, Sheffield, UK
+ * Created: Sat, 15 Jun 2024 00:09:49 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\PalletReturnService\UI;
+namespace App\Actions\Fulfilment\PalletReturn\UI;
 
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Service\ServiceStateEnum;

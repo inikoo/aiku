@@ -11,8 +11,6 @@ use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentPhysicalGoods;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInReturn;
-use App\Actions\Fulfilment\PalletReturnPhysicalGood\UI\IndexPhysicalGoodInPalletReturn;
-use App\Actions\Fulfilment\PalletReturnService\UI\IndexServiceInPalletReturn;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;

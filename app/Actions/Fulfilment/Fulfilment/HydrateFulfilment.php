@@ -21,7 +21,7 @@ use Illuminate\Support\Collection;
 
 class HydrateFulfilment extends HydrateModel
 {
-    public string $commandSignature = 'fulfilment:hydrate {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'hydrate:fulfilments {organisations?*} {--s|slugs=}';
 
     public function handle(Fulfilment $fulfilment): void
     {

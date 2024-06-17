@@ -9,10 +9,12 @@ namespace App\Actions\Fulfilment\RentalAgreement;
 
 use App\Actions\Fulfilment\FulfilmentCustomer\Hydrators\FulfilmentCustomerHydrateStatus;
 use App\Actions\Fulfilment\RentalAgreementClause\StoreRentalAgreementClause;
+use App\Actions\Fulfilment\RentalAgreementSnapshot\StoreRentalAgreementSnapshot;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
+use App\Enums\Fulfilment\RentalAgreementClause\RentalAgreementCauseStateEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\RentalAgreement;
@@ -39,34 +41,29 @@ class StoreRentalAgreement extends OrgAction
             )
         );
 
-
-        $causes=Arr::get($modelData, 'rental', []);
-        data_forget($modelData, 'rental');
-
-
-
-
-
-        if (!Arr::get($modelData, 'state')) {
-            data_set($modelData, 'state', RentalAgreementStateEnum::ACTIVE->value);
-        }
+        $clauses=Arr::get($modelData, 'clauses', []);
+        data_forget($modelData, 'clauses');
 
         /** @var RentalAgreement $rentalAgreement */
         $rentalAgreement = $fulfilmentCustomer->rentalAgreement()->create($modelData);
+        $rentalAgreement->stats()->create();
+        $rentalAgreement->refresh();
 
+        foreach ($clauses as $clauseData) {
+            foreach ($clauseData as $data) {
 
-        foreach ($causes as $causeData) {
-            foreach ($causeData as $data) {
+                $data['state']= match ($rentalAgreement->state) {
+                    RentalAgreementCauseStateEnum::ACTIVE => RentalAgreementCauseStateEnum::ACTIVE,
+                    default                               => RentalAgreementCauseStateEnum::DRAFT
+                };
                 StoreRentalAgreementClause::run($rentalAgreement, $data);
             }
         }
 
-
-
+        StoreRentalAgreementSnapshot::run($rentalAgreement, firstSnapshot:true);
 
 
         FulfilmentCustomerHydrateStatus::run($fulfilmentCustomer);
-
 
         return $rentalAgreement;
     }
@@ -74,26 +71,26 @@ class StoreRentalAgreement extends OrgAction
     public function rules(): array
     {
         return [
-            'billing_cycle'                  => ['required', Rule::enum(RentalAgreementBillingCycleEnum::class)],
-            'pallets_limit'                  => ['nullable', 'integer', 'min:1', 'max:10000'],
-            'rental'                         => ['sometimes', 'array'],
-            'rental.rentals.*.asset_id'      => ['sometimes',
+            'billing_cycle'                   => ['required', Rule::enum(RentalAgreementBillingCycleEnum::class)],
+            'pallets_limit'                   => ['nullable', 'integer', 'min:1', 'max:10000'],
+            'clauses'                         => ['sometimes', 'array'],
+            'clauses.rentals.*.asset_id'      => ['sometimes',
                                          Rule::exists('assets', 'id')
                                              ->where('shop_id', $this->fulfilment->shop_id)
                 ],
-            'rental.rentals.*.agreed_price'   => ['sometimes', 'numeric', 'gt:0'],
-            'rental.services.*.asset_id'      => ['sometimes',
+            'clauses.rentals.*.percentage_off'   => ['sometimes', 'numeric', 'gt:0'],
+            'clauses.services.*.asset_id'        => ['sometimes',
                                          Rule::exists('assets', 'id')
                                              ->where('shop_id', $this->fulfilment->shop_id)
                 ],
-            'rental.services.*.agreed_price'        => ['sometimes', 'numeric', 'gt:0'],
-            'rental.physical_goods.*.asset_id'      => ['sometimes',
+            'clauses.services.*.percentage_off'        => ['sometimes', 'numeric', 'gt:0'],
+            'clauses.physical_goods.*.asset_id'        => ['sometimes',
                                          Rule::exists('assets', 'id')
                                              ->where('shop_id', $this->fulfilment->shop_id)
                 ],
-            'rental.physical_goods.*.agreed_price'  => ['sometimes', 'numeric', 'gt:0'],
-            'state'                                 => ['sometimes', Rule::enum(RentalAgreementStateEnum::class)],
-            'created_at'                            => ['sometimes', 'date']
+            'clauses.physical_goods.*.percentage_off'  => ['sometimes', 'numeric', 'gt:0'],
+            'state'                                    => ['sometimes', Rule::enum(RentalAgreementStateEnum::class)],
+            'created_at'                               => ['sometimes', 'date']
         ];
     }
 
@@ -107,7 +104,6 @@ class StoreRentalAgreement extends OrgAction
 
     public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): RentalAgreement
     {
-        // dd($request->all());
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
 
         return $this->handle($fulfilmentCustomer, $this->validatedData);

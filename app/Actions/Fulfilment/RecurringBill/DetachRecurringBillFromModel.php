@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 19 May 2024 12:26:53 British Summer Time, Sheffield, UK
+ * Created: Sat, 15 Jun 2024 00:14:45 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment;
+namespace App\Actions\Fulfilment\RecurringBill;
 
 use Lorisleiva\Actions\Concerns\AsAction;
 

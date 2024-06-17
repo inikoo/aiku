@@ -17,13 +17,32 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('rental_agreement_id')->index();
             $table->foreign('rental_agreement_id')->references('id')->on('rental_agreements');
             $table->jsonb('data');
-            $table->dateTimeTz('date');
+            $table->boolean('is_first_snapshot')->default(false);
+            $table->unsignedSmallInteger('clauses_added')->default(0);
+            $table->unsignedSmallInteger('clauses_removed')->default(0);
+            $table->unsignedSmallInteger('clauses_updated')->default(0);
             $table->timestampsTz();
         });
+
+        Schema::table('rental_agreement_clauses', function (Blueprint $table) {
+            $table->foreign('rental_agreement_snapshot_id')->references('id')->on('rental_agreement_snapshots');
+        });
+        Schema::table('rental_agreements', function (Blueprint $table) {
+            $table->foreign('current_snapshot_id')->references('id')->on('rental_agreement_snapshots');
+        });
+
     }
 
     public function down(): void
     {
+        Schema::table('rental_agreements', function (Blueprint $table) {
+            $table->dropForeign('current_snapshot_id_foreign');
+        });
+
+        Schema::table('rental_agreement_clauses', function (Blueprint $table) {
+            $table->dropForeign('rental_agreement_snapshot_id_foreign');
+        });
+
         Schema::dropIfExists('rental_agreement_snapshots');
     }
 };
