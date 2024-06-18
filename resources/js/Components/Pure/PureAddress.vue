@@ -7,6 +7,7 @@
 <script setup lang="ts">
 import Multiselect from '@vueform/multiselect'
 import { AddressValue, AddressOptions } from "@/types/PureComponent/Address"
+import { trans } from 'laravel-vue-i18n'
 
 const props = defineProps<{
     modelValue: AddressValue
@@ -37,8 +38,8 @@ const addressFields = (countryID: number) => {
 
         <!-- Country Options -->
         <div class="col-span-2">
-            <label for="administrative_area" class="mb-1 capitalize block text-xs font-medium">
-                Select country
+            <label for="selectCountry" class="mb-1 capitalize block text-xs font-medium">
+                {{ trans('Country') }}
             </label>
             <Multiselect v-model="modelValue.country_id" searchable :options="countries" placeholder="Select a country" :canDeselect="false" :canClear="false" />
         </div>

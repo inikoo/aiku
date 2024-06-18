@@ -248,7 +248,7 @@ const handleFormSubmitAddPhysicalGood = (data: {}, closedPopover: Function) => {
     </div>
 
     <!-- Section: Box Stats -->
-    <BoxStatsPalletReturn :dataPalletReturn="data.data" :boxStats="box_stats" />
+    <BoxStatsPalletReturn :dataPalletReturn="data.data" :boxStats="box_stats" :updateRoute="updateRoute" />
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]" :state="timeline.state" :key="timeline.state" :tab="currentTab" />

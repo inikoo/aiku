@@ -26,6 +26,9 @@ use App\Http\Resources\Fulfilment\ServicesResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletReturn;
+use App\Http\Resources\Helpers\AddressFormFieldsResource;
+use App\Actions\Helpers\Country\UI\GetAddressData;
+use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
@@ -345,7 +348,23 @@ class ShowPalletReturn extends OrgAction
                 ],
                 'data'             => PalletReturnResource::make($palletReturn),
                 'box_stats'        => [
-                    'fulfilment_customer'          => FulfilmentCustomerResource::make($palletReturn->fulfilmentCustomer)->getArray(),
+                    'fulfilment_customer'          => array_merge(
+                        FulfilmentCustomerResource::make($palletReturn->fulfilmentCustomer)->getArray(),
+                        [
+                            'address'      => [
+                                'value'   => AddressFormFieldsResource::make(
+                                    new Address(
+                                        [
+                                            'country_id' => $palletReturn->fulfilment->shop->country_id,
+                                        ]
+                                    )
+                                )->getArray(),
+                                'options' => [
+                                    'countriesAddressData' => GetAddressData::run()
+                                ]
+                            ]
+                        ]
+                    ),
                     'delivery_status'              => PalletReturnStateEnum::stateIcon()[$palletReturn->state->value],
                     'total_price'                  => $palletReturn->stats->total_price,
                 ],
