@@ -4,15 +4,11 @@
 # Copyright (c) 2024, Raul A Perusquia Flores
 #
 
-DB_PORT=5432
-DB_COLLATE=C.UTF-8
 PHP=php
+DB_SUFFIX=
 
-DB_PORT="${1:-$DB_PORT}"
-DB_COLLATE="${2:-$DB_COLLATE}"
-PHP="${3:-$PHP}"
-
-DB_SUFFIX=_base
+PHP="${1:-$PHP}"
+DB_SUFFIX="${2:-$DB_SUFFIX}"
 
 echo -e "🧼 Migrating inventory models"
 
