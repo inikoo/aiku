@@ -27,14 +27,8 @@ jobs:
         id: composer-cache
         run: |
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-      - uses: actions/cache@v3
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
       - name: Composer install
-        run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+        run: php8.3 /usr/local/bin/composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       - name: Get Next Version
         id: semver
         uses: ietf-tools/semver-action@v1
