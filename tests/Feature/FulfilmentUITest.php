@@ -669,4 +669,13 @@ test('UI edit rental', function () {
     });
 });
 
+test('UI create rental', function () {
+    $response = get(route('grp.org.fulfilments.show.assets.rentals.create', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 5);
+    });
+});
+
 
