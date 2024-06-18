@@ -10,6 +10,7 @@ use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Fulfilment\PalletDelivery\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
+use App\Actions\Fulfilment\PalletReturn\SendPalletReturnNotification;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -36,6 +37,8 @@ beforeAll(function () {
 beforeEach(function () {
 
     SendPalletDeliveryNotification::shouldRun()
+        ->andReturn();
+    SendPalletReturnNotification::shouldRun()
         ->andReturn();
 
     $this->organisation = createOrganisation();
