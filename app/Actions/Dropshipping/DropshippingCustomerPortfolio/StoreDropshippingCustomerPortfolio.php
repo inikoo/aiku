@@ -8,8 +8,10 @@
 namespace App\Actions\Dropshipping\DropshippingCustomerPortfolio;
 
 use App\Actions\OrgAction;
+use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\DropshippingCustomerPortfolio;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -31,6 +33,13 @@ class StoreDropshippingCustomerPortfolio extends OrgAction
 
 
         return $dropshippingCustomerPortfolio;
+    }
+
+    public function asController(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request)
+    {
+        $this->initialisationFromShop($shop, $request);
+        
+        return $this->handle($customer, $this->validatedData);
     }
 
     public function authorize(ActionRequest $request): bool
