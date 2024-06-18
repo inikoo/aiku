@@ -8,6 +8,7 @@
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Fulfilment\Pallet\StorePallet;
+use App\Actions\Fulfilment\PalletDelivery\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
@@ -33,6 +34,10 @@ beforeAll(function () {
 });
 
 beforeEach(function () {
+
+    SendPalletDeliveryNotification::shouldRun()
+        ->andReturn();
+
     $this->organisation = createOrganisation();
     $this->adminGuest   = createAdminGuest($this->organisation->group);
     $this->warehouse    = createWarehouse();
