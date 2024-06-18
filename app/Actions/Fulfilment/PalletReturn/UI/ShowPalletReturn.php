@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\PalletReturn\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentPhysicalGoods;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
+use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInReturn;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
@@ -36,7 +37,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowPalletReturn extends OrgAction
 {
     use HasFulfilmentAssetsAuthorisation;
-    private Warehouse|FulfilmentCustomer $parent;
+    private Warehouse|FulfilmentCustomer|Fulfilment $parent;
 
     public function handle(PalletReturn $palletReturn): PalletReturn
     {
@@ -44,10 +45,10 @@ class ShowPalletReturn extends OrgAction
     }
 
 
-    public function asController(Organisation $organisation, Warehouse $warehouse, PalletReturn $palletReturn, ActionRequest $request): PalletReturn
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, PalletReturn $palletReturn, ActionRequest $request): PalletReturn
     {
-        $this->parent = $warehouse;
-        $this->initialisationFromWarehouse($warehouse, $request)->withTab(PalletReturnTabsEnum::values());
+        $this->parent = $fulfilment;
+        $this->initialisationFromFulfilment($fulfilment, $request)->withTab(PalletReturnTabsEnum::values());
 
         return $this->handle($palletReturn);
     }
@@ -76,6 +77,12 @@ class ShowPalletReturn extends OrgAction
                 'icon'    => ['fal', 'fa-warehouse'],
                 'tooltip' => __('Warehouse'),
                 'label'   => Str::possessive($this->parent->code)
+            ];
+        } elseif ($this->parent instanceof Fulfilment) {
+            $container = [
+                'icon'    => ['fal', 'fa-pallet-alt'],
+                'tooltip' => __('Fulfilment'),
+                'label'   => Str::possessive($this->parent->slug)
             ];
         } else {
             $container = [
@@ -441,6 +448,23 @@ class ShowPalletReturn extends OrgAction
                         'model' => [
                             'name'       => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.show',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'fulfilmentCustomer', 'palletReturn'])
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.fulfilments.show.operations.pallet-returns.show' => array_merge(
+                ShowFulfilment::make()->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'fulfilment'])),
+                $headCrumb(
+                    $palletReturn,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.fulfilments.show.operations.pallet-returns.index',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'palletReturn'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.fulfilments.show.operations.pallet-returns.show',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'fulfilment', 'palletReturn'])
                         ]
                     ],
                     $suffix
