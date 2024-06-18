@@ -455,8 +455,25 @@ test('UI show pallet delivery', function () {
 });
 
 test('UI show pallet delivery (Services Tab)', function () {
-    // $this->withoutExceptionHandling();
     $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/fulfilments/'.$this->fulfilment->slug.'/deliveries/'.$this->palletDelivery->slug.'?tab=services');
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletDelivery')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletDelivery->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+test('UI show pallet delivery (Physical goods Tab)', function () {
+    $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/fulfilments/'.$this->fulfilment->slug.'/deliveries/'.$this->palletDelivery->slug.'?tab=physical_goods');
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Fulfilment/PalletDelivery')
