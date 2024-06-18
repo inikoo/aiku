@@ -1,5 +1,5 @@
 <!--
-  - Author: Raul Perusquia <raul@inikoo.com>  
+  - Author: Raul Perusquia <raul@inikoo.com>
   - Created: Thu, 23 May 2024 09:45:43 British Summer Time, Sheffield, UK
   - Copyright (c) 2024, Raul A Perusquia Flores
   -->
@@ -62,6 +62,11 @@ function serviceRoute(asset: {}) {
         <template #cell(price)="{ item: service }">
             {{ useLocaleStore().currencyFormat(service['currency_code'], service['price']) }} /{{
                 service['unit_abbreviation'] }}
+        </template>
+
+        <!-- Column: Total -->
+        <template #cell(total)="{ item: service }">
+            {{ useLocaleStore().currencyFormat(service['currency_code'], service['total']) }}
         </template>
 
         <!-- Column: Workflow -->
