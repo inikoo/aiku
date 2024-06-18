@@ -49,7 +49,6 @@ jobs:
             tests/**
             database/migrations/**
       - name: Generate database dumps 📚
-        if: steps.changed-db-files.outputs.any_changed == 'true'
         run: ./generate_testing_db_dumps.sh php8.3 aiku;cp tests/datasets/db_dumps/aiku.dump ../../../../artifacts/
       - name: Retrieve db dumps
         run: cp ../../../../artifacts/aiku.dump tests/datasets/db_dumps/
