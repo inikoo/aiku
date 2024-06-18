@@ -226,11 +226,12 @@ class IndexDropshippingCustomerPortfolios extends OrgAction
                             'tooltip' => __('Add Product'),
                             'label'   => __('New Item'),
                             'route'   => [
-                                 'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.create',
+                                'method'      => 'post',
+                                 'name'       => 'grp.models.org.shop.customer.portfolio.store',
                                 'parameters'  => [
-                                    'organisation' => $scope->organisation->slug,
-                                    'shop'         => $scope->shop->slug,
-                                    'customer'     => $scope->slug
+                                    'organisation' => $scope->organisation->id,
+                                    'shop'         => $scope->shop->id,
+                                    'customer'     => $scope->id
                                 ]
                             ]
                         ],

@@ -1,0 +1,92 @@
+<?php
+
+namespace App\Actions\CRM\Customer\UI;
+
+use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HaCatalogueAuthorisation;
+use App\Http\Resources\CRM\FilteredProductsResource;
+use App\InertiaTable\InertiaTable;
+use App\Models\Catalogue\Product;
+use App\Models\Catalogue\Shop;
+use App\Models\CRM\Customer;
+use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Lorisleiva\Actions\ActionRequest;
+use Spatie\QueryBuilder\AllowedFilter;
+
+class IndexFilteredProducts extends OrgAction
+{
+    use HaCatalogueAuthorisation;
+
+    private Shop|Customer|Organisation $parent;
+
+    public function handle(Shop|Customer|Organisation $parent, $prefix = null): LengthAwarePaginator
+    {
+        $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
+            $query->where(function ($query) use ($value) {
+                $query->whereAnyWordStartWith('products.name', $value)
+                    ->orWhereStartWith('products.code', $value);
+            });
+        });
+
+        if ($prefix) {
+            InertiaTable::updateQueryBuilderParameters($prefix);
+        }
+
+        $queryBuilder = QueryBuilder::for(Product::class);
+
+        if (class_basename($parent) == 'Shop') {
+            $queryBuilder->where('products.shop_id', $parent->id);
+        } elseif (class_basename($parent) == 'Organisation') {
+            $queryBuilder->where('products.organisation_id', $parent->id);
+            $queryBuilder->leftJoin('shops', 'products.shop_id', 'shops.id');
+            $queryBuilder->addSelect(
+                'shops.slug as shop_slug',
+                'shops.code as shop_code',
+                'shops.name as shop_name',
+            );
+        } elseif (class_basename($parent) == 'Customer') {
+            $queryBuilder->whereNotIn('products.id', function ($subQuery) use ($parent) {
+                $subQuery->select('product_id')
+                    ->from('dropshipping_customer_portfolios')
+                    ->where('customer_id', $parent->id);
+            });
+        }
+
+
+
+        $queryBuilder
+            ->defaultSort('products.code')
+            ->select([
+                'products.id',
+                'products.code',
+                'products.name',
+                'products.state',
+                'products.created_at',
+                'products.updated_at',
+                'products.slug',
+            ])
+            ->leftJoin('product_stats', 'products.id', 'product_stats.product_id');
+
+        return $queryBuilder->allowedSorts(['code', 'name', 'shop_slug', 'department_slug', 'family_slug'])
+            ->allowedFilters([$globalSearch])
+            ->withPaginator($prefix)
+            ->withQueryString();
+    }
+
+    public function jsonResponse(LengthAwarePaginator $products): AnonymousResourceCollection
+    {
+        return FilteredProductsResource::collection($products);
+    }
+
+    public function asController(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $customer;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle(parent: $customer);
+    }
+
+}

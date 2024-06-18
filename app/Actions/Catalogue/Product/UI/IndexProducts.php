@@ -122,6 +122,7 @@ class IndexProducts extends OrgAction
         $queryBuilder
             ->defaultSort('products.code')
             ->select([
+                'products.id',
                 'products.code',
                 'products.name',
                 'products.state',
