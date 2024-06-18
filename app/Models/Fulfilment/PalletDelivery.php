@@ -49,6 +49,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $not_received_at
  * @property \Illuminate\Support\Carbon|null $booking_in_at
  * @property \Illuminate\Support\Carbon|null $booked_in_at
+ * @property int|null $delivery_address_id
+ * @property int|null $collection_address_id
+ * @property string $handing_type
  * @property \Illuminate\Support\Carbon|null $estimated_delivery_date
  * @property \Illuminate\Support\Carbon|null $date
  * @property string|null $customer_notes

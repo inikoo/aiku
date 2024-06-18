@@ -13,6 +13,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWebsites;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebsites;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateUniversalSearch;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Helpers\Snapshot\SnapshotScopeEnum;
 use App\Enums\Web\Website\WebsiteEngineEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
@@ -55,7 +56,7 @@ class StoreWebsite extends OrgAction
         $headerSnapshot = StoreWebsiteSnapshot::run(
             $website,
             [
-                'scope'  => 'header',
+                'scope'  => SnapshotScopeEnum::HEADER,
                 'layout' => json_decode(
                     Storage::disk('datasets')->get('website/header.json'),
                     true
@@ -65,7 +66,7 @@ class StoreWebsite extends OrgAction
         $footerSnapshot = StoreWebsiteSnapshot::run(
             $website,
             [
-                'scope'  => 'footer',
+                'scope'  => SnapshotScopeEnum::FOOTER,
                 'layout' => [
                     'src'  => null,
                     'html' => ''

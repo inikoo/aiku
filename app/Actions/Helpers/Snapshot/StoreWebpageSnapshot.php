@@ -8,6 +8,7 @@
 namespace App\Actions\Helpers\Snapshot;
 
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateSnapshots;
+use App\Enums\Helpers\Snapshot\SnapshotScopeEnum;
 use App\Models\Helpers\Snapshot;
 use App\Models\Web\Webpage;
 use Illuminate\Support\Arr;
@@ -19,6 +20,13 @@ class StoreWebpageSnapshot
 
     public function handle(Webpage $webpage, array $modelData): Snapshot
     {
+
+        data_set(
+            $modelData,
+            'scope',
+            SnapshotScopeEnum::WEBPAGE
+        );
+
         data_set(
             $modelData,
             'checksum',
