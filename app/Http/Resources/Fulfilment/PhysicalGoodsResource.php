@@ -22,7 +22,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $currency_code
  * @property mixed $unit
  * @property mixed $state
- * @property mixed|null $quantity
+ * @property int $quantity
  */
 class PhysicalGoodsResource extends JsonResource
 {
@@ -45,7 +45,8 @@ class PhysicalGoodsResource extends JsonResource
             'auto_assign_asset'      => $this->auto_assign_asset,
             'state_label'            => $this->state->labels()[$this->state->value],
             'state_icon'             => $this->state->stateIcon()[$this->state->value],
-            'quantity'               => $this->quantity ?? 0,
+            'quantity'               => $this->quantity,
+            'total'                  => $this->quantity * $this->price,
         ];
     }
 }

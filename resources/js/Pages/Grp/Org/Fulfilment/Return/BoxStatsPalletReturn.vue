@@ -3,7 +3,7 @@
   -  Created: Mon, 17 Oct 2022 17:33:07 British Summer Time, Sheffield, UK
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
-  
+
 <script setup lang='ts'>
 import JsBarcode from 'jsbarcode'
 import { onMounted } from 'vue'
@@ -134,7 +134,7 @@ onMounted(() => {
                     <FontAwesomeIcon icon='fal fa-concierge-bell' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ dataPalletReturn.number_pallets }}</dd>
+                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ dataPalletReturn.number_services }}</dd>
             </div>
 
             <div class="flex items-end gap-x-3 mb-1">
@@ -143,7 +143,7 @@ onMounted(() => {
                     <FontAwesomeIcon icon='fal fa-cube' size="xs" class='text-gray-400' fixed-width
                         aria-hidden='true' />
                 </dt>
-                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ dataPalletReturn.number_pallets }}</dd>
+                <dd class="text-gray-600 leading-6 text-lg font-medium">{{ dataPalletReturn.number_physical_goods }}</dd>
             </div>
 
         </BoxStatPallet>

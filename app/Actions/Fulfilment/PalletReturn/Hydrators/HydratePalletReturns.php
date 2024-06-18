@@ -14,10 +14,17 @@ class HydratePalletReturns extends HydrateModel
 {
     public function handle(PalletReturn $palletReturn): void
     {
-        $palletReturn->update([
+        $totalPrice = 0;
+
+        $palletReturn->services->each(function ($service) use (&$totalPrice, &$totalQuantity) {
+            $totalPrice += $service->price * $service->pivot->quantity;
+        });
+
+        $palletReturn->stats()->update([
             'number_pallets'             => $palletReturn->pallets->count(),
             'number_pallet_stored_items' => $palletReturn->pallets->sum('number_stored_items'),
-            'number_stored_items'        => $palletReturn->pallets->sum('number_stored_items')
+            'number_stored_items'        => $palletReturn->pallets->sum('number_stored_items'),
+            'total_price'                => $totalPrice
         ]);
     }
 }

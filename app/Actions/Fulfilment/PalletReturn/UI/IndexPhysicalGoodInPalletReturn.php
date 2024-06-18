@@ -43,8 +43,8 @@ class IndexPhysicalGoodInPalletReturn extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereAnyWordStartWith('products.name', $value)
-                    ->orWhereStartWith('products.code', $value);
+                $query->whereAnyWordStartWith('assets.name', $value)
+                    ->orWhereStartWith('assets.code', $value);
             });
         });
 
@@ -53,8 +53,7 @@ class IndexPhysicalGoodInPalletReturn extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for($parent->physicalGoods());
-        $queryBuilder->join('assets', 'products.asset_id', '=', 'assets.id');
-        $queryBuilder->join('currencies', 'products.currency_id', '=', 'currencies.id');
+        $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
@@ -66,13 +65,16 @@ class IndexPhysicalGoodInPalletReturn extends OrgAction
         }
 
         $queryBuilder
-            ->defaultSort('products.id')
+            ->defaultSort('assets.id')
             ->select([
-                'products.id',
-                'products.name',
-                'products.code',
-                'products.price',
-                'products.description',
+                'assets.id',
+                'assets.slug',
+                'assets.name',
+                'assets.code',
+                'assets.state',
+                'assets.created_at',
+                'assets.price',
+                'assets.unit',
                 'currencies.code as currency_code',
                 'pallet_return_physical_goods.quantity'
             ]);
@@ -120,6 +122,7 @@ class IndexPhysicalGoodInPalletReturn extends OrgAction
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'quantity', label: __('quantity'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'price', label: __('price'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
+                ->column(key: 'total', label: __('total'), canBeHidden: false, sortable: true, searchable: true, className: 'text-right font-mono')
                 ->defaultSort('code');
         };
     }

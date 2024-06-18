@@ -22,7 +22,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $currency_code
  * @property mixed $unit
  * @property mixed $state
- * @property mixed|null $quantity
+ * @property int $quantity
  */
 class ServicesResource extends JsonResource
 {
@@ -41,7 +41,8 @@ class ServicesResource extends JsonResource
             'unit_abbreviation'      => 's',
             'unit_label'             => __('service'),
             'description'            => $this->description,
-            'quantity'               => $this->quantity ?? 0,
+            'quantity'               => $this->quantity,
+            'total'                  => $this->quantity * $this->price,
             'auto_assign_asset_type' => $this->auto_assign_asset_type,
             'auto_assign_asset'      => $this->auto_assign_asset,
             'state_label'            => $this->state->labels()[$this->state->value],

@@ -115,6 +115,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_recurring_bills_status_former
  * @property int $number_services
  * @property int $number_physical_goods
+ * @property int $total_physical_goods_price
+ * @property int $total_services_price
+ * @property int $total_price
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|PalletReturnStats newModelQuery()
