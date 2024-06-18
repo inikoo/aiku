@@ -651,4 +651,22 @@ test('UI show rental', function () {
     });
 });
 
+test('UI edit rental', function () {
+    $response = get(route('grp.org.fulfilments.show.assets.rentals.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->rental->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 6)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.product.update')
+                        ->where('parameters', $this->rental->id)
+            )
+            ->has('breadcrumbs', 4);
+    });
+});
+
 
