@@ -94,7 +94,7 @@ class PublishWebpage extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("websites.edit");
+        return $request->user()->hasPermissionTo("web.{$this->shop->id}.edit");
     }
 
     public function rules(): array
@@ -118,8 +118,9 @@ class PublishWebpage extends OrgAction
 
     public function asController(Webpage $webpage, ActionRequest $request): string
     {
-        $request->validate();
-        $this->handle($webpage, $request->validated());
+        $this->initialisationFromShop($webpage->website->shop, $request);
+
+        $this->handle($webpage, $this->validatedData);
 
         return "🚀";
     }

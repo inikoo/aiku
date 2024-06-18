@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\OrgAction;

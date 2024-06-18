@@ -29,7 +29,7 @@ use App\Actions\CRM\Prospect\ImportShopProspects;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Actions\Dropshipping\DropshippingCustomerPortfolio\StoreDropshippingCustomerPortfolio;
-use App\Actions\Fulfilment\Fulfilment\StoreFulfilmentfromUI;
+use App\Actions\Fulfilment\Fulfilment\StoreFulfilmentFromUI;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
@@ -182,7 +182,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 
 
     Route::post('shop', StoreShop::class)->name('shop.store');
-    // Route::post('fulfilment', StoreFulfilmentFromUI::class)->name('fulfilment.store');
+    Route::post('fulfilment', StoreFulfilmentFromUI::class)->name('fulfilment.store');
 
 
     Route::prefix('fulfilment/{fulfilment:id}/rentals')->name('fulfilment.rentals.')->group(function () {
