@@ -152,7 +152,7 @@ class ShowService extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('services')
+                            'label' => __('Services')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],

@@ -148,7 +148,7 @@ class ShowRental extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('rentals')
+                            'label' => __('Rentals')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],

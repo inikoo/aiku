@@ -149,7 +149,7 @@ class ShowPhysicalGoods extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('goods')
+                            'label' => __('Goods')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
