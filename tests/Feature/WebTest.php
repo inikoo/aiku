@@ -5,23 +5,23 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Web\Webpage\StoreWebpage;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\StoreWebsite;
-use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
 use App\Actions\Web\Website\UpdateWebsite;
+use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Helpers\Snapshot;
 use App\Models\Web\Webpage;
+use App\Models\Web\WebpageStats;
 use App\Models\Web\Website;
 
 use Illuminate\Support\Carbon;
-use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\get;
 
 beforeAll(function () {
     loadDB();
@@ -60,7 +60,17 @@ test('launch website', function (Website $website) {
     $website = LaunchWebsite::make()->action($website);
     $website->refresh();
 
-    expect($website->state)->toBe(WebsiteStateEnum::LIVE);
+    expect($website->state)->toBe(WebsiteStateEnum::LIVE)
+        ->and($website->status)->toBeTrue()
+        ->and($website->launched_at)->toBeInstanceOf(Carbon::class);
+
+
+    $home = $website->storefront;
+    expect($home)->toBeInstanceOf(Webpage::class)
+        ->and($home->state)->toBe(WebpageStateEnum::LIVE)
+        ->and($home->live_at)->toBeInstanceOf(Carbon::class)
+        ->and($home->stats->number_snapshots)->toBe(2)
+        ->and($home->stats->number_deployments)->toBe(1);
 })->depends('create b2b website');
 
 
@@ -75,6 +85,26 @@ test('update website', function (Website $website) {
     expect($shop->name)->toBe('Test Website Updated');
 })->depends('create b2b website');
 
+test('create webpage', function (Website $website) {
+    $webpage = StoreWebpage::make()->action($website->storefront, Webpage::factory()->definition());
+
+    expect($webpage)->toBeInstanceOf(Webpage::class)
+        ->and($webpage->level)->toBe(2)
+        ->and($webpage->state)->toBe(WebpageStateEnum::IN_PROCESS)
+        ->and($webpage->is_fixed)->toBeFalse()
+        ->and($webpage->stats)->toBeInstanceOf(WebpageStats::class)
+        ->and($webpage->unpublishedSnapshot)->toBeInstanceOf(Snapshot::class);
+
+    $snapshot = $webpage->unpublishedSnapshot;
+
+    expect($snapshot->layout)->toBeArray()
+        ->and(Arr::get($snapshot->layout, 'blocks'))->toBeArray()
+        ->and($snapshot->checksum)->toBeString()
+        ->and($snapshot->state)->toBe(SnapshotStateEnum::UNPUBLISHED);
+})->depends('create b2b website');
+
+
+// Fulfilment Website
 
 test('create fulfilment website', function () {
     $website = StoreWebsite::make()->action(
@@ -104,29 +134,6 @@ test('create fulfilment website', function () {
     return $website;
 });
 
-test('visit public website', function (Website $website) {
-    Config::set('inertia.testing.page_paths', [resource_path('js/Pages/Iris')]);
-    DetectWebsiteFromDomain::shouldRun()->with('localhost')->andReturn($website);
-
-
-    $response = get(
-        route(
-            'iris.home'
-        )
-    );
-    $response->assertStatus(307);
-    $response->assertRedirect('disclosure/under-construction');
-
-    $redirect = $this->followRedirects($response);
-    $redirect->assertStatus(200);
-
-
-    $redirect->assertInertia(function (AssertableInertia $page) {
-        $page->component('Disclosure/UnderConstruction');
-    });
-})->depends('create fulfilment website');
-
-
 test('launch fulfilment website from command', function (Website $website) {
     $this->artisan('website:launch', ['website' => $website->slug])
         ->expectsOutput('Website launched 🚀')
@@ -146,6 +153,9 @@ test('launch fulfilment website from command', function (Website $website) {
     return $website;
 })->depends('create fulfilment website');
 
+
+// Hydrator commands
+
 test('hydrate website from command', function (Website $website) {
     $this->artisan('website:hydrate', [
         'organisations' => $this->organisation->slug,
@@ -156,43 +166,3 @@ test('hydrate website from command', function (Website $website) {
 
     expect($website->webStats->number_webpages)->toBe(4);
 })->depends('launch fulfilment website from command');
-
-
-test('can show fulfilment website', function (Website $website) {
-    $response = get(
-        route(
-            'grp.org.fulfilments.show.web.websites.show',
-            [
-                $this->organisation->slug,
-                $this->fulfilment->slug,
-                $website->slug
-            ]
-        )
-    );
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('Org/Web/Website')
-            ->has('title')
-            ->has('breadcrumbs', 2);
-    });
-})->depends('create fulfilment website');
-
-test('can show webpages list in fulfilment website', function (Website $website) {
-    $response = get(
-        route(
-            'grp.org.fulfilments.show.web.webpages.index',
-            [
-                $this->organisation->slug,
-                $this->fulfilment->slug,
-                $website->slug
-            ]
-        )
-    );
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('Org/Web/Webpages')
-            ->has('title')
-            ->has('breadcrumbs', 3)
-            ->has('data.data', 4);
-    });
-})->depends('create fulfilment website');

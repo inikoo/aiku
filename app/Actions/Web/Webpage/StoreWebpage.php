@@ -51,6 +51,7 @@ class StoreWebpage extends OrgAction
         /** @var Webpage $webpage */
         $webpage = $parent->webpages()->create($modelData);
         $webpage->stats()->create();
+        $webpage->refresh();
 
         $snapshot = StoreWebpageSnapshot::run(
             $webpage,

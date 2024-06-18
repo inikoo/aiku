@@ -9,11 +9,13 @@ namespace App\Actions\Fulfilment\PalletDelivery;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -25,12 +27,24 @@ class UpdatePalletDelivery extends OrgAction
     use AsAction;
     use WithAttributes;
     use WithActionUpdate;
+    use WithModelAddressActions;
 
     public Customer $customer;
     private bool $action = false;
 
     public function handle(PalletDelivery $palletDelivery, array $modelData): PalletDelivery
     {
+        if(Arr::exists($modelData, 'address')) {
+            $this->addAddressToModel(
+                model: $palletDelivery,
+                addressData: Arr::get($modelData, 'address'),
+                scope: 'delivery',
+                updateLocation: false,
+                updateAddressField: 'delivery_address_id'
+            );
+            Arr::forget($modelData, 'address');
+        }
+
         return $this->update($palletDelivery, $modelData);
     }
 
@@ -61,6 +75,7 @@ class UpdatePalletDelivery extends OrgAction
         return [
             'customer_notes'          => ['sometimes','nullable','string','max:4000'],
             'estimated_delivery_date' => ['sometimes', 'date'],
+            'address'                 => ['sometimes'],
             ...$rules
         ];
     }

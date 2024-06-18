@@ -17,7 +17,7 @@ return new class () extends Migration {
         Schema::create('snapshots', function (Blueprint $table) {
             $table->mediumIncrements('id');
             $table->string('slug')->unique()->collation('und_ns')->nullable();
-            $table->string('scope')->index()->nullable();
+            $table->string('scope')->index();
             $table->string('publisher_type')->nullable();
             $table->unsignedSmallInteger('publisher_id')->nullable();
             $table->string('parent_type')->nullable();

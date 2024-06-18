@@ -8,12 +8,16 @@
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Fulfilment\Pallet\StorePallet;
+use App\Actions\Fulfilment\PalletDelivery\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
+use App\Actions\Fulfilment\PalletReturn\SendPalletReturnNotification;
+use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\UI\Fulfilment\FulfilmentAssetsTabsEnum;
 use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
@@ -22,6 +26,7 @@ use App\Enums\UI\Fulfilment\ServicesTabsEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Location;
 use Inertia\Testing\AssertableInertia;
 
@@ -33,6 +38,12 @@ beforeAll(function () {
 });
 
 beforeEach(function () {
+
+    SendPalletDeliveryNotification::shouldRun()
+        ->andReturn();
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
     $this->organisation = createOrganisation();
     $this->adminGuest   = createAdminGuest($this->organisation->group);
     $this->warehouse    = createWarehouse();
@@ -95,6 +106,19 @@ beforeEach(function () {
     }
 
     $this->palletDelivery = $palletDelivery;
+
+    $palletReturn= PalletReturn::first();
+    if (!$palletReturn) {
+        data_set($storeData, 'warehouse_id', $this->warehouse->id);
+        data_set($storeData, 'state', PalletReturnStateEnum::IN_PROCESS);
+
+        $palletReturn = StorePalletReturn::make()->action(
+            $this->customer->fulfilmentCustomer,
+            $storeData
+        );
+    }
+
+    $this->palletReturn = $palletReturn;
 
 
     Config::set(
@@ -238,6 +262,24 @@ test('UI create fulfilment customer', function () {
 
 test('UI show fulfilment customer', function () {
     $response = get(route('grp.org.fulfilments.show.crm.customers.show', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->fulfilmentCustomer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/FulfilmentCustomer')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->customer->name)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+test('UI show fulfilment customer (agreed prices tab)', function () {
+    $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/fulfilments/'.$this->fulfilment->slug.'/customers/'. $this->customer->fulfilmentCustomer->slug.'?tab=agreed_prices');
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Fulfilment/FulfilmentCustomer')
@@ -483,6 +525,48 @@ test('UI show pallet delivery (Physical goods Tab)', function () {
                 'pageHead',
                 fn (AssertableInertia $page) => $page
                         ->where('title', $this->palletDelivery->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+// Pallet Return
+
+test('UI Index pallet returns', function () {
+    $response = $this->get(route('grp.org.fulfilments.show.operations.pallet-returns.index', [$this->organisation->slug, $this->fulfilment->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturns')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'returns')
+                        ->has('subNavigation')
+                        ->has('actions')
+                        ->etc()
+            )
+            ->has('data');
+    });
+});
+
+test('UI show pallet return', function () {
+    // $this->withoutExceptionHandling();
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-returns.show', [$this->organisation->slug, $this->fulfilment->slug, $this->palletReturn->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturn')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletReturn->reference)
                         ->etc()
             )
             ->has('tabs');

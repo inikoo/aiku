@@ -63,8 +63,6 @@ class IndexFulfilmentPhysicalGoods extends OrgAction
         $queryBuilder->join('currencies', 'assets.currency_id', '=', 'currencies.id');
 
 
-
-
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,

@@ -8,6 +8,7 @@
 namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Service;
 use App\Models\CRM\Customer;
@@ -159,12 +160,13 @@ class PalletReturn extends Model
     public function services(): BelongsToMany
     {
         return $this->belongsToMany(Service::class, 'pallet_return_services')
+            ->withPivot('quantity')
             ->withTimestamps();
     }
 
     public function physicalGoods(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'pallet_return_physical_goods', 'pallet_return_id', 'outer_id')
+        return $this->belongsToMany(Asset::class, 'pallet_return_physical_goods', 'pallet_return_id', 'outer_id')
             ->withTimestamps();
     }
 }
