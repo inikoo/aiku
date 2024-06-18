@@ -347,7 +347,9 @@ class ShowPalletReturn extends OrgAction
                 'box_stats'        => [
                     'fulfilment_customer'          => FulfilmentCustomerResource::make($palletReturn->fulfilmentCustomer)->getArray(),
                     'delivery_status'              => PalletReturnStateEnum::stateIcon()[$palletReturn->state->value],
-                    'total_price'                  => $palletReturn->stats->total_price,
+                    'total_services_price'         => $palletReturn->stats->total_services_price,
+                    'total_physical_goods_price'   => $palletReturn->stats->total_physical_goods_price,
+                    'total_price'                  => $palletReturn->stats->total_price
                 ],
                 'notes_data'             => [
                     [
