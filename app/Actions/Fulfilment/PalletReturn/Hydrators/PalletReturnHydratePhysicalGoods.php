@@ -31,8 +31,15 @@ class PalletReturnHydratePhysicalGoods extends HydrateModel
 
     public function handle(PalletReturn $palletReturn): void
     {
+        $totalPrice = 0;
+        $palletReturn->physicalGoods->each(function ($physicalGood) use (&$totalPrice, &$totalQuantity) {
+            $totalPrice += $physicalGood->price * $physicalGood->pivot->quantity;
+        });
+
         $stats = [
-            'number_physical_goods' => $palletReturn->physicalGoods()->count()
+            'number_physical_goods'      => $palletReturn->physicalGoods()->count(),
+            'total_physical_goods_price' => $totalPrice,
+            'total_price'                => $totalPrice + $palletReturn->stats->total_services_price
         ];
 
         $palletReturn->stats()->update($stats);
