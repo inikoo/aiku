@@ -11,11 +11,13 @@ use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Fulfilment\PalletDelivery\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\SendPalletReturnNotification;
+use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
+use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Enums\UI\Fulfilment\FulfilmentAssetsTabsEnum;
 use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
@@ -24,6 +26,7 @@ use App\Enums\UI\Fulfilment\ServicesTabsEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Fulfilment\PalletReturn;
 use App\Models\Inventory\Location;
 use Inertia\Testing\AssertableInertia;
 
@@ -103,6 +106,19 @@ beforeEach(function () {
     }
 
     $this->palletDelivery = $palletDelivery;
+
+    $palletReturn= PalletReturn::first();
+    if (!$palletReturn) {
+        data_set($storeData, 'warehouse_id', $this->warehouse->id);
+        data_set($storeData, 'state', PalletReturnStateEnum::IN_PROCESS);
+
+        $palletReturn = StorePalletReturn::make()->action(
+            $this->customer->fulfilmentCustomer,
+            $storeData
+        );
+    }
+
+    $this->palletReturn = $palletReturn;
 
 
     Config::set(
@@ -536,5 +552,24 @@ test('UI Index pallet returns', function () {
                         ->etc()
             )
             ->has('data');
+    });
+});
+
+test('UI show pallet return', function () {
+    // $this->withoutExceptionHandling();
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-returns.show', [$this->organisation->slug, $this->fulfilment->slug, $this->palletReturn->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturn')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletReturn->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
     });
 });
