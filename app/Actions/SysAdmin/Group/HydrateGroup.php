@@ -55,7 +55,7 @@ class HydrateGroup extends HydrateModel
 {
     use WithNormalise;
 
-    public string $commandSignature = 'group:hydrate {group : Group slug}';
+    public string $commandSignature = 'hydrate:group {group : Group slug}';
 
 
     public function handle(Group $group): void
@@ -98,7 +98,6 @@ class HydrateGroup extends HydrateModel
         GroupHydratePallets::run($group);
         GroupHydratePostRooms::run($group);
         GroupHydrateOutboxes::run($group);
-
     }
 
 
@@ -108,9 +107,9 @@ class HydrateGroup extends HydrateModel
             $group = Group::where('slug', $command->argument('group'))->firstorFail();
         } catch (Exception $e) {
             $command->error($e->getMessage());
+
             return 1;
         }
-
 
         $this->handle($group);
 

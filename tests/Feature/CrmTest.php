@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\CRM\Customer\HydrateCustomers;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
@@ -217,6 +218,7 @@ test('can show list of tags', function () {
     });
 })->todo();
 
-test('hydrate customers command', function () {
-    $this->artisan('customer:hydrate')->assertExitCode(0);
-});
+test('hydrate customers', function (Customer $customer) {
+    HydrateCustomers::run($customer);
+    $this->artisan('hydrate:customers')->assertExitCode(0);
+})->depends('create customer');

@@ -10,14 +10,18 @@ use App\Actions\Catalogue\Collection\UpdateCollection;
 use App\Actions\Catalogue\CollectionCategory\StoreCollectionCategory;
 use App\Actions\Catalogue\CollectionCategory\UpdateCollectionCategory;
 use App\Actions\Catalogue\Product\DeleteProduct;
+use App\Actions\Catalogue\Product\HydrateProducts;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Product\UpdateProduct;
+use App\Actions\Catalogue\ProductCategory\HydrateDepartments;
+use App\Actions\Catalogue\ProductCategory\HydrateFamilies;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\ProductCategory\UpdateProductCategory;
 use App\Actions\Catalogue\ProductVariant\StoreProductVariant;
 use App\Actions\Catalogue\ProductVariant\UpdateProductVariant;
 use App\Actions\Catalogue\Service\StoreService;
 use App\Actions\Catalogue\Service\UpdateService;
+use App\Actions\Catalogue\Shop\HydrateShops;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Enums\Catalogue\Product\ProductStateEnum;
@@ -578,21 +582,25 @@ test('update collection category', function ($collectionCategory) {
 })->depends('create collection category');
 
 
-test('hydrate shops command', function () {
-    $this->artisan('shop:hydrate')->assertExitCode(0);
-});
+test('hydrate shops', function (Shop $shop) {
+    HydrateShops::run($shop);
+    $this->artisan('hydrate:shops')->assertExitCode(0);
+})->depends('create shop');
 
-test('hydrate departments command', function () {
-    $this->artisan('department:hydrate')->assertExitCode(0);
-});
+test('hydrate departments', function (ProductCategory $department) {
+    HydrateDepartments::run($department);
+    $this->artisan('hydrate:departments')->assertExitCode(0);
+})->depends('create department');
 
-test('hydrate families command', function () {
-    $this->artisan('family:hydrate')->assertExitCode(0);
-});
+test('hydrate families', function (ProductCategory $family) {
+    HydrateFamilies::run($family);
+    $this->artisan('hydrate:families')->assertExitCode(0);
+})->depends('create family');
 
-test('hydrate products command', function () {
-    $this->artisan('product:hydrate')->assertExitCode(0);
-});
+test('hydrate products', function (Product $product) {
+    HydrateProducts::run($product);
+    $this->artisan('hydrate:products')->assertExitCode(0);
+})->depends('create product');
 
 test('can show catalogue', function (Shop $shop) {
 

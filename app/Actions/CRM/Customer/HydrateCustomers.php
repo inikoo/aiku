@@ -16,9 +16,9 @@ use App\Actions\HydrateModel;
 use App\Models\CRM\Customer;
 use Illuminate\Support\Collection;
 
-class HydrateCustomer extends HydrateModel
+class HydrateCustomers extends HydrateModel
 {
-    public string $commandSignature = 'customer:hydrate {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'hydrate:customers {organisations?*} {--s|slugs=}';
 
 
     public function handle(Customer $customer): void

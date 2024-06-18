@@ -14,9 +14,9 @@ use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Catalogue\ProductCategory;
 use Illuminate\Support\Collection;
 
-class HydrateFamily extends HydrateModel
+class HydrateFamilies extends HydrateModel
 {
-    public string $commandSignature = 'family:hydrate {organisations?*} {--s|slugs=} ';
+    public string $commandSignature = 'hydrate:families {organisations?*} {--s|slugs=} ';
 
     public function handle(ProductCategory $productCategory): void
     {

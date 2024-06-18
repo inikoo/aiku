@@ -28,9 +28,9 @@ use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateSales;
 use App\Models\Catalogue\Shop;
 use Illuminate\Support\Collection;
 
-class HydrateShop extends HydrateModel
+class HydrateShops extends HydrateModel
 {
-    public string $commandSignature = 'shop:hydrate {organisations?*} {--s|slugs=} ';
+    public string $commandSignature = 'hydrate:shops {organisations?*} {--s|slugs=} ';
 
 
     public function handle(Shop $shop): void

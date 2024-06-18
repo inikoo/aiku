@@ -322,18 +322,7 @@ test('delete guest', function ($user) {
     expect($guest->deleted_at)->toBeInstanceOf(Carbon::class);
 })->depends('update user password');
 
-test('Hydrate group via command', function (Group $group) {
-    $this->artisan('group:hydrate', [
-        'group' => $group->slug,
-    ])->assertSuccessful();
-})->depends('create group');
 
-test('Hydrate organisation via command', function (Organisation $organisation) {
-    $this->artisan('org:hydrate', [
-        'organisations' => [$organisation->slug],
-    ])->assertSuccessful();
-    $this->artisan('org:hydrate')->assertSuccessful();
-})->depends('create organisation type shop');
 
 test('can show app login', function () {
     Config::set(
@@ -396,3 +385,12 @@ test('can show hr dashboard', function (Guest $guest) {
             ->where('stats.1.stat', 2)->where('stats.1.href.name', 'grp.sysadmin.guests.index');
     });
 })->depends('create guest');
+
+test('Hydrate group via command', function (Group $group) {
+    $this->artisan('hydrate:group '.$group->slug)->assertSuccessful();
+
+})->depends('create group');
+
+test('Hydrate organisations via command', function (Organisation $organisation) {
+    $this->artisan('hydrate:organisations '.$organisation->slug)->assertSuccessful();
+})->depends('create organisation type shop');

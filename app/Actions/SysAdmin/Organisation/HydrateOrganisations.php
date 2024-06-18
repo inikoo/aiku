@@ -44,7 +44,7 @@ use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
 
-class HydrateOrganisation extends HydrateModel
+class HydrateOrganisations extends HydrateModel
 {
     use WithNormalise;
 
@@ -91,7 +91,7 @@ class HydrateOrganisation extends HydrateModel
     }
 
 
-    public string $commandSignature = 'org:hydrate {organisations?*}';
+    public string $commandSignature = 'hydrate:organisations {organisations?*}';
 
     public function asCommand(Command $command): int
     {
