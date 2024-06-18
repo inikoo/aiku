@@ -8,10 +8,12 @@
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Fulfilment\Pallet\StorePallet;
+use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
+use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\UI\Fulfilment\FulfilmentAssetsTabsEnum;
 use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
@@ -19,6 +21,7 @@ use App\Enums\UI\Fulfilment\RentalsTabsEnum;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Pallet;
+use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Inventory\Location;
 use Inertia\Testing\AssertableInertia;
 
@@ -79,6 +82,20 @@ beforeEach(function () {
     }
 
     $this->pallet = $pallet;
+
+    $palletDelivery = PalletDelivery::first();
+    if (!$palletDelivery) {
+        data_set($storeData, 'warehouse_id', $this->warehouse->id);
+        data_set($storeData, 'state', PalletDeliveryStateEnum::IN_PROCESS);
+
+        $palletDelivery = StorePalletDelivery::make()->action(
+            $this->customer->fulfilmentCustomer,
+            $storeData
+        );
+    }
+
+    $this->palletDelivery = $palletDelivery;
+
 
     Config::set(
         'inertia.testing.page_paths',
@@ -415,5 +432,24 @@ test('UI Index pallet deliveries', function () {
                         ->etc()
             )
             ->has('data');
+    });
+});
+
+test('UI show pallet delivery', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.fulfilments.show.operations.pallet-deliveries.show', [$this->organisation->slug, $this->fulfilment->slug, $this->palletDelivery->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletDelivery')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletDelivery->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
     });
 });
