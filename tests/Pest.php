@@ -17,6 +17,7 @@ use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Actions\SysAdmin\Group\StoreGroup;
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
+use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
@@ -33,6 +34,7 @@ use App\Models\Ordering\Transaction;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Web\Website;
 use Illuminate\Foundation\Testing\TestCase;
 
 uses(TestCase::class)->in('Feature');
@@ -273,4 +275,18 @@ function createOrder(Customer $customer, Product $product): Order
     }
 
     return $order;
+}
+
+function createWebsite(Shop $shop): Website
+{
+
+    if($website=$shop->website) {
+        return $website;
+    }
+
+    return StoreWebsite::make()->action(
+        $shop,
+        Website::factory()->definition()
+    );
+
 }
