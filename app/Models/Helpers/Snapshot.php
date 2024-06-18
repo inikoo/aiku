@@ -7,6 +7,7 @@
 
 namespace App\Models\Helpers;
 
+use App\Enums\Helpers\Snapshot\SnapshotScopeEnum;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
@@ -21,7 +22,7 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property string|null $slug
- * @property string|null $scope
+ * @property SnapshotScopeEnum $scope
  * @property string|null $publisher_type
  * @property int|null $publisher_id
  * @property string|null $parent_type
@@ -54,7 +55,8 @@ class Snapshot extends Model
 
     protected $casts = [
         'layout' => 'array',
-        'state'  => SnapshotStateEnum::class
+        'state'  => SnapshotStateEnum::class,
+        'scope'  => SnapshotScopeEnum::class
     ];
 
     protected $attributes = [
@@ -71,8 +73,9 @@ class Snapshot extends Model
                 $parent = $this->parent;
                 $slug   = $parent->slug;
                 if ($this->scope) {
-                    $slug .= " $this->scope";
+                    $slug .= " ".$this->scope->value;
                 }
+
                 return $slug;
             })
             ->saveSlugsTo('slug')
@@ -95,9 +98,6 @@ class Snapshot extends Model
     {
         return $this->morphTo();
     }
-
-
-
 
 
 }

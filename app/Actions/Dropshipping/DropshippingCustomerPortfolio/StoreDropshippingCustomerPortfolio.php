@@ -93,7 +93,7 @@ class StoreDropshippingCustomerPortfolio extends OrgAction
 
     public function htmlResponse(): RedirectResponse
     {
-        return Redirect::route('grp.org.shops.show.crm.customers.show.portfolios.index',[$this->customer->organisation->slug, $this->customer->shop->slug, $this->customer->slug] );
+        return Redirect::route('grp.org.shops.show.crm.customers.show.portfolios.index', [$this->customer->organisation->slug, $this->customer->shop->slug, $this->customer->slug]);
     }
 
 }
