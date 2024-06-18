@@ -2,6 +2,9 @@
 
 import { Timeline } from "@/types/Timeline"
 import { routeType } from "@/types/route"
+import { Address } from "@/types/PureComponent/Address"
+
+
 
 export interface Pallet {
     id: number
@@ -116,6 +119,7 @@ export interface PalletReturn {
 export interface BoxStats {
     delivery_status: PalletStatus
     fulfilment_customer: {
+        address: Address
         customer: {
             slug: string
             reference: string
