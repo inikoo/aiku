@@ -67,7 +67,7 @@ class ShowWebpageWorkshop extends OrgAction
                             'style' => 'save',
                             'label' => __('publish'),
                             'route' => [
-                                'name'       => 'org.models.webpage.content.publish',
+                                'name'       => 'grp.models.webpage.content.publish',
                                 'parameters' => $webpage->id,
                                 'method'     => 'post'
                             ]

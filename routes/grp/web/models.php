@@ -28,7 +28,7 @@ use App\Actions\CRM\CustomerClient\StoreCustomerClient;
 use App\Actions\CRM\Prospect\ImportShopProspects;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\CRM\WebUser\UpdateWebUser;
-use App\Actions\Fulfilment\Fulfilment\StoreFulfilmentfromUI;
+use App\Actions\Fulfilment\Fulfilment\StoreFulfilmentFromUI;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\BookInPallet;
