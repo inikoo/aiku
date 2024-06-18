@@ -97,16 +97,16 @@
                     {{ $shop->company_name }}
                 </div>
                 <div style="font-size:7pt">
-                    Unit 15
+                    {{ $shop->address['address_line_1'] }}
                 </div>
                 <div style="font-size:7pt">
-                    Parkwood Business Park
+                    {{ $shop->address['address_line_2'] }}
                 </div>
                 <div style="font-size:7pt">
-                    Parkwood Road
+                    {{ $shop->address['dependant_locality'] }}
                 </div>
                 <div style="font-size:7pt">
-                    Sheffield S3 8AL
+                    {{ $shop->address['locality'] }}
                 </div>
                 <div style="font-size:7pt">
                     {{ $shop->website['domain'] }}
@@ -174,16 +174,16 @@
         <td width="45%" style="border: 0.1mm solid #888888;">
             <span style="font-size: 7pt; color: #555555; font-family: sans-serif;">Delivery address:</span>
             <div>
-                {{ $customer->addresses[0]['address_line_1'] }}
+                {{ $return->deliveryAddress?->address_line_1 }}
             </div>
             <div>
-                {{ $customer->addresses[0]['address_line'] }}
+                {{ $return->deliveryAddress?->address_line }}
             </div>
             <div>
-                {{ $customer->addresses[0]['administrative_area'] }}
+                {{ $return->deliveryAddress?->locality }}
             </div>
             <div>
-                {{ $customer->addresses[0]->country['name'] }}
+                {{ $return->deliveryAddress?->country->name }}
             </div>
         </td>
         <td width="10%">&nbsp;</td>
@@ -192,6 +192,8 @@
 </table>
 <br>
 
+
+<p>Pallets</p>
 <table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse;" cellpadding="8">
     <thead>
     <tr>
@@ -213,6 +215,56 @@
     </tbody>
 
 </table>
+<br>
+<br>
+
+<p>Services</p>
+<table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse;" cellpadding="8">
+    <thead>
+    <tr>
+        <td style="width:20%; text-align:left">Code</td>
+        <td style="width:50%; text-align:left">Service Name</td>
+        <td style="text-align:right">Price</td>
+    </tr>
+    </thead>
+    <tbody>
+
+    @foreach($return->services as $service)
+        <tr class="@if($loop->last) last @endif">
+            <td style="text-align:left">{{ $service->code }}</td>
+            <td style="text-align:left">{{ $service->name }}</td>
+            <td style="text-align:left">{{ $service->currency?->symbol . $service->price }}</td>
+        </tr>
+    @endforeach
+
+    </tbody>
+
+</table>
+<br>
+<br>
+
+<p>Physical Goods</p>
+<table class="items" width="100%" style="font-size: 9pt; border-collapse: collapse;" cellpadding="8">
+    <thead>
+    <tr>
+        <td style="width:20%; text-align:left">Code</td>
+        <td style="width:50%; text-align:left">Physical Good Name</td>
+        <td style="text-align:right">Price</td>
+    </tr>
+    </thead>
+    <tbody>
+
+    @foreach($return->physicalGoods as $physicalGood)
+        <tr class="@if($loop->last) last @endif">
+            <td style="text-align:left">{{ $physicalGood->code }}</td>
+            <td style="text-align:left">{{ $physicalGood->name }}</td>
+            <td style="text-align:left">{{ $physicalGood->currency?->symbol . $physicalGood->price }}</td>
+        </tr>
+    @endforeach
+
+    </tbody>
+
+</table>
 
 <br>
 <br>
@@ -225,17 +277,17 @@
         <tr>
         <tr>
             <td width="33%" style="color:#000;text-align: left;">
-                <small>AW Aromatics Limited<br> VAT Number:
-                    <b>GB356317102</b>
+                <small>{{ $shop->name }}<br> VAT Number:
+                    <b>{{ $shop->identity_document_number }}</b>
                     <br>
-                    Registration Number: 1279117</small>
+                    Registration Number: {{ $shop->identity_document_number }}</small>
             </td>
             <td width="33%" style="color:#000;text-align: center">
                 Page 1 of 1
             </td>
             <td width="34%" style="text-align: right;">
-                <small>00441144384914<br>
-                    sales@aw-aromatics.com
+                <small>{{ $shop->phone }}<br>
+                    {{ $shop->email }}
                 </small>
             </td>
         </tr>

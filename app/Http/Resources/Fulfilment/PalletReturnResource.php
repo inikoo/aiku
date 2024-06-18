@@ -8,6 +8,7 @@
 namespace App\Http\Resources\Fulfilment;
 
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Http\Resources\Helpers\AddressResource;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
 
@@ -43,7 +44,8 @@ class PalletReturnResource extends JsonResource
             'timeline'                => $finalTimeline,
             'number_pallets'          => $palletReturn->number_pallets,
             'number_services'         => $palletReturn->stats->number_services,
-            'number_physical_goods'   => $palletReturn->stats->number_physical_goods
+            'number_physical_goods'   => $palletReturn->stats->number_physical_goods,
+            'delivery_address'        => AddressResource::make($palletReturn->deliveryAddress)
         ];
     }
 }

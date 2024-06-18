@@ -51,7 +51,7 @@ const onSubmitAddress = async () => {
             address: props.boxStats.fulfilment_customer.address.value
         })
         console.log('response', response)
-        
+
     } catch (error) {
         console.log('error', error)
         notify({
@@ -66,7 +66,7 @@ const onSubmitAddress = async () => {
 }
 </script>
 
-<template>    
+<template>
     <div class="h-min grid sm:grid-cols-2 lg:grid-cols-4 border-t border-b border-gray-200 divide-x divide-gray-300">
         <!-- Box: Customer -->
         <BoxStatPallet class="py-1 sm:py-2 px-3">
@@ -128,7 +128,7 @@ const onSubmitAddress = async () => {
             </div>
 
             <!-- Field: Location -->
-            <div v-if="boxStats.fulfilment_customer?.customer?.location?.length"
+            <div v-if="dataPalletReturn.delivery_address"
                 class="flex items-center w-full flex-none gap-x-2">
                 <dt v-tooltip="'Phone'" class="flex-none">
                     <span class="sr-only">Location</span>
@@ -136,8 +136,7 @@ const onSubmitAddress = async () => {
                         aria-hidden='true' />
                 </dt>
                 <dd class="text-xs text-gray-500">
-                    <span class="mr-2">{{ boxStats.fulfilment_customer?.customer.location.join(", ") }}</span>
-                    <div @click="() => isModalAddress = true" class="inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
+                    <span class="mr-2" v-html="dataPalletReturn.delivery_address.formatted_address"></span>                    <div @click="() => isModalAddress = true" class="inline whitespace-nowrap select-none text-gray-500 hover:text-blue-600 underline cursor-pointer">
                         <FontAwesomeIcon icon='fal fa-pencil' size="sm" class='mr-1' fixed-width aria-hidden='true' />
                         <span>Edit</span>
                     </div>
@@ -242,7 +241,7 @@ const onSubmitAddress = async () => {
                             <dd class="text-sm font-medium">$8.32</dd>
                         </div>
                     </div>
-                    
+
                     <div class="flex items-center justify-between border-t border-gray-200 pt-3">
                         <dt class="text-base font-medium">Order total</dt>
                         <dd class="text-base font-medium">$112.32</dd>

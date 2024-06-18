@@ -39,10 +39,11 @@ class PdfPalletReturn
         ];
 
         $pdf = PDF::chunkLoadView('<html-separator/>', 'pickings.templates.pdf.return', [
-            'filename' => $filename,
-            'return'   => $palletReturn,
-            'customer' => $palletReturn->fulfilmentCustomer->customer,
-            'shop'     => $palletReturn->fulfilment->shop
+            'filename'     => $filename,
+            'return'       => $palletReturn,
+            'customer'     => $palletReturn->fulfilmentCustomer->customer,
+            'shop'         => $palletReturn->fulfilment->shop,
+            'organisation' => $palletReturn->organisation,
         ], [], $config);
 
         return $pdf->stream($filename);
