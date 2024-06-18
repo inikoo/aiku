@@ -1,9 +1,10 @@
 <script setup lang='ts'>
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { trans } from 'laravel-vue-i18n'
 import { inject } from 'vue'
 
-const layout = inject('layout', {})
+const layout = inject('layout', layoutStructure)
 
 const props = defineProps<{
     tooltip?: string
@@ -38,7 +39,7 @@ const props = defineProps<{
             :style="{width: percentage + '%'}"
         />
 
-        <div class="flex flex-col justify-center w-full flex-none gap-x-4 py-1">
+        <div class="flex flex-col justify-center w-full flex-none gap-x-4">
             <slot>
                 <div v-if="icon || label" class="flex gap-x-3">
                     <dt v-if="icon" class="flex-none">
