@@ -515,3 +515,26 @@ test('UI show pallet delivery (Physical goods Tab)', function () {
 
     });
 });
+
+// Pallet Return
+
+test('UI Index pallet returns', function () {
+    $response = $this->get(route('grp.org.fulfilments.show.operations.pallet-returns.index', [$this->organisation->slug, $this->fulfilment->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturns')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'returns')
+                        ->has('subNavigation')
+                        ->has('actions')
+                        ->etc()
+            )
+            ->has('data');
+    });
+});
