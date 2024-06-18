@@ -13,6 +13,7 @@ use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\Pallet\UI\IndexPalletsInDelivery;
+use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasFulfilmentAssetsAuthorisation;
@@ -25,9 +26,11 @@ use App\Http\Resources\Fulfilment\PalletsResource;
 use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
 use App\Http\Resources\Fulfilment\RentalsResource;
 use App\Http\Resources\Fulfilment\ServicesResource;
+use App\Http\Resources\Helpers\AddressFormFieldsResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
@@ -331,6 +334,23 @@ class ShowPalletDelivery extends OrgAction
                     ]
                 ],
 
+                'fields' => [
+                    'address'      => [
+                        'type'    => 'address',
+                        'label'   => __('Address'),
+                        'value'   => AddressFormFieldsResource::make(
+                            new Address(
+                                [
+                                    'country_id' => $palletDelivery->fulfilment->shop->country_id,
+                                ]
+                            )
+                        )->getArray(),
+                        'options' => [
+                            'countriesAddressData' => GetAddressData::run()
+                        ]
+                    ]
+                ],
+
                 'upload' => [
                     'event'   => 'action-progress',
                     'channel' => 'grp.personal.' . $this->organisation->id
@@ -429,6 +449,7 @@ class ShowPalletDelivery extends OrgAction
                         'field'           => 'internal_notes'
                     ],
                 ],
+
                 'rental_list'                          => $rentalList,
                 'service_lists'                        => $servicesList,
                 'physical_good_lists'                  => $physicalGoodsList,
