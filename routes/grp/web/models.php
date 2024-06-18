@@ -216,7 +216,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::delete('/shop/{shop:id}/product/{product:id}', [DeleteProduct::class, 'inShop'])->name('shop.product.delete');
 
     Route::delete('shop/{shop:id}/customer/{customer:id}/portfolio/{portfolio:id}', DeleteDropshippingCustomerPortfolio::class)->name('shop.customer.portfolio.delete')->withoutScopedBindings();
-    Route::post('shop/{shop:id}/customer/{customer:id}/portfolio/{product:id}', StoreDropshippingCustomerPortfolio::class)->name('shop.customer.portfolio.store')->withoutScopedBindings();
+    Route::post('shop/{shop:id}/customer/{customer:id}/portfolio', StoreDropshippingCustomerPortfolio::class)->name('shop.customer.portfolio.store')->withoutScopedBindings();
 
     Route::post('/product/', StoreProduct::class)->name('product.store');
     Route::patch('/product/{product:id}', UpdateProduct::class)->name('product.update');
