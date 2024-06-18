@@ -258,7 +258,7 @@ const onSubmitAddress = async () => {
     </div>
 
     <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
-		<div class="min-h-72 px-2 overflow-auto">
+		<div class="h-[500px] px-2 overflow-auto">
             <div class="text-2xl font-bold text-center mb-8">
                 Edit customer's address
             </div>
@@ -283,7 +283,7 @@ const onSubmitAddress = async () => {
             <div class="mt-6 flex justify-center">
                 <Button @click="() => onSubmitAddress()" label="Submit" :loading="isSubmitAddressLoading" />
             </div>
-            {{ boxStats.fulfilment_customer.address.value }}
+            <!-- {{ boxStats.fulfilment_customer.address.value }} -->
 		</div>
 	</Modal>
 </template>

@@ -57,9 +57,14 @@ const addressFields = (countryID: number) => {
                             v-if="administrativeAreas(modelValue.country_id).length && (!modelValue.administrative_area || inAdministrativeAreas(modelValue.administrative_area, modelValue.country_id))"
                             v-model="modelValue.administrative_area"
                             :options="administrativeAreas(modelValue.country_id)" label="name" valueProp="name"
+                            :placeholder="`Select ${addressFieldData.label}`"
                         />
-                        <input v-else v-model="modelValue.administrative_area" type="text" name="administrative_area"
-                            id="administrative_area" autocomplete="password"
+                        <input v-else
+                            v-model="modelValue.administrative_area"
+                            type="text"
+                            name="administrative_area"
+                            id="administrative_area"
+                            autocomplete="password"
                             class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
                     </div>
                     
@@ -74,7 +79,7 @@ const addressFields = (countryID: number) => {
                             :id="addressField"
                             autocomplete="password"
                             :placeholder="`Enter ${addressFieldData.label}`"
-                            class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" />
+                            class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 placeholder:text-gray-400 rounded-md" />
                     </div>
                 </div>
             </div>
