@@ -7,7 +7,7 @@
 
 namespace App\Actions\Fulfilment\PalletReturn;
 
-use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateServices;
+use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePhysicalGoods;
 use App\Actions\OrgAction;
 use App\Enums\UI\Fulfilment\PalletReturnTabsEnum;
 use App\Models\CRM\Customer;
@@ -32,7 +32,7 @@ class SyncPhysicalGoodToPalletReturn extends OrgAction
             $modelData['outer_id'] => ['quantity' => $modelData['quantity']]
         ]);
 
-        PalletReturnHydrateServices::dispatch($palletReturn);
+        PalletReturnHydratePhysicalGoods::dispatch($palletReturn);
 
         return $palletReturn;
     }
