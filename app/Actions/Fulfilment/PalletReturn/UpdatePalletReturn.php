@@ -9,6 +9,7 @@ namespace App\Actions\Fulfilment\PalletReturn;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithModelAddressActions;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -16,6 +17,7 @@ use App\Models\Fulfilment\PalletReturn;
 use App\Models\SysAdmin\Organisation;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -27,6 +29,7 @@ class UpdatePalletReturn extends OrgAction
     use AsAction;
     use WithAttributes;
     use WithActionUpdate;
+    use WithModelAddressActions;
 
     public Customer $customer;
     /**
@@ -36,6 +39,17 @@ class UpdatePalletReturn extends OrgAction
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
+        if(Arr::exists($modelData, 'address')) {
+            $this->addAddressToModel(
+                model: $palletReturn,
+                addressData: Arr::get($modelData, 'address'),
+                scope: 'delivery',
+                updateLocation: false,
+                updateAddressField: 'delivery_address_id'
+            );
+            Arr::forget($modelData, 'address');
+        }
+
         return $this->update($palletReturn, $modelData);
     }
 
@@ -46,7 +60,6 @@ class UpdatePalletReturn extends OrgAction
         }
 
         if ($request->user() instanceof WebUser) {
-            // TODO: Raul please do the permission for the web user
             return true;
         }
 
@@ -59,13 +72,14 @@ class UpdatePalletReturn extends OrgAction
 
         if(!request()->user() instanceof WebUser) {
             $rules = [
-                'public_notes'  => ['sometimes','nullable','string','max:4000'],
-                'internal_notes'=> ['sometimes','nullable','string','max:4000'],
+                'public_notes'   => ['sometimes','nullable','string','max:4000'],
+                'internal_notes' => ['sometimes','nullable','string','max:4000'],
             ];
         }
 
         return [
-            'customer_notes'=> ['sometimes','nullable','string', 'max:5000'],
+            'customer_notes' => ['sometimes','nullable','string', 'max:5000'],
+            'address'        => ['sometimes'],
             ...$rules
         ];
     }

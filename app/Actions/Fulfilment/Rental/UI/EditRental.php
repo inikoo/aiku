@@ -144,6 +144,7 @@ class EditRental extends OrgAction
                         ]
 
                     ],
+                    // Make sure to change the FulfilmentUITest after fixing this
                     'args'      => [
                         'updateRoute' => [
                             'name'       => 'grp.models.product.update',

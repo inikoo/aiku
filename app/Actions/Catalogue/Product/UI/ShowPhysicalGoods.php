@@ -84,7 +84,7 @@ class ShowPhysicalGoods extends OrgAction
         return Inertia::render(
             'Org/Fulfilment/PhysicalGood',
             [
-                'title'       => __('asset'),
+                'title'       => __('physical goods'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
@@ -94,7 +94,7 @@ class ShowPhysicalGoods extends OrgAction
                     'next'     => $this->getNext($asset, $request),
                 ],
                 'pageHead'    => [
-                    'model'   => __('asset'),
+                    'model'   => __('physical goods'),
                     'title'   => $asset->code,
                     'icon'    =>
                         [

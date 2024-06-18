@@ -12,12 +12,15 @@ use App\Actions\Fulfilment\PalletDelivery\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
+use App\Actions\Fulfilment\Rental\StoreRental;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
+use App\Enums\Fulfilment\Rental\RentalStateEnum;
+use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Enums\UI\Fulfilment\FulfilmentAssetsTabsEnum;
 use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
@@ -27,6 +30,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
+use App\Models\Fulfilment\Rental;
 use App\Models\Inventory\Location;
 use Inertia\Testing\AssertableInertia;
 
@@ -119,6 +123,22 @@ beforeEach(function () {
     }
 
     $this->palletReturn = $palletReturn;
+
+    $rental = Rental::first();
+    if (!$rental) {
+        data_set($storeData, 'code', 'TEST');
+        data_set($storeData, 'state', RentalStateEnum::ACTIVE);
+        data_set($storeData, 'name', 'testo');
+        data_set($storeData, 'price', 100);
+        data_set($storeData, 'unit', RentalUnitEnum::DAY->value);
+
+        $rental = StoreRental::make()->action(
+            $this->shop,
+            $storeData
+        );
+    }
+
+    $this->rental = $rental;
 
 
     Config::set(
@@ -573,3 +593,89 @@ test('UI show pallet return', function () {
 
     });
 });
+
+test('UI show pallet return (physical goods tab)', function () {
+    $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/fulfilments/'.$this->fulfilment->slug.'/returns/'.$this->palletReturn->slug.'?tab=physical_goods');
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturn')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletReturn->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+test('UI show pallet return (services tab)', function () {
+    $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/fulfilments/'.$this->fulfilment->slug.'/returns/'.$this->palletReturn->slug.'?tab=services');
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturn')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletReturn->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+// Rental
+
+test('UI show rental', function () {
+
+    $response = get(route('grp.org.fulfilments.show.assets.rentals.show', [$this->organisation->slug, $this->fulfilment->slug, $this->rental->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/Rental')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->rental->code)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+test('UI edit rental', function () {
+    $response = get(route('grp.org.fulfilments.show.assets.rentals.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->rental->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('formData.blueprint.0.fields', 6)
+            ->has('pageHead')
+            ->has(
+                'formData.args.updateRoute',
+                fn (AssertableInertia $page) => $page
+                        ->where('name', 'grp.models.product.update')
+                        ->where('parameters', $this->rental->id)
+            )
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI create rental', function () {
+    $response = get(route('grp.org.fulfilments.show.assets.rentals.create', [$this->organisation->slug, $this->fulfilment->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 5);
+    });
+});
+
+
