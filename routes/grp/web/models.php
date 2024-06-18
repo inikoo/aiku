@@ -28,6 +28,7 @@ use App\Actions\CRM\CustomerClient\StoreCustomerClient;
 use App\Actions\CRM\Prospect\ImportShopProspects;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\CRM\WebUser\UpdateWebUser;
+use App\Actions\Dropshipping\DropshippingCustomerPortfolio\StoreDropshippingCustomerPortfolio;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilmentfromUI;
 use App\Actions\Fulfilment\FulfilmentCustomer\StoreFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentCustomer\UpdateFulfilmentCustomer;
@@ -181,7 +182,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 
 
     Route::post('shop', StoreShop::class)->name('shop.store');
-    Route::post('fulfilment', StoreFulfilmentFromUI::class)->name('fulfilment.store');
+    // Route::post('fulfilment', StoreFulfilmentFromUI::class)->name('fulfilment.store');
 
 
     Route::prefix('fulfilment/{fulfilment:id}/rentals')->name('fulfilment.rentals.')->group(function () {
@@ -215,6 +216,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
     Route::delete('/shop/{shop:id}/product/{product:id}', [DeleteProduct::class, 'inShop'])->name('shop.product.delete');
 
     Route::delete('shop/{shop:id}/customer/{customer:id}/portfolio/{portfolio:id}', DeleteDropshippingCustomerPortfolio::class)->name('shop.customer.portfolio.delete')->withoutScopedBindings();
+    Route::post('shop/{shop:id}/customer/{customer:id}/portfolio/{product:id}', StoreDropshippingCustomerPortfolio::class)->name('shop.customer.portfolio.store')->withoutScopedBindings();
 
     Route::post('/product/', StoreProduct::class)->name('product.store');
     Route::patch('/product/{product:id}', UpdateProduct::class)->name('product.update');
