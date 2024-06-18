@@ -16,6 +16,9 @@ import { ref } from "vue"
 import { routeType } from "@/types/route"
 import { notify } from "@kyvg/vue3-notification"
 
+import { faTrashAlt } from '@fal'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faTrashAlt)
 
 const props = defineProps<{
     data: {}
@@ -67,10 +70,7 @@ const onDeletePortfolio = async (routeDelete: routeType, custSlug: string) => {
             // text: 'Portfolio has been deleted',
             type: 'error',
         })
-    } finally {
-        isDeleteLoading.value = false
     }
-
 }
 
 </script>
