@@ -678,4 +678,13 @@ test('UI create rental', function () {
     });
 });
 
+// Rental Agreement
 
+test('UI create rental agreement', function () {
+    $response = get(route('grp.org.fulfilments.show.crm.customers.show.rental-agreement.create', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 4);
+    });
+});
