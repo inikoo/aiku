@@ -13,6 +13,8 @@ use App\Models\CRM\Customer;
 use App\Models\Dropshipping\DropshippingCustomerPortfolio;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -37,6 +39,8 @@ class StoreDropshippingCustomerPortfolio extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request)
     {
+        $this->customer = $customer;
+
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($customer, $this->validatedData);
@@ -87,5 +91,9 @@ class StoreDropshippingCustomerPortfolio extends OrgAction
         return $this->handle($customer, $this->validatedData);
     }
 
+    public function htmlResponse(): RedirectResponse
+    {
+        return Redirect::route('grp.org.shops.show.crm.customers.show.portfolios.index', [$this->customer->organisation->slug, $this->customer->shop->slug, $this->customer->slug]);
+    }
 
 }

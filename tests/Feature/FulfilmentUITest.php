@@ -8,7 +8,9 @@
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Fulfilment\Pallet\StorePallet;
+use App\Actions\Fulfilment\PalletDelivery\SendPalletDeliveryNotification;
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
+use App\Actions\Fulfilment\PalletReturn\SendPalletReturnNotification;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -33,6 +35,12 @@ beforeAll(function () {
 });
 
 beforeEach(function () {
+
+    SendPalletDeliveryNotification::shouldRun()
+        ->andReturn();
+    SendPalletReturnNotification::shouldRun()
+        ->andReturn();
+
     $this->organisation = createOrganisation();
     $this->adminGuest   = createAdminGuest($this->organisation->group);
     $this->warehouse    = createWarehouse();
@@ -254,6 +262,24 @@ test('UI show fulfilment customer', function () {
     });
 });
 
+test('UI show fulfilment customer (agreed prices tab)', function () {
+    $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/fulfilments/'.$this->fulfilment->slug.'/customers/'. $this->customer->fulfilmentCustomer->slug.'?tab=agreed_prices');
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/FulfilmentCustomer')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->customer->name)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
 test('UI edit fulfilment customer', function () {
     $response = get(route('grp.org.fulfilments.show.crm.customers.show.edit', [$this->organisation->slug, $this->fulfilment->slug, $this->customer->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
@@ -455,7 +481,6 @@ test('UI show pallet delivery', function () {
 });
 
 test('UI show pallet delivery (Services Tab)', function () {
-    // $this->withoutExceptionHandling();
     $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/fulfilments/'.$this->fulfilment->slug.'/deliveries/'.$this->palletDelivery->slug.'?tab=services');
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -470,5 +495,46 @@ test('UI show pallet delivery (Services Tab)', function () {
             )
             ->has('tabs');
 
+    });
+});
+
+test('UI show pallet delivery (Physical goods Tab)', function () {
+    $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/fulfilments/'.$this->fulfilment->slug.'/deliveries/'.$this->palletDelivery->slug.'?tab=physical_goods');
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletDelivery')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->palletDelivery->reference)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+// Pallet Return
+
+test('UI Index pallet returns', function () {
+    $response = $this->get(route('grp.org.fulfilments.show.operations.pallet-returns.index', [$this->organisation->slug, $this->fulfilment->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Fulfilment/PalletReturns')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'returns')
+                        ->has('subNavigation')
+                        ->has('actions')
+                        ->etc()
+            )
+            ->has('data');
     });
 });

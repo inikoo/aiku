@@ -111,13 +111,15 @@ const originUrl = location.origin
         <!-- Section: Button and/or ButtonGroup -->
         <slot name="button" :dataPageHead="{ ...props }">
             <div class="flex flex-col items-end sm:flex-row sm:items-center gap-2 rounded-md">
-                <template v-for="action in data.actions">
+                <template v-for="(action, actIndex) in data.actions">
                     <template v-if="action">
                         <!-- Button -->
                         <slot v-if="action.type == 'button'" :name="`button-${kebabCase(action.label)}`" :action="{ action }">
-                            <Action v-if="action" :action="action" :dataToSubmit="dataToSubmit" />
+                            <slot :name="`button-index-${actIndex}`" :action="{ action }">
+                                <Action v-if="action" :action="action" :dataToSubmit="dataToSubmit" />
+                            </slot>
                         </slot>
-
+                        
                         <!-- ButtonGroup -->
                         <slot v-if="action.type == 'buttonGroup'" :name="`button-group-${action.key}`" :action="{ action }">
                             <div class="rounded-md flex" :class="[(action.button?.length || 0) > 1 ? 'shadow' : '']">

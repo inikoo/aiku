@@ -69,8 +69,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $logo_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property string|null $launched_at
- * @property string|null $closed_at
+ * @property Carbon|null $launched_at
+ * @property Carbon|null $closed_at
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $cloudflare_id
@@ -120,7 +120,10 @@ class Website extends Model implements Auditable
         'state'              => WebsiteStateEnum::class,
         'status'             => 'boolean',
         'engine'             => WebsiteEngineEnum::class,
-        'cloudflare_status'  => WebsiteCloudflareStatusEnum::class
+        'cloudflare_status'  => WebsiteCloudflareStatusEnum::class,
+        'launched_at'        => 'datetime',
+        'closed_at'          => 'datetime',
+
     ];
 
     protected $attributes = [
