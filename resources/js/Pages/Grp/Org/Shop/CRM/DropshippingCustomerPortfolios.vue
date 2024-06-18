@@ -37,7 +37,7 @@ const errorMessage = ref(null)
 const getPortfoliosList = async () => {
     isLoadingFetch.value = true
     try {
-        const response = await axios.get(route("grp.org.shops.show.catalogue.products.index", { "organisation": layout?.currentParams?.organisation, "shop": layout?.currentParams?.shop }))
+        const response = await axios.get(route("grp.org.shops.show.crm.customers.show.portfolios.filtered-products", { "organisation": layout?.currentParams?.organisation, "shop": layout?.currentParams?.shop, "customer": layout?.currentParams?.customer }))
 
         portfoliosList.value = response.data.data
         isLoadingFetch.value = false
