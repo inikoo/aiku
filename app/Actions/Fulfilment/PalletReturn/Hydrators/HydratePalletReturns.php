@@ -20,10 +20,13 @@ class HydratePalletReturns extends HydrateModel
             $totalPrice += $service->price * $service->pivot->quantity;
         });
 
-        $palletReturn->stats()->update([
+        $palletReturn->update([
             'number_pallets'             => $palletReturn->pallets->count(),
             'number_pallet_stored_items' => $palletReturn->pallets->sum('number_stored_items'),
-            'number_stored_items'        => $palletReturn->pallets->sum('number_stored_items'),
+            'number_stored_items'        => $palletReturn->pallets->sum('number_stored_items')
+        ]);
+
+        $palletReturn->stats()->update([
             'total_price'                => $totalPrice
         ]);
     }
