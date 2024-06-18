@@ -37,12 +37,12 @@ return new class () extends Migration {
             $table->jsonb('structure');
             $table->jsonb('layout');
             $table->jsonb('published_layout');
-            $table->unsignedSmallInteger('unpublished_header_snapshot_id')->nullable()->index();
-            $table->unsignedSmallInteger('live_header_snapshot_id')->nullable()->index();
+            $table->unsignedInteger('unpublished_header_snapshot_id')->nullable()->index();
+            $table->unsignedInteger('live_header_snapshot_id')->nullable()->index();
             $table->string('published_header_checksum')->nullable()->index();
             $table->boolean('header_is_dirty')->index()->default(false);
-            $table->unsignedSmallInteger('unpublished_footer_snapshot_id')->nullable()->index();
-            $table->unsignedSmallInteger('live_footer_snapshot_id')->nullable()->index();
+            $table->unsignedInteger('unpublished_footer_snapshot_id')->nullable()->index();
+            $table->unsignedInteger('live_footer_snapshot_id')->nullable()->index();
             $table->string('published_footer_checksum')->nullable()->index();
             $table->boolean('footer_is_dirty')->index()->default(false);
             $table->unsignedSmallInteger('current_layout_id')->index()->nullable();

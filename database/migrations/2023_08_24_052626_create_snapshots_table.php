@@ -15,7 +15,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('snapshots', function (Blueprint $table) {
-            $table->mediumIncrements('id');
+            $table->increments('id');
             $table->string('slug')->unique()->collation('und_ns')->nullable();
             $table->string('scope')->index();
             $table->string('publisher_type')->nullable();

@@ -32,6 +32,7 @@ class StoreWebsiteSnapshot
         $website->snapshots()->save($snapshot);
         $snapshot->generateSlug();
         $snapshot->saveQuietly();
+        $snapshot->stats()->create();
 
         return $snapshot;
     }

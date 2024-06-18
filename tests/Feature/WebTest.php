@@ -15,6 +15,7 @@ use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Helpers\Snapshot;
+use App\Models\SnapshotStats;
 use App\Models\Web\Webpage;
 use App\Models\Web\WebpageStats;
 use App\Models\Web\Website;
@@ -98,6 +99,7 @@ test('create webpage', function (Website $website) {
     $snapshot = $webpage->unpublishedSnapshot;
 
     expect($snapshot->layout)->toBeArray()
+        ->and($snapshot->stats)->toBeInstanceOf(SnapshotStats::class)
         ->and(Arr::get($snapshot->layout, 'blocks'))->toBeArray()
         ->and($snapshot->checksum)->toBeString()
         ->and($snapshot->state)->toBe(SnapshotStateEnum::UNPUBLISHED);

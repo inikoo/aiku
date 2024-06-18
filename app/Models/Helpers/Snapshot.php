@@ -9,10 +9,12 @@ namespace App\Models\Helpers;
 
 use App\Enums\Helpers\Snapshot\SnapshotScopeEnum;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
+use App\Models\SnapshotStats;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -41,6 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Model|\Eloquent $parent
  * @property-read Model|\Eloquent $publisher
+ * @property-read SnapshotStats|null $stats
  * @method static Builder|Snapshot newModelQuery()
  * @method static Builder|Snapshot newQuery()
  * @method static Builder|Snapshot query()
@@ -98,6 +101,12 @@ class Snapshot extends Model
     {
         return $this->morphTo();
     }
+
+    public function stats(): hasOne
+    {
+        return $this->hasOne(SnapshotStats::class);
+    }
+
 
 
 }

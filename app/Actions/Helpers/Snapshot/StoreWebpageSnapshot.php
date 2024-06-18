@@ -41,6 +41,7 @@ class StoreWebpageSnapshot
         $webpage->snapshots()->save($snapshot);
         $snapshot->generateSlug();
         $snapshot->saveQuietly();
+        $snapshot->stats()->create();
 
 
         WebpageHydrateSnapshots::dispatch($webpage);

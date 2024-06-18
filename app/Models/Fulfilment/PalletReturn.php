@@ -9,7 +9,6 @@ namespace App\Models\Fulfilment;
 
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
 use App\Models\Catalogue\Asset;
-use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Service;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
@@ -61,13 +60,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property-read Customer|null $customer
+ * @property-read Address|null $deliveryAddress
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
  * @property-read \App\Models\Fulfilment\FulfilmentCustomer $fulfilmentCustomer
  * @property-read Group $group
  * @property-read Organisation $organisation
- * @property-read \App\Models\Helpers\Address $deliveryAddress
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $physicalGoods
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Asset> $physicalGoods
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Service> $services
  * @property-read \App\Models\Fulfilment\PalletReturnStats|null $stats

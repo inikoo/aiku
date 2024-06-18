@@ -36,6 +36,7 @@ class StoreBannerSnapshot
         $banner->snapshots()->save($snapshot);
         $snapshot->generateSlug();
         $snapshot->saveQuietly();
+        $snapshot->stats()->create();
 
         if ($slides) {
             foreach ($slides as $slide) {
