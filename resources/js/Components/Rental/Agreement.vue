@@ -24,6 +24,7 @@ const props = withDefaults(defineProps<{
         readonly?: boolean
         copyButton: boolean
         maxLength?: number
+        value?: Array,
         physical_goods: {
             data: {}
         },
@@ -76,18 +77,41 @@ const resetValue = () => {
 
 
 
+
+
 onBeforeMount(() => {
     const clonedData = {
         rentals: cloneDeep(props.fieldData?.rentals?.data),
         physical_goods: cloneDeep(props.fieldData?.physical_goods?.data),
         services: cloneDeep(props.fieldData?.services?.data),
     };
+
+    if (props.fieldData.value) {
+        for (const l in clonedData) {
+            if (l === 'rentals' && props.fieldData?.value?.rental) {
+                clonedData[l] = clonedData[l].map((item) => {
+                    const found = props.fieldData?.value?.rental.find((e) => e.asset_id === item.asset_id);
+                    return found ? { ...item, ...found, agreed_price : parseFloat(found.agreed_price.toFixed(2)) } : item;
+                });
+            } else if (l === 'services' && props.fieldData?.value?.service) {
+                clonedData[l] = clonedData[l].map((item) => {
+                    const found = props.fieldData?.value?.service.find((e) => e.asset_id === item.asset_id);
+                    return found ? { ...item, ...found, agreed_price : parseFloat(found.agreed_price.toFixed(2)) } : item;
+                });
+            } else if (l === 'physical_goods' && props.fieldData?.value?.physical_good) {
+                clonedData[l] = clonedData[l].map((item) => {
+                    const found = props.fieldData?.value?.physical_good.find((e) => e.asset_id === item.asset_id);
+                    return found ? { ...item, ...found, agreed_price : parseFloat(found.agreed_price.toFixed(2)) } : item;
+                });
+            }
+        }
+    }
+
     props.form.defaults({
         [props.fieldName]: clonedData,
-    })
-    props.form.reset(props.fieldName)
-})
-
+    });
+    props.form.reset(props.fieldName);
+});
 console.log(props)
 
 </script>
