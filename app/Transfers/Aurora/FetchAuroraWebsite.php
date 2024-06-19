@@ -43,7 +43,7 @@ class FetchAuroraWebsite extends FetchAurora
         $state = match ($this->auroraModelData->{'Website Status'}) {
             'Active' => WebsiteStateEnum::LIVE,
             'Closed' => WebsiteStateEnum::CLOSED,
-            default  => WebsiteStateEnum::IN_PROCESS,
+            default => WebsiteStateEnum::IN_PROCESS,
         };
 
 
@@ -62,14 +62,21 @@ class FetchAuroraWebsite extends FetchAurora
                 'name'      => $this->auroraModelData->{'Website Name'},
                 'code'      => $this->auroraModelData->code,
                 'domain'    => $domain,
-                'state'     => $state,
-                'status'    => $this->auroraModelData->{'Website Status'} === 'Active',
                 'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Website Key'},
             ];
 
-        if ($launchedAt = $this->parseDate($this->auroraModelData->{'Website Launched'})) {
-            $this->parsedData['website']['launched_at'] = $launchedAt;
+        if ($state !== WebsiteStateEnum::LIVE) {
+            if ($launchedAt = $this->parseDate($this->auroraModelData->{'Website Launched'})) {
+                $this->parsedData['website']['launched_at'] = $launchedAt;
+            }
+            $this->parsedData['website']['state']  = $state;
+            $this->parsedData['website']['status'] = $this->auroraModelData->{'Website Status'} === 'Active';
+            $this->parsedData['launch']=false;
+
+        }else{
+            $this->parsedData['launch']=true;
         }
+
 
         if ($createdAt = $this->parseDate($this->auroraModelData->{'Website From'})) {
             $this->parsedData['website']['created_at'] = $createdAt;

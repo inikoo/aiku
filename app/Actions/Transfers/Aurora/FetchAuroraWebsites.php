@@ -7,6 +7,7 @@
 
 namespace App\Actions\Transfers\Aurora;
 
+use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
 use App\Models\Web\Website;
@@ -34,6 +35,11 @@ class FetchAuroraWebsites extends FetchAuroraAction
                     shop: $websiteData['shop'],
                     modelData: $websiteData['website'],
                 );
+
+                if( $websiteData['launch']){
+                    LaunchWebsite::run(website: $website);
+                }
+
             }
 
             return $website;
