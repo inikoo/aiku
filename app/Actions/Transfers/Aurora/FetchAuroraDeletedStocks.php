@@ -30,6 +30,8 @@ class FetchAuroraDeletedStocks extends FetchAuroraAction
         $orgStock=null;
 
         if ($stockData = $organisationSource->fetchDeletedStock($organisationSourceId)) {
+
+
             if ($baseStock = Stock::withTrashed()->where('source_slug', $stockData['stock']['source_slug'])->first()) {
                 if ($stock = Stock::withTrashed()->where('source_id', $stockData['stock']['source_id'])->first()) {
                     $stock = UpdateStock::make()->action(
@@ -40,7 +42,7 @@ class FetchAuroraDeletedStocks extends FetchAuroraAction
             } else {
 
                 $stock = StoreStock::make()->action(
-                    group: $organisationSource->getOrganisation()->group,
+                    parent: $organisationSource->getOrganisation()->group,
                     modelData: $stockData['stock'],
                     hydratorDelay: 30
                 );
@@ -72,6 +74,8 @@ class FetchAuroraDeletedStocks extends FetchAuroraAction
                     );
                 } else {
 
+
+
                     $orgStock = StoreOrgStock::make()->action(
                         organisation: $organisationSource->getOrganisation(),
                         stock: $effectiveStock,
@@ -94,6 +98,8 @@ class FetchAuroraDeletedStocks extends FetchAuroraAction
             'orgStock' => $orgStock
         ];
     }
+
+
 
     public function getModelsQuery(): Builder
     {
