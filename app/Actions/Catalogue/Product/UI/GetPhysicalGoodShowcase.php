@@ -7,7 +7,6 @@
 
 namespace App\Actions\Catalogue\Product\UI;
 
-use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Product;
 use Lorisleiva\Actions\Concerns\AsObject;
 

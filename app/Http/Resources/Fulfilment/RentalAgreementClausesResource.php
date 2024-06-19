@@ -41,7 +41,7 @@ class RentalAgreementClausesResource extends JsonResource
     }
     private function calculateAgreedPrice($price, $percentageOff)
     {
-        
+
         return $price * $percentageOff / 100;
     }
 }

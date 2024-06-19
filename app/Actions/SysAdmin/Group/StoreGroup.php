@@ -42,6 +42,7 @@ class StoreGroup
         SeedGroupPermissions::run($group);
         SeedGroupPaymentServiceProviders::run($group);
         SeedGroupJobPositions::run($group);
+        SeedStockImages::run($group);
 
         $group->supplyChainStats()->create();
         $group->sysadminStats()->create();

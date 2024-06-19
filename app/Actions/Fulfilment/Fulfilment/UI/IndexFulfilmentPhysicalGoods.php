@@ -12,7 +12,6 @@ use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
 use App\Http\Resources\Fulfilment\PhysicalGoodsResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Product;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;

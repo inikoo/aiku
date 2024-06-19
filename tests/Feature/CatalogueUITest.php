@@ -93,4 +93,3 @@ test('UI create department', function () {
             ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 4);
     });
 });
-

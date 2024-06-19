@@ -5,11 +5,13 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Stubs\Migrations\ModelHasMediable;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use ModelHasMediable;
     public function up(): void
     {
         Schema::create('model_has_media', function (Blueprint $table) {
@@ -20,16 +22,7 @@ return new class () extends Migration {
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedInteger('customer_id')->nullable()->index();
             $table->foreign('customer_id')->references('id')->on('customers');
-
-            $table->string('scope')->nullable()->index();
-            $table->text('caption')->nullable();
-            $table->unsignedInteger('media_id');
-            $table->foreign('media_id')->references('id')->on('media');
-            $table->string('model_type');
-            $table->unsignedInteger('model_id');
-            $table->timestampsTz();
-            $table->index(['model_type','model_id']);
-            $table->unique(['media_id','model_type','model_id','scope']);
+            $this->modelMediaFields($table);
         });
     }
 

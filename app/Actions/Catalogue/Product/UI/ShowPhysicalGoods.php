@@ -13,7 +13,6 @@ use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentAssets;
 use App\Actions\OrgAction;
 use App\Enums\UI\Fulfilment\FulfilmentAssetTabsEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
-use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;

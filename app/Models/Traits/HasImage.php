@@ -19,7 +19,7 @@ trait HasImage
 
     public function images(): MorphToMany
     {
-        return $this->morphToMany(Media::class, 'model', 'model_has_media')->withTimestamps();
+        return $this->morphToMany(Media::class, 'model', 'model_has_media');
     }
     public function image(): HasOne
     {
