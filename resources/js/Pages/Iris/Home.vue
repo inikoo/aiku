@@ -14,8 +14,11 @@ import LayoutIris from '@/Layouts/Iris.vue'
 // import "https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"
 
 const props = defineProps<{
-    data: any
+    data: any,
+    blocks: any,
 }>()
+
+console.log(props.blocks)
 
 defineOptions({ layout: LayoutIris })
 library.add(faCheck, faPlus, faMinus)
