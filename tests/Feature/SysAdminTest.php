@@ -46,7 +46,7 @@ beforeAll(function () {
 beforeEach(function () {
     GetDiceBearAvatar::mock()
         ->shouldReceive('handle')
-        ->andReturn(Storage::disk('art')->get('avatars/shapes.svg'));
+        ->andReturn(Storage::disk('art')->get('icons/shapes.svg'));
 
 
     Config::set(
