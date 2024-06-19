@@ -32,15 +32,15 @@ class AddressFormFieldsResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'address_line_1'      => $this->address_line_1,
-            'address_line_2'      => $this->address_line_2,
-            'sorting_code'        => $this->sorting_code,
-            'postal_code'         => $this->postal_code,
-            'locality'            => $this->locality,
-            'dependant_locality'  => $this->dependant_locality,
-            'administrative_area' => $this->administrative_area,
-            'country_code'        => $this->country_code,
-            'country_id'          => $this->country_id,
+            'address_line_1'      => $this->address_line_1      ?? null,
+            'address_line_2'      => $this->address_line_2      ?? null,
+            'sorting_code'        => $this->sorting_code        ?? null,
+            'postal_code'         => $this->postal_code         ?? null,
+            'locality'            => $this->locality            ?? null,
+            'dependant_locality'  => $this->dependant_locality  ?? null,
+            'administrative_area' => $this->administrative_area ?? null,
+            'country_code'        => $this->country_code        ?? null,
+            'country_id'          => $this->country_id          ?? null,
         ];
     }
 
